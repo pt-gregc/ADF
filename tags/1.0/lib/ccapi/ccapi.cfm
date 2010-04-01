@@ -1,0 +1,63 @@
+<!--- 
+The contents of this file are subject to the Mozilla Public License Version 1.1
+(the "License"); you may not use this file except in compliance with the
+License. You may obtain a copy of the License at http://www.mozilla.org/MPL/
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+the specific language governing rights and limitations under the License.
+
+The Original Code is comprised of the ADF directory
+
+The Initial Developer of the Original Code is
+PaperThin, Inc. Copyright(C) 2010.
+All Rights Reserved.
+
+By downloading, modifying, distributing, using and/or accessing any files 
+in this directory, you agree to the terms and conditions of the applicable 
+end user license agreement.
+--->
+
+<cfprocessingdirective suppresswhitespace="Yes">
+<!---
+	/* ***************************************************************
+	/*
+	Author:
+		PaperThin, Inc.
+	Name:
+		ccapi.cfm
+	Summary:
+		Prevents XML config data from being read directly via a browser
+	History:
+		2009-11-19 - GAC - Created
+--->
+<!--- // Add CCAPI Config XML data between the CFOUTPUT tags --->
+<!--- // IMPORTANT: DO NOT change the cfxml variable name! --->
+<cfxml variable="configXML">
+<cfoutput>
+<?xml version="1.0" encoding="utf-8"?>
+<settings>
+    <logging>
+        <enabled>1</enabled>
+    </logging>
+    <elements>
+        <UniqueElementName>
+        	<pageID>30622</pageID>
+            <subsiteID>1</subsiteID>
+            <elementType>custom</elementType>
+            <controlName>posts</controlName>
+        </UniqueElementName>
+    </elements>
+    <wsVars>
+        <webserviceURL>http://cfusion/commonspot/webservice/cs_service.cfc?wsdl</webserviceURL>
+        <csuserid>webmaster</csuserid>
+        <cspassword>password</cspassword>
+        <site>Demo</site>
+        <siteURL>http://cfusion/demo</siteURL>
+        <subsiteID>1</subsiteID>
+        <cssites>commonspot-sites</cssites>
+    </wsVars>
+</settings>
+</cfoutput>
+</cfxml>
+</cfprocessingdirective>
