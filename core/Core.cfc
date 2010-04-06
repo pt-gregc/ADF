@@ -54,7 +54,7 @@ History:
 		
 		// Build object factory 
 		server.ADF.beanConfig = createObject("component","ADF.core.lightwire.BeanConfig").init();
-		server.ADF.objectFactory = createObject("component","ADF.thirdParty.lightwire.LightWire").init(server.ADF.beanConfig);
+		server.ADF.objectFactory = createObject("component","ADF.core.lightwire.LightWireExtendedBase").init(server.ADF.beanConfig);
 		
 		// Load the Ajax white list proxy
 		server.ADF.proxyWhiteList = createObject("component","ADF.core.Config").getConfigViaXML(expandPath("/ADF/lib/ajax/proxyWhiteList.xml"));

@@ -19,8 +19,7 @@ end user license agreement.
 --->
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	
 	PaperThin, Inc. 
 Name:
@@ -29,6 +28,7 @@ Summary:
 	App Base component for the ADF
 History:
 	2009-08-14 - MFC - Created
+	2010-04-06 - MFC - Cleaned the loadApp code.  Removed verifyLocalAppBeanConfigExists function.
 --->
 <cfcomponent name="AppBase" extends="ADF.core.Base" hint="App Base component for the ADF">
 
@@ -90,6 +90,7 @@ Arguments:
 	String - appBeanName - ADF lightwire bean name.
 History:
 	2009-06-05 - MFC - Created
+	2010-04-06 - MFC - Removed old code.
 --->
 <cffunction name="loadApp" access="private" returntype="void" hint="Stores the ADF Lib Components into application.ADF space.">
 	<cfargument name="appBeanName" type="string" required="true" default="" hint="ADF lightwire bean name.">
@@ -103,29 +104,13 @@ History:
 			// Create the Application Space for the app bean
 			application[arguments.appBeanName] = StructNew();
 			
-			// Check if the site has a local AppBeanConfig for the application
-			if ( verifyLocalAppBeanConfigExists(appBeanName) )
-			{
-				// Load the local App components into the object factory
-				loadSiteAppComponents(arguments.appBeanName);
-				// Load the App
-
-// DON'T WANT TO DO THIS HERE!!!
-//application.ADF.objectFactory = createObject("component","ADF.thirdParty.lightwire.LightWire").init(application.ADF.beanConfig);
-
-				application[arguments.appBeanName] = application.ADF.objectFactory.getBean(arguments.appBeanName);
-			}	
-			else
-			{
-				// Copy the App bean config struct from Server.ADF into Application.ADF
-				copyServerBeanToApplication(arguments.appBeanName);
-				// Load the local App components into the object factory
-				loadSiteAppComponents(arguments.appBeanName);
-				// Load the App
-//				application[arguments.appBeanName] = server.ADF.objectFactory.getBean(arguments.appBeanName);
-				
-				application[arguments.appBeanName] = application.ADF.objectFactory.getBean(arguments.appBeanName);
-			}	
+			// Copy the App bean config struct from Server.ADF into Application.ADF
+			copyServerBeanToApplication(arguments.appBeanName);
+			// Load the local App components into the object factory
+			loadSiteAppComponents(arguments.appBeanName);
+			// Load the App
+			application[arguments.appBeanName] = application.ADF.objectFactory.getBean(arguments.appBeanName);
+			
 			// set up the configuration of the element
 			setAppConfig(arguments.appBeanName);			
 			// Load the site ajax service proxy white list XML
@@ -247,6 +232,7 @@ History:
 		Numeric - siteid - Site ID for the site components to load.
 	History:
 		2009-07-22 - MFC - Created
+		2010-04-06 - MFC - Code cleanup.
 --->
 <cffunction name="loadSiteAppComponents" access="private" returntype="void" hint="Stores the site specific components in '/_cs_apps/components' into application.ADF space."> 
 	<cfargument name="appBeanName" type="string" required="true" default="" hint="ADF lightwire bean name.">
@@ -265,17 +251,14 @@ History:
 			utilsObj = server.ADF.objectFactory.getBean("utils_1_0");
 			siteComponents = utilsObj.directoryFiles(expandPath(comPath), "false");	
 			siteComponentsFiles = utilsObj.filterDirectoryQueryByType(siteComponents, '%.cfc');
-//application.cs.mx.dodump(siteComponentsFiles);
+
 			// Loop over the returned components to add to the application.ADF object factory
 			for ( i = 1; i LTE siteComponentsFiles.RecordCount; i = i + 1)
 			{
 				beanData = application.ADF.beanConfig.buildBeanDataStruct(siteComponentsFiles.directory[i], siteComponentsFiles.name[i]);
-//application.cs.mx.dodump(beanData);
 				// Add the bean into the Application ADF objectfactory
 				application.ADF.BeanConfig.addSingleton(beanData.cfcPath, beanData.beanName);
 				application.ADF.BeanConfig.addConstructorDependency(arguments.appBeanName, beanData.beanName, beanData.cfcName);
-				//application.ADF.objectFactory.refreshBean(beanData.beanName);
-				//tmp = application.ADF.objectFactory.AddNewObject(beanData.beanName, "singleton");
 			}
 			// Check if the Site App has any lib overrides
 			// Load the ADF Lib components
@@ -284,33 +267,6 @@ History:
 			// Refresh the Object Factory
 			application.ADF.objectFactory = createObject("component","ADF.core.lightwire.LightWireExtendedBase").init(application.ADF.beanConfig);
 		}
-	</cfscript>
-</cffunction>
-
-<!---
-/* ***************************************************************
-/*
-Author: 	M. Carroll
-Name:
-	$verifyLocalAppBeanConfigExists
-Summary:
-	Returns T/F for if the current site App has a local appBeanConfig
-Returns:
-	Boolean - T/F
-Arguments:
-	Void
-History:
-	2009-08-07 - MFC - Created
---->
-<cffunction name="verifyLocalAppBeanConfigExists" access="private" returntype="boolean">
-	<cfargument name="appBeanName" type="string" required="true" default="" hint="ADF lightwire bean name.">
-	
-	<cfscript>
-		var filePath = request.site.csAppsDir & appBeanName & "/appBeanConfig.cfm";
-		if ( fileExists( filePath) )
-			return true;
-		else
-			return false;
 	</cfscript>
 </cffunction>
 
@@ -331,6 +287,7 @@ Arguments:
 	String - beanName - Bean Name to copy.
 History:
 	2009-08-07 - MFC - Created
+	2010-04-06 - MFC - Code cleanup.
 */
 --->
 <cffunction name="copyServerBeanToApplication" access="private" returntype="void">
@@ -343,36 +300,30 @@ History:
 		var cd_keys = "";
 		var md_keys = "";
 		var sd_keys = "";
-		var appBeanStruct = StructNew();
-//WRITEOUTPUT("arguments.beanName = #arguments.beanName#<br />");
-//WRITEOUTPUT("application.ADF.objectFactory.containsBean(#arguments.beanName#) = #application.ADF.objectFactory.containsBean(arguments.beanName)#<br />");
-		//if ( NOT application.ADF.objectFactory.containsBean(arguments.beanName) )
-		//{
-//WRITEOUTPUT("UPDATE !!<br />");
-			appBeanStruct = server.ADF.beanConfig.getConfigStruct();
-			// Check if we are working with a SERVER.ADF bean
-			if ( StructKeyExists(appBeanStruct, arguments.beanName) ) {
-				appBeanStruct = appBeanStruct[arguments.beanName];
-				// Add the bean to the application ADF
-				application.ADF.beanConfig.addConfigStruct(arguments.beanName, appBeanStruct);
+		var appBeanStruct = server.ADF.beanConfig.getConfigStruct();
 		
-				// Recurse over the beans fields fields to built the structure correctly
-				// Add in the CONSTRUCTORDEPENDENCYSTRUCT beans
-				cd_keys = StructKeyList(appBeanStruct.CONSTRUCTORDEPENDENCYSTRUCT);
-				for ( i = 1; i LTE ListLen(cd_keys); i = i + 1)
-					copyServerBeanToApplication(ListGetAt(cd_keys, i));
+		// Check if we are working with a SERVER.ADF bean
+		if ( StructKeyExists(appBeanStruct, arguments.beanName) ) {
+			appBeanStruct = appBeanStruct[arguments.beanName];
+			// Add the bean to the application ADF
+			application.ADF.beanConfig.addConfigStruct(arguments.beanName, appBeanStruct);
+	
+			// Recurse over the beans fields fields to built the structure correctly
+			// Add in the CONSTRUCTORDEPENDENCYSTRUCT beans
+			cd_keys = StructKeyList(appBeanStruct.CONSTRUCTORDEPENDENCYSTRUCT);
+			for ( i = 1; i LTE ListLen(cd_keys); i = i + 1)
+				copyServerBeanToApplication(ListGetAt(cd_keys, i));
+			
+			// Add in the MIXINDEPENDENCYSTRUCT beans
+			md_keys = StructKeyList(appBeanStruct.MIXINDEPENDENCYSTRUCT);
+			for ( j = 1; j LTE ListLen(md_keys); j = j + 1)
+				copyServerBeanToApplication(ListGetAt(md_keys, j));
 				
-				// Add in the MIXINDEPENDENCYSTRUCT beans
-				md_keys = StructKeyList(appBeanStruct.MIXINDEPENDENCYSTRUCT);
-				for ( j = 1; j LTE ListLen(md_keys); j = j + 1)
-					copyServerBeanToApplication(ListGetAt(md_keys, j));
-					
-				// Add in the SETTERDEPENDENCYSTRUCT beans
-				sd_keys = StructKeyList(appBeanStruct.SETTERDEPENDENCYSTRUCT);
-				for ( k = 1; k LTE ListLen(sd_keys); k = k + 1)
-					copyServerBeanToApplication(ListGetAt(sd_keys, k));
-			}
-		//}
+			// Add in the SETTERDEPENDENCYSTRUCT beans
+			sd_keys = StructKeyList(appBeanStruct.SETTERDEPENDENCYSTRUCT);
+			for ( k = 1; k LTE ListLen(sd_keys); k = k + 1)
+				copyServerBeanToApplication(ListGetAt(sd_keys, k));
+		}
 	</cfscript>
 </cffunction>
 

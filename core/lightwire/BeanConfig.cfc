@@ -106,10 +106,11 @@ Adds a constructor property to a bean.
 		
 		/*
 		 *	Build bean objects for all components in the ADF\LIB directory
-		 *		Argument 1 = Directory to recurse for component files
-		 *		Argument 2 = Director names to exclude
+		 *		directoryPath = Directory to recurse for component files
+		 *		excludeSubDirs = Director names to exclude
+		 *		objFactoryType = Variable space to load the ADF Lib
 		 */
-		loadADFLibComponents("ADF/lib/", "server");
+		loadADFLibComponents(directoryPath="ADF/lib/", objFactoryType="server");
 		
 		/*
 		 *	Load the singleton for the Core Config file

@@ -45,6 +45,7 @@ end user license agreement.
 		String - dirPath - Custom App directory path
 	History:
 		2009-08-19 - MFC - Created
+		2010-04-06 - MFC - Code cleanup.
 --->
 <cffunction name="getComPathForCustomAppDir" access="public" returntype="string" output="true" hint="Return the com path for the directory path.">
 	<cfargument name="dirPath" type="string" required="true">
@@ -59,13 +60,6 @@ end user license agreement.
 		// Build the component path
 		var retComPath = "ADF.apps." & appDirName & ".components.";
 	</cfscript>
-<!--- <cfoutput>
-	dirPath = #dirPath#<br />
-	ADFAppMapping = #ADFAppMapping#<br />
-	currPath = #currPath#<br />
-	appDirName = #appDirName#<br />
-	retComPath = #retComPath#<br />
-</cfoutput> --->
 	<cfreturn retComPath>
 </cffunction>
 
@@ -123,6 +117,7 @@ end user license agreement.
 		String - excludeSubDirs - List of sub directory names to exclude
 	History:
 		2009-05-11 - MFC - Created
+		2010-04-06 - MFC - Code cleanup.
 --->
 <cffunction name="loadADFLibComponents" returntype="void" access="public" output="true" hint="Creates Singletons for all components in directory argument.">
 	<cfargument name="directoryPath" type="string" required="true">
@@ -137,7 +132,7 @@ end user license agreement.
 		var loop_i = 1;
 		var beanData = StructNew();
 		var dirName = "";
-//application.cs.mx.dodump(arguments);	
+
 		// check if the cfcPath has a leading "/"
 		if ( LEFT(cfcPath,1) NEQ "/" )
 			cfcPath = "/" & cfcPath;
@@ -156,13 +151,12 @@ end user license agreement.
 			if ( NOT ListFindNoCase(excludeDirs,dirName) ){
 				// Create the bean data to store in the array
 				beanData = buildBeanDataStruct(CFCFilesQry.directory[loop_i], CFCFilesQry.name[loop_i]);			
-//application.cs.mx.dodump(beanData);
+
 				processMetadata(beanData, arguments.objFactoryType);
 			}
 		}
 		// load the dependencies created from processMetadata
-		//if ( arguments.loadDependencyFlag )
-			loadDependencies(arguments.objFactoryType);
+		loadDependencies(arguments.objFactoryType);
 	</cfscript>
 </cffunction>
 
@@ -180,6 +174,7 @@ end user license agreement.
 		Struct - beanData - Bean data structure
 	History:
 		2009-06-05 - MFC - Created
+		2010-04-06 - MFC - Code cleanup.
 --->
 <cffunction name="processMetadata" access="private" returntype="void">
 	<cfargument name="beanData" type="struct" required="true">
@@ -192,7 +187,7 @@ end user license agreement.
 		var properties = arrayNew(1);
 		if( structKeyExists(metadata, "properties") )
 			properties = metadata.properties;
-//application.cs.mx.dodump(arguments);
+
 		// Loop over the properties
 		for (i=1; i LTE ArrayLen(properties); i=i+1){
 			keys = StructKeyList(properties[i]);
@@ -247,6 +242,7 @@ end user license agreement.
 		Struct - beanData - Bean data structure
 	History:
 		2009-05-15 - MFC - Created
+		2010-04-06 - MFC - Code cleanup.
 --->
 <cffunction name="loadDependencies" access="private" returntype="void">
 	<cfargument name="objFactoryType" type="string" required="false" default="server">
@@ -254,17 +250,16 @@ end user license agreement.
 		var i = 1;
 		var keys = "";
 		var currRecord = StructNew();
-//application.cs.mx.dodump(arguments);
+
 		if ( arguments.objFactoryType EQ "server" )
-		//{	
 			keys = StructKeyList(server.ADF.dependencyStruct);
 		else
 			keys = StructKeyList(application.ADF.dependencyStruct);
+			
 		for (i=1; i LTE ListLen(keys); i = i + 1) {
 			if ( arguments.objFactoryType EQ "server" )
 			{
 				currRecord = server.ADF.dependencyStruct[ListGetAt(keys, i)];
-			//	addMixinDependency(currRecord.BeanName, currRecord.InjectedBeanName, currRecord.PropertyName);
 			}
 			else
 			{
@@ -280,10 +275,9 @@ end user license agreement.
 				// Load the bean into the object factory
 				processMetadata(beanData, arguments.objFactoryType);
 			}
-//application.cs.mx.dodump(currRecord, "currRecord");			
+		
 			addMixinDependency(currRecord.BeanName, currRecord.InjectedBeanName, currRecord.PropertyName);
 		}
-		//}
 	</cfscript>
 </cffunction>
 
@@ -314,37 +308,6 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	M. Carroll
-Name:
-	$loadLocalAppBeanConfig
-Summary:
-	Loads (includes) the local AppBeanConfig into the Application.ADF object factory.
-Returns:
-	Void
-Arguments:
-	Void
-History:
-	2009-08-07 - MFC - Created
---->
-<cffunction name="loadLocalAppBeanConfig" access="private" returntype="void">
-	
-	<cfscript>
-		var appLibDirQry = directoryFiles(request.site.CSAPPSURL, 'true');
-		var retFilteredQry = filterQueryByCFCFile(appLibDirQry, 'appBeanConfig.cfm');
-		var j = 1;
-		var dirPath = "";
-	</cfscript>
-	<!--- <cfdump var="#retFilteredQry#" label="retFilteredQry" expand="false"> --->
-	<!--- Build the include statements --->
-	<cfloop index="j" from="1" to="#retFilteredQry.RecordCount#">
-		<cfset dirPath = Replace(retFilteredQry.directory[j],ExpandPath('/#request.site.name#/'),"")>		
-		<cfinclude template="/#request.site.name#/#dirPath#/#retFilteredQry.name[j]#">
-	</cfloop>
-</cffunction>
-
-<!---
 	/* ***************************************************************
 	/*
 	Author: 	M. Carroll
@@ -358,36 +321,32 @@ History:
 		Void
 	History:
 		2009-06-05 - MFC - Created
+		2010-04-06 - MFC - Code cleanup.
 --->
 <cffunction name="loadLocalComponents" access="public" returntype="void" hint="Process the site level components into the object factory.">
 	
 	<cfscript>
 		// Get the sites for this server
-		// var serverSiteQry = getCommonSpotSites();
-		var i = 1;
-		var comPath = "";
+		var j = 1;
 		var siteComponentsDir = QueryNew("temp");
 		var siteComponentsFiles = QueryNew("temp");
 		var beanData = StructNew();
-		// Loop over the sites to build the environment variable
-		//for (i = 1; i LTE serverSiteQry.RecordCount; i = i + 1) {
-			comPath = "#request.site.CSAPPSURL#components/";
-//application.cs.mx.dodump(comPath);
-			// Check if there is a 'components' directory in the site
-			if ( directoryExists(expandPath(comPath)) ){
-				siteComponents = directoryFiles(comPath, "true");			
-				siteComponentsFiles = filterQueryByCFCFile(siteComponents, '%.cfc');
-				// Loop over the component files and create transients
-				for (j = 1; j LTE siteComponentsFiles.RecordCount; j = j + 1) {
-					cfcName = ListFirst(siteComponentsFiles.name[j],'.');
-					application.ADF.siteComponents = ListAppend(application.ADF.siteComponents, cfcName);
-					beanData = buildBeanDataStruct("#request.site.CSAPPSURL#components", cfcName);
-//application.cs.mx.dodump(beanData);
-					// Add the transient object
-					addTransient(beanData.cfcPath, beanData.beanName);
-				}
+		var comPath = "#request.site.CSAPPSURL#components/";
+
+		// Check if there is a 'components' directory in the site
+		if ( directoryExists(expandPath(comPath)) ){
+			siteComponents = directoryFiles(comPath, "true");			
+			siteComponentsFiles = filterQueryByCFCFile(siteComponents, '%.cfc');
+
+			// Loop over the component files and create transients
+			for (j = 1; j LTE siteComponentsFiles.RecordCount; j = j + 1) {
+				cfcName = ListFirst(siteComponentsFiles.name[j],'.');
+				application.ADF.siteComponents = ListAppend(application.ADF.siteComponents, cfcName);
+				beanData = buildBeanDataStruct("#request.site.CSAPPSURL#components", cfcName);
+				// Add the transient object
+				addTransient(beanData.cfcPath, beanData.beanName);
 			}
-		//}
+		}
 	</cfscript>
 </cffunction>
 
