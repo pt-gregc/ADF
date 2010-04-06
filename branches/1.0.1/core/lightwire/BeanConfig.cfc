@@ -110,7 +110,7 @@ Adds a constructor property to a bean.
 		 *		excludeSubDirs = Director names to exclude
 		 *		objFactoryType = Variable space to load the ADF Lib
 		 */
-		loadADFLibComponents(directoryPath="ADF/lib/", excludeSubDirs="ajax", objFactoryType="server");
+		loadADFLibComponents(directoryPath="ADF/lib/", objFactoryType="server");
 		
 		/*
 		 *	Load the singleton for the Core Config file
