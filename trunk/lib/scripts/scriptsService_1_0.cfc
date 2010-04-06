@@ -30,52 +30,54 @@ History:
 	2009-06-17 - RLW - Created
 --->
 <cfcomponent displayname="scriptsService_1_0" extends="ADF.core.Base" hint="Scripts Service functions for the ADF Library">
-	<cfproperty name="version" default="1_0_0">
-	<cfproperty name="type" value="singleton">
-	<!---
-	/* ***************************************************************
-	/*
-	Author: 	Ron West
-	Name:
-		$scriptLoaded
-	Summary:	
-		Use this function to ensure that only one set of the script
-		is loaded - this uses request scope to handle that
-	Returns:
-		Boolean isScriptLoaded
-	Arguments:
-		String scriptName
-	History:
-		2009-05-14 - RLW - Created
-	--->
-	<cffunction name="isScriptLoaded" access="public" returntype="Boolean">
-		<cfargument name="scriptName" type="string" required="true">
-		<cfset var isScriptLoaded = 0>
-		<cfparam name="request.scriptsExecuted" default="">
-		<cfscript>
-			if( listFindNoCase(request.scriptsExecuted, arguments.scriptName) )
-				isScriptLoaded = 1;
-		</cfscript>
-		<cfreturn isScriptLoaded>
-	</cffunction>
-	
-	<!---
-	/* ***************************************************************
-	/*
-	Author: 	Ron West
-	Name:
-		$scriptLoaded
-	Summary:	
-		Updates the system variables to flag that a particular scipt
-		has already been loaded
-	Returns:
-		Void
-	Arguments:
-		String scriptName
-	History:
-		2009-05-14 - RLW - Created
-	--->
-	<cffunction name="loadedScript" access="public" returntype="void">
+<cfproperty name="version" default="1_0_0">
+<cfproperty name="type" value="singleton">
+<cfproperty name="wikiTitle" value="ScriptsService_1_0">
+
+<!---
+/* ***************************************************************
+/*
+Author: 	Ron West
+Name:
+	$scriptLoaded
+Summary:	
+	Use this function to ensure that only one set of the script
+	is loaded - this uses request scope to handle that
+Returns:
+	Boolean isScriptLoaded
+Arguments:
+	String scriptName
+History:
+	2009-05-14 - RLW - Created
+--->
+<cffunction name="isScriptLoaded" access="public" returntype="Boolean">
+	<cfargument name="scriptName" type="string" required="true">
+	<cfset var isScriptLoaded = 0>
+	<cfparam name="request.scriptsExecuted" default="">
+	<cfscript>
+		if( listFindNoCase(request.scriptsExecuted, arguments.scriptName) )
+			isScriptLoaded = 1;
+	</cfscript>
+	<cfreturn isScriptLoaded>
+</cffunction>
+
+<!---
+/* ***************************************************************
+/*
+Author: 	Ron West
+Name:
+	$scriptLoaded
+Summary:	
+	Updates the system variables to flag that a particular scipt
+	has already been loaded
+Returns:
+	Void
+Arguments:
+	String scriptName
+History:
+	2009-05-14 - RLW - Created
+--->
+<cffunction name="loadedScript" access="public" returntype="void">
 		<cfargument name="scriptName" type="string" required="true">
 		<cfparam name="request.scriptsExecuted" default="">
 		<cfset request.scriptsExecuted = listAppend(request.scriptsExecuted, arguments.scriptName)>

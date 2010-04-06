@@ -33,6 +33,7 @@ History:
 
 <cfproperty name="version" value="1_0_0">
 <cfproperty name="type" value="singleton">
+<cfproperty name="wikiTitle" value="CSSecurity_1_0">
 
 <!---
 /* ***************************************************************

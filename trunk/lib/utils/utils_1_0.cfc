@@ -34,6 +34,7 @@ History:
 <cfproperty name="version" value="1_0_0">
 <cfproperty name="type" value="singleton">
 <cfproperty name="ceData" type="dependency" injectedBean="ceData_1_0">
+<cfproperty name="wikiTitle" value="Utils_1_0">
 
 <cffunction name="exit" returntype="string">
 	<cfexit>
