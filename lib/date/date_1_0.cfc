@@ -33,6 +33,7 @@ History:
 
 <cfproperty name="version" value="1_0_0">
 <cfproperty name="type" value="singleton">
+<cfproperty name="wikiTitle" value="Date_1_0">
 
 <!---
 /* ***************************************************************
@@ -58,7 +59,6 @@ History:
 	</cfscript>
 	<cfreturn rtnStr>
 </cffunction>
-
 <!--- //**
  * Analogous to firstDayOfMonth() function.
  *
@@ -82,7 +82,6 @@ History:
 	</cfscript>
 	<cfreturn firstDayOfWeek>
 </cffunction>
-
 <!---
 	/* ***************************************************************
 	/*
@@ -125,7 +124,6 @@ History:
 	</cfscript>
 	<cfreturn firstDayDate>
 </cffunction>
-
 <!--- // returns last date of month --->
 <cffunction name="lastOfMonth" access="public" output="false" returntype="any" hint="Returns last date of month">
 	<cfargument name="inMonth" required="true" type="string">
@@ -147,7 +145,6 @@ History:
 	</cfscript>
 	<cfreturn lastDayDate>
 </cffunction>
-
 <!---
 /* ***************************************************************
 /*
@@ -175,5 +172,48 @@ History:
 	</cfscript>
 	<cfreturn csDate>
 </cffunction>
-
+<!---
+/* ***************************************************************
+/*
+Author: 	Ron West
+Name:
+	$firstOfYear
+Summary:	
+	Returns the day/month/year of supplied year
+Returns:
+	Date theDate
+Arguments:
+	String theYear
+History:
+ 2010-04-02 - RLW - Created
+--->
+<cffunction name="firstOfYear" access="public" returntype="Date">
+	<cfargument name="theYear" type="string" required="false" default="#year(now())#">
+	<cfscript>
+		var theDate = createDate(arguments.theYear, 1, 1);
+	</cfscript>
+	<cfreturn csDateFormat(theDate)>
+</cffunction>
+<!---
+/* ***************************************************************
+/*
+Author: 	Ron West
+Name:
+	$lastOfYear
+Summary:	
+	Returns the last day of the year
+Returns:
+	Date theDate
+Arguments:
+	String theYear
+History:
+ 2010-04-02 - RLW - Created
+--->
+<cffunction name="lastOfYear" access="public" returntype="date">
+	<cfargument name="theYear" type="string" required="false" default="#year(now())#">
+	<cfscript>
+		var theDate = createDate(arguments.theYear, 12, 31);
+	</cfscript>
+	<cfreturn csDateFormat(theDate)>
+</cffunction>
 </cfcomponent>
