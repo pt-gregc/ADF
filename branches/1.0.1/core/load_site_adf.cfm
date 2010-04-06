@@ -48,7 +48,10 @@ end user license agreement.
   	</cfscript>
   </CFLOCK>
 <CFCATCH>
-	<cfoutput><p>Error building the ADF.</p></cfoutput>
+	<!--- Check that the user is validated --->
+	<cfif userValidated>
+		<cfoutput><p>Error building the ADF.</p></cfoutput>
+	</cfif>
 	
 	<cfsavecontent variable="dump">
 		<!--- Dump the cfcatch --->
