@@ -97,7 +97,7 @@ History:
 			
 			if ( request.params.returnFormat eq "json" )
 			{
-				json = server.ADF.objectFactory.getBean("json");
+				json = createObject("component", "json");
 				reHTML = json.encode(reHTML);
 			}
 			if ( isStruct(reHTML) or isArray(reHTML) or isObject(reHTML) ) 
