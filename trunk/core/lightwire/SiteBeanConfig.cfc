@@ -113,11 +113,6 @@ Adds a constructor property to a bean.
 		 *		Recurse through the '/_cs_apps/components/' directory for each site.
 		 */
 		loadLocalComponents();
-		
-		/*
-		 *	Load the site level application bean configuration files (appBeanConfig.cfc)
-		 */
-		//loadLocalAppBeanConfig();
 	</cfscript>
 	<cfreturn THIS>
 </cffunction>

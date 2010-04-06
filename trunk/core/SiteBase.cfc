@@ -85,7 +85,6 @@ History:
 		
 		// Build object factory 
 		application.ADF.beanConfig = createObject("component", "ADF.core.lightwire.SiteBeanConfig").init();
-		//application.ADF.objectFactory = createObject("component","ADF.thirdParty.lightwire.LightWire").init(application.ADF.beanConfig);
 		application.ADF.objectFactory = createObject("component","ADF.core.lightwire.LightWireExtendedBase").init(application.ADF.beanConfig);
 		
 		// Load the site config xml docs 
