@@ -34,6 +34,7 @@ History:
 <cfproperty name="version" default="1_0_0">
 <cfproperty name="type" value="singleton">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_0" type="dependency">
+<cfproperty name="wikiTitle" value="Scripts_1_0">
 
 <!---
 /* ***************************************************************

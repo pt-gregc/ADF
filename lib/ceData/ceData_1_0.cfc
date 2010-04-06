@@ -34,6 +34,7 @@ History:
 <cfproperty name="version" value="1_0_0">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_0">
+<cfproperty name="wikiTitle" value="CEData_1_0">
 
 <!---
 /**
@@ -906,6 +907,10 @@ History:
 			<cfelseif arguments.queryType EQ "greaterThan">
 				AND fieldID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.fieldID#">
 				AND fieldValue > <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.item#">
+			<!--- // Build the where clause for the BETWEEN operator --->
+			<cfelseif arguments.queryType EQ "between">
+				AND fieldID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.fieldID#">
+				AND ( fieldValue > <cfqueryparam cfsqltype="cf_sql_varchar" value="#listFirst(arguments.item)#"> AND fieldValue < <cfqueryparam cfsqltype="cf_sql_varchar" value="#listLast(arguments.item)#">)
 			</cfif>
 		</cfif>
 		AND VersionState = 2
@@ -1489,5 +1494,28 @@ History:
 	</cfquery>
 	<cfreturn countQry.RecordCount>
 </cffunction>
-
+<!---
+/* ***************************************************************
+/*
+Author: 	Ron West
+Name:
+	$buildElementInfoStruct
+Summary:	
+	Given a ceData array - builds an elementInfo struct
+Returns:
+	Struct elementInfo
+Arguments:
+	Array ceData
+History:
+ 2010-04-03 - RLW - Created
+--->
+<cffunction name="buildElementInfoStruct" access="public" returntype="struct" hint="Builds an ElementInfo structure given a ceData array">
+	<cfargument name="ceData" type="array" required="true">
+	<cfscript>
+		var elementInfo = structNew();
+		elementInfo.elementData = structNew();
+		elementInfo.elementData.propertyValues = arguments.ceData;
+	</cfscript>
+	<cfreturn elementInfo>
+</cffunction>
 </cfcomponent>

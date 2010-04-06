@@ -33,6 +33,7 @@ History:
 
 <cfproperty name="version" value="1_0_0">
 <cfproperty name="type" value="singleton">
+<cfproperty name="wikiTitle" value="Taxonomy_1_0">
 
 <!--- 
 	TODO: Check if is in CS already

@@ -33,6 +33,7 @@ History:
 
 <cfproperty name="version" value="1_0_0">
 <cfproperty name="type" value="singleton">
+<cfproperty name="wikiTitle" value="Data_1_0">
 
 <!--- * Remove elements from one array which exist in another array.
 *

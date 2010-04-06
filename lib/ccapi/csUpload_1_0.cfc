@@ -34,6 +34,7 @@ History:
 <cfproperty name="type" value="transient">
 <cfproperty name="ccapi" type="dependency" injectedBean="ccapi">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_0">
+<cfproperty name="wikiTitle" value="CSUpload_1_0">
 
 <!---
 /* ***************************************************************

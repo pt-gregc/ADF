@@ -34,6 +34,7 @@ History:
 <cfproperty name="version" value="1_0_0">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_0">
+<cfproperty name="wikiTitle" value="CSData_1_0">
 
 <!---
 /* ***************************************************************
@@ -1550,7 +1551,7 @@ History:
 		}
     </cfscript>
    	<cfquery name="pageQry" datasource="#request.site.datasource#">
-   		select ID
+   		select ID, filename, title, subsiteID
 		from sitePages
 		where subsiteID in (<cfqueryparam cfsqltype="cf_sql_numeric" value="#subsiteList#" list="true">)
 		and uploaded in (<cfqueryparam cfsqltype="cf_sql_numeric" value="#uploaded#" list="true">)

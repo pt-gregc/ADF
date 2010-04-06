@@ -35,6 +35,7 @@ History:
 <cfproperty name="version" value="1_0_0">
 <cfproperty name="CoreConfig" type="dependency" injectedBean="CoreConfig">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_0">
+<cfproperty name="wikiTitle" value="CCAPI">
 
 <cfscript>
 	// xml config info
