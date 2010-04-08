@@ -29,6 +29,7 @@ Summary:
 History:
 	2009-08-14 - MFC - Created
 	2010-04-06 - MFC - Cleaned the loadApp code.  Removed verifyLocalAppBeanConfigExists function.
+	2010-04-08 - MFC - Updated loadSiteAppComponents function.
 --->
 <cfcomponent name="AppBase" extends="ADF.core.Base" hint="App Base component for the ADF">
 
@@ -217,22 +218,25 @@ History:
 </cffunction>
 
 <!---
-	/* ***************************************************************
-	/*
-	Author: 	M. Carroll
-	Name:
-		loadSiteAppComponents
-	Summary:
-		Loads the Site Application components into the App structure
-	Returns:
-		Void
-	Arguments:
-		String - appScopeVarName - Application scope name.
-		String - appBeanName - ADF lightwire bean name.
-		Numeric - siteid - Site ID for the site components to load.
-	History:
-		2009-07-22 - MFC - Created
-		2010-04-06 - MFC - Code cleanup.
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
+Name:
+	loadSiteAppComponents
+Summary:
+	Loads the Site Application components into the App structure
+Returns:
+	Void
+Arguments:
+	String - appScopeVarName - Application scope name.
+	String - appBeanName - ADF lightwire bean name.
+	Numeric - siteid - Site ID for the site components to load.
+History:
+	2009-07-22 - MFC - Created
+	2010-04-06 - MFC - Code cleanup.
+	2010-04-08 - MFC - Updated the Library overrides to pull from the "/lib/" directory
+							not the "/components/lib/" in the sites application directory.
 --->
 <cffunction name="loadSiteAppComponents" access="private" returntype="void" hint="Stores the site specific components in '/_cs_apps/components' into application.ADF space."> 
 	<cfargument name="appBeanName" type="string" required="true" default="" hint="ADF lightwire bean name.">
@@ -240,11 +244,13 @@ History:
 	<cfscript>
 		// Get the apps local components
 		var comPath = request.site.csAppsURL & getAppBeanDir(arguments.appBeanName) & "/components";
+		var appLibPath = request.site.csAppsURL & getAppBeanDir(arguments.appBeanName) & "/lib";
 		var utilsObj = "";
 		var siteComponents = QueryNew("tmp");
 		var siteComponentsFiles = QueryNew("tmp");
 		var beanData = StructNew();
 		var i = 1;
+		var refreshObjFactory = false;
 	
 		// Check if there is a 'components' directory in the site
 		if ( directoryExists(expandPath(comPath)) ) {
@@ -260,13 +266,20 @@ History:
 				application.ADF.BeanConfig.addSingleton(beanData.cfcPath, beanData.beanName);
 				application.ADF.BeanConfig.addConstructorDependency(arguments.appBeanName, beanData.beanName, beanData.cfcName);
 			}
-			// Check if the Site App has any lib overrides
-			// Load the ADF Lib components
-			application.ADF.beanConfig.loadADFLibComponents("#comPath#/lib/", "", "application");
-
-			// Refresh the Object Factory
-			application.ADF.objectFactory = createObject("component","ADF.core.lightwire.LightWireExtendedBase").init(application.ADF.beanConfig);
+			// Set the refresh flag
+			refreshObjFactory = true;
 		}
+		// Check if the Site App has any lib overrides
+		if ( directoryExists(expandPath(appLibPath)) ){
+			// Load the ADF Lib components
+			application.ADF.beanConfig.loadADFLibComponents("#appLibPath#/", "", "application");
+			// Set the refresh flag
+			refreshObjFactory = true;
+		}
+		
+		// Refresh the Object Factory
+		if ( refreshObjFactory )
+			application.ADF.objectFactory = createObject("component","ADF.core.lightwire.LightWireExtendedBase").init(application.ADF.beanConfig);
 	</cfscript>
 </cffunction>
 
