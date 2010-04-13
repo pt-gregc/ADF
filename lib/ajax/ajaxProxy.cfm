@@ -97,8 +97,13 @@ History:
 			
 			if ( request.params.returnFormat eq "json" )
 			{
-				json = createObject("component", "json");
-				reHTML = json.encode(reHTML);
+				json = server.ADF.objectFactory.getBean("json");
+				// when jsonp calls are made there will be a variable called "jsonpCallback" it will
+				// represent the method in the caller to be executed - wrap the content in that function call
+				if( structKeyExists(request.params, "jsonpCallback") )
+					reHTML = "#request.params.jsonpCallback#(" & json.encode(reHTML) & ");";
+				else
+					reHTML = json.encode(reHTML);
 			}
 			if ( isStruct(reHTML) or isArray(reHTML) or isObject(reHTML) ) 
 			{
