@@ -18,6 +18,23 @@ in this directory, you agree to the terms and conditions of the applicable
 end user license agreement.
 */
 
+/* *************************************************************** */
+/*
+Author: 	
+	PaperThin Inc.
+	M. Carroll
+Name:
+	browser-all.js
+Summary:
+	ADF Lightbox Framework JavaScript
+Version:
+	1.0.0
+History:
+	2010-02-19 - MFC - Created
+	2010-04-19 - MFC - Commented out some functions that conflict with CS 5.x styles.
+*/
+
+
 function loadNonDashboardFiles()
 {
 	if (setUpComplete())
@@ -26,7 +43,7 @@ function loadNonDashboardFiles()
 	filesToLoad.push({fileName: '/ADF/extensions/lightbox/1.0/js/util.js', fileType: 'script', fileID: null});
 	filesToLoad.push({fileName: '/ADF/extensions/lightbox/1.0/css/buttons.css', fileType: 'link', fileID: 'buttons_css'});
 	filesToLoad.push({fileName: '/ADF/extensions/lightbox/1.0/css/lightbox.css', fileType: 'link', fileID: null});
-	filesToLoad.push({fileName: '/ADF/extensions/lightbox/1.0/css/dialog.css', fileType: 'link', fileID: null});
+	//filesToLoad.push({fileName: '/ADF/extensions/lightbox/1.0/css/dialog.css', fileType: 'link', fileID: null});
 	filesToLoad.push({fileName: '/ADF/extensions/lightbox/1.0/js/lightbox.js', fileType: 'script', fileID: null, callback: setCommonspot});
 	filesToLoad.push({fileName: '/ADF/extensions/lightbox/1.0/js/overrides.js', fileType: 'script', fileID: null});
 	filesToLoad.push({fileName: '/ADF/extensions/lightbox/1.0/js/window_ref.js', fileType: 'script', fileID: null});

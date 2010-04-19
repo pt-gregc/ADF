@@ -17,6 +17,22 @@ By downloading, modifying, distributing, using and/or accessing any files
 in this directory, you agree to the terms and conditions of the applicable 
 end user license agreement.
 */
+/* *************************************************************** */
+/*
+Author: 	
+	PaperThin Inc.
+	M. Carroll
+Name:
+	overrides.js
+Summary:
+	ADF Lightbox Framework JavaScript
+Version:
+	1.0.0
+History:
+	2010-02-19 - MFC - Created
+	2010-04-19 - MFC - Commented out some functions that conflict with CS 5.x styles.
+*/
+
 
 /* 
  * overrides.js   Copyright PaperThin, Inc.
@@ -53,14 +69,10 @@ if((typeof top.commonspot != 'undefined') && (typeof top.commonspot.lightbox != 
 	
 	
 	
-	
-	
-	
-	
-	
-	
+	/* 
+	 *	ADF Update
+	 */
 	/*
-	
 	newWindow = function(name, url, customOverlayMsg)
 	{
 		var customOverlayMsg = customOverlayMsg ? customOverlayMsg : null;	
@@ -79,17 +91,7 @@ if((typeof top.commonspot != 'undefined') && (typeof top.commonspot.lightbox != 
 		if (top.commonspot && top.commonspot.lightbox)
 	      top.commonspot.lightbox.openDialog(url, null, name, customOverlayMsg, null, window);
 	}
-
 	*/
-
-
-
-
-
-
-
-
-
 
 
 
@@ -135,6 +137,13 @@ if((typeof top.commonspot != 'undefined') && (typeof top.commonspot.lightbox != 
 		DoFocusDone=1;	// not done, but we don't want the focus
 	}
 
+
+
+
+	/* 
+	 *	ADF Update
+	 */
+	/*
 	ResizeWindow = function(doRecalc)
 	{
 		if( typeof ResizeWindowSafe != 'undefined' )		// this variable is set in dlgcommon-head for legacy dialogs (initially set to 0, then to 1 upon calling dlgcommon-foot)
@@ -173,6 +182,10 @@ if((typeof top.commonspot != 'undefined') && (typeof top.commonspot.lightbox != 
 			}	
 		}	
 	}	
+	*/
+
+
+
 
 	setthefocus = function(){};
 
@@ -182,13 +195,24 @@ if((typeof top.commonspot != 'undefined') && (typeof top.commonspot.lightbox != 
 	{
 		CloseWindow();
 	}
-
+	
 	//self.focus = function(){};
-
+	
+	
+	
+	
+	/* 
+	 *	ADF Update
+	 */
+	/*
 	top.window.resizeTo = function(w, h)
 	{
 		top.commonspot.lightbox.initCurrent(w, h);
 	}
+	*/
+
+
+
 
 	window.close = function()
 	{
@@ -196,12 +220,23 @@ if((typeof top.commonspot != 'undefined') && (typeof top.commonspot.lightbox != 
 	}
 
 	// window.focus = function(){};
-
+	
+	
+	
+	
+	/* 
+	 *	ADF Update
+	 */
+	/*
 	window.resizeTo = function(w, h)
 	{
 		top.commonspot.lightbox.initCurrent(w, h);
 	}
-	
+	*/	
+
+
+
+
 	checkDashboardSetup = function()
 	{
 		if (top.commonspot.clientUI)
