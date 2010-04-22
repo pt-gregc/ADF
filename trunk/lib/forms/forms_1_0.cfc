@@ -296,6 +296,7 @@ Arguments:
 History:
  	2009-10-25 - RLW - Created
 	2010-02-18 - MFC - Returns a HTML for delete form.
+	2010-04-14 - GAC - Updated to work with the ADFLightbox Framework
 --->
 <cffunction name="renderDeleteForm" access="public" returntype="String" hint="Renders the standard datasheet delete module">
 	<cfargument name="formID" type="numeric" required="true" hint="The FormID for the Custom Element">
@@ -304,6 +305,9 @@ History:
 	<cfset var deleteFormHTML = "">
 	<cfsavecontent variable="deleteFormHTML">
 		<cfscript>
+			variables.scripts.loadJquery('1.3.2', 1);
+			variables.scripts.loadADFLightbox(force=1);
+			
 			//targetModule = "#request.subsiteCache[1].url#datasheet-modules/delete-form-data.cfm";
 			targetModule = "/ADF/extensions/datasheet-modules/delete_element_handler.cfm";
 			request.params.pageID = arguments.dataPageID;
