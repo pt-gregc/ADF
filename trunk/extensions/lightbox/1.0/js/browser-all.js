@@ -40,6 +40,11 @@ function loadNonDashboardFiles()
 	if (setUpComplete())
 		return;
 	var filesToLoad = [];
+	
+	
+	/*	
+	 *	ADF Update - Updated the file paths
+	 */
 	filesToLoad.push({fileName: '/ADF/extensions/lightbox/1.0/js/util.js', fileType: 'script', fileID: null});
 	filesToLoad.push({fileName: '/ADF/extensions/lightbox/1.0/css/buttons.css', fileType: 'link', fileID: 'buttons_css'});
 	filesToLoad.push({fileName: '/ADF/extensions/lightbox/1.0/css/lightbox.css', fileType: 'link', fileID: null});
@@ -47,6 +52,7 @@ function loadNonDashboardFiles()
 	filesToLoad.push({fileName: '/ADF/extensions/lightbox/1.0/js/lightbox.js', fileType: 'script', fileID: null, callback: setCommonspot});
 	filesToLoad.push({fileName: '/ADF/extensions/lightbox/1.0/js/overrides.js', fileType: 'script', fileID: null});
 	filesToLoad.push({fileName: '/ADF/extensions/lightbox/1.0/js/window_ref.js', fileType: 'script', fileID: null});
+		
 	
 	loadDashboardFiles(filesToLoad);
 	//temp.onload = newWindow(name,workUrl);
@@ -324,36 +330,48 @@ function unescapeHTML(msg)
 function BrowserCheck() {
 	var b=navigator.appName.toString();
 	var up=navigator.platform.toString();
-	var ua=navigator.userAgent.toString();
-	var browserType = {};
-	browserType.mozilla=browserType.ie=browserType.opera=r=false;
+	var ua=navigator.userAgent.toString().toLowerCase();
 	var re_opera=/Opera.([0-9\.]*)/i;
 	var re_msie=/MSIE.([0-9\.]*)/i;
 	var re_gecko=/gecko/i;
-	var re_safari=/safari\/([\d\.]*)/i;
+	var re_safari=/safari\/([\d\.]*)/i;	
+	var re_mozilla=/firefox\/([\d\.]*)/i;
+	var browserType = {};
+	browserType.mozilla=browserType.ie=browserType.opera=r=false;
+	browserType.version = (ua.match( /.+(?:rv|it|ra|ie|me)[\/: ]([\d.]+)/ ) || [])[1];
+	browserType.chrome = /chrome/.test(ua);
+	browserType.safari = /webkit/.test(ua) && !/chrome/.test(ua);
+	browserType.opera = /opera/.test(ua);
+	browserType.ie = /msie/.test(ua) && !/opera/.test(ua);
+	browserType.mozilla = /mozilla/.test(ua) && !/(compatible|webkit)/.test(ua);
 	if(ua.match(re_opera)) 
 	{
 		r=ua.match(re_opera);
-		browserType.opera=true;
 		browserType.version=parseFloat(r[1]);
 	}
 	else if(ua.match(re_msie)) 
 	{
 		r=ua.match(re_msie);
-		browserType.ie=true;
 		browserType.version=parseFloat(r[1]);
 	}
 	else if(ua.match(re_safari)) 
 	{
-		browserType.mozilla=true;
-		browserType.safari=true;
 		browserType.version=1.4;
 	}
 	else if(ua.match(re_gecko)) 
 	{
 		var re_gecko_version=/rv:\s*([0-9\.]+)/i;
 		r=ua.match(re_gecko_version);
-		browserType.mozilla=true;
+		browserType.version=parseFloat(r[1]);
+		if (ua.match(re_mozilla))
+		{
+			r=ua.match(re_mozilla);
+			browserType.version=parseFloat(r[1]);
+		}		
+	}
+	else if (ua.match(re_mozilla))
+	{
+		r=ua.match(re_mozilla);
 		browserType.version=parseFloat(r[1]);
 	}
 	browserType.windows=browserType.mac=browserType.linux=false;
@@ -361,10 +379,6 @@ function BrowserCheck() {
 	this[browserType.Platform]=true;
 	browserType.v=browserType.version;
 	browserType.valid=browserType.ie&&browserType.v>=6||browserType.mozilla&&browserType.v>=1.4;
-	if(browserType.safari&&browserType.mac&&browserType.mozilla) 
-	{
-		browserType.mozilla=false;
-	}
 	return browserType;
 };
 
@@ -405,5 +419,3 @@ if (typeof document.getElementsByClassName == 'undefined')
 		}
 		return classElements;
 	}
-
-	

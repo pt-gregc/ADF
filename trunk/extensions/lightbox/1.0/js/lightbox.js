@@ -66,18 +66,19 @@ commonspot.lightbox.adjustLayout = function()
  * @param hideClose  (boolean). Optional. Set it to true to remove the close button from furniture's top right corner
  * @param hideHelp (boolean). Optional. Set it to true for the dialogs that do not need the Help Button and the QAHelp Processing.
  */
-commonspot.lightbox.openDialog = function(url, hideClose, name, customOverlayMsg, dialogType, opener, hideHelp)
+commonspot.lightbox.openDialog = function(url, hideClose, name, customOverlayMsg, dialogType, opener, hideHelp, hideReload)
 {
 	var url = url ? url : null;
 	var hideClose = hideClose ? hideClose : null;
 	var hideHelp = arguments[6] ? arguments[6] : null;
+	var hideReload = arguments[7] ? arguments[7] : null;
 	var name = name ? name : null;
 	if (name == 'error')
 		name = 'dlg_error';
 	var customOverlayMsg = customOverlayMsg ? customOverlayMsg : null;
 	dialogType = dialogType || 'dialog';
 	opener = opener ? opener : null;
-	commonspot.lightbox.stack.push(commonspot.lightbox.dialogFactory.getInstance(url, hideClose, name, customOverlayMsg, dialogType, opener, hideHelp));
+	commonspot.lightbox.stack.push(commonspot.lightbox.dialogFactory.getInstance(url, hideClose, name, customOverlayMsg, dialogType, opener, hideHelp, hideReload));
 	/*
 	commented for 6.0 this should be live in 6.x when we want spellcheck for the spry dialogs.
 	code in dashboard\dialogs\pageview\create-work-request.html is left as-is as an example.
@@ -114,7 +115,7 @@ commonspot.lightbox.loadSpryURL = function(url)
  * 		customVarValues should be in the form {fldName1: fldValue1, fldName2: fldValue2,...}
  * 		{fldName1} in loaderParamsString will be replaced with fldValue1, etc
  */
-commonspot.lightbox.loadLegacyURL = function(loaderParamsString, customVarValues)
+commonspot.lightbox.loadLegacyURL = function(loaderParamsString, customVarValues, bNewWindow)
 {
 	// replace any std var placeholders w real values
 	var pageID = commonspot.data.uiState.lview.dsCurrentPage.getCurrentRow().pageid;
@@ -124,12 +125,17 @@ commonspot.lightbox.loadLegacyURL = function(loaderParamsString, customVarValues
 	for(var fld in customVarValues)
 		loaderParamsString = loaderParamsString.replace('{' + fld + '}', customVarValues[fld]);
 	
-	// get loader, build url
-	var loader = commonspot.clientUI.state.location.getLoaderURL('subsiteurl');
-	var url = loader + '?' + loaderParamsString;
-
 	var win = commonspot.lightbox.stack.last().getWindow();
-	win.location.href = url;
+	if( bNewWindow )
+		commonspot.dialog.server.show(loaderParamsString);
+	else
+	{
+		// get loader, build url
+		var loader = commonspot.clientUI.state.location.getLoaderURL('subsiteurl');
+		var url = loader + '?' + loaderParamsString;	
+	
+		win.location.href = url;
+	}
 };
 
 /*
@@ -205,8 +211,9 @@ commonspot.lightbox.closeBtnOnClick = function()
 		commonspot.lightbox.closeCurrent();
 		return;
 	}	
-
-	var btn = dlgWin.document.getElementById('closeButton') || dlgWin.document.getElementById('cancelButton') || dlgWin.document.getElementById('Close');
+	var closeBtn = dlgWin.document.getElementById('closeButton') || dlgWin.document.getElementById('Close');
+	var cancelBtn = dlgWin.document.getElementById('cancelButton');
+	var btn = cancelBtn ? cancelBtn : closeBtn;
 	
 	if(!btn)
 		commonspot.lightbox.closeCurrent();
@@ -264,7 +271,7 @@ commonspot.lightbox.closeParentDialogs = function()
 commonspot.lightbox.closeChildDialogsWithReload = function(closeCount)
 {
 	var curCount = 0;
-	for (var i = 1; i < commonspot.lightbox.stack.length; i++)
+	for (var i = commonspot.lightbox.stack.length-1; i >= 0; i--)
 	{
 		if (curCount <= closeCount)
 		{
@@ -287,7 +294,7 @@ commonspot.lightbox.closeChildDialogsWithReload = function(closeCount)
  */
 commonspot.lightbox.closeChildDialogs = function()
 {
-	for(var i = 1; i <= commonspot.lightbox.stack.length; i++)
+	for(var i = commonspot.lightbox.stack.length-1; i > 0; i--)
 	{
 		commonspot.lightbox.stack[i].close();  
 	}
@@ -369,8 +376,8 @@ commonspot.lightbox.initCurrent = function(w, h, dialogInfo, closeCallback, incl
 		currentDialog.getWindow().focus();
 		currentDialog.origWidth = currentDialog.width;
 		currentDialog.origHeight = currentDialog.height;
-		
-		if(currentDialog.showQAButtons && !currentDialog.QAStatusUpdated)
+
+		if(currentDialog.showQAButtons)
 			commonspot.lightbox.getQAStatus(currentDialog);
 	}
 };
@@ -379,14 +386,14 @@ commonspot.lightbox.initCurrent = function(w, h, dialogInfo, closeCallback, incl
  * Dialogs that have a DOM handler (typically server ones) should call this to let the handler do its job
  * Additionally, it extract info from the dialog to populate the furniture
  */
-commonspot.lightbox.initCurrentServerDialog = function()
+commonspot.lightbox.initCurrentServerDialog = function(index)
 {
 	if (commonspot.lightbox.stack.length > 0)
 	{
 		var currentDialog = commonspot.lightbox.stack.last();
 		var win = currentDialog.getWindow();
 		// Extract info from the dialog	
-		var dialogInfo = commonspot.lightbox.extractServerDialogInfo(win);
+		var dialogInfo = commonspot.lightbox.extractServerDialogInfo(win, index);
 		if (dialogInfo.maximize)
 			commonspot.lightbox.stack.last().hasMaxButton = true;
 		if(win.onLightboxLoad)
@@ -406,6 +413,8 @@ commonspot.lightbox.initCurrentServerDialog = function()
 commonspot.lightbox.callResize = function(iconObj)
 {
 	var currentDialog = commonspot.lightbox.stack.last();
+	if (!iconObj)
+		iconObj = document.getElementById('restoreImage');
 	var tmpClassName = iconObj.className;
 	if (tmpClassName.indexOf('ico_maximize')>-1)
 	{
@@ -440,9 +449,13 @@ commonspot.lightbox.getFirefoxVersion = function()
  * Extract information from a server dialog that will be used to set up the furniture (title, subtitle etc)
  * @param win			(window). Required. A reference to the dialog's window object
  */
-commonspot.lightbox.extractServerDialogInfo = function(win)
+commonspot.lightbox.extractServerDialogInfo = function(win, index)
 {
 	var doc = win.document;
+	// index is defined when coming from page with tabs. without this index we are not updating
+	// the lightbox subtitle.
+	if (typeof index == 'undefined')
+		var index = 0;
 	var info = {
 		title: '',
 		subtitle: '',
@@ -452,12 +465,10 @@ commonspot.lightbox.extractServerDialogInfo = function(win)
 	};
 	var titleCell = '';	
 	var subtitleCell = '';
+	var errorCells = '';
 	var ffver = commonspot.lightbox.getFirefoxVersion();
 	
-	if(ffver >= 3)
-		titleCell = win.document.getElementsByClassName("cs_dlgTitle")[0];			// call native version of getElementsByClassName
-	else
-		titleCell = document.getElementsByClassName('cs_dlgTitle', doc.body)[0];	// call prototype version
+	titleCell = getElementsByClassNameLocal("cs_dlgTitle")[index];
 
 	if(titleCell)
 	{
@@ -465,14 +476,18 @@ commonspot.lightbox.extractServerDialogInfo = function(win)
 		titleCell.style.display = 'none';
 	}
 	
-	if(ffver >= 3)
-		subtitleCell = win.document.getElementsByClassName('cs_dlgDesc')[0];
-	else
-		subtitleCell = document.getElementsByClassName('cs_dlgDesc', doc.body)[0];
+	subtitleCell = getElementsByClassNameLocal('cs_dlgDesc')[index];
 	if(subtitleCell)
 	{
-		info.subtitle = subtitleCell.innerHTML;
+		info.subtitle = '<div>' + subtitleCell.innerHTML + '</div>';
 		subtitleCell.style.display = 'none';
+	}
+	
+	errorCells = getElementsByClassNameLocal('cs_lightboxServerDlgError');
+	for(var i = 0; i < errorCells.length; i++)
+	{
+		info.subtitle += '<div class="cs_dlgError">' + errorCells[i].innerHTML + '</div>';
+		errorCells[i].style.display = 'none';
 	}
 	
 	// Help id should be stored inside a global JavaScript variable in the dialog
@@ -491,6 +506,15 @@ commonspot.lightbox.extractServerDialogInfo = function(win)
 		info.close = false;
 		
 	return info;
+	
+	
+	function getElementsByClassNameLocal(className)
+	{
+		if(ffver >= 3)
+			return win.document.getElementsByClassName(className); // call native version of getElementsByClassName
+		else
+			return document.getElementsByClassName(className,doc); // call prototype version
+	}
 };
 
 /**
@@ -521,8 +545,14 @@ commonspot.lightbox.recalcLightboxSizeByPos = function(pos)
 		var currentDialog = commonspot.lightbox.stack[pos];
 		var win = currentDialog.getWindow();
 		var maintable = win.document.getElementById('MainTable');
-	
-		currentDialog.resize(maintable.offsetWidth, maintable.offsetHeight + 65);
+		if(maintable)
+			currentDialog.resize(maintable.offsetWidth, maintable.offsetHeight + 65);
+		else
+		{
+			maintable = win.document.getElementById('pagelistContainerDiv');
+			if(maintable)
+				currentDialog.resize(maintable.offsetWidth - 20, maintable.offsetHeight + 81);
+		}
 	}
 };
 
@@ -574,14 +604,20 @@ commonspot.lightbox.getOpenerWindow = function(ignoreOpenerProperty)
 			return previousDialog.getWindow();
 		}
 		else
-		{
-			var pFrame = document.getElementById('page_frame');
-			if (pFrame)
-				return pFrame.contentWindow;
-			else
-				return top;	
-		}
+			return commonspot.lightbox.getPageWindow(); // not true in admin modes, but needed to create a pg from there
 };
+/**
+*	returns contentWindow of page-frame
+*/
+commonspot.lightbox.getPageWindow = function()
+{
+	var pFrame = document.getElementById('page_frame');
+	if (pFrame)
+		return pFrame.contentWindow;
+	else
+		return top;	
+};
+
 /**
 *	returns contentWindow of admin-frame
 */
@@ -593,14 +629,38 @@ commonspot.lightbox.getAdminWindow = function()
 
 // returns next-to-top lightbox object (NOT its window)
 // DOES NOT honor explicit opener property of lightbox object
-commonspot.lightbox.getNextToTopDlg = function()
+commonspot.lightbox.getNextToTopDlg = function(returnOpenerWhenEmpty)
 {
 	var pos = commonspot.lightbox.stack.length - 2;
 	var parentDialog = null;
 	if (pos >= 0)
 		parentDialog = commonspot.lightbox.stack[pos];
-		
+	else
+	{
+		if (returnOpenerWhenEmpty)
+			return commonspot.lightbox.getPageWindow();
+	}	
 	return parentDialog;
+}
+
+// keep closing parent dlgs until we find one with requested callback, then return it
+commonspot.lightbox.findCallbackInAncestorWindow = function(callback)
+{
+	var parentDlg, dlgCallback;
+	var lightbox = commonspot.lightbox; // local ref, so we don't lose it as dlgs close; calling code should do the same to run callback
+	while(parentDlg = lightbox.getNextToTopDlg(true))
+	{
+		if (parentDlg.getWindow)
+			dlgCallback = parentDlg.getWindow()[callback];
+		else
+			dlgCallback = parentDlg[callback];
+			
+		if(dlgCallback)
+			return dlgCallback;
+		else
+			parentDlg.close();
+	}
+	return null; // didn't find callback, oops
 }
 
 /*
@@ -608,6 +668,8 @@ commonspot.lightbox.getNextToTopDlg = function()
  */
 commonspot.lightbox.handleDialogKeys = function(e)
 {
+	if(!commonspot.lightbox.getCurrent().hasCloseButton)
+		return;
 	var code;
 	
 	if (!e) 
@@ -641,6 +703,10 @@ commonspot.lightbox.getQAStatus = function(dlgObj)
 	var win = dlgObj.getWindow();
 	var frName = dlgObj.getFrameName();
 	var frObj;
+	/* we should have this somewhere common
+		these are the titles that multiple dialogs can have. so do not expect them to be unique 
+	*/
+	var generalDialogTitles = ('CommonSpot Error,Debug Help Status,CommonSpot Message,About CommonSpot,CommonSpot Security Exception').split(",");;
 	if (frName == 'error')
 		return;
 	var formFlds = win.document.getElementsByName("fromlongproc");
@@ -682,19 +748,20 @@ commonspot.lightbox.getQAStatus = function(dlgObj)
 	}
 	args.widgetName = dlgObj.headerTitle.innerHTML;
 	args.widgetNameSrc = 'Request.params.csModule';
-	args.queryString = win.location.search;
+	args.queryString = '';
 	args.statusType = "QA";
 	args.formParams = '';
 	args.helpObjectType = 'CFMDialog';
 	args.helpObjectTitle = (args.widgetName != '') ? args.widgetName : win.document.title;
 	if (args.widgetName == '')
 		args.widgetName = args.helpObjectTitle;
-	if (win.document.title.indexOf('Debug Help Status') == 0 || win.document.title.indexOf('CommonSpot Message') == 0)
+	if ((generalDialogTitles.indexOf(win.document.title) >= 0)
+				|| ((win.document.title).indexOf('Debug Help Status') == 0))
 	{
 		commonspot.lightbox.hideQAElements('All');
 		return;	
 	}	
-	args.moduleName = frObj.src.toLowerCase();
+	args.moduleName = unescape(frObj.src.toLowerCase());
 	if (args.moduleName != '')
 	{
 		// first remove any protocol (if found) from the module name
@@ -730,7 +797,7 @@ commonspot.lightbox.getQAStatus = function(dlgObj)
 			}	
 		}
 	}
-	if (args.widgetName.length <= 0)
+	if (!args.widgetName.length)
 	{
 		commonspot.lightbox.hideQAElements('All');
 		return;
@@ -885,7 +952,7 @@ commonspot.lightbox.dialogFactory.zIndexCounter = 1000;
  * @param url			(string). Required
  * @param hideClose  (boolean). Optional. Set it to true to remove the close button from furniture's top right corner
  */
-commonspot.lightbox.dialogFactory.getInstance = function(url, hideClose, name, customOverlayMsg, dialogType, opener, hideHelp)
+commonspot.lightbox.dialogFactory.getInstance = function(url, hideClose, name, customOverlayMsg, dialogType, opener, hideHelp, hideReload)
 {
 	var dialogObj = {dialogType: dialogType, opener: opener};
 	var bodyNode = document.getElementsByTagName('body')[0];
@@ -923,10 +990,10 @@ commonspot.lightbox.dialogFactory.getInstance = function(url, hideClose, name, c
 	   else
 	      event.cancelBubble=true;		
 	}
-	dialogObj.overlayDiv.style.opacity = '.55';
-	dialogObj.overlayDiv.style.filter='alpha(opacity=55);';
+	dialogObj.overlayDiv.style.opacity = '.45';
+	dialogObj.overlayDiv.style.filter='alpha(opacity=45);';
 	dialogObj.overlayDiv.style.zIndex = nextZindex;
-	dialogObj.overlayDiv.style.height = commonspot.lightbox.getWinSize().height + 'px';
+	dialogObj.overlayDiv.style.height = commonspot.util.dom.getWinScrollSize().height + 'px';
 	bodyNode.appendChild(dialogObj.overlayDiv);
 	
 	// Main container
@@ -959,22 +1026,23 @@ commonspot.lightbox.dialogFactory.getInstance = function(url, hideClose, name, c
 	dialogObj.titleContainer.className = 'lightboxTitleContainer';
 	dialogObj.headerTitle = document.createElement('h1');
 
+	dialogObj.titleContainer.appendChild(dialogObj.headerTitle);
+	dialogObj.header.appendChild(dialogObj.titleContainer);
+
+	// Top icons
+	dialogObj.iconsContainer = document.createElement('div');
+	dialogObj.iconsContainer.className = 'lightboxIconsContainer';
+
+	// help icon
 	if (!hideHelp)
 	{
 		dialogObj.helpImg =  document.createElement('span');
 		dialogObj.helpImg.id = 'help_img';
 		dialogObj.helpImg.className = 'ico_help actionMontageIcon';
 		dialogObj.helpImg.title = 'Help';
-	}
-	dialogObj.titleContainer.appendChild(dialogObj.headerTitle);
-	dialogObj.header.appendChild(dialogObj.titleContainer);
-	
+		dialogObj.iconsContainer.appendChild(dialogObj.helpImg);
+	}	
 
-	
-	// Top icons
-	dialogObj.iconsContainer = document.createElement('div');
-	dialogObj.iconsContainer.className = 'lightboxIconsContainer';
-	
 	// qa icons
 	if (dialogObj.showQAButtons)
 	{
@@ -990,27 +1058,30 @@ commonspot.lightbox.dialogFactory.getInstance = function(url, hideClose, name, c
 	}
 	
 	// Reload icon
-	dialogObj.reloadImg = document.createElement('span');
-	dialogObj.reloadImg.className = 'ico_arrow_refresh_small actionMontageIcon';
-	dialogObj.reloadImg.title = 'Refresh';
-	dialogObj.reloadImg.onclick = function()
-	{
-	var dialogWin = dialogObj.getWindow();
-		if(dialogWin)
+	if (!hideReload)
+	{	
+		dialogObj.reloadImg = document.createElement('span');
+		dialogObj.reloadImg.className = 'ico_arrow_refresh_small actionMontageIcon';
+		dialogObj.reloadImg.title = 'Refresh';
+		dialogObj.reloadImg.onclick = function()
 		{
-			dialogWin.location.reload();
-		}
-	};
-	if (!hideHelp)
-		dialogObj.iconsContainer.appendChild(dialogObj.helpImg);
-	dialogObj.iconsContainer.appendChild(dialogObj.reloadImg);
+		var dialogWin = dialogObj.getWindow();
+			if(dialogWin)
+			{
+				dialogWin.location.reload();
+			}
+		};
+		dialogObj.iconsContainer.appendChild(dialogObj.reloadImg);
+	}
+		
+	
 	// Maximize / Restore icon
 	if(dialogObj.hasMaxButton)
 	{
 		dialogObj.maxImg = document.createElement('span');
 		dialogObj.maxImg.className = 'ico_maximize actionMontageIcon';
 		dialogObj.maxImg.title = 'Maximize';
-		dialogObj.maxImg.id = 'restoreImage'+nextZindex;
+		dialogObj.maxImg.id = 'restoreImage';
 		dialogObj.maxImg.onclick = function(event){
 			var event = event || window.event;	 
 			var target = (event && event.target) || (event && event.srcElement);
@@ -1041,7 +1112,8 @@ commonspot.lightbox.dialogFactory.getInstance = function(url, hideClose, name, c
 		dialogObj.header.appendChild(dialogObj.QAiconsContainer);
 	if (!hideHelp)
 		dialogObj.helpImg.innerHTML = '&nbsp;';
-	dialogObj.reloadImg.innerHTML = '&nbsp;';
+	if (!hideReload)	
+		dialogObj.reloadImg.innerHTML = '&nbsp;';
 	if(dialogObj.hasMaxButton)
 		dialogObj.maxImg.innerHTML = '&nbsp;';
 	if(dialogObj.hasCloseButton)	
@@ -1174,7 +1246,16 @@ commonspot.lightbox.dialogFactory.getInstance = function(url, hideClose, name, c
 	
 	dialogObj.show = function()
 	{
-		dialogObj.divNode.style.top = dialogObj.top + 'px';
+		if (window == top) // not in dashboard
+		{
+			var wnd = commonspot.lightbox.getWinSize();
+			if (typeof wnd.scrollY == 'number')
+				dialogObj.divNode.style.top = (dialogObj.top + wnd.scrollY) + 'px';
+			else
+				dialogObj.divNode.style.top = dialogObj.top + 'px';
+		}
+		else
+			dialogObj.divNode.style.top = dialogObj.top + 'px';
 		commonspot.lightbox.loadingMsg.hide();
 		dialogObj.iframeNode.style.visibility = 'visible';
 		// Handle key events at the window level
@@ -1183,7 +1264,7 @@ commonspot.lightbox.dialogFactory.getInstance = function(url, hideClose, name, c
 		/* ADF Update
 		 * 	Comment code
 		 	
-			dialogObj.focusFirstField();
+		dialogObj.focusFirstField();
 		
 		*/
 	}
@@ -1225,10 +1306,14 @@ commonspot.lightbox.dialogFactory.getInstance = function(url, hideClose, name, c
 					firstFld = commonspot.util.findFirstEditableField(iFrames[i].contentWindow.document.forms[0]);
 					if (firstFld)
 					{
-						if (firstFld.activate)
-							firstFld.activate();
-						else
-							firstFld.focus();	
+						try
+						{
+							if (firstFld.activate)
+								firstFld.activate();
+							else
+								firstFld.focus();	
+						}
+						catch (ex) {}	
 					}	
 					iFrames[i].contentWindow.focus();
 					//iFrames[i].contentWindow.specialActivate();
@@ -1246,10 +1331,14 @@ commonspot.lightbox.dialogFactory.getInstance = function(url, hideClose, name, c
 					firstFld = commonspot.util.findFirstEditableField(iFrames[i].contentWindow.document.forms[j]);
 					if (firstFld)
 					{
-						if (firstFld.activate)
-							firstFld.activate();
-						else
-							firstFld.focus();	
+						try
+						{
+							if (firstFld.activate)
+								firstFld.activate();
+							else
+								firstFld.focus();	
+						}
+						catch (ex) {}	
 						return;
 					}	
 				}
@@ -1285,7 +1374,6 @@ commonspot.lightbox.dialogFactory.getInstance = function(url, hideClose, name, c
 						var dialogUrl = loaderUrl + '?csModule=help/openhelp&CSHelpID=' + encodeURIComponent(info.title);		
 						var winSize = top.commonspot.util.dom.getWinSize();			
 						var argsStr = "menubar=0,location=0,scrollbars=1,status=0,resizable=1,width=" + (winSize.width-100) + ",height=" + (winSize.height-40);
-						// Handle key press
 						if (commonspot.lightbox.helpDlg && !commonspot.lightbox.helpDlg.closed)
 							(commonspot.lightbox.helpDlg).location.href = dialogUrl;					
 						else
@@ -1308,7 +1396,9 @@ commonspot.lightbox.dialogFactory.getInstance = function(url, hideClose, name, c
 
 		if (typeof(info.reload) == 'undefined')
 			info.reload = true;
-							
+			
+		if (hideReload)
+			info.reload = false;					
 		if(info.maximize)
 		{
 			dialogObj.maxImg.style.visibility = 'visible';
@@ -1328,8 +1418,6 @@ commonspot.lightbox.dialogFactory.getInstance = function(url, hideClose, name, c
 			dialogObj.reloadImg.style.display = 'inline';
 			dialogObj.reloadImg.style.visibility = 'visible';
 		}
-		else
-			dialogObj.reloadImg.style.display = 'none';
 
 		if(typeof dialogObj.closeImg == 'undefined'){}
 		else if(info.close)
@@ -1428,7 +1516,14 @@ commonspot.lightbox.loadingMsg =
 		dom2.title = 'Loading, please wait';
 		img = document.createElement('img');
 		img.id = 'loading_img';
+		
+		
+		/*	
+		 *	ADF Update - Updated the image paths
+		 */
 		img.src = '/ADF/extensions/lightbox/1.0/images/loading.gif';
+		
+		
 		img.title = 'Loading, please wait';
 		dom3 = document.createElement('div');
 		dom3.id = 'loading_text';
@@ -1440,8 +1535,10 @@ commonspot.lightbox.loadingMsg =
 	onDashboardLoaded: function()
 	{
 		top.document.getElementById('loading_container').style.display = 'none'; // kill initial Loading msg
-		// add border, which we don't want against initial plain white
-		top.document.getElementById('loading_content').style.border = '1px solid #7E96AD';
+		// add border, which we don't want against initial plain white, and background
+		var loading_content = top.document.getElementById('loading_content');
+		loading_content.style.border = '1px solid #7E96AD';
+		loading_content.style.background = '#fff';
 	},
 	show: function(overlayMsg, overlayTitle)
 	{
@@ -1454,7 +1551,8 @@ commonspot.lightbox.loadingMsg =
 			loadingDiv.title = overlayTitle;
 			if (loadingImg)
 				loadingImg.title = overlayTitle;
-			setTimeout(function(){
+			setTimeout(function()
+			{
 				// attach onclick event to close if this is there even after 3 secs.
 				if (top.document.getElementById('loading_container').style.display != 'none')
 				{
@@ -1493,9 +1591,16 @@ commonspot.lightbox.generateHTMLcorners = function(type)
 {
 	var cornersHTML = '';
 	var spacerWidth = commonspot.lightbox.DIALOG_DEFAULT_WIDTH - commonspot.lightbox.CORNERS_WIDTH;
+	
+	
+	/*	
+	 *	ADF Update - Updated the image paths
+	 */
 	cornersHTML += '<img width="10" height="10" src="/ADF/extensions/lightbox/1.0/images/' + type + 'l.gif"/>';
 	cornersHTML += '<img width="' + spacerWidth + '" height="10" src="/ADF/extensions/lightbox/1.0/images/spacer.gif"/>';
 	cornersHTML += '<img width="10" height="10" src="/ADF/extensions/lightbox/1.0/images/' + type + 'r.gif"/>';
+	
+	
 	return cornersHTML;
 };
 commonspot.lightbox.hideQAElements = function(objList)
@@ -1521,31 +1626,89 @@ commonspot.lightbox.hideQAElements = function(objList)
 		}
 	}
 }
+
 /**
  * Utility method. Returns inner size of current viewport
- * @return {width, height}
+ * @return {width, height, scrollX, scrollY}
  */
-commonspot.lightbox.getWinSize = function()
+commonspot.lightbox.getWinSize = function(checkCurrentFrameFirst, wnd)
 {
-	var width, height;
-	if (self.innerHeight) // all except Explorer
+	var width, height, scrollX, scrollY, pgFrame, pgWin, checkAccess;
+	if (typeof checkCurrentFrameFirst == 'undefined')
+		var checkCurrentFrameFirst = false;
+	if (!wnd)
+		var wnd = window;	
+	if (checkCurrentFrameFirst)
 	{
-		width = self.innerWidth;
-		height = self.innerHeight;
+		try // need this try-catch to avoid IE 'access denied' error when there is no page context.
+		{
+			if (commonspot.lightbox.stack.length)
+			{
+				pgWin = commonspot.lightbox.stack.last().getWindow();
+				checkAccess = commonspot.lightbox.stack.last().getFrameName();
+			}	
+			else
+			{
+				pgFrame = document.getElementById('page_frame');
+				if (pgFrame)
+				{
+					pgWin = pgFrame.contentWindow;
+					checkAccess = pgWin.name;
+				}
+			}
+		}
+		catch(e)
+		{	
+			pgWin = null;
+			checkAccess = null;
+		}	
+		if (checkAccess)
+			return commonspot.lightbox.getWinSize(false, pgWin);
 	}
-	else if (document.documentElement && document.documentElement.clientHeight) // Explorer 6 Strict Mode
+	if( typeof( wnd.innerWidth ) == 'number' ) 
 	{
-		width = document.documentElement.clientWidth;
-		height = document.documentElement.clientHeight;
-	}
-	else if (document.body) // other Explorers
+		//Non-IE
+		width = wnd.innerWidth;
+		height = wnd.innerHeight;
+	} 
+	else if( wnd.document.documentElement && 
+				( wnd.document.documentElement.clientWidth || wnd.document.documentElement.clientHeight ) ) 
 	{
-		width = document.body.clientWidth;
-		height = document.body.clientHeight;
+		//IE 6+ in 'standards compliant mode'
+		width = wnd.document.documentElement.clientWidth;
+		height = wnd.document.documentElement.clientHeight;
+	} 
+	else if( wnd.document.body && ( wnd.document.body.clientWidth || wnd.document.body.clientHeight ) ) 
+	{
+		//IE 4 compatible
+		width = wnd.document.body.clientWidth;
+		height = wnd.document.body.clientHeight;
 	}
-	return {width: width, height: height};
+	if( typeof( wnd.pageYOffset ) == 'number' ) 
+	{
+		//Netscape compliant
+		scrollY = wnd.pageYOffset;
+		scrollX = wnd.pageXOffset;
+	} 
+	else if( wnd.document.body && ( wnd.document.body.scrollLeft || wnd.document.body.scrollTop ) ) 
+	{
+		//DOM compliant
+		scrollY = wnd.document.body.scrollTop;
+		scrollX = wnd.document.body.scrollLeft;
+	} 
+	else if( wnd.document.documentElement && 
+				( wnd.document.documentElement.scrollLeft || wnd.document.documentElement.scrollTop ) ) 
+	{
+		//IE6 standards compliant mode
+		scrollY = wnd.document.documentElement.scrollTop;
+		scrollX = wnd.document.documentElement.scrollLeft;
+	}
+	
+	return {width: width, height: height, scrollX: scrollX, scrollY: scrollY};
 };
-commonspot.lightbox.addToDom = function(objType, objID, objClass, objTitle, objParent){
+
+commonspot.lightbox.addToDom = function(objType, objID, objClass, objTitle, objParent)
+{
 	var dom = document.createElement(objType);
 	dom.id = objID;
 	dom.title = objTitle;
@@ -1553,25 +1716,30 @@ commonspot.lightbox.addToDom = function(objType, objID, objClass, objTitle, objP
 	objParent.appendChild(dom);
 	return dom;
 }
-commonspot.lightbox.readCookie = function(name){
-	var nameEQ=name+"=";
-	var ca=document.cookie.split(';');
-	for(var i=0;i < ca.length;i++){
-		var c=ca[i];
-		while (c.charAt(0)==' '){
-			c=c.substring(1,c.length);
-		}
-		if(c.indexOf(nameEQ)==0){
-			return c.substring(nameEQ.length,c.length);
-		}	
+commonspot.lightbox.readCookie = function(name)
+{
+	var nameEQ = name + "=";
+	var ca = document.cookie.split(';');
+	for(var i=0; i < ca.length;i++)
+	{
+		var c = ca[i];
+		while (c.charAt(0) == ' ')
+			c = c.substring(1, c.length);
+		if (c.indexOf(nameEQ) == 0)
+			return c.substring(nameEQ.length, c.length);
 	}
 	return null;
 };
 
 function InitDragDrop() 
 { 
-	document.onmousedown = OnMouseDown; 
-	document.onmouseup = OnMouseUp; 
+	if( typeof OnMouseDown != 'undefined' ) 
+	{
+		document.onmousedown = OnMouseDown; 
+		document.onmouseup = OnMouseUp; 
+	}
+	else
+		setTimeout( "InitDragDrop()", 100 );
 }
 
 InitDragDrop(); 

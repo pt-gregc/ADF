@@ -78,6 +78,11 @@ var commonspot = window.commonspot || parent.commonspot || {};
 /**
  * commonspot.util: utility package
  */
+ 
+
+/*
+ *	ADF UPDATE - Override the CS 5 commonspot.util
+ */ 
 if(!commonspot.util)
 {
 	commonspot.util = {};
@@ -317,6 +322,39 @@ if(!commonspot.util)
 		return t;
 	};
 	
+	commonspot.util.jsSafe = function(str) // escape same chars as cf's JSStringFormat function
+	{
+		return str.replace(/(['"\\\b\t\n\f\r])/g, function(chr){return "\\" + commonspot.util.jsSafe.chars[chr.charCodeAt(0)];})
+	};
+	commonspot.util.jsSafe.chars = 
+	{
+	     8: "b",	// backspace
+	     9: "t",	// tab
+	    10: "n",	// newline
+	    12: "f",	// formfeed
+	    13: "r",	// carriage return
+	    34: '"',	// dbl quote
+	    39: "'",	// single quote
+	    92: "\\"	// backslash
+	};
+	
+	// returns str with tokens in the form {key} replaced by the value of data[key]
+	// if key isn't found in data, returns original token
+	// key can contain only alphanumeric characters and underscores
+	commonspot.util.replaceTokens = function(str, data)
+	{
+		return str.replace
+		(
+			/{(\w+)}/g,
+			function(fullMatch, key) // key is portion of match inside (), ie inside {} within str
+			{
+				if(typeof data[key] !== "undefined")
+					return data[key];
+				return "{" + key + "}";
+			}
+		);
+	};
+	
 	commonspot.util.addRemoveClassNameByIDs = function(objIDsList, className, add)
 	{
 		var lightboxWindow = top.commonspot.lightbox.getCurrentWindow();
@@ -344,6 +382,29 @@ if(!commonspot.util)
 	 * commonspot.util.dom: package for dom-related utilities
 	 */
 	commonspot.util.dom = {};
+	
+	/**
+	 * commonspot.util.dom.getWinScrollSize: returns actual content size of given window; 
+	 * @param win (object): window object. if not supplied returns value for current window
+	 * @return {width, height}
+	 */	
+	commonspot.util.dom.getWinScrollSize = function()
+	{
+		var sWidth=0, sHeight=0;
+		var winSize = commonspot.util.dom.getWinSize();
+		var win = self;
+		if (win.document.body.clientHeight)
+		{
+			sHeight = win.document.body.clientHeight;
+			sWidth = win.document.body.clientWidth;
+		}	
+		else if (win.document.height)
+		{
+			sHeight = win.document.height;
+			sWidth = win.document.width;
+		}
+		return {width: Math.max(sWidth,winSize.width), height: Math.max(sHeight,winSize.height)};
+	};
 	
 	/**
 	 * commonspot.util.dom.getWinSize: returns inner size of current window; from PPK
@@ -1226,7 +1287,11 @@ commonspot.util.xml.nodeToObject(xmlDoc);
 		}
 		return str;
 	};
-	
+
+
+/*
+ * ADF UPDATE
+ */
 } // End: commonspot.util
 
 

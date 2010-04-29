@@ -206,7 +206,7 @@ History:
 <cffunction name="loadADFStyles" access="public" returntype="void">
 <cfif not variables.scriptsService.isScriptLoaded("ADFStyles")>
 	<cfoutput>
-		<link rel="stylesheet" href="/ADF/style/ADF.css" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/ADF/zstyle/ADF.css" type="text/css" media="screen" />
 	</cfoutput>
 	<cfset variables.scriptsService.loadedScript("ADFStyles")>
 </cfif>
@@ -691,6 +691,8 @@ History:
 	<cfargument name="version" type="string" required="false" default="1.0" hint="ADF Lightbox version to load">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	
+	<cfset var productVersion = ListFirst(ListLast(request.cp.productversion," "),".")>
+	
 	<!--- Check if jquery is loaded --->
 	<cfif (NOT variables.scriptsService.isScriptLoaded("jQuery")) OR (arguments.force)>
 		<cfoutput>
@@ -698,83 +700,96 @@ History:
 		</cfoutput>
 	</cfif>
 	
-	<!--- Load the ADF Lightbox Framework script --->
-	<cfoutput>
-	<!-- ADF Lightbox Framework Loaded @ #now()# -->
-	<script type='text/javascript' src='/ADF/extensions/lightbox/#arguments.version#/js/framework.js'></script>
-	<!--- Load lightbox override styles --->
-	<link href="/ADF/extensions/lightbox/#arguments.version#/css/lightbox_overrides.css" rel="stylesheet" type="text/css">
-	</cfoutput>
-	
-	<!--- Check if we have LB properties --->
-	<cfscript>
-		// Default Width
-		if ( NOT StructKeyExists(request.params, "width") )
-			request.params.width = 500;
-		
-		// Default Height
-		if ( NOT StructKeyExists(request.params, "height") )
-			request.params.height = 500;
-		
-		// Default Title
-		if ( NOT StructKeyExists(request.params, "title") )
-			request.params.title = "";
-		
-		// Default Subtitle
-		if ( NOT StructKeyExists(request.params, "subtitle") )
-			request.params.subtitle = "";
-	</cfscript>
-	
-	<!--- Load the CommonSpot Lightbox when not in version 6.0 --->
-	<cfif ListLast(request.cp.productversion," ") LT 6 >
+	<cfif (NOT variables.scriptsService.isScriptLoaded("ADFLightbox")) OR (arguments.force)>
+		<!--- Load the ADF Lightbox Framework script --->
 		<cfoutput>
-		<!--- Load the CommonSpot 6.0 Lightbox Framework --->
-		<script type='text/javascript' src='/ADF/extensions/lightbox/#arguments.version#/js/browser-all.js'></script>
-	
-		<!--- Setup the CommonSpot 6.0 Lightbox framework --->
-		<script type="text/javascript">	
-			if ((typeof commonspot == 'undefined' || !commonspot.lightbox) && (!top.commonspot || !top.commonspot.lightbox))
-				loadNonDashboardFiles();
-			
-			if (parent.commonspot && typeof newWindow == 'undefined')
-			{
-				var arrFiles = 
-						[
-							{fileName: '/ADF/extensions/lightbox/#arguments.version#/js/overrides.js', fileType: 'script', fileID: null},
-							{fileName: '/ADF/extensions/lightbox/#arguments.version#/js/window_ref.js', fileType: 'script', fileID: null}
-						];
-				
-				loadDashboardFiles(arrFiles);
-			}
-		</script>
+		<!-- ADF Lightbox Framework Loaded @ #now()# -->
+		<script type='text/javascript' src='/ADF/extensions/lightbox/#arguments.version#/js/framework.js'></script>
+		<!--- Load lightbox override styles --->
+		<link href="/ADF/extensions/lightbox/#arguments.version#/css/lightbox_overrides.css" rel="stylesheet" type="text/css">
 		</cfoutput>
-	<cfelse>
-		<cfoutput>
-			<!--- Load lightbox override styles --->
-			<!--- Check if the request page exists for if we are on a CS page --->
-			<cfif NOT StructKeyExists(request, "page")>
-				<!--- Load the CommonSpot 6.0 Lightbox Framework --->
-				<script type='text/javascript' src='/commonspot/javascript/browser-all.js'></script>
-			</cfif>
+		
+		<!--- Check if we have LB properties --->
+		<cfscript>
+			// Default Width
+			if ( NOT StructKeyExists(request.params, "width") )
+				request.params.width = 500;
+			
+			// Default Height
+			if ( NOT StructKeyExists(request.params, "height") )
+				request.params.height = 500;
+			
+			// Default Title
+			if ( NOT StructKeyExists(request.params, "title") )
+				request.params.title = "";
+			
+			// Default Subtitle
+			if ( NOT StructKeyExists(request.params, "subtitle") )
+				request.params.subtitle = "";
+		</cfscript>
+		
+		<!--- Load the CommonSpot Lightbox when not in version 6.0 --->
+		<cfif ListLast(request.cp.productversion," ") LT 6 >
+			<cfoutput>
+			<!--- Load the CommonSpot 6.0 Lightbox Framework --->
+			<script type='text/javascript' src='/ADF/extensions/lightbox/#arguments.version#/js/browser-all.js'></script>
 		
 			<!--- Setup the CommonSpot 6.0 Lightbox framework --->
-			<cfinclude template="/commonspot/non-dashboard-include.cfm">
+			<script type="text/javascript">	
+				if ((typeof commonspot == 'undefined' || !commonspot.lightbox) && (!top.commonspot || !top.commonspot.lightbox))
+					loadNonDashboardFiles();
+				else if ( typeof parent.commonspot != 'undefined' ){
+					commonspot = parent.commonspot;
+				}
+				else if ( typeof top.commonspot != 'undefined' ){
+					commonspot = top.commonspot;
+				}
+	
+				// Load the commonspot.util.dom for CS 5
+    			loadUtilDom();
+			</script>
+			</cfoutput>
+		<cfelse>
+			<cfoutput>
+				<!--- Load lightbox override styles --->
+				<!--- Check if the request page exists for if we are on a CS page --->
+				<cfif NOT StructKeyExists(request, "page")>
+					<!--- Load the CommonSpot 6.0 Lightbox Framework --->
+					<script type='text/javascript' src='/commonspot/javascript/browser-all.js'></script>
+				</cfif>
+			
+				<!--- Setup the CommonSpot 6.0 Lightbox framework --->
+				<!--- <cfinclude template="/commonspot/non-dashboard-include.cfm"> --->
+				<cfoutput>
+				<script type="text/javascript">
+					if ((typeof commonspot == 'undefined' || !commonspot.lightbox) && (!top.commonspot || !top.commonspot.lightbox))
+						loadNonDashboardFiles();
+					else if ( typeof parent.commonspot != 'undefined' ){
+						commonspot = parent.commonspot;
+					}
+					else if ( typeof top.commonspot != 'undefined' ){
+						commonspot = top.commonspot;
+					}
+				</script>
+				
+				</cfoutput>
+			</cfoutput>
+		</cfif>
+	
+		<cfoutput>
+		<script type="text/javascript">
+			jQuery(document).ready(function(){ 
+				// Set the Jquery to initialize the ADF Lightbox
+				initADFLB();
+				
+				// get local references to objects we need in parent frame
+				// commonspot object has state, so we need that instance; others are static, but why load them again
+				var commonspot = parent.commonspot;
+				commonspot.lightbox.initCurrent(#request.params.width#, #request.params.height#, { title: '#request.params.title#', subtitle: '#request.params.subtitle#', close: 'true', reload: 'true' });
+			});
+		</script>
 		</cfoutput>
 	</cfif>
-
-	<cfoutput>
-	<script type="text/javascript">
-		jQuery(document).ready(function(){ 
-			// Set the Jquery to initialize the ADF Lightbox
-			initADFLB();
-			
-			// get local references to objects we need in parent frame
-			// commonspot object has state, so we need that instance; others are static, but why load them again
-			var commonspot = parent.commonspot;
-			commonspot.lightbox.initCurrent(#request.params.width#, #request.params.height#, { title: '#request.params.title#', subtitle: '#request.params.subtitle#', close: 'true', reload: 'true' });
-		});
-	</script>
-	</cfoutput>
 	<cfset variables.ScriptsService.loadedScript("ADFLightbox")>
 </cffunction>
 

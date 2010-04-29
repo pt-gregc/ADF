@@ -152,7 +152,7 @@ History:
 				jQuery("###xParams.fieldID#-gc-section2").html(msg);
 				checkResizeWindow();
 				// reinitialize the ADFLightbox				
-				//verifyLBFramework("#application.ADF.ajaxProxy#");
+				initADFLB();
 			});
 		}
 		

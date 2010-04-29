@@ -37,7 +37,9 @@ History:
 /* 
  * overrides.js   Copyright PaperThin, Inc.
  */
-if((typeof top.commonspot != 'undefined') && (typeof top.commonspot.lightbox != 'undefined'))
+if (typeof BrowserCheck != 'undefined')
+	var is = BrowserCheck();
+if ((typeof top.commonspot != 'undefined') && (typeof top.commonspot.lightbox != 'undefined'))
 { 
 	checkDlg = function()
 	{
@@ -78,6 +80,11 @@ if((typeof top.commonspot != 'undefined') && (typeof top.commonspot.lightbox != 
 		var customOverlayMsg = customOverlayMsg ? customOverlayMsg : null;	
 		if (url.indexOf('/commonspot/dashboard/') == 0 || url.indexOf('controls/imagecommon/add-image') > 0)
 		{
+			if (!is.valid)
+			{
+				alert('This functionality requires Internet Explorer 7/Firefox 2 or later.');
+				return;
+			}
 			var setupComplete = checkDashboardSetup();
 			if (!setupComplete)
 			{
@@ -100,7 +107,7 @@ if((typeof top.commonspot != 'undefined') && (typeof top.commonspot.lightbox != 
 	{
 		var openerWin = top.commonspot.lightbox.getOpenerWindow();
 		openerWin.location.href = workUrl;
-		if(document.getElementById("leavewindowopen").checked == false)
+		if (document.getElementById("leavewindowopen").checked == false)
 		{
 			setTimeout('window.close()', 250);
 		}
@@ -109,7 +116,7 @@ if((typeof top.commonspot != 'undefined') && (typeof top.commonspot.lightbox != 
 	OpenURLInOpener = function(workUrl)
 	{
 		var openWin = top.commonspot.lightbox.getOpenerWindow();
-		if(openWin)
+		if (openWin)
 		{
 			openWin.location.href = workUrl;
 		}	
@@ -144,40 +151,41 @@ if((typeof top.commonspot != 'undefined') && (typeof top.commonspot.lightbox != 
 	 *	ADF Update
 	 */
 	/*
-	ResizeWindow = function(doRecalc)
+	ResizeWindow = function(doRecalc, curTab)
 	{
-		if( typeof ResizeWindowSafe != 'undefined' )		// this variable is set in dlgcommon-head for legacy dialogs (initially set to 0, then to 1 upon calling dlgcommon-foot)
+		if (typeof ResizeWindowSafe != 'undefined')		// this variable is set in dlgcommon-head for legacy dialogs (initially set to 0, then to 1 upon calling dlgcommon-foot)
 		{ 
-			if( ResizeWindowSafe == 1 )
-				ResizeWindow_Meat(doRecalc);  // this function is defined in over-rides.js
+			if (ResizeWindowSafe == 1)
+				ResizeWindow_Meat(doRecalc, curTab);  // this function is defined in over-rides.js
 			else
 				ResizeWindowCalledCount = ResizeWindowCalledCount + 1;
 		}
 		else
-		{
-			ResizeWindow_Meat(doRecalc);  // this function is defined in over-rides.js
-		}		
+			ResizeWindow_Meat(doRecalc, curTab);  // this function is defined in over-rides.js
 	}
 	
 
-	ResizeWindow_Meat = function(doRecalc)
+	ResizeWindow_Meat = function(doRecalc, currentTab)
 	{
 		var maintable = document.getElementById('MainTable');
-		if(maintable)
+		if (maintable)
 		{
          if (doRecalc)
 			{
-				if( top.commonspot )
-            	top.commonspot.lightbox.initCurrentServerDialog();
+				if (top.commonspot)
+				{
+            	top.commonspot.lightbox.initCurrentServerDialog(currentTab);
+					ResizeWindow_Meat();
+				}	
 			}
          else
 			{
-				if (maintable.offsetHeight < 120)
-					maintable.style.height = '120px';
+				if (maintable.offsetHeight < 80)
+					maintable.style.height = '80px';
 				else
 					maintable.style.height = '';
 				
-				if( top.commonspot )
+				if (top.commonspot)
             	top.commonspot.lightbox.initCurrent( maintable.offsetWidth, maintable.offsetHeight + 40);
 			}	
 		}	
@@ -195,7 +203,7 @@ if((typeof top.commonspot != 'undefined') && (typeof top.commonspot.lightbox != 
 	{
 		CloseWindow();
 	}
-	
+
 	//self.focus = function(){};
 	
 	
@@ -210,9 +218,6 @@ if((typeof top.commonspot != 'undefined') && (typeof top.commonspot.lightbox != 
 		top.commonspot.lightbox.initCurrent(w, h);
 	}
 	*/
-
-
-
 
 	window.close = function()
 	{
@@ -269,7 +274,7 @@ if((typeof top.commonspot != 'undefined') && (typeof top.commonspot.lightbox != 
 	} catch (err){}
 }
 
-if(typeof(onLightboxLoad) == "undefined")
+if (typeof(onLightboxLoad) == "undefined")
 {
 	/**
 	* Hook that gets called by lightbox whenever the dialog gets loaded
@@ -283,36 +288,45 @@ if(typeof(onLightboxLoad) == "undefined")
 			// in that case, just return so we can show the error msg.
 			return; 
 		}	
-		if(rootDiv)
+		if (rootDiv)
 		{	 
 			// Check if we have buttons
 			var outerDiv = document.getElementById('clsPushButtonsDiv');
 			var tableEle = document.getElementById('clsPushButtonsTable');
 			var otherBtns = document.getElementsByClassName('clsDialogButton');
-			if(tableEle || otherBtns.length)
+			if (tableEle || otherBtns.length)
 			{
 				// Remove existing "proxy" buttons first
 				var btnHolder = document.getElementById('clsProxyButtonHolder');
-				if(btnHolder)
+				if (btnHolder)
 				{
 					btnHolder.parentNode.removeChild(btnHolder);
 				}
 				
 				// check if cf debug is on
 				var arr = document.getElementsByClassName('cfdebug');
-				if( arr.length > 0 )
+				// Append a new <div> that will contain the "proxy" buttons
+				var dom = document.createElement('div');
+				dom.id = "clsProxyButtonHolder";
+				dom.innerHTML = '<table><tr><td id="clsProxySpellCheckCell"></td><td id="clsProxyButtonCell"></td></tr></table>';				
+				if (arr.length > 0) 	// stick in after root div and before CF debug table
 				{
-					// stick in after root div and before CF debug table
-					new Insertion.After(rootDiv, '<div id="clsProxyButtonHolder"><table><tr><td id="clsProxySpellCheckCell"></td><td id="clsProxyButtonCell"></td></tr></table></div>');
-				}
+					/*
+						IE has problem with appending node before a script node. to get around it we add a div node around
+						the script tags we have after rootDiv (dlgcommon-foot.cfm) and manipulate its innerHTML
+						however, non-ie browsers has problem with manipulating innerHTML so doing it ol'way
+					*/
+					if (is.ie)
+					{
+						var inHTML = dom.outerHTML + rootDiv.nextSibling.innerHTML;
+						rootDiv.nextSibling.innerHTML = inHTML;
+					}
+					else
+						rootDiv.parentNode.insertBefore(dom, rootDiv.nextSibling);
+				}	
 				else
-				{
-					// Append a new <div> that will contain the "proxy" buttons
-					var dom = document.createElement('div');
-					dom.id = "clsProxyButtonHolder";
-					dom.innerHTML = '<table><tr><td id="clsProxySpellCheckCell"></td><td id="clsProxyButtonCell"></td></tr></table>';
 					rootDiv.parentNode.appendChild(dom);
-				}				
+
 				proxySpellChecker($('clsProxySpellCheckCell'));
 				proxyPushButtons($('clsProxyButtonCell'));
 				// Hide the "real" buttons
@@ -339,99 +353,79 @@ proxyPushButtons = function(targetNode)
 		buttons.push(moreButtons[i]);
 	}
 	cleanRadioAndCheckBoxes($$('#MainTable input[type="checkbox"]', '#MainTable input[type="radio"]'));
-	var buttonString = new Array();
-	var buttonTypes = new Array();
+	var doneButtons = [];
+	var buttonString = [];
 	for(var i=0; i<buttons.length; i++)
 	{
 		buttons[i].style.display = 'none';
-		if(buttons[i].value != 'Help')
-		{
-			var buttonText = buttons[i].value.replace(/^\s+|\s+$/g, '');
-			buttonString[i] = buttonText.toLowerCase();
-			buttonTypes[i] = (buttons[i].type).toLowerCase();
-		}
+		var buttonText = buttons[i].value.replace(/^\s+|\s+$/g, '');
+		buttonString[i] = buttonText.toLowerCase();
 	}  
 	// show prev button
 	var indexButton = arrayIndexOf(buttonString,'prev');
 	var proxyIndex = 1;
-	if(indexButton != -1)    
+	if (indexButton != -1 && arrayIndexOf(doneButtons,'prev') == -1)    
 	{
 	  cellNode.appendChild(createProxyButton(buttons[indexButton],proxyIndex++));
-	  buttons.splice(indexButton,1);
-	  buttonString.splice(indexButton,1);
-	  buttonTypes.splice(indexButton,1);
+	  doneButtons.push('prev');
 	}
 
 	// show next button
 	indexButton = arrayIndexOf(buttonString,'next');
-	if(indexButton != -1)    
+	if (indexButton != -1 && arrayIndexOf(doneButtons,'next') == -1)    
 	{
 	  cellNode.appendChild(createProxyButton(buttons[indexButton],proxyIndex++));
-	  buttons.splice(indexButton,1);
-	  buttonString.splice(indexButton,1);
-	  buttonTypes.splice(indexButton,1);
+	  doneButtons.push('next');
 	}      
-     
-     // show all misc. buttons that are not submit and not cancel or close
-	while(arrayIndexOf(buttonTypes,'button')!=-1)
+    // show all misc. buttons that are not submit and not cancel or close
+	for(var i=0; i<buttons.length; i++)
 	{
-		for(var i=0; i<buttons.length; i++)
+		buttonText = buttons[i].value.replace(/^\s+|\s+$/g, '');
+		if (buttonText != 'Help' && 
+		      buttonText != 'Close' &&
+				buttonText != 'No' &&
+		      buttonText != 'Cancel' &&
+		      buttons[i].type == 'button' &&
+				arrayIndexOf(doneButtons,buttonText) == -1)
 		{
-			buttonText = buttons[i].value.replace(/^\s+|\s+$/g, '');
-			if(buttonText != 'Help' && 
-			      buttonText != 'Close' &&
-			      buttonText != 'Cancel' &&
-			      buttons[i].type == 'button')
-			{
-				cellNode.appendChild(createProxyButton(buttons[i],proxyIndex++));
-				buttons.splice(i,1);
-			}
-			buttonString.splice(i,1);
-			buttonTypes.splice(i,1);
+			cellNode.appendChild(createProxyButton(buttons[i],proxyIndex++));
+			doneButtons.push(buttonText);
 		}
 	}
      
+     
+	// show all submit buttons that are not cancel or close
 	for(var i=0; i<buttons.length; i++)
 	{
-		if(buttons[i].value != 'Help')
+		buttonText = buttons[i].value.replace(/^\s+|\s+$/g, '');
+		if (buttonText != 'Help' && 
+					buttonText != 'Close' &&
+					buttonText != 'No' &&
+					buttonText != 'Cancel' &&
+					buttons[i].type == 'submit' &&
+					arrayIndexOf(doneButtons,buttonText) == -1)
 		{
-			buttonString[i] = buttonText.toLowerCase();
-			buttonTypes[i] = (buttons[i].type).toLowerCase();
+			cellNode.appendChild(createProxyButton(buttons[i],proxyIndex++));
+			doneButtons.push(buttonText);
 		}
-	}        
-     
-     // show all submit buttons that are not cancel or close
-	while(arrayIndexOf(buttonTypes,'submit')!=-1)
-	{      
-		for(var i=0; i<buttons.length; i++)
-		{
-			buttonText = buttons[i].value.replace(/^\s+|\s+$/g, '');
-			if(buttonText != 'Help' && 
-						buttonText != 'Close' &&
-						buttonText != 'Cancel' &&
-						buttons[i].type == 'submit')
-			{
-				cellNode.appendChild(createProxyButton(buttons[i],proxyIndex++));
-				buttons.splice(i,1);
-			}
-			buttonString.splice(i,1);
-			buttonTypes.splice(i,1);
-		}     
-	} 
+	}     
+
 	// show cancel and close buttons
 	for(var i=0; i<buttons.length; i++)
 	{
 		buttonText = buttons[i].value.replace(/^\s+|\s+$/g, '');
-		if(buttonText != 'Help')
+		if (buttonText != 'Help' && arrayIndexOf(doneButtons,buttonText) == -1)
 		{
 			cellNode.appendChild(createProxyButton(buttons[i],proxyIndex++));
-			buttons.splice(i,1);
-			if (buttonText == 'Cancel' || buttonText == 'Close')
-				addClose = 0;
+			doneButtons.push(buttonText);
 		}   
 	}  
+
+	if (arrayIndexOf(doneButtons, 'cancel') != -1 || arrayIndexOf(doneButtons, 'close') != -1)
+		addClose = 0;
+	
 	// show close button if there are no buttons in the lighbox
-	if(addClose)
+	if (addClose && cellNode)
 	{
 		var closeNode = {
 			value: 'Close',
@@ -459,7 +453,7 @@ proxySpellChecker = function(targetNode)
 {
 	var boxNode = $('OldSpellCheckOn');
 	// Proxy the node only if it's visible (it could be hidden)
-	if(boxNode && (boxNode.type == 'checkbox'))
+	if (boxNode && (boxNode.type == 'checkbox'))
 	{
 		var proxyLabel = document.createElement('label');
 		var proxyBox = document.createElement('input');
@@ -501,16 +495,16 @@ createProxyButton = function(buttonNode,index)
 
 	var proxyContainer = document.createElement('span');
 	proxyContainer.id = 'proxyButton' + index; 
-	if( buttonNode.title )
+	if (buttonNode.title)
 		proxyContainer.title = buttonNode.title;
 	proxyContainer.className = buttonNode.className;  
 	if ((buttonText == 'Cancel' || buttonText == 'Close') && 
-				(buttonNode.className == 'clsPushButton' || buttonNode.className == 'clsCancelButton')){
+				(buttonNode.className.indexOf('clsPushButton') >= 0 || buttonNode.className.indexOf('clsCancelButton') >= 0 || buttonNode.className.indexOf('clsCloseButton') >= 0)){
 	  proxyContainer.className = 'cls'+buttonText+'Button';
 	}
 
 	var proxyBox = document.createElement('input');
-	if(buttonNode.type == 'submit' && typeof buttonNode.click == 'function'){
+	if (buttonNode.type == 'submit' && typeof buttonNode.click == 'function'){
 	  proxyBox.setAttribute('type', 'button');
 	}
 	else{
@@ -524,7 +518,7 @@ createProxyButton = function(buttonNode,index)
 	{
 	  proxyContainer.onclick = function()
 	  {
-		if(typeof buttonNode.click == 'function' || typeof buttonNode.click == 'object')
+		if (typeof buttonNode.click == 'function' || typeof buttonNode.click == 'object')
 		{
 			buttonNode.click();
 		}
@@ -536,7 +530,7 @@ createProxyButton = function(buttonNode,index)
 	{
 		proxyContainer.onclick = function()
 		{
-			if(typeof buttonNode.click == 'function' || typeof buttonNode.click == 'object')
+			if (typeof buttonNode.click == 'function' || typeof buttonNode.click == 'object')
 			{
 				buttonNode.click();
 			}	
@@ -557,7 +551,7 @@ createProxyButton = function(buttonNode,index)
 	return proxyContainer;
 }
 /**
-* Helper method.    Return index of an element in an array.
+* Helper method.    Return index of an element in an array NOT case-sensitive.
 * @param _this      Required. Array
  * @param x          Required. key
 * @return index      
@@ -566,14 +560,14 @@ arrayIndexOf = function(_this,x)
 {
    for(var i=0;i<_this.length;i++) 
    {
-   	if(_this[i]==x) 
+   	if (_this[i].toLowerCase()==x.toLowerCase()) 
    		return i;
    }
    return-1;
 }   	
 		
 
-if(typeof(onLightboxResize) == "undefined")
+if (typeof(onLightboxResize) == "undefined")
 {
 	
 	/**
@@ -587,7 +581,7 @@ if(typeof(onLightboxResize) == "undefined")
 		document.body.style.margin = 0;
 		document.body.style.padding = 0;
 		var rootDiv = document.getElementById('cs_commondlg');
-		if(rootDiv)
+		if (rootDiv)
 		{
 			main_table = document.getElementById('MainTable');
 			if (main_table && main_table.style)
