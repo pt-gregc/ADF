@@ -24,7 +24,7 @@ JavaScript routines to resolve references for windows inside lightbox
 
 function getOpener(ignoreOpenerProperty)
 {
-	if((self != top) && (typeof(top.commonspot.lightbox)!= 'undefined'))
+	if(top && (self != top) && (typeof(top.commonspot.lightbox)!= 'undefined'))
 	{
 		return top.commonspot.lightbox.getOpenerWindow(ignoreOpenerProperty);
 	}
@@ -108,7 +108,7 @@ function getSpellCheckTarget()
 
 function closeCleanHTMLWindows()
 {
-	if((self != top) && (typeof(top.commonspot.lightbox)!= 'undefined'))
+	if((typeof(top.commonspot.lightbox)!= 'undefined'))
 	{
 		var win;
 		for (var i=0; i<top.commonspot.lightbox.stack.length; i++)
