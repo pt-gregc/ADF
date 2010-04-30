@@ -69,7 +69,7 @@ History:
 		scriptsObj.loadJQuery("1.3.2", xParams.forceScripts);
 		scriptsObj.loadJQueryUI("1.7.2", "ui-lightness", xParams.forceScripts);
 		//scriptsObj.loadThickbox("3.1", xParams.forceScripts);
-		scriptsObj.loadJQueryTools();
+		//scriptsObj.loadJQueryTools();
 		scriptsObj.loadADFLightbox();
 	</cfscript>
 	
