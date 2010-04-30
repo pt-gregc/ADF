@@ -83,8 +83,9 @@ var commonspot = window.commonspot || parent.commonspot || {};
 /*
  *	ADF UPDATE - Override the CS 5 commonspot.util
  */ 
-if(!commonspot.util)
-{
+//if(!commonspot.util)
+//{
+
 	commonspot.util = {};
 	
 	/**
@@ -1292,7 +1293,7 @@ commonspot.util.xml.nodeToObject(xmlDoc);
 /*
  * ADF UPDATE
  */
-} // End: commonspot.util
+//} // End: commonspot.util
 
 
 

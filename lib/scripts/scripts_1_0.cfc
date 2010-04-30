@@ -668,8 +668,7 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	
 	PaperThin, Inc.
 	M. Carroll
@@ -686,6 +685,7 @@ History:
 	2009-11-17 - RLW - Updated to set dynamic ajaxProxy
 	2010-02-19 - MFC - Updated the CS 6.0 lightbox framework
 	2010-03-01 - MFC - Added IF block to load the browse-all.js in CS 6.0 if not in a CS page.
+	2010-04-30 - MFC - Updated the Lightbox framework to resolve issues.
 --->
 <cffunction name="loadADFLightbox" access="public" output="true" returntype="void" hint="ADF Lightbox Framework for the ADF Library">
 	<cfargument name="version" type="string" required="false" default="1.0" hint="ADF Lightbox version to load">
@@ -729,25 +729,33 @@ History:
 		</cfscript>
 		
 		<!--- Load the CommonSpot Lightbox when not in version 6.0 --->
-		<cfif ListLast(request.cp.productversion," ") LT 6 >
+		<cfif productVersion LT 6 >
 			<cfoutput>
 			<!--- Load the CommonSpot 6.0 Lightbox Framework --->
 			<script type='text/javascript' src='/ADF/extensions/lightbox/#arguments.version#/js/browser-all.js'></script>
-		
+			
 			<!--- Setup the CommonSpot 6.0 Lightbox framework --->
 			<script type="text/javascript">	
 				if ((typeof commonspot == 'undefined' || !commonspot.lightbox) && (!top.commonspot || !top.commonspot.lightbox))
 					loadNonDashboardFiles();
 				else if ( typeof parent.commonspot != 'undefined' ){
-					commonspot = parent.commonspot;
+					var commonspot = parent.commonspot;
 				}
 				else if ( typeof top.commonspot != 'undefined' ){
-					commonspot = top.commonspot;
+					var commonspot = top.commonspot;
 				}
-	
-				// Load the commonspot.util.dom for CS 5
-    			loadUtilDom();
-			</script>
+				
+    			/*
+				 *	Loads in the Commonspot.util space for CS 5. This exists already in CS 6.
+				 *	
+				 */
+    			// Check if the commonspot.util.dom space exists,
+				//	If none, then build this from the Lightbox Util.js
+				if ( (typeof commonspot.util == 'undefined') || (typeof commonspot.util.dom == 'undefined') )
+				{
+					IncludeJs('/ADF/extensions/lightbox/1.0/js/util.js', 'script');
+				}
+    		</script>
 			</cfoutput>
 		<cfelse>
 			<cfoutput>
@@ -765,10 +773,10 @@ History:
 					if ((typeof commonspot == 'undefined' || !commonspot.lightbox) && (!top.commonspot || !top.commonspot.lightbox))
 						loadNonDashboardFiles();
 					else if ( typeof parent.commonspot != 'undefined' ){
-						commonspot = parent.commonspot;
+						var commonspot = parent.commonspot;
 					}
 					else if ( typeof top.commonspot != 'undefined' ){
-						commonspot = top.commonspot;
+						var commonspot = top.commonspot;
 					}
 				</script>
 				
@@ -784,7 +792,7 @@ History:
 				
 				// get local references to objects we need in parent frame
 				// commonspot object has state, so we need that instance; others are static, but why load them again
-				var commonspot = parent.commonspot;
+				//var commonspot = parent.commonspot;
 				commonspot.lightbox.initCurrent(#request.params.width#, #request.params.height#, { title: '#request.params.title#', subtitle: '#request.params.subtitle#', close: 'true', reload: 'true' });
 			});
 		</script>

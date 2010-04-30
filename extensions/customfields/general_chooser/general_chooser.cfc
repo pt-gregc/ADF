@@ -99,7 +99,7 @@ History:
 		for( itm=1; itm lte listLen(structKeyList(arguments)); itm=itm+1 )
 		{
 			thisParam = listGetAt(structKeyList(arguments), itm);
-			if( thisParam neq "method" and thisParam neq "bean" )
+			if( thisParam neq "method" and thisParam neq "bean" and thisParam neq "chooserMethod" )
 			{
 				argStr = listAppend(argStr, "#thisParam#='#arguments[thisParam]#'");
 			}
