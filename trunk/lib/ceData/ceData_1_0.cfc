@@ -946,11 +946,12 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	M Carroll
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M Carroll
 Name:
-	$invalidateElementCache
+	$getAllCustomElements
 Summary:
 	Returns all the Custom Elements for the site.
 Returns:
@@ -958,6 +959,7 @@ Returns:
 Arguments:
 History:
 	2009-05-21 - MFC - Created
+	2010-04-13 - MFC - Removed ownerid where clause.
 --->
 <cffunction name="getAllCustomElements" access="public" returntype="query" hint="Returns all the Custom Elements for the site.">
 	
@@ -969,7 +971,6 @@ History:
 		SELECT 		ID, FormName
 		FROM 		formcontrol
 		WHERE 		(FormControl.action = '' OR FormControl.action is null)
-		AND 		ownerid <> 0
 		ORDER BY 	FormName
 	</cfquery>
 	<cfreturn customElements>
