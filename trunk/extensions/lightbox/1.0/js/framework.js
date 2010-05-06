@@ -40,7 +40,7 @@ defaultHeight = 500;
 function initADFLB() {
 	//alert("initADFLB");
 	jQuery(".ADFLightbox").each(function(){
-        var relValArray = processRel(jQuery(this).attr("rel"));
+        var lightboxURL = processRel(jQuery(this).attr("rel"));
       	// Unbind any click actions before resetting the binding events
       	jQuery(this).unbind('click');
       	
@@ -48,48 +48,34 @@ function initADFLB() {
         jQuery(this).click(function () { 
         	// Check if the commonspot OR lightbox space has been built
         	if ( (typeof commonspot == 'undefined') || (typeof commonspot.lightbox == 'undefined') )
-        		parent.commonspot.lightbox.openDialog(relValArray[0]);
+        		parent.commonspot.lightbox.openDialog(lightboxURL);
         	else
-        		commonspot.lightbox.openDialog(relValArray[0]);
+        		commonspot.lightbox.openDialog(lightboxURL);
         });
      });
 }
 
-/*	
- *	Returns Array of the Rel URL and Width
- *		retVals[0] = URL
- *		retVals[1] = width
- */ 
+/*
+ * Returns the value of the rel="" tag with
+ * additional parameters added to handle lightbox resizing
+ */
 function processRel(relParam) {
-	// Split the full url to get the values
-	var urlStr = relParam.split("?");
-	var urlVal = urlStr[0];
-	// Split the url params and get the value for width
-	var urlParams = urlStr[1].split("&");
-	
-	// Set a default width
-	var width = defaultWidth;
-	
-	// Loop over the params
-	for (i = 0; i <= (urlParams.length - 1); i = i + 1)
-	{
-		// Split the current param
-		var urlParamVal = urlParams[i].split("=");
-		// Check if this is the width
-		if ( urlParamVal[0] == 'width' )
-		{
-			// Set the width variable
-			width = urlParamVal[1];
-			
-			// Set the i value to the urlParams length to break the loop
-			i = urlParams.length;
-		}
-	}
-	
-	// Set the return Array
-	//var retVals = new Array(urlVal, width);
-	var retVals = new Array(relParam, width);
-	return retVals;
+	var newURL = relParam;
+	// Split the full url to see if there are parameters
+	var urlArray = newURL.split("?");
+	// create array of new parameters to be added
+	var addParam = [ 'addMainTable=1' ]
+	var initDelim = "?";
+	// if there were URL parameters then there is already a ? so change the initial delimiter
+	if( urlArray.length > 1 )
+		initDelim = "&";
+	for( var i=0; i < addParam.length; i++ ){
+		if(i == 0)
+			newURL = newURL + initDelim + addParam[i];
+		else
+			newURL = newURL + "&" + addParam[i];
+	}	
+	return newURL;
 }
 
 // Close the lightbox layer
