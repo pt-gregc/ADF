@@ -745,7 +745,7 @@ History:
 					var commonspot = top.commonspot;
 				}
 				
-    			/*
+				/*
 				 *	Loads in the Commonspot.util space for CS 5. This exists already in CS 6.
 				 *	
 				 */
@@ -769,15 +769,55 @@ History:
 				<!--- Setup the CommonSpot 6.0 Lightbox framework --->
 				<!--- <cfinclude template="/commonspot/non-dashboard-include.cfm"> --->
 				<cfoutput>
-				<script type="text/javascript">
-					if ((typeof commonspot == 'undefined' || !commonspot.lightbox) && (!top.commonspot || !top.commonspot.lightbox))
+				<!--- <script type="text/javascript">
+					/* if ((typeof commonspot == 'undefined' || !commonspot.lightbox) && (!top.commonspot || !top.commonspot.lightbox))
 						loadNonDashboardFiles();
 					else if ( typeof parent.commonspot != 'undefined' ){
 						var commonspot = parent.commonspot;
 					}
 					else if ( typeof top.commonspot != 'undefined' ){
 						var commonspot = top.commonspot;
+					} */
+					
+					if (typeof commonspot == 'undefined' || !commonspot.lightbox) 
+					{
+						if ( typeof parent.commonspot != 'undefined' ){
+						var commonspot = parent.commonspot;
+						}
+						else if ( typeof top.commonspot != 'undefined' ){
+							var commonspot = top.commonspot;
+						}
+						else {
+							loadNonDashboardFiles();
+						}
+					
+					}	
+				</script> --->
+				<script type="text/javascript">
+				<!--
+					if (typeof commonspot == 'undefined' || !commonspot.lightbox)
+					{	
+						if ( typeof parent.commonspot != 'undefined' ){
+							var commonspot = parent.commonspot;
+						}
+						else if ( typeof top.commonspot != 'undefined' ){
+							var commonspot = top.commonspot;
+						}
+						else {
+							loadNonDashboardFiles();
+						}
 					}
+					if (parent.commonspot && typeof newWindow == 'undefined')
+					{
+						var arrFiles = 
+								[
+									{fileName: '/commonspot/javascript/lightbox/overrides.js', fileType: 'script', fileID: null},
+									{fileName: '/commonspot/javascript/lightbox/window_ref.js', fileType: 'script', fileID: null}
+								];
+						
+						loadDashboardFiles(arrFiles);
+					}	
+				//-->
 				</script>
 				
 				</cfoutput>
