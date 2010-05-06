@@ -51,6 +51,7 @@ History:
 	<cfparam name="request.params.method" default="" />
 	<cfparam name="request.params.bean" default="" />
 	<cfparam name="request.params.returnformat" default="plain">
+	<cfparam name="request.params.addMainTable" default="0">
 	<cfscript>
 		bean = structNew();
 		reHTML = "";
@@ -122,7 +123,10 @@ History:
 </cfsilent>
 <cfif IsDefined("reHTML")>
 	<cfscript>if ( forceOutput IS true ) { application.ADF.scripts.loadADFLightbox(force=1); }</cfscript>
-	<cfoutput>#TRIM(reHTML)#</cfoutput>
+	<!--- // if this is a lighbox window then add in the main table --->
+	<cfif request.params.addMainTable><cfoutput><table id="MainTable"><tr><td></cfoutput></cfif>
+		<cfoutput>#TRIM(reHTML)#</cfoutput>
+	<cfif request.params.addMainTable><cfoutput></td></tr></table></cfoutput></cfif>
 </cfif>
 
 
