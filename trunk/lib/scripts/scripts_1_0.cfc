@@ -1050,4 +1050,32 @@ History:
 		<cfset variables.scriptsService.loadedScript("jqueryAutocomplete")>
 	</cfif>
 </cffunction>
+<!---
+/* ***************************************************************
+/*
+Author: 	
+	S. Smith
+Name:
+	$loadJQueryCookie
+Summary:
+	Loads the JQuery Cookie plugin if not loaded.
+Returns:
+	None
+Arguments:
+	Boolean - force - Forces JQuery Cookie script header to load.
+History:
+	2010-05-07 - SFS - Created
+--->
+<cffunction name="loadJQueryCookie" access="public" output="true" returntype="void" hint="Loads the JQuery Cookie plugin if not loaded.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery Cookie script header to load.">
+	<cfif (not variables.scriptsService.isScriptLoaded("jqueryCookie")) OR (arguments.force)>
+		<cfoutput>
+			<script type="text/javascript" src="/ADF/thirdParty/jquery/cookie/jquery.cookie.js"></script>
+		</cfoutput>
+		<!--- If we force, then don't record the loaded script --->
+		<cfif NOT arguments.force>
+			<cfset variables.scriptsService.loadedScript("jqueryCookie")>
+		</cfif>
+	</cfif>
+</cffunction>
 </cfcomponent>
