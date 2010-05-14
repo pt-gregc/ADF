@@ -232,9 +232,11 @@ History:
 			// load current values into the form field
 			jQuery("input###fqFieldName#").val(#xParams.fieldID#currentValue);
 		}
+		//setTimeout("ResizeWindow(1);", 2000);
 	</script>
 	<tr>
-		<td class="cs_dlgLabelSmall" colspan="2">
+		<td class="cs_dlgLabelSmall" colspan="2" height="400">
+			<img src="/ADF/extensions/lightbox/1.0/images/spacer.gif" width="750px" height="1px" />
 			<br />
 			<div>
 				#xparams.label#:
