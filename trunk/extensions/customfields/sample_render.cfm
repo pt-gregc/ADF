@@ -60,6 +60,6 @@ end user license agreement.
 	<input type='hidden' name='#fqFieldName#' id='#fqFieldName#' value='#currentValue#'>
 	<!--- // include hidden field for simple form processing --->
 	<cfif renderSimpleFormField>
-		<input type="hidden" name="#fqFieldName#_FIELDNAME" id="#fqFieldName#_FIELDNAME" value="#ReplaceNoCase(xParams.fieldName, 'fic_','')#">
+		<input type="hidden" name="#fqFieldName#_FIELDNAME" id="#fqFieldName#_FIELDNAME" value="#ReplaceNoCase(fqFieldName, 'fic_','')#">
 	</cfif>
 </cfoutput>
