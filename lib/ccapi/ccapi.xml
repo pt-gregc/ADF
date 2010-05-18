@@ -1,3 +1,10 @@
+<!-- 
+	// CCAPI SAMPLE CONFIGURATION
+	
+	Copy this file to your sites _cs_apps/config directory and modify as required. 
+-->
+				
+
 <?xml version="1.0" encoding="utf-8"?>
 <settings>
     <logging>
