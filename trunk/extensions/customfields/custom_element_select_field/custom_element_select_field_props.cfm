@@ -52,7 +52,7 @@ History:
 	if( not structKeyExists(currentValues, "displayField") )
 		currentValues.displayField = "";
 	if( not structKeyExists(currentValues, "renderField") )
-		currentValues.renderField = "No";
+		currentValues.renderField = "yes";
 	if( not structKeyExists(currentValues, "defaultVal") )
 		currentValues.defaultVal = "";
 	if( not structKeyExists(currentValues, "fldName") )
