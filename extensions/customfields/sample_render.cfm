@@ -57,7 +57,7 @@ end user license agreement.
 		<td class="cs_dlgLabelSmall"></td>
 	</tr>
 	<!--- hidden field to store the value --->
-	<input type='hidden' name='#fqFieldName#' id='#xparams.fldName#' value='#currentValue#'>
+	<input type='hidden' name='#fqFieldName#' id='#fqFieldName#' value='#currentValue#'>
 	<!--- // include hidden field for simple form processing --->
 	<cfif renderSimpleFormField>
 		<input type="hidden" name="#fqFieldName#_FIELDNAME" id="#fqFieldName#_FIELDNAME" value="#ReplaceNoCase(xParams.fieldName, 'fic_','')#">
