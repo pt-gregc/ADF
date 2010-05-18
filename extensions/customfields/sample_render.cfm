@@ -54,10 +54,12 @@ end user license agreement.
 	</cfscript>
 	<tr>
 		<td class="#tdClass#" valign="top">#labelText#</td>
-		<td class="cs_dlgLabelSmall"></td>
+		<td class="cs_dlgLabelSmall">
+			<!--- hidden field to store the value --->
+			<input type="input" name="#fqFieldName#" id="#fqFieldName#" value="#currentValue#">
+		</td>
 	</tr>
-	<!--- hidden field to store the value --->
-	<input type='hidden' name='#fqFieldName#' id='#fqFieldName#' value='#currentValue#'>
+	
 	<!--- // include hidden field for simple form processing --->
 	<cfif renderSimpleFormField>
 		<input type="hidden" name="#fqFieldName#_FIELDNAME" id="#fqFieldName#_FIELDNAME" value="#ReplaceNoCase(fqFieldName, 'fic_','')#">
