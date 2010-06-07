@@ -167,6 +167,8 @@ Arguments:
 History:
 	2009-08-03 - MFC - Created
 	2009-11-11 - MFC - Updates to force the jquery script to load
+	2010-06-04 - MFC - Added IF statement to check for lbAction to refresh parent
+	2010-06-07 - MFC - Updated the render form to not call the special RTE operations when above CS 6.
 --->
 <cffunction name="renderAddEditForm" access="public" returntype="String" hint="Returns the HTML for an Add/Edit Custom element record">
 	<cfargument name="formID" type="numeric" required="true">
@@ -192,7 +194,8 @@ History:
 		</cfscript>
 		<script type='text/javascript'>
 			jQuery(document).ready(function(){
-				window.parent.location.href = window.parent.location.href;
+				if ( "#arguments.lbAction#" != "norefresh" )
+					window.parent.location.href = window.parent.location.href;
 				window.parent.closeLB();
 			});
 		</script>
@@ -200,7 +203,8 @@ History:
 	</cfsavecontent>
 	
 	<cfif NOT renderResult>
-		<cfif formContainRTE>
+		<!--- Check the CS build is 5 or less AND we have an RTE field --->
+		<cfif (ListLast(request.cp.productversion," ") LT 6)  AND formContainRTE>
 			<!--- Set the form result HTML --->
 			<cfsavecontent variable="formResultHTML">
 				<cfoutput>
