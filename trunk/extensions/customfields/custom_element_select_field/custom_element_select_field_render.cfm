@@ -39,7 +39,8 @@ History:
 	2009-10-28 - MFC - Created
 	2009-12-23 - MFC - Resolved error with loading the current value selected.
 	2010-03-10 - MFC - Updated function call to ADF lib to reference Application.ADF.
-						Updated cedata statement to remove filter and get all records
+						Updated cedata statement to remove filter and get all records.
+	2010-06-10 - MFC - Update to sort the CEDataArray at the start.
 --->
 <cfscript>
 	// the fields current value
@@ -65,7 +66,10 @@ History:
 		xparams.fldName = fqFieldName;
 		
 	// Get the data records
-	ceDataArray = application.ADF.cedata.getCEData(xparams.customElement);	
+	ceDataArray = application.ADF.cedata.getCEData(xparams.customElement);
+	// Sort the list by the display field value
+	if ( StructKeyExists(xparam, "displayField") AND LEN(xparam.displayField) )
+		ceDataArray = application.ADF.cedata.arrayOfCEDataSort(ceDataArray, xparam.displayField);
 
 	// Check if we do not have a current value then set to the default
 	if ( (LEN(currentValue) LTE 0) OR (currentValue EQ "") )
