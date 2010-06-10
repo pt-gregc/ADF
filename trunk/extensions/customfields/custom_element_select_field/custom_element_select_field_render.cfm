@@ -68,8 +68,8 @@ History:
 	// Get the data records
 	ceDataArray = application.ADF.cedata.getCEData(xparams.customElement);
 	// Sort the list by the display field value
-	if ( StructKeyExists(xparam, "displayField") AND LEN(xparam.displayField) )
-		ceDataArray = application.ADF.cedata.arrayOfCEDataSort(ceDataArray, xparam.displayField);
+	if ( StructKeyExists(xparams, "displayField") AND LEN(xparams.displayField) )
+		ceDataArray = application.ADF.cedata.arrayOfCEDataSort(ceDataArray, xparams.displayField);
 
 	// Check if we do not have a current value then set to the default
 	if ( (LEN(currentValue) LTE 0) OR (currentValue EQ "") )
