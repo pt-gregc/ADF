@@ -1078,4 +1078,38 @@ History:
 		</cfif>
 	</cfif>
 </cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$loadJQueryDataTables
+Summary:
+	Loads the JQuery DataTables Headers if not loaded.
+Returns:
+	None
+Arguments:
+	String - version - JQuery DataTables version to load.
+	Boolean - force - Forces JQuery DataTables script header to load.
+History:
+	2010-05-19 - MFC - Created
+--->
+<cffunction name="loadJQueryDataTables" access="public" output="true" returntype="void" hint="Loads the JQuery DataTables Headers if not loaded.">
+<cfargument name="version" type="string" required="false" default="1.6.2" hint="JQuery DataTables version to load.">
+<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery DataTables script header to load.">
+<cfif (not variables.scriptsService.isScriptLoaded("jqueryDataTables")) OR (arguments.force)>
+	<cfoutput>
+		<script type="text/javascript" src="/ADF/thirdParty/jquery/datatables/js/jquery.dataTables-#arguments.version#.min.js"></script>
+		<link rel='stylesheet' href='/ADF/thirdParty/jquery/datatables/css/demo_page.css' type='text/css' media='screen' />
+		<link rel='stylesheet' href='/ADF/thirdParty/jquery/datatables/css/demo_table_jui.css' type='text/css' media='screen' />
+		<link rel='stylesheet' href='/ADF/thirdParty/jquery/datatables/css/demo_table.css' type='text/css' media='screen' />
+	</cfoutput>
+	<!--- If we force, then don't record the loaded script --->
+	<cfif NOT arguments.force>
+		<cfset variables.scriptsService.loadedScript("jqueryDataTables")>
+	</cfif>
+</cfif>
+</cffunction>
+
 </cfcomponent>
