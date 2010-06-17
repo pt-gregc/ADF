@@ -153,19 +153,21 @@ Arguments:
 	String - Subsite URL
 History:
 	2008-12-22 - MFC - Created
+	2010-06-03 - MFC - Updated to correct bugs
 --->
 <cffunction name="getSubsiteID" access="public" returntype="numeric">
 	<cfargument name="subsiteURL" type="string" required="true">
 
-	<cfquery name="getSubsiteID" datasource="#request.site.datasource#">
+	<cfset var getSubsiteIDQry = QueryNew("null")>
+	<cfquery name="getSubsiteIDQry" datasource="#request.site.datasource#">
 		SELECT 	ID
 		FROM 	subsites
 		WHERE  	SubSiteURL = <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.subsiteURL#">
 	</cfquery>
 
 	<cfscript>
-		if (getSubsiteID.RecordCount)
-			return getSubsiteID.ID;
+		if (getSubsiteIDQry.RecordCount)
+			return getSubsiteIDQry.ID;
 		else
 			return 0;
 	</cfscript>
@@ -186,10 +188,12 @@ Arguments:
 	Numeric - pageid
 History:
 	2009-06-12 - MFC - Created
+	2010-06-08 - MFC - Updated to correct bugs
 --->
 <cffunction name="getSubsiteIDByPageID" returntype="numeric" access="public" hint="Returns the Subsite ID for the Page ID.">
 	<cfargument name="pageid" type="numeric" required="true">
-
+	
+	<cfset var sitePageMap = QueryNew("null")>
 	<cfquery name="sitePageMap" datasource="#request.site.datasource#">
 		SELECT	SitePages.SubSiteID
 		FROM    SitePages
@@ -200,7 +204,7 @@ History:
 		if ( sitePageMap.RecordCount )
 			return sitePageMap.SubSiteID;
 		else
-			return 1;
+			return 0;
 	</cfscript>
 </cffunction>
 
@@ -1049,9 +1053,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	M. Carroll
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
 Name:
 	$serializedFormStringToStruct
 Summary:
@@ -1063,20 +1068,21 @@ Arguments:
 History:
 	2009-09-15 - MFC - Created
 	2009-12-06 - MFC - Updated: Check the element field is in the struct
+	2010-05-13 - MFC - Updated: Added checks to prevent the field value returned to be the field FIC name.
 --->
 <cffunction name="serializedFormStringToStruct" access="public" returntype="struct" hint="Returns a structure of the element fields containing the serialized form data.">
 	<cfargument name="serializedString" type="string" required="true" hint="">
 	
 	<cfscript>
 		var retStruct = StructNew();
-		var elementFldList = "";
 		var i = 1;
 		var currKey = "";
-		var dataStruct = server.ADF.objectFactory.getBean("data_1_0").queryStringToStruct(arguments.serializedString);
+		var dataObj = server.ADF.objectFactory.getBean("data_1_0");
+		var dataStruct = dataObj.queryStringToStruct(arguments.serializedString);
 		// Get the element fields that match the simple form
 		var elementFormFields = server.ADF.objectFactory.getBean("forms_1_0").getCEFieldNameData(dataStruct.formName);
-
-		elementFldList = StructKeyList(elementFormFields);
+		var elementFldList = StructKeyList(elementFormFields);
+		
 		// Loop over the element fields
 		for ( i = 1; i LTE ListLen(elementFldList); i = i + 1 )
 		{
@@ -1084,12 +1090,27 @@ History:
 			//	and insert into struct with the element field name
 			currKey = ListGetAt(elementFldList, i);
 			// Check the element field is in the struct
-			if ( StructKeyExists(dataStruct, elementFormFields[currKey]) )
-				StructInsert(retStruct, currKey, dataStruct[elementFormFields[currKey]]);
+			if ( StructKeyExists(dataStruct, elementFormFields[currKey]) ){
+				// Check if any dups in the field ID value
+				if ( ListLen(dataStruct[elementFormFields[currKey]]) GT 1 ){
+					dataStruct[elementFormFields[currKey]] = dataObj.listRemoveDuplicates(dataStruct[elementFormFields[currKey]]);
+					dataStruct[elementFormFields[currKey]] = dataObj.deleteFromList(dataStruct[elementFormFields[currKey]],elementFormFields[currKey]);
+				}
+				
+				// Check if the field name eqs the value, then set to blank
+				if ( dataStruct[elementFormFields[currKey]] EQ elementFormFields[currKey] ){
+					StructInsert(retStruct, currKey, "");
+				}
+				else{
+					StructInsert(retStruct, currKey, dataStruct[elementFormFields[currKey]]);
+				}
+			}
 		}		
 	</cfscript>
 	<cfreturn retStruct>
 </cffunction>
+
+
 <!---
 /* ***************************************************************
 /*
