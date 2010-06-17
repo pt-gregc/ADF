@@ -289,12 +289,13 @@ History:
 		var loginResult = "";
 		if( arguments.subsiteID gt 0 )
 			setSubsiteID(arguments.subsiteID);
-			loginResult = variables.ws.csLogin(
-				site = getSiteURL(),
-				csUserID = getCSUserID(),
-				csPassword = getCSPassword(),
-				subSiteID = getSubsiteID(),
-				subSiteURL = '');
+			
+		loginResult = variables.ws.csLogin(
+			site = getSiteURL(),
+			csUserID = getCSUserID(),
+			csPassword = getCSPassword(),
+			subSiteID = getSubsiteID(),
+			subSiteURL = '');
 
 		// verify that the login was successful and set the SSID
 		if( ListFirst(loginResult, ":") is "Error" )
@@ -327,10 +328,16 @@ Arguments:
 	null
 History:
 	2008-05-21 - RLW - Created
+	2010-06-17 - MFC - Added Clear the SSID and SubsiteID for the session
 --->
 <cffunction name="logout">
 	<cfscript>
 		var logoutResult = variables.ws.csLogout(getSSID());
+		
+		// Clear the SSID and SubsiteID for the session
+		setSSID("");
+		setSubsiteID(0);
+		
 		if( loggingEnabled() )
 			variables.utils.logAppend("#request.formattedTimestamp# - Logout result: #logoutResult#", "CCAPI_ws_login.log");
 	</cfscript>
