@@ -37,16 +37,16 @@ History:
 		<!--- // include CommonSpots application.cfm --->
 		<!--- <cfinclude template="/commonspot/Application.cfm"> --->
 		<cfscript>
-			// Verify the security for the logged in user
-			if ( NOT server.ADF.objectFactory.getBean("csSecurity").isValidContributor() )
-				server.ADF.objectFactory.getBean("utils").abort();
-			
 			// this will come through an AJAX call
 			if( structKeyExists(form, "subsiteURL") )
 				loadSiteAppSpace(form.subsiteURL);
 			else if( structKeyExists(url, "subsiteURL") )
 				loadSiteAppSpace(url.subsiteURL);
+			// Verify the security for the logged in user
+			if ( NOT server.ADF.objectFactory.getBean("csSecurity_1_0").isValidContributor() )
+				server.ADF.objectFactory.getBean("utils").abort();
 		</cfscript>
+		
 	</cffunction>
 	
 	<cffunction name="loadSiteAppSpace" access="private" returntype="void">
