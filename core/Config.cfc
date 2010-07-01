@@ -138,17 +138,22 @@ Arguments:
 	String - CE Name search string
 History:
 	2009-08-06 - MFC - Created
+	2010-06-30 - MFC - Updated to search on lower case form name.
+						Resolved bug with Oracle DB.s
 --->
 <cffunction name="getConfigurationCE" access="private" returntype="query">
 	<cfargument name="appName" type="string" required="true">
 	
 	<!--- Initialize the variables --->
 	<cfset var getCE = QueryNew("temp")>
+	<cfset var ceConfigNameSpace = LCAse(arguments.appName) & " configuration">
+	<cfset var ceConfigNameUnderscore = LCAse(arguments.appName) & "_configuration">
+
 	<!--- Query to get the data for the custom element by pageid --->
 	<cfquery name="getCE" datasource="#request.site.datasource#">
 		SELECT 	ID, FormName
 		FROM 	FormControl
-		WHERE 	((FormName = <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.appName#_Configuration">) OR (FormName LIKE <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.appName# Configuration">))
+		WHERE 	((LOWER(FormName) = <cfqueryparam cfsqltype="cf_sql_varchar" value="#ceConfigNameUnderscore#">) OR (LOWER(FormName) = <cfqueryparam cfsqltype="cf_sql_varchar" value="#ceConfigNameSpace#">))
 		AND 	(FormControl.action = '' OR FormControl.action is null)
 	</cfquery>
 	<cfreturn getCE>
