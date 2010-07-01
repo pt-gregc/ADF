@@ -520,7 +520,7 @@ History:
 	2009-09-26 - MFC - Created
 --->
 <cffunction name="loadQTip" access="public" output="true" returntype="void" hint="Loads the JQuery Headers if not loaded.">
-<cfargument name="version" type="string" required="false" default="1.0.0-rc3" hint="JQuery version to load.">
+<cfargument name="version" type="string" required="false" default="1.0" hint="JQuery version to load.">
 <cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 <!--- Check if the header is out yet, or we want to force rendering --->
 <cfif (not variables.scriptsService.isScriptLoaded("qtip")) OR (arguments.force)>
