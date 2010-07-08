@@ -35,6 +35,7 @@ History:
 	2009-07-06 - MFC - Created
 	2009-08-14 - GAC - Modified - Converted to Custom Text Area With Class
 	2009-08-20 - GAC - Modified - Added code for the required field option
+	2010-07-08 - DMB - Modified -- Added support for custom field name
 --->
 <cfscript>
 	// the fields current value
@@ -54,6 +55,9 @@ History:
 		
 	if ( structKeyExists(xparams, "wrap") EQ 0 )
 		xparams.wrap = 'virtual';
+	
+	if ( NOT StructKeyExists(xparams, "fldName") )
+		xparams.fldName = fqFieldName;
 		
 	// find if we need to render the simple form field
 	renderSimpleFormField = false;
@@ -85,7 +89,7 @@ History:
 			</font>
 		</td>
 		<td class="cs_dlgLabelSmall">
-			<textarea name="#fqFieldName#" id="#fqFieldName#" cols="#xparams.columns#" rows="#xparams.rows#"<cfif LEN(TRIM(xparams.fldClass))> class="#xparams.fldClass#"</cfif> wrap="#xparams.wrap#">#currentValue#</textarea><!--- wrap="#xparams.wrap#" --->
+			<textarea name="#fqFieldName#" id="#xparams.fldName#" cols="#xparams.columns#" rows="#xparams.rows#"<cfif LEN(TRIM(xparams.fldClass))> class="#xparams.fldClass#"</cfif> wrap="#xparams.wrap#">#currentValue#</textarea><!--- wrap="#xparams.wrap#" --->
 			<CFIF attributes.rendermode EQ 'standard'>
 				<CFIF fieldpermission gt 0>
 					<CFOUTPUT>#description_row#</CFOUTPUT>
