@@ -35,6 +35,7 @@ History:
 	2009-07-06 - MFC - Created
 	2009-08-14 - GAC - Modified - Converted to Custom Text Area With Class
 	2009-08-19 - GAC - Modified - Added Default Value Property
+	2010-07-08 - DMB - Modified -- Added support for custom field name
 --->
 <cfscript>
 	// initialize some of the attributes variables
@@ -46,6 +47,8 @@ History:
 		currentValues.fldClass = "";
 	//if( not structKeyExists(currentValues, "maxLength") )
 		//currentValues.maxLength = "1000";
+	if( not structKeyExists(currentValues, "fldName") )
+		currentValues.fldName = "";
 	if( not structKeyExists(currentValues, "columns") )
 		currentValues.columns = "40";
 	if( not structKeyExists(currentValues, "rows") )
@@ -59,7 +62,7 @@ History:
 <cfoutput>
 	<script language="JavaScript" type="text/javascript">
 		// register the fields with global props object
-		fieldProperties['#typeid#'].paramFields = '#prefix#fldClass,#prefix#columns,#prefix#rows,#prefix#useUdef'; //,#prefix#maxLength
+		fieldProperties['#typeid#'].paramFields = '#prefix#fldClass,#prefix#fldName,#prefix#columns,#prefix#rows,#prefix#useUdef'; //,#prefix#maxLength
 		fieldProperties['#typeid#'].defaultValueField = '#prefix#defaultValue';
 		// allows this field to support the orange icon (copy down to label from field name)
 		fieldProperties['#typeid#'].jsLabelUpdater = '#prefix#doLabel';
@@ -88,6 +91,13 @@ History:
 		}
 	</script>
 	<table>
+		<tr>
+		<td class="cs_dlgLabelSmall">Field Name:</td>
+		<td class="cs_dlgLabelSmall">
+			<input type="text" name="#prefix#fldName" id="#prefix#fldName" class="cs_dlgControl" value="#currentValues.fldName#" size="40">
+			<br/><span>Please enter the field name to be used via JavaScript.  If blank, will use default name.</span>
+		</td>
+	</tr>
 		<tr>
 			<td class="cs_dlgLabelSmall">Class Name:</td>
 			<td class="cs_dlgLabelSmall">
