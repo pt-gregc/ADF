@@ -1112,4 +1112,31 @@ History:
 </cfif>
 </cffunction>
 
+<!---
+/* ***************************************************************
+/*
+Author: 	
+	PaperThin, Inc.
+	S. Smith
+Name:
+	$loadjQueryBBQ
+Summary:	
+	Loads the BBQ plugin for jQuery
+Returns:
+	Void
+Arguments:
+	Version
+History:
+ 	2010-07-08 - SFS - Created
+--->
+<cffunction name="loadJQueryBBQ" access="public" output="true" returntype="void" hint="Loads the BBQ plugin for jQuery"> 
+	<cfargument name="version" type="string" required="false" default="1.2.1" hint="Script version to load.">
+	<cfif not variables.scriptsService.isScriptLoaded("bbq")>
+		<cfoutput>
+			<script type='text/javascript' src='/ADF/thirdParty/jquery/bbq/jquery.ba-bbq-#arguments.version#.min.js'></script>
+		</cfoutput>
+		<cfset variables.scriptsService.loadedScript("bbq")>
+	</cfif>
+</cffunction>
+
 </cfcomponent>
