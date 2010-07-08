@@ -256,7 +256,7 @@ History:
 	2009-06-18 - GAC - Created
 --->
 <cffunction name="loadCFJS" access="public" output="true" returntype="void" hint="Loads the CFJS jQuery Plug-in Headers if not loaded.">
-<cfargument name="version" type="string" required="false" default="1.1.9" hint="CFJS version to load.">
+<cfargument name="version" type="string" required="false" default="1.1.12" hint="CFJS version to load.">
 <cfif not variables.scriptsService.isScriptLoaded("cfjs")>
 	<cfoutput>
 		<script type="text/javascript" src="/ADF/thirdParty/jquery/cfjs/cfjs.packed-#arguments.version#.js"></script>
