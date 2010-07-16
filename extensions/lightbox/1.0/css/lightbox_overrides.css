@@ -29,7 +29,13 @@ end user license agreement.
 .lightboxContainer .lightboxTopCorner {
 	margin-bottom: 0px;
 }
+/* Loading Message */
 div#loading_container div#loading_content{
 	background:none repeat scroll 0 0 #FFFFFF;
 	border:1px solid #7E96AD;
+}
+/* Borders images for lightbox */
+div.lightboxContainer img {
+		margin: 0;
+		padding: 0;
 }
