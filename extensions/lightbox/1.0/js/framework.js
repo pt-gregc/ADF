@@ -100,7 +100,7 @@ function openLB(url) {
 // Calls the window.parent to run the actions
 //	This allows to just call "replaceLB(...)" in the current pages code
 function replaceLB(url){
-	window.parent.parentReplaceLB(url);
+	parentReplaceLB(url);
 }
 // Close the current lightbox and open a new lightbox, thus replacing the current lightbox
 function parentReplaceLB(url){
