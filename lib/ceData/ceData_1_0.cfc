@@ -1101,8 +1101,7 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	M. Carroll
 Name:
 	$compareCEDataArray
@@ -1115,8 +1114,10 @@ Arguments:
 	Array - array2
 History:
 	2009-08-28 - MFC - Created
+	2010-07-22 - MFC - Updated to set the large array in the outer loop.
+						Validate if both arrays have lengths.
 --->
-<cffunction name="compareCEDataArray" access="public" returntype="array">
+<cffunction name="compareCEDataArray" access="public" returntype="array" hint="Returns a CEData array format with matches in array1 and array2.">
 	<cfargument name="array1" type="array" required="true">
 	<cfargument name="array2" type="array" required="true">
 	
@@ -1126,16 +1127,38 @@ History:
 		var array2PageIDList = "";
 		var i = 1;
 		var j = 1;
-		// Loop over array1
-		for ( i = 1; i LTE ArrayLen(arguments.array1); i = i + 1)
+		
+		// Set the array1 to be the larger array
+		var largeArray = arguments.array1;
+		var smallArray = arguments.array2;
+		
+		// Validate that both arrays have LENGTHS
+		if ( ArrayLen(largeArray) AND (NOT ArrayLen(smallArray)) ) {
+			return largeArray;
+		}
+		else if ( ArrayLen(smallArray) AND (NOT ArrayLen(largeArray)) ) {
+			return smallArray;
+		}
+		else if ( (NOT ArrayLen(largeArray)) AND (NOT ArrayLen(smallArray)) ){
+			return retArray;
+		}
+		
+		// Check if array2 is larger
+		if ( ArrayLen(arguments.array2) GT ArrayLen(arguments.array1) ){
+			largeArray = arguments.array2;
+			smallArray = arguments.array1;
+		}
+				
+		// Loop over largeArray
+		for ( i = 1; i LTE ArrayLen(largeArray); i = i + 1)
 		{
-			// Loop over the array2
-			for ( j = 1; j LTE ArrayLen(arguments.array2); j = j + 1)
+			// Loop over the smallArray
+			for ( j = 1; j LTE ArrayLen(smallArray); j = j + 1)
 			{		
-				// check if the current array1 pageid has any matches in array2
-				if ( arguments.array1[i].pageid EQ arguments.array2[j].pageid )
+				// check if the current largeArray pageid has any matches in smallArray
+				if ( largeArray[i].pageid EQ smallArray[j].pageid )
 				{
-					ArrayAppend(retArray, arguments.array1[i]);
+					ArrayAppend(retArray, largeArray[i]);
 					break;
 				}
 			}
