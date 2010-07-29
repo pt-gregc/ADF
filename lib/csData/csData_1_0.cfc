@@ -415,9 +415,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc
+	Ron West
 Name:
 	$makeCSSafe
 Summary:	
@@ -430,6 +431,7 @@ Arguments:
 	Boolean makeLowerCase [Option - false]
 History:
 	2009-07-01 - RLW - Created
+	2010-07-29 - MFC - Implemented the makeLowerCase argument
 --->
 <cffunction name="makeCSSafe" access="public" returntype="String" hint="">
 	<cfargument name="stringToFix" type="string" required="true" hint="The string that needs to be fixed">
@@ -444,8 +446,11 @@ History:
 		fixedString = Replace(fixedString,"'","","ALL");
 		// replace groups of non alphanumerical with dashes
 		fixedString = REReplace(fixedString,"[^[:alnum:]]+","-","ALL");
-		// to lower case
-		fixedString = LCase(fixedString);		
+		// Check if we want the lowercase
+		if ( arguments.makeLowerCase ) {
+			// to lower case
+			fixedString = LCase(fixedString);		
+		}		
 	</cfscript>
 	<cfreturn fixedString>
 </cffunction>
