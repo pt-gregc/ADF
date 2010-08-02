@@ -50,13 +50,49 @@ Returns:
 	Array of term IDs
 Arguments:
 	Numeric facetID - Facet ID to return the top terms
+	Numeric taxonomyID - Taxonomy ID to return the top terms
+	String orderby - Order By Field (ID or NAME)
+History:
+	2009-06-22 - MFC - Created
+	2010-07-01 - GAC - Modified - Broke the getTopTerm query out as a seperate function
 --->
-<cffunction name="getTopTermIDArrayForFacet" access="public" returntype="array" output="no">
+<cffunction name="getTopTermIDArrayForFacet" access="public" returntype="array" output="no" hint="Taxonomy function to return top term IDs for the facet ID">
 	<cfargument name="facetID" type="numeric" required="yes">
 	<cfargument name="taxonomyID" type="numeric" required="yes">
-
+	<cfargument name="orderby" type="string" default="" required="no" hint="Order By 'ID' (the term id) or 'NAME' (the term name)">
+	
 	<cfscript>
-		var getTopTerms = '';
+		var getTopTerms = getTopTermsQueryForFacet(arguments.facetID,arguments.taxonomyID,arguments.orderby);
+	</cfscript>
+
+	<cfreturn ListToArray(ValueList(getTopTerms.ID))>
+</cffunction>
+
+<!---
+/* ***************************************************************
+/*
+Author: Michael Carroll
+Name:
+	getTopTermsQueryForFacet
+Summary:
+	Taxonomy function to return top terms as a query for the facet ID
+Returns:
+	Query of Terms
+Arguments:
+	Numeric facetID - Facet ID to return the top terms
+	Numeric taxonomyID - Taxonomy ID to return the top terms
+	String orderby - Order By Field (ID or NAME)
+History:
+	2009-06-22 - MFC - Created
+	2010-07-01 - GAC - Modified - Broke the getTopTerms query out as a seperate function
+--->
+<cffunction name="getTopTermsQueryForFacet" access="public" returntype="query" output="no" hint="Taxonomy function to return top terms as a query for the facet ID">
+	<cfargument name="facetID" type="numeric" required="yes">
+	<cfargument name="taxonomyID" type="numeric" required="yes">
+	<cfargument name="orderby" type="string" default="" required="no" hint="Order By 'ID' (the term id) or 'NAME' (the term name)">
+	
+	<cfscript>
+		var getTopTerms = QueryNew("temp");
 	</cfscript>
 
 	<cfquery name="getTopTerms" datasource="#request.site.datasource#">
@@ -67,9 +103,12 @@ Arguments:
 		AND t.id = tt.termid
 		AND t.taxonomyid = tt.taxonomyid
 		AND t.updatestatus = 1
+		<cfif LEN(TRIM(arguments.orderby)) AND (arguments.orderby IS "NAME" OR arguments.orderby IS "ID")>
+		ORDER BY t.#arguments.orderby#
+		</cfif>
 	</cfquery>
 
-	<cfreturn ListToArray(ValueList(getTopTerms.ID))>
+	<cfreturn getTopTerms />
 </cffunction>
 <!---
 	/* ***************************************************************
