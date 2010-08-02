@@ -35,7 +35,8 @@ History:
 	2009-07-06 - MFC - Created
 	2009-08-14 - GAC - Modified - Converted to Custom Text Area With Class
 	2009-08-20 - GAC - Modified - Added code for the required field option
-	2010-07-08 - DMB - Modified -- Added support for custom field name
+	2010-07-08 - DMB - Modified - Added support for custom field name
+	2010-08-02 - DMB - Modified - Modified to display the label using Commonspot CSS for a required field.
 --->
 <cfscript>
 	// the fields current value
@@ -68,7 +69,14 @@ History:
 <cfscript>
 	if ( structKeyExists(request, "element") )
 	{
-		labelText = '<span class="CS_Form_Label_Baseline"><label for="#fqFieldName#">#xParams.label#:</label></span>';
+			if (xparams.req is "Yes") {
+				thisVal="Required";
+			}
+			else
+			{
+				thisVal="Label";
+			}
+		labelText = '<span class="CS_Form_#thisVal#_Baseline"><label for="#fqFieldName#">#xParams.label#:</label></span>';
 		tdClass = 'CS_Form_Label_Baseline';
 	}
 	else
@@ -82,11 +90,7 @@ History:
 	
 	<tr>
 		<td class="#tdClass#" valign="top">
-			<font face="Verdana,Arial" color="##000000" size="2">
-				<cfif xparams.req eq "Yes"><strong></cfif>
 				#labelText#
-				<cfif xparams.req eq "Yes"></strong></cfif>
-			</font>
 		</td>
 		<td class="cs_dlgLabelSmall">
 			<textarea name="#fqFieldName#" id="#xparams.fldName#" cols="#xparams.columns#" rows="#xparams.rows#"<cfif LEN(TRIM(xparams.fldClass))> class="#xparams.fldClass#"</cfif> wrap="#xparams.wrap#">#currentValue#</textarea><!--- wrap="#xparams.wrap#" --->
