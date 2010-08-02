@@ -90,7 +90,9 @@ History:
 	
 	<tr>
 		<td class="#tdClass#" valign="top">
+				<cfif xparams.req eq "Yes"><strong></cfif>
 				#labelText#
+				<cfif xparams.req eq "Yes"><strong></cfif>
 		</td>
 		<td class="cs_dlgLabelSmall">
 			<textarea name="#fqFieldName#" id="#xparams.fldName#" cols="#xparams.columns#" rows="#xparams.rows#"<cfif LEN(TRIM(xparams.fldClass))> class="#xparams.fldClass#"</cfif> wrap="#xparams.wrap#">#currentValue#</textarea><!--- wrap="#xparams.wrap#" --->
