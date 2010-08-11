@@ -40,11 +40,12 @@ History:
 /**
 * Sorts an array of structures based on a key in the structures.
 *
-* @param aofS      Array of structures.
-* @param key      Key to sort by.
-* @param sortOrder      Order to sort by, asc or desc.
-* @param sortType      Text, textnocase, or numeric.
+* @param aofS       Array of structures.
+* @param key        Key to sort by.
+* @param sortOrder  Order to sort by, asc or desc.
+* @param sortType   Text, textnocase, numeric, or time.
 * @param delim      Delimiter used for temporary data storage. Must not exist in data. Defaults to a period.
+* @param datefield  Used for time sorting, the basis for the construction of the array for sorting times.
 * @return Returns a sorted array.
 * @author Nathan Dintenfass (nathan@changemedia.com)
 * @version 1, December 10, 2001
@@ -56,6 +57,7 @@ History:
 	<cfargument name="sortOrder" type="string" required="false" default="asc">
 	<cfargument name="sortType" type="string" required="false" default="textnocase">
 	<cfargument name="delim" type="string" required="false">
+	<cfargument name="datefield" type="string" required="false">
 
 	<cfscript>
 		//by default we'll use an ascending sort
@@ -64,6 +66,8 @@ History:
         var sortType2 = "textnocase";
         //by default, use ascii character 30 as the delim
         var delim2 = ".";
+		//if this is a time sort, then what is the date field? Default to "eventdate"
+		var datefield2 = "eventdate";
         //make an array to hold the sort stuff
         var sortArray = arraynew(1);
         //make an array to return
@@ -76,20 +80,41 @@ History:
         if(structKeyExists(arguments, 'sortOrder'))
             sortOrder2 = arguments.sortOrder;
         //if there is a 4th argument, set the sortType
-        if(structKeyExists(arguments, 'sortType'))
+        if(structKeyExists(arguments, 'sortType')){
+			//If we are sorting by time then set the type to textnocase
+			if (arguments.sortType eq 'time')
+				sortType2 = 'textnocase';
+			else
             sortType2 = arguments.sortType;
+		}
         //if there is a 5th argument, set the delim
         if(structKeyExists(arguments, 'delim'))
             delim2 = arguments.delim;
+        if(structKeyExists(arguments, 'datefield'))
+            datefield2 = arguments.datefield;
+
+        if(structKeyExists(arguments, 'sortType') AND arguments.sortType eq 'time'){
+			//we are doing a time sort
+			//loop over the array of structs, building the sortArray
+			//construct the array using the date of the specified date field and the time portion of the specified key
+			for(ii = 1; ii lte count; ii = ii + 1)
+				sortArray[ii] = left(arguments.aOfS[ii].values[datefield2],11) & mid(arguments.aOfS[ii].values[arguments.key],11,11) & delim2 & ii;
+		}
+		else {
         //loop over the array of structs, building the sortArray
         for(ii = 1; ii lte count; ii = ii + 1)
             sortArray[ii] = arguments.aOfS[ii].values[arguments.key] & delim2 & ii;
+		}
+
+		//Application.ADF.utils.doDump(sortArray,"sortArray",0);
 		//now sort the array
         arraySort(sortArray,sortType2,sortOrder2);
+		//Application.ADF.utils.doDump(sortArray,"sortArray - sorted (#sortType2#,#sortOrder2#)",0);
         //now build the return array
         for(ii = 1; ii lte count; ii = ii + 1)
             returnArray[ii] = arguments.aOfS[listLast(sortArray[ii],delim2)];
         //return the array
+		//Application.ADF.utils.doDump(returnArray,"returnArray",0);
         return returnArray;
 	</cfscript>
 </cffunction>
@@ -1542,4 +1567,47 @@ History:
 	</cfscript>
 	<cfreturn elementInfo>
 </cffunction>
+
+<!---
+/* ***************************************************************
+/*
+Author: 	S. Smith
+Name:
+	$arrayOfCEDataToQuery
+Summary:
+	Returns Query from a Custom Element Array of Structures
+Returns:
+	Query
+Arguments:
+	Array
+History:
+	2010-07-27 - SFS - Created based upon the arrayOfStructuresToQuery function in data_1_0.cfc
+--->
+<cffunction name="arrayOfCEDataToQuery" access="public" returntype="query">
+	<cfargument name="theArray" type="array" required="true">
+
+	<cfscript>
+		var colNames = "";
+		var theQuery = queryNew("");
+		var i=0;
+		var j=0;
+		//if there's nothing in the array, return the empty query
+		if(NOT arrayLen(arguments.theArray))
+			return theQuery;
+		//get the column names into an array =
+		colNames = structKeyArray(arguments.theArray[1]["values"]);
+		//build the query based on the colNames
+		theQuery = queryNew(arrayToList(colNames));
+		//add the right number of rows to the query
+		queryAddRow(theQuery, arrayLen(arguments.theArray));
+		//for each element in the array, loop through the columns, populating the query
+		for(i=1; i LTE arrayLen(arguments.theArray); i=i+1){
+			for(j=1; j LTE arrayLen(colNames); j=j+1){
+				querySetCell(theQuery, colNames[j], arguments.theArray[i]["values"][colNames[j]], i);
+			}
+		}
+	    return theQuery;
+	</cfscript>
+</cffunction>
+
 </cfcomponent>
