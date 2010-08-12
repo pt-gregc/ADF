@@ -30,6 +30,7 @@ Summary:
 
 History:
 	2009-06-4 - GAC - Created
+	2010-08-12 - GAC - Modified
 --->
 
 <cfoutput>
@@ -39,27 +40,32 @@ History:
 </cfoutput>
 
 <!--- // Output Core ADF objects in the Server scope   --->
-<cfif IsDefined("Server.ADF")>
+<cfif StructKeyExists(Server,"ADF")>
 	<cfdump var="#Server.ADF#" label="Server.ADF" expand="no">
 <cfelse>
 	<cfoutput>Server.ADF is NOT Defined!<br /></cfoutput>
 </cfif>
 
 <!--- // Output Core ADF objects in the Application scope  --->
-<cfif IsDefined("Application.ADF")>
+<cfif StructKeyExists(Application,"ADF")>
 	<cfdump var="#Application.ADF#" label="Application.ADF" expand="no">
+	
+	<!--- // Output ADF lib objects  --->
+	<!--- <cfdump var="#Application.ADF.utils#" label="Application.ADF.utils" expand="no"> --->
+	
+	<!--- // Direct ADF lib method calls  --->
+	<!--- <cfscript>
+		Application.ADF.scripts.loadJQuery('1.3.2');
+		Application.ADF.scripts.loadJQueryUI('1.7.1');
+	</cfscript> --->
+	
 <cfelse>
 	<cfoutput>Application.ADF is NOT Defined!<br /></cfoutput>
 </cfif>
 
-<!--- // Output ADF lib objects  --->
-<!--- <cfdump var="#Application.ADF.utils#" label="Application.ADF.utils" expand="no"> --->
-
-<!--- // Output App specific objects  --->
-<!--- <cfdump var="#Application.ptProfile#" label="Application.ptProfile" expand="no">  --->
-
-<!--- // Direct ADF lib method calls  --->
-<!--- <cfscript>
-	Application.ADF.scripts.loadJQuery('1.3.2');
-	Application.ADF.scripts.loadJQueryUI('1.7.1');
-</cfscript> --->
+<!--- // Output ADF App specific objects in the Application scope  --->
+<cfif StructKeyExists(Application,"ptProfile")>
+	<cfdump var="#Application.ptProfile#" label="Application.ptProfile" expand="no">
+<cfelse>
+	<cfoutput>Application.ptProfile is NOT Defined!<br /></cfoutput>
+</cfif>
