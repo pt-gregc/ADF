@@ -297,14 +297,17 @@ Returns:
 Arguments:
 	Numeric formID
 	Numeric dataPageID
+	String title
 History:
  	2009-10-25 - RLW - Created
 	2010-02-18 - MFC - Returns a HTML for delete form.
 	2010-04-14 - GAC - Updated to work with the ADFLightbox Framework
+	2010-07-23 - SFS - Added argument to supply the lightbox dialog with a title needed for CS CE delete function.
 --->
 <cffunction name="renderDeleteForm" access="public" returntype="String" hint="Renders the standard datasheet delete module">
 	<cfargument name="formID" type="numeric" required="true" hint="The FormID for the Custom Element">
 	<cfargument name="dataPageID" type="numeric" required="true" hint="the DataPageID for the record being deleted">
+	<cfargument name="title" type="string" required="no" default="Delete Record" hint="The title of the dialog displayed while deleting">
 	
 	<cfset var deleteFormHTML = "">
 	<cfsavecontent variable="deleteFormHTML">
@@ -316,6 +319,7 @@ History:
 			targetModule = "/ADF/extensions/datasheet-modules/delete_element_handler.cfm";
 			request.params.pageID = arguments.dataPageID;
 			request.params.formID = arguments.formID;
+			CD_DIALOGNAME = arguments.title;
 		</cfscript>
 		<cfinclude template="/ADF/extensions/datasheet-modules/delete_element_handler.cfm">
 	</cfsavecontent>
