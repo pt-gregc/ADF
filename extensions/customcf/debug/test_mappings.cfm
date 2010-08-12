@@ -37,14 +37,16 @@ Directions:
 <cfoutput><br /><strong>Success:</strong> The Web server mapping (or virutal directory) for '/adf' is working correctly!<br /></cfoutput>
 <cfflush>
 
+<cfset testVar = StructNew() />
+
 <cftry>
-	<cfset cfmapping = CreateObject("component","ADF.extensions.customcf.debug.test_mappings").verifyMapping() />
+	<cfset testVar.cfmapping = CreateObject("component","ADF.extensions.customcf.debug.test_mappings").verifyMapping() />
 	<cfcatch>
-		<cfset cfmapping = false />
+		<cfset testVar.cfmapping = false />
 	</cfcatch>
 </cftry>
 
-<cfif IsDefined("cfmapping") AND cfmapping IS true>
+<cfif StructKeyExists(testVar,"cfmapping") AND testVar.cfmapping IS true>
 	<cfoutput><br /><strong>Success:</strong> The CF Mapping for '/ADF' is working correctly!<br /></cfoutput>
 <cfelse>
 	<cfoutput><br /><strong>FAIL:</strong> The CF Mapping for '/ADF' <strong>NOT</strong> configured correctly!<br /></cfoutput>
