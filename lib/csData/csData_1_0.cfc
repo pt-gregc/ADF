@@ -1231,11 +1231,12 @@ Actions:
 	replicate to other servers. Using just the Path (standard CFFILE style) will only copy 
 	the file on the local server.
 History:
-	2008-09-30 - GAC - Created
+	2009-09-30 - GAC - Created
+	2010-08-12 - GAC - Modified - Cleaned up old debug code
 --->
 <cffunction name="CSFile" access="public" returntype="struct">
-	<cfargument name="action" type="string" required="yes" />
-	<cfargument name="output" type="string" required="no" default="" />
+	<cfargument name="action" type="string" required="yes" hint="MOVE,COPY,WRITE,APPEND,UPLOAD,COPY,MOVE,DELETE,RENAME" />
+	<cfargument name="output" type="string" required="no" default="" hint="Content of the file to be created." />
 	<cfargument name="mode" type="numeric" required="no" default="775" />
 	<cfargument name="source" type="string" required="no" default="" />
 	<cfargument name="destination" type="string" required="no" default="" />
@@ -1249,56 +1250,43 @@ History:
 	<cfargument name="addnewline" type="string" required="no" default="Yes" />
    
 	<cfset var retStruct = StructNew() />
+	<cfset var CFfile = "" />
+	<cfset var CFDirectory = "" />
+	<cfset var deletedFiles = "" />
+	<cfset var failedDeletions = "" />
+	<cfset var filesFound = "" />
+	<cfset var ActionSuccess = false />
 	
-	<cfif Arguments.Action IS "MOVE"> <!--- // No "Move" Action in CP-CFFILE --->
-		<!--- // copy file --->
-		<cfset Arguments.Action = "COPY" />
-		<cfmodule template="/commonspot/utilities/cp-cffile.cfm"
-    			attributecollection="#arguments#">
-		<!--- // delete file --->
-		<cfset Arguments.Action = "DELETE" />
-		<cfset Arguments.file = Arguments.Source />
-		<cfset Arguments.Source = "" />
-		<cfset Arguments.destination = "" />
-		<cfmodule template="/commonspot/utilities/cp-cffile.cfm"
-    			attributecollection="#arguments#">
-	<cfelse>
-		<!--- // call the standard build struct module with the argument collection --->
-		<cfmodule template="/commonspot/utilities/cp-cffile.cfm"
-    		attributecollection="#arguments#">
-	</cfif>
-	
-<cfscript>
-//application.ADF.utils.doDump(This,"This", false);
-//application.ADF.utils.doDump(Caller,"Caller", false); // Not Defined
-//application.ADF.utils.doDump(Variables,"Variables", false);
-//application.ADF.utils.doDump(Arguments,"Arguments", false);
-//application.ADF.utils.doDump(CPfile,"CPfile", false); // Not Defined
-//application.ADF.utils.doDump(CFfile,"CFfile", false); 
-//application.ADF.utils.doDump(deletedFiles,"deletedFiles", false); 
-//application.ADF.utils.doDump(failedDeletions,"failedDeletions", false);
-//application.ADF.utils.doDump(filesFound,"filesFound", false);
-//application.ADF.utils.abort();
-</cfscript>
+	<cftry>
+		<cfif Arguments.Action IS "MOVE"> <!--- // No "Move" Action in CP-CFFILE --->
+			<!--- // copy file --->
+			<cfset Arguments.Action = "COPY" />
+			<cfmodule template="/commonspot/utilities/cp-cffile.cfm"
+	    			attributecollection="#arguments#">
+			<!--- // delete file --->
+			<cfset Arguments.Action = "DELETE" />
+			<cfset Arguments.file = Arguments.Source />
+			<cfset Arguments.Source = "" />
+			<cfset Arguments.destination = "" />
+			<cfmodule template="/commonspot/utilities/cp-cffile.cfm"
+	    			attributecollection="#arguments#">
+	    	<cfset Arguments.Action = "MOVE" />
+		<cfelse>
+			<!--- // call the standard build struct module with the argument collection --->
+			<cfmodule template="/commonspot/utilities/cp-cffile.cfm"
+	    		attributecollection="#arguments#">
+		</cfif>
+		<cfset ActionSuccess = true />
+		<cfcatch>
+			<cfset ActionSuccess = false />
+		</cfcatch>
+	</cftry>
 
 	<cfscript>
-		if ( IsDefined("Arguments") )
-			retStruct["Arguments"] = Arguments;
-			
-		if ( IsDefined("CFfile") )
-			retStruct["CFfile"] = CFfile;
-			
-		if ( IsDefined("CPfile") )
-			retStruct["CPfile"] = CPfile;
-		
-		if ( IsDefined("deletedFiles") )
-			retStruct["deletedFiles"] = deletedFiles;
-			
-		if ( IsDefined("failedDeletions") )
-			retStruct["failedDeletions"] = failedDeletions;
-		
-		if ( IsDefined("filesFound") )
-			retStruct["filesFound"] = filesFound;
+		retStruct["Arguments"] = Arguments;
+		retStruct["CFfile"] = CFfile;
+		retStruct["CFDirectory"] = CFDirectory;
+		retStruct["Success"] = ActionSuccess;
 	</cfscript>
 
     <cfreturn retStruct />
@@ -1407,7 +1395,8 @@ Arguments:
 	String modulePath
 History:
  	2009-11-30 - RLW - Created
-	2010-02-24 - GAC - Updated to eliminate empty metadata arrays and duplicate pageids
+	2010-02-24 - GAC - Modified - Updated to eliminate empty metadata arrays and duplicate pageids
+	2010-08-03 - GAC - Modified - Strip the provided path for comparison from RH files in the root RH directory
 --->
 <cffunction name="pagesContainingRH" access="public" returntype="array" hint="">
 	<cfargument name="modulePath" type="string" required="true">
@@ -1416,12 +1405,18 @@ History:
 		var getPages = queryNew('');
 		var itm = 1;
 		var pageMetadata = structNew();
+		var modPath = TRIM(arguments.modulePath);
+		
+		// If passed in ModulePath is in the CS Default RH directory, strip the path info and just leave the file name
+		if ( Lcase(ListFirst(modPath,"/")) IS "renderhandlers" OR FindNoCase(request.site.renderhandlerURL,modPath) ) {
+			modPath = ListLast(modPath,"/");
+		}
 	</cfscript>
 	<!--- // retrieve the moduleID --->
 	<cfquery name="getModuleData" datasource="#request.site.datasource#">
 		select top 1 ID
 		from CustomElementModules
-		where modulePath = <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.modulePath#">
+		where modulePath = <cfqueryparam cfsqltype="cf_sql_varchar" value="#modPath#">
 	</cfquery>
 	<cfif getModuleData.recordCount>
 		<cfquery name="getPages" datasource="#request.site.datasource#">
