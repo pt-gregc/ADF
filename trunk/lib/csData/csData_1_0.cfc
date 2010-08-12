@@ -1407,7 +1407,7 @@ History:
 		var pageMetadata = structNew();
 		var modPath = TRIM(arguments.modulePath);
 		
-		// If passed in ModulePath is in the CS Default RH directory, strip the path info and just leave the file name
+		// If the passed in ModulePath is in the CS Default RH directory, strip the path info and just leave the file name
 		if ( Lcase(ListFirst(modPath,"/")) IS "renderhandlers" OR FindNoCase(request.site.renderhandlerURL,modPath) ) {
 			modPath = ListLast(modPath,"/");
 		}
