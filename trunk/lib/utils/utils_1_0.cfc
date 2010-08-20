@@ -158,8 +158,10 @@ Arguments:
 History:
 	2008-06-22 - MFC - Created
 	2009-12-01 - GAC - Updated - Added label option for simple values
+	2010-08-20 - GAC - Updated - Label on simple values is now controlled by the expand argument
+	2010-08-20 - GAC - Updated - Added the output=true as a cffunction parameter
 --->
-<cffunction name="doDump" access="public" returntype="string" hint="ColdFusion dump of the variable argument.">
+<cffunction name="doDump" access="public" returntype="string" output="true" hint="ColdFusion dump of the variable argument.">
 	<cfargument name="var" required="Yes" type="any">
 	<cfargument name="label" required="no" type="string" default="no label">
 	<cfargument name="expand" required="no" type="boolean" default="true">
@@ -172,14 +174,14 @@ History:
 	<cfif returnInVar eq 1>
 		<cfsavecontent variable="foo">
 			<cfif IsSimpleValue(arguments.var)>
-				<cfoutput><div><cfif LEN(TRIM(arguments.label))><strong>#arguments.label#:</strong> </cfif>#arguments.var#</div></cfoutput>
+				<cfoutput><div><cfif LEN(TRIM(arguments.label)) AND arguments.expand EQ true><strong>#arguments.label#:</strong> </cfif>#arguments.var#</div></cfoutput>
 			<cfelse>
 				<cfdump var="#arguments.var#" label="#arguments.label#" expand="#arguments.expand#">
 			</cfif>
 		</cfsavecontent>
 	<cfelse>
 		<cfif IsSimpleValue(arguments.var)>
-			<cfoutput><div><cfif LEN(TRIM(arguments.label))><strong>#arguments.label#:</strong> </cfif>#arguments.var#</div></cfoutput>
+			<cfoutput><div><cfif LEN(TRIM(arguments.label)) AND arguments.expand EQ true><strong>#arguments.label#:</strong> </cfif>#arguments.var#</div></cfoutput>
 		<cfelse>
 			<cfdump var="#arguments.var#" label="#arguments.label#" expand="#arguments.expand#">
 		</cfif>
