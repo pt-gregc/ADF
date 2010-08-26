@@ -31,6 +31,7 @@ Version:
 	1.0.0
 History:
 	2010-02-19 - MFC - Created
+	2010-08-26 - MFC - Updated processRel function to not force the "addMainTable" parameter.
 */
 
 // Set default variables
@@ -64,7 +65,9 @@ function processRel(relParam) {
 	// Split the full url to see if there are parameters
 	var urlArray = newURL.split("?");
 	// create array of new parameters to be added
-	var addParam = [ 'addMainTable=1' ]
+	//var addParam = [ 'addMainTable=1' ]
+	var addParam = [ ];
+	
 	var initDelim = "?";
 	// if there were URL parameters then there is already a ? so change the initial delimiter
 	if( urlArray.length > 1 )
