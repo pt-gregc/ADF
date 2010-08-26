@@ -92,6 +92,7 @@ Arguments:
 History:
 	2009-06-05 - MFC - Created
 	2010-04-06 - MFC - Removed old code.
+	2010-08-26 - MFC - Changed "isDefined" to "StructKeyExists"
 --->
 <cffunction name="loadApp" access="private" returntype="void" hint="Stores the ADF Lib Components into application.ADF space.">
 	<cfargument name="appBeanName" type="string" required="true" default="" hint="ADF lightwire bean name.">
@@ -118,7 +119,8 @@ History:
 			loadAppProxyWhiteList(arguments.appBeanName);
 			// run the post init function if it is defined
 			app = application.ADF.objectFactory.getBean(arguments.appBeanName);
-			if( isDefined("app.postInit") )
+			// [MFC] - Changed "isDefined" to "StructKeyExists"
+			if( StructKeyExists(app, "postInit") )
 				app.postInit();
 		}
 	</cfscript>
