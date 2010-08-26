@@ -18,7 +18,12 @@ in this directory, you agree to the terms and conditions of the applicable
 end user license agreement.
 --->
 
-<!--- ADF INITIALIZATION CODE BLOCK : 2010-03-03 --->
+<!--- ADF INITIALIZATION CODE BLOCK : 2010-08-26 --->
+<!--- 
+	History:
+		2010-03-03 - MFC - Created
+		2010-08-26 - MFC - Changed "isDefined" to "LEN"
+ --->
 <!--- CFLOCK to prevent multiple ADF resets --->
 <CFTRY>
   <CFLOCK timeout="30" type="exclusive" name="ADF-RESET">
@@ -34,7 +39,8 @@ end user license agreement.
   		// Check if a variable has been defined to dump
   		if ( StructKeyExists(url,"ADFDumpVar") AND (userValidated) ) {
   			// Verify if the ADF dump var exists
-  			if ( isDefined(url.ADFDumpVar) )
+  			// [MFC] - Changed "isDefined" to "LEN"
+  			if ( LEN(url.ADFDumpVar) GT 0 )
   				CreateObject("component","ADF.lib.utils.Utils_1_0").dodump(evaluate(url.ADFDumpVar), #url.ADFDumpVar#, false);
   			else
   				WriteOutput("<strong>ADFDumpVar Failed</strong> : Variable '#url.ADFDumpVar#' does not exist.");
