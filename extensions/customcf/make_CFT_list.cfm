@@ -28,6 +28,7 @@ end user license agreement.
 		Form for making a custom field type be list style fields
 	History:
 		2009-11-17 - RLW - Created
+		2010-09-03 - MFC - Updated to change the AJAX method to "getFieldTypes"
 --->
 <cfscript>
 	application.ADF.scripts.loadJQuery();
@@ -51,7 +52,8 @@ end user license agreement.
 			jQuery.get("#application.ADF.ajaxProxy#",
 				{
 					bean: "utils_1_0",
-					method: "getCFTypes",
+					//method: "getCFTypes",
+					method: "getFieldTypes",
 					returnformat: "json"
 				}, function(results){
 					customFields = eval('(' + results + ')');
