@@ -420,9 +420,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	M Carroll
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
 Name:
 	$loadSelectBoxes
 Summary:
@@ -436,6 +437,8 @@ Arguments:
 	String - fieldName - custom element unique fqFieldName
 History:
 	2009-05-29 - MFC - Created
+	2010-09-07 - MFC - Commented out the load Jquery UI.  This is done in the render file already.
+						This load jquery UI call will throw error when updating JQuery UI versions.
 --->
 <cffunction name="loadSelectBoxes" access="private" returntype="string" hint="General Chooser - Select Boxes HTML content.">
 	<cfargument name="fieldName" type="String" required="true">
@@ -444,9 +447,9 @@ History:
 	<!--- Render out the search box to the field type --->
 	<cfsavecontent variable="retSelectBoxHTML">
 		<cfoutput>
-			<cfscript>
+			<!--- <cfscript>
 				server.ADF.objectFactory.getBean("scripts_1_0").loadJQueryUI("1.7.2", variables.JQUERY_UI_THEME);
-			</cfscript>
+			</cfscript> --->
 			<style>
 				div###arguments.fieldName#-gc-main-area div###arguments.fieldName#-gc-select-left-box {
 					width: #variables.SELECT_BOX_WIDTH#px;
