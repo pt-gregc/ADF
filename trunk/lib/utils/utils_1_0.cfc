@@ -160,6 +160,8 @@ History:
 	2009-12-01 - GAC - Updated - Added label option for simple values
 	2010-08-20 - GAC - Updated - Label on simple values is now controlled by the expand argument
 	2010-08-20 - GAC - Updated - Added the output=true as a cffunction parameter
+	2010-08-30 - GAC - Updated - Added arguments scope to the returnInVar variable
+								 Set return value of 'foo' equal to an empty string 
 --->
 <cffunction name="doDump" access="public" returntype="string" output="true" hint="ColdFusion dump of the variable argument.">
 	<cfargument name="var" required="Yes" type="any">
@@ -168,10 +170,10 @@ History:
 	<cfargument name="returnInVar" type="numeric" required="No" default="0">
 
 	<CFSCRIPT>
-		var foo = 0;
+		var foo = "";
 	</CFSCRIPT>
 
-	<cfif returnInVar eq 1>
+	<cfif arguments.returnInVar eq 1>
 		<cfsavecontent variable="foo">
 			<cfif IsSimpleValue(arguments.var)>
 				<cfoutput><div><cfif LEN(TRIM(arguments.label)) AND arguments.expand EQ true><strong>#arguments.label#:</strong> </cfif>#arguments.var#</div></cfoutput>
