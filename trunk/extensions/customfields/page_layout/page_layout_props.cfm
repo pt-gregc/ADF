@@ -18,13 +18,26 @@ in this directory, you agree to the terms and conditions of the applicable
 end user license agreement.
 --->
 
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	G. Cronkright / M. Carroll 
+Custom Field Type:
+	Page Layout
+Name:
+	page_layout_props.cfm
+Summary:
+	Custom field to render predefined page layout options in metadata forms.
+History:
+	2010-09-09 - GAC/MFC - Created
+--->
 <cfscript>
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
 	prefix = attributes.prefix;
 	formname = attributes.formname;
 	currentValues = attributes.currentValues;
-
 </cfscript>
 
 <cfoutput>
