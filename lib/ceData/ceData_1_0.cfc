@@ -34,6 +34,7 @@ History:
 <cfproperty name="version" value="1_0_0">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_0">
+<cfproperty name="data" type="dependency" injectedBean="data_1_0">
 <cfproperty name="wikiTitle" value="CEData_1_0">
 
 <!---
@@ -333,6 +334,9 @@ History:
 	2009-05-27 - MFC - Updated: Trim arguments.searchFields to remove whitespace when creating
 									searchCEFieldName variable.
 								Cleaned code and put in cfscript.
+	2010-09-17 - MFC - Updated: Added new queryType for "searchInList".
+								Find any of the items in a list that match a list item in a 
+									CE field that stores a list of values.
 --->
 <cffunction name="getCEData" access="public" returntype="array" hint="Returns array of structs for all data matching the Custom Element.">
 	<cfargument name="customElementName" type="string" required="true">
@@ -353,6 +357,7 @@ History:
 		var searchCEFieldID = "";
 		var ceFieldName = "";
 		var getPageIDValues = QueryNew("temp");
+		var retTempDataArray = ArrayNew(1);
 		
 		if (LEN(arguments.customElementFieldName) OR Len(arguments.searchFields)) {
 			// check if queryType is Search
@@ -379,7 +384,7 @@ History:
 			getPageIDValues = getPageIDForElement(CEFormID, CEFieldID, arguments.item, "selected", arguments.searchValues, searchCEFieldID);
 		else
 			getPageIDValues = getPageIDForElement(CEFormID, CEFieldID, arguments.item, arguments.queryType, arguments.searchValues, searchCEFieldID);
-	
+		
 		// Check that we got a query back
 		if ( getPageIDValues.RecordCount gt 0 ){
 			// Loop over the query of page ids 
@@ -401,6 +406,20 @@ History:
 		if ( arguments.queryType EQ "selected" and len(arguments.customElementFieldName) and len(arguments.item) ){
 			// Order the return data by the order the list was passed in
 			dataArray = sortArrayByIDList(dataArray, arguments.customElementFieldName, arguments.item);
+		}
+		/* 2010-09-17 - MFC - Updated */
+		// Check the query type for "selectedList"
+		else if ( arguments.queryType eq "searchInList" ){
+			// Loop over the records to do a list find for the data
+			for( data_i=1; data_i LTE ArrayLen(dataArray); data_i=data_i+1 ) {
+				
+				// Compare the data values list with the arguments items list.
+				//	If the list returned has a length then the item is in the data values list.
+				if ( ListLen(variables.data.ListInCommon(dataArray[data_i].Values[arguments.customElementFieldName],arguments.item)) )
+					ArrayAppend(retTempDataArray, dataArray[data_i]);
+			}
+			// Set the temp data array back to the return value
+			dataArray = retTempDataArray;
 		}
 	</cfscript>
 	<cfreturn dataArray>
@@ -842,6 +861,10 @@ History:
 	2009-02-12 - MFC - Updated: Query WHERE clause for fieldid in selected and notselected
 	2009-10-21 - MFC - Updated: SELECTED and NOTSELECTED updated to return empty string fields
 	2010-03-08 - MFC - Updated: Updated the SEARCH and MULTI to lowercase for searching.
+	2010-09-17 - MFC - Updated: Added new queryType for "searchInList".
+								Find any of the items in a list that match a list item in a 
+									CE field that stores a list of values.
+								Removed if statements for condition " contains in 'list' ".
 --->
 <cffunction name="getPageIDForElement" access="public" returntype="query" hint="Returns Page ID Query in Data_FieldValue matching Form ID">
 	<cfargument name="formid" type="numeric" required="true">
@@ -861,7 +884,7 @@ History:
 	</cfscript>
 
 	<!--- // queryType eq list get the listID's first that match the input --->
-	<cfif arguments.queryType contains "list">
+	<cfif (arguments.queryType EQ "list") OR (arguments.queryType EQ "numericList")>
 		<cfquery name="getListItemIDs" datasource="#request.site.datasource#">
 			SELECT DISTINCT listID
 			FROM data_listItems
@@ -913,7 +936,7 @@ History:
 				<cfif ListLen(arguments.searchFields)>
 					<cfloop from="1" to="#ListLen(arguments.searchFields)#" index="itm">
 						AND PageID IN
-							( SELECT DISTINCT	PageID FROM Data_FieldValue
+							( SELECT DISTINCT PageID FROM Data_FieldValue
 								WHERE FormID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.formid#">
 								AND FieldID = <cfqueryparam cfsqltype="cf_sql_integer" value="#ListGetAt(arguments.searchFields,itm)#">
 								AND LOWER(fieldValue) = <cfqueryparam cfsqltype="cf_sql_varchar" value="#ListGetAt(arguments.searchValues,itm)#">
@@ -921,7 +944,8 @@ History:
 					</cfloop>
 				</cfif>
 			<!--- Build the where clause for the LIST --->
-			<cfelseif arguments.queryType contains "list">
+			<!--- <cfelseif arguments.queryType contains "list"> --->
+			<cfelseif (arguments.queryType EQ "list") OR (arguments.queryType EQ "numericList")>
 				<cfif listLen(valueList(getListItemIds.listID))>
 					AND fieldID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.fieldID#">
 					AND listID in (<cfqueryparam cfsqltype="cf_sql_integer" value="#valueList(getListItemIDs.listID)#" list="true">)
@@ -936,6 +960,13 @@ History:
 			<cfelseif arguments.queryType EQ "between">
 				AND fieldID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.fieldID#">
 				AND ( fieldValue > <cfqueryparam cfsqltype="cf_sql_varchar" value="#listFirst(arguments.item)#"> AND fieldValue < <cfqueryparam cfsqltype="cf_sql_varchar" value="#listLast(arguments.item)#">)
+			<!--- /* 2010-09-17 - MFC - Updated */ --->
+			<cfelseif arguments.queryType EQ "searchInList">
+				AND fieldID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.fieldID#">
+				<!--- Filter down the result set with a search --->
+				<cfloop from="1" to="#ListLen(arguments.item)#" index="itm">
+					AND	LOWER(fieldValue) LIKE '%' + <cfqueryparam cfsqltype="cf_sql_varchar" value="#ListGetAt(arguments.item, itm)#"> + '%'
+				</cfloop>
 			</cfif>
 		</cfif>
 		AND VersionState = 2
