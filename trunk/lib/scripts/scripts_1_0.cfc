@@ -1114,6 +1114,57 @@ History:
 </cfif>
 </cffunction>
 
+<<<<<<< .mine
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$loadJQueryField
+Summary:
+	Loads the JQuery Field plugin.
+Returns:
+	None
+Arguments:
+	String - version - JQuery Field version to load.
+History:
+	2010-09-27 - RLW - Created
+--->
+<cffunction name="loadJQueryField" access="public" output="true" returntype="void" hint="Loads the JQuery Field plugin if not loaded.">
+<cfargument name="version" type="string" required="false" default="0.9.8" hint="JQuery Field plugin version to load.">
+<cfif not variables.scriptsService.isScriptLoaded("jqueryField")>
+	<cfoutput>
+		<script type="text/javascript" src="/ADF/thirdParty/jquery/field/jquery.field-#arguments.version#.min.js"></script>
+	</cfoutput>
+	<cfset variables.scriptsService.loadedScript("jqueryField")>
+</cfif>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$loadJQueryBlockUI
+Summary:
+	Loads the JQuery BlockUI plugin which can be triggered to block ui during ajax call
+Returns:
+	None
+Arguments:
+	String - version - JQuery BlockUI version to load.
+History:
+	2010-09-27 - RLW - Created
+--->
+<cffunction name="loadJQueryBlockUI" access="public" output="true" returntype="void" hint="Loads the JQuery BlockUI plugin if not loaded.">
+<cfargument name="version" type="string" required="false" default="2.35" hint="JQuery BlockUI plugin version to load.">
+<cfif not variables.scriptsService.isScriptLoaded("jQueryBlockUI")>
+	<cfoutput>
+		<script type="text/javascript" src="/ADF/thirdParty/jquery/blockUI/jquery.blockUI-#arguments.version#.js"></script>
+	</cfoutput>
+	<cfset variables.scriptsService.loadedScript("jQueryBlockUI")>
+</cfif>
+</cffunction>
+
 <!---
 /* ***************************************************************
 /*
