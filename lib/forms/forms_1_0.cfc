@@ -366,5 +366,33 @@ History:
 		</div> --->
 	</cfoutput>
 </cffunction>
+<!---
+/* ***************************************************************
+/*
+Author: 	Ron West
+Name:
+	$buildAddEditLink
+Summary:	
+	Returns a nice string to renderAddEditForm with lightbox enabled
+Returns:
+	String rtnStr
+Arguments:
+	String linkTitle
+	String formName
+	String dataPageID
+History:
+  2010-09-30 - RLW - Created
+--->
+<cffunction name="buildAddEditLink" access="public" returntype="string">
+	<cfargument name="linkTitle" type="string" required="true">
+	<cfargument name="formName" type="string" required="true">
+	<cfargument name="dataPageID" type="numeric" required="false" default="0">
+	<cfset var rtnStr = "">
+	<cfset var formID = variables.ceData.getFormIDByCEName(arguments.formName)>
+	<cfsavecontent variable="rtnStr">
+		<cfoutput><a href="javascript:;" rel="#application.ADF.ajaxProxy#?bean=forms_1_0&method=renderAddEditForm&formID=#formID#&dataPageID=#arguments.dataPageID#" class="ADFLightbox">#arguments.linkTitle#</a></cfoutput>
+	</cfsavecontent>
+	<cfreturn rtnStr>
+</cffunction>
 
 </cfcomponent>
