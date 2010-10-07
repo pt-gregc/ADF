@@ -56,7 +56,7 @@ History:
 	2009-11-11 - MFC - Update to force flag to not log the script loaded when forced.
 	2010-08-26 - MFC - Updated to load 1.4 by default
 --->
-<cffunction name="loadJQuery" access="public" output="true" returntype="void" hint="Loads the JQuery Headers if not loaded.">
+<cffunction name="loadJQuery" access="public" returntype="void" hint="Loads the JQuery Headers if not loaded.">
 	<cfargument name="version" type="string" required="false" default="1.4" hint="JQuery version to load.">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfargument name="noConflict" type="boolean" required="false" default="0" hint="JQuery no conflict flag.">
@@ -73,11 +73,13 @@ History:
 			</cfif>
 		</cfoutput>
 	</cfsavecontent>
-	<cfif arguments.force>
-		#outputHTML#
-	<cfelse>
-		#renderScriptOnce("jQuery",outputHTML)#
-	</cfif>
+	<cfoutput>
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#renderScriptOnce("jQuery",outputHTML)#
+		</cfif>
+	</cfoutput>
 </cffunction>
 
 <!---
@@ -149,11 +151,13 @@ History:
 			<link rel="stylesheet" href="/ADF/thirdParty/jquery/thickbox/thickbox.css" type="text/css" media="screen" />
 		</cfoutput>
 	</cfsavecontent>
-	<cfif arguments.force>
-		#outputHTML#
-	<cfelse>
-		#renderScriptOnce("thickbox",outputHTML)#
-	</cfif>
+	<cfoutput>
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#renderScriptOnce("thickbox",outputHTML)#
+		</cfif>
+	</cfoutput>
 </cffunction>
 
 <!---
@@ -188,11 +192,13 @@ History:
 			</cfif>
 		</cfoutput>
 	</cfsavecontent>
-	<cfif arguments.force>
-		#outputHTML#
-	<cfelse>
-		#renderScriptOnce("niceForms",outputHTML)#
-	</cfif>
+	<cfoutput>
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#renderScriptOnce("niceForms",outputHTML)#
+		</cfif>
+	</cfoutput>
 </cffunction>
 
 <!---
@@ -245,7 +251,9 @@ History:
 			<script type="text/javascript" src="/ADF/thirdParty/jquery/autogrow/autogrow-#arguments.version#.js"></script>
 		</cfoutput>
 	</cfsavecontent>
-	#renderScriptOnce("autogrow",outputHTML)#
+	<cfoutput>
+		#renderScriptOnce("autogrow",outputHTML)#
+	</cfoutput>
 </cffunction>
 
 <!---
@@ -274,7 +282,9 @@ History:
 			<script type="text/javascript" src="/ADF/thirdParty/jquery/cfjs/cfjs.packed-#arguments.version#.js"></script>
 		</cfoutput>
 	</cfsavecontent>
-	#renderScriptOnce("cfjs",outputHTML)#
+	<cfoutput>
+		#renderScriptOnce("cfjs",outputHTML)#
+	</cfoutput>
 </cffunction>
 
 <!---
@@ -300,7 +310,9 @@ History:
 			<script type="text/javascript" src="/ADF/thirdParty/jquery/tablesorter/tablesorter-#TRIM(arguments.version)#.min.js"></script>
 		</cfoutput>
 	</cfsavecontent>
-	#renderScriptOnce("tablesorter",outputHTML)#
+	<cfoutput>
+		#renderScriptOnce("tablesorter",outputHTML)#
+	</cfoutput>
 </cffunction>
 
 <!---
@@ -391,7 +403,9 @@ History:
 			<script type='text/javascript' src='/ADF/thirdParty/jquery/selectboxes/jquery.selectboxes-#arguments.version#.min.js'></script>
 		</cfoutput>
 	</cfsavecontent>
-	#renderScriptOnce("selectboxes",outputHTML)#
+	<cfoutput>
+		#renderScriptOnce("selectboxes",outputHTML)#
+	</cfoutput>
 </cffunction>
 
 <!---
@@ -421,11 +435,13 @@ History:
 			<link rel='stylesheet' href='/ADF/thirdParty/jquery/jcarousel/skins/#arguments.skinName#/skin.css' type='text/css' media='screen' />
 		</cfoutput>
 	</cfsavecontent>
-	<cfif arguments.force>
-		#outputHTML#
-	<cfelse>
-		#renderScriptOnce("jcarousel",outputHTML)#
-	</cfif>
+	<cfoutput>
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#renderScriptOnce("jcarousel",outputHTML)#
+		</cfif>
+	</cfoutput>
 </cffunction>
 
 <!---
@@ -459,7 +475,9 @@ History:
 			<script type='text/javascript' src='/ADF/thirdParty/jquery/easing/jquery.easing.1.3.js'></script>
 		</cfoutput>
 	</cfsavecontent>
-	#renderScriptOnce("galleryview",outputHTML)#
+	<cfoutput>
+		#renderScriptOnce("galleryview",outputHTML)#
+	</cfoutput>
 </cffunction>
 
 <!---
@@ -485,7 +503,9 @@ History:
 			<script type="text/javascript" src="/ADF/thirdParty/swfobject/swfobject-#arguments.version#.js"></script>
 		</cfoutput>
 	</cfsavecontent>
-	#renderScriptOnce("galleryview",outputHTML)#
+	<cfoutput>
+		#renderScriptOnce("galleryview",outputHTML)#
+	</cfoutput>
 </cffunction>
 
 
@@ -516,7 +536,9 @@ History:
 			<script type="text/javascript" src="/ADF/thirdParty/jquery/swfobject/jquery.swfobject-#arguments.version#.min.js"></script>
 		</cfoutput>
 	</cfsavecontent>
-	#renderScriptOnce("jQuerySWFObject",outputHTML)#
+	<cfoutput>
+		#renderScriptOnce("jQuerySWFObject",outputHTML)#
+	</cfoutput>
 </cffunction>
 
 <!---
@@ -544,11 +566,13 @@ History:
 			<script type="text/javascript" src="/ADF/thirdParty/jquery/qtip/jquery.qtip-#arguments.version#.min.js"></script>
 		</cfoutput>
 	</cfsavecontent>
-	<cfif arguments.force>
-		#outputHTML#
-	<cfelse>
-		#renderScriptOnce("jQuerySWFObject",outputHTML)#
-	</cfif>
+	<cfoutput>
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#renderScriptOnce("jQuerySWFObject",outputHTML)#
+		</cfif>
+	</cfoutput>
 </cffunction>
 
 <!---
@@ -593,7 +617,9 @@ History:
 			<script type='text/javascript' src='/ADF/thirdParty/jquery/jcycle/jquery.cycle.all-#arguments.version#.js'></script>
 		</cfoutput>
 	</cfsavecontent>
-	#renderScriptOnce("jcycle",outputHTML)#
+	<cfoutput>
+		#renderScriptOnce("jcycle",outputHTML)#
+	</cfoutput>
 </cffunction>
 
 <!---
@@ -631,7 +657,9 @@ History:
 			</cfif>
 		</cfoutput>
 	</cfsavecontent>
-	#renderScriptOnce("tools_#arguments.tool#",outputHTML)#
+	<cfoutput>
+		#renderScriptOnce("tools_#arguments.tool#",outputHTML)#
+	</cfoutput>
 </cffunction>
 
 <!---
@@ -657,7 +685,9 @@ History:
 			<script type="text/javascript" src="/ADF/thirdParty/cfformprotect/js/mouseMovement-#arguments.version#.js"></script>
 		</cfoutput>
 	</cfsavecontent>
-	#renderScriptOnce("mouseMovement",outputHTML)#
+	<cfoutput>
+		#renderScriptOnce("mouseMovement",outputHTML)#
+	</cfoutput>
 </cffunction>
 
 <!---
@@ -683,7 +713,9 @@ History:
 			<script type="text/javascript" src="/ADF/thirdParty/cfformprotect/js/usedKeyboard-#arguments.version#.js"></script>
 		</cfoutput>
 	</cfsavecontent>
-	#renderScriptOnce("usedKeyboard",outputHTML)#
+	<cfoutput>
+		#renderScriptOnce("usedKeyboard",outputHTML)#
+	</cfoutput>
 </cffunction>
 
 <!---
@@ -855,11 +887,13 @@ History:
 			</script>
 		</cfoutput>
 	</cfsavecontent>
-	<cfif arguments.force>
-		#outputHTML#
-	<cfelse>
-		#renderScriptOnce("ADFLightbox",outputHTML)#
-	</cfif>
+	<cfoutput>
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#renderScriptOnce("ADFLightbox",outputHTML)#
+		</cfif>
+	</cfoutput>
 </cffunction>
 
 <!---
@@ -1249,29 +1283,30 @@ History:
 	<cfscript>
 		//Clean the outputHTML for javascript strings
 		outputHTML = Trim(outputHTML);
-		outputHTML = Replace(outputHTML,">","\>","all");
-		outputHTML = Replace(outputHTML,"<","\<","all");
-		outputHTML = Replace(outputHTML,'"','\"',"all");
+		outputHTML = Replace(outputHTML,'/','\/',"all");
+		outputHTML = Replace(outputHTML,"'",'"',"all");
 		outputHTML = ReReplace(outputHTML,'\n','',"all");
 		outputHTML = ReReplace(outputHTML,'\t','',"all");
 	</cfscript>
-	<!--- If no scripts have been loaded yet make a new array of scriptsLoaded --->
-	<script type="text/javascript">
-		if(typeof scriptsLoaded === 'undefined'){
-			var scriptsLoaded= new Array();
-		}
-		//Load #scriptName# only once.
-		if(!("#scriptName#" in scriptsLoaded)){
-			document.write("#outputHTML#"+"\<script type=\"text/javascript\"\>\</script\>");
-			scriptsLoaded["#scriptName#"] = true;
-			<cfif request.ADFScriptsDebugging>
-					document.write("Loading: #scriptName#\<br/\>");
-				}else{
-					document.write("#scriptName# already loaded\<br/\>");
-			</cfif>
+	<cfoutput>
+		<!--- If no scripts have been loaded yet make a new array of scriptsLoaded --->
+		<script type="text/javascript"></script>
+		<script type="text/javascript">
+			if(typeof scriptsLoaded === 'undefined'){
+				var scriptsLoaded= new Array();
 			}
-	</script>
-	
+			//Load #scriptName# only once.
+			if(!("#scriptName#" in scriptsLoaded)){
+				document.write('#outputHTML#'+'<script type="text/javascript"><\/script>');
+				scriptsLoaded["#scriptName#"] = true;
+				<cfif request.ADFScriptsDebugging>
+						document.write("Loading: #scriptName#\<br/\>");
+					}else{
+						document.write("#scriptName# already loaded\<br/\>");
+				</cfif>
+				}
+		</script>
+	</cfoutput>
 </cffunction>
 
 <!---
