@@ -63,8 +63,10 @@ History:
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
-			<script src='http://ajax.googleapis.com/ajax/libs/jquery/#arguments.version#/jquery.min.js'/>
+			<script type="text/javascript" src="/ADF/thirdParty/jquery/jquery-#arguments.version#.js"></script>
 			<cfif arguments.noConflict>
+				<script type="text/javascript"></script>
+				No conflict mode!
 				<script type="text/javascript">
 					jQuery.noConflict();
 				</script>
@@ -711,10 +713,10 @@ History:
 	<cfset var outputHTML = "">
 	<cfoutput>
 		#LoadJQuery(force=arguments.force)#
+		<!-- ADF Lightbox Framework Loaded @ #now()# -->
 	</cfoutput>
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
-			<!-- ADF Lightbox Framework Loaded @ #now()# -->
 			<script type='text/javascript' src='/ADF/extensions/lightbox/#arguments.version#/js/framework.js'></script>
 			<!--- Load lightbox override styles --->
 			<link href="/ADF/extensions/lightbox/#arguments.version#/css/lightbox_overrides.css" rel="stylesheet" type="text/css">
@@ -756,12 +758,12 @@ History:
 						var commonspot = top.commonspot;
 					}
 					
-					/*
-					 *	Loads in the Commonspot.util space for CS 5. This exists already in CS 6.
-					 *	
-					 */
-	    			// Check if the commonspot.util.dom space exists,
-					//	If none, then build this from the Lightbox Util.js
+					<!-----
+					 Loads in the Commonspot.util space for CS 5. This exists already in CS 6.
+					 
+	    			 Check if the commonspot.util.dom space exists,
+						If none, then build this from the Lightbox Util.js
+					---->
 					if ( (typeof commonspot.util == 'undefined') || (typeof commonspot.util.dom == 'undefined') )
 					{
 						IncludeJs('/ADF/extensions/lightbox/1.0/js/util.js', 'script');
@@ -805,7 +807,7 @@ History:
 						}	
 					</script> --->
 					<script type="text/javascript">
-					<!--
+					<!---
 						if (typeof commonspot == 'undefined' || !commonspot.lightbox)
 						{	
 							if ( typeof parent.commonspot != 'undefined' ){
@@ -828,7 +830,7 @@ History:
 							
 							loadDashboardFiles(arrFiles);
 						}	
-					//-->
+					//--->
 					</script>
 					
 					</cfoutput>
@@ -838,18 +840,23 @@ History:
 			<cfoutput>
 			<script type="text/javascript">
 				jQuery(document).ready(function(){ 
-					// Set the Jquery to initialize the ADF Lightbox
+					<!---
+						Set the Jquery to initialize the ADF Lightbox
+					--->
 					initADFLB();
 					
-					// get local references to objects we need in parent frame
-					// commonspot object has state, so we need that instance; others are static, but why load them again
-					//var commonspot = parent.commonspot;
+					<!---
+						get local references to objects we need in parent frame
+						commonspot object has state, so we need that instance; others are static, but why load them again
+						var commonspot = parent.commonspot;
+					--->
 					commonspot.lightbox.initCurrent(#request.params.width#, #request.params.height#, { title: '#request.params.title#', subtitle: '#request.params.subtitle#', close: 'true', reload: 'true' });
 				});
 			</script>
 		</cfoutput>
 	</cfsavecontent>
 	<cfif arguments.force>
+		#outputHTML#
 	<cfelse>
 		#renderScriptOnce("ADFLightbox",outputHTML)#
 	</cfif>
