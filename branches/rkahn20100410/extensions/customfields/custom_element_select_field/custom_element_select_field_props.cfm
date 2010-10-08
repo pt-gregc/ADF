@@ -59,8 +59,15 @@ History:
 		currentValues.fldName = "";
 	if( not structKeyExists(currentValues, "forceScripts") )
 		currentValues.forceScripts = "0";
+		
 </cfscript>
 <cfoutput>
+	<cfscript>
+		application.ADF.scripts.loadJQuery();
+		application.ADF.scripts.loadJQuerySelectboxes();
+		application.ADF.scripts.loadJQueryBlockUI();
+		
+	</cfscript>
 <script type="text/javascript">
 	fieldProperties['#typeid#'].paramFields = "#prefix#customElement,#prefix#valueField,#prefix#displayField,#prefix#renderField,#prefix#defaultVal,#prefix#fldName,#prefix#forceScripts";
 	// allows this field to support the orange icon (copy down to label from field name)
@@ -72,8 +79,77 @@ History:
 	{
 		document.#formname#.#prefix#label.value = str;
 	}
-
+	jQuery(document).ready(function(){
+		var customElement = "###prefix#customElement";
+		var customElementValue = "###prefix#valueField";
+		<cfif len(currentValues.customElement) gt 0>
+			setElementFields("#currentValues.customElement#");
+			jQuery("###prefix#valueField").selectOptions("#currentValues.valueField#");
+			jQuery("###prefix#displayField").selectOptions("#currentValues.displayField#");
+		</cfif>
+		jQuery(customElement).change(function(){
+			setElementFields(jQuery(customElement).val())
+		});
+	});
+	
+	function setElementFields(elementName){
+		if(elementName.length < 0){
+			return;
+		}
+		jQuery.ajax({
+					type: 'POST',
+					url: "#application.ADF.ajaxProxy#",
+					data: { 	  bean: "ceData_1_0",
+								method: "getFormIDByCEName",
+								CENAME: elementName},
+					success: handleFormIDPost,
+		  		 	async: false
+				});
+				
+	}
+	
+	function handleFormIDPost(results){
+		jQuery.ajax({
+			  type: 'POST',
+			  url: "#application.ADF.ajaxProxy#",
+			  data: { 			  bean: "ceData_1_0",
+									method: "getTabsFromFormID",
+							returnformat: "json",
+									formID: results,
+								  recurse: true},
+			  success: handleTabsFromFormIDPost,
+			  async: false
+			},"json");
+	}
+	
+	function handleTabsFromFormIDPost(results){
+		fields = new Object();
+		fieldInfo = results;
+		if(!jQuery.isArray(fieldInfo)){
+			fieldInfoTemp = Array();
+			fieldInfoTemp[1] = fieldInfo;
+			fieldInfo = fieldInfoTemp;
+		}
+		fieldInfo.each(function(tab){
+			jQuery(tab.FIELDS).each(function(index,field){
+				 fields[field.DEFAULTVALUES.FIELDNAME] = field.DEFAULTVALUES.LABEL;
+			});
+		});
+		//Remove options
+		jQuery("###prefix#valueField").removeOption(/./);
+		jQuery("###prefix#displayField").removeOption(/./);
+		
+		//Add new options
+		jQuery("###prefix#valueField").addOption(fields);
+		jQuery("###prefix#displayField").addOption(fields);
+		
+		//Deselect everything
+		jQuery("###prefix#valueField").selectOptions(jQuery("###prefix#valueField").selectedOptions(),true);
+		jQuery("###prefix#displayField").selectOptions(jQuery("###prefix#displayField").selectedOptions(),true);
+	}
 </script>
+		
+		
 <!--- query to get the Custom Element List --->
 <cfset customElements = server.ADF.objectFactory.getBean("ceData_1_0").getAllCustomElements()>
 <table>
@@ -90,15 +166,16 @@ History:
 		</td>
 	</tr>
 	<tr>
+		
 		<td class="cs_dlgLabelSmall">Select Value Field:</td>
 		<td class="cs_dlgLabelSmall">
-			<input type="text" name="#prefix#valueField" id="#prefix#valueField" value="#currentValues.valueField#" size="40">
+			<select id="#prefix#valueField" name="#prefix#valueField" size="1"></select>
 		</td>
 	</tr>
 	<tr>
 		<td class="cs_dlgLabelSmall">Select Display Field:</td>
 		<td class="cs_dlgLabelSmall">
-			<input type="text" name="#prefix#displayField" id="#prefix#displayField" value="#currentValues.displayField#" size="40">
+			<select id="#prefix#displayField" name="#prefix#displayField" size="1"></select>
 		</td>
 	</tr>
 	<tr>
