@@ -1646,4 +1646,30 @@ History:
 	<cfif checkPage.recordCount><cfset isAPage = true></cfif>
 	<cfreturn isAPage>
 </cffunction>
+
+
+<!---
+/* ***************************************************************
+/*
+Author: 	Ryan Kahn
+Name:
+	$getPageIdsUsingTemplateID
+Summary:	
+	Returns an array of page ids that DIRECTLY utilize the template
+Returns:
+	Array pageID's
+Arguments:
+	Numeric templateID
+History:
+ 2010-10-08 - RAK - Created
+--->
+<cffunction name="getPageIdsUsingTemplateID" access="public" returntype="array" hint="Returns an array of page ids that DIRECTLY utilize the template">
+	<cfargument name="templateID" type="numeric" required="true">
+	<cfquery name="templatePages" datasource="#request.site.datasource#">
+		SELECT id
+		from sitePages
+		where InheritedTemplateList like <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.templateID#,%">
+	</cfquery>
+	<cfreturn ListToArray(valueList(templatePages.ID))>
+</cffunction>
 </cfcomponent>
