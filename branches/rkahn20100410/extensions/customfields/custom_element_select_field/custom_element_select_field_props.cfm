@@ -65,8 +65,6 @@ History:
 	<cfscript>
 		application.ADF.scripts.loadJQuery();
 		application.ADF.scripts.loadJQuerySelectboxes();
-		application.ADF.scripts.loadJQueryBlockUI();
-		
 	</cfscript>
 <script type="text/javascript">
 	fieldProperties['#typeid#'].paramFields = "#prefix#customElement,#prefix#valueField,#prefix#displayField,#prefix#renderField,#prefix#defaultVal,#prefix#fldName,#prefix#forceScripts";
@@ -124,6 +122,9 @@ History:
 	
 	function handleTabsFromFormIDPost(results){
 		fields = new Object();
+		if(typeof results === "string"){
+			results = jQuery.parseJSON(results);
+		}
 		fieldInfo = results;
 		if(!jQuery.isArray(fieldInfo)){
 			fieldInfoTemp = Array();
@@ -131,8 +132,8 @@ History:
 			fieldInfo = fieldInfoTemp;
 		}
 		fieldInfo.each(function(tab){
-			jQuery(tab.FIELDS).each(function(index,field){
-				 fields[field.DEFAULTVALUES.FIELDNAME] = field.DEFAULTVALUES.LABEL;
+			jQuery(tab['FIELDS']).each(function(index,field){
+				fields[field.DEFAULTVALUES.FIELDNAME] = field.DEFAULTVALUES.LABEL;
 			});
 		});
 		//Remove options
