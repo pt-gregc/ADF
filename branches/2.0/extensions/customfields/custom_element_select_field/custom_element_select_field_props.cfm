@@ -37,6 +37,8 @@ ADF Requirements:
 	scripts_1_0
 History:
 	2009-07-06 - MFC - Created
+	2010-09-17 - MFC - Updated the Default Value field to add [] to the value 
+						to make it evaluate a CF expression.
 --->
 <cfscript>
 	// initialize some of the attributes variables
@@ -122,6 +124,7 @@ History:
 		<td class="cs_dlgLabelSmall">Default Field Value:</td>
 		<td class="cs_dlgLabelSmall">
 			<input type="text" name="#prefix#defaultVal" id="#prefix#defaultVal" value="#currentValues.defaultVal#" size="40">
+			<br />To denote a ColdFusion Expression, add brackets around the expression (i.e. "[request.user.userid]")
 		</td>
 	</tr>
 		<td class="cs_dlgLabelSmall">Force Loading Scripts:</td>
