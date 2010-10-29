@@ -1163,6 +1163,33 @@ History:
 	<cfset variables.scriptsService.loadedScript("jQueryBlockUI")>
 </cfif>
 </cffunction>
+<!---
+/* ***************************************************************
+/*
+Author: 	
+	PaperThin, Inc.
+	Ryan kahn
+Name:
+	$loadJQueryDatePick
+Summary:	
+	Loads the DatePick plugin for jQuery
+Returns:
+	Void
+Arguments:
+	Version
+History:
+ 	2010-09-27 - RAK - Created
+--->
+<cffunction name="loadJQueryDatePick" access="public" output="true" returntype="void" hint="Loads the DatePick plugin for jQuery"> 
+	#loadJQuery()#
+	<cfif not variables.scriptsService.isScriptLoaded("datePick")>
+		<cfoutput>
+			<style type='text/css'>@import '/ADF/thirdParty/jquery/datepick/jquery.datepick.css';</style>
+			<script type='text/javascript' src='/ADF/thirdParty/jquery/datepick/jquery.datepick.pack.js'></script>
+		</cfoutput>
+		<cfset variables.scriptsService.loadedScript("datePick")>
+	</cfif>
+</cffunction>
 
 <!---
 /* ***************************************************************
@@ -1188,6 +1215,33 @@ History:
 			<script type='text/javascript' src='/ADF/thirdParty/jquery/bbq/jquery.ba-bbq-#arguments.version#.min.js'></script>
 		</cfoutput>
 		<cfset variables.scriptsService.loadedScript("bbq")>
+	</cfif>
+</cffunction>
+
+<!---
+/* ***************************************************************
+/*
+Author: 	
+	PaperThin, Inc.
+	Ryan kahn
+Name:
+	$loadUploadify
+Summary:	
+	Loads the uploadify plugin for jQuery
+Returns:
+	Void
+Arguments:
+History:
+ 	2010-10-26 - RAK - Created
+--->
+<cffunction name="loadUploadify" access="public" output="true" returntype="void" hint="Loads the uploadify plugin for jQuery"> 
+	<cfif not variables.scriptsService.isScriptLoaded("uploadify")>
+		<cfoutput>
+			#loadSWFObject()#
+			<link rel="stylesheet" href="/ADF/thirdParty/jquery/uploadify/uploadify.css" type="text/css" media="screen" />
+			<script type='text/javascript' src='/ADF/thirdParty/jquery/uploadify/jquery.uploadify.v2.1.0.min.js'></script>
+		</cfoutput>
+		<cfset variables.scriptsService.loadedScript("uploadify")>
 	</cfif>
 </cffunction>
 

@@ -31,10 +31,10 @@ end user license agreement.
   		// Validation for the user is logged in
   		if ( request.user.id GT 0 ) { userValidated = true; } else { userValidated = false; }
   		// Check if the ADF exists in Server space OR manual reset AND the user is logged in.
-  		if ( (NOT StructKeyExists(server, "ADF")) OR ((StructKeyExists(url,"resetServerADF")) AND (userValidated)) )
+  		if ( (NOT StructKeyExists(server, "ADF")) OR ((StructKeyExists(url,"resetServerADF") OR StructKeyExists(url,"resetADF")) AND (userValidated)) )
   			CreateObject("component","ADF.core.Core").init();
   		// Initialize the ADF for the site AND the user is logged in.
-  		if ( (NOT StructKeyExists(application, "ADF")) OR ((StructKeyExists(url,"resetSiteADF")) AND (userValidated)) )
+  		if ( (NOT StructKeyExists(application, "ADF")) OR ((StructKeyExists(url,"resetSiteADF") OR StructKeyExists(url,"resetADF")) AND (userValidated)) )
   			CreateObject("component","#request.site.name#._cs_apps.ADF").init();
   		// Check if a variable has been defined to dump
   		if ( StructKeyExists(url,"ADFDumpVar") AND (userValidated) ) {
@@ -48,7 +48,7 @@ end user license agreement.
   		// ADF Reset Notifications
   		if ( ((structKeyExists(url,"resetServerADF")) OR ((structKeyExists(url,"resetSiteADF")))) AND (NOT userValidated) ) {
   			WriteOutput("<p><strong>ADF was NOT Reset! You are NOT logged in.</strong></p>");
-  		} else if ( ((structKeyExists(url,"resetServerADF")) OR ((structKeyExists(url,"resetSiteADF")))) AND (userValidated) ) {
+  		} else if ( ((structKeyExists(url,"resetServerADF")) OR ((structKeyExists(url,"resetSiteADF"))) OR StructKeyExists(url,"resetADF")) AND (userValidated) ) {
   			WriteOutput("<p><strong>ADF has been Reset!</strong> - " & LSDateFormat(Now(),'short') & " @ " & LSTimeFormat(Now(),'short') & "</p>" );
   		}
   	</cfscript>
