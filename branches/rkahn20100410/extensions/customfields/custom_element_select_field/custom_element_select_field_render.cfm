@@ -41,6 +41,8 @@ History:
 	2010-03-10 - MFC - Updated function call to ADF lib to reference Application.ADF.
 						Updated cedata statement to remove filter and get all records.
 	2010-06-10 - MFC - Update to sort the CEDataArray at the start.
+	2010-09-17 - MFC - Updated the Default Value field to add [] to the value 
+						to make it evaluate a CF expression.
 --->
 <cfscript>
 	// the fields current value
@@ -71,10 +73,19 @@ History:
 	if ( StructKeyExists(xparams, "displayField") AND LEN(xparams.displayField) )
 		ceDataArray = application.ADF.cedata.arrayOfCEDataSort(ceDataArray, xparams.displayField);
 
+
 	// Check if we do not have a current value then set to the default
-	if ( (LEN(currentValue) LTE 0) OR (currentValue EQ "") )
-		currentValue = xparams.defaultVal;
+	if ( (LEN(currentValue) LTE 0) OR (currentValue EQ "") ){
+		if ( (TRIM(LEFT(xparams.defaultVal,1)) EQ "[") AND (TRIM(RIGHT(xparams.defaultVal,1)) EQ "]") ){
+			// Trim the [] from the expression
+			xparams.defaultVal = MID(xparams.defaultVal, 2, LEN(xparams.defaultVal)-2);
+			currentValue = Evaluate(xparams.defaultVal);
+		}
+		else
+			currentValue = xparams.defaultVal;
+	}
 </cfscript>
+<!--- <cfdump var="#ceDataArray#" label="ceDataArray" expand="false"> --->
 <cfoutput>
 	<script>
 		// javascript validation to make sure they have text to be converted

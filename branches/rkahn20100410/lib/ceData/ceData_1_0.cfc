@@ -1661,16 +1661,19 @@ History:
 				description="From form ID this function, when recurse is set to true returns the form's tabs in order, with the tab's fields in order, with each field's default information.">
 	<cfargument name="formID" type="numeric" required="true">
 	<cfargument name="recurse" type="boolean" required="false" default="false" hint="If true, this function will return a structure containing every tabs fields and the fields default values.">
+	<cfscript>
+		var returnArray = ArrayNew(1);
+		var tabStruct = StructNew();
+	</cfscript>
 	<cfquery name="formTabQuery" datasource="#request.site.datasource#">
 		  select TabDisplayName,TabSortName,ID
 			 from formControlTabs
   			where FormID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.formID#">
 		order by TabSortName
 	</cfquery>
-	<cfset var returnArray = ArrayNew(1)>
 	<cfloop query="formTabQuery">
 		<cfscript>
-			var tabStruct = StructNew();
+			tabStruct = StructNew();
 			tabStruct.name = TabDisplayName;
 			tabStruct.id = ID;
 			if(recurse){
@@ -1702,6 +1705,10 @@ History:
 				description="From tab id this can return either a simple listing of fields/fieldid in order. With recursive flag to true this function will return the fields/fieldid as normal but each field will have its default settings also.">
 	<cfargument name="tabID" type="numeric" required="true">
 	<cfargument name="recurse" type="boolean" required="false" default="false" hint="If true, this function will return a structure containing every fields and the fields default values.">
+	<cfscript>
+		var returnArray = ArrayNew(1);
+		var fieldStruct = StructNew();
+	</cfscript>
 	<cfquery name="formFieldQuery" datasource="#request.site.datasource#">
 		  select FormInputControlMap.FieldID,FormInputControlMap.ItemPos,FormInputControl.FieldName
 			 from FormInputControlMap
@@ -1710,10 +1717,9 @@ History:
   			where TabID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.tabID#">
 		order by ItemPos
 	</cfquery>
-	<cfset var returnArray = ArrayNew(1)>
 	<cfloop query="formFieldQuery">
 		<cfscript>
-			var fieldStruct = StructNew();
+			fieldStruct = StructNew();
 			fieldStruct.FieldID = FieldID;
 			fieldStruct.FieldName = ReplaceNoCase(FieldName, "FIC_", "", "all");
 			fieldStruct.defaultValues = getFieldDefaultValueFromID(FieldID);
@@ -1742,6 +1748,14 @@ History:
 				returntype="struct"
 				description="Attempts to get all relevant default form field information from field id.">
 	<cfargument name="fieldID" type="numeric" required="true">
+	<cfscript>
+		var rtnStruct = StructNew();
+		var params = "";
+		var formFieldQuery = "";
+		var defaultValues = StructNew();
+		var multipleFieldQuery = "";
+		var fieldQuery = "";
+	</cfscript>
 	<cfquery name="formFieldQuery" datasource="#request.site.datasource#">
 		  select FormID
 			 from FormInputControlMap
@@ -1758,7 +1772,7 @@ History:
 		<cfscript>
 			fieldDefaultValues = application.ADF.cedata.getElementInfoByPageID(pageid=0,formid=formID);
 			
-			var rtnStruct = StructNew();
+			rtnStruct = StructNew();
 			params = server.commonspot.udf.util.wddxdecode(fieldQuery.params[1],1);
 			defaultValues = StructNew();
 			defaultValues.type = fieldQuery.type[1];
@@ -1809,4 +1823,43 @@ History:
 	</cfloop>
 	<cfreturn rtnStruct>
 </cffunction>
+<!---
+/* ***************************************************************
+/*
+Author: 	Ryan Kahn
+Name:
+	$getFieldValueByFieldID
+Summary:
+	Returns struct containing form field values
+Returns:
+	struct
+Arguments:
+	number
+History:
+--->
+<cffunction name="getFieldValuesByFieldID" hint="Returns struct containing form field values" access="public" returntype="struct">
+	<cfargument name="fieldID" type="numeric" required="true">
+	<cfscript>
+		var params = StructNew();
+	</cfscript>
+	<cfquery name="formFieldQuery" datasource="#request.site.datasource#">
+		  select FormID
+			 from FormInputControlMap
+  			where FieldID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.fieldID#">
+	</cfquery>
+	<cfloop query="formFieldQuery">
+		<cfset multipleFieldQuery = application.adf.cedata.getElementFieldsByFormID(formID)>
+		<!---
+			getElementFieldsByFormID returns a resultset that contains EVERY field in the form, we just want the ONE field we need info from...
+		--->
+		<cfquery name="fieldQuery" dbType="query">
+			select * from multipleFieldQuery where fieldID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.fieldID#">
+		</cfquery>
+		<cfscript>
+			params = server.commonspot.udf.util.wddxdecode(fieldQuery.params[1],1);
+		</cfscript>
+	</cfloop>
+	<cfreturn params>
+</cffunction>
+
 </cfcomponent>

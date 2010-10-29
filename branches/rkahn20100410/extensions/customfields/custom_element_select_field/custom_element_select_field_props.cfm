@@ -37,6 +37,8 @@ ADF Requirements:
 	scripts_1_0
 History:
 	2009-07-06 - MFC - Created
+	2010-09-17 - MFC - Updated the Default Value field to add [] to the value 
+						to make it evaluate a CF expression.
 --->
 <cfscript>
 	// initialize some of the attributes variables
@@ -149,8 +151,6 @@ History:
 		jQuery("###prefix#displayField").selectOptions(jQuery("###prefix#displayField").selectedOptions(),true);
 	}
 </script>
-		
-		
 <!--- query to get the Custom Element List --->
 <cfset customElements = server.ADF.objectFactory.getBean("ceData_1_0").getAllCustomElements()>
 <table>
@@ -167,16 +167,15 @@ History:
 		</td>
 	</tr>
 	<tr>
-		
 		<td class="cs_dlgLabelSmall">Select Value Field:</td>
 		<td class="cs_dlgLabelSmall">
-			<select id="#prefix#valueField" name="#prefix#valueField" size="1"></select>
+			<input type="text" name="#prefix#valueField" id="#prefix#valueField" value="#currentValues.valueField#" size="40">
 		</td>
 	</tr>
 	<tr>
 		<td class="cs_dlgLabelSmall">Select Display Field:</td>
 		<td class="cs_dlgLabelSmall">
-			<select id="#prefix#displayField" name="#prefix#displayField" size="1"></select>
+			<input type="text" name="#prefix#displayField" id="#prefix#displayField" value="#currentValues.displayField#" size="40">
 		</td>
 	</tr>
 	<tr>
@@ -200,6 +199,7 @@ History:
 		<td class="cs_dlgLabelSmall">Default Field Value:</td>
 		<td class="cs_dlgLabelSmall">
 			<input type="text" name="#prefix#defaultVal" id="#prefix#defaultVal" value="#currentValues.defaultVal#" size="40">
+			<br />To denote a ColdFusion Expression, add brackets around the expression (i.e. "[request.user.userid]")
 		</td>
 	</tr>
 		<td class="cs_dlgLabelSmall">Force Loading Scripts:</td>

@@ -83,4 +83,52 @@ History:
 	<cfreturn "/ADF/">
 </cffunction>
 
+<cffunction name="reset" access="remote" returnType="string">
+	<cfargument name="type" type="string" required="false" default="all" hint="The type of the ADF to reset.  Options are 'Server', 'Site' or 'All'. Defaults to 'All'.">
+	<cfscript>
+		var rtnVal = false;
+
+		try
+		{
+	  		// 2010-06-23 jrybacek Determine if user is logged in.
+	  		if (request.user.id gt 0)
+	  		{
+		  		// 2010-06-23 jrybacek Determine how much of the ADF is being requested to be reset
+				switch (uCase(arguments.type))
+				{
+					case "ALL":
+						// 2010-06-23 jrybacek Reload ADF server
+						createObject("component", "ADF.core.Core").init();
+						// 2010-06-23 jrybacek Reload ADF site
+						createObject("component", "#request.site.name#._cs_apps.ADF").init();
+						rtnVal = "ADF framework reset request has been sent.";
+						break;
+					case "SERVER":
+						// 2010-06-23 jrybacek Reload ADF server
+						createObject("component", "ADF.core.Core").init();
+						rtnVal = "ADF server reset request has been sent.";
+						break;
+					case "SITE":
+						// 2010-06-23 jrybacek Reload ADF site
+						createObject("component", "#request.site.name#._cs_apps.ADF").init();
+						rtnVal = "ADF site '#request.site.name#' reset request has been sent.";
+						break;
+					default:
+						rtnVal = "Invalid argument '#arguments.type#' passed to method reset.";
+						break;
+				}
+	  		}
+	  		else
+	  		{
+	  			rtnVal = "Insufficient security, user not logged in.";
+	  		}
+		}
+		catch (any error)
+		{
+			writeOutput("<div class="".CS_Error_ADF"">Error resetting ADF.<br />Message: #error.message#<br />Detail: #error.detail#</div>");
+		}
+	</cfscript>
+	<cfreturn rtnVal>
+</cffunction>
+
 </cfcomponent>
