@@ -18,8 +18,8 @@ in this directory, you agree to the terms and conditions of the applicable
 end user license agreement.
 --->
 
-<!--- // include the standard delete-form process for a datasheet --->
-<cfinclude template="#request.subsiteCache[1].url#datasheet-modules/delete-form-data.cfm">
+<!--- // Include the CommonSpot process for a datasheet --->
+<cfinclude template="/commonspot/controls/datasheet/cs-delete-form-data.cfm">
 <!--- // if we are returning then handle the delete --->
 <cfif Request.Params.doDelete neq 0>
 	<cfset forms = server.ADF.objectFactory.getBean("forms_1_0")>
