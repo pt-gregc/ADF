@@ -270,11 +270,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	Ron West
 Name:
-	$getCSMetadata
+	$getStandardMetadata
 Summary:
 	Return the standard metadata for a page
 Returns:
@@ -284,6 +283,7 @@ Arguments:
 History:
 	2008-06-05 - RLW - Created
 	2010-03-08 - RLW - Added approvalStatus to check for "Active" state
+	2010-11-08 - MFC - Added PublicReleaseDate to return data
 --->
 <cffunction name="getStandardMetadata" access="public" returntype="struct">
 	<cfargument name="csPageID" required="true" type="numeric">
@@ -302,6 +302,7 @@ History:
 		stdMetadata.languageID = "";
 		stdMetadata.language = "";
 		stdMetadata.approvalStatus = "";
+		stdMetadata.PublicReleaseDate = "";
 	</cfscript>
 	<!--- // get the data from site pages record --->
 	<cfquery name="getData" datasource="#request.site.datasource#">
@@ -315,7 +316,8 @@ History:
 			name,
 			lang,
 			fileName,
-			approvalStatus
+			approvalStatus,
+			PublicReleaseDate
 		from sitePages
 		where id = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.csPageID#">
 	</cfquery>
@@ -347,6 +349,7 @@ History:
 			stdMetadata.fileName = getData.fileName;
 			stdMetadata.languageID = getData.lang;
 			stdMetadata.approvalStatus = getData.approvalStatus;
+			stdMetadata.PublicReleaseDate = getData.PublicReleaseDate;
 		}
 	</cfscript>
 	<cfreturn stdMetadata>
