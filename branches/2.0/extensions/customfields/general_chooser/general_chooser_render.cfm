@@ -19,8 +19,7 @@ end user license agreement.
 --->
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	
 	PaperThin, Inc.
 	Michael Carroll 
@@ -39,6 +38,8 @@ History:
 	2009-11-13 - MFC - Updated the Ajax calls to the CFC to call the controller 
 						function.  This allows only the "controller" function to 
 						listed in the proxy white list XML file.
+	2010-11-09 - MFC - Updated the Scripts loading methods to dynamically load the latest 
+						script versions from the Scripts Object.
 --->
 <cfscript>
 	// the fields current value
@@ -65,12 +66,9 @@ History:
 	
 	<cfscript>
 		// Load the scripts
-		scriptsObj = server.ADF.objectFactory.getBean("scripts_1_0");
-		scriptsObj.loadJQuery("1.3.2", xParams.forceScripts);
-		scriptsObj.loadJQueryUI("1.7.2", "ui-lightness", xParams.forceScripts);
-		//scriptsObj.loadThickbox("3.1", xParams.forceScripts);
-		//scriptsObj.loadJQueryTools();
-		scriptsObj.loadADFLightbox();
+		application.ADF.scripts.loadJQuery(force=xParams.forceScripts);
+		application.ADF.scripts.loadJQueryUI(force=xParams.forceScripts);
+		application.ADF.scripts.loadADFLightbox();
 	</cfscript>
 	
 	<script type="text/javascript">
