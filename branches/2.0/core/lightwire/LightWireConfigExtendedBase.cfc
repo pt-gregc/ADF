@@ -437,7 +437,6 @@ History:
 	<cfargument name="cfcPath" type="string" required="true" default="">
 	<cfargument name="cfcName" type="string" required="true" default="">
 	<cfargument name="beanNamePrefix" type="string" required="false" default="">
-	
 	<cfscript>
 		// initialize the return bean data struct
 		var retBeanData = StructNew();
@@ -450,8 +449,9 @@ History:
 		retBeanData.cfcPath = "#retBeanData.cfcPath##retBeanData.cfcName#";
 		// Store that bean data	
 		retBeanData.beanName = "#arguments.beanNamePrefix##retBeanData.cfcName#";
-		return retBeanData;
+		//return retBeanData;
 	</cfscript>
+	<cfreturn retBeanData>
 </cffunction>
 
 <!---
@@ -475,20 +475,32 @@ History:
 	
 	<cfscript>
 		// Replace the slashes in the list to periods
-		var retComPath = ReplaceList(arguments.dirPath, "\,/", ".,.");
+		//var retComPath = ReplaceList(arguments.dirPath, "\,/", ".,.");
+		var retComPath = arguments.dirPath;
 		var csAppsURL = ReplaceList(request.site.CSAPPSDIR, '\,/', '.,.');		
 
+		// get the real path to the ADF
+		var ADFPath = expandPath('/ADF');
+		
+		
 		// Remove the path before the postion of the '.ADF.' directory
-		if ( FINDNOCASE(".ADF.", retComPath) ) {
-			retComPath = RIGHT(retComPath, LEN(retComPath) - FINDNOCASE(".ADF.", retComPath));
-		}
-		// Remove the path before the postion of the Site Name in the directory path
+		//if ( FINDNOCASE(".ADF.", retComPath) ) {
+		//	retComPath = RIGHT(retComPath, LEN(retComPath) - FINDNOCASE(".ADF.", retComPath));
+		//}
+		// remove everything before the path
+		if( findNoCase(ADFPath, retComPath) ) {
+			retComPath = mid(retComPath, findNoCase(ADFPath, retComPath) + len(ADFPath), len(retComPath));			// add ADF back in
+			retComPath = "/ADF" & retComPath;
+		}// Remove the path before the postion of the Site Name in the directory path
 		else if ( FINDNOCASE("._cs_apps.", retComPath) )
 		{
 			retComPath = RIGHT(retComPath, LEN(retComPath) - FINDNOCASE("._cs_apps.", retComPath));
 			retComPath = REPLACENOCASE(retComPath,"_cs_apps.",request.site.csAppsURL);
-			retComPath = ReplaceList(retComPath, '\,/', '.,.');	
+			//retComPath = ReplaceList(retComPath, '\,/', '.,.');	
 		}
+		
+		// Replace the slashes in the list to periods to support CFC notation
+		retComPath = ReplaceList(retComPath, "\,/", ".,.");
 
 		// Trim the first character to make sure doesn't start with "."
 		if ( LEFT(retComPath, 1) EQ "." )
