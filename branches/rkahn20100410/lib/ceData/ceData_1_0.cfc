@@ -1762,7 +1762,7 @@ History:
   			where FieldID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.fieldID#">
 	</cfquery>
 	<cfloop query="formFieldQuery">
-		<cfset multipleFieldQuery = application.adf.cedata.getElementFieldsByFormID(formID)>
+		<cfset multipleFieldQuery = application.ADF.cedata.getElementFieldsByFormID(formID)>
 		<!---
 			getElementFieldsByFormID returns a resultset that contains EVERY field in the form, we just want the ONE field we need info from...
 		--->
@@ -1776,7 +1776,9 @@ History:
 			params = server.commonspot.udf.util.wddxdecode(fieldQuery.params[1],1);
 			defaultValues = StructNew();
 			defaultValues.type = fieldQuery.type[1];
-			defaultValues.required = params.req;
+			if(structKeyExists(params,"req")){
+				defaultValues.required = params.req;
+			}
 			defaultValues.fieldName = ReplaceNoCase(fieldQuery.fieldName[1], "FIC_", "", "all");
 			if(len(fieldDefaultValues.values[defaultValues.fieldName])){
 				defaultValues.defaultValue = fieldDefaultValues.values[defaultValues.fieldName];

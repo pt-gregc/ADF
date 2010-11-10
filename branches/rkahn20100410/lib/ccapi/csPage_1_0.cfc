@@ -224,4 +224,98 @@ History:
 	<cfreturn result>
 </cffunction>
 
+<!---
+/* ***************************************************************
+/*
+Author: 	Ryan Kahn
+Name:
+	$copyPage
+Summary:
+	Duplicates the page from source to destination using destination template. 
+	IF sourceCustomElementNames and destCustomElementNames are defined it will attempt a ccapi set on the destCustomElementNames from the source set.
+Returns:
+	Struct boolean
+Arguments:
+	numeric: sourcePageID 
+	numeric: destinationSubsiteID 
+	numeric: destinationTemplateID 
+	list: sourceCustomElementNames 
+	list: destCustomElementNames 
+History:
+	2010-11-05 - RAK - Created
+--->
+<cffunction name="copyPage" access="public" returntype="boolean">
+	<cfargument name="sourcePageID" type="numeric" required="true">
+	<cfargument name="destinationSubsiteID" type="numeric" required="true">
+	<cfargument name="destinationTemplateID" type="numeric" required="false">
+	<cfargument name="sourceCustomElementNames" type="string" required="false" default="#ArrayNew(1)#">
+	<cfargument name="destCustomElementNames" type="string" required="false" default="#ArrayNew(1)#">
+	<cfscript>
+		var i = 1;
+		var j = 1;
+		var customElementFormID = "";
+		var elementInformation = "";
+		var customData = "";
+		var stdMetadata = StructNew();
+		var data = StructNew();
+		var currentField = "";
+		var custMetadata = structNew();
+		var sourcePage = application.ADF.csData.getStandardMetadata(arguments.sourcePageID);
+		
+		sourceCustomElementNames = ListToArray(sourceCustomElementNames);
+		destCustomElementNames = ListToArray(destCustomElementNames);
+		
+		//Does the page exist? If so throw an exception tellting them so
+		if(application.ADF.csData.getCSPageByName(sourcePage.name,arguments.destinationSubsiteID)){
+			application.ADF.utils.logAppend("Page already exists: '#sourcePage.name#' in subsiteID: #arguments.destinationSubsiteID#","copyPageLog.txt");
+			return false;
+		}
+		
+	 	stdMetadata.name = sourcePage.name;
+		stdMetadata.title = sourcePage.title;
+		stdMetadata.description = sourcePage.description;
+		stdMetadata.templateID = arguments.destinationTemplateID;
+		stdMetadata.subsiteID = arguments.destinationSubsiteID;
+		
+		
+		newPage = application.ADF.csPage.createPage(stdMetadata,custMetadata);
+		if(!newPage.pageCreated){
+			application.ADF.utils.logAppend("There was an error while creating page: '#stdMetadata.name#' in subsiteID: #stdMetadata.subsiteID#","copyPageLog.txt");
+			return false;
+		}
+		newPageID = newPage.newPageID;
+		
+		for(i=1;i<=ArrayLen(arguments.sourceCustomElementNames);i++){
+			customElementFormID = application.ADF.ceData.getFormIDByCEName(arguments.sourceCustomElementNames[i]);
+			customData = application.ADF.ceData.getElementInfoByPageID(
+								pageID = arguments.sourcePageID,
+								formid = customElementFormID);
+			
+			data = StructNew();
+			data.subsiteID = arguments.destinationSubsiteID;
+			data.pageID = newPageID;
+			data.submitChange = 1;
+			data.submitChange_comment = "Submit data for Custom element through API";
+			
+			elementInformation = application.ADF.ceData.getTabsFromFormID(customElementFormID,true);
+			for(j=1;j<=ArrayLen(elementInformation[1].fields);j++){
+				currentField = elementInformation[1].fields[j];
+				if(currentField.defaultValues.type == "formatted_text_block"){//Its a formatted text block! Fix the entities!
+					customData.values[currentField.fieldName] = server.commonspot.udf.html.DECODEENTITIES(customData.values[currentField.fieldName]);
+				}
+				data[currentField.fieldName] = customData.values[currentField.fieldName];
+			}
+			
+			
+			populateContentResults = application.ADF.csContent.populateContent(destCustomElementNames[i],data);
+			if(!populateContentResults.contentUpdated){
+				application.ADF.utils.logAppend("There was an error while updating element: '#destCustomElementNames[i]#' on page: '#stdMetadata.name#' in subsiteID: #stdMetadata.subsiteID#","copyPageLog.txt");
+				return false;
+			}
+		}
+		application.ADF.utils.logAppend("Page '#stdMetadata.name#' created in subsiteID: #stdMetadata.subsiteID# succesfully.","copyPageLog.txt");
+	</cfscript>
+	<cfreturn true>
+</cffunction>
+
 </cfcomponent>

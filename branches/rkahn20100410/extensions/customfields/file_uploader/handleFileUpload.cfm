@@ -2,12 +2,15 @@
 	<cfoutput>
 		<cfif !StructKeyExists(form,"filename") 
 				or !StructKeyExists(form,"folder")
-				or !StructKeyExists(form,"filedata")>
+				or !StructKeyExists(form,"filedata")
+				or !StructKeyExists(form,"subsiteURL")
+				or !StructKeyExists(form,"uploadUUID")
+				or !StructKeyExists(form,"inputID")>
 			<cfthrow type="custom" detail="Missing form parameters." message="Invalid Arguments">
 		</cfif>
 		<cfscript>
-			fileUUID = ListGetAt(form.folder,1,"/");
-			fieldID = ListGetAt(form.folder,2,"/");
+			fileUUID = form.uploadUUID;
+			fieldID = form.inputID;
 		</cfscript>
 		<cfif fieldID gt 0>
 			<cfscript>

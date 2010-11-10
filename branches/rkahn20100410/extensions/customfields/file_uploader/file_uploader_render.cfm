@@ -57,7 +57,12 @@ end user license agreement.
 			//The folder is actually the custom field's ID so we can look up the prop values
 			jQuery('##upload_btn_#fqFieldName#').uploadify({
 				'uploader'  : '/ADF/thirdParty/jquery/uploadify/uploadify.swf',
-				'script'    : '/ADF/extensions/customcf/file_uploader/handleFileUpload.cfm',
+				'script'    : '/ADF/extensions/customfields/file_uploader/handleFileUpload.cfm',
+				'scriptData': {
+										'subsiteURL':'#request.subsite.url#',
+										'uploadUUID':'#uploadUUID#',
+										'inputID':'#fieldQuery.inputID#'
+									},
 				'cancelImg' : '/ADF/thirdParty/jquery/uploadify/cancel.png',
 				'auto'      : true,
 				'folder'    : '/#uploadUUID#/#fieldQuery.inputID#',
@@ -65,10 +70,15 @@ end user license agreement.
 				'fileExt'	: '#acceptedFileTypes#',
 				'onProgress': function(event,queue,fileObj,data){
 					if(data.percentage == 100){
-						tempName = fileObj.name.replace(fileObj.type,"");
-						tempName = tempName+"--#uploadUUID#"+fileObj.type;
+						extLocation = fileObj.name.lastIndexOf(".");
+						tempName = fileObj.name;
+						//Insert the uploadUUID into the filename before the extension
+						tempName = tempName.substr(0,extLocation)+"--#uploadUUID#"+tempName.substr(extLocation);
+						console.log(tempName);
 						jQuery("###fqFieldName#").val(tempName);
 						jQuery("##errorMsg_#fqFieldName#").html("Upload Success!");
+					}else{
+						jQuery("##errorMsg_#fqFieldName#").html("Upload in progress...");
 					}
 				},
 				'onCancel'	: function(event,queueID,fileObj){

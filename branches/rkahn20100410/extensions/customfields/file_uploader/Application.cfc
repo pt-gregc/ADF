@@ -35,7 +35,8 @@ History:
 	
 	<cffunction name="onRequestStart" access="public" returntype="any">
 		<cfscript>
-			loadSiteAppSpace("/");
+			if( structKeyExists(form, "subsiteURL") )
+				loadSiteAppSpace(form.subsiteURL);
 		</cfscript>
 	</cffunction>
 	
