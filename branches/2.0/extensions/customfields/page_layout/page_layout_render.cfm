@@ -30,7 +30,10 @@ Name:
 Summary:
 	Custom field to render predefined page layout options in metadata forms.
 History:
-	2010-09-09 - GAC/MFC - Created
+	2010-09-09 - GAC/MFC - 	Created
+	2010-11-11 - MFC - 		Added onclick to the img to select the radio button. 
+								Due to problem reported with Mac browser and label 
+								select is not checking the radio field.
 --->
 <cfscript>
 	// the fields current value
@@ -163,6 +166,16 @@ History:
 	<td class="cs_dlgLabelSmall"></td>
 	<td class="cs_dlgLabelSmall">
 	<div class="main">
+		<cfscript>
+			application.ADF.scripts.loadJQuery();
+		</cfscript>
+		<script type="text/javascript">
+			function #fqFieldName#_loadSelection(optionName) {
+				var fieldOptionName = "input###fqFieldName#_" + optionName;
+				// Set the current options radio button to selected
+				jQuery(fieldOptionName).attr("checked", "checked");
+			}
+		</script>
 		<!--- Loop over the array of options --->
 		<cfloop index="i" from="1" to="#ArrayLen(layoutOptions)#" >
 			<!--- Set the current option name b/c we use it multiple times --->
@@ -173,7 +186,7 @@ History:
 					<label for="#currOptionName#">
 						<input type="radio" name="#fqFieldName#" id="#currOptionName#" value="#currOptionName#"<cfif currentValue eq "#currOptionName#"> checked="checked"</cfif>/>
 						<span>#layoutOptions[i].description#</span><br/>
-						<img src="#layoutOptions[i].image#" />
+						<img src="#layoutOptions[i].image#" onclick="#fqFieldName#_loadSelection('#currOptionName#');" />
 					</label>
 				</div>
 			</cfif>
