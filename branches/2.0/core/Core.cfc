@@ -83,52 +83,103 @@ History:
 	<cfreturn "/ADF/">
 </cffunction>
 
-<cffunction name="reset" access="remote" returnType="string">
+<!---
+	/* ***************************************************************
+	/*
+	Author: 	jrybacek
+	Name:
+		reset
+	Summary:
+		Resets the ADF if the user is logged in
+	Returns:
+		Status
+	Arguments:
+		String - type
+			Accepted Values: "ALL","SERVER","SITE"
+	History:
+		2010-06-23 - jrybacek - Created
+		2010-10-29
+--->
+<cffunction name="reset" access="remote" returnType="Struct">
 	<cfargument name="type" type="string" required="false" default="all" hint="The type of the ADF to reset.  Options are 'Server', 'Site' or 'All'. Defaults to 'All'.">
 	<cfscript>
-		var rtnVal = false;
-
-		try
-		{
-	  		// 2010-06-23 jrybacek Determine if user is logged in.
-	  		if (request.user.id gt 0)
-	  		{
-		  		// 2010-06-23 jrybacek Determine how much of the ADF is being requested to be reset
-				switch (uCase(arguments.type))
-				{
-					case "ALL":
-						// 2010-06-23 jrybacek Reload ADF server
-						createObject("component", "ADF.core.Core").init();
-						// 2010-06-23 jrybacek Reload ADF site
-						createObject("component", "#request.site.name#._cs_apps.ADF").init();
-						rtnVal = "ADF framework reset request has been sent.";
-						break;
-					case "SERVER":
-						// 2010-06-23 jrybacek Reload ADF server
-						createObject("component", "ADF.core.Core").init();
-						rtnVal = "ADF server reset request has been sent.";
-						break;
-					case "SITE":
-						// 2010-06-23 jrybacek Reload ADF site
-						createObject("component", "#request.site.name#._cs_apps.ADF").init();
-						rtnVal = "ADF site '#request.site.name#' reset request has been sent.";
-						break;
-					default:
-						rtnVal = "Invalid argument '#arguments.type#' passed to method reset.";
-						break;
-				}
-	  		}
-	  		else
-	  		{
-	  			rtnVal = "Insufficient security, user not logged in.";
-	  		}
-		}
-		catch (any error)
-		{
-			writeOutput("<div class="".CS_Error_ADF"">Error resetting ADF.<br />Message: #error.message#<br />Detail: #error.detail#</div>");
-		}
+		var rtnMsg = "Insufficient security, user not logged in.";
+		var ADFReset = false;
+		var returnStruct = StructNew();
+		var siteName = "";
+		var logFileName = "";
 	</cfscript>
-	<cfreturn rtnVal>
+	<cfif request.user.id gt 0>
+		<cftry>
+			<cflock timeout="30" type="exclusive" name="ADF-RESET">
+				<cfscript>
+			 		// 2010-06-23 jrybacek Determine if user is logged in.
+			  		// 2010-06-23 jrybacek Determine how much of the ADF is being requested to be reset
+					switch (uCase(arguments.type))
+					{
+						case "ALL":
+							// 2010-06-23 jrybacek Reload ADF server
+							createObject("component", "ADF.core.Core").init();
+							// 2010-06-23 jrybacek Reload ADF site
+							createObject("component", "#request.site.name#._cs_apps.ADF").init();
+							rtnMsg = "ADF framework has been reset succesfully!";
+							ADFReset = true;
+							break;
+						case "SERVER":
+							// 2010-06-23 jrybacek Reload ADF server
+							createObject("component", "ADF.core.Core").init();
+							rtnMsg = "ADF server framework has been reset succesfully!";
+							ADFReset = true;
+							break;
+						case "SITE":
+							// 2010-06-23 jrybacek Reload ADF site
+							createObject("component", "#request.site.name#._cs_apps.ADF").init();
+							rtnMsg = "ADF site '#request.site.name#' has been reset succesfully!";
+							ADFReset = true;
+							break;
+						default:
+							rtnMsg = "Invalid argument '#arguments.type#' passed to method reset.";
+							break;
+					}
+				</cfscript>
+			</cflock>
+			<cfcatch>
+				<cfsavecontent variable="dump">
+					<!--- Dump the cfcatch --->
+					<cfdump var="#cfcatch#" label="cfcatch" expand="false">
+					
+					<!--- Dump the server.ADF --->
+					<cfif NOT StructKeyExists(server, "ADF")>
+						<cfoutput><p>server.ADF Does not exist.</p></cfoutput>
+					<cfelse>
+						<cfdump var="#server.ADF#" label="server.ADF" expand="false">
+					</cfif>
+					
+					<!--- Dump the application.ADF --->
+					<cfif NOT StructKeyExists(application, "ADF")>
+						<cfoutput><p>application.ADF Does not exist.</p></cfoutput>
+					<cfelse>
+						<cfdump var="#application.ADF#" label="application.ADF" expand="false">
+					</cfif>
+				</cfsavecontent>
+				
+				rtnMsg = "Error building the ADF.";
+				
+				<cfif StructKeyExists(request,"site")>
+					<!--- Log the error content --->
+					siteName = request.site.name;
+				</cfif>
+				<cfset logFileName = dateFormat(now(), "yyyymmdd") & "." & siteName & ".ADF_Load_Errors.htm">
+				<cffile action="append" file="#request.cp.commonSpotDir#logs/#logFileName#" output="#request.formattedtimestamp# - #dump#" addnewline="true">
+
+			</cfcatch>
+		</cftry>
+	</cfif>
+	<cfscript>
+		returnStruct.success = ADFReset;
+		returnStruct.message = now() & rtnMsg;
+		return returnStruct;
+	</cfscript>
 </cffunction>
 
 </cfcomponent>
