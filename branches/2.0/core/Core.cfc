@@ -167,7 +167,7 @@ History:
 				
 				<cfif StructKeyExists(request,"site")>
 					<!--- Log the error content --->
-					siteName = request.site.name;
+					<cfset siteName = request.site.name>
 				</cfif>
 				<cfset logFileName = dateFormat(now(), "yyyymmdd") & "." & siteName & ".ADF_Load_Errors.htm">
 				<cffile action="append" file="#request.cp.commonSpotDir#logs/#logFileName#" output="#request.formattedtimestamp# - #dump#" addnewline="true">
