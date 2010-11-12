@@ -47,7 +47,7 @@ end user license agreement.
 			resetResults = adfCore.reset(adfResetType);
 		</cfscript>
 		<cfoutput>
-			#resetResults.message#
+			<b>#resetResults.message#</b>
 		</cfoutput>
 	</cfif>
 	
@@ -56,10 +56,14 @@ end user license agreement.
 		if ( StructKeyExists(url,"ADFDumpVar")) {
 			// Verify if the ADF dump var exists
 			// [MFC] - Changed "isDefined" to "LEN"
-			if ( LEN(url.ADFDumpVar) GT 0 )
+			// [RAK] - 2010-11-01 - Fixing security issue with cfscript code being passed into the evaluate from any logged in user
+			//Anything that is not a-z or 0-9 or '.' or '[' or ']'
+			regularExpression = '[^a-z0-9\.\[\]]]';
+			if ( LEN(url.ADFDumpVar) GT 0 and !ReFindNoCase(regularExpression,url.ADFDumpVar)){
 				CreateObject("component","ADF.lib.utils.Utils_1_0").dodump(evaluate(url.ADFDumpVar), #url.ADFDumpVar#, false);
-			else
+			}else{
 				WriteOutput("<strong>ADFDumpVar Failed</strong> : Variable '#url.ADFDumpVar#' does not exist.");
+			}
 		}
 	</cfscript>
 </cfif>

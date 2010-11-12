@@ -163,7 +163,7 @@ History:
 					</cfif>
 				</cfsavecontent>
 				
-				rtnMsg = "Error building the ADF.";
+				<cfset rtnMsg = "Error building the ADF.">
 				
 				<cfif StructKeyExists(request,"site")>
 					<!--- Log the error content --->
@@ -177,7 +177,7 @@ History:
 	</cfif>
 	<cfscript>
 		returnStruct.success = ADFReset;
-		returnStruct.message = now() & rtnMsg;
+		returnStruct.message = "&nbsp;"&DateFormat(now(),"yyyy-mm-dd")&" "&TimeFormat(now(),"hh:mm:ss")&" - "&rtnMsg;
 		return returnStruct;
 	</cfscript>
 </cffunction>
