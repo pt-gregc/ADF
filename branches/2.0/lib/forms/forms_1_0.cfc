@@ -169,6 +169,9 @@ History:
 	2009-11-11 - MFC - Updates to force the jquery script to load
 	2010-06-04 - MFC - Added IF statement to check for lbAction to refresh parent
 	2010-06-07 - MFC - Updated the render form to not call the special RTE operations when above CS 6.
+	2010-11-17 - MFC - Updated the JS close LB action script.
+						Updated script command to load ADF Lightbox.
+						Added logic to use the customizedFinalHtml argument if defined.
 --->
 <cffunction name="renderAddEditForm" access="public" returntype="String" hint="Returns the HTML for an Add/Edit Custom element record">
 	<cfargument name="formID" type="numeric" required="true">
@@ -187,19 +190,23 @@ History:
 	
 	<!--- Result from the Form Submit --->
 	<cfsavecontent variable="formResultHTML">
-		<cfoutput>
-		<cfscript>
-			variables.scripts.loadJquery('1.3.2', 1);
-			variables.scripts.loadADFLightbox(force=1);
-		</cfscript>
-		<script type='text/javascript'>
-			jQuery(document).ready(function(){
-				if ( "#arguments.lbAction#" != "norefresh" )
-					window.parent.location.href = window.parent.location.href;
-				window.parent.closeLB();
-			});
-		</script>
-		</cfoutput>
+		<!--- Set the form result html to the argument if defined --->
+		<cfif LEN(arguments.customizedFinalHtml)>
+			<cfoutput>#arguments.customizedFinalHtml#</cfoutput>
+		<cfelse>
+			<cfoutput>
+			<cfscript>
+				variables.scripts.loadADFLightbox(force=1);
+			</cfscript>
+			<script type='text/javascript'>
+				jQuery(document).ready(function(){
+					if ( "#arguments.lbAction#" == "refreshparent" )
+						closeLBReloadParent();
+					closeLB();
+				});
+			</script>
+			</cfoutput>	
+		</cfif>
 	</cfsavecontent>
 	
 	<cfif NOT renderResult>
