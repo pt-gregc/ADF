@@ -56,7 +56,7 @@ History:
 <cfparam name="currentValues.useUDef" default="0">
 <cfparam name="currentValues.defaultValue" default="">
 <cfoutput>
-	<script type="text/javascript"]>
+	<script type="text/javascript">
 		fieldProperties['#typeid#'].paramFields = "#prefix#fldName,#prefix#fldClass,#prefix#fldSize,#prefix#editOnce,#prefix#useUdef,#prefix#currentDefault";
 		// allows this field to support the orange icon (copy down to label from field name)
 		fieldProperties['#typeid#'].jsLabelUpdater = '#prefix#doLabel';
