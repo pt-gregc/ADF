@@ -386,18 +386,35 @@ Returns:
 Arguments:
 	String linkTitle
 	String formName
-	String dataPageID
+	Numeric dataPageID
+	Boolean refreshparent
+	String urlParams - additional URL parameters to be passed to the form
 History:
-  2010-09-30 - RLW - Created
+  	2010-09-30 - RLW - Created
+ 	2010-10-18 - GAC - Modified - Added a RefreshParent parameter
+   	2010-10-18 - GAC - Modified - Added a urlParams parameter
 --->
-<cffunction name="buildAddEditLink" access="public" returntype="string">
+<cffunction name="buildAddEditLink" access="public" returntype="string" output="false">
 	<cfargument name="linkTitle" type="string" required="true">
 	<cfargument name="formName" type="string" required="true">
 	<cfargument name="dataPageID" type="numeric" required="false" default="0">
-	<cfset var rtnStr = "">
-	<cfset var formID = variables.ceData.getFormIDByCEName(arguments.formName)>
+	<cfargument name="refreshparent" type="boolean" required="false" default="false"> 
+	<cfargument name="urlParams" type="string" required="false" default=""> 
+	<cfscript>
+		var rtnStr = "";
+		var formID = variables.ceData.getFormIDByCEName(arguments.formName);
+		var lbAction = "norefresh";
+		var uParams = "";
+		if ( arguments.refreshparent IS true )
+			lbAction = "refreshparent";
+		if ( LEN(TRIM(arguments.urlParams)) ) {
+			uParams = TRIM(arguments.urlParams);
+			if ( Find("&",uParams,"1") NEQ 1 ) 
+				uParams = "&" & uParams;
+		}
+	</cfscript>
 	<cfsavecontent variable="rtnStr">
-		<cfoutput><a href="javascript:;" rel="#application.ADF.ajaxProxy#?bean=forms_1_0&method=renderAddEditForm&formID=#formID#&dataPageID=#arguments.dataPageID#" class="ADFLightbox">#arguments.linkTitle#</a></cfoutput>
+		<cfoutput><a href="javascript:;" rel="#application.ADF.ajaxProxy#?bean=forms_1_0&method=renderAddEditForm&formID=#formID#&dataPageID=#arguments.dataPageID#&lbAction=#lbAction##uParams#" class="ADFLightbox">#arguments.linkTitle#</a></cfoutput>
 	</cfsavecontent>
 	<cfreturn rtnStr>
 </cffunction>
