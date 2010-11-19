@@ -54,8 +54,9 @@ History:
 	<cfscript>
 		var result = false;
 		// Verify if the logged in user id contributor
-		if ( (StructKeyExists(request.user, "licensedcontributor")) AND (request.user.licensedcontributor EQ 1) )
+		if ( StructKeyExists(request,"user") AND StructKeyExists(request.user, "licensedcontributor") AND request.user.licensedcontributor EQ 1){
 			result = true;
+		}
 	</cfscript>
 	<cfreturn result>
 </cffunction>

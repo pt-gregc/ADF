@@ -79,7 +79,7 @@ History:
 <cffunction name="createPage" access="public" output="true" returntype="struct" hint="Creates a page using the argument data passed in">
 	<cfargument name="stdMetadata" type="struct" required="true" hint="Standard Metadata would include 'Title, Description, TemplateId, SubsiteID etc...'">
 	<cfargument name="custMetadata" type="struct" required="true" hint="Custom Metadata would be any custom metadata for the new page ex. customMetadata['formName']['fieldname']">
-	<cfargument name="activatePage" type="numeric" required="false" default="1" hint="Falg to make the new page active or inactive"> 
+	<cfargument name="activatePage" type="numeric" required="false" default="1" hint="Flag to make the new page active or inactive"> 
 	<cfscript>
 		var pageData = structNew();
 		var ws = "";
@@ -222,6 +222,112 @@ History:
 		logoutResult = variables.ccapi.logout();
 	</cfscript>
 	<cfreturn result>
+</cffunction>
+
+<!---
+/* ***************************************************************
+/*
+Author: 	Ryan Kahn
+Name:
+	$copyPage
+Summary:
+	Duplicates the page from source to destination using destination template. 
+	IF sourceCustomElementNames and destCustomElementNames are defined it will attempt a ccapi set on the destCustomElementNames from the source set.
+Returns:
+	Struct boolean
+Arguments:
+	numeric: sourcePageID 
+	numeric: destinationSubsiteID 
+	numeric: destinationTemplateID 
+	array: sourceCustomElementNames 
+	array: destCCAPIElementNames 
+History:
+	2010-11-05 - RAK - Created
+--->
+<cffunction name="copyPage" access="public" returntype="boolean" hint="Duplicates the page from source to destination using destination template. ">
+	<cfargument name="sourcePageID" type="numeric" required="true">
+	<cfargument name="destinationSubsiteID" type="numeric" required="true">
+	<cfargument name="destinationTemplateID" type="numeric" required="false">
+	<cfargument name="sourceCustomElementNames" type="array" required="false" default="#ArrayNew(1)#">
+	<cfargument name="destCCAPIElementNames" type="array" required="false" default="#ArrayNew(1)#">
+	<cfscript>
+		var i = 1;
+		var j = 1;
+		var k = 1;
+		var customElementFormID = "";
+		var elementInformation = "";
+		var customData = "";
+		var stdMetadata = StructNew();
+		var data = StructNew();
+		var currentField = "";
+		var custMetadata = structNew();
+		var sourcePage = application.ADF.csData.getStandardMetadata(arguments.sourcePageID);
+		
+		//Error checking
+		if(ArrayLen(sourceCustomElementNames) neq ArrayLen(destCCAPIElementNames)){
+			application.ADF.utils.logAppend("Source custom element list is not the same length of custom element names.","copyPageLog.txt");
+			return false;
+		}
+		
+		//Does the page exist? If so throw an exception telling them so
+		if(application.ADF.csData.getCSPageByName(sourcePage.name,arguments.destinationSubsiteID)){
+			application.ADF.utils.logAppend("Page already exists: '#sourcePage.name#' in subsiteID: #arguments.destinationSubsiteID#","copyPageLog.txt");
+			return false;
+		}
+		
+		//setup the stdMetadata from our source page
+		stdMetadata = sourcePage;
+		stdMetadata.templateID = arguments.destinationTemplateID;
+		stdMetadata.subsiteID = arguments.destinationSubsiteID;
+		
+		//Create the page
+		newPage = application.ADF.csPage.createPage(stdMetadata,custMetadata);
+		if(!newPage.pageCreated){//we couldnt create the page! Log the error and return out false.
+			application.ADF.utils.logAppend("There was an error while creating page: '#stdMetadata.name#' in subsiteID: #stdMetadata.subsiteID#","copyPageLog.txt");
+			return false;
+		}
+		//Page creation successful!
+		newPageID = newPage.newPageID;
+		
+		//Iterate over each element and process the imports!
+		for(i=1;i<=ArrayLen(arguments.sourceCustomElementNames);i++){
+			customElementFormID = application.ADF.ceData.getFormIDByCEName(arguments.sourceCustomElementNames[i]);
+			customData = application.ADF.ceData.getElementInfoByPageID(
+								pageID = arguments.sourcePageID,
+								formid = customElementFormID);
+			//Setup the data for each custom element
+			data = StructNew();
+			data.subsiteID = arguments.destinationSubsiteID;
+			data.pageID = newPageID;
+			data.submitChange = 1;
+			data.submitChange_comment = "Submit data for Custom element through API";
+			//Get the tabs, iterate over 
+			elementTabs = application.ADF.ceData.getTabsFromFormID(customElementFormID,true);
+			//Iterate over each tab 
+			for(k=1;k<=ArrayLen(elementTabs);k++){
+				//Iterate over each field in the tab
+				for(j=1;j<=ArrayLen(elementTabs[k].fields);j++){
+					//Get the current field for the current tab
+					currentField = elementTabs[k].fields[j];
+					//Its a formatted text block! Fix the entities!}
+					if(currentField.defaultValues.type == "formatted_text_block"){
+						customData.values[currentField.fieldName] = server.commonspot.udf.html.DECODEENTITIES(customData.values[currentField.fieldName]);
+					}
+					//Fill out data with the updated value
+					data[currentField.fieldName] = customData.values[currentField.fieldName];
+				}
+			}
+			//Populate the element with the data
+			populateContentResults = application.ADF.csContent.populateContent(destCustomElementNames[i],data);
+			if(!populateContentResults.contentUpdated){
+				application.ADF.utils.logAppend("There was an error while updating element: '#destCustomElementNames[i]#' on page: '#stdMetadata.name#' in subsiteID: #stdMetadata.subsiteID#","copyPageLog.txt");
+				return false;
+			}
+		}
+		//Log our success!
+		application.ADF.utils.logAppend("Page '#stdMetadata.name#' created in subsiteID: #stdMetadata.subsiteID# succesfully.","copyPageLog.txt");
+		return true;
+	</cfscript>
 </cffunction>
 
 </cfcomponent>

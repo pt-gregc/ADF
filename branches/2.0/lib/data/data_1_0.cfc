@@ -1534,4 +1534,45 @@ History:
 	</cfif>
 	<cfreturn pageURL>
 </cffunction>
+
+<!---
+/* ***************************************************************
+/*
+Author: 	Dave Merril
+Name:
+	$queryRowToStruct
+Summary:
+	Returns a struct w requested data from a requested query row.
+Returns:
+	Struct
+Arguments:
+	query - query
+	rowNum - numeric
+	colsList - string
+	LCaseNames - boolean
+	targetStruct - struct
+History:
+	2010-11-17 - RAK - Brought in Dave Merril's queryRowToStruct for use in ADF
+--->
+<cffunction name="queryRowToStruct" hint="Returns a struct w requested data from a requested query row." output="no" returntype="struct" access="public">
+	<cfargument name="query" type="query" required="yes">
+	<cfargument name="rowNum" type="numeric" default="1" required="no">
+	<cfargument name="colsList" type="string" default="#arguments.query.ColumnList#" required="no">
+	<cfargument name="LCaseNames" type="boolean" default="yes" required="no">
+	<cfargument name="targetStruct" type="struct" default="#StructNew()#" required="no">
+	<cfscript>
+		var s = arguments.targetStruct;
+		var aCols = '';
+		var i = 0;
+		var count = 0;
+		
+		if (arguments.LCaseNames)
+			arguments.colsList = LCase(arguments.colsList);
+		aCols = ListToArray(arguments.colsList);
+		count = ArrayLen(aCols);
+		for (i = 1; i lte count; i = i + 1)
+			s[aCols[i]] = arguments.query[aCols[i]][arguments.rowNum];
+		return s;
+	</cfscript>
+</cffunction>
 </cfcomponent>
