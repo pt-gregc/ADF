@@ -132,7 +132,7 @@ end user license agreement.
 		var loop_i = 1;
 		var beanData = StructNew();
 		var dirName = "";
-
+		
 		// check if the cfcPath has a leading "/"
 		if ( LEFT(cfcPath,1) NEQ "/" )
 			cfcPath = "/" & cfcPath;
@@ -151,7 +151,6 @@ end user license agreement.
 			if ( NOT ListFindNoCase(excludeDirs,dirName) ){
 				// Create the bean data to store in the array
 				beanData = buildBeanDataStruct(CFCFilesQry.directory[loop_i], CFCFilesQry.name[loop_i]);			
-
 				processMetadata(beanData, arguments.objFactoryType);
 			}
 		}
@@ -469,34 +468,26 @@ Arguments:
 History:
 	2009-10-19 - MFC - Created
 	2010-03-29 - MFC/GAC - Restructured for correct request variables and paths.
+	2010-10-20 - RLW - fixed bug that required the ADF to be installed in a directory named "ADF"
+	2010-11-23 - RLW - fixed bug loading the site level ADF components overrides (/cs_apps/lib/)
 --->
 <cffunction name="processCFCPath" access="private" returntype="string" hint="Returns the CFC path for the component relative to the ADF or site name for the full directory path.">
 	<cfargument name="dirPath" type="string" required="true">
 	
 	<cfscript>
-		// Replace the slashes in the list to periods
-		//var retComPath = ReplaceList(arguments.dirPath, "\,/", ".,.");
 		var retComPath = arguments.dirPath;
-		var csAppsURL = ReplaceList(request.site.CSAPPSDIR, '\,/', '.,.');		
-
 		// get the real path to the ADF
 		var ADFPath = expandPath('/ADF');
-		
-		
-		// Remove the path before the postion of the '.ADF.' directory
-		//if ( FINDNOCASE(".ADF.", retComPath) ) {
-		//	retComPath = RIGHT(retComPath, LEN(retComPath) - FINDNOCASE(".ADF.", retComPath));
-		//}
-		// remove everything before the path
+		var csAppsPath = "cs_apps/";
+
+		// process the ADF components
 		if( findNoCase(ADFPath, retComPath) ) {
 			retComPath = mid(retComPath, findNoCase(ADFPath, retComPath) + len(ADFPath), len(retComPath));			// add ADF back in
 			retComPath = "/ADF" & retComPath;
-		}// Remove the path before the postion of the Site Name in the directory path
-		else if ( FINDNOCASE("._cs_apps.", retComPath) )
-		{
-			retComPath = RIGHT(retComPath, LEN(retComPath) - FINDNOCASE("._cs_apps.", retComPath));
-			retComPath = REPLACENOCASE(retComPath,"_cs_apps.",request.site.csAppsURL);
-			//retComPath = ReplaceList(retComPath, '\,/', '.,.');	
+		}// process the site level components
+		else if ( FINDNOCASE(csAppsPath, retComPath) ){
+			retComPath = mid(retComPath, findNoCase(csAppsPath, retComPath) + len(csAppsPath), len(retComPath));
+			retComPath = request.site.csAppsURL & retComPath;
 		}
 		
 		// Replace the slashes in the list to periods to support CFC notation
