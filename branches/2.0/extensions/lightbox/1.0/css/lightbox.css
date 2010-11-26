@@ -146,12 +146,14 @@ end user license agreement.
 }
 
 /* Overlay <div> */
+/* 2010-11-26 - RAK - Changed to fixed. Specified height variable.*/
 .lightboxOverlay {
 	background-color: #555555;
 	left: 0px;
-	position: absolute;
+	position: fixed;
 	top: 0px;
 	width: 100%;
+	height: 100%;
 }
 
 /* Override lightbox image visibility inside subtitle */
