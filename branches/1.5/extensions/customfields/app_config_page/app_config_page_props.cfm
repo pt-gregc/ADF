@@ -17,7 +17,19 @@ By downloading, modifying, distributing, using and/or accessing any files
 in this directory, you agree to the terms and conditions of the applicable
 end user license agreement.
 --->
-
+<!---
+/* ***************************************************************
+/*
+Author: 	
+	PaperThin, Inc.
+	Ron West 
+Custom Field Type:
+	App Config Page
+Name:
+	app_config_page_props.cfm
+History:
+	RLW - Created
+--->
 <cfscript>
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
