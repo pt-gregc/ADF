@@ -43,6 +43,8 @@ History:
 	2010-06-10 - MFC - Update to sort the CEDataArray at the start.
 	2010-09-17 - MFC - Updated the Default Value field to add [] to the value 
 						to make it evaluate a CF expression.
+	2010-11-22 - MFC - Updated the loadJQuery call to remove the jquery version param.
+						Removed commented out cfdump.
 --->
 <cfscript>
 	// the fields current value
@@ -57,7 +59,7 @@ History:
 		xParams.forceScripts = false;
 		
 	// Load JQuery to the script
-	application.ADF.scripts.loadJQuery("1.3.2",xParams.forceScripts);
+	application.ADF.scripts.loadJQuery(force=xParams.forceScripts);
 	
 	// find if we need to render the simple form field
 	renderSimpleFormField = false;
@@ -85,7 +87,6 @@ History:
 			currentValue = xparams.defaultVal;
 	}
 </cfscript>
-<!--- <cfdump var="#ceDataArray#" label="ceDataArray" expand="false"> --->
 <cfoutput>
 	<script>
 		// javascript validation to make sure they have text to be converted
