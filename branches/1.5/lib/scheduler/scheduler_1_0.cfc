@@ -1,14 +1,66 @@
-<cfcomponent displayname="scheduler_1_0" extends="ADF.core.Base" hint="Scheduler base for ADF">
+<!---
+The contents of this file are subject to the Mozilla Public License Version 1.1
+(the "License"); you may not use this file except in compliance with the
+License. You may obtain a copy of the License at http://www.mozilla.org/MPL/
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+the specific language governing rights and limitations under the License.
+
+The Original Code is comprised of the ADF directory
+
+The Initial Developer of the Original Code is
+PaperThin, Inc. Copyright(C) 2010.
+All Rights Reserved.
+
+By downloading, modifying, distributing, using and/or accessing any files
+in this directory, you agree to the terms and conditions of the applicable
+end user license agreement.
+--->
+
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+	Ryan Kahn
+Name:
+	scheduler_1_0.cfc
+Summary:
+	Scheduler base for the ADF
+History:
+	2010-11-30 - RAK - Created
+--->
+<cfcomponent displayname="scheduler_1_0" extends="ADF.core.Base" hint="Scheduler base for the ADF">
 	<cfproperty name="version" value="1_0_0">
 	<cfproperty name="type" value="singleton">
 	<cfproperty name="wikiTitle" value="scheduler_1_0">
 	<cfscript>
+//		Verify the schedule structure exists
 		if(!StructKeyExists(application,"schedule")){
 			application.schedule = StructNew();
 		}
 	</cfscript>
-	
-	<cffunction name="scheduleProcess" access="public" returntype="void" hint="Scheduler">
+
+	<!---
+	/* ***************************************************************
+	/*
+	Author:
+		PaperThin, Inc.
+		Ryan Kahn
+	Name:
+		$scheduleProcess
+	Summary:
+		The main process for scheduling a bunch of commands to be processed. When a process is scheduled it begins immediately.
+	Returns:
+		void
+	Arguments:
+		String - scheduleName
+		Array - commandsd
+		Struct - scheduleParams
+	History:
+		Nov 30, 2010 - RAK - Created
+	--->
+	<cffunction name="scheduleProcess" access="public" returntype="void" hint="The main process for scheduling a bunch of commands to be processed. When a process is scheduled it begins immediately.">
 		<cfargument name="scheduleName" type="string" required="true" hint="Unique name for the schedule you want to run">
 		<cfargument name="commands" type="array" required="true" hint="Array of URL's to execute each step of your schedule">
 		<cfargument name="scheduleParams" type="struct" required="false" default="#StructNew()#" hint="optional settings as to the schedule timings">
@@ -47,8 +99,24 @@
 		</cfscript>
 	</cffunction>
 	
-	
-	<cffunction name="processNextScheduleItem" access="public" returntype="boolean">
+	<!---
+	/* ***************************************************************
+	/*
+	Author:
+		PaperThin, Inc.
+		Ryan Kahn
+	Name:
+		$processNextScheduleItem
+	Summary:	
+		Executes the next item in the schedule. If there are no more it marks the schedule as ran.
+	Returns:
+		boolean
+	Arguments:
+		String - scheduleName
+	History:
+		Nov 30, 2010 - RAK - Created
+	--->
+	<cffunction name="processNextScheduleItem" access="public" returntype="boolean" hint="Executes the next item in the schedule. If there are no more it marks the schedule as ran.">
 		<cfargument name="scheduleName" type="string" required="true" hint="Unique name for the schedule you want to run">
 		<cfif StructKeyExists(application.schedule,arguments.scheduleName)>
 			<cfset currentSchedule = application.schedule[arguments.scheduleName]>
@@ -63,9 +131,12 @@
 					//Log the scheduled process start
 					application.ADF.utils.logAppend("Scheduled process started '#arguments.scheduleName#' Progress: #currentSchedule.scheduleProgress#/#ArrayLen(currentSchedule.commands)#","scheduledProcess-#arguments.scheduleName#.txt");
 				</cfscript>
+
+<!---				Execute the next scheduled item. AKA execute the next cfhttp--->
 				<cftry>
 					<cfhttp url="#currentSchedule.commands[currentSchedule.scheduleProgress]#" throwOnError="yes">
 				<cfcatch>
+<!---				There was an issue! Do as much as we can to log the error. Set the status of the schedule to failure and break out--->
 					<cfsavecontent variable="cfcatchDump">
 						<cfdump var="#cfcatch#" expand="false">
 					</cfsavecontent>
@@ -77,7 +148,10 @@
 					</cfscript>
 				</cfcatch>
 				</cftry>
+
+
 				<cfscript>
+					//Horray! The scheduled process finished. Log it, increment the progress.
 					application.ADF.utils.logAppend("Scheduled process complete. '#arguments.scheduleName#' Progress: #currentSchedule.scheduleProgress#/#ArrayLen(currentSchedule.commands)#","scheduledProcess-#arguments.scheduleName#.txt");
 					currentSchedule.scheduleProgress = currentSchedule.scheduleProgress + 1;
 					if(currentSchedule.scheduleProgress gt ArrayLen(currentSchedule.commands)){
@@ -96,6 +170,7 @@
 					}
 				</cfscript>
 			<cfelse>
+<!---				The schedule is complete! Make it so... --->
 				<cfscript>
 					if(currentSchedule.scheduleProgress gt currentSchedule.scheduleParams.scheduleStop){
 						application.ADF.utils.logAppend("Scheduled complete '#arguments.scheduleName#' stopping at position: #currentSchedule.scheduleProgress-1#/#ArrayLen(currentSchedule.commands)#","scheduledProcess-#arguments.scheduleName#.txt");
@@ -107,8 +182,26 @@
 		</cfif>
 		<cfreturn false/>
 	</cffunction>
-	
-	<cffunction name="getScheduleStatus" access="public" returntype="struct">
+
+
+	<!---
+	/* ***************************************************************
+	/*
+	Author:
+		PaperThin, Inc.
+		Ryan Kahn
+	Name:
+		$getScheduleStatus
+	Summary:
+		Returns a structure representative of the current status of a given schedule.
+	Returns:
+		struct
+	Arguments:
+		String - scheduleName
+	History:
+		Nov 30, 2010 - RAK - Created
+	--->
+	<cffunction name="getScheduleStatus" access="public" returntype="struct" description="Returns a structure representative of the current status of a given schedule.">
 		<cfargument name="scheduleName" type="string" required="true" hint="Unique name for the schedule you want to run">
 		<cfscript>
 			var rtnStruct = StructNew();
@@ -117,7 +210,8 @@
 			rtnStruct.currentTask = -1;
 			rtnStruct.totalTasks = -1;
 			rtnStruct.status = "nonexistant";
-			
+
+			//if there is an existing schedule get its current status information and return it!
 			if(StructKeyExists(application.schedule,arguments.scheduleName)){
 				currentSchedule = application.schedule[arguments.scheduleName];
 				rtnStruct.currentTask = currentSchedule.scheduleProgress-1;
@@ -128,8 +222,25 @@
 			return rtnStruct;
 		</cfscript>
 	</cffunction>	
-	
-	<cffunction name="pauseSchedule" access="public" returntype="boolean">
+
+	<!---
+	/* ***************************************************************
+	/*
+	Author:
+		PaperThin, Inc.
+		Ryan Kahn
+	Name:
+		$pauseSchedule
+	Summary:
+		Pauses passed in schedule name.
+	Returns:
+		boolean
+	Arguments:
+		String - ScheduleName
+	History:
+		Nov 30, 2010 - RAK - Created
+	--->
+	<cffunction name="pauseSchedule" access="public" returntype="boolean" hint="Pauses passed in schedule name.">
 		<cfargument name="scheduleName" type="string" required="true" hint="Unique name for the schedule you want to run">
 		<cfscript>
 			if(StructKeyExists(application.schedule,arguments.scheduleName) and
@@ -140,10 +251,28 @@
 		</cfscript>
 		<cfreturn false>
 	</cffunction>	
-	
-	<cffunction name="resumeSchedule" access="public" returntype="boolean">
+
+	<!---
+	/* ***************************************************************
+	/*
+	Author:
+		PaperThin, Inc.
+		Ryan Kahn
+	Name:
+		$resumeSchedule
+	Summary:
+		Resumes a previously paused schedule.
+	Returns:
+		boolean
+	Arguments:
+		String - ScheduleName
+	History:
+		Nov 30, 2010 - RAK - Created
+	--->
+	<cffunction name="resumeSchedule" access="public" returntype="boolean" hint="Resumes a previously paused schedule.">
 		<cfargument name="scheduleName" type="string" required="true" hint="Unique name for the schedule you want to run">
 		<cfscript>
+			//If the schedule exists, is paused and has remaining arguments resume it.
 			if(StructKeyExists(application.schedule,arguments.scheduleName) and
 				application.schedule[arguments.scheduleName].status == "paused" and
 				ArrayLen(application.schedule[arguments.scheduleName].commands) gte application.schedule[arguments.scheduleName].scheduleProgress){
@@ -154,8 +283,24 @@
 		</cfscript>
 		<cfreturn false>
 	</cffunction>
-	
-	<cffunction name="getScheduleHTML" access="public" returnType="string">
+	<!---
+	/* ***************************************************************
+	/*
+	Author:
+		PaperThin, Inc.
+		Ryan Kahn
+	Name:
+		$getScheduleHTML
+	Summary:
+		Returns the management HTML for the specified schedule name.
+	Returns:
+		string
+	Arguments:
+		String - ScheduleName
+	History:
+		Nov 30, 2010 - RAK - Created
+	--->
+	<cffunction name="getScheduleHTML" access="public" returntype="string" hint="Returns the management HTML for the specified schedule name.">
 		<cfargument name="scheduleName" type="string" required="true" hint="Unique name for the schedule you want to run">
 		<cfsavecontent variable="rtnHTML">
 			<cfoutput>
@@ -182,13 +327,14 @@
 									returnFormat: "json"
 								},
 								function (data){
-									currentTaskOffset = data.CURRENTTASK - (data.SCHEDULEPARAMS.SCHEDULESTART-1);//0 index
+									currentTaskOffset = data.CURRENTTASK - (data.SCHEDULEPARAMS.SCHEDULESTART-1);
 									totalTasks = (data.SCHEDULEPARAMS.SCHEDULESTOP+1)-(data.SCHEDULEPARAMS.SCHEDULESTART-1);
 									progress = (currentTaskOffset)/(totalTasks)*100;
 									jQuery("##"+scheduleID+" .progressBar").progressbar({ value: progress });
 									jQuery("##"+scheduleID+" .scheduleStatus").html("Status: "+data.STATUS+" <br>Completion: "+currentTaskOffset+"/"+totalTasks);
 									if(data.STATUS == "active"){
-										setTimeout("updateSchedule('"+scheduleID+"')",10000);
+										//Refresh every 10 seconds.
+										setTimeout("updateSchedule('"+scheduleID+"')",10*1000);
 										jQuery("##"+scheduleID+" .changeScheduleStatus .pause").show();
 										jQuery("##"+scheduleID+" .changeScheduleStatus .resume").hide();
 										jQuery("##"+scheduleID+" .progressBar").progressbar({ disabled: false });
@@ -232,6 +378,7 @@
 							);
 							jQuery("##"+scheduleID+" .changeScheduleStatus .pause").show();
 							jQuery("##"+scheduleID+" .changeScheduleStatus .resume").hide();
+							//The resume may take a second to take effect. Update the schedule in one second.
 							setTimeout("updateSchedule('"+scheduleID+"')",1000);
 						}
 					</script>
