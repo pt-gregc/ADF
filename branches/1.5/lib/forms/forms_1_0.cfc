@@ -356,7 +356,7 @@ History:
 		<script type='text/javascript'>
 			jQuery(document).ready(function(){
 				window.parent.location.href = window.parent.location.href;
-				window.parent.closeLB();
+				closeLB();
 			});
 		</script>
 		<!--- Close the lightbox on click --->

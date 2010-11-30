@@ -431,6 +431,7 @@ History:
 		String - beanNamePrefix - Prefix to the name of the custom app bean config
 	History:
 		2009-05-11 - MFC - Created
+		2010-11-29 - MFC - Removed commented code.
 --->
 <cffunction name="buildBeanDataStruct" access="public" returntype="struct" output="true" hint="Builds the Bean Data Struct with formatted data to create singletons and dependencies.">
 	<cfargument name="cfcPath" type="string" required="true" default="">
@@ -448,9 +449,8 @@ History:
 		retBeanData.cfcPath = "#retBeanData.cfcPath##retBeanData.cfcName#";
 		// Store that bean data	
 		retBeanData.beanName = "#arguments.beanNamePrefix##retBeanData.cfcName#";
-		//return retBeanData;
+		return retBeanData;
 	</cfscript>
-	<cfreturn retBeanData>
 </cffunction>
 
 <!---

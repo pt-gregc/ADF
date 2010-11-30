@@ -49,6 +49,7 @@ Arguments:
 	Void
 History:
 	2009-07-08 - MFC - Created
+	2010-11-28 - MFC - Added new check for user in the request scope.
 --->
 <cffunction name="isValidContributor" access="public" returntype="boolean" hint="Returns T/F if the logged in user is a content contributor">
 	<cfscript>
