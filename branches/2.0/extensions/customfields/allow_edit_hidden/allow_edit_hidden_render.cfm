@@ -19,8 +19,7 @@ end user license agreement.
 --->
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	
 	PaperThin, Inc.
 	Ron West
@@ -36,20 +35,22 @@ ADF Requirements:
 	None.
 History:
 	2009-06-29 - RLW - Created
+	2010-11-04 - MFC - Updated props and render for the defaultValue in the paramFields variable.
 --->
 <cfscript>
 	// the fields current value
 	currentValue = attributes.currentValues[fqFieldName];
 	// the param structure which will hold all of the fields from the props dialog
 	xparams = parameters[fieldQuery.inputID];
+
 	// reset the currentValue to the currentDefault
 	try
 	{
 		// if there is a user defined function for the default value
 		if( xParams.useUDef )
-			currentValue = evaluate(xParams.currentDefault);
+			currentValue = evaluate(xParams.DEFAULTVALUE);
 		else // standard text value
-			currentValue = xParams.currentDefault;
+			currentValue = xParams.DEFAULTVALUE;
 	}
 	catch( any e)
 	{

@@ -19,8 +19,7 @@ end user license agreement.
 --->
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	
 	PaperThin, Inc.
 	Ron West
@@ -36,6 +35,7 @@ ADF Requirements:
 	None.
 History:
 	2009-06-29 - RLW - Created
+	2010-11-04 - MFC - Updated props for the defaultValue in the paramFields variable.
 --->
 <cfscript>
 	// initialize some of the attributes variables
@@ -51,7 +51,7 @@ History:
 <cfoutput>
 	<script language="JavaScript" type="text/javascript">
 		// register the fields with global props object
-		fieldProperties['#typeid#'].paramFields = '#prefix#useUdef,#prefix#currentDefault';
+		fieldProperties['#typeid#'].paramFields = '#prefix#useUdef,#prefix#defaultValue';
 		// allows this field to support the orange icon (copy down to label from field name)
 		//fieldProperties['#typeid#'].jsLabelUpdater = '#prefix#doLabel';
 		fieldProperties['#typeid#'].defaultValueField = '#prefix#defaultValue';
