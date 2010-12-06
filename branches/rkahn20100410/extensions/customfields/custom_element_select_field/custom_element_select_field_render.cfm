@@ -43,6 +43,10 @@ History:
 	2010-06-10 - MFC - Update to sort the CEDataArray at the start.
 	2010-09-17 - MFC - Updated the Default Value field to add [] to the value 
 						to make it evaluate a CF expression.
+	2010-11-22 - MFC - Updated the loadJQuery call to remove the jquery version param.
+						Removed commented out cfdump.
+	2010-12-06 - RAK - Added the ability to define an active flag
+						Added ability to dynamically build the display field - <firstName> <lastName>:At <email>
 --->
 <cfscript>
 	// the fields current value
@@ -57,7 +61,7 @@ History:
 		xParams.forceScripts = false;
 		
 	// Load JQuery to the script
-	application.ADF.scripts.loadJQuery("1.3.2",xParams.forceScripts);
+	application.ADF.scripts.loadJQuery(force=xParams.forceScripts);
 	
 	// find if we need to render the simple form field
 	renderSimpleFormField = false;
@@ -66,12 +70,22 @@ History:
 
 	if ( NOT StructKeyExists(xparams, "fldName") OR (LEN(xparams.fldName) LTE 0) )
 		xparams.fldName = fqFieldName;
-		
+
 	// Get the data records
-	ceDataArray = application.ADF.cedata.getCEData(xparams.customElement);
-	// Sort the list by the display field value
-	if ( StructKeyExists(xparams, "displayField") AND LEN(xparams.displayField) )
+	if(StructKeyExists(xparams,"activeFlagField") and Len(xparams.activeFlagField)
+			and StructKeyExists(xparams,"activeFlagValue") and Len(xparams.activeFlagValue)){
+		ceDataArray = application.ADF.cedata.getCEData(xparams.customElement,xparams.activeFlagField,xparams.activeFlagValue);
+	}else{
+		ceDataArray = application.ADF.cedata.getCEData(xparams.customElement);
+	}
+
+
+	// Sort the list by the display field value, if its other.. all bets are off we sort via jquery...
+	if ( StructKeyExists(xparams, "displayField") AND LEN(xparams.displayField) AND xparams.displayField neq "Other" ){
 		ceDataArray = application.ADF.cedata.arrayOfCEDataSort(ceDataArray, xparams.displayField);
+	}else{
+		application.ADF.scripts.loadJQuerySelectboxes();
+	}
 
 
 	// Check if we do not have a current value then set to the default
@@ -84,8 +98,8 @@ History:
 		else
 			currentValue = xparams.defaultVal;
 	}
+
 </cfscript>
-<!--- <cfdump var="#ceDataArray#" label="ceDataArray" expand="false"> --->
 <cfoutput>
 	<script>
 		// javascript validation to make sure they have text to be converted
@@ -145,6 +159,9 @@ History:
 			if ( '#xparams.renderField#' == 'no' ) {
 				jQuery("###fqFieldName#_fieldRow").hide();
 			}
+			<cfif xparams.displayField eq "Other">
+				jQuery("###fqFieldName#_select").sortOptions();
+			</cfif>
 		});
 	</script>
 	
@@ -187,7 +204,33 @@ History:
 						<cfelse>
 							<cfset isSelected = false>
 						</cfif>
-						<option value="#ceDataArray[cfs_i].Values['#xparams.valueField#']#" <cfif isSelected>selected</cfif>>#ceDataArray[cfs_i].Values['#xparams.displayField#']#
+                  <option value="#ceDataArray[cfs_i].Values['#xparams.valueField#']#" <cfif isSelected>selected</cfif>>
+							<cfif xparams.displayField eq "Other" and Len(xparams.displayFieldBuilder)>
+								<cfscript>
+									//String building!
+									displayField = xparams.displayFieldBuilder;
+									startChar = chr(171);
+									endChar = chr(187);
+									//While we still detect the upper ascii start character loop through
+									while(Find(startChar,displayField)){
+										foundIndex = Find(startChar,displayField);
+										foundEndIndex = Find(endChar,displayField);
+										//Grab the content in between the start and end character
+										value = mid(displayField,foundIndex+1,foundEndIndex-foundIndex-1);
+										if(StructKeyExists(ceDataArray[cfs_i].Values,value)){
+											//We found it. Replace the <value> with the actual value
+											displayField = Replace(displayField,"#startChar##value##endChar#", ceDataArray[cfs_i].Values[value]);
+										}else{
+											//Something is messed up... tell them so in the field!
+											displayField = Replace(displayField,"#startChar##value##endChar#", "Field '#value#' does not exist!");
+										}
+									}
+								</cfscript>
+								#displayField#
+							<cfelse>
+								#ceDataArray[cfs_i].Values['#xparams.displayField#']#
+							</cfif>
+						</option>
 					</cfloop>
 		 		</select>
 			</div>
