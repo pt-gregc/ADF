@@ -419,4 +419,111 @@ History:
 	<cfreturn rtnStr>
 </cffunction>
 
+
+
+
+<!---
+/* ***************************************************************
+/*
+Author:
+	PaperThin, Inc.
+	Ryan Kahn
+Name:
+	$isFieldReadOnly
+Summary:
+	Given xparams determines if the field is readOnly
+Returns:
+	boolean
+Arguments:
+
+History:
+ 	Dec 6, 2010 - RAK - Created
+--->
+<cffunction name="isFieldReadOnly" access="public" returntype="boolean" hint="Given xparams determines if the field is readOnly">
+	<cfargument name="xparams" type="struct" required="true" default="" hint="XParams struct">
+	<cfscript>
+		// Get the list permissions and compare
+		var commonGroups = application.ADF.data.ListInCommon(request.user.grouplist, arguments.xparams.pedit);
+		// Set the read only
+		var readOnly = true;
+		// Check if the user does have edit permissions
+		if ( (arguments.xparams.UseSecurity EQ 0) OR ( (arguments.xparams.UseSecurity EQ 1) AND (ListLen(commonGroups)) ) )
+			readOnly = false;
+		return readOnly;
+	</cfscript>
+</cffunction>
+
+<!---
+/* ***************************************************************
+/*
+Author:
+	PaperThin, Inc.
+	Ryan Kahn
+Name:
+	$wrapFieldHTML
+Summary:
+	Wraps the given information with valid html for the current commonspot and configuration
+Returns:
+	String
+Arguments:
+
+History:
+ 	Dec 6, 2010 - RAK - Created
+--->
+<cffunction name="wrapFieldHTML" access="public" returntype="String" hint="Wraps the given information with valid html for the current commonspot and configuration">
+	<cfargument name="fieldInputHTML" type="string" required="true" default="" hint="HTML for the field input, do a cfSaveContent on the input field and pass that in here">
+	<cfargument name="fieldQuery" type="query" required="true" default="" hint="fieldQuery value">
+	<cfargument name="attr" type="struct" required="true" default="" hint="Attributes value">
+	<cfscript>
+		var row = arguments.fieldQuery.currentRow;
+		var fqFieldName = "fic_#arguments.fieldQuery.ID[row]#_#arguments.fieldQuery.INPUTID[row]#";
+		var description = arguments.fieldQuery.DESCRIPTION[row];
+		var fieldName = arguments.fieldQuery.fieldName[row];
+		var xparams = arguments.attr.parameters[arguments.fieldQuery.inputID[row]];
+		var labelStart = arguments.attr.itemBaselineParamStart;
+		var labelEnd = arguments.attr.itemBaseLineParamEnd;
+		var renderSimpleFormField = false;
+
+		//If the fields are required change the label start and end
+		if(xparams.req eq "Yes"){
+			labelStart = arguments.attr.reqItemBaselineParamStart;
+			labelEnd = arguments.attr.reqItemBaseLineParamEnd;
+		}
+
+		// determine if this is rendererd in a simple form or the standard custom element interface
+		if ( (StructKeyExists(request, "simpleformexists")) AND (request.simpleformexists EQ 1) ){
+			renderSimpleFormField = true;
+		}
+	</cfscript>
+	<cfsavecontent variable="returnHTML">
+		<cfoutput>
+			<tr>
+				<td valign="top">
+					#labelStart#
+					<label for="#fqFieldName#">#xParams.label#:</label>
+					#labelEnd#
+				</td>
+				<td>
+					#arguments.fieldInputHTML#
+				</td>
+			</tr>
+			<cfif Len(description)>
+				<!--- If there is a description print out a new row and the description --->
+				<tr>
+					<td></td>
+					<td>
+						#arguments.attr.descParamStart#
+						#description#
+						<br/><br/>
+						#arguments.attr.descParamEnd#
+					</td>
+				</tr>
+			</cfif>
+			<cfif renderSimpleFormField>
+				<input type="hidden" name="#fqFieldName#_FIELDNAME" id="#fqFieldName#_FIELDNAME" value="#ReplaceNoCase(fieldName, 'fic_','')#">
+			</cfif>
+		</cfoutput>
+	</cfsavecontent>
+	<cfreturn returnHTML>
+</cffunction>
 </cfcomponent>
