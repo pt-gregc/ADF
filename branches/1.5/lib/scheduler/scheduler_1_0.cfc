@@ -118,6 +118,12 @@ History:
 	--->
 	<cffunction name="processNextScheduleItem" access="public" returntype="boolean" hint="Executes the next item in the schedule. If there are no more it marks the schedule as ran.">
 		<cfargument name="scheduleName" type="string" required="true" hint="Unique name for the schedule you want to run">
+		<cfscript>
+			var currentSchedule = "";
+			var errorScheduleItem = "";
+			var scheduleURL = "";
+			var currentCommand = "";
+		</cfscript>
 		<cfif StructKeyExists(application.schedule,arguments.scheduleName)>
 			<cfset currentSchedule = application.schedule[arguments.scheduleName]>
 			<!---
@@ -132,16 +138,36 @@ History:
 					application.ADF.utils.logAppend("Scheduled process started '#arguments.scheduleName#' Progress: #currentSchedule.scheduleProgress#/#ArrayLen(currentSchedule.commands)#","scheduledProcess-#arguments.scheduleName#.txt");
 				</cfscript>
 
-<!---				Execute the next scheduled item. AKA execute the next cfhttp--->
+<!---				Execute the next scheduled item. AKA execute the next cfhttp or bean call--->
 				<cftry>
-					<cfhttp url="#currentSchedule.commands[currentSchedule.scheduleProgress]#" throwOnError="yes">
+					<cfset currentCommand = currentSchedule.commands[currentSchedule.scheduleProgress]>
+					<cfif isSimpleValue(currentCommand)>
+						<cfhttp url="#currentCommand#" throwOnError="yes">
+					<cfelse>
+<!---						This is a command structure! Execute the struct--->
+						<cfscript>
+							if(isStruct(currentCommand)
+									and StructKeyExists(currentCommand,"bean")
+									and StructKeyExists(currentCommand,"method")){
+								if(!StructKeyExists(currentCommand,"args")){
+									currentCommand.args = "";
+								}
+								application.ADF.utils.runCommand(currentCommand.bean,currentCommand.method,currentCommand.args);
+							}else{
+                    		errorScheduleItem = Application.ADF.utils.doDump(currentCommand,"Failed Schedule Item","false",true);
+								application.ADF.utils.logAppend("Scheduled process error '#arguments.scheduleName#'. Schedule item missing struct key 'bean' or 'method' while processing Schedule Item:<br/> '#errorScheduleItem#'<br/><br/>","scheduledProcess-#arguments.scheduleName#.html");
+                     }
+						</cfscript>
+					</cfif>
+
 				<cfcatch>
 <!---				There was an issue! Do as much as we can to log the error. Set the status of the schedule to failure and break out--->
 					<cfsavecontent variable="cfcatchDump">
 						<cfdump var="#cfcatch#" expand="false">
 					</cfsavecontent>
 					<cfscript>
-						application.ADF.utils.logAppend("Scheduled process error '#arguments.scheduleName#' while processing URL: '#currentSchedule.commands[currentSchedule.scheduleProgress]#'","scheduledProcess-#arguments.scheduleName#.txt");
+						errorScheduleItem = Application.ADF.utils.doDump(currentSchedule.commands[currentSchedule.scheduleProgress],"Failed Schedule Item","false",true);
+						application.ADF.utils.logAppend("Scheduled process error '#arguments.scheduleName#' while processing Schedule Item:<br/> '#errorScheduleItem#'<br/><br/>","scheduledProcess-#arguments.scheduleName#.html");
 						application.schedule[arguments.scheduleName].status = "failure";
 						application.ADF.utils.logAppend("#cfcatchDump#","scheduledProcessFailure-#arguments.scheduleName#.html");
 						return false;
@@ -328,7 +354,7 @@ History:
 								},
 								function (data){
 									currentTaskOffset = data.CURRENTTASK - (data.SCHEDULEPARAMS.SCHEDULESTART-1);
-									totalTasks = (data.SCHEDULEPARAMS.SCHEDULESTOP+1)-(data.SCHEDULEPARAMS.SCHEDULESTART-1);
+									totalTasks = (data.SCHEDULEPARAMS.SCHEDULESTOP+1)-(data.SCHEDULEPARAMS.SCHEDULESTART-1)-1;
 									progress = (currentTaskOffset)/(totalTasks)*100;
 									jQuery("##"+scheduleID+" .progressBar").progressbar({ value: progress });
 									jQuery("##"+scheduleID+" .scheduleStatus").html("Status: "+data.STATUS+" <br>Completion: "+currentTaskOffset+"/"+totalTasks);

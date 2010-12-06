@@ -1864,4 +1864,140 @@ History:
 	<cfreturn params>
 </cffunction>
 
+
+<!---
+/* ***************************************************************
+/*
+Author:
+	PaperThin, Inc.
+	Ryan Kahn
+Name:
+	$exportCEData
+Summary:
+	given a ce name export its data to a file. Return that file path.
+Returns:
+	string
+Arguments:
+	ceName - string
+History:
+ 	Dec 4, 2010 - RAK - Created
+--->
+<cffunction name="exportCEData" access="public" returntype="string" hint="given a ce name export its data to a file. Return that file path.">
+	<cfargument name="ceName" type="string" required="true" default="" hint="CE name to export data from">
+	<cfscript>
+		var ceDataSerialized = "";
+		var ceData = variables.getCEData(arguments.ceName);
+		var folder = ExpandPath("#request.site.CSAPPSWEBURL#dashboard/ceExports/");
+		var fileName = "#arguments.ceName#--#DateFormat(now(),'YYYY-MM-DD')#-#TimeFormat(now(),'HH-MM')#.txt";
+		if(!ArrayLen(ceData)){
+			//We have no CE data! return an empty string back
+			return "";
+		}
+	</cfscript>
+	<!---	Force the directory to exist--->
+	<cfif NOT DirectoryExists(folder)>
+		<cfmodule template="/commonspot/utilities/cp-cffile.cfm" action="MKDIR"directory="#folder#" replicate="false">
+	</cfif>
+	<!---	save the file--->
+   <cffile action = "write"  file ="#folder##fileName#" output="#Server.Commonspot.UDF.util.serializeBean(ceData)#">
+	<cfreturn folder&fileName>
+</cffunction>
+
+
+<!---
+/* ***************************************************************
+/*
+Author:
+	PaperThin, Inc.
+	Ryan Kahn
+Name:
+	$importCEData
+Summary:
+	Given the location of the .exportedCE file preform the import. If clean is specified wipe all existing data.
+	Schedules a process with the name: "import-#ceName#" for instance: "import-Nav Element"
+Returns:
+	Struct
+Arguments:
+	filePath - String
+	clean - boolean
+History:
+ 	Dec 4, 2010 - RAK - Created
+--->
+<cffunction name="importCEData" access="public" returntype="Struct" hint="Given the contents of an import file, import the data">
+	<cfargument name="filePath" type="string" required="true" default="" hint="File path to .exportedCE file">
+	<cfargument name="clean" type="boolean" required="false" default="false" hint="Wipe all existing data">
+	<cfscript>
+		var dataToImport = "";
+		var ceData = "";
+		var ceName = "";
+		var i = 1;
+		var currentCE = "";
+		var populateResults = "";
+		var scheduleArray = ArrayNew(1);
+		var scheduleStruct = "";
+		var scheduleParams = "";
+		var returnStruct = StructNew();
+		returnStruct.success = false;
+	</cfscript>
+	<cftry>
+		<cffile action="read" file="#filePath#" variable="dataToImport">
+	<cfcatch>
+		<cfscript>
+			application.ADF.utils.logAppend(application.ADF.utils.doDump(cfcatch,"cfcatch",false,true),"importCEData-Errors.html");
+		</cfscript>
+		<cfset returnStruct.msg = "Unable to open file.">
+		<cfreturn returnStruct>
+	</cfcatch>
+	</cftry>
+	<cfscript>
+		if(!len(dataToImport)){
+			returnStruct.msg = "The file could not be read properly. Please see the logs.";
+			return returnStruct;
+		}
+		// Horray! The file existed and had content
+		ceData = Server.Commonspot.UDF.util.deserialize(dataToImport);
+		if(!ArrayLen(ceData)){
+			returnStruct.msg = "There was no data to import";
+			return returnStruct;
+		}
+		ceName = ceData[1].formName;
+		//We have a valid structure! lets do our clean if requested and continue on.
+		if(arguments.clean){
+			variables.deleteByElementName(ceName);
+		}
+		for(i=1;i<=ArrayLen(ceData);i=i+1){
+			//Create the params for the populate content call
+			currentCE = StructNew();
+			currentCE.elementType = "custom";
+			currentCE.submitChange = true;
+			currentCE.submitChangeComment = "Element imported using CE Data import utility.";
+			currentCE.dataPageID = ceData[i].pageID;
+			structAppend(currentCE,ceData[i].values);
+
+			//Build the populateContent call for the schedule
+			scheduleStruct = StructNew();
+			scheduleStruct.bean = "csContent_1_0";
+			scheduleStruct.method = "populateContent";
+			scheduleStruct.args.elementName = ceName;
+			scheduleStruct.args.data = currentCE;
+			
+			//Add the item to the schedule
+			ArrayAppend(scheduleArray,scheduleStruct);
+		}
+
+		//Setup the schedule params
+		scheduleParams = StructNew();
+		scheduleParams.delay = 1; //minutes till next schedule item
+		scheduleParams.tasksPerBatch = 20; //how many tasks to do per iteration
+
+		//Schedule it!
+		returnStruct.scheduleID = "import-#ceName#";
+		application.ADF.scheduler.scheduleProcess(returnStruct.scheduleID,scheduleArray,scheduleParams);
+		returnStruct.msg = "Import scheduled succesfully!";
+		returnStruct.elementName = ceName;
+		returnStruct.success = true;
+		return returnStruct;
+	</cfscript>
+</cffunction>
+
 </cfcomponent>
