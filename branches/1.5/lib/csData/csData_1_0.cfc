@@ -56,12 +56,21 @@ History:
 --->
 <cffunction name="getCustomMetadata" access="public" returntype="struct">
 	<cfargument name="pageID" type="numeric" required="yes">
-    <cfargument name="categoryID" type="numeric" required="yes">
-    <cfargument name="subsiteID" type="numeric" required="yes">
+    <cfargument name="categoryID" type="numeric" required="no" default="-1">
+    <cfargument name="subsiteID" type="numeric" required="no" default="-1">
     <cfargument name="inheritedTemplateList" type="string" required="no" default="">
+    <cfset var stdMetadata = "">
+	<!--- IF we are missing categoryID, subsiteID OR inheritedTemplateList get them! --->
+    <cfif arguments.categoryID eq -1 or arguments.subsiteID eq -1 or Len(inheritedTemplateList) eq 0>
+    	<cfscript>
+    		stdMetadata = getStandardMetadata(arguments.pageID);
+    		arguments.categoryID = stdMetadata.categoryID;
+    		arguments.subsiteID = stdMetadata.subsiteID;
+    		arguments.inheritedTemplateList = stdMetadata.inheritedTemplateList;
+    	</cfscript>
+    </cfif>
     <!--- // call the standard build struct module with the argument collection --->
-    <cfmodule template="/commonspot/metadata/build-struct.cfm"
-    	attributecollection="#arguments#">
+    <cfmodule template="/commonspot/metadata/build-struct.cfm" attributecollection="#arguments#">
     <cfreturn request.metadata>
 </cffunction>
 
@@ -375,14 +384,13 @@ History:
 --->
 <cffunction name="getPageMetadata" access="public" returntype="Struct" hint="Return the standard and custom metadata for a page.">
 	<cfargument name="pageID" required="true" type="numeric">
-	<cfargument name="categoryID" type="numeric" required="yes">
-    <cfargument name="subsiteID" type="numeric" required="yes">
-    <cfargument name="inheritedTemplateList" type="string" required="no" default="">
-
+	<cfargument name="categoryID" type="numeric" required="no">
+   <cfargument name="subsiteID" type="numeric" required="no">
+   <cfargument name="inheritedTemplateList" type="string" required="no" default="">
 	<cfscript>
 		var pageMetadata = StructNew();
 		pageMetadata.standard = getStandardMetadata(arguments.pageID);
-		pageMetadata.custom = getCustomMetadata(arguments.pageID, arguments.categoryID, arguments.subsiteID, arguments.inheritedTemplateList);
+		pageMetadata.custom = getCustomMetadata(pageMetadata.standard.pageID, pageMetadata.standard.categoryID, pageMetadata.standard.subsiteID, pageMetadata.standard.inheritedTemplateList);
 	</cfscript>
 	<cfreturn pageMetadata>
 </cffunction>
