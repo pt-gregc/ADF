@@ -688,6 +688,9 @@ History:
 	2010-02-19 - MFC - Updated the CS 6.0 lightbox framework
 	2010-03-01 - MFC - Added IF block to load the browse-all.js in CS 6.0 if not in a CS page.
 	2010-04-30 - MFC - Updated the Lightbox framework to resolve issues.
+	2010-12-07 - MFC - Updated the LB Properties to verify the request.params variables 
+						outside the scriptservice check. This runs the verify for every 
+						call to the load ADF LB.
 --->
 <cffunction name="loadADFLightbox" access="public" output="true" returntype="void" hint="ADF Lightbox Framework for the ADF Library">
 	<cfargument name="version" type="string" required="false" default="1.0" hint="ADF Lightbox version to load">
@@ -702,6 +705,25 @@ History:
 		</cfoutput>
 	</cfif>
 	
+	<!--- Check if we have LB properties --->
+	<cfscript>
+		// Default Width
+		if ( NOT StructKeyExists(request.params, "width") )
+			request.params.width = 500;
+		
+		// Default Height
+		if ( NOT StructKeyExists(request.params, "height") )
+			request.params.height = 500;
+		
+		// Default Title
+		if ( NOT StructKeyExists(request.params, "title") )
+			request.params.title = "";
+		
+		// Default Subtitle
+		if ( NOT StructKeyExists(request.params, "subtitle") )
+			request.params.subtitle = "";
+	</cfscript>
+	
 	<cfif (NOT variables.scriptsService.isScriptLoaded("ADFLightbox")) OR (arguments.force)>
 		<!--- Load the ADF Lightbox Framework script --->
 		<cfoutput>
@@ -710,26 +732,7 @@ History:
 		<!--- Load lightbox override styles --->
 		<link href="/ADF/extensions/lightbox/#arguments.version#/css/lightbox_overrides.css" rel="stylesheet" type="text/css">
 		</cfoutput>
-		
-		<!--- Check if we have LB properties --->
-		<cfscript>
-			// Default Width
-			if ( NOT StructKeyExists(request.params, "width") )
-				request.params.width = 500;
-			
-			// Default Height
-			if ( NOT StructKeyExists(request.params, "height") )
-				request.params.height = 500;
-			
-			// Default Title
-			if ( NOT StructKeyExists(request.params, "title") )
-				request.params.title = "";
-			
-			// Default Subtitle
-			if ( NOT StructKeyExists(request.params, "subtitle") )
-				request.params.subtitle = "";
-		</cfscript>
-		
+				
 		<!--- Load the CommonSpot Lightbox when not in version 6.0 --->
 		<cfif productVersion LT 6 >
 			<cfoutput>
