@@ -39,6 +39,8 @@ History:
 	2009-07-06 - MFC - Created
 	2010-09-17 - MFC - Updated the Default Value field to add [] to the value 
 						to make it evaluate a CF expression.
+	2010-12-06 - RAK - Added the ability to define an active flag
+						Added ability to dynamically build the display field - <firstName> <lastName>:At <email>
 --->
 <cfscript>
 	// initialize some of the attributes variables
@@ -61,6 +63,12 @@ History:
 		currentValues.fldName = "";
 	if( not structKeyExists(currentValues, "forceScripts") )
 		currentValues.forceScripts = "0";
+	if( not structKeyExists(currentValues, "displayFieldBuilder") )
+		currentValues.displayFieldBuilder = "";
+	if( not structKeyExists(currentValues, "activeFlagField") )
+		currentValues.activeFlagField = "";
+	if( not structKeyExists(currentValues, "activeFlagValue") )
+		currentValues.activeFlagValue = "";
 		
 </cfscript>
 <cfoutput>
@@ -69,7 +77,7 @@ History:
 		application.ADF.scripts.loadJQuerySelectboxes();
 	</cfscript>
 <script type="text/javascript">
-	fieldProperties['#typeid#'].paramFields = "#prefix#customElement,#prefix#valueField,#prefix#displayField,#prefix#renderField,#prefix#defaultVal,#prefix#fldName,#prefix#forceScripts";
+	fieldProperties['#typeid#'].paramFields = "#prefix#customElement,#prefix#valueField,#prefix#displayField,#prefix#renderField,#prefix#defaultVal,#prefix#fldName,#prefix#forceScripts,#prefix#displayFieldBuilder,#prefix#activeFlagField,#prefix#activeFlagValue";
 	// allows this field to support the orange icon (copy down to label from field name)
 	fieldProperties['#typeid#'].jsLabelUpdater = '#prefix#doLabel';
 	// allows this field to have a common onSubmit Validator
@@ -86,14 +94,38 @@ History:
 			setElementFields("#currentValues.customElement#");
 			jQuery("###prefix#valueField").selectOptions("#currentValues.valueField#");
 			jQuery("###prefix#displayField").selectOptions("#currentValues.displayField#");
+			jQuery("###prefix#activeFlagField").selectOptions("#currentValues.activeFlagField#");
+
+			handleDisplayFieldChange();
 		</cfif>
+		
 		jQuery(customElement).change(function(){
 			setElementFields(jQuery(customElement).val())
 		});
+		jQuery('###prefix#displayField').change(handleDisplayFieldChange);
+		jQuery("###prefix#fieldBuilder").change(function(){
+			var fieldBuilderVal = jQuery("###prefix#fieldBuilder").val();
+			//If the selected value is not -- and its the "build your own" add to the end of the string
+			if(fieldBuilderVal != "--" && jQuery('###prefix#displayField').val() == "Other"){
+				var tempVal = jQuery("###prefix#displayFieldBuilder").val();
+				tempVal = tempVal + String.fromCharCode(171) + fieldBuilderVal + String.fromCharCode(187);
+				jQuery("###prefix#displayFieldBuilder").val(tempVal);
+				jQuery("###prefix#fieldBuilder").selectOptions('--');
+				jQuery("###prefix#displayFieldBuilder").focus();
+			}
+		});
 	});
+
+	function handleDisplayFieldChange(){
+		if(jQuery('###prefix#displayField').val() == "Other"){
+			jQuery(".other").show();
+		}else{
+			jQuery(".other").hide();
+		}
+	}
 	
 	function setElementFields(elementName){
-		if(elementName.length < 0){
+		if(elementName.length <= 0){
 			return;
 		}
 		jQuery.ajax({
@@ -141,9 +173,22 @@ History:
 		//Remove options
 		jQuery("###prefix#valueField").removeOption(/./);
 		jQuery("###prefix#displayField").removeOption(/./);
+		jQuery("###prefix#fieldBuilder").removeOption(/./);
+		jQuery("###prefix#activeFlagField").removeOption(/./);
 		
 		//Add new options
 		jQuery("###prefix#valueField").addOption(fields);
+
+		jQuery("###prefix#activeFlagField").addOption({"--":'--'});
+		jQuery("###prefix#activeFlagField").addOption(fields);
+		jQuery("###prefix#activeFlagField").selectOptions('--');
+
+
+		jQuery("###prefix#fieldBuilder").addOption({"--":'--'});
+		jQuery("###prefix#fieldBuilder").addOption(fields);
+		jQuery("###prefix#fieldBuilder").selectOptions('--');
+		
+		fields["Other"] = "Other";
 		jQuery("###prefix#displayField").addOption(fields);
 		
 		//Deselect everything
@@ -169,13 +214,24 @@ History:
 	<tr>
 		<td class="cs_dlgLabelSmall">Select Value Field:</td>
 		<td class="cs_dlgLabelSmall">
-			<input type="text" name="#prefix#valueField" id="#prefix#valueField" value="#currentValues.valueField#" size="40">
+			<select name="#prefix#valueField" id="#prefix#valueField">
+			</select>
 		</td>
 	</tr>
 	<tr>
 		<td class="cs_dlgLabelSmall">Select Display Field:</td>
 		<td class="cs_dlgLabelSmall">
-			<input type="text" name="#prefix#displayField" id="#prefix#displayField" value="#currentValues.displayField#" size="40">
+			<select  name="#prefix#displayField" id="#prefix#displayField">
+			</select>
+		</td>
+	</tr>
+	<tr class="other" style="display:none">
+		<td></td>
+		<td class="cs_dlgLabelSmall">
+			<span>Build your own display. Select a field from the drop down to have it added to the field.</span>
+			<select id="#prefix#fieldBuilder"></select>
+			<br/>
+			<input type="text" name="#prefix#displayFieldBuilder" value="#currentValues.displayFieldBuilder#" id="#prefix#displayFieldBuilder" size="40">
 		</td>
 	</tr>
 	<tr>
@@ -202,6 +258,21 @@ History:
 			<br />To denote a ColdFusion Expression, add brackets around the expression (i.e. "[request.user.userid]")
 		</td>
 	</tr>
+
+	<tr>
+		<td class="cs_dlgLabelSmall">Active Flag</td>
+		<td class="cs_dlgLabelSmall">
+			Field: <select name="#prefix#activeFlagField" id="#prefix#activeFlagField"></select>
+		</td>
+	</tr>
+	<tr>
+		<td></td>
+		<td class="cs_dlgLabelSmall">
+			Value: <input type="text" name="#prefix#activeFlagValue" id="#prefix#activeFlagValue" value="#currentValues.activeFlagValue#" size="20">
+		</td>
+	</tr>
+
+	<tr>
 		<td class="cs_dlgLabelSmall">Force Loading Scripts:</td>
 			<td class="cs_dlgLabelSmall">
 				Yes <input type="radio" id="#prefix#forceScripts" name="#prefix#forceScripts" value="1" <cfif currentValues.forceScripts EQ "1">checked</cfif>>&nbsp;&nbsp;&nbsp;
