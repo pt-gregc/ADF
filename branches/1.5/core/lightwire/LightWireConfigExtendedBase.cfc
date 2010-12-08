@@ -470,15 +470,16 @@ History:
 	2010-03-29 - MFC/GAC - Restructured for correct request variables and paths.
 	2010-10-20 - RLW - fixed bug that required the ADF to be installed in a directory named "ADF"
 	2010-11-23 - RLW - fixed bug loading the site level ADF components overrides (/cs_apps/lib/)
+	2010-12-08 - RAK - Fixing bug loading site component overrides (/_cs_apps/lib)
+									added expandPAth and changed hardcoded var to request.site.csAppsURL
 --->
 <cffunction name="processCFCPath" access="private" returntype="string" hint="Returns the CFC path for the component relative to the ADF or site name for the full directory path.">
 	<cfargument name="dirPath" type="string" required="true">
-	
 	<cfscript>
 		var retComPath = arguments.dirPath;
 		// get the real path to the ADF
 		var ADFPath = expandPath('/ADF');
-		var csAppsPath = "cs_apps/";
+		var csAppsPath = expandPath(request.site.csAppsURL);
 
 		// process the ADF components
 		if( findNoCase(ADFPath, retComPath) ) {

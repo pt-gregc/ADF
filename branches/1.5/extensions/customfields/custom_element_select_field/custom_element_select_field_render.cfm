@@ -219,7 +219,7 @@ History:
 										value = mid(displayField,foundIndex+1,foundEndIndex-foundIndex-1);
 										if(StructKeyExists(ceDataArray[cfs_i].Values,value)){
 											//We found it. Replace the <value> with the actual value
-											displayField = Replace(displayField,"#startChar##value##endChar#", ceDataArray[cfs_i].Values[value]);
+											displayField = Replace(displayField,"#startChar##value##endChar#", ceDataArray[cfs_i].Values[value],"ALL");
 										}else{
 											//Something is messed up... tell them so in the field!
 											displayField = Replace(displayField,"#startChar##value##endChar#", "Field '#value#' does not exist!");

@@ -7,4 +7,5 @@
     <forms_2_0>renderAddEditForm,renderDeleteForm</forms_2_0>
     <link_builder>htmlAddEditLinkBuilder,renderLinks,listManagement,removeLink</link_builder>
     <utils_1_0>getCFTypes,scriptExists,getFieldTypes,updateCustomFieldType,updateListItems</utils_1_0>
+	 <scheduler_1_0>getScheduleStatus,pauseSchedule,processNextScheduleItem,resumeSchedule,</scheduler_1_0>
 </settings>

@@ -1575,4 +1575,37 @@ History:
 		return s;
 	</cfscript>
 </cffunction>
+
+<!---
+/* ***************************************************************
+/*
+Author:
+	PaperThin, Inc.
+	Ryan Kahn
+Name:
+	$arrayOfStructToXML
+Summary:
+	Given an array of structures return an xml version
+Returns:
+	xml
+Arguments:
+
+History:
+ 	Dec 1, 2010 - RAK - Created
+--->
+<cffunction name="arrayOfStructToXML" access="public" returntype="xml" hint="Given an array of structures return an xml version">
+	<cfargument name="arrayOfStruct" type="array" required="true" default="" hint="Array of structures to be converted to XML data">
+	<cfargument name="rootName" type="string" required="false" default="root" hint="Name of the root element to wrap all the xml data">
+	<cfargument name="nodeName" type="string" required="true" default="node" hint="Default name of each of the nodes within arrays">
+	<cfscript>
+		var rtnXML = XmlNew();
+		var i = 1;
+		rtnXML.xmlRoot = XmlElemNew(rtnXML,arguments.rootName);
+		for(i=1;i<=ArrayLen(arrayOfStruct);i = i +1){
+			rtnXML[arguments.rootName].XmlChildren[i] = XmlElemNew(rtnXML,arguments.nodeName);
+			
+		}
+	</cfscript>
+</cffunction>
+
 </cfcomponent>

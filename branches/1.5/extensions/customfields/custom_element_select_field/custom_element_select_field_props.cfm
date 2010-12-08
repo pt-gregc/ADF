@@ -100,7 +100,8 @@ History:
 		</cfif>
 		
 		jQuery(customElement).change(function(){
-			setElementFields(jQuery(customElement).val())
+			setElementFields(jQuery(customElement).val());
+			handleDisplayFieldChange();
 		});
 		jQuery('###prefix#displayField').change(handleDisplayFieldChange);
 		jQuery("###prefix#fieldBuilder").change(function(){
@@ -121,6 +122,7 @@ History:
 			jQuery(".other").show();
 		}else{
 			jQuery(".other").hide();
+			jQuery("###prefix#displayFieldBuilder").val("");
 		}
 	}
 	
@@ -229,6 +231,7 @@ History:
 		<td></td>
 		<td class="cs_dlgLabelSmall">
 			<span>Build your own display. Select a field from the drop down to have it added to the field.</span>
+			<br/>
 			<select id="#prefix#fieldBuilder"></select>
 			<br/>
 			<input type="text" name="#prefix#displayFieldBuilder" value="#currentValues.displayFieldBuilder#" id="#prefix#displayFieldBuilder" size="40">
