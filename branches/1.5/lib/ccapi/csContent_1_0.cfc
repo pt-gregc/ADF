@@ -53,12 +53,17 @@ Returns:
 Arguments:
 	String elementName - the named element which content will be added for
 	Struct data - the data for the element
+	numeric - forceSubsiteID - If set this will override the subsiteID in the data.
+	numeric - forcePageID - If set this will override the pageID in the data.
 History:
 	2008-05-30 - RLW - Created
+	2010-12-09 - RAK - added forceSubsiteID and forcePageID functionality
 --->
 <cffunction name="populateContent" access="public" returntype="struct" hint="Use this method to populate content for either a Textblock or Custom Element">
 	<cfargument name="elementName" type="string" required="true" hint="The name of the element from the CCAPI configuration">
 	<cfargument name="data" type="struct" required="true" hint="Data for either the Texblock element or the Custom Element">
+	<cfargument name="forceSubsiteID" type="numeric" required="false" default="-1" hint="If set this will override the subsiteID in the data.">
+	<cfargument name="forcePageID" type="numeric" required="false" default="-1" hint="If set this will override the pageID in the data.">
 	<cfscript>
 		var elements = "";
 		var thisElement = structNew();
@@ -87,18 +92,27 @@ History:
 			if( not structKeyExists(thisElement, "subsiteID") )
 				thisElement["subsiteID"] = 1;
 
-			// check to see if subsiteID has been passed into data (signifying a local custom element)
-			if( structKeyExists(arguments.data, "subsiteID") )
+			//2010-12-09 - RAK - If they forced the pageID set it
+			if(arguments.forceSubsiteID neq -1){
+				thisElement["subsiteID"] = arguments.forceSubsiteID;
+			}else if( structKeyExists(arguments.data, "subsiteID")){
+				//Otherwise check to see if subsiteID has been passed into data (signifying a local custom element)
 				thisElement["subsiteID"] = arguments.data.subsiteID;
+			}
+
 			// assume global custom element and use default subsiteID
 
 			// login for the first time or to the subsite where the new page was created
 			if( variables.ccapi.loggedIn() eq 'false' or ( thisElement["subsiteID"] neq variables.ccapi.getSubsiteID() ) )
 				variables.ccapi.login(thisElement["subsiteID"]);
 
-			// check to see if the data passed in for this element contains "pageID"
-			if( structKeyExists(arguments.data, "pageID") )
+			//2010-12-09 - RAK - If they forced the pageID set it
+			if(arguments.forcePageID neq -1){
+				thisElement["pageID"] = arguments.forcePageID;
+			}else if( structKeyExists(arguments.data, "pageID") ){
+				//Otherwise check to see if the data passed in for this element contains "pageID"
 				thisElement["pageID"] = arguments.data.pageID;
+			}
 
 			// clear locks before starting
 			variables.ccapi.clearLock(thisElement["pageID"]);
