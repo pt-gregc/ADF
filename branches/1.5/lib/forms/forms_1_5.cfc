@@ -59,7 +59,8 @@ History:
 	2010-06-04 - MFC - Added IF statement to check for lbAction to refresh parent
 	2010-06-07 - MFC - Updated the render form to not call the special RTE operations when above CS 6.
 	2010-09-28 - MFC - Updated the Lightbox forms to load the CS Dialog headers and footers.
-	2010-11-28 - RK - NEEDS TO ADD COMMENTS!
+	2010-11-28 - RAK - Updated to have callback functionality
+	2010-12-09 - RAK - Updated callback functionality to return an object containing all the form parameters
 --->
 <cffunction name="renderAddEditForm" access="public" returntype="String" hint="Returns the HTML for an Add/Edit Custom element record">
 	<cfargument name="formID" type="numeric" required="true">
@@ -68,7 +69,6 @@ History:
 	<cfargument name="customizedFinalHtml" type="string" required="false" default="">
 	<cfargument name="renderResult" type="boolean" required="false" default="0">
 	<cfargument name="callback" type="string" required="false" default="">
-	<cfargument name="callbackReturnField" type="string" required="false" default="">
 	
 	<cfscript>
 		var APIPostToNewWindow = false;
@@ -77,38 +77,6 @@ History:
 		// Find out if the CE contains an RTE field
 		var formContainRTE = application.ADF.ceData.containsFieldType(arguments.formID, "formatted_text_block");
 	</cfscript>
-	
-	<cfsavecontent variable="cookieLoader">
-		<cfoutput>
-			<script type="text/javascript">
-				function cookie(key, value, options) {
-				    // key and value given, set cookie...
-				    if (arguments.length > 1 && (value === null || typeof value !== "object")) {
-				        options = jQuery.extend({}, options);
-				        if (value === null) {
-				            options.expires = -1;
-				        }
-				        if (typeof options.expires === 'number') {
-				            var days = options.expires, t = options.expires = new Date();
-				            t.setDate(t.getDate() + days);
-				        }
-				        return (commonspot.lightbox.getPageWindow().document.cookie = [
-				            encodeURIComponent(key), '=',
-				            options.raw ? String(value) : encodeURIComponent(String(value)),
-				            options.expires ? '; expires=' + options.expires.toUTCString() : '', // use expires attribute, max-age is not supported by IE
-				            options.path ? '; path=' + options.path : '',
-				            options.domain ? '; domain=' + options.domain : '',
-				            options.secure ? '; secure' : ''
-				        ].join(''));
-				    }
-				    // key and possibly options given, get cookie...
-				    options = value || {};
-				    var result, decode = options.raw ? function (s) { return s; } : decodeURIComponent;
-				    return (result = new RegExp('(?:^|; )' + encodeURIComponent(key) + '=([^;]*)').exec(commonspot.lightbox.getPageWindow().document.cookie)) ? decode(result[1]) : null;
-				};
-			</script>
-		</cfoutput>
-	</cfsavecontent>
 	<!--- Result from the Form Submit --->
 	<cfsavecontent variable="formResultHTML">
 		<!--- Render the dlg header --->
@@ -132,14 +100,20 @@ History:
 					variables.scripts.loadADFLightbox(force=1);
 				</cfscript>
 				<cfif Len(arguments.callback)>
-					#cookieLoader#
+					#application.ADF.scripts.loadJQuery()#
+					#application.ADF.scripts.loadJQueryCookie()#
+					#application.ADF.scripts.loadJQueryJSON()#
 				</cfif>
 				<script type='text/javascript'>
 					jQuery(document).ready(function(){
 						<cfif Len(arguments.callback)>
-							cookieValue = cookie("tempFormCookie");
+							//We need to get the cookie information, stored in a cookie because
+							// this page is only JS and we cant get the form varaibles!
+							cookieValue = jQuery.evalJSON(jQuery.cookie("tempFormCookie"));
+							//Call the callback with the cookie value
 							getCallback('#arguments.callback#', cookieValue);
-							cookie("tempFormCookie",null);
+							//Delete the cookie
+							jQuery.cookie("tempFormCookie",null,{path:"/"});
 						<cfelse>
 							if ( "#arguments.lbAction#" == "refreshparent" )
 								closeLBReloadParent();
@@ -147,7 +121,6 @@ History:
 						</cfif>
 					});
 				</script>
-				Multimedia has been created. Trying to automatically submit.
 			</cfoutput>
 		</cfif>
 		<!--- Render the dlg footer --->
@@ -167,29 +140,42 @@ History:
 				CD_CheckPageAlive=0;
 				//CD_OnLoad="handleOnLoad();";
 				//CD_OnLoad="";
-          		APIPostToNewWindow = false;
+          	APIPostToNewWindow = false;
 			</cfscript>
 			<CFINCLUDE TEMPLATE="/commonspot/dlgcontrols/dlgcommon-head.cfm">
+         <cfset udfResults = Server.CommonSpot.UDF.UI.RenderSimpleForm(arguments.dataPageID, arguments.formID, APIPostToNewWindow, formResultHTML)>
 			<cfoutput>
 				<cfscript>
-					variables.scripts.loadADFLightbox(force=1);
+					variables.scripts.loadADFLightbox();
 				</cfscript>
 				<!--- Call the UDF function --->
-				<tr><td>#Server.CommonSpot.UDF.UI.RenderSimpleForm(arguments.dataPageID, arguments.formID, APIPostToNewWindow, formResultHTML)#</td></tr>
+				<tr>
+				<td>
+				#udfResults#
+				</td>
+				</tr>
 				<cfif Len(arguments.callback)>
-					#cookieLoader#
+					#application.ADF.scripts.loadJQuery()#
+					#application.ADF.scripts.loadJQueryCookie()#
+					#application.ADF.scripts.loadJQueryJSON()#
 					<script type="text/javascript">
+						//Onchange because we don't have a finalize function that we can have called.
+						//Stored in a cookie because the receiving page is only JS and cannot get form params
 						jQuery("form").change(function(){
-							cookie("tempFormCookie",getFieldValue("#callbackReturnField#"));
+							var formEncoded = jQuery.toJSON(getForm());
+							jQuery.cookie("tempFormCookie",formEncoded,{path:"/"});
 						});
-						function getFieldValue(fieldName){
-							if(fieldName.length > 0){
-								var name = jQuery("[value='" + fieldName + "'][name$='fieldName']").attr("name");
+
+						//returns the form values as an object
+						// Obj[fieldName] = fieldValue;
+						function getForm(){
+							var rtnStruct = new Object();
+							jQuery("[name$='fieldName']").each(function (){
+								var name = jQuery(this).attr("name");
 								name = name.replace("_fieldName","");
-								return jQuery("[name='"+name+"']").attr("value");
-							}else{
-								return null;
-							}
+								rtnStruct[jQuery(this).attr("value")] = jQuery("[name='"+name+"']").attr("value");
+							});
+							return rtnStruct;
 						}
 					</script>
 				</cfif>
@@ -258,6 +244,114 @@ History:
 		<CFINCLUDE template="/commonspot/dlgcontrols/dlgcommon-foot.cfm">
 	</cfsavecontent>
 	<cfreturn deleteFormHTML>
+</cffunction>
+
+
+
+
+<!---
+/* ***************************************************************
+/*
+Author:
+	PaperThin, Inc.
+	Ryan Kahn
+Name:
+	$isFieldReadOnly
+Summary:
+	Given xparams determines if the field is readOnly
+Returns:
+	boolean
+Arguments:
+
+History:
+ 	Dec 6, 2010 - RAK - Created
+--->
+<cffunction name="isFieldReadOnly" access="public" returntype="boolean" hint="Given xparams determines if the field is readOnly">
+	<cfargument name="xparams" type="struct" required="true" default="" hint="XParams struct">
+	<cfscript>
+		// Get the list permissions and compare
+		var commonGroups = application.ADF.data.ListInCommon(request.user.grouplist, arguments.xparams.pedit);
+		// Set the read only
+		var readOnly = true;
+		// Check if the user does have edit permissions
+		if ( (arguments.xparams.UseSecurity EQ 0) OR ( (arguments.xparams.UseSecurity EQ 1) AND (ListLen(commonGroups)) ) )
+			readOnly = false;
+		return readOnly;
+	</cfscript>
+</cffunction>
+
+<!---
+/* ***************************************************************
+/*
+Author:
+	PaperThin, Inc.
+	Ryan Kahn
+Name:
+	$wrapFieldHTML
+Summary:
+	Wraps the given information with valid html for the current commonspot and configuration
+Returns:
+	String
+Arguments:
+
+History:
+ 	Dec 6, 2010 - RAK - Created
+--->
+<cffunction name="wrapFieldHTML" access="public" returntype="String" hint="Wraps the given information with valid html for the current commonspot and configuration">
+	<cfargument name="fieldInputHTML" type="string" required="true" default="" hint="HTML for the field input, do a cfSaveContent on the input field and pass that in here">
+	<cfargument name="fieldQuery" type="query" required="true" default="" hint="fieldQuery value">
+	<cfargument name="attr" type="struct" required="true" default="" hint="Attributes value">
+	<cfscript>
+		var row = arguments.fieldQuery.currentRow;
+		var fqFieldName = "fic_#arguments.fieldQuery.ID[row]#_#arguments.fieldQuery.INPUTID[row]#";
+		var description = arguments.fieldQuery.DESCRIPTION[row];
+		var fieldName = arguments.fieldQuery.fieldName[row];
+		var xparams = arguments.attr.parameters[arguments.fieldQuery.inputID[row]];
+		var labelStart = arguments.attr.itemBaselineParamStart;
+		var labelEnd = arguments.attr.itemBaseLineParamEnd;
+		var renderSimpleFormField = false;
+
+		//If the fields are required change the label start and end
+		if(xparams.req eq "Yes"){
+			labelStart = arguments.attr.reqItemBaselineParamStart;
+			labelEnd = arguments.attr.reqItemBaseLineParamEnd;
+		}
+
+		// determine if this is rendererd in a simple form or the standard custom element interface
+		if ( (StructKeyExists(request, "simpleformexists")) AND (request.simpleformexists EQ 1) ){
+			renderSimpleFormField = true;
+		}
+	</cfscript>
+	<cfsavecontent variable="returnHTML">
+		<cfoutput>
+			<tr>
+				<td valign="top">
+					#labelStart#
+					<label for="#fqFieldName#">#xParams.label#:</label>
+					#labelEnd#
+				</td>
+				<td>
+					#arguments.fieldInputHTML#
+				</td>
+			</tr>
+			<cfif Len(description)>
+				<!--- If there is a description print out a new row and the description --->
+				<tr>
+					<td></td>
+					<td>
+						#arguments.attr.descParamStart#
+						#description#
+						<br/><br/>
+						#arguments.attr.descParamEnd#
+					</td>
+				</tr>
+			</cfif>
+			<cfif renderSimpleFormField>
+				<input type="hidden" name="#fqFieldName#_FIELDNAME" id="#fqFieldName#_FIELDNAME" value="#ReplaceNoCase(fieldName, 'fic_','')#">
+			</cfif>
+		</cfoutput>
+	</cfsavecontent>
+	<cfreturn returnHTML>
 </cffunction>
 
 </cfcomponent>

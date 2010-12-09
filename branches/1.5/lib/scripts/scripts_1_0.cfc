@@ -1242,9 +1242,35 @@ History:
 		<cfoutput>
 			#loadSWFObject()#
 			<link rel="stylesheet" href="/ADF/thirdParty/jquery/uploadify/uploadify.css" type="text/css" media="screen" />
-			<script type='text/javascript' src='/ADF/thirdParty/jquery/uploadify/jquery.uploadify.v2.1.0.min.js'></script>
+			<script type='text/javascript' src='/ADF/thirdParty/jquery/uploadify/jquery.uploadify.v2.1.1.min.js'></script>
 		</cfoutput>
 		<cfset variables.scriptsService.loadedScript("uploadify")>
+	</cfif>
+</cffunction>
+
+<!---
+/* ***************************************************************
+/*
+Author: 	
+	PaperThin, Inc.
+	Ryan kahn
+Name:
+	$loadSimplePassMeter
+Summary:	
+	Loads the simplePassMeter plugin for jQuery
+Returns:
+	Void
+Arguments:
+History:
+ 	2010-11-09 - RAK - Created
+--->
+<cffunction name="loadSimplePassMeter" access="public" output="true" returntype="void" hint="Loads the simplePassMeter plugin for jQuery"> 
+	<cfif not variables.scriptsService.isScriptLoaded("simplePassMeter")>
+		<cfoutput>
+			<script type='text/javascript' src='/ADF/thirdParty/jquery/simplePassMeter/jquery.simplePassMeter-0.3.min.js'></script>
+			<link rel="stylesheet" href="/ADF/thirdParty/jquery/simplePassMeter/simplePassMeter.css" type="text/css" media="screen" />
+		</cfoutput>
+		<cfset variables.scriptsService.loadedScript("simplePassMeter")>
 	</cfif>
 </cffunction>
 

@@ -773,8 +773,8 @@ History:
 		</cfoutput>
 			<!--- Load the CommonSpot Lightbox when not in version 6.0 --->
 			<cfif productVersion LT 6 >
-				<cfoutput>
 				<!--- Load the CommonSpot 6.0 Lightbox Framework --->
+				<cfoutput>
 				<script type='text/javascript' src='/ADF/extensions/lightbox/#arguments.version#/js/browser-all.js'></script>
 				
 				<!--- Setup the CommonSpot 6.0 Lightbox framework --->
@@ -808,33 +808,9 @@ History:
 						<!--- Load the CommonSpot 6.0 Lightbox Framework --->
 						<script type='text/javascript' src='/commonspot/javascript/browser-all.js'></script>
 					</cfif>
-				
+
 					<!--- Setup the CommonSpot 6.0 Lightbox framework --->
-					<!--- <cfinclude template="/commonspot/non-dashboard-include.cfm"> --->
-					<!--- <script type="text/javascript">
-						/* if ((typeof commonspot == 'undefined' || !commonspot.lightbox) && (!top.commonspot || !top.commonspot.lightbox))
-							loadNonDashboardFiles();
-						else if ( typeof parent.commonspot != 'undefined' ){
-							var commonspot = parent.commonspot;
-						}
-						else if ( typeof top.commonspot != 'undefined' ){
-							var commonspot = top.commonspot;
-						} */
-						
-						if (typeof commonspot == 'undefined' || !commonspot.lightbox) 
-						{
-							if ( typeof parent.commonspot != 'undefined' ){
-							var commonspot = parent.commonspot;
-							}
-							else if ( typeof top.commonspot != 'undefined' ){
-								var commonspot = top.commonspot;
-							}
-							else {
-								loadNonDashboardFiles();
-							}
-						
-						}	
-					</script> --->
+<!---					<cfinclude template="/commonspot/non-dashboard-include.cfm"> --->
 					<script type="text/javascript">
 						if (typeof commonspot == 'undefined' || !commonspot.lightbox){	
 							if ( typeof parent.commonspot != 'undefined' ){
