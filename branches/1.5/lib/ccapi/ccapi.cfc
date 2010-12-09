@@ -421,13 +421,17 @@ History:
 		Void
 	History:
 		2009-07-09 - RLW - Created
+		2010-12-09 - RAK - Improved fault tolerance
 	--->
 <cffunction name="loggingEnabled" access="public" returntype="boolean" hint="Determines if logging is enabled">
 	<cfscript>
 		var config = getCCAPIConfig();
-		var rtnVal = config["logging"]["enabled"];
-		if( not len(rtnVal) )
-			rtnVal = 0;
+		if(isStruct(config)	and StructKeyExists(config,"logging")
+									and StructKeyExists(config.logging,"enabled")
+									and Len(config.logging.enabled)){
+			return true;
+		}
+		return false;
 	</cfscript>
 	<cfreturn rtnVal>
 </cffunction>
