@@ -474,7 +474,6 @@ History:
 </cfif>
 </cffunction>
 
-
 <!---
 /* ***************************************************************
 /*
@@ -907,6 +906,7 @@ History:
 		<cfset variables.scriptsService.loadedScript("jqueryuistars")>
 	</cfif>
 </cffunction>
+
 <!---
 /* ***************************************************************
 /*
@@ -1030,6 +1030,7 @@ History:
 	</cfif>
 </cfif>
 </cffunction>
+
 <!---
 /* ***************************************************************
 /*
@@ -1055,6 +1056,7 @@ History:
 		<cfset variables.scriptsService.loadedScript("jqueryAutocomplete")>
 	</cfif>
 </cffunction>
+
 <!---
 /* ***************************************************************
 /*
@@ -1166,6 +1168,7 @@ History:
 	<cfset variables.scriptsService.loadedScript("jQueryBlockUI")>
 </cfif>
 </cffunction>
+
 <!---
 /* ***************************************************************
 /*
