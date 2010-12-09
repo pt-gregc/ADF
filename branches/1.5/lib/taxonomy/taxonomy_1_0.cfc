@@ -84,7 +84,8 @@ Arguments:
 	String orderby - Order By Field (ID or NAME)
 History:
 	2009-06-22 - MFC - Created
-	2010-07-01 - GAC - Modified - Broke the getTopTerms query out as a seperate function
+	2010-07-01 - GAC - Modified - Broke the getTopTerms query out as a separate function
+	2010-12-06 - SFS - Rewritten for ADF 1.5 release to eliminate need for taxonomy calls and uses taxonomy DB views instead
 --->
 <cffunction name="getTopTermsQueryForFacet" access="public" returntype="query" output="no" hint="Taxonomy function to return top terms as a query for the facet ID">
 	<cfargument name="facetID" type="numeric" required="yes">
@@ -96,15 +97,13 @@ History:
 	</cfscript>
 
 	<cfquery name="getTopTerms" datasource="#request.site.datasource#">
-		SELECT t.*
-		FROM term t, term_top tt
-		WHERE tt.facetid = <CFQUERYPARAM VALUE="#arguments.facetID#" CFSQLTYPE="CF_SQL_INTEGER">
-		AND t.taxonomyid = <CFQUERYPARAM VALUE="#arguments.taxonomyID#" CFSQLTYPE="CF_SQL_INTEGER">
-		AND t.id = tt.termid
-		AND t.taxonomyid = tt.taxonomyid
-		AND t.updatestatus = 1
+		SELECT *
+		FROM TaxonomyDataView
+		WHERE taxonomyid = <CFQUERYPARAM VALUE="#arguments.taxonomyID#" CFSQLTYPE="CF_SQL_INTEGER">
+		AND facetid = <CFQUERYPARAM VALUE="#arguments.facetID#" CFSQLTYPE="CF_SQL_INTEGER">
+		AND (toptermname is null <cfif request.site.sitedbtype is not 'oracle'>OR toptermname = ''</cfif>)
 		<cfif LEN(TRIM(arguments.orderby)) AND (arguments.orderby IS "NAME" OR arguments.orderby IS "ID")>
-		ORDER BY t.#arguments.orderby#
+		ORDER BY Term<cfqueryparam value="#arguments.orderby#" cfsqltype="cf_sql_varchar">
 		</cfif>
 	</cfquery>
 
@@ -157,26 +156,32 @@ History:
 		String termList
 	History:
 		2009-09-03 - RLW - Created
+		2010-12-06 - SFS - Rewritten for ADF 1.5 release to eliminate need for taxonomy calls and uses taxonomy DB views instead
 	--->
 <cffunction name="getTermIDs" access="public" returntype="string" hint="Returns a list of termIDs from a list of terms and a given initialized taxonomy object">
-	<cfargument name="csTaxObj" type="any" required="true" hint="CS Taxonomy API Object intialized to the proper taxonomy">
+	<cfargument name="csTaxObj" type="any" required="true" hint="No longer required - kept for backward compatibility">
 	<cfargument name="termList" type="string" required="true" hint="List of Term String Names that will be converted to Ids">
-	<cfscript>
-		var termIDList = "";
-		var termName = "";
-		// loop through the list of terms and get termId's
-		for( itm=1; itm lte listLen(arguments.termList); itm=itm+1 )
-		{
-			termName = "";
-			// check to see if either the original term or the non-html entity term exists (e.g. Arts & Entertainment vs. Arts &amp; Entertainment)
-			if( arguments.csTaxObj.termExistsWithName(listGetAt(arguments.termList, itm)))
-				termName = listGetAt(arguments.termList, itm);
-			else if (arguments.csTaxObj.termExistsWithName(Server.commonspot.UDF.data.fromHTML(listGetAt(arguments.termList, itm))))
-				termName = Server.commonspot.UDF.data.fromHTML(listGetAt(arguments.termList, itm));
-			if( len(termName) )
-				termIDList = listAppend(termIDList, arguments.csTaxObj.getTermID(termName));
-		}
-	</cfscript>
+
+	<cfset termIDList = "">
+
+	<cfloop list="#arguments.termList#" index="termName">
+
+		<cfif request.cp.versionid EQ "510">
+			<cfset termName = Server.CommonSpot.UDF.data.fromHTML(termName)>
+		<cfelseif val(request.cp.versionid) GTE 600>
+			<cfset termName = Server.CommonSpot.api.unescapeHTML(termName)>
+		</cfif>
+
+		<cfquery name="getTermIDList" datasource="#request.site.datasource#">
+			SELECT termid
+			FROM taxonomydataview
+			WHERE termname = <cfqueryparam cfsqltype="cf_sql_varchar" value="#termName#">
+		</cfquery>
+
+		<cfset termIDList = listAppend(termIDList,getTermIDList.termid)>
+
+	</cfloop>
+
 	<cfreturn termIDList>
 </cffunction>
 <!---
