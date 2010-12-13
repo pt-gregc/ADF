@@ -250,6 +250,7 @@ History:
 	<cfargument name="destinationTemplateID" type="numeric" required="false">
 	<cfargument name="sourceCustomElementNames" type="array" required="false" default="#ArrayNew(1)#">
 	<cfargument name="destCCAPIElementNames" type="array" required="false" default="#ArrayNew(1)#">
+	
 	<cfscript>
 		var i = 1;
 		var j = 1;
@@ -260,7 +261,7 @@ History:
 		var stdMetadata = StructNew();
 		var data = StructNew();
 		var currentField = "";
-		var custMetadata = structNew();
+		var custMetadata = application.ADF.csData.getCustomMetadata(arguments.sourcePageID);
 		var sourcePage = application.ADF.csData.getStandardMetadata(arguments.sourcePageID);
 		
 		//Error checking
@@ -279,7 +280,7 @@ History:
 		stdMetadata = sourcePage;
 		stdMetadata.templateID = arguments.destinationTemplateID;
 		stdMetadata.subsiteID = arguments.destinationSubsiteID;
-		
+
 		//Create the page
 		newPage = application.ADF.csPage.createPage(stdMetadata,custMetadata);
 		if(!newPage.pageCreated){//we couldnt create the page! Log the error and return out false.
@@ -303,7 +304,7 @@ History:
 			data.submitChange_comment = "Submit data for Custom element through API";
 			//Get the tabs, iterate over 
 			elementTabs = application.ADF.ceData.getTabsFromFormID(customElementFormID,true);
-			//Iterate over each tab 
+			//Iterate over each tab
 			for(k=1;k<=ArrayLen(elementTabs);k++){
 				//Iterate over each field in the tab
 				for(j=1;j<=ArrayLen(elementTabs[k].fields);j++){

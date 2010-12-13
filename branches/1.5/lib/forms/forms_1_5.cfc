@@ -90,20 +90,17 @@ History:
          APIPostToNewWindow = false;
 		</cfscript>
 		<CFINCLUDE TEMPLATE="/commonspot/dlgcontrols/dlgcommon-head.cfm">
-		<cfoutput><tr><td></cfoutput>
+		<cfoutput><tr><td class="formResultContainer"></cfoutput>
 		<!--- Set the form result html to the argument if defined --->
-		<cfif LEN(arguments.customizedFinalHtml)>
-			<cfoutput>#arguments.customizedFinalHtml#</cfoutput>
-		<cfelse>
 			<cfoutput>
 				<cfscript>
 					variables.scripts.loadADFLightbox(force=1);
+					if(Len(arguments.callback)){
+						variables.scripts.loadJQuery();
+						variables.scripts.loadJQueryCookie(force=1);
+						variables.scripts.loadJQueryJSON(force=1);
+					}
 				</cfscript>
-				<cfif Len(arguments.callback)>
-					#application.ADF.scripts.loadJQuery()#
-					#application.ADF.scripts.loadJQueryCookie()#
-					#application.ADF.scripts.loadJQueryJSON()#
-				</cfif>
 				<script type='text/javascript'>
 					jQuery(document).ready(function(){
 						<cfif Len(arguments.callback)>
@@ -121,8 +118,10 @@ History:
 						</cfif>
 					});
 				</script>
+				<cfif LEN(arguments.customizedFinalHtml)>
+					<cfoutput>#arguments.customizedFinalHtml#</cfoutput>
+				</cfif>
 			</cfoutput>
-		</cfif>
 		<!--- Render the dlg footer --->
 		<cfoutput></tr></td></cfoutput>
 		<CFINCLUDE template="/commonspot/dlgcontrols/dlgcommon-foot.cfm">
@@ -151,34 +150,46 @@ History:
 				<!--- Call the UDF function --->
 				<tr>
 				<td>
-				#udfResults#
+					#udfResults#
+					<cfif Len(arguments.callback)>
+						#variables.scripts.loadJQuery()#
+						#variables.scripts.loadJQueryCookie(force=1)#
+						#variables.scripts.loadJQueryJSON(force=1)#
+						<script type="text/javascript">
+							//Setting this up so that on page load the cookie gets filled with existing values, if there are any
+							jQuery(document).ready(function (){
+								handleFormChange();
+								jQuery("##proxyButton1").live('click',handleFormChange);
+							});							
+
+							function handleFormChange(){
+								var formEncoded = jQuery.toJSON(getForm());
+								console.log(formEncoded);
+								jQuery.cookie("tempFormCookie",formEncoded,{path:"/"});
+							}
+
+							//returns the form values as an object
+							// Obj[fieldName] = fieldValue;
+							function getForm(){
+								var rtnStruct = new Object();
+								var formFields = jQuery("input");
+								formFields = formFields.filter(
+									function(){
+										return jQuery(this).attr("name").toLowerCase().indexOf("fieldname") != -1;
+									}
+								);
+								formFields.each(function (){
+									var name = jQuery(this).attr("name");
+									//Case insensitive replace
+									name = name.replace(/_fieldName/i,"");
+									rtnStruct[jQuery(this).attr("value")] = jQuery("[name='"+name+"']").attr("value");
+								});
+								return rtnStruct;
+							}
+						</script>
+					</cfif>
 				</td>
 				</tr>
-				<cfif Len(arguments.callback)>
-					#application.ADF.scripts.loadJQuery()#
-					#application.ADF.scripts.loadJQueryCookie()#
-					#application.ADF.scripts.loadJQueryJSON()#
-					<script type="text/javascript">
-						//Onchange because we don't have a finalize function that we can have called.
-						//Stored in a cookie because the receiving page is only JS and cannot get form params
-						jQuery("form").change(function(){
-							var formEncoded = jQuery.toJSON(getForm());
-							jQuery.cookie("tempFormCookie",formEncoded,{path:"/"});
-						});
-
-						//returns the form values as an object
-						// Obj[fieldName] = fieldValue;
-						function getForm(){
-							var rtnStruct = new Object();
-							jQuery("[name$='fieldName']").each(function (){
-								var name = jQuery(this).attr("name");
-								name = name.replace("_fieldName","");
-								rtnStruct[jQuery(this).attr("value")] = jQuery("[name='"+name+"']").attr("value");
-							});
-							return rtnStruct;
-						}
-					</script>
-				</cfif>
 			</cfoutput>
 			<CFINCLUDE template="/commonspot/dlgcontrols/dlgcommon-foot.cfm">
 		</cfsavecontent>

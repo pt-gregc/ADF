@@ -590,10 +590,11 @@ History:
 								Added formid argument and passed to getDataFieldValueByPageID function
 	2010-03-05 - SFS - Updated: If block added after the end of StructInsert loop to add DateAdded and
 								DateApproved fields to retStruct
+	2010-12-10 - RAK - Removed requirement of formID.
 --->
 <cffunction name="getElementInfoByPageID" access="public" returntype="struct">
 	<cfargument name="pageid" type="Numeric" required="true">
-	<cfargument name="formid" type="Numeric" required="true">
+	<cfargument name="formid" type="Numeric" required="false" default="-1">
 	<cfargument name="separateValueStruct" type="boolean" required="false" default="true">
 
 	<cfscript>
@@ -606,7 +607,10 @@ History:
 		var elmt_j = 1;
 		var dataFldName = "";
 		var dataFldVal = "";
-		
+
+		if(arguments.formID eq -1){
+			arguments.formID = getFormIDFromPageID(arguments.formid);
+		}
 		// Query to get the data for the custom element by pageid
 		// [MFC 2/11/09] Added formid argument to function call
 		getElementInfo = getDataFieldValueByPageID(arguments.pageid, arguments.formid);
