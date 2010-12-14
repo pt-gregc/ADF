@@ -1277,4 +1277,31 @@ History:
 	</cfif>
 </cffunction>
 
+<!---
+/* ***************************************************************
+/*
+Author: 	
+	PaperThin, Inc.
+	G. Cronkright
+Name:
+	$loadjQueryHighlight
+Summary:	
+	Loads the Highlight plugin for jQuery
+Returns:
+	Void
+Arguments:
+	Version
+History:
+ 	2010-12-13 - GAC - Created
+--->
+<cffunction name="loadJQueryHighlight" access="public" output="true" returntype="void" hint="Loads the Highlight plugin for jQuery"> 
+	<cfargument name="version" type="string" required="false" default="3.0.0" hint="Script version to load.">
+	<cfif not variables.scriptsService.isScriptLoaded("highlight")>
+		<cfoutput>
+			<script type='text/javascript' src='/ADF/thirdParty/jquery/highlight/jquery.highlight-#arguments.version#.yui.js'></script>
+		</cfoutput>
+		<cfset variables.scriptsService.loadedScript("highlight")>
+	</cfif>
+</cffunction>
+
 </cfcomponent>
