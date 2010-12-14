@@ -1262,6 +1262,7 @@ History:
    
 	<cfset var retStruct = StructNew() />
 	<cfset var CFfile = "" />
+	<cfset var CPfile = "" />
 	<cfset var CFDirectory = "" />
 	<cfset var deletedFiles = "" />
 	<cfset var failedDeletions = "" />
@@ -1296,6 +1297,7 @@ History:
 	<cfscript>
 		retStruct["Arguments"] = Arguments;
 		retStruct["CFfile"] = CFfile;
+		retStruct["CPfile"] = CPfile;
 		retStruct["CFDirectory"] = CFDirectory;
 		retStruct["Success"] = ActionSuccess;
 	</cfscript>
