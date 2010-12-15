@@ -1,4 +1,4 @@
-<!---
+<!--- 
 The contents of this file are subject to the Mozilla Public License Version 1.1
 (the "License"); you may not use this file except in compliance with the
 License. You may obtain a copy of the License at http://www.mozilla.org/MPL/
@@ -13,15 +13,15 @@ The Initial Developer of the Original Code is
 PaperThin, Inc. Copyright(C) 2010.
 All Rights Reserved.
 
-By downloading, modifying, distributing, using and/or accessing any files
-in this directory, you agree to the terms and conditions of the applicable
+By downloading, modifying, distributing, using and/or accessing any files 
+in this directory, you agree to the terms and conditions of the applicable 
 end user license agreement.
 --->
 
 <!---
 /* *************************************************************** */
-Author:
-	PaperThin, Inc.
+Author: 	
+	PaperThin, Inc. 
 Name:
  scripts_1_5.cfc
 Summary:
@@ -32,7 +32,7 @@ History:
 			everything now goes through one central script loader. Every single function was modified.
 --->
 <cfcomponent displayname="scripts_1_5" extends="ADF.lib.scripts.scripts_1_0" hint="Scripts functions for the ADF Library">
-
+	
 <cfproperty name="version" default="1_5_0">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_5" type="dependency">
 <cfproperty name="type" value="singleton">
@@ -180,15 +180,18 @@ History:
 	2009-09-16 - MFC - Added force argument.
 	2010-08-26 - MFC - Updated to load 1.8 by default
 --->
-<cffunction name="loadJQueryUI" access="public" output="true" returntype="void" hint="Loads the JQuery UI Headers if not loaded.">
+<cffunction name="loadJQueryUI" access="public" output="true" returntype="void" hint="Loads the JQuery UI Headers if not loaded."> 
 	<cfargument name="version" type="string" required="false" default="1.8" hint="JQuery version to load.">
 	<cfargument name="themeName" type="string" required="false" default="ui-lightness" hint="UI Theme Name (directory name)">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery UI script header to load.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
-			<script type='text/javascript' src='/ADF/thirdParty/jquery/ui/jquery-ui-#arguments.version#/js/jquery-ui-#arguments.version#.custom.js'></script>
-			<cfif DirectoryExists(expandPath("/ADF/thirdParty/jquery/ui/jquery-ui-#arguments.version#/css/#arguments.themeName#"))>
+			<script type='text/javascript' src='/ADF/thirdParty/jquery/ui/jquery-ui-#arguments.version#/js/jquery-ui-#arguments.version#.custom.min.js'></script>
+			<cfif DirectoryExists(expandPath("/_cs_apps/thirdParty/jquery/ui/jquery-ui-#arguments.version#/css/#arguments.themeName#"))>
+				<link rel='stylesheet' href='/_cs_apps/thirdParty/jquery/ui/jquery-ui-#arguments.version#/css/#arguments.themeName#/jquery-ui-#arguments.version#.custom.css' type='text/css' media='screen' />
+			<cfelse>
+				<cfif DirectoryExists(expandPath("/ADF/thirdParty/jquery/ui/jquery-ui-#arguments.version#/css/#arguments.themeName#"))>
 					<link rel='stylesheet' href='/ADF/thirdParty/jquery/ui/jquery-ui-#arguments.version#/css/#arguments.themeName#/jquery-ui-#arguments.version#.custom.css' type='text/css' media='screen' />
 				</cfif>
 			</cfif>
@@ -210,7 +213,7 @@ History:
 Author: 	Ron West
 Name:
 	$loadADFStyles
-Summary:
+Summary:	
 	Loads the generic ADF styles when needed
 Returns:
 	Void
@@ -305,7 +308,7 @@ Arguments:
 History:
 	2009-06-25 - GAC - Created
 --->
-<cffunction name="loadTableSorter" access="public" output="true" returntype="void" hint="Loads the Tablesorter Plugin Headers if not loaded.">
+<cffunction name="loadTableSorter" access="public" output="true" returntype="void" hint="Loads the Tablesorter Plugin Headers if not loaded."> 
 	<cfargument name="version" type="string" required="false" default="2.0.3" hint="Tablesorter Plugin version to load.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
@@ -324,7 +327,7 @@ History:
 Author: 	G. Cronkright
 Name:
 	$loadTableSorterTheme
-Summary:
+Summary:	
 	Loads the JQuery Tablesorter Plugin Themes from the argument.
 Returns:
 	Void
@@ -359,7 +362,7 @@ History:
 Author: 	G. Cronkright
 Name:
 	$loadTableSorterPager
-Summary:
+Summary:	
 	Loads the JQuery Tablesorter Pager Addon from the argument.
 Returns:
 	Void
@@ -389,7 +392,7 @@ History:
 Author: 	Ron West
 Name:
 	$loadJQuerySelectboxes
-Summary:
+Summary:	
 	Loads the Selectboxes JQuery plugin
 Returns:
 	Void
@@ -398,7 +401,7 @@ Arguments:
 History:
 	2009-07-29 - RLW - Created
 --->
-<cffunction name="loadJQuerySelectboxes" access="public" output="true" returntype="void" hint="Loads the JQuery selectboxes plugin.">
+<cffunction name="loadJQuerySelectboxes" access="public" output="true" returntype="void" hint="Loads the JQuery selectboxes plugin."> 
 	<cfargument name="version" type="string" required="false" default="2.2.4" hint="version to load - defaults to 2.2.4.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
@@ -426,7 +429,7 @@ Arguments:
 History:
 	2009-02-04 - MFC - Created
 --->
-<cffunction name="loadJCarousel" access="public" output="true" returntype="void" hint="Loads the JQuery UI Headers if not loaded.">
+<cffunction name="loadJCarousel" access="public" output="true" returntype="void" hint="Loads the JQuery UI Headers if not loaded."> 
 	<cfargument name="skinName" type="string" required="false" default="tango" hint="">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="">
 	<cfargument name="version" type="string" required="false" default="2.2.4" hint="version to load - defaults to 2.2.4.">
@@ -462,7 +465,7 @@ Arguments:
 History:
 	2009-02-04 - MFC - Created
 --->
-<cffunction name="loadGalleryView" access="public" output="true" returntype="void" hint="Loads the JQuery UI Headers if not loaded.">
+<cffunction name="loadGalleryView" access="public" output="true" returntype="void" hint="Loads the JQuery UI Headers if not loaded."> 
 	<cfargument name="version" type="numeric" required="false" default="1.1" hint="">
 	<cfargument name="themeName" type="string" required="false" default="light" hint="">
 	<cfset var outputHTML = "">
@@ -584,7 +587,7 @@ History:
 Author: 	Ron West
 Name:
 	$jQueryUIButtonClass
-Summary:
+Summary:	
 	Returns the classes required to make a button act like a jQueryUI button
 Returns:
 	String class
@@ -603,7 +606,7 @@ History:
 Author: 	Ron West
 Name:
 	$loadJCycle
-Summary:
+Summary:	
 	Loads the jCycle plugin for jQuery
 Returns:
 	Void
@@ -612,7 +615,7 @@ Arguments:
 History:
  2009-10-20 - RLW - Created
 --->
-<cffunction name="loadJCycle" access="public" output="true" returntype="void" hint="Loads the jCycle plugin for jQuery">
+<cffunction name="loadJCycle" access="public" output="true" returntype="void" hint="Loads the jCycle plugin for jQuery"> 
 	<cfargument name="version" type="string" required="false" default="2.72" hint="jCycle version to load.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
@@ -631,7 +634,7 @@ History:
 Author: 	Ron West
 Name:
 	$loadJQueryTools
-Summary:
+Summary:	
 	Loads the Tools library for various effects
 Returns:
 	Void
@@ -642,7 +645,7 @@ History:
 	2010-02-03 - MFC - Updated path to the CSS to remove from Third Party directory.
 	2010-04-06 - MFC - Updated path to the CSS to "style".
 --->
-<cffunction name="loadJQueryTools" access="public" output="true" returntype="void" hint="Loads the JQuery tools plugin">
+<cffunction name="loadJQueryTools" access="public" output="true" returntype="void" hint="Loads the JQuery tools plugin"> 
 	<cfargument name="tool" type="string" required="false" default="all" hint="List of tools to load - leave blank to load entire library">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
@@ -723,7 +726,7 @@ History:
 
 <!---
 /* *************************************************************** */
-Author:
+Author: 	
 	PaperThin, Inc.
 	M. Carroll
 Name:
@@ -779,9 +782,9 @@ History:
 				<!--- Load the CommonSpot 6.0 Lightbox Framework --->
 				<cfoutput>
 				<script type='text/javascript' src='/ADF/extensions/lightbox/#arguments.version#/js/browser-all.js'></script>
-
+				
 				<!--- Setup the CommonSpot 6.0 Lightbox framework --->
-				<script type="text/javascript">
+				<script type="text/javascript">	
 					if ((typeof commonspot == 'undefined' || !commonspot.lightbox) && (!top.commonspot || !top.commonspot.lightbox))
 						loadNonDashboardFiles();
 					else if ( typeof parent.commonspot != 'undefined' ){
@@ -790,10 +793,10 @@ History:
 					else if ( typeof top.commonspot != 'undefined' ){
 						var commonspot = top.commonspot;
 					}
-
+					
 					<!-----
 					 Loads in the Commonspot.util space for CS 5. This exists already in CS 6.
-
+					 
 	    			 Check if the commonspot.util.dom space exists,
 						If none, then build this from the Lightbox Util.js
 					---->
@@ -815,7 +818,7 @@ History:
 					<!--- Setup the CommonSpot 6.0 Lightbox framework --->
 <!---					<cfinclude template="/commonspot/non-dashboard-include.cfm"> --->
 					<script type="text/javascript">
-						if (typeof commonspot == 'undefined' || !commonspot.lightbox){
+						if (typeof commonspot == 'undefined' || !commonspot.lightbox){	
 							if ( typeof parent.commonspot != 'undefined' ){
 								var commonspot = parent.commonspot;
 							}else if ( typeof top.commonspot != 'undefined' ){
@@ -830,7 +833,7 @@ History:
 										{fileName: '/commonspot/javascript/lightbox/window_ref.js', fileType: 'script', fileID: null}
 									];
 							loadDashboardFiles(arrFiles);
-						}
+						}	
 					</script>
 				</cfoutput>
 			</cfif>
@@ -841,7 +844,7 @@ History:
 						Set the Jquery to initialize the ADF Lightbox
 					--->
 					initADFLB();
-
+					
 					<!---
 						get local references to objects we need in parent frame
 						commonspot object has state, so we need that instance; others are static, but why load them again
@@ -864,12 +867,12 @@ History:
 <!---
 /* ***************************************************************
 /*
-Author:
+Author: 	
 	PaperThin, Inc.
 	M. Carroll
 Name:
 	$loadDropCurves
-Summary:
+Summary:	
 	Loads the Drop Curves plugin for jQuery
 Returns:
 	Void
@@ -878,7 +881,7 @@ Arguments:
 History:
  	2009-11-04 - MFC - Created
 --->
-<cffunction name="loadDropCurves" access="public" output="true" returntype="void" hint="Loads the Drop Curves plugin for jQuery">
+<cffunction name="loadDropCurves" access="public" output="true" returntype="void" hint="Loads the Drop Curves plugin for jQuery"> 
 	<cfargument name="version" type="string" required="false" default="0.1.2" hint="Script version to load.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
@@ -892,12 +895,12 @@ History:
 <!---
 /* ***************************************************************
 /*
-Author:
+Author: 	
 	PaperThin, Inc.
 	M. Carroll
 Name:
 	$loadJQueryUIStars
-Summary:
+Summary:	
 	Loads the JQuery UI Stars plugin
 Returns:
 	Void
@@ -907,7 +910,7 @@ History:
  	2009-11-05 - MFC - Created
 	2009-12-02 - SFS - Added check to make sure jqueryUI is loaded ahead of time
 --->
-<cffunction name="loadJQueryUIStars" access="public" output="true" returntype="void" hint="Loads the JQuery UI Stars plugin">
+<cffunction name="loadJQueryUIStars" access="public" output="true" returntype="void" hint="Loads the JQuery UI Stars plugin"> 
 	<cfargument name="version" type="string" required="false" default="2.1" hint="Script version to load.">
 	<cfset var outputHTML = "">
 	<cfoutput>
@@ -925,12 +928,12 @@ History:
 <!---
 /* ***************************************************************
 /*
-Author:
+Author: 	
 	PaperThin, Inc.
 	RLW
 Name:
 	$loadSuperFish
-Summary:
+Summary:	
 	Loads the SuperFish drop down plugin
 Returns:
 	Void
@@ -939,7 +942,7 @@ Arguments:
 History:
  	2009-11-05 - RLW - Created
 --->
-<cffunction name="loadJQuerySuperfish" access="public" output="true" returntype="void" hint="Loads the JQuery UI Stars plugin">
+<cffunction name="loadJQuerySuperfish" access="public" output="true" returntype="void" hint="Loads the JQuery UI Stars plugin"> 
 	<cfargument name="version" type="string" required="false" default="1.4.8" hint="Script version to load.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
@@ -955,12 +958,12 @@ History:
 <!---
 /* ***************************************************************
 /*
-Author:
+Author: 	
 	PaperThin, Inc.
 	M. Carroll
 Name:
 	$loadJCrop
-Summary:
+Summary:	
 	Loads the JQuery Crop Plugin
 Returns:
 	Void
@@ -969,7 +972,7 @@ Arguments:
 History:
  	2009-12-15 - MFC - Created
 --->
-<cffunction name="loadJCrop" access="public" output="true" returntype="void" hint="Loads the JQuery Crop plugin">
+<cffunction name="loadJCrop" access="public" output="true" returntype="void" hint="Loads the JQuery Crop plugin"> 
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
@@ -983,7 +986,7 @@ History:
 <!---
 /* ***************************************************************
 /*
-Author:
+Author: 	
 	G. Cronkright
 Name:
 	$loadJQueryCheckboxes
@@ -1016,7 +1019,7 @@ History:
 <!---
 /* ***************************************************************
 /*
-Author:
+Author: 	
 	G. Cronkright
 Name:
 	$loadJQueryJSON
@@ -1052,7 +1055,7 @@ History:
 Author: 	Ron West
 Name:
 	$loadJQueryAutocomplete
-Summary:
+Summary:	
 	loads the autocomplete jQuery plugin
 Returns:
 	Void
@@ -1078,7 +1081,7 @@ History:
 <!---
 /* ***************************************************************
 /*
-Author:
+Author: 	
 	S. Smith
 Name:
 	$loadJQueryCookie
@@ -1108,7 +1111,7 @@ History:
 
 <!---
 /* *************************************************************** */
-Author:
+Author: 	
 	PaperThin, Inc.
 Name:
 	$loadJQueryDataTables
@@ -1144,12 +1147,12 @@ History:
 <!---
 /* ***************************************************************
 /*
-Author:
+Author: 	
 	PaperThin, Inc.
 	S. Smith
 Name:
 	$loadjQueryBBQ
-Summary:
+Summary:	
 	Loads the BBQ plugin for jQuery
 Returns:
 	Void
@@ -1158,7 +1161,7 @@ Arguments:
 History:
  	2010-07-08 - SFS - Created
 --->
-<cffunction name="loadJQueryBBQ" access="public" output="true" returntype="void" hint="Loads the BBQ plugin for jQuery">
+<cffunction name="loadJQueryBBQ" access="public" output="true" returntype="void" hint="Loads the BBQ plugin for jQuery"> 
 	<cfargument name="version" type="string" required="false" default="1.2.1" hint="Script version to load.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
@@ -1172,12 +1175,12 @@ History:
 <!---
 /* ***************************************************************
 /*
-Author:
+Author: 	
 	PaperThin, Inc.
 	Ryan kahn
 Name:
 	$loadJQueryDatePick
-Summary:
+Summary:	
 	Loads the DatePick plugin for jQuery
 Returns:
 	Void
@@ -1186,7 +1189,7 @@ Arguments:
 History:
  	2010-09-27 - RAK - Created
 --->
-<cffunction name="loadJQueryDatePick" access="public" output="true" returntype="void" hint="Loads the DatePick plugin for jQuery">
+<cffunction name="loadJQueryDatePick" access="public" output="true" returntype="void" hint="Loads the DatePick plugin for jQuery"> 
 	<cfset var outputHTML = "">
 	#loadJQuery()#
 	<cfsavecontent variable="outputHTML">
@@ -1198,7 +1201,7 @@ History:
 
 <!---
 /* *************************************************************** */
-Author:
+Author: 	
 	PaperThin, Inc.
 Name:
 	$loadJQueryBlockUI
@@ -1224,12 +1227,12 @@ History:
 <!---
 /* ***************************************************************
 /*
-Author:
+Author: 	
 	PaperThin, Inc.
 	Ryan kahn
 Name:
 	$loadUploadify
-Summary:
+Summary:	
 	Loads the uploadify plugin for jQuery
 Returns:
 	Void
@@ -1237,7 +1240,7 @@ Arguments:
 History:
  	2010-10-26 - RAK - Created
 --->
-<cffunction name="loadUploadify" access="public" output="true" returntype="void" hint="Loads the uploadify plugin for jQuery">
+<cffunction name="loadUploadify" access="public" output="true" returntype="void" hint="Loads the uploadify plugin for jQuery"> 
 	<cfset var outputHTML = "">
 	<cfoutput>
 		#loadSWFObject()#
@@ -1271,6 +1274,8 @@ History:
 		<link rel="stylesheet" href="/ADF/thirdParty/jquery/simplePassMeter/simplePassMeter.css" type="text/css" media="screen" />
 	</cfsavecontent>
 	#variables.scriptsService.renderScriptOnce("simplePassMeter",outputHTML)#
+</cffunction>
+
 <!---
 /* ***************************************************************
 /*
@@ -1296,17 +1301,16 @@ History:
 	</cfsavecontent>
 	#renderScriptOnce("highlight",outputHTML)#
 </cffunction>
-</cffunction>
 
 <!---
 /* ***************************************************************
 /*
-Author:
+Author: 	
 	PaperThin, Inc.
 	Ryan kahn
 Name:
 	$setDebugMode
-Summary:
+Summary:	
 	display to the screen all the scripts as they load. Also displays when scripts are already loaded
 Returns:
 	Void
