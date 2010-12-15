@@ -2007,4 +2007,52 @@ History:
 	</cfscript>
 </cffunction>
 
+<!---
+/* ***************************************************************
+/*
+Author:
+	PaperThin, Inc.
+	Ryan Kahn
+Name:
+	$getElementByNameAndCSPageID
+Summary:
+	ElementStruct
+Returns:
+	struct
+Arguments:
+	name - string
+	pageID - numeric
+History:
+ 	Dec 15, 2010 - RAK - Created
+--->
+<cffunction name="getElementByNameAndCSPageID" access="public" returntype="struct" hint="ElementStruct">
+	<cfargument name="name" type="string" required="true" default="" hint="Name of the element">
+	<cfargument name="pageID" type="numeric" required="true" default="-1" hint="Commonspot Page ID">
+	<cfscript>
+		var rtnData = StructNew();
+		var elementWDDX = "";
+		var elementQuery = "";
+		var elementPageID = "";
+		var elementFormID = "";
+	</cfscript>
+	<cfquery name="elementQuery" datasource="#request.site.datasource#">
+			select dw.elementData,ci.controlType
+			from controlInstance ci
+			inner join data_wddx dw on (
+					dw.pageID = ci.pageID and
+					dw.controlID = ci.controlID )
+			where ci.pageid = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.pageID#">
+			and controlName = <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.name#">
+	</cfquery>
+	<cfif elementQuery.RecordCount>
+		<cfscript>
+			elementWDDX = elementQuery.elementData;
+			elementWDDX = server.commonspot.udf.util.wddxdecode(elementWDDX);
+			elementPageID = ListGetAt(elementWDDX.lastRecord,1,"|");
+			elementFormID = elementQuery.controlType;
+			rtnData = getElementInfoByPageID(elementPageID,elementFormID);
+		</cfscript>
+	</cfif>
+	<cfreturn rtnData>
+</cffunction>
 </cfcomponent>
