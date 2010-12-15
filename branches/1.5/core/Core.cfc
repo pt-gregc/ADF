@@ -99,6 +99,7 @@ History:
 	History:
 		2010-06-23 - jrybacek - Created
 		2010-10-29
+		2010-12-15 - GAC - Modified - Added the ADF version to the reset message
 --->
 <cffunction name="reset" access="remote" returnType="Struct">
 	<cfargument name="type" type="string" required="false" default="all" hint="The type of the ADF to reset.  Options are 'Server', 'Site' or 'All'. Defaults to 'All'.">
@@ -108,6 +109,7 @@ History:
 		var returnStruct = StructNew();
 		var siteName = "";
 		var logFileName = "";
+		var ADFversion = "v1.5";
 	</cfscript>
 	<cfif request.user.id gt 0>
 		<cftry>
@@ -122,19 +124,19 @@ History:
 							createObject("component", "ADF.core.Core").init();
 							// 2010-06-23 jrybacek Reload ADF site
 							createObject("component", "#request.site.name#._cs_apps.ADF").init();
-							rtnMsg = "ADF framework has been reset succesfully!";
+							rtnMsg = "ADF #ADFversion# framework has been reset succesfully!";
 							ADFReset = true;
 							break;
 						case "SERVER":
 							// 2010-06-23 jrybacek Reload ADF server
 							createObject("component", "ADF.core.Core").init();
-							rtnMsg = "ADF server framework has been reset succesfully!";
+							rtnMsg = "ADF #ADFversion# server framework has been reset succesfully!";
 							ADFReset = true;
 							break;
 						case "SITE":
 							// 2010-06-23 jrybacek Reload ADF site
 							createObject("component", "#request.site.name#._cs_apps.ADF").init();
-							rtnMsg = "ADF site '#request.site.name#' has been reset succesfully!";
+							rtnMsg = "ADF #ADFversion# site '#request.site.name#' has been reset succesfully!";
 							ADFReset = true;
 							break;
 						default:
