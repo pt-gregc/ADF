@@ -232,15 +232,17 @@ Name:
 	$copyPage
 Summary:
 	Duplicates the page from source to destination using destination template. 
-	IF sourceCustomElementNames and destCustomElementNames are defined it will attempt a ccapi set on the destCustomElementNames from the source set.
+	IF sourceNames and destCCAPINames are defined it will attempt a ccapi set on the destCCAPINames from the source set.
 Returns:
 	Struct boolean
 Arguments:
 	numeric: sourcePageID 
 	numeric: destinationSubsiteID 
 	numeric: destinationTemplateID 
-	array: sourceCustomElementNames 
-	array: destCCAPIElementNames 
+	array: sourceNames
+		The elements (including textblocks) must have names declared (More -> Name)
+	array: destCCAPINames
+		The elements (including textblocks) must have ccapi mapping information.
 History:
 	2010-11-05 - RAK - Created
 --->
@@ -248,8 +250,8 @@ History:
 	<cfargument name="sourcePageID" type="numeric" required="true">
 	<cfargument name="destinationSubsiteID" type="numeric" required="true">
 	<cfargument name="destinationTemplateID" type="numeric" required="false">
-	<cfargument name="sourceCustomElementNames" type="array" required="false" default="#ArrayNew(1)#">
-	<cfargument name="destCCAPIElementNames" type="array" required="false" default="#ArrayNew(1)#">
+	<cfargument name="sourceNames" type="array" required="false" default="#ArrayNew(1)#" hint="The elements (including textblocks) must have names declared (More -> Name)">
+	<cfargument name="destCCAPINames" type="array" required="false" default="#ArrayNew(1)#" hint="The elements (including textblocks) must have ccapi mapping information.">
 	
 	<cfscript>
 		var i = 1;
@@ -259,13 +261,15 @@ History:
 		var elementInformation = "";
 		var customData = "";
 		var stdMetadata = StructNew();
+		var textblockData ="";
 		var data = StructNew();
 		var currentField = "";
 		var custMetadata = application.ADF.csData.getCustomMetadata(arguments.sourcePageID);
 		var sourcePage = application.ADF.csData.getStandardMetadata(arguments.sourcePageID);
-		
+		var ccapiElements = "";
+
 		//Error checking
-		if(ArrayLen(sourceCustomElementNames) neq ArrayLen(destCCAPIElementNames)){
+		if(ArrayLen(sourceNames) neq ArrayLen(destCCAPINames)){
 			application.ADF.utils.logAppend("Source custom element list is not the same length of custom element names.","copyPageLog.txt");
 			return false;
 		}
@@ -289,33 +293,60 @@ History:
 		}
 		//Page creation successful!
 		newPageID = newPage.newPageID;
-		
+
+
+		variables.ccapi.initCCAPI();
+		ccapiElements = variables.ccapi.getElements();
+
 		//Iterate over each element and process the imports!
-		for(i=1;i<=ArrayLen(arguments.sourceCustomElementNames);i++){
-			customElementFormID = application.ADF.ceData.getFormIDByCEName(arguments.sourceCustomElementNames[i]);
-			customData = application.ADF.ceData.getElementInfoByPageID(
-								pageID = arguments.sourcePageID,
-								formid = customElementFormID);
+		for(i=1;i<=ArrayLen(arguments.sourceNames);i++){
+			//Verify the mapping exists
+			if( !StructKeyExists(ccapiElements,arguments.destCCAPINames[i]) ){
+				application.ADF.utils.logAppend("Destination element name #arguments.destCCAPINames[i]# is not mapped correctly in CCAPI configuration","copyPageLog.txt");
+				return false;
+			}
+
 			//Setup the data for each custom element
 			data = StructNew();
 			data.subsiteID = arguments.destinationSubsiteID;
 			data.pageID = newPageID;
 			data.submitChange = 1;
-			data.submitChange_comment = "Submit data for Custom element through API";
-			//Get the tabs, iterate over 
-			elementTabs = application.ADF.ceData.getTabsFromFormID(customElementFormID,true);
-			//Iterate over each tab
-			for(k=1;k<=ArrayLen(elementTabs);k++){
-				//Iterate over each field in the tab
-				for(j=1;j<=ArrayLen(elementTabs[k].fields);j++){
-					//Get the current field for the current tab
-					currentField = elementTabs[k].fields[j];
-					//Its a formatted text block! Fix the entities!}
-					if(currentField.defaultValues.type == "formatted_text_block"){
-						customData.values[currentField.fieldName] = server.commonspot.udf.html.DECODEENTITIES(customData.values[currentField.fieldName]);
+
+
+			//If the element we are working with is a textblock handle things differently
+			if(ccapiElements[arguments.destCCAPINames[i]].elementType eq "textblock"){
+				data.submitChange_comment = "Submit data for TextBlock through API";
+				//Get the textblock's data
+				textblockData = variables.csData.getTextblockData(arguments.sourceNames[i],arguments.sourcePageID);
+
+				data.textblock = textblockData.values.textblock;
+				data.caption = textblockdata.values.caption;
+
+			}else{ //this is a custom element. we know how to handle it!
+				data.submitChange_comment = "Submit data for Custom element through API";
+
+				//Get the custom data
+				customData = application.ADF.ceData.getElementByNameAndCSPageID(arguments.sourceNames[i],arguments.sourcePageID);
+				if(structIsEmpty(customData)){
+           		application.ADF.utils.logAppend("There was an error while getting element: '#sourceNames[i]#' from page: '#arguments.sourcePageID#'","copyPageLog.txt");
+					return false;
+				}
+
+				//Get the tabs, iterate over
+				elementTabs = application.ADF.ceData.getTabsFromFormID(customData.formID,true);
+				//Iterate over each tab
+				for(k=1;k<=ArrayLen(elementTabs);k++){
+					//Iterate over each field in the tab
+					for(j=1;j<=ArrayLen(elementTabs[k].fields);j++){
+						//Get the current field for the current tab
+						currentField = elementTabs[k].fields[j];
+						//Its a formatted text block! Fix the entities!}
+						if(currentField.defaultValues.type == "formatted_text_block"){
+							customData.values[currentField.fieldName] = server.commonspot.udf.html.DECODEENTITIES(customData.values[currentField.fieldName]);
+						}
+						//Fill out data with the updated value
+						data[currentField.fieldName] = customData.values[currentField.fieldName];
 					}
-					//Fill out data with the updated value
-					data[currentField.fieldName] = customData.values[currentField.fieldName];
 				}
 			}
 			//Populate the element with the data
@@ -324,6 +355,7 @@ History:
 				application.ADF.utils.logAppend("There was an error while updating element: '#destCustomElementNames[i]#' on page: '#stdMetadata.name#' in subsiteID: #stdMetadata.subsiteID#","copyPageLog.txt");
 				return false;
 			}
+
 		}
 		//Log our success!
 		application.ADF.utils.logAppend("Page '#stdMetadata.name#' created in subsiteID: #stdMetadata.subsiteID# succesfully.","copyPageLog.txt");

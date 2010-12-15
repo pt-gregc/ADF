@@ -1700,4 +1700,54 @@ History:
 	</cfquery>
 	<cfreturn ListToArray(valueList(templatePages.ID))>
 </cffunction>
+
+<!---
+/* ***************************************************************
+/*
+Author: 	
+	PaperThin, Inc.
+	Ryan Kahn
+Name:
+	$getTextblockData
+Summary:	
+	Given a pageID and name, get the textblock data
+Returns:
+	struct
+Arguments:
+	name - string
+	pageID - numeric
+History:
+ 	Dec 15, 2010 - RAK - Created
+--->
+<cffunction name="getTextblockData" access="public" returntype="struct" hint="Given a pageID and name, get the textblock data">
+	<cfargument name="name" type="string" required="true" default="" hint="Textblock Name">
+	<cfargument name="pageID" type="numeric" required="true" default="-1" hint="PageID that contains the textblock">
+	<cfset var returnData = StructNew()>
+	<cfif Len(name) eq 0 or pageID lt 1>
+		<cfreturn returnData>
+	</cfif>
+	
+	<cfquery name="textblockData" datasource="#request.site.datasource#">
+		 SELECT 	*
+			FROM 	Data_TextBlock dtb
+   INNER JOIN 	controlInstance ci on ci.controlID = dtb.controlID
+		  where 	ci.controlName = <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.name#">
+			 and 	ci.pageID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.pageID#">
+			 and 	dtb.versionState = 2;
+	</cfquery>
+	<cfscript>
+		if(textblockData.recordCount){
+			returnData.dateAdded = textblockData.DateAdded;
+			returnData.dateApproved = textblockData.DateApproved;
+			returnData.controlID = textblockData.controlID;
+			returnData.controlName = textblockData.controlName;
+			returnData.pageID = textblockData.pageID;
+			returnData.values = StructNew();
+			returnData.values.caption = textblockData.caption;
+			returnData.values.TextBlock = server.commonspot.udf.html.DECODEENTITIES(textblockData.TextBlock);
+		}
+		return returnData;
+	</cfscript>
+</cffunction>
+
 </cfcomponent>

@@ -55,7 +55,7 @@ History:
 		void
 	Arguments:
 		String - scheduleName
-		Array - commandsd
+		Array - commands
 		Struct - scheduleParams
 	History:
 		Nov 30, 2010 - RAK - Created
