@@ -46,8 +46,12 @@ end user license agreement.
 	scripts.loadJQuerySelectboxes();
 	scripts.loadJQueryTools();
 	scripts.loadADFLightbox();
+	
+	// Added for future use
+	// TODO: Add options in Props for a Bean and a Method that return a custom Subsite Struct
+	subsiteStructBeanName = "csData_1_0";
+	subsiteStructMethodName = "getSubsiteStruct";
 </cfscript>
-
 
 <cfoutput>
 	<script type="text/javascript">
@@ -64,16 +68,16 @@ end user license agreement.
 				}
 			)
 			// load the list of subsites
-			loadSubsites();		
+			#fqFieldName#_loadSubsites();		
 		});
 		
 		// get the list of subsites and load them into the select list
-		function loadSubsites()
+		function #fqFieldName#_loadSubsites()
 		{
 			jQuery.get("#application.ADF.ajaxProxy#",
-				{ 	bean: "csData_1_0",
-					method: "getSubsiteStruct",
-					subsiteURL: "#request.subsite.url#",
+				{ 	bean: "#subsiteStructBeanName#",
+					method: "#subsiteStructMethodName#",
+					//subsiteURL: "#request.subsite.url#",
 					returnFormat: "json" },
 				function( subsiteStruct )
 				{
@@ -97,7 +101,7 @@ end user license agreement.
 			var parentSubsiteID = $("###fqFieldName#").selectedValues();
 			// make the call to add the subsite
 			$.post("#application.ADF.ajaxProxy#", { 
-				bean: "BlogService",
+				bean: "csData",
 				method: "addSubsite",
 				name: subsiteName,
 				displayName: displayName,
@@ -139,9 +143,28 @@ end user license agreement.
 				return true;	
 		}*/
 		;		
-	</script>	
+	</script>
+	<cfscript>
+		if ( structKeyExists(request, "element") )
+		{
+			labelText = '<span class="CS_Form_Label_Baseline"><label for="#fqFieldName#">#xParams.label#:</label></span>';
+			tdClass = 'CS_Form_Label_Baseline';
+		}
+		else
+		{
+			labelText = '<label for="#fqFieldName#">#xParams.label#:</label>';
+			tdClass = 'cs_dlgLabel';
+		}
+	</cfscript>	
 	<tr>
-		<td class="cs_dlgLabel" valign="top">Choose Main Subsite:</td>
+		<td class="#tdClass#" valign="top">
+			<font face="Verdana,Arial" color="##000000" size="2">
+				<cfif xparams.req eq "Yes"><strong></cfif>
+				#labelText#
+				<cfif xparams.req eq "Yes"></strong></cfif>
+			</font>
+		</td>
+		<!--- <td class="cs_dlgLabel" valign="top">Choose Main Subsite:</td> --->
 		<td class="cs_dlgLabel" id="#fqFieldName#_subsite">
 			<!--- <div id="#fqFieldName#_add_msg" style="display:none;">
 				Subsite Added
