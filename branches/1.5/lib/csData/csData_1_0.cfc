@@ -315,7 +315,9 @@ History:
 		stdMetadata.language = "";
 		stdMetadata.approvalStatus = "";
 		stdMetadata.PublicReleaseDate = "";
-		stdMetadata.IncludeInIndex = "";
+		// IncludeInIndex list: ie. 1,2,4,8 |  1-include Page Index, 8-include in full text search
+		stdMetadata.IncludeInIndex = "";  
+		// confidentiality: 0-Unknown, 4-Confidential, 3-Highly Confidential, 5-Internal, 2-Public
 		stdMetadata.confidentiality = "";
 	</cfscript>
 	<!--- // get the data from site pages record --->
