@@ -288,16 +288,19 @@ Summary:
 Returns:
 	Struct metadata
 Arguments:
-	Numeric pageID
+	Numeric csPageID
 History:
 	2008-06-05 - RLW - Created
 	2010-03-08 - RLW - Added approvalStatus to check for "Active" state
 	2010-11-08 - MFC - Added PublicReleaseDate to return data
+	2010-12-16 - GAC - Added Confidentiality and IncludeInIndex to return data
+	2010-12-16 - GAC - Added globalKeywords to return data
 --->
 <cffunction name="getStandardMetadata" access="public" returntype="struct">
 	<cfargument name="csPageID" required="true" type="numeric">
 	<cfscript>
 		var stdMetadata = structNew();
+		var keywordObj = Server.CommonSpot.ObjectFactory.getObject("keywords");
 		stdMetadata.name = "";
 		stdMetadata.title = "";
 		stdMetadata.caption = "";
@@ -312,6 +315,8 @@ History:
 		stdMetadata.language = "";
 		stdMetadata.approvalStatus = "";
 		stdMetadata.PublicReleaseDate = "";
+		stdMetadata.IncludeInIndex = "";
+		stdMetadata.confidentiality = "";
 	</cfscript>
 	<!--- // get the data from site pages record --->
 	<cfquery name="getData" datasource="#request.site.datasource#">
@@ -326,13 +331,12 @@ History:
 			lang,
 			fileName,
 			approvalStatus,
-			PublicReleaseDate
+			PublicReleaseDate,
+			IsPublic,
+			Confidentiality
 		from sitePages
 		where id = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.csPageID#">
 	</cfquery>
-	<!--- // get the keywords
-		TODO need to get keywords
-	--->
 	<!--- // get category name
 		TODO need to get the category name
 	--->
@@ -344,7 +348,11 @@ History:
 			stdMetadata.title = getData.title;
 			stdMetadata.caption = getData.caption;
 			stdMetadata.description = getData.description;
-			stdMetadata.globalKeywords = "";
+			// If page has a title get global Keywords (same as CS6 keyword criteria)
+			if ( LEN(TRIM(stdMetadata.title)) ) {
+				stdMetadata.globalKeywords = keywordObj.getDelimitedListForObject(objectID=arguments.csPageID);
+				stdMetadata.globalKeywords = Replace(stdMetadata.globalKeywords, ",", ", ", "ALL");
+			}
 			stdMetadata.categoryName = "";
 			stdMetadata.subsiteID = getData.subsiteID;
 			stdMetadata.templateID = listFirst(getData.inheritedTemplateList);
@@ -359,6 +367,9 @@ History:
 			stdMetadata.languageID = getData.lang;
 			stdMetadata.approvalStatus = getData.approvalStatus;
 			stdMetadata.PublicReleaseDate = getData.PublicReleaseDate;
+			stdMetadata.Confidentiality = getData.Confidentiality;
+			if ( IsNumeric(getData.IsPublic) AND getData.IsPublic gt 0 ) 
+				stdMetadata.IncludeInIndex = Application.CS.site.IsPublicGetOptions(getData.IsPublic);
 		}
 	</cfscript>
 	<cfreturn stdMetadata>
