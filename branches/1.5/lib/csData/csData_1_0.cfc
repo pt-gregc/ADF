@@ -348,7 +348,7 @@ History:
 			stdMetadata.title = getData.title;
 			stdMetadata.caption = getData.caption;
 			stdMetadata.description = getData.description;
-			// If page has a title get global Keywords (same as CS6 keyword criteria)
+			// If page has a title get global Keywords (same criteria as CS6)
 			if ( LEN(TRIM(stdMetadata.title)) ) {
 				stdMetadata.globalKeywords = keywordObj.getDelimitedListForObject(objectID=arguments.csPageID);
 				stdMetadata.globalKeywords = Replace(stdMetadata.globalKeywords, ",", ", ", "ALL");
