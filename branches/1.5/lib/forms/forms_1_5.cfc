@@ -61,6 +61,9 @@ History:
 	2010-09-28 - MFC - Updated the Lightbox forms to load the CS Dialog headers and footers.
 	2010-11-28 - RAK - Updated to have callback functionality
 	2010-12-09 - RAK - Updated callback functionality to return an object containing all the form parameters
+	2010-12-17 - MFC - Updated to force the load ADF Lightbox scripts for CE's with RTE fields.
+						Moved the call to the UDF to output directly.
+						Removed commented and unneeded code in the dlg header variables.
 --->
 <cffunction name="renderAddEditForm" access="public" returntype="String" hint="Returns the HTML for an Add/Edit Custom element record">
 	<cfargument name="formID" type="numeric" required="true">
@@ -87,8 +90,7 @@ History:
 			CD_CheckLock=0;
 			CD_CheckLogin=1;
 			CD_CheckPageAlive=0;
-         APIPostToNewWindow = false;
-		</cfscript>
+      	</cfscript>
 		<CFINCLUDE TEMPLATE="/commonspot/dlgcontrols/dlgcommon-head.cfm">
 		<cfoutput><tr><td></cfoutput>
 		<!--- Set the form result html to the argument if defined --->
@@ -138,22 +140,18 @@ History:
 				CD_CheckLock=0;
 				CD_CheckLogin=1;
 				CD_CheckPageAlive=0;
-				//CD_OnLoad="handleOnLoad();";
-				//CD_OnLoad="";
-          	APIPostToNewWindow = false;
 			</cfscript>
 			<CFINCLUDE TEMPLATE="/commonspot/dlgcontrols/dlgcommon-head.cfm">
-         <cfset udfResults = Server.CommonSpot.UDF.UI.RenderSimpleForm(arguments.dataPageID, arguments.formID, APIPostToNewWindow, formResultHTML)>
-			<cfoutput>
+        	<cfoutput>
 				<cfscript>
-					variables.scripts.loadADFLightbox();
+					// ADF Lightbox needs to be forced to load the browser-all.js into
+					//	the lightbox window for CE's with RTE fields
+					variables.scripts.loadADFLightbox(force=1);
 				</cfscript>
 				<!--- Call the UDF function --->
-				<tr>
-				<td>
-				#udfResults#
-				</td>
-				</tr>
+				<tr><td>
+				#Server.CommonSpot.UDF.UI.RenderSimpleForm(arguments.dataPageID, arguments.formID, APIPostToNewWindow, formResultHTML)#
+				</td></tr>
 				<cfif Len(arguments.callback)>
 					#application.ADF.scripts.loadJQuery()#
 					#application.ADF.scripts.loadJQueryCookie()#
