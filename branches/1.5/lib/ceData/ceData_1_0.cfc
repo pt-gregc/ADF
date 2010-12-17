@@ -1024,31 +1024,30 @@ Arguments:
 History:
 	2009-05-21 - MFC - Created
 	2010-04-13 - MFC - Removed ownerid where clause.
-	2010-12-17 - GAC - Changed the query get the data from the AvailableControls table to get the Custom Element State
-	2010-12-17 - GAC - Added an argument to get a query of CEs with various states
+	2010-12-17 - GAC - Changed the query get the data from the AvailableControls table to get active Custom Elements
+	2010-12-17 - GAC - Added an argument to pass in a value or a list of values to get CEs with a specific or a combination of states
 --->
 <cffunction name="getAllCustomElements" access="public" returntype="query" hint="Returns all the Custom Elements for the site.">
 	<cfargument name="stateList" type="string" required="false" default="0" hint="Use a value or a list of values to display Available custom elements. Options: 0-active,1-inactive,2-deleted">
 	<cfscript>
 		// Initialize the variables
 		var qCustomElements = QueryNew("id,formname,state");
-		var sList = 0;
-		// Check to if value passed in is is a list or a single value
-		if ( ListLen(arguments.stateList) GT 1 ) {
-			// remove any non-numeric values from the list
-			sList = REReplace(arguments.stateList,"[^,0-9]","","ALL");
-		} else if ( IsNumeric(arguments.stateList) ) {
-		 	sList = arguments.stateList;
-		}
+		var controlType = "custom";
+		// remove any non-numeric values from the passed in value
+		var stList = REReplace(arguments.stateList,"[^,0-9]","","ALL");
+		// If remaining value does not not have at least one value, set it back to the default to only return active records
+		if ( ListLen(stList) EQ 0 )
+			stList = 0;
 	</cfscript>
 	<!--- // query to get the Custom Element List from the "AvailableControls" table --->
 	<cfquery name="qCustomElements" datasource="#request.site.datasource#">
 		SELECT 		ID, ShortDesc AS FormName, ElementState AS state
 		FROM 		AvailableControls
-		WHERE 		Name = <cfqueryparam cfsqltype="cf_sql_varchar" value="custom">
-		AND 		ElementState IN (<cfqueryparam cfsqltype="cf_sql_numeric" value="#sList#" list="true" separator=",">)
+		WHERE 		Name = <cfqueryparam cfsqltype="cf_sql_varchar" value="#controlType#">
+		AND 		ElementState IN (<cfqueryparam cfsqltype="cf_sql_numeric" value="#stList#" list="true" separator=",">)
 		ORDER BY 	ShortDesc
 	</cfquery>
+	<!--- TODO: Remove before launch ... after the above query has be verified --->
 	<!--- <cfquery name="qCustomElements" datasource="#request.site.datasource#">
 		SELECT 		ID, FormName
 		FROM 		formcontrol
