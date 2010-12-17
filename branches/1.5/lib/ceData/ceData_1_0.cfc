@@ -1023,19 +1023,25 @@ Arguments:
 History:
 	2009-05-21 - MFC - Created
 	2010-04-13 - MFC - Removed ownerid where clause.
+	2010-12-17 - GAC - Changed the query get the data from the AvailableControls table to get the Custom Element State
 --->
 <cffunction name="getAllCustomElements" access="public" returntype="query" hint="Returns all the Custom Elements for the site.">
-	
 	<!--- Initialize the variables --->
 	<cfset var customElements = QueryNew("temp")>
-	
 	<!--- query to get the Custom Element List --->
 	<cfquery name="customElements" datasource="#request.site.datasource#">
+		SELECT 		ID, ShortDesc AS FormName
+		FROM 		AvailableControls
+		WHERE 		Name = <cfqueryparam cfsqltype="cf_sql_varchar" value="custom">
+		AND 		ElementState = <cfqueryparam cfsqltype="cf_sql_smallint" value="0">
+		ORDER BY 	ShortDesc
+	</cfquery>
+	<!--- <cfquery name="customElements" datasource="#request.site.datasource#">
 		SELECT 		ID, FormName
 		FROM 		formcontrol
 		WHERE 		(FormControl.action = '' OR FormControl.action is null)
 		ORDER BY 	FormName
-	</cfquery>
+	</cfquery> --->
 	<cfreturn customElements>
 </cffunction>
 
