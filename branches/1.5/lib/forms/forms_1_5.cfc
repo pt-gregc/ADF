@@ -399,7 +399,7 @@ History:
 		}
 	</cfscript>
 	<cfsavecontent variable="rtnStr">
-		<cfoutput><a href="javascript:;" rel="#application.ADF.ajaxProxy#?bean=#arguments.formBean#&method=#arguments.formMethod#&formID=#formID#&dataPageID=#arguments.dataPageID#&lbAction=#lbAction#&title=#arguments.lbTitle##uParams#" class="ADFLightbox">#arguments.linkTitle#</a></cfoutput>
+		<cfoutput><a href="javascript:;" rel="#application.ADF.ajaxProxy#?bean=#arguments.formBean#&method=#arguments.formMethod#&formID=#formID#&dataPageID=#arguments.dataPageID#&lbAction=#lbAction#&title=#arguments.lbTitle##uParams#" class="ADFLightbox" title="#arguments.linkTitle#">#arguments.linkTitle#</a></cfoutput>
 	</cfsavecontent>
 	<cfreturn rtnStr>
 </cffunction>
