@@ -87,6 +87,7 @@ end user license agreement.
 					jQuery("###fqFieldName#").sortOptions();
 					// make the current subsite selected
 					jQuery("###fqFieldName#").selectOptions("#currentValue#");
+					ResizeWindow();
 				},
 				"json"
 			);
