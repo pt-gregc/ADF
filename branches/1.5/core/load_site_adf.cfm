@@ -24,14 +24,29 @@ end user license agreement.
 		2010-03-03 - MFC - Created
 		2010-08-26 - MFC - Changed "isDefined" to "LEN"
 		2010-10-29 - RAK - Refactored whole file to use /ADF/core/Core.cfc's Reset function
+		2010-12-20 - MFC - Added check at top to verify if ADF space exists in the SERVER and APPLICATION.
+							Removed IF to only run all the reset code when a user is logged in.
  --->
+<cfscript>
+	// Initialize the RESET TYPE variable
+	// Determine what kind of reset is needed (if any)
+	adfResetType = "";
+	
+	// Check if the ADF space exists in the SERVER and APPLICATION
+	if ( NOT StructKeyExists(server, "ADF") )
+		adfResetType = "ALL";
+	else if ( NOT StructKeyExists(application, "ADF") )
+		adfResetType = "SITE";
+</cfscript>
+
+<!--- Check if the user is logged in run the reset commands --->
 <cfif request.user.id gt 0>
 	<cfscript>
-		//Determine what kind of reset is needed (if any)
-		adfResetType = "";
-		if(NOT StructKeyExists(server, "ADF") or StructKeyExists(url,"resetADF")){
+		// Command to reset the entire ADF
+		if( StructKeyExists(url,"resetADF") ){
 			adfResetType = "ALL";
 		}else{
+			// Check the SERVER or SITE reset commands
 			if(StructKeyExists(url,"resetServerADF") and StructKeyExists(url,"resetSiteADF")){
 				adfResetType = "ALL";
 			}else if(StructKeyExists(url,"resetServerADF")){
@@ -41,16 +56,21 @@ end user license agreement.
 			}
 		}
 	</cfscript>
-	<cfif Len(adfResetType) gt 0>
-		<cfscript>
-			adfCore = createObject("component", "ADF.core.Core");
-			resetResults = adfCore.reset(adfResetType);
-		</cfscript>
-		<cfoutput>
-			<b>#resetResults.message#</b>
-		</cfoutput>
-	</cfif>
-	
+</cfif>
+
+<!--- Run the RESET command --->
+<cfif Len(adfResetType) gt 0>
+	<cfscript>
+		adfCore = createObject("component", "ADF.core.Core");
+		resetResults = adfCore.reset(adfResetType);
+	</cfscript>
+	<cfoutput>
+		<b>#resetResults.message#</b>
+	</cfoutput>
+</cfif>
+
+<!--- Check if the user is logged in run the ADF DUMP VAR command --->
+<cfif request.user.id gt 0>
 	<!--- The following is unchanged during the 2010-10-29 refractor --->
 	<cfscript>
 		if ( StructKeyExists(url,"ADFDumpVar")) {
