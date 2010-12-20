@@ -84,22 +84,23 @@ History:
 </cffunction>
 
 <!---
-	/* ***************************************************************
-	/*
-	Author: 	jrybacek
-	Name:
-		reset
-	Summary:
-		Resets the ADF if the user is logged in
-	Returns:
-		Status
-	Arguments:
-		String - type
-			Accepted Values: "ALL","SERVER","SITE"
-	History:
-		2010-06-23 - jrybacek - Created
-		2010-10-29
-		2010-12-15 - GAC - Modified - Added the ADF version to the reset message
+/* *************************************************************** */
+Author: 	jrybacek
+Name:
+	reset
+Summary:
+	Resets the ADF if the user is logged in
+Returns:
+	Status
+Arguments:
+	String - type
+		Accepted Values: "ALL","SERVER","SITE"
+History:
+	2010-06-23 - jrybacek - Created
+	2010-10-29
+	2010-12-15 - GAC - Modified - Added the ADF version to the reset message
+	2010-12-20 - MFC - Modified - Added check at top to verify if ADF space exists in the SERVER and APPLICATION 
+									and set the force reset flag.
 --->
 <cffunction name="reset" access="remote" returnType="Struct">
 	<cfargument name="type" type="string" required="false" default="all" hint="The type of the ADF to reset.  Options are 'Server', 'Site' or 'All'. Defaults to 'All'.">
@@ -110,8 +111,15 @@ History:
 		var siteName = "";
 		var logFileName = "";
 		var ADFversion = "v1.5";
+		var forceReset = false;
+				
+		// Check if the ADF space exists in the SERVER and APPLICATION
+		if ( NOT StructKeyExists(server, "ADF") OR NOT StructKeyExists(application, "ADF") )
+			forceReset = true;
 	</cfscript>
-	<cfif request.user.id gt 0>
+	
+	<!--- // Check for reset for the user id logged in OR we have set the force flag --->
+	<cfif (request.user.id gt 0) OR (forceReset)>
 		<cftry>
 			<cflock timeout="30" type="exclusive" name="ADF-RESET">
 				<cfscript>
