@@ -59,6 +59,7 @@ History:
 	<cfargument name="scriptName" type="string" required="true" hint="Name of the script that is being ran">
 	<cfargument name="outputHTML" type="string" required="true" hint="HTML to have outputted to the screen">
 	<cfscript>
+		request.ADFScriptsDebugging = true;
 		if(!StructKeyExists(request,"ADFScriptsDebugging")){
 			request.ADFScriptsDebugging = false;
 		}

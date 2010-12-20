@@ -78,9 +78,22 @@ History:
 	2009-05-14 - RLW - Created
 --->
 <cffunction name="loadedScript" access="public" returntype="void">
-		<cfargument name="scriptName" type="string" required="true">
-		<cfparam name="request.scriptsExecuted" default="">
-		<cfset request.scriptsExecuted = listAppend(request.scriptsExecuted, arguments.scriptName)>
-	</cffunction>
+	<cfargument name="scriptName" type="string" required="true">
+	<cfscript>
+		if(!StructKeyExists(request,"scriptsExecuted")){
+			request.scriptsExecuted = "";
+		}
+
+		if(!StructKeyExists(request,"scriptsAgent")){
+			request.scriptsAgent = "";
+		}
+
+		if(request.scriptsAgent neq request.environment.userAgentProps.type){
+			request.scriptsAgent = request.environment.userAgentProps.type;
+			request.scriptsExecuted = "";
+		}
+		request.scriptsExecuted = listAppend(request.scriptsExecuted, arguments.scriptName);
+	</cfscript>
+</cffunction>
 
 </cfcomponent>
