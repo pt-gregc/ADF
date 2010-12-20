@@ -28,13 +28,14 @@ Summary:
 	Form functions for the ADF Library
 History:
 	2009-09-28 - MFC - Created
+	2010-12-20 - MFC - Updated Forms_1_5 for dependency to Scripts_1_5.
 --->
-<cfcomponent displayname="forms_2_0" extends="ADF.lib.forms.forms_1_0" hint="Form functions for the ADF Library">
+<cfcomponent displayname="forms_1_5" extends="ADF.lib.forms.forms_1_0" hint="Form functions for the ADF Library">
 
-<cfproperty name="version" value="2_0_0">
+<cfproperty name="version" value="1_5_0">
 <cfproperty name="type" value="transient">
 <cfproperty name="ceData" injectedBean="ceData_1_0" type="dependency">
-<cfproperty name="scripts" injectedBean="scripts_1_0" type="dependency">
+<cfproperty name="scripts" injectedBean="scripts_1_5" type="dependency">
 <cfproperty name="wikiTitle" value="Forms_1_0">
 
 <!---
@@ -64,6 +65,9 @@ History:
 	2010-12-17 - MFC - Updated to force the load ADF Lightbox scripts for CE's with RTE fields.
 						Moved the call to the UDF to output directly.
 						Removed commented and unneeded code in the dlg header variables.
+	2010-12-20 - MFC - Undo the param to force load ADF Lightbox scripts and the UDF to load 
+						into a variable.  These work now that Forms has the dependency for 
+						Scripts_1_5.
 --->
 <cffunction name="renderAddEditForm" access="public" returntype="String" hint="Returns the HTML for an Add/Edit Custom element record">
 	<cfargument name="formID" type="numeric" required="true">
@@ -142,15 +146,17 @@ History:
 				CD_CheckPageAlive=0;
 			</cfscript>
 			<CFINCLUDE TEMPLATE="/commonspot/dlgcontrols/dlgcommon-head.cfm">
-        	<cfoutput>
-				<cfscript>
-					// ADF Lightbox needs to be forced to load the browser-all.js into
-					//	the lightbox window for CE's with RTE fields
-					variables.scripts.loadADFLightbox(force=1);
-				</cfscript>
+        	<cfscript>
+				// Load ADF Lightbox Framework
+				variables.scripts.loadADFLightbox();
+				
+				// Load the UDF form
+				udfLoadForm = Server.CommonSpot.UDF.UI.RenderSimpleForm(arguments.dataPageID, arguments.formID, APIPostToNewWindow, formResultHTML);
+			</cfscript>
+			<cfoutput>
 				<!--- Call the UDF function --->
 				<tr><td>
-				#Server.CommonSpot.UDF.UI.RenderSimpleForm(arguments.dataPageID, arguments.formID, APIPostToNewWindow, formResultHTML)#
+				#udfLoadForm#
 				</td></tr>
 				<cfif Len(arguments.callback)>
 					#application.ADF.scripts.loadJQuery()#
