@@ -1,4 +1,4 @@
-<!--- 
+<!---
 The contents of this file are subject to the Mozilla Public License Version 1.1
 (the "License"); you may not use this file except in compliance with the
 License. You may obtain a copy of the License at http://www.mozilla.org/MPL/
@@ -13,15 +13,15 @@ The Initial Developer of the Original Code is
 PaperThin, Inc. Copyright(C) 2010.
 All Rights Reserved.
 
-By downloading, modifying, distributing, using and/or accessing any files 
-in this directory, you agree to the terms and conditions of the applicable 
+By downloading, modifying, distributing, using and/or accessing any files
+in this directory, you agree to the terms and conditions of the applicable
 end user license agreement.
 --->
 
 <!---
 /* *************************************************************** */
-Author: 	
-	PaperThin, Inc. 
+Author:
+	PaperThin, Inc.
 Name:
 	forms_2_0.cfc
 Summary:
@@ -40,12 +40,12 @@ History:
 
 <!---
 /* *************************************************************** */
-Author: 	
+Author:
 	PaperThin, Inc.
 	M. Carroll
 Name:
 	$renderAddEditForm
-Summary:	
+Summary:
 	Returns the HTML for an Add/Edit Custom element record
 Returns:
 	String formHTML
@@ -65,9 +65,10 @@ History:
 	2010-12-17 - MFC - Updated to force the load ADF Lightbox scripts for CE's with RTE fields.
 						Moved the call to the UDF to output directly.
 						Removed commented and unneeded code in the dlg header variables.
-	2010-12-20 - MFC - Undo the param to force load ADF Lightbox scripts and the UDF to load 
-						into a variable.  These work now that Forms has the dependency for 
+	2010-12-20 - MFC - Undo the param to force load ADF Lightbox scripts and the UDF to load
+						into a variable.  These work now that Forms has the dependency for
 						Scripts_1_5.
+	2010-12-20 - RAK - Fixed a bunch of issues related to forms 1_5 callbacks not working properly.
 --->
 <cffunction name="renderAddEditForm" access="public" returntype="String" hint="Returns the HTML for an Add/Edit Custom element record">
 	<cfargument name="formID" type="numeric" required="true">
@@ -76,7 +77,7 @@ History:
 	<cfargument name="customizedFinalHtml" type="string" required="false" default="">
 	<cfargument name="renderResult" type="boolean" required="false" default="0">
 	<cfargument name="callback" type="string" required="false" default="">
-	
+
 	<cfscript>
 		var APIPostToNewWindow = false;
 		var rtnHTML = "";
@@ -94,24 +95,23 @@ History:
 			CD_CheckLock=0;
 			CD_CheckLogin=1;
 			CD_CheckPageAlive=0;
-      	</cfscript>
+         APIPostToNewWindow = false;
+		</cfscript>
 		<CFINCLUDE TEMPLATE="/commonspot/dlgcontrols/dlgcommon-head.cfm">
-		<cfoutput><tr><td></cfoutput>
+		<cfoutput><tr><td class="formResultContainer"></cfoutput>
 		<!--- Set the form result html to the argument if defined --->
-		<cfif LEN(arguments.customizedFinalHtml)>
-			<cfoutput>#arguments.customizedFinalHtml#</cfoutput>
-		<cfelse>
 			<cfoutput>
 				<cfscript>
 					variables.scripts.loadADFLightbox(force=1);
+					if(Len(arguments.callback)){
+						variables.scripts.loadJQuery();
+						variables.scripts.loadJQueryCookie(force=1);
+						variables.scripts.loadJQueryJSON(force=1);
+					}
 				</cfscript>
-				<cfif Len(arguments.callback)>
-					#application.ADF.scripts.loadJQuery()#
-					#application.ADF.scripts.loadJQueryCookie()#
-					#application.ADF.scripts.loadJQueryJSON()#
-				</cfif>
 				<script type='text/javascript'>
 					jQuery(document).ready(function(){
+						ResizeWindow();
 						<cfif Len(arguments.callback)>
 							//We need to get the cookie information, stored in a cookie because
 							// this page is only JS and we cant get the form varaibles!
@@ -127,13 +127,15 @@ History:
 						</cfif>
 					});
 				</script>
+				<cfif LEN(arguments.customizedFinalHtml)>
+					<cfoutput>#arguments.customizedFinalHtml#</cfoutput>
+				</cfif>
 			</cfoutput>
-		</cfif>
 		<!--- Render the dlg footer --->
 		<cfoutput></tr></td></cfoutput>
 		<CFINCLUDE template="/commonspot/dlgcontrols/dlgcommon-foot.cfm">
 	</cfsavecontent>
-	
+
 	<cfif NOT renderResult>
 		<!--- HTML for the form --->
 		<cfsavecontent variable="rtnHTML">
@@ -146,43 +148,53 @@ History:
 				CD_CheckPageAlive=0;
 			</cfscript>
 			<CFINCLUDE TEMPLATE="/commonspot/dlgcontrols/dlgcommon-head.cfm">
-        	<cfscript>
-				// Load ADF Lightbox Framework
-				variables.scripts.loadADFLightbox();
-				
-				// Load the UDF form
-				udfLoadForm = Server.CommonSpot.UDF.UI.RenderSimpleForm(arguments.dataPageID, arguments.formID, APIPostToNewWindow, formResultHTML);
-			</cfscript>
+         <cfset udfResults = Server.CommonSpot.UDF.UI.RenderSimpleForm(arguments.dataPageID, arguments.formID, APIPostToNewWindow, formResultHTML)>
 			<cfoutput>
+				<cfscript>
+					variables.scripts.loadADFLightbox();
+				</cfscript>
 				<!--- Call the UDF function --->
-				<tr><td>
-				#udfLoadForm#
-				</td></tr>
-				<cfif Len(arguments.callback)>
-					#application.ADF.scripts.loadJQuery()#
-					#application.ADF.scripts.loadJQueryCookie()#
-					#application.ADF.scripts.loadJQueryJSON()#
-					<script type="text/javascript">
-						//Onchange because we don't have a finalize function that we can have called.
-						//Stored in a cookie because the receiving page is only JS and cannot get form params
-						jQuery("form").change(function(){
-							var formEncoded = jQuery.toJSON(getForm());
-							jQuery.cookie("tempFormCookie",formEncoded,{path:"/"});
-						});
-
-						//returns the form values as an object
-						// Obj[fieldName] = fieldValue;
-						function getForm(){
-							var rtnStruct = new Object();
-							jQuery("[name$='fieldName']").each(function (){
-								var name = jQuery(this).attr("name");
-								name = name.replace("_fieldName","");
-								rtnStruct[jQuery(this).attr("value")] = jQuery("[name='"+name+"']").attr("value");
+				<tr>
+				<td>
+					#udfResults#
+					<cfif Len(arguments.callback)>
+						#variables.scripts.loadJQuery()#
+						#variables.scripts.loadJQueryCookie(force=1)#
+						#variables.scripts.loadJQueryJSON(force=1)#
+						<script type="text/javascript">
+							//Setting this up so that on page load the cookie gets filled with existing values, if there are any
+							jQuery(document).ready(function (){
+								handleFormChange();
+								jQuery("##proxyButton1").live('click',handleFormChange);
 							});
-							return rtnStruct;
-						}
-					</script>
-				</cfif>
+							function handleFormChange(){
+								var formEncoded = jQuery.toJSON(getForm());
+								console.log(formEncoded);
+								jQuery.cookie("tempFormCookie",formEncoded,{path:"/"});
+							}
+
+							//returns the form values as an object
+							// Obj[fieldName] = fieldValue;
+							function getForm(){
+								var rtnStruct = new Object();
+								var formFields = jQuery("input");
+								formFields = formFields.filter(
+									function(){
+										return jQuery(this).attr("name").toLowerCase().indexOf("fieldname") != -1;
+									}
+								);
+								formFields.each(function (){
+									var name = jQuery(this).attr("name");
+									//Case insensitive replace
+									name = name.replace(/_fieldName/i,"");
+									rtnStruct[jQuery(this).attr("value")] = jQuery("[name='"+name+"']").attr("value");
+								});
+								return rtnStruct;
+							}
+						</script>
+					</cfif>
+				</td>
+				</tr>
 			</cfoutput>
 			<CFINCLUDE template="/commonspot/dlgcontrols/dlgcommon-foot.cfm">
 		</cfsavecontent>
@@ -190,7 +202,7 @@ History:
 		<cfset rtnHTML = formResultHTML>
 	</cfif>
 	<cfreturn rtnHTML>
-	
+
 </cffunction>
 
 <!---
@@ -199,7 +211,7 @@ History:
 Author: 	Ron West
 Name:
 	$renderDeleteForm
-Summary:	
+Summary:
 	Renders the standard datasheet delete module
 Returns:
 	Void
@@ -218,7 +230,7 @@ History:
 	<cfargument name="formID" type="numeric" required="true" hint="The FormID for the Custom Element">
 	<cfargument name="dataPageID" type="numeric" required="true" hint="the DataPageID for the record being deleted">
 	<cfargument name="title" type="string" required="no" default="Delete Record" hint="The title of the dialog displayed while deleting">
-	
+
 	<cfset var deleteFormHTML = "">
 	<cfsavecontent variable="deleteFormHTML">
 		<!--- Render the dlg header --->
@@ -235,7 +247,7 @@ History:
 		<cfscript>
 			variables.scripts.loadJquery('1.3.2', 1);
 			variables.scripts.loadADFLightbox(force=1);
-			
+
 			//targetModule = "#request.subsiteCache[1].url#datasheet-modules/delete-form-data.cfm";
 			targetModule = "/ADF/extensions/datasheet-modules/delete_element_handler.cfm";
 			request.params.pageID = arguments.dataPageID;
@@ -364,7 +376,7 @@ History:
 Author: 	Ron West
 Name:
 	$buildAddEditLink
-Summary:	
+Summary:
 	Returns a nice string to renderAddEditForm with lightbox enabled
 Returns:
 	String rtnStr
@@ -384,11 +396,11 @@ History:
 	<cfargument name="linkTitle" type="string" required="true">
 	<cfargument name="formName" type="string" required="true">
 	<cfargument name="dataPageID" type="numeric" required="false" default="0">
-	<cfargument name="refreshparent" type="boolean" required="false" default="false"> 
-	<cfargument name="urlParams" type="string" required="false" default=""> 
+	<cfargument name="refreshparent" type="boolean" required="false" default="false">
+	<cfargument name="urlParams" type="string" required="false" default="">
 	<cfargument name="formBean" type="string" required="false" default="forms_1_5">
 	<cfargument name="formMethod" type="string" required="false" default="renderAddEditForm">
-	<cfargument name="lbTitle" type="string" required="false" default="#arguments.linkTitle#">  
+	<cfargument name="lbTitle" type="string" required="false" default="#arguments.linkTitle#">
 	<cfscript>
 		var rtnStr = "";
 		var formID = variables.ceData.getFormIDByCEName(arguments.formName);
@@ -398,7 +410,7 @@ History:
 			lbAction = "refreshparent";
 		if ( LEN(TRIM(arguments.urlParams)) ) {
 			uParams = TRIM(arguments.urlParams);
-			if ( Find("&",uParams,"1") NEQ 1 ) 
+			if ( Find("&",uParams,"1") NEQ 1 )
 				uParams = "&" & uParams;
 		}
 	</cfscript>
