@@ -32,6 +32,8 @@ Version:
 History:
 	2010-02-19 - MFC - Created
 	2010-08-26 - MFC - Updated processRel function to not force the "addMainTable" parameter.
+	2010-12-21 - MFC - Updated loadCallback function to look in the current lightbox window
+						for the callback function.
 */
 
 // Set default variables
@@ -129,7 +131,8 @@ function loadCallback(cbFunct, inArgsArray){
 	if ( cbFunct.length > 0 ){
 	
 		// Get the lightbox stack count then decrement by 2 to get the parent lb level
-		callBackLevel = commonspot.lightbox.stack.length - 2;
+		//callBackLevel = commonspot.lightbox.stack.length - 2;
+		callBackLevel = commonspot.lightbox.stack.length - 1;
 		//alert("callBackLevel = " + callBackLevel);
 		
 		if ( callBackLevel >= 0 ) {
