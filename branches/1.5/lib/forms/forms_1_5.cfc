@@ -23,7 +23,7 @@ end user license agreement.
 Author:
 	PaperThin, Inc.
 Name:
-	forms_2_0.cfc
+	forms_1_5.cfc
 Summary:
 	Form functions for the ADF Library
 History:
