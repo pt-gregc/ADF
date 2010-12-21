@@ -107,22 +107,15 @@ History:
 				//	the cookie/JSON scripts for the callback.
 				variables.scripts.loadJQuery(force=1);
 				variables.scripts.loadADFLightbox(force=1);
-				if(Len(arguments.callback)){
-					variables.scripts.loadJQueryCookie(force=1);
-					variables.scripts.loadJQueryJSON(force=1);
-				}
 			</cfscript>
 			<script type='text/javascript'>
 				jQuery(document).ready(function(){
 					ResizeWindow();
 					<cfif Len(arguments.callback)>
-						//We need to get the cookie information, stored in a cookie because
-						// this page is only JS and we cant get the form varaibles!
-						cookieValue = jQuery.evalJSON(jQuery.cookie("tempFormCookie"));
+						var pageWindow = commonspot.lightbox.getPageWindow();
+						var value = pageWindow.document.jQuery.data("body","formValueStore");
 						//Call the callback with the cookie value
-						getCallback('#arguments.callback#', cookieValue);
-						//Delete the cookie
-						jQuery.cookie("tempFormCookie",null,{path:"/"});
+						getCallback('#arguments.callback#', value);
 					</cfif>
 				});
 			</script>
@@ -168,8 +161,6 @@ History:
 				#udfResults#
 				<cfif Len(arguments.callback)>
 					#variables.scripts.loadJQuery()#
-					#variables.scripts.loadJQueryCookie()#
-					#variables.scripts.loadJQueryJSON()#
 					<script type="text/javascript">
 						//Setting this up so that on page load the cookie gets filled with existing values, if there are any
 						jQuery(document).ready(function (){
@@ -177,9 +168,8 @@ History:
 							jQuery("##proxyButton1").live('click',handleFormChange);
 						});
 						function handleFormChange(){
-							var formEncoded = jQuery.toJSON(getForm());
-							//console.log(formEncoded);
-							jQuery.cookie("tempFormCookie",formEncoded,{path:"/"});
+							var pageWindow = commonspot.lightbox.getPageWindow();
+							pageWindow.document.jQuery.data("body","formValueStore",getForm());
 						}
 
 						//returns the form values as an object
