@@ -874,7 +874,7 @@ History:
 <cffunction name="runCommand" access="public" returntype="Any" hint="Runs the given command">
 	<cfargument name="beanName" type="string" required="true" default="" hint="Name of the bean you would like to call">
 	<cfargument name="methodName" type="string" required="true" default="" hint="Name of the method you would like to call">
-	<cfargument name="args" type="Struct" required="false" default="StructNew()" hint="Structure of arguments for the speicified call">
+	<cfargument name="args" type="Struct" required="false" default="#StructNew()#" hint="Structure of arguments for the speicified call">
 	<cfscript>
 		var returnData = "";
 		// load the bean that we will call - check in application scope first
