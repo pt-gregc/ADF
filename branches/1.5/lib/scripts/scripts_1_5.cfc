@@ -179,6 +179,7 @@ History:
 	2009-07-31 - MFC - Created
 	2009-09-16 - MFC - Added force argument.
 	2010-08-26 - MFC - Updated to load 1.8 by default
+	2010-12-21 - MFC - Removed the "min" from the script loading.
 --->
 <cffunction name="loadJQueryUI" access="public" output="true" returntype="void" hint="Loads the JQuery UI Headers if not loaded."> 
 	<cfargument name="version" type="string" required="false" default="1.8" hint="JQuery version to load.">
@@ -187,7 +188,7 @@ History:
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
-			<script type='text/javascript' src='/ADF/thirdParty/jquery/ui/jquery-ui-#arguments.version#/js/jquery-ui-#arguments.version#.custom.min.js'></script>
+			<script type='text/javascript' src='/ADF/thirdParty/jquery/ui/jquery-ui-#arguments.version#/js/jquery-ui-#arguments.version#.custom.js'></script>
 			<cfif DirectoryExists(expandPath("/_cs_apps/thirdParty/jquery/ui/jquery-ui-#arguments.version#/css/#arguments.themeName#"))>
 				<link rel='stylesheet' href='/_cs_apps/thirdParty/jquery/ui/jquery-ui-#arguments.version#/css/#arguments.themeName#/jquery-ui-#arguments.version#.custom.css' type='text/css' media='screen' />
 			<cfelse>
@@ -743,6 +744,8 @@ History:
 	2010-02-19 - MFC - Updated the CS 6.0 lightbox framework
 	2010-03-01 - MFC - Added IF block to load the browse-all.js in CS 6.0 if not in a CS page.
 	2010-04-30 - MFC - Updated the Lightbox framework to resolve issues.
+	2010-12-21 - MFC - Updated the codes for HTML and scripts.
+						Commented IF condition for loading the "commonspot/javascript/browser-all.js" link.
 --->
 <cffunction name="loadADFLightbox" access="public" output="true" returntype="void" hint="ADF Lightbox Framework for the ADF Library">
 	<cfargument name="version" type="string" required="false" default="1.0" hint="ADF Lightbox version to load">
@@ -794,12 +797,12 @@ History:
 						var commonspot = top.commonspot;
 					}
 					
-					<!-----
+					/*
 					 Loads in the Commonspot.util space for CS 5. This exists already in CS 6.
 					 
 	    			 Check if the commonspot.util.dom space exists,
 						If none, then build this from the Lightbox Util.js
-					---->
+					*/
 					if ( (typeof commonspot.util == 'undefined') || (typeof commonspot.util.dom == 'undefined') )
 					{
 						IncludeJs('/ADF/extensions/lightbox/1.0/js/util.js', 'script');
@@ -810,20 +813,22 @@ History:
 				<cfoutput>
 					<!--- Load lightbox override styles --->
 					<!--- Check if the request page exists for if we are on a CS page --->
-					<cfif NOT StructKeyExists(request, "page")>
+					<!--- <cfif NOT StructKeyExists(request, "page")> --->
 						<!--- Load the CommonSpot 6.0 Lightbox Framework --->
 						<script type='text/javascript' src='/commonspot/javascript/browser-all.js'></script>
-					</cfif>
+					<!--- </cfif> --->
 
 					<!--- Setup the CommonSpot 6.0 Lightbox framework --->
-<!---					<cfinclude template="/commonspot/non-dashboard-include.cfm"> --->
+					<!--- <cfinclude template="/commonspot/non-dashboard-include.cfm"> --->
 					<script type="text/javascript">
 						if (typeof commonspot == 'undefined' || !commonspot.lightbox){	
 							if ( typeof parent.commonspot != 'undefined' ){
 								var commonspot = parent.commonspot;
-							}else if ( typeof top.commonspot != 'undefined' ){
+							}
+							else if ( typeof top.commonspot != 'undefined' ){
 								var commonspot = top.commonspot;
-							}else {
+							}
+							else {
 								loadNonDashboardFiles();
 							}
 						}
@@ -840,16 +845,16 @@ History:
 			<cfoutput>
 			<script type="text/javascript">
 				jQuery(document).ready(function(){
-					<!---
+					/*
 						Set the Jquery to initialize the ADF Lightbox
-					--->
+					*/
 					initADFLB();
 					
-					<!---
+					/*
 						get local references to objects we need in parent frame
 						commonspot object has state, so we need that instance; others are static, but why load them again
 						var commonspot = parent.commonspot;
-					--->
+					*/
 					commonspot.lightbox.initCurrent(#request.params.width#, #request.params.height#, { title: '#request.params.title#', subtitle: '#request.params.subtitle#', close: 'true', reload: 'true' });
 				});
 			</script>
