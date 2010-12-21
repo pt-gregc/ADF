@@ -870,6 +870,8 @@ Arguments:
 
 History:
  	Dec 3, 2010 - RAK - Created
+	2010-12-21 - GAC - Modified - Fixed the default variable for the args parameter
+	2010-12-21 - GAC - Modified - var scoped the bean local variable
 --->
 <cffunction name="runCommand" access="public" returntype="Any" hint="Runs the given command">
 	<cfargument name="beanName" type="string" required="true" default="" hint="Name of the bean you would like to call">
