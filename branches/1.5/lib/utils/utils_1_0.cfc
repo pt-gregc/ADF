@@ -877,6 +877,7 @@ History:
 	<cfargument name="args" type="Struct" required="false" default="#StructNew()#" hint="Structure of arguments for the speicified call">
 	<cfscript>
 		var returnData = "";
+		var bean = "";
 		// load the bean that we will call - check in application scope first
 		if( application.ADF.objectFactory.containsBean(arguments.beanName) )
 			bean = application.ADF.objectFactory.getBean(arguments.beanName);
