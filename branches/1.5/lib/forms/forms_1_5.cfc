@@ -231,6 +231,7 @@ History:
 	2010-04-14 - GAC - Updated to work with the ADFLightbox Framework
 	2010-07-23 - SFS - Added argument to supply the lightbox dialog with a title needed for CS CE delete function.
 	2010-10-29 - MFC - Updated the delete form for CS 6 Lightbox styles.
+	2010-12-21 - MFC - Removed the JQuery version in the param.
 --->
 <cffunction name="renderDeleteForm" access="public" returntype="String" hint="Renders the standard datasheet delete module">
 	<cfargument name="formID" type="numeric" required="true" hint="The FormID for the Custom Element">
@@ -251,7 +252,7 @@ History:
 		<CFINCLUDE TEMPLATE="/commonspot/dlgcontrols/dlgcommon-head.cfm">
 		<cfoutput><tr><td></cfoutput>
 		<cfscript>
-			variables.scripts.loadJquery('1.3.2', 1);
+			variables.scripts.loadJquery(force=1);
 			variables.scripts.loadADFLightbox(force=1);
 
 			//targetModule = "#request.subsiteCache[1].url#datasheet-modules/delete-form-data.cfm";
@@ -267,8 +268,6 @@ History:
 	</cfsavecontent>
 	<cfreturn deleteFormHTML>
 </cffunction>
-
-
 
 
 <!---
@@ -424,6 +423,36 @@ History:
 		<cfoutput><a href="javascript:;" rel="#application.ADF.ajaxProxy#?bean=#arguments.formBean#&method=#arguments.formMethod#&formID=#formID#&dataPageID=#arguments.dataPageID#&lbAction=#lbAction#&title=#arguments.lbTitle##uParams#" class="ADFLightbox" title="#arguments.linkTitle#">#arguments.linkTitle#</a></cfoutput>
 	</cfsavecontent>
 	<cfreturn rtnStr>
+</cffunction>
+
+<!---
+/* ***************************************************************
+/*
+Author: 	Ron West
+Name:
+	$closeLBandRefresh
+Summary:	
+	Closes the current lightbox and refreshes the parent window
+Returns:
+	Void
+Arguments:
+	Void
+History:
+	2009-10-25 - RLW - Created
+	2010-12-21 - MFC - Updated to use the ADF Lightbox Framework functions
+--->
+<cffunction name="closeLBAndRefresh" access="public" returntype="void" hint="">
+	<cfoutput>
+		<cfscript>
+			variables.scripts.loadJquery(force=1);
+			variables.scripts.loadADFLightbox(force=1);
+		</cfscript>
+		<script type='text/javascript'>
+			jQuery(document).ready(function(){
+				closeLBReloadParent();
+			});
+		</script>
+	</cfoutput>
 </cffunction>
 
 </cfcomponent>
