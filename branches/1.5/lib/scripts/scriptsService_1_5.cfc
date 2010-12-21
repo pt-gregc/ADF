@@ -54,12 +54,12 @@ Arguments:
 History:
  	2010-10-04 - RAK - Created
  	2010-12-10 - RAK - Updated so this will be compatible with previous version and dups will not exist!
+	2010-12-21 - MFC - Removed the hard coded force debugging.
 --->
 <cffunction name="renderScriptOnce" access="public" output="true" returntype="void" hint="Given unescaped outputHML and script name handles adding code to the page">
 	<cfargument name="scriptName" type="string" required="true" hint="Name of the script that is being ran">
 	<cfargument name="outputHTML" type="string" required="true" hint="HTML to have outputted to the screen">
 	<cfscript>
-		request.ADFScriptsDebugging = true;
 		if(!StructKeyExists(request,"ADFScriptsDebugging")){
 			request.ADFScriptsDebugging = false;
 		}
