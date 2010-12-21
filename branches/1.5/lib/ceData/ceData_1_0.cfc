@@ -26,12 +26,15 @@ Name:
 	ceData_1_0.cfc
 Summary:
 	Custom Element Data functions for the ADF Library
+Version
+	1.0.1
 History:
 	2009-06-22 - MFC - Created
+	2010-12-21 - MFC - v1.0.1 - Added buildRealTypeView and buildCEDataArrayFromQuery functions.
 --->
 <cfcomponent displayname="ceData_1_0" extends="ADF.core.Base" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_0">
+<cfproperty name="version" value="1_0_1">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_0">
 <cfproperty name="data" type="dependency" injectedBean="data_1_0">
@@ -2073,4 +2076,188 @@ History:
 	</cfif>
 	<cfreturn rtnData>
 </cffunction>
+
+<!---
+/* ************************************************************** */
+Author: 	Ron West
+Name:
+	$buildCEDataArryFromQuery
+Summary:	
+	Returns a standard CEData Array to be used in Render Handlers from a ceDataView query
+Returns:
+	Array ceDataArray
+Arguments:
+	Query ceDataQuery
+History:
+ 	2010-04-08 - RLW - Created
+	2010-12-21 - MFC - Added function to CEDATA
+--->
+<cffunction name="buildCEDataArrayFromQuery" access="public" returntype="array" hint="Returns a standard CEData Array to be used in Render Handlers from a ceDataView query">
+	<cfargument name="ceDataQuery" type="query" required="true" hint="ceData Query (usually built from ceDataView) results to be converted">
+	<cfscript>
+		var ceDataArray = arrayNew(1);
+		var itm = "";
+		var row = "";
+		var column = "";
+		var tmp = "";
+		var formName = "";
+		var i = "";
+		var commonFieldList = "pageID,formID,dateAdded,dateCreated";
+		var fieldStruct = structNew();
+	</cfscript>
+	<!--- <cfdump var="#arguments.ceDataQuery#"> --->
+
+	<cfloop from="1" to="#arguments.ceDataQuery.recordCount#" index="row">
+		<cfscript>
+			tmp = structNew();
+			// add in common fields			
+			for( i=1; i lte listLen(commonFieldList); i=i+1 )
+			{				
+				commonField = listGetAt(commonFieldList, i);
+				// handle each of the common fields
+				if( findNoCase(commonField, arguments.ceDataQuery.columnList) )
+					tmp[commonField] = arguments.ceDataQuery[commonField][row];
+				else
+					tmp[commonField] = "";
+				// do special case work for formID/formName
+				if( commonField eq "formID" )
+				{
+					if( not len(formName) )
+						formName = application.ptBlog2.ceData.getCENameByFormID(tmp.formID);
+					tmp.formName = formName;
+				}
+			}
+			tmp.values = structNew();
+			// get the fields structure for this element
+			fieldStruct = application.ptBlog2.forms.getCEFieldNameData(tmp.formName);
+			// loop through the field query and build the values structure
+			for( itm=1; itm lte listLen(structKeyList(fieldStruct)); itm=itm+1 )
+			{
+				column = listGetAt(structKeyList(fieldStruct), itm);
+				if( listFindNoCase(arguments.ceDataQuery.columnList, column) )
+					tmp.values[column] = arguments.ceDataQuery[column][row];
+			}
+			arrayAppend(ceDataArray, tmp);
+		</cfscript>
+	</cfloop>
+	<cfreturn ceDataArray>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	Ron West
+Name:
+	$buildRealTypeView
+Summary:	
+	Builds an element view for the posts2 element
+Returns:
+	Boolean viewCreated
+Arguments:
+	String ceName
+	String viewName
+History:
+	2010-04-07 - RLW - Created
+	2010-06-18 - SF - [Steve Farwell] Bug fix for building the view for MySQL
+	2010-12-21 - MFC - Added function to CEDATA
+--->
+<cffunction name="buildRealTypeView" access="public" returntype="boolean">
+	<cfargument name="elementName" type="string" required="true">
+	<cfargument name="viewName" type="string" required="false" default="ce_#arguments.elementName#View">
+	<cfscript>
+		var viewCreated = false;
+		var formID = application.ptBlog2.ceData.getFormIDByCEName(arguments.elementName);
+		var dbType = Request.Site.SiteDBType;
+		var realTypeView = '';
+		var fieldsSQL = '';
+		var fldqry = '';
+		var intType = '';
+		switch (dbtype)
+		{
+			case 'Oracle':
+				intType = 'number(12)';
+				break;
+			case 'MySQL':
+				intType = 'UNSIGNED';
+				break;
+			case 'SQLServer':
+				intType = 'int';
+				break;
+		}
+	</cfscript>
+
+	<!--- // make sure that we actually have a form ID --->
+	<cfif len(formID) and formID GT 0>
+		<!--- // delete the view if it exsists already delete it --->
+		<cftry>
+			<cfquery name="deleteView" datasource="#request.site.dataSource#">
+				Drop view #arguments.viewName#
+			</cfquery>
+			<cfcatch></cfcatch>
+		</cftry>
+	
+		<cfquery name="fldqry" datasource="#Request.Site.DataSource#">
+			select fic.ID, fic.type, fic.fieldName
+			  from formINputControl fic, forminputcontrolMap
+			 where forminputcontrolMap.fieldID  = fic.ID
+				and forminputcontrolMap.formID = <cfqueryparam value="#formID#" cfsqltype="cf_sql_integer">
+		</cfquery>
+		
+		<cfquery name="realTypeView" datasource="#Request.Site.DataSource#">
+			CREATE VIEW #arguments.viewName# AS
+			SELECT
+			<cfloop query="fldqry">
+				max(
+				<cfswitch expression="#fldqry.type#">
+					<cfcase value="integer">
+					CASE
+						WHEN FieldID = #ID# THEN CAST(fieldvalue as #intType#)
+						ELSE 0
+					END
+					</cfcase>
+					<cfcase value="float">
+					CASE
+						WHEN FieldID = #ID# THEN CAST(fieldvalue as DECIMAL(7,2))
+						ELSE 0.0
+					END
+					</cfcase>
+				<cfcase value="large_textarea,formatted_text_block">
+					CASE
+						WHEN FieldID = #ID# THEN
+							CASE
+								WHEN (fieldvalue is NOT NULL or fieldValue <> '')
+								THEN fieldvalue
+					<cfif dbtype is 'oracle'>
+								<!--- WHEN length(memovalue) < 4000 THEN CAST(memovalue as varchar2(4000)) --->
+								ELSE CAST([memovalue] AS nvarchar2(2000))
+					<cfelseif dbtype is 'mssql'>
+								ELSE CAST([memovalue] AS nvarchar(2000))
+                    <cfelse>  
+                    			<!--- Don't CAST if using MySQL --->          
+					</cfif>
+				   		END
+						ELSE null
+					END
+				</cfcase>
+				<cfdefaultcase> <!--- NEEDSWORK fieldtype like List, should add ListID column, fieldtype like email, could add 'lower case' function to avoid case sensitive issue --->
+				CASE
+					WHEN FieldID = #ID# THEN LOWER(fieldvalue)
+					ELSE null
+				END
+				</cfdefaultcase>
+				</cfswitch>
+				<!--- ) as FieldID#ID#, --->
+				) as #listGetAt(fieldName, 2, "_")#,
+			</cfloop>
+		   			PageID, controlID, formID<!--- , dateApproved, dateAdded --->
+			  FROM data_fieldvalue
+			 where formID = #formID#
+				and versionstate >= 2
+				and PageID > 0
+		 GROUP BY PageID, ControlID, formID<!--- , dateApproved, dateAdded --->
+		</cfquery>
+		<cfset viewCreated = true>
+	</cfif>
+	<cfreturn viewCreated>
+</cffunction>
+
 </cfcomponent>
