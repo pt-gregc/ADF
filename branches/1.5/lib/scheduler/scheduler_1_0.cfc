@@ -154,9 +154,9 @@ History:
 								}
 								application.ADF.utils.runCommand(currentCommand.bean,currentCommand.method,currentCommand.args);
 							}else{
-                    		errorScheduleItem = Application.ADF.utils.doDump(currentCommand,"Failed Schedule Item","false",true);
+                    			errorScheduleItem = Application.ADF.utils.doDump(currentCommand,"Failed Schedule Item","false",true);
 								application.ADF.utils.logAppend("Scheduled process error '#arguments.scheduleName#'. Schedule item missing struct key 'bean' or 'method' while processing Schedule Item:<br/> '#errorScheduleItem#'<br/><br/>","scheduledProcess-#arguments.scheduleName#.html");
-                     }
+                    		}
 						</cfscript>
 					</cfif>
 
@@ -339,7 +339,7 @@ History:
 					#application.ADF.scripts.loadJQueryUI()#
 					<script type="text/javascript">
 						jQuery(document).ready(function (){
-							$("###scheduleID# .progressBar").progressbar({ value: #currentSchedule.scheduleProgress/ArrayLen(currentSchedule.commands)*100# });
+							jQuery("###scheduleID# .progressBar").progressbar({ value: #currentSchedule.scheduleProgress/ArrayLen(currentSchedule.commands)*100# });
 							updateSchedule('#scheduleID#');
 						});
 						
@@ -422,4 +422,46 @@ History:
 		<cfreturn rtnHTML>
 	</cffunction>
 	
+	<!---
+	/* ***************************************************************
+	/*
+		Posted By: Rahul Narula  | 8/29/06 2:20 PM  
+			http://forta.com/blog/index.cfm/2006/8/28/GetScheduledTasks-Function-Returns-Scheduled-Task-List#c5B2902E2-3048-80A9-EF04942A953D2ED7
+		Name:
+			$getScheduledTasks
+		Summary:
+			Obtain an Array of CF scheduled tasks 
+		Returns:
+			Array
+		Arguments:
+			None
+		History:
+			2010-12-21 - GAC - Added
+			2010-12-21 - GAC - Modified - Added task name filter
+	--->
+	<cffunction name="getScheduledTasks" returntype="array" output="no" access="public">
+		<cfargument name="taskNameFilter" type="string" required="false" default="" hint="Used to only display Scheduled Task Names that contain this filter value">	
+		<cfscript>
+			var result = ArrayNew(1);
+			var newResult = ArrayNew(1);
+			var taskService = createobject('java','coldfusion.server.ServiceFactory').getCronService();
+			var itm = 1;
+			var taskName = "";
+			// Get Array of Scheduled tasks from the task service
+			result = taskservice.listall();
+			// If filter value is passed in loop over the Array of task and build a new array
+			if ( LEN(TRIM(arguments.taskNameFilter)) ) { 
+				for ( itm; itm LTE ArrayLen(result); itm=itm+1 ) {
+					taskName = result[itm].task;
+					// Only Add Tasks to the Result Array if they contain the filter value
+					if ( FindNoCase(arguments.taskNameFilter,taskName,1) NEQ 0 ) {
+						arrayAppend(newResult,result[itm]);
+					}
+				}
+				result = newResult;
+			}
+		</cfscript>
+	    <cfreturn result>
+	</cffunction>
+
 </cfcomponent>
