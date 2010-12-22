@@ -51,6 +51,7 @@ Arguments:
 	Struct subsiteData - the data for the subsite
 		[name, displayName, description, language]
 	Numeric subsiteID (optional) - where should this be located
+	Numeric doLogin 
 History:
 	2008-10-16 - RLW - Created
 	2009-06-25 - MFC - Updated logging for success
@@ -120,6 +121,7 @@ History:
 	</cfscript>
 	<cfreturn result>
 </cffunction>
+
 <!---
 /* ***************************************************************
 /*
@@ -203,4 +205,5 @@ History:
 	</cfscript>
 	<cfreturn retSubID>
 </cffunction>
+
 </cfcomponent>
