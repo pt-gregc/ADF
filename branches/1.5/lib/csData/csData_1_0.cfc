@@ -714,10 +714,13 @@ Arguments:
 	String csPageURL
 History:
 	2009-07-24 - SFS - Created
+	2010-12-22 - GAC - Modified - Added VAR scoped variables for both queries
 --->
 <cffunction name="getCSPageDataByURL" access="public" returntype="query" hint="Returns a query containing the page ID and page title of the page URL provided">
 	<cfargument name="csPageURL" type="string" required="true">
-	<cfset var csPageData = QueryNew("empty")>
+	<cfset var getSubsiteID = QueryNew("ID")>
+	<cfset var getPageData = QueryNew("ID,Title")>
+	<cfset var csPageData = QueryNew("ID,Title")>
 	<cfquery name="getSubsiteID" datasource="#request.site.datasource#">
 		select ID
 		from SubSites
