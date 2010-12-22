@@ -98,7 +98,6 @@ History:
 		else
 			currentValue = xparams.defaultVal;
 	}
-
 </cfscript>
 <cfoutput>
 	<script>
@@ -233,6 +232,36 @@ History:
 						</option>
 					</cfloop>
 		 		</select>
+		 		<cfif StructKeyExists(xparams,"addButton") && xparams.addButton eq "1">
+					#application.ADF.scripts.loadJQuery()#
+					#application.ADF.scripts.loadJQueryUI()#
+					#application.ADF.scripts.loadADFLightbox()#
+					<style type="text/css">
+						##addNew{
+							padding:5px;
+							text-decoration:none;
+						}
+						##addNew:hover{
+							cursor:pointer;
+						}
+					</style>
+					<script type="text/javascript">
+						jQuery(document).ready(function(){
+							// Hover states on the static widgets
+							jQuery("##addNew").hover(
+								function() {
+									$(this).addClass('ui-state-hover');
+								},
+								function() {
+									$(this).removeClass('ui-state-hover');
+								}
+							);
+						});
+					</script>
+					<cfset buttonLabel = "New #xParams.label#">
+					<cfset ceFormID = application.ADF.cedata.getFormIDByCEName(xparams.customElement)>
+					<a href="javascript:;" rel="#application.ADF.ajaxProxy#?bean=Forms_1_5&method=renderAddEditForm&formid=#ceFormID#&datapageid=0&lbAction=refreshparent&title=#buttonLabel#" id="addNew" class="ADFLightbox add-button ui-state-default ui-corner-all">#buttonLabel#</a>
+		 		</cfif>
 			</div>
 		</td>
 	</tr>

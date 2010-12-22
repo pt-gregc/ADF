@@ -69,7 +69,9 @@ History:
 		currentValues.activeFlagField = "";
 	if( not structKeyExists(currentValues, "activeFlagValue") )
 		currentValues.activeFlagValue = "";
-		
+	if( not structKeyExists(currentValues, "addButton") )
+		currentValues.addButton = "";
+
 </cfscript>
 <cfoutput>
 	<cfscript>
@@ -77,7 +79,7 @@ History:
 		application.ADF.scripts.loadJQuerySelectboxes();
 	</cfscript>
 <script type="text/javascript">
-	fieldProperties['#typeid#'].paramFields = "#prefix#customElement,#prefix#valueField,#prefix#displayField,#prefix#renderField,#prefix#defaultVal,#prefix#fldName,#prefix#forceScripts,#prefix#displayFieldBuilder,#prefix#activeFlagField,#prefix#activeFlagValue";
+	fieldProperties['#typeid#'].paramFields = "#prefix#customElement,#prefix#valueField,#prefix#displayField,#prefix#renderField,#prefix#defaultVal,#prefix#fldName,#prefix#forceScripts,#prefix#displayFieldBuilder,#prefix#activeFlagField,#prefix#activeFlagValue,#prefix#addButton";
 	// allows this field to support the orange icon (copy down to label from field name)
 	fieldProperties['#typeid#'].jsLabelUpdater = '#prefix#doLabel';
 	// allows this field to have a common onSubmit Validator
@@ -282,6 +284,14 @@ History:
 				No <input type="radio" id="#prefix#forceScripts" name="#prefix#forceScripts" value="0" <cfif currentValues.forceScripts EQ "0">checked</cfif>><br />
 				Force the JQuery script to load.
 		</td>
-	</tr>	
+	</tr>
+	<tr>
+		<td class="cs_dlgLabelSmall">Add Button:</td>
+			<td class="cs_dlgLabelSmall">
+				Yes <input type="radio" id="#prefix#addButton" name="#prefix#addButton" value="1" <cfif currentValues.addButton EQ "1">checked</cfif>>&nbsp;&nbsp;&nbsp;
+				No <input type="radio" id="#prefix#addButton" name="#prefix#addButton" value="0" <cfif currentValues.addButton EQ "0">checked</cfif>><br />
+		</td>
+	</tr>
+
 </table>
 </cfoutput>
