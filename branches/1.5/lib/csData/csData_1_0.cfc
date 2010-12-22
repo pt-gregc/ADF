@@ -1598,7 +1598,7 @@ History:
 		}
     </cfscript>
    	<cfquery name="pageQry" datasource="#request.site.datasource#">
-   		select ID, filename, title, subsiteID
+   		select ID, filename, title, subsiteID, uploaded, pageType, DocType
 		from sitePages
 		where subsiteID in (<cfqueryparam cfsqltype="cf_sql_numeric" value="#subsiteList#" list="true">)
 		and uploaded in (<cfqueryparam cfsqltype="cf_sql_numeric" value="#uploaded#" list="true">)
