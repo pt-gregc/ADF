@@ -368,7 +368,9 @@ History:
 <!---
 /* ***************************************************************
 /*
-Author: 	Ron West
+Author: 	
+	PaperThin, Inc.
+	Ron West
 Name:
 	$buildAddEditLink
 Summary:
@@ -381,11 +383,16 @@ Arguments:
 	Numeric dataPageID
 	Boolean refreshparent
 	String urlParams - additional URL parameters to be passed to the form
+	String formBean 
+	String formMethod 
+	String lbTitle
+	String linkClass 
 History:
   	2010-09-30 - RLW - Created
  	2010-10-18 - GAC - Modified - Added a RefreshParent parameter
    	2010-10-18 - GAC - Modified - Added a urlParams parameter
-	2010-10-18 - GAC - Modified - Added bean and method parameters
+	2010-12-15 - GAC - Modified - Added bean, method and lbTitle parameters
+	2010-12-21 - GAC - Modified - Added a linkClass parameter
 --->
 <cffunction name="buildAddEditLink" access="public" returntype="string" output="false">
 	<cfargument name="linkTitle" type="string" required="true">
@@ -396,6 +403,7 @@ History:
 	<cfargument name="formBean" type="string" required="false" default="forms_1_5">
 	<cfargument name="formMethod" type="string" required="false" default="renderAddEditForm">
 	<cfargument name="lbTitle" type="string" required="false" default="#arguments.linkTitle#">
+	<cfargument name="linkClass" type="string" required="false" default="">   
 	<cfscript>
 		var rtnStr = "";
 		var formID = variables.ceData.getFormIDByCEName(arguments.formName);
@@ -410,7 +418,7 @@ History:
 		}
 	</cfscript>
 	<cfsavecontent variable="rtnStr">
-		<cfoutput><a href="javascript:;" rel="#application.ADF.ajaxProxy#?bean=#arguments.formBean#&method=#arguments.formMethod#&formID=#formID#&dataPageID=#arguments.dataPageID#&lbAction=#lbAction#&title=#arguments.lbTitle##uParams#" class="ADFLightbox" title="#arguments.linkTitle#">#arguments.linkTitle#</a></cfoutput>
+		<cfoutput><a href="javascript:;" rel="#application.ADF.ajaxProxy#?bean=#arguments.formBean#&method=#arguments.formMethod#&formID=#formID#&dataPageID=#arguments.dataPageID#&lbAction=#lbAction#&title=#arguments.lbTitle##uParams#" class="ADFLightbox<cfif LEN(TRIM(arguments.linkClass))> #arguments.linkClass#</cfif>" title="#arguments.linkTitle#">#arguments.linkTitle#</a></cfoutput>
 	</cfsavecontent>
 	<cfreturn rtnStr>
 </cffunction>
