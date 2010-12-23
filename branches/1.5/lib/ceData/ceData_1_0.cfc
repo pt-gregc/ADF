@@ -429,8 +429,7 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	M. Carroll
 Name:
 	$getDataFieldValueByPageID
@@ -447,6 +446,7 @@ History:
 								Added VersionID field to query and added IF block
 	2009-07-22 - MFC - Updated: Updated SQL statement INNER JOIN.
 	2010-03-05 - SFS - Updated: Added DateAdded and DateApproved to selected fields
+	2010-12-22 - MFC - Updated: Added AuthorID and OwnerID fields to the Query.
 --->
 <cffunction name="getDataFieldValueByPageID" access="public" returntype="query">
 	<cfargument name="pageid" type="Numeric" required="true">
@@ -466,7 +466,9 @@ History:
 					Data_FieldValue.VersionID,
 					Data_FieldValue.listID,
 					Data_FieldValue.DateAdded,
-					Data_FieldValue.DateApproved
+					Data_FieldValue.DateApproved,
+					Data_FieldValue.AuthorID,
+					Data_FieldValue.OwnerID
 		FROM      	FormInputControl INNER JOIN FormInputControlMap ON FormInputControl.ID = FormInputControlMap.FieldID
 					INNER JOIN 	FormControl ON FormControl.ID = FormInputControlMap.FormID
 					INNER JOIN 	Data_FieldValue ON Data_FieldValue.FieldID = FormInputControlMap.FieldID 
@@ -670,8 +672,7 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	M. Carroll
 Name:
 	$getElementInfoVersionsByPageID
@@ -691,6 +692,7 @@ History:
 								Added formid argument and passed to getDataFieldValueByPageID function
 	2010-03-05 - SFS - Updated: Additional StructInsert added after the end of StructInsert loop to add
 								DateAdded and DateApproved fields to retStruct
+	2010-12-22 - MFC - Updated: Added AuthorID and OwnerID fields to the return structure.
 --->
 <cffunction name="getElementInfoVersionsByPageID" access="public" returntype="array">
 	<cfargument name="pageid" type="Numeric" required="true">
@@ -748,6 +750,8 @@ History:
 				versionStruct.versionid = getElementInfo.versionid[ver_i];
 				versionStruct.dateadded = getElementInfo.dateadded[ver_i];
 				versionStruct.dateapproved = getElementInfo.dateapproved[ver_i];
+				versionStruct.authorid = getElementInfo.AuthorID[ver_i];
+				versionStruct.ownerid = getElementInfo.OwnerID[ver_i];
 				
 				versionStruct.values = StructNew();
 				// loop over the form fields
