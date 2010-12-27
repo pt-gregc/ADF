@@ -72,6 +72,8 @@ History:
 	2010-12-21 - MFC - Added force params to loading scripts in the formResultHTML content block.
 						Updated the form result to use the customizedFinalHtml argument or the default.
 						Removed the renderResult param and IF blocks.
+	2010-12-27 - MFC/RAK - Updated the form storage for the callback into the Document pageWindow space.
+							Removed the form data storage in the cookie.
 --->
 <cffunction name="renderAddEditForm" access="public" returntype="String" hint="Returns the HTML for an Add/Edit Custom element record">
 	<cfargument name="formID" type="numeric" required="true">
@@ -104,7 +106,7 @@ History:
 		<cfoutput>
 			<cfscript>
 				// Load the scripts, check if we need to load 
-				//	the cookie/JSON scripts for the callback.
+				//	the JSON scripts for the callback.
 				variables.scripts.loadJQuery(force=1);
 				variables.scripts.loadADFLightbox(force=1);
 			</cfscript>
@@ -112,9 +114,10 @@ History:
 				jQuery(document).ready(function(){
 					ResizeWindow();
 					<cfif Len(arguments.callback)>
+						// Get the PageWindow and the form value
 						var pageWindow = commonspot.lightbox.getPageWindow();
-						var value = pageWindow.document.jQuery.data("body","formValueStore");
-						//Call the callback with the cookie value
+						var value = pageWindow.ADFFormData.formValueStore; 
+						//Call the callback with the form value
 						getCallback('#arguments.callback#', value);
 					</cfif>
 				});
@@ -168,8 +171,11 @@ History:
 							jQuery("##proxyButton1").live('click',handleFormChange);
 						});
 						function handleFormChange(){
+							// Get the PageWindow and store the form value
 							var pageWindow = commonspot.lightbox.getPageWindow();
-							pageWindow.document.jQuery.data("body","formValueStore",getForm());
+							pageWindow.ADFFormData = {
+								formValueStore: getForm()
+							};
 						}
 
 						//returns the form values as an object
