@@ -2264,4 +2264,50 @@ History:
 	<cfreturn viewCreated>
 </cffunction>
 
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
+Name:
+	$getDataPageIDFromControlIDandPageID
+Summary:
+	Returns the CE Data Page ID based on the Control ID and CommonSpot Page ID.
+Returns:
+	numeric
+Arguments:
+	numeric
+	numeric
+History:
+	2010-12-23 - MFC - Created
+--->
+<cffunction name="getDataPageIDFromControlIDandPageID" access="public" returntype="numeric" hint="Returns the CE Data Page ID based on the Control ID and CommonSpot Page ID.">
+	<cfargument name="controlID" type="numeric" required="true">
+	<cfargument name="pageID" type="numeric" required="true">
+
+	<cfset var retDataPageID = -1>
+	<cfset var getDataWDDX = QueryNew("null")>
+	<cfset var elementData = StructNew()>
+
+	<!--- Query Data_WDDX to get the data for the control --->
+	<cfquery name="getDataWDDX" datasource="#request.site.datasource#">
+		SELECT 	*
+		FROM 	Data_WDDX
+		WHERE 	pageID = <cfqueryparam value="#arguments.pageID#" cfsqltype="cf_sql_integer">
+		AND		controlID = <cfqueryparam value="#arguments.controlID#" cfsqltype="cf_sql_integer">
+		AND 	versionState = 2
+	</cfquery>
+	
+	<cfscript>
+		// Check that we got records
+		if ( getDataWDDX.RecordCount ) {
+			// Transform the WDDX data
+			elementData = server.commonspot.udf.util.wddxdecode(getDataWDDX.ElementData);
+			// Get the data page ID out
+			retDataPageID = ListFirst(elementData.LASTRECORD,"|");
+		}
+		return retDataPageID;
+	</cfscript>
+</cffunction>
+
 </cfcomponent>
