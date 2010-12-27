@@ -28,12 +28,14 @@ Name:
 Summary:
 	ADF Lightbox Framework JavaScript
 Version:
-	1.0.0
+	1.0.1
 History:
 	2010-02-19 - MFC - Created
 	2010-08-26 - MFC - Updated processRel function to not force the "addMainTable" parameter.
 	2010-12-21 - MFC - Updated loadCallback function to look in the current lightbox window
 						for the callback function.
+	2010-12-23 - MFC - Updated loadCallback function to loop over the level of lightbox windows
+						to locate the callback function.
 */
 
 // Set default variables
@@ -126,57 +128,55 @@ function getCallback(cbFunct, inArgsArray) {
 // Loads the JS call back function defined in the params
 function loadCallback(cbFunct, inArgsArray){
 	//alert("callback -> CBFunct = " + cbFunct);
+	var i=0;
+	var callBackLevel = 0;
+	var lbFrame = "";
+	var functPath = "";
 	
 	// Check that we have a callback function defined
 	if ( cbFunct.length > 0 ){
 	
-		// Get the lightbox stack count then decrement by 2 to get the parent lb level
-		//callBackLevel = commonspot.lightbox.stack.length - 2;
-		callBackLevel = commonspot.lightbox.stack.length - 1;
-		//alert("callBackLevel = " + callBackLevel);
+		// Loop over all the Lightbox levels to find the CB function
+		for (i=commonspot.lightbox.stack.length-1; i >= -1; i--) {
+			
+			callBackLevel = i;
+			
+			if ( callBackLevel >= 0 ) {
 		
-		if ( callBackLevel >= 0 ) {
-		
-			// Get the current LB's parent LB object and set the parent LB iframe name
-			//console.dir(commonspot.lightbox.stack[callBackLevel]);
-			parentIFrameName = commonspot.lightbox.stack[callBackLevel].frameName;
-			//alert("parentIFrameName = " + parentIFrameName);
+				// Get the current level LB frame
+				lbFrame = commonspot.lightbox.stack[callBackLevel].frameName;
+				//alert("lbFrame = " + lbFrame);
 			
-			// Check if the inArgs Array is defined, 
-			//	if not then initialize it so we can pass it to the function 
-			if ( typeof(inArgsArray) == 'undefined' ){	
-				inArgsArray = new Array();
+				// Build the function document JS path
+				functPath = "top.document.getElementsByName(lbFrame)[0].contentWindow." + cbFunct;
+				//alert("functPath = " + functPath);
 			}
-			//alert("inArgsArray = " + inArgsArray);
-			
-			// Evaluate the iframe by Name and run the callback function
-			//console.dir(document.getElementsByName(parentIFrameName));
-			// Build the function document JS path
-			functPath = "top.document.getElementsByName(parentIFrameName)[0].contentWindow." + cbFunct;
-		}
-		else {
-			//alert("need to get the parent!");
-			
-			// Check if the 'page_frame' iframe exists,
-			//	this means we are in CS 6 LView
-			if ( typeof(top.document.getElementsByName('page_frame')[0]) != 'undefined' )
-			{
-				// FOR CS 6 when in LView
-				functPath = "top.document.getElementsByName('page_frame')[0].contentWindow." + cbFunct;
-			}
-			else
-			{
-				// FOR CS 5 and CS 6 when NOT in LView
-				// Build the function back to the TOP of this window
-				functPath = "top." + cbFunct;
+			else {
+				// Find if the CB function is not in a lightbox page
+				
+				// Check if the 'page_frame' iframe exists,
+				//	this means we are in CS 6 LView
+				if ( typeof(top.document.getElementsByName('page_frame')[0]) != 'undefined' )
+				{
+					// FOR CS 6 when in LView
+					functPath = "top.document.getElementsByName('page_frame')[0].contentWindow." + cbFunct;
+				}
+				else
+				{
+					// FOR CS 5 and CS 6 when NOT in LView
+					// Build the function back to the TOP of this window
+					functPath = "top." + cbFunct;
+				}
 			}
 			//alert("functPath = " + functPath);
-		}
-		
-		// Verify that the function exists
-		if ( typeof(eval(functPath)) != 'undefined' ){
-			// Evaluate the iframe by Name and run the callback function
-			eval(functPath + "(inArgsArray)");
+			
+			// Verify that the callback function exists in this level
+			if ( typeof(eval(functPath)) != 'undefined' ){
+				// Evaluate the iframe by Name and run the callback function
+				eval(functPath + "(inArgsArray)");
+				// Get out of the loop
+				i = -2;
+			}
 		}
 	}	
 }
