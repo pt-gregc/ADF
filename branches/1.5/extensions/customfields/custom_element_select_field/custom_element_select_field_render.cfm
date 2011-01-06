@@ -47,6 +47,7 @@ History:
 						Removed commented out cfdump.
 	2010-12-06 - RAK - Added the ability to define an active flag
 						Added ability to dynamically build the display field - <firstName> <lastName>:At <email>
+	2011-01-06 - RAK - Added error catching on evaluate failure.
 --->
 <cfscript>
 	// the fields current value
@@ -93,7 +94,12 @@ History:
 		if ( (TRIM(LEFT(xparams.defaultVal,1)) EQ "[") AND (TRIM(RIGHT(xparams.defaultVal,1)) EQ "]") ){
 			// Trim the [] from the expression
 			xparams.defaultVal = MID(xparams.defaultVal, 2, LEN(xparams.defaultVal)-2);
-			currentValue = Evaluate(xparams.defaultVal);
+			//2011-01-06 - RAK - Added error catching on eval failure.
+			try{
+				currentValue = Evaluate(xparams.defaultVal);
+			}catch(Any e){
+				currentValue = "";
+			}
 		}
 		else
 			currentValue = xparams.defaultVal;
