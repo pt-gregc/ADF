@@ -43,6 +43,7 @@ History:
 	2009-12-03 - MFC - Updated IF block to add an "else if", removed dump
 	2010-02-24 - GAC - Updated to allow AjaxProxy error messages to be displayed when returning results in an ADFLightbox 
 	2010-03-04 - MFC - Added cfheader to not cache the ajax call.
+	2011-01-06 - RAK - Changed up to use runCommand from utils to avoid the evaluate.
 --->
 	
 	<cfheader name="Expires" value="#now()#">
