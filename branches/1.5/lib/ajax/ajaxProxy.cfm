@@ -56,6 +56,7 @@ History:
 		bean = structNew();
 		reHTML = "";
 		argStr = "";
+		args = StructNew();
 		// set the flag that controls whether additional code is added to the reHTML output
 		forceOutput = false;
 		// set the flag for if we have a serialized form to pass to the function as a structure 
@@ -65,12 +66,6 @@ History:
 		passedSecurity = server.ADF.objectFactory.getBean("csSecurity_1_0").validateProxy(request.params.bean, request.params.method);
 		if ( passedSecurity )
 		{
-			// load the bean that we will call - check in application scope first
-			if( application.ADF.objectFactory.containsBean(request.params.bean) )
-				bean = application.ADF.objectFactory.getBean(request.params.bean);
-			else if( server.ADF.objectFactory.containsBean(request.params.bean) )
-				bean = server.ADF.objectFactory.getBean(request.params.bean);
-			methodname = trim(request.params.method);
 			// loop through request.params parameters to get arguments
 			for( itm=1; itm lte listLen(structKeyList(request.params)); itm=itm+1 )
 			{
@@ -83,18 +78,15 @@ History:
 						// Set the flag, and get the serialized form string into a structure
 						containsSerializedForm = true;
 						serialFormStruct = server.ADF.objectFactory.getBean("csData_1_0").serializedFormStringToStruct(request.params[thisParam]);
+						StructInsert(args,"serializedForm",serialFormStruct);
 					}
-					else
-						argStr = listAppend(argStr, "#thisParam#='#request.params[thisParam]#'");
+					else{
+						StructInsert(args,thisParam,request.params[thisParam]);
+					}
 				}
 			}
-			// Check if we have a structure to pass to the function
-			if ( containsSerializedForm )
-				reHTML = Evaluate("bean.#methodname#(#argStr#,serializedForm=serialFormStruct)");
-			else if ( len(argStr) )
-				reHTML = Evaluate("bean.#methodname#(#argStr#)");
-			else
-				reHTML = Evaluate("bean.#methodname#()");
+			utils = server.ADF.objectFactory.getBean("utils_1_0");
+			reHTML = utils.runCommand(trim(request.params.bean),trim(request.params.method),args);
 			
 			if ( request.params.returnFormat eq "json" )
 			{
