@@ -129,9 +129,13 @@ History:
 				<cfoutput>#arguments.customizedFinalHtml#</cfoutput>
 			<cfelse>
 				<script type='text/javascript'>
-					if ( "#arguments.lbAction#" == "refreshparent" )
+					if ( "#LCase(arguments.lbAction)#" == "refreshparent" ){
 						closeLBReloadParent();
-					closeLB();
+					<cfif Len(arguments.callback) eq 0>
+						}else{
+							closeLB();
+						}
+					</cfif>
 				</script>
 			</cfif>
 		</cfoutput>
@@ -233,6 +237,7 @@ History:
 	<cfargument name="formID" type="numeric" required="true" hint="The FormID for the Custom Element">
 	<cfargument name="dataPageID" type="numeric" required="true" hint="the DataPageID for the record being deleted">
 	<cfargument name="title" type="string" required="no" default="Delete Record" hint="The title of the dialog displayed while deleting">
+	<cfargument name="callback" type="string" required="false" default="" hint="The callback Javascript function that will be called on succesful deletion">
 
 	<cfset var deleteFormHTML = "">
 	<cfsavecontent variable="deleteFormHTML">
@@ -255,6 +260,9 @@ History:
 			targetModule = "/ADF/extensions/datasheet-modules/delete_element_handler.cfm";
 			request.params.pageID = arguments.dataPageID;
 			request.params.formID = arguments.formID;
+			if(Len(arguments.callback)){
+				request.params.callback = arguments.callback;
+			}
 			CD_DIALOGNAME = arguments.title;
 		</cfscript>
 		<cfinclude template="/ADF/extensions/datasheet-modules/delete_element_handler.cfm">
@@ -318,6 +326,7 @@ History:
 	<cfargument name="fieldInputHTML" type="string" required="true" default="" hint="HTML for the field input, do a cfSaveContent on the input field and pass that in here">
 	<cfargument name="fieldQuery" type="query" required="true" default="" hint="fieldQuery value">
 	<cfargument name="attr" type="struct" required="true" default="" hint="Attributes value">
+	<cfargument name="includeLabel" type="boolean" required="false" default="true" hint="Set to false to remove the label on the left">
 	<cfscript>
 		var row = arguments.fieldQuery.currentRow;
 		var fqFieldName = "fic_#arguments.fieldQuery.ID[row]#_#arguments.fieldQuery.INPUTID[row]#";
@@ -342,11 +351,13 @@ History:
 	<cfsavecontent variable="returnHTML">
 		<cfoutput>
 			<tr>
-				<td valign="top">
-					#labelStart#
-					<label for="#fqFieldName#">#xParams.label#:</label>
-					#labelEnd#
-				</td>
+				<cfif includeLabel>
+					<td valign="top">
+						#labelStart#
+						<label for="#fqFieldName#">#xParams.label#:</label>
+						#labelEnd#
+					</td>
+				</cfif>
 				<td>
 					#arguments.fieldInputHTML#
 				</td>
@@ -457,6 +468,52 @@ History:
 			});
 		</script>
 	</cfoutput>
+</cffunction>
+
+<!---
+/* ***************************************************************
+/*
+Author:
+	PaperThin, Inc.
+	Ryan Kahn
+Name:
+	$wrapHTMLWithLightbox
+Summary:
+	Given html returns html that is wrapped properly with the lightbox code.
+Returns:
+	string
+Arguments:
+
+History:
+ 	1/5/11 - RAK - Created
+--->
+<cffunction name="wrapHTMLWithLightbox" access="public" returntype="string" hint="Given html returns html that is wrapped properly with the lightbox code.">
+	<cfargument name="html" type="string" required="true" default="" hint="HTML to wrap">
+	<cfset var returnHTML = "">
+	<cfsavecontent variable="returnHTML">
+		<cfoutput>
+			<cfscript>
+				if(StructKeyExists( request.params,"title")){
+					CD_DialogName = request.params.title;
+				}else{
+					 CD_DialogName = "";
+				}
+				CD_Title=CD_DialogName;
+				CD_IncludeTableTop=1;
+				CD_CheckLock=0;
+				CD_CheckLogin=1;
+				CD_CheckPageAlive=0;
+			</cfscript>
+			<CFINCLUDE TEMPLATE="/commonspot/dlgcontrols/dlgcommon-head.cfm">
+				<tr>
+					<td class="formResultContainer">
+						#html#
+					</td>
+				</tr>
+			<CFINCLUDE template="/commonspot/dlgcontrols/dlgcommon-foot.cfm">
+		</cfoutput>
+	</cfsavecontent>
+	<cfreturn returnHTML>
 </cffunction>
 
 </cfcomponent>
