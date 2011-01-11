@@ -123,7 +123,11 @@ History:
 			var errorScheduleItem = "";
 			var scheduleURL = "";
 			var currentCommand = "";
+			var siteName = request.site.name;
+			var logFilePrefix = dateFormat(now(), "yyyymmdd") & "." & siteName & ".";
+			var schedLogFileName = logFilePrefix & "scheduledStatus-" & arguments.scheduleName & ".html";
 		</cfscript>
+		
 		<cfif StructKeyExists(application.schedule,arguments.scheduleName)>
 			<cfset currentSchedule = application.schedule[arguments.scheduleName]>
 			<!---
@@ -175,7 +179,6 @@ History:
 				</cfcatch>
 				</cftry>
 
-
 				<cfscript>
 					//Horray! The scheduled process finished. Log it, increment the progress.
 					application.ADF.utils.logAppend("Scheduled process complete. '#arguments.scheduleName#' Progress: #currentSchedule.scheduleProgress#/#ArrayLen(currentSchedule.commands)#","scheduledProcess-#arguments.scheduleName#.txt");
@@ -186,13 +189,13 @@ History:
 						return true;
 					}
 					//If this is a batch process do batchyness.
-					if(currentSchedule.scheduleParams.tasksPerBatch gt 1 and
-						currentSchedule.scheduleProgress mod currentSchedule.scheduleParams.tasksPerBatch - 1 neq 0 ){
+					if( currentSchedule.scheduleParams.tasksPerBatch gt 1 and
+						currentSchedule.scheduleProgress mod currentSchedule.scheduleParams.tasksPerBatch - 1 neq 0 ) {
 						processNextScheduleItem(arguments.scheduleName);
 					}else{
 						scheduleURL = "http://#cgi.server_name#:#cgi.server_port##application.ADF.ajaxProxy#?bean=scheduler_1_0&method=processNextScheduleItem&scheduleName=#arguments.scheduleName#";
 						//Schedule the next task
-						application.ADF.utils.setScheduledTask(scheduleURL,arguments.scheduleName,"ScheduledTaskError-#arguments.scheduleName#.html",currentSchedule.scheduleParams.delay);
+						application.ADF.utils.setScheduledTask(scheduleURL,arguments.scheduleName,schedLogFileName,currentSchedule.scheduleParams.delay); //"ScheduledTaskError-#arguments.scheduleName#.html"
 					}
 				</cfscript>
 			<cfelse>
