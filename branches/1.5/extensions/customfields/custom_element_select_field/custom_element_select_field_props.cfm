@@ -2,17 +2,17 @@
 The contents of this file are subject to the Mozilla Public License Version 1.1
 (the "License"); you may not use this file except in compliance with the
 License. You may obtain a copy of the License at http://www.mozilla.org/MPL/
- 
+
 Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 the specific language governing rights and limitations under the License.
- 
+
 The Original Code is comprised of the ADF directory
- 
+
 The Initial Developer of the Original Code is
 PaperThin, Inc. Copyright(C) 2010.
 All Rights Reserved.
- 
+
 By downloading, modifying, distributing, using and/or accessing any files
 in this directory, you agree to the terms and conditions of the applicable
 end user license agreement.
@@ -21,9 +21,9 @@ end user license agreement.
 <!---
 /* ***************************************************************
 /*
-Author: 	
+Author:
 	PaperThin, Inc.
-	Michael Carroll 
+	Michael Carroll
 Custom Field Type:
 	Custom Element Select Field
 Name:
@@ -37,7 +37,7 @@ ADF Requirements:
 	scripts_1_0
 History:
 	2009-07-06 - MFC - Created
-	2010-09-17 - MFC - Updated the Default Value field to add [] to the value 
+	2010-09-17 - MFC - Updated the Default Value field to add [] to the value
 						to make it evaluate a CF expression.
 	2010-12-06 - RAK - Added the ability to define an active flag
 						Added ability to dynamically build the display field - <firstName> <lastName>:At <email>
@@ -48,7 +48,7 @@ History:
 	prefix = attributes.prefix;
 	formname = attributes.formname;
 	currentValues = attributes.currentValues;
-	
+
 	if( not structKeyExists(currentValues, "customElement") )
 		currentValues.customElement = "";
 	if( not structKeyExists(currentValues, "valueField") )
@@ -70,7 +70,7 @@ History:
 	if( not structKeyExists(currentValues, "activeFlagValue") )
 		currentValues.activeFlagValue = "";
 	if( not structKeyExists(currentValues, "addButton") )
-		currentValues.addButton = "";
+		currentValues.addButton = 0;
 
 </cfscript>
 <cfoutput>
@@ -100,7 +100,7 @@ History:
 
 			handleDisplayFieldChange();
 		</cfif>
-		
+
 		jQuery(customElement).change(function(){
 			setElementFields(jQuery(customElement).val());
 			handleDisplayFieldChange();
@@ -127,7 +127,7 @@ History:
 			jQuery("###prefix#displayFieldBuilder").val("");
 		}
 	}
-	
+
 	function setElementFields(elementName){
 		if(elementName.length <= 0){
 			return;
@@ -141,23 +141,25 @@ History:
 					success: handleFormIDPost,
 		  		 	async: false
 				});
-				
+
 	}
-	
+
 	function handleFormIDPost(results){
-		jQuery.ajax({
-			  type: 'POST',
-			  url: "#application.ADF.ajaxProxy#",
-			  data: { 			  bean: "ceData_1_0",
-									method: "getTabsFromFormID",
-							returnformat: "json",
-									formID: results,
-								  recurse: true},
-			  success: handleTabsFromFormIDPost,
-			  async: false
-			},"json");
+		if(results != 0){
+			jQuery.ajax({
+				  type: 'POST',
+				  url: "#application.ADF.ajaxProxy#",
+				  data: { 			  bean: "ceData_1_0",
+										method: "getTabsFromFormID",
+								returnformat: "json",
+										formID: results,
+									  recurse: true},
+				  success: handleTabsFromFormIDPost,
+				  async: false
+				},"json");
+		}
 	}
-	
+
 	function handleTabsFromFormIDPost(results){
 		fields = new Object();
 		if(typeof results === "string"){
@@ -179,7 +181,7 @@ History:
 		jQuery("###prefix#displayField").removeOption(/./);
 		jQuery("###prefix#fieldBuilder").removeOption(/./);
 		jQuery("###prefix#activeFlagField").removeOption(/./);
-		
+
 		//Add new options
 		jQuery("###prefix#valueField").addOption(fields);
 
@@ -191,10 +193,10 @@ History:
 		jQuery("###prefix#fieldBuilder").addOption({"--":'--'});
 		jQuery("###prefix#fieldBuilder").addOption(fields);
 		jQuery("###prefix#fieldBuilder").selectOptions('--');
-		
+
 		fields["Other"] = "Other";
 		jQuery("###prefix#displayField").addOption(fields);
-		
+
 		//Deselect everything
 		jQuery("###prefix#valueField").selectOptions(jQuery("###prefix#valueField").selectedOptions(),true);
 		jQuery("###prefix#displayField").selectOptions(jQuery("###prefix#displayField").selectedOptions(),true);
@@ -274,6 +276,7 @@ History:
 		<td></td>
 		<td class="cs_dlgLabelSmall">
 			Value: <input type="text" name="#prefix#activeFlagValue" id="#prefix#activeFlagValue" value="#currentValues.activeFlagValue#" size="20">
+			<br />To denote a ColdFusion Expression, add brackets around the expression (i.e. "[request.user.userid]")
 		</td>
 	</tr>
 

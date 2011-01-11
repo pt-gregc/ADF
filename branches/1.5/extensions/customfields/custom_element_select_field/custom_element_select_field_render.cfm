@@ -75,6 +75,10 @@ History:
 	// Get the data records
 	if(StructKeyExists(xparams,"activeFlagField") and Len(xparams.activeFlagField)
 			and StructKeyExists(xparams,"activeFlagValue") and Len(xparams.activeFlagValue)){
+			if((TRIM(LEFT(xparams.activeFlagValue,1)) EQ "[") AND (TRIM(RIGHT(xparams.activeFlagValue,1)) EQ "]")){
+				xparams.activeFlagValue = MID(xparams.activeFlagValue, 2, LEN(xparams.activeFlagValue)-2);
+				xparams.activeFlagValue = Evaluate(xparams.activeFlagValue);
+			}
 		ceDataArray = application.ADF.cedata.getCEData(xparams.customElement,xparams.activeFlagField,xparams.activeFlagValue);
 	}else{
 		ceDataArray = application.ADF.cedata.getCEData(xparams.customElement);
