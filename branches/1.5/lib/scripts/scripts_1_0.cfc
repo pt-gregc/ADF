@@ -175,7 +175,7 @@ History:
 <cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery UI script header to load.">
 <cfif (not variables.scriptsService.isScriptLoaded("jqueryui")) OR (arguments.force)>
 	<cfoutput>
-		<script type='text/javascript' src='/ADF/thirdParty/jquery/ui/jquery-ui-#arguments.version#/js/jquery-ui-#arguments.version#.custom.min.js'></script>
+		<script type='text/javascript' src='/ADF/thirdParty/jquery/ui/jquery-ui-#arguments.version#/js/jquery-ui-#arguments.version#.custom.js'></script>
 	</cfoutput>
 	<!--- Verify that the theme directory exists --->
 	<cfif DirectoryExists(expandPath("/ADF/thirdParty/jquery/ui/jquery-ui-#arguments.version#/css/#arguments.themeName#"))>
