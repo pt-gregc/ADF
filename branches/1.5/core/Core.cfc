@@ -172,16 +172,15 @@ History:
 						<cfdump var="#application.ADF#" label="application.ADF" expand="false">
 					</cfif>
 				</cfsavecontent>
-				
-				<cfset rtnMsg = "Error building the ADF.">
-				
+
+
 				<cfif StructKeyExists(request,"site")>
 					<!--- Log the error content --->
 					<cfset siteName = request.site.name>
 				</cfif>
 				<cfset logFileName = dateFormat(now(), "yyyymmdd") & "." & siteName & ".ADF_Load_Errors.htm">
 				<cffile action="append" file="#request.cp.commonSpotDir#logs/#logFileName#" output="#request.formattedtimestamp# - #dump#" addnewline="true">
-
+				<cfset rtnMsg = "Error building the ADF. <a href='/commonspot/logs/#logFileName#' target='_blank'>View the log</a>">
 			</cfcatch>
 		</cftry>
 	</cfif>
