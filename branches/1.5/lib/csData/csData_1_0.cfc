@@ -1031,6 +1031,7 @@ Arguments:
 	Numeric - subsiteID - Subsite ID to return the subsite info.
 History:
 	2009-09-01 - MFC - Created
+	2011-01-05 - GAC - Modified - Added additional fields to return query results
 --->
 <cffunction name="getSubsiteQueryByID" access="public" returntype="query" hint="Returns a Query for the subsite information">
 	<cfargument name="subsiteID" type="numeric" required="true" hint="Subsite ID to return the subsite info.">
@@ -1040,7 +1041,7 @@ History:
 	<!--- // retrieve the susbsite info--->
 	<cfquery name="getSubsites" datasource="#request.site.datasource#">
 		SELECT     	SubSites.SubSiteDir, SubSites.SubSiteURL, SubSites.ParentID, SitePages.Name, SitePages.Title, SitePages.Description, 
-                      SubSites.ID AS subsiteID
+                      SubSites.ID AS subsiteID, SubSites.Lang, SubSites.UploadDir, SubSites.UploadURL
 		FROM        SitePages INNER JOIN
                       SubSites ON SitePages.ID = SubSites.SecurityPageID
 		WHERE		SubSites.ID = <cfqueryparam value="#arguments.subsiteID#" cfsqltype="cf_sql_integer">
