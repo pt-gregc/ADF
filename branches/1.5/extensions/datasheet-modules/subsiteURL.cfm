@@ -30,6 +30,7 @@ end user license agreement.
 		for the subsite
 	History:
 		2009-07-30 - RLW - Created
+		2010-01-12 - GAC - Modified - Added URL text Sorting
 --->
 <cfscript>
 	subsiteID = request.datasheet.currentColumnValue;
@@ -41,4 +42,5 @@ end user license agreement.
 	</cfoutput>
 </cfsavecontent>
 
+<cfset Request.datasheet.currentSortValue = request.subsiteCache[subsiteID].url />
 <cfset request.datasheet.currentFormattedValue = tdHTML>
