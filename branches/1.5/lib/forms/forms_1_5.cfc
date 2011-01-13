@@ -74,6 +74,7 @@ History:
 						Removed the renderResult param and IF blocks.
 	2010-12-27 - MFC/RAK - Updated the form storage for the callback into the Document pageWindow space.
 							Removed the form data storage in the cookie.
+	2011-01-13 - MFC - Updated the form result LB Action params.
 --->
 <cffunction name="renderAddEditForm" access="public" returntype="String" hint="Returns the HTML for an Add/Edit Custom element record">
 	<cfargument name="formID" type="numeric" required="true">
@@ -128,15 +129,17 @@ History:
 			<cfif LEN(arguments.customizedFinalHtml)>
 				<cfoutput>#arguments.customizedFinalHtml#</cfoutput>
 			<cfelse>
-				<script type='text/javascript'>
-					if ( "#LCase(arguments.lbAction)#" == "refreshparent" ){
+				<!--- If the LB Action is to refresh parent --->
+				<cfif arguments.lbAction EQ "refreshparent">
+					<script type='text/javascript'>
 						closeLBReloadParent();
-					<cfif Len(arguments.callback) eq 0>
-						}else{
-							closeLB();
-						}
-					</cfif>
-				</script>
+					</script>
+				<cfelseif LEN(arguments.callback) eq 0>
+					<!--- Else if we don't have a callback, then close the LB --->
+					<script type='text/javascript'>
+						closeLB();
+					</script>
+				</cfif>
 			</cfif>
 		</cfoutput>
 		<!--- Render the dlg footer --->
