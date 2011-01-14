@@ -115,6 +115,7 @@ History:
 		String - scheduleName
 	History:
 		Nov 30, 2010 - RAK - Created
+		2011-01-13 - GAC - Modified - Updated to add the date string and the site name to the schedule task output log file
 	--->
 	<cffunction name="processNextScheduleItem" access="public" returntype="boolean" hint="Executes the next item in the schedule. If there are no more it marks the schedule as ran.">
 		<cfargument name="scheduleName" type="string" required="true" hint="Unique name for the schedule you want to run">
