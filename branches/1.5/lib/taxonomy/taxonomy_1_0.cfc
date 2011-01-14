@@ -26,12 +26,16 @@ Name:
 	taxonomy_1_0.cfc
 Summary:
 	Taxonomy functions for the ADF Library
+Version:
+	1.0.1
 History:
 	2009-06-22 - MFC - Created
+	2011-01-14 - MFC - v1.0.1	- Bug fixes to getPageBindingsForTermID.
+									Updates to getTermIDs.
 --->
 <cfcomponent displayname="taxonomy_1_0" extends="ADF.core.Base" hint="Taxonomy functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_0">
+<cfproperty name="version" value="1_0_1">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Taxonomy_1_0">
 
@@ -50,64 +54,26 @@ Returns:
 	Array of term IDs
 Arguments:
 	Numeric facetID - Facet ID to return the top terms
-	Numeric taxonomyID - Taxonomy ID to return the top terms
-	String orderby - Order By Field (ID or NAME)
-History:
-	2009-06-22 - MFC - Created
-	2010-07-01 - GAC - Modified - Broke the getTopTerm query out as a seperate function
 --->
-<cffunction name="getTopTermIDArrayForFacet" access="public" returntype="array" output="no" hint="Taxonomy function to return top term IDs for the facet ID">
+<cffunction name="getTopTermIDArrayForFacet" access="public" returntype="array" output="no">
 	<cfargument name="facetID" type="numeric" required="yes">
 	<cfargument name="taxonomyID" type="numeric" required="yes">
-	<cfargument name="orderby" type="string" default="" required="no" hint="Order By 'ID' (the term id) or 'NAME' (the term name)">
-	
-	<cfscript>
-		var getTopTerms = getTopTermsQueryForFacet(arguments.facetID,arguments.taxonomyID,arguments.orderby);
-	</cfscript>
 
-	<cfreturn ListToArray(ValueList(getTopTerms.ID))>
-</cffunction>
-
-<!---
-/* ***************************************************************
-/*
-Author: Michael Carroll
-Name:
-	getTopTermsQueryForFacet
-Summary:
-	Taxonomy function to return top terms as a query for the facet ID
-Returns:
-	Query of Terms
-Arguments:
-	Numeric facetID - Facet ID to return the top terms
-	Numeric taxonomyID - Taxonomy ID to return the top terms
-	String orderby - Order By Field (ID or NAME)
-History:
-	2009-06-22 - MFC - Created
-	2010-07-01 - GAC - Modified - Broke the getTopTerms query out as a separate function
-	2010-12-06 - SFS - Rewritten for ADF 1.5 release to eliminate need for taxonomy calls and uses taxonomy DB views instead
---->
-<cffunction name="getTopTermsQueryForFacet" access="public" returntype="query" output="no" hint="Taxonomy function to return top terms as a query for the facet ID">
-	<cfargument name="facetID" type="numeric" required="yes">
-	<cfargument name="taxonomyID" type="numeric" required="yes">
-	<cfargument name="orderby" type="string" default="" required="no" hint="Order By 'ID' (the term id) or 'NAME' (the term name)">
-	
 	<cfscript>
-		var getTopTerms = QueryNew("temp");
+		var getTopTerms = '';
 	</cfscript>
 
 	<cfquery name="getTopTerms" datasource="#request.site.datasource#">
-		SELECT *
-		FROM TaxonomyDataView
-		WHERE taxonomyid = <CFQUERYPARAM VALUE="#arguments.taxonomyID#" CFSQLTYPE="CF_SQL_INTEGER">
-		AND facetid = <CFQUERYPARAM VALUE="#arguments.facetID#" CFSQLTYPE="CF_SQL_INTEGER">
-		AND (toptermname is null <cfif request.site.sitedbtype is not 'oracle'>OR toptermname = ''</cfif>)
-		<cfif LEN(TRIM(arguments.orderby)) AND (arguments.orderby IS "NAME" OR arguments.orderby IS "ID")>
-		ORDER BY Term<cfqueryparam value="#arguments.orderby#" cfsqltype="cf_sql_varchar">
-		</cfif>
+		SELECT t.*
+		FROM term t, term_top tt
+		WHERE tt.facetid = <CFQUERYPARAM VALUE="#arguments.facetID#" CFSQLTYPE="CF_SQL_INTEGER">
+		AND t.taxonomyid = <CFQUERYPARAM VALUE="#arguments.taxonomyID#" CFSQLTYPE="CF_SQL_INTEGER">
+		AND t.id = tt.termid
+		AND t.taxonomyid = tt.taxonomyid
+		AND t.updatestatus = 1
 	</cfquery>
 
-	<cfreturn getTopTerms />
+	<cfreturn ListToArray(ValueList(getTopTerms.ID))>
 </cffunction>
 <!---
 	/* ***************************************************************
@@ -142,22 +108,21 @@ History:
 	<cfreturn csTaxObj>
 </cffunction>
 <!---
-	/* ***************************************************************
-	/*
-	Author: 	Ron West
-	Name:
-		$getTermIDs
-	Summary:	
-		Returns a list of termIDs from a list of terms and a given initialized taxonomy object
-	Returns:
-		String termIdList
-	Arguments:
-		Object csTaxObj
-		String termList
-	History:
-		2009-09-03 - RLW - Created
-		2010-12-06 - SFS - Rewritten for ADF 1.5 release to eliminate need for taxonomy calls and uses taxonomy DB views instead
-	--->
+/* *************************************************************** */
+Author: 	Ron West
+Name:
+	$getTermIDs
+Summary:	
+	Returns a list of termIDs from a list of terms and a given initialized taxonomy object
+Returns:
+	String termIdList
+Arguments:
+	Object csTaxObj
+	String termList
+History:
+	2009-09-03 - RLW - Created
+	2010-12-06 - SFS - Rewritten for ADF 1.5 release to eliminate need for taxonomy calls and uses taxonomy DB views instead
+--->
 <cffunction name="getTermIDs" access="public" returntype="string" hint="Returns a list of termIDs from a list of terms and a given initialized taxonomy object">
 	<cfargument name="csTaxObj" type="any" required="true" hint="No longer required - kept for backward compatibility">
 	<cfargument name="termList" type="string" required="true" hint="List of Term String Names that will be converted to Ids">
