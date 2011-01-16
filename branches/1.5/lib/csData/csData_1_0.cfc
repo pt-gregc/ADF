@@ -34,6 +34,7 @@ History:
 <cfproperty name="version" value="1_0_0">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_0">
+<cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_0">
 <cfproperty name="wikiTitle" value="CSData_1_0">
 
 <!---
@@ -41,7 +42,7 @@ History:
 /*
 Author: 	Ron West
 Name:
-	$getPageMetadata
+	$getCustomMetadata
 Summary:
 	CFC Function wrapper around the <cfmodule> call that returns
 	the custom metadata for a page
@@ -51,16 +52,28 @@ Arguments:
 	Numeric pageID
 	Numeric categoryID
 	Numeric templateHierarchy
+	Boolean convertTaxonomyTermsToIDs
 History:
 	2008-09-15 - RLW - Created
+	2011-01-14 - GAC - Modified - Added an option to convert Taxonomy terms to a termID list
 --->
 <cffunction name="getCustomMetadata" access="public" returntype="struct">
 	<cfargument name="pageID" type="numeric" required="yes">
     <cfargument name="categoryID" type="numeric" required="no" default="-1">
     <cfargument name="subsiteID" type="numeric" required="no" default="-1">
     <cfargument name="inheritedTemplateList" type="string" required="no" default="">
-    <cfset var stdMetadata = "">
-	<!--- IF we are missing categoryID, subsiteID OR inheritedTemplateList get them! --->
+	<cfargument name="convertTaxonomyTermsToIDs" type="boolean" required="no" default="false">
+	<cfscript>
+		var stdMetadata = "";
+		var custMetadata = StructNew();
+		var metaFormsStruct = StructNew();
+		var metaFormFieldStruct = StructNew();
+		var formKey = "";
+		var fieldKey = "";
+		var taxTermTextList = "";
+		var taxTermIDList = "";
+	</cfscript>
+	<!--- // IF we are missing categoryID, subsiteID OR inheritedTemplateList get them! --->
     <cfif arguments.categoryID eq -1 or arguments.subsiteID eq -1 or Len(inheritedTemplateList) eq 0>
     	<cfscript>
     		stdMetadata = getStandardMetadata(arguments.pageID);
@@ -71,7 +84,36 @@ History:
     </cfif>
     <!--- // call the standard build struct module with the argument collection --->
     <cfmodule template="/commonspot/metadata/build-struct.cfm" attributecollection="#arguments#">
-    <cfreturn request.metadata>
+    <!--- <cfreturn request.metadata> --->
+	<cfscript>
+		// Copy the Module Struct to a local custMetaData
+		if ( StructKeyExists(request,"metadata") )
+			custMetadata = request.metadata;
+		
+		// Convert Taxonomy Term Lists in CustomMetadata Taxonomy Fields to a TermID lists
+		if ( arguments.convertTaxonomyTermsToIDs ) {
+			// Get the CustomMetaData fields that are Taxonomy Fields
+			metaFormsStruct = getCustomMetadataFieldsByCSPageID(arguments.pageID,"taxonomy");
+			// Loop over the formkeys (MetaData Form Names) in the struct
+			for ( formKey in metaFormsStruct ) {
+				metaFormFieldStruct = metaFormsStruct[formKey];
+				//Application.ADF.utils.doDump(metaFormFieldStruct,"metaFormFieldStruct",0);
+				// Loop over the fieldkeys (MetaData Feild Names) in the FormName struct
+				for ( fieldKey in metaFormFieldStruct ) {
+					if ( StructKeyExists(custMetadata,formKey) AND StructKeyExists(custMetadata[formKey],fieldkey) ) {
+						taxTermTextList = custMetadata[formKey][fieldkey];    
+						if ( LEN(TRIM(taxTermTextList)) ) {
+							// Convert the List Terms to a List of TermIDs
+							taxTermIDList = Application.ADF.taxonomy.getTermIDs(termList=taxTermTextList);
+							// Reset The CustomMetadata to the Term ID List
+							custMetadata[formKey][fieldkey] = taxTermIDList;
+						} 		    
+					}		    
+				}			  	  
+			}
+		}
+		return custMetadata;
+	</cfscript>
 </cffunction>
 
 <!---
@@ -1764,6 +1806,78 @@ History:
 			returnData.values.TextBlock = server.commonspot.udf.html.DECODEENTITIES(textblockData.TextBlock);
 		}
 		return returnData;
+	</cfscript>
+</cffunction>
+
+<!---
+/* ***************************************************************
+/*
+Author: 	G. Cronkright
+Name:
+	$getCustomMetadataFieldsByCSPageID
+Summary:
+	Returns a structure of custom metadata forms and fields from a CSPageID
+Returns:
+	Struct 
+Arguments:
+	String cspageid
+	string fieldtype
+History:
+	2011-01-14 - GAC - Created
+--->
+<cffunction name="getCustomMetadataFieldsByCSPageID" access="public" returntype="struct">
+	<cfargument name="cspageid" type="numeric" required="true">
+	<cfargument name="fieldtype" type="string" default="" hint="Optional - taxonomy, text, select, etc. or a CFT name">
+	
+	<cfscript>
+		var inheritedPageIDList = "";
+		var stdMetadata = getStandardMetadata(arguments.cspageid);
+		var getFormFields = queryNew("temp");
+		var thisForm = StructNew(); 
+		var thisField = "";
+		var rtnStruct = StructNew();
+		
+		// Get the inheritedTemplateList from the stdMetadata
+		if ( StructKeyExists(stdMetadata,"inheritedTemplateList") )
+			inheritedPageIDList = ListAppend(stdMetadata.inheritedTemplateList,arguments.cspageid);
+		else 
+			inheritedPageIDList = arguments.cspageid;
+	</cfscript>
+
+	<!--- // Query to get the data for the element by pageid --->
+	<cfquery name="getFormFields" datasource="#request.site.datasource#">
+		SELECT     FormInputControl.FieldName,FormInputControlMap.FieldID,FormInputControl.Params,FormInputControl.Type,FormControl.FormName,FormControl.ID AS FormID
+		FROM      FormControl 
+			INNER JOIN FormInputControlMap 
+				ON FormControl.ID = FormInputControlMap.FormID 
+			INNER JOIN FormInputControl 
+				ON FormInputControlMap.FieldID = FormInputControl.ID
+		WHERE      FormInputControlMap.FormID IN ( SELECT	DISTINCT FormID
+													 FROM      Data_FieldValue 
+													 WHERE     PageID IN (<cfqueryparam cfsqltype="cf_sql_integer" value="#inheritedPageIDList#" list="true" />)
+													 AND 	   VersionState = 2
+													)
+		<cfif LEN(TRIM(arguments.fieldtype))>
+		AND FormInputControl.Type = <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.fieldtype#" />	
+       	</cfif>  	
+		ORDER BY   FormControl.FormName,FormInputControl.FieldName
+	</cfquery>
+
+	<cfscript>
+		// Convert the Query into a Struct of Structs [formName][FieldName]
+		for( itm=1; itm lte getFormFields.recordCount; itm=itm+1 ) {
+			 thisForm = getFormFields.FormName[itm];
+			 // add the Form Name to the Struct
+			 if ( NOT StructKeyExists(rtnStruct,thisForm ) ) {
+			 	rtnStruct[thisForm] = StructNew();			  
+			 }
+			 // replace the FIC_ from the beginning
+			 thisField = ReplaceNoCase(getFormFields.FieldName[itm], "FIC_", "", "all");
+			 // add this field to the form
+			 if( NOT StructKeyExists(rtnStruct[thisForm], thisField) )
+			    rtnStruct[thisForm][thisField] = "";				
+		}
+		return rtnStruct;
 	</cfscript>
 </cffunction>
 
