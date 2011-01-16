@@ -34,6 +34,8 @@ History:
 <cfproperty name="type" value="transient">
 <cfproperty name="ccapi" type="dependency" injectedBean="ccapi">
 <cfproperty name="csData" type="dependency" injectedBean="csData_1_0">
+<cfproperty name="ceData" type="dependency" injectedBean="ceData_1_0">
+<cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_0">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_0">
 <cfproperty name="wikiTitle" value="CSPage_1_0">
 
@@ -245,6 +247,9 @@ Arguments:
 		The elements (including textblocks) must have ccapi mapping information.
 History:
 	2010-11-05 - RAK - Created
+	2011-01-14 - GAC - Modified - Coverted Applicatio.ADF calls to Global
+	2011-01-14 - GAC - Added logic to Get convert Taxonomy terms to a termID list
+	2011-01-15 - GAC - Moved the convert Taxonomy terms to termids into the getCustomMetadata function
 --->
 <cffunction name="copyPage" access="public" returntype="boolean" hint="Duplicates the page from source to destination using destination template. ">
 	<cfargument name="sourcePageID" type="numeric" required="true">
@@ -252,7 +257,7 @@ History:
 	<cfargument name="destinationTemplateID" type="numeric" required="false">
 	<cfargument name="sourceNames" type="array" required="false" default="#ArrayNew(1)#" hint="The elements (including textblocks) must have names declared (More -> Name)">
 	<cfargument name="destCCAPINames" type="array" required="false" default="#ArrayNew(1)#" hint="The elements (including textblocks) must have ccapi mapping information.">
-	
+
 	<cfscript>
 		var i = 1;
 		var j = 1;
@@ -264,19 +269,20 @@ History:
 		var textblockData ="";
 		var data = StructNew();
 		var currentField = "";
-		var custMetadata = application.ADF.csData.getCustomMetadata(arguments.sourcePageID);
-		var sourcePage = application.ADF.csData.getStandardMetadata(arguments.sourcePageID);
+		// Use the flag in getCustomMetadata to convert Taxonomy Term Lists to TermID lists in taxonomy custom metadata fields
+		var custMetadata = variables.csData.getCustomMetadata(pageid=arguments.sourcePageID,convertTaxonomyTermsToIDs=1);
+		var sourcePage = variables.csData.getStandardMetadata(arguments.sourcePageID);
 		var ccapiElements = "";
-
+		
 		//Error checking
-		if(ArrayLen(sourceNames) neq ArrayLen(destCCAPINames)){
-			application.ADF.utils.logAppend("Source custom element list is not the same length of custom element names.","copyPageLog.txt");
+		if ( ArrayLen(sourceNames) neq ArrayLen(destCCAPINames) ) {
+			variables.utils.logAppend("Source custom element list is not the same length of custom element names.","copyPageLog.txt");
 			return false;
 		}
 		
 		//Does the page exist? If so throw an exception telling them so
-		if(application.ADF.csData.getCSPageByName(sourcePage.name,arguments.destinationSubsiteID)){
-			application.ADF.utils.logAppend("Page already exists: '#sourcePage.name#' in subsiteID: #arguments.destinationSubsiteID#","copyPageLog.txt");
+		if ( variables.csData.getCSPageByName(sourcePage.name,arguments.destinationSubsiteID) ) {
+			variables.utils.logAppend("Page already exists: '#sourcePage.name#' in subsiteID: #arguments.destinationSubsiteID#","copyPageLog.txt");
 			return false;
 		}
 		
@@ -284,16 +290,18 @@ History:
 		stdMetadata = sourcePage;
 		stdMetadata.templateID = arguments.destinationTemplateID;
 		stdMetadata.subsiteID = arguments.destinationSubsiteID;
+		
+		//remove the pageid from the standard metadata
+		StructDelete(stdMetadata,"pageid");
 
 		//Create the page
-		newPage = application.ADF.csPage.createPage(stdMetadata,custMetadata);
+		newPage = Application.ADF.csPage.createPage(stdMetadata,custMetadata);
 		if(!newPage.pageCreated){//we couldnt create the page! Log the error and return out false.
-			application.ADF.utils.logAppend("There was an error while creating page: '#stdMetadata.name#' in subsiteID: #stdMetadata.subsiteID#","copyPageLog.txt");
+			variables.utils.logAppend("There was an error while creating page: '#stdMetadata.name#' in subsiteID: #stdMetadata.subsiteID#","copyPageLog.txt");
 			return false;
 		}
 		//Page creation successful!
 		newPageID = newPage.newPageID;
-
 
 		variables.ccapi.initCCAPI();
 		ccapiElements = variables.ccapi.getElements();
@@ -302,7 +310,7 @@ History:
 		for(i=1;i<=ArrayLen(arguments.sourceNames);i++){
 			//Verify the mapping exists
 			if( !StructKeyExists(ccapiElements,arguments.destCCAPINames[i]) ){
-				application.ADF.utils.logAppend("Destination element name #arguments.destCCAPINames[i]# is not mapped correctly in CCAPI configuration","copyPageLog.txt");
+				variables.utils.logAppend("Destination element name #arguments.destCCAPINames[i]# is not mapped correctly in CCAPI configuration","copyPageLog.txt");
 				return false;
 			}
 
@@ -326,14 +334,14 @@ History:
 				data.submitChange_comment = "Submit data for Custom element through API";
 
 				//Get the custom data
-				customData = application.ADF.ceData.getElementByNameAndCSPageID(arguments.sourceNames[i],arguments.sourcePageID);
+				customData = variables.ceData.getElementByNameAndCSPageID(arguments.sourceNames[i],arguments.sourcePageID);
 				if(structIsEmpty(customData)){
-           		application.ADF.utils.logAppend("There was an error while getting element: '#sourceNames[i]#' from page: '#arguments.sourcePageID#'","copyPageLog.txt");
+           			variables.utils.logAppend("There was an error while getting element: '#sourceNames[i]#' from page: '#arguments.sourcePageID#'","copyPageLog.txt");
 					return false;
 				}
 
 				//Get the tabs, iterate over
-				elementTabs = application.ADF.ceData.getTabsFromFormID(customData.formID,true);
+				elementTabs = variables.ceData.getTabsFromFormID(customData.formID,true);
 				//Iterate over each tab
 				for(k=1;k<=ArrayLen(elementTabs);k++){
 					//Iterate over each field in the tab
@@ -352,13 +360,13 @@ History:
 			//Populate the element with the data
 			populateContentResults = application.ADF.csContent.populateContent(destCustomElementNames[i],data);
 			if(!populateContentResults.contentUpdated){
-				application.ADF.utils.logAppend("There was an error while updating element: '#destCustomElementNames[i]#' on page: '#stdMetadata.name#' in subsiteID: #stdMetadata.subsiteID#","copyPageLog.txt");
+				variables.utils.logAppend("There was an error while updating element: '#destCustomElementNames[i]#' on page: '#stdMetadata.name#' in subsiteID: #stdMetadata.subsiteID#","copyPageLog.txt");
 				return false;
 			}
 
 		}
 		//Log our success!
-		application.ADF.utils.logAppend("Page '#stdMetadata.name#' created in subsiteID: #stdMetadata.subsiteID# succesfully.","copyPageLog.txt");
+		variables.utils.logAppend("Page '#stdMetadata.name#' created in subsiteID: #stdMetadata.subsiteID# succesfully.","copyPageLog.txt");
 		return true;
 	</cfscript>
 </cffunction>
