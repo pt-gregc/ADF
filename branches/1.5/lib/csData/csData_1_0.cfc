@@ -1821,7 +1821,7 @@ Returns:
 	Struct 
 Arguments:
 	String cspageid
-	string fieldtype
+	String fieldtype
 History:
 	2011-01-14 - GAC - Created
 --->
