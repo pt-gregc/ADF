@@ -44,7 +44,7 @@ History:
 				loadSiteAppSpace(url.subsiteURL);
 			// Verify the security for the logged in user
 			if ( NOT server.ADF.objectFactory.getBean("csSecurity_1_0").isValidContributor() )
-				server.ADF.objectFactory.getBean("utils").abort();
+				server.ADF.objectFactory.getBean("utils_1_0").abort();
 		</cfscript>
 		
 	</cffunction>
