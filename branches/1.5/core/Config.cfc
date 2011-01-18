@@ -131,7 +131,7 @@ Author: 	M. Carroll
 Name:
 	$searchConfigurationCE
 Summary:
-	Returns the sites sustom elements that have the title ending in 'Configuration'
+	Returns the sites custom elements that have the title ending in 'Configuration'
 Returns:
 	Query
 Arguments:
