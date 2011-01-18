@@ -108,7 +108,10 @@ Summary:
 Returns:
 	struct
 Arguments:
-	
+	version - Req - version number to search for
+	defaultDirectory - Req - Default directory to search for
+	preamble - the text in the filename that goes before the version number to be found. ex: jquery-
+	postamble - The text in the filename that goes after the version number ex: .custom.js
 History:
  	1/18/11 - RAK - Created
 --->
