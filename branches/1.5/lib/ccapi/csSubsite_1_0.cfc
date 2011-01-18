@@ -77,13 +77,14 @@ History:
 		{
 			// construct the CCAPI object
 			variables.ccapi.initCCAPI();
-			ws = variables.ccapi.getWS();
+			//ws = variables.ccapi.getWS();
 			if( arguments.parentSubsite neq 0 )
 				variables.ccapi.login(arguments.parentSubsite);
 			else
 				variables.ccapi.login();
 		}
 		// create the subsite
+		ws = variables.ccapi.getWS();
 		createResponse = ws.createSubsite(ssid=variables.ccapi.getSSID(), sparams=arguments.subsiteData);
 		// check to see if update wasn't successful
 		if( listFirst(createResponse, ":") neq "Success" )
