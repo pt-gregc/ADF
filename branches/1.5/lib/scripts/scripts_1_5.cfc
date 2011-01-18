@@ -62,25 +62,28 @@ History:
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfargument name="noConflict" type="boolean" required="false" default="0" hint="JQuery no conflict flag.">
 	<cfset var outputHTML = "">
-	<cfsavecontent variable="outputHTML">
+	<cfset var findScript = variables.scriptsService.findScript(arguments.version,"jquery","jquery-",".js")>
+	<cfif findScript.success>
+		<cfsavecontent variable="outputHTML">
+			<cfoutput>
+				<script type="text/javascript" src="#findScript.message#"></script>
+				<cfif arguments.noConflict>
+					<script type="text/javascript"></script>
+					No conflict mode!
+					<script type="text/javascript">
+						jQuery.noConflict();
+					</script>
+				</cfif>
+			</cfoutput>
+		</cfsavecontent>
 		<cfoutput>
-			<script type="text/javascript" src="/ADF/thirdParty/jquery/jquery-#arguments.version#.js"></script>
-			<cfif arguments.noConflict>
-				<script type="text/javascript"></script>
-				No conflict mode!
-				<script type="text/javascript">
-					jQuery.noConflict();
-				</script>
+			<cfif arguments.force>
+				#outputHTML#
+			<cfelse>
+				#variables.scriptsService.renderScriptOnce("jQuery",outputHTML)#
 			</cfif>
 		</cfoutput>
-	</cfsavecontent>
-	<cfoutput>
-		<cfif arguments.force>
-			#outputHTML#
-		<cfelse>
-			#variables.scriptsService.renderScriptOnce("jQuery",outputHTML)#
-		</cfif>
-	</cfoutput>
+	</cfif>
 </cffunction>
 
 <!---

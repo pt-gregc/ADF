@@ -95,4 +95,98 @@ History:
 	</cfif>
 </cffunction>
 
+<!---
+/* ***************************************************************
+/*
+Author: 	
+	PaperThin, Inc.
+	Ryan Kahn
+Name:
+	$findScript
+Summary:	
+	Finds the closest matching script to the version number in the filesystem
+Returns:
+	struct
+Arguments:
+	
+History:
+ 	1/18/11 - RAK - Created
+--->
+<cffunction name="findScript" access="public" returntype="struct" hint="Finds the closest matching script to the version number in the filesystem">
+	<cfargument name="version" type="string" required="true" default="1.0" hint="version number to search for">
+	<cfargument name="defaultDirectory" type="string" required="true" default="" hint="Default directory to search for">
+	<cfargument name="preamble" type="string" required="false" default="" hint="The text in the filename that goes before the version number to be found. ex: jquery-">
+	<cfargument name="postamble" type="string" required="false" default=".js" hint="The text in the filename that goes after the version number ex: .custom.js">
+	<!---
+		To goal is to locate a version of the file that matches the script order of operations:
+			1. Check the _cs_apps directory
+			2. Default directory
+			3. Trim off the least significant portion of the version number
+			IF(Len(versionNumber)){
+				repeat 1-3 until match
+			}else{
+				return failure information
+			}
+		--->
+	<cfoutput>
+		<cfscript>
+			var rtn = StructNew();
+			var tempVersion = arguments.version;
+			var lastIndex = -1;
+			var csAppsDir = "#request.site.csappsweburl#thirdParty/#defaultDirectory#/";
+			var adfDir = "/ADF/thirdParty/#defaultDirectory#/";
+			var tempFile = "";
+			rtn.success=false;
+			if(REFind("[^0-9.]",tempVersion)){
+				rtn.message = "Version information can only contain 0-9 and periods.";
+				return rtn;
+			}
+			rtn.success=true;
+
+			while(Len(tempVersion)){
+				// Search the cs_apps directory
+				tempFile = "#csAppsDir##preamble##tempVersion##postamble#";
+				if(FileExists(ExpandPath(tempFile))){
+					rtn.message = tempFile;
+					return rtn;
+				}
+				// Search the cs_apps directory for the Min
+				tempFile = "#csAppsDir##preamble##tempVersion#.min#postamble#";
+				if(FileExists(ExpandPath(tempFile))){
+					rtn.message = tempFile;
+					return rtn;
+				}
+
+				// Search the adf apps directory
+				tempFile = "#adfDir##preamble##tempVersion##postamble#";
+				if(FileExists(ExpandPath(tempFile))){
+					rtn.message = tempFile;
+					return rtn;
+				}
+
+				// Search the adf apps directory for the Min
+				tempFile = "#adfDir##preamble##tempVersion#.min#postamble#";
+				if(FileExists(ExpandPath(tempFile))){
+					rtn.message = tempFile;
+					return rtn;
+				}
+
+				//	Preform trim
+				lastIndex = tempVersion.lastIndexOf('.');
+				if(lastIndex neq -1){
+					tempVersion = left(tempVersion,lastIndex);
+				}else{
+					tempVersion = "";
+				}
+			}
+			//Uh oh, we couldnt find it.
+			application.ADF.utils.logAppend("Unable to find script #defaultDirectory#/#preamble##version##postamble#","findScript-error.txt");
+			rtn.message = "Unable to find script. #defaultDirectory#/#preamble##version##postamble#";
+			rtn.success = false;
+			return rtn;
+		</cfscript>
+	</cfoutput>
+</cffunction>
+
+
 </cfcomponent>
