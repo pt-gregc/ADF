@@ -108,7 +108,7 @@ Summary:
 Returns:
 	struct
 Arguments:
-	version - Req - version number to search for
+	version - Req - version number to search for (only accepts 0-9 and periods)
 	defaultDirectory - Req - Default directory to search for
 	preamble - the text in the filename that goes before the version number to be found. ex: jquery-
 	postamble - The text in the filename that goes after the version number ex: .custom.js
@@ -116,7 +116,7 @@ History:
  	1/18/11 - RAK - Created
 --->
 <cffunction name="findScript" access="public" returntype="struct" hint="Finds the closest matching script to the version number in the filesystem">
-	<cfargument name="version" type="string" required="true" default="1.0" hint="version number to search for">
+	<cfargument name="version" type="string" required="true" default="1.0" hint="version number to search for (only accepts 0-9 and periods)">
 	<cfargument name="defaultDirectory" type="string" required="true" default="" hint="Default directory to search for">
 	<cfargument name="preamble" type="string" required="false" default="" hint="The text in the filename that goes before the version number to be found. ex: jquery-">
 	<cfargument name="postamble" type="string" required="false" default=".js" hint="The text in the filename that goes after the version number ex: .custom.js">
