@@ -310,7 +310,6 @@ History:
 			throw("Could not find bean name: '#beanName#' while calling loadLibraryComponent");
 		}
 	</cfscript>
-	<cfdump var="#application.ADF#" label="bean">
 </cffunction>
 
 </cfcomponent>
