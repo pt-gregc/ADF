@@ -366,7 +366,8 @@ History:
 		// if we did not get a message assume that length in the ssid will suffice
 		if( not len(arguments.resultMsg) )
 		{
-			if( len( getSSID()) )
+			// if the first character of the SSID is a number then we logged in
+			if( isNumeric(left(getSSID(),1)) )
 				rtnVar = "true";
 		}
 		else
