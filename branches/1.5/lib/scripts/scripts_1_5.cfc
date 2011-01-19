@@ -56,6 +56,7 @@ History:
 	2009-07-20 - MFC - Created
 	2009-11-11 - MFC - Update to force flag to not log the script loaded when forced.
 	2010-08-26 - MFC - Updated to load 1.4 by default
+	2011-01-19 - RAK - Updated to use findScript in scriptsService
 --->
 <cffunction name="loadJQuery" access="public" returntype="void" hint="Loads the JQuery Headers if not loaded.">
 	<cfargument name="version" type="string" required="false" default="1.4" hint="JQuery version to load.">
@@ -580,7 +581,7 @@ History:
 		<cfif arguments.force>
 			#outputHTML#
 		<cfelse>
-			#variables.scriptsService.renderScriptOnce("jQuerySWFObject",outputHTML)#
+			#variables.scriptsService.renderScriptOnce("qtip",outputHTML)#
 		</cfif>
 	</cfoutput>
 </cffunction>
@@ -1254,10 +1255,12 @@ History:
 		#loadSWFObject()#
 	</cfoutput>
 	<cfsavecontent variable="outputHTML">
-		<link rel="stylesheet" href="/ADF/thirdParty/jquery/uploadify/uploadify.css" type="text/css" media="screen" />
-		<script type='text/javascript' src='/ADF/thirdParty/jquery/uploadify/jquery.uploadify.v2.1.1.min.js'></script>
+		<cfoutput>
+			<link rel="stylesheet" href="/ADF/thirdParty/jquery/uploadify/uploadify.css" type="text/css" media="screen" />
+			<script type='text/javascript' src='/ADF/thirdParty/jquery/uploadify/jquery.uploadify.v2.1.1.min.js'></script>
+		</cfoutput>
 	</cfsavecontent>
-	#variables.scriptsService.renderScriptOnce("jQueryBlockUI",outputHTML)#
+	#variables.scriptsService.renderScriptOnce("uploadify",outputHTML)#
 </cffunction>
 
 <!---
