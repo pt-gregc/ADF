@@ -56,6 +56,7 @@ Arguments:
 History:
 	2008-09-15 - RLW - Created
 	2011-01-14 - GAC - Modified - Added an option to convert Taxonomy terms to a termID list
+	2011-01-18 - GAC - Modified - Removed debugging code and updated some in-line comments
 --->
 <cffunction name="getCustomMetadata" access="public" returntype="struct">
 	<cfargument name="pageID" type="numeric" required="yes">
@@ -86,7 +87,7 @@ History:
     <cfmodule template="/commonspot/metadata/build-struct.cfm" attributecollection="#arguments#">
     <!--- <cfreturn request.metadata> --->
 	<cfscript>
-		// Copy the Module Struct to a local custMetaData
+		// Copy the Module Struct to a local custMetaData variable
 		if ( StructKeyExists(request,"metadata") )
 			custMetadata = request.metadata;
 		
@@ -97,7 +98,6 @@ History:
 			// Loop over the formkeys (MetaData Form Names) in the struct
 			for ( formKey in metaFormsStruct ) {
 				metaFormFieldStruct = metaFormsStruct[formKey];
-				//Application.ADF.utils.doDump(metaFormFieldStruct,"metaFormFieldStruct",0);
 				// Loop over the fieldkeys (MetaData Feild Names) in the FormName struct
 				for ( fieldKey in metaFormFieldStruct ) {
 					if ( StructKeyExists(custMetadata,formKey) AND StructKeyExists(custMetadata[formKey],fieldkey) ) {
