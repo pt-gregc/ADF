@@ -151,6 +151,9 @@ History:
 							rtnMsg = "Invalid argument '#arguments.type#' passed to method reset.";
 							break;
 					}
+					if(ADFReset){//Reset the cache.
+						application.ADFCache = StructNew();
+					}
 				</cfscript>
 			</cflock>
 			<cfcatch>
