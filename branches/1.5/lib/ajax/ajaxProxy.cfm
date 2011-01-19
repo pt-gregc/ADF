@@ -89,21 +89,29 @@ History:
 			utils = server.ADF.objectFactory.getBean("utils_1_0");
 			reHTML = utils.runCommand(trim(request.params.bean),trim(request.params.method),args);
 			
-			if ( request.params.returnFormat eq "json" )
-			{
-				json = server.ADF.objectFactory.getBean("json");
-				// when jsonp calls are made there will be a variable called "jsonpCallback" it will
-				// represent the method in the caller to be executed - wrap the content in that function call
-				if( structKeyExists(request.params, "jsonpCallback") )
-					reHTML = "#request.params.jsonpCallback#(" & json.encode(reHTML) & ");";
-				else
-					reHTML = json.encode(reHTML);
+			// Check to see if reHTML was destroyed by a method that returns void before attempting to process the return
+			if ( StructKeyExists(variables,"reHTML") ) {
+				if ( request.params.returnFormat eq "json" )
+				{
+					json = server.ADF.objectFactory.getBean("json");
+					// when jsonp calls are made there will be a variable called "jsonpCallback" it will
+					// represent the method in the caller to be executed - wrap the content in that function call
+					if( structKeyExists(request.params, "jsonpCallback") )
+						reHTML = "#request.params.jsonpCallback#(" & json.encode(reHTML) & ");";
+					else
+						reHTML = json.encode(reHTML);
+				}
+				if ( isStruct(reHTML) or isArray(reHTML) or isObject(reHTML) ) 
+				{
+					// set forceOutput to true to allow error string to be displayed in the ADFLightbox
+					forceOutput = true;
+					reHTML = "Error converting return format into string";
+				}
 			}
-			if ( isStruct(reHTML) or isArray(reHTML) or isObject(reHTML) ) 
+			else
 			{
-				// set forceOutput to true to allow error string to be displayed in the ADFLightbox
-				forceOutput = true;
-				reHTML = "Error converting return format into string";
+				// The method call returned void and destroyed the reHTML variable
+				// reHTML = "";
 			}
 		}
 		else
@@ -114,7 +122,7 @@ History:
 		}
 	</cfscript>
 </cfsilent>
-<cfif IsDefined("reHTML")>
+<cfif StructKeyExists(variables,"reHTML")>
 	<cfscript>if ( forceOutput IS true ) { application.ADF.scripts.loadADFLightbox(force=1); }</cfscript>
 	<!--- // if this is a lighbox window then add in the main table --->
 	<cfif request.params.addMainTable><cfoutput><table id="MainTable"><tr><td></cfoutput></cfif>
