@@ -117,14 +117,14 @@ Summary:
 Returns:
 	String termIdList
 Arguments:
-	Object csTaxObj
+	Object csTaxObj - deprecated
 	String termList
 History:
 	2009-09-03 - RLW - Created
 	2010-12-06 - SFS - Rewritten for ADF 1.5 release to eliminate need for taxonomy calls and uses taxonomy DB views instead
 --->
 <cffunction name="getTermIDs" access="public" returntype="string" hint="Returns a list of termIDs from a list of terms and a given initialized taxonomy object">
-	<cfargument name="csTaxObj" type="any" required="true" hint="No longer required - kept for backward compatibility">
+	<cfargument name="csTaxObj" type="any" required="false" hint="No longer required - kept for backward compatibility">
 	<cfargument name="termList" type="string" required="true" hint="List of Term String Names that will be converted to Ids">
 
 	<cfset termIDList = "">
