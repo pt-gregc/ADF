@@ -17,7 +17,6 @@ By downloading, modifying, distributing, using and/or accessing any files
 in this directory, you agree to the terms and conditions of the applicable 
 end user license agreement.
 --->
-
 <cfsetting requesttimeout="2500" showdebugoutput="false">
 <cfsilent>
 <!---
@@ -32,7 +31,7 @@ Summary:
 History:
 	2009-06-12 - GAC - Created
 	2009-07-21 - RLW - Made generic - requires method and current subsite everything else is packaged
-	and sent to cfc specified
+						and sent to cfc specified
 	2009-08-03 - MFC - Updated building argStr to use URLEncodedFormat for the arguments.
 					   Added isdefined check for rending the reHTML variable.
 	2009-09-15 - MFC - Updated params to take a serialized CS Simple Form string and pass
@@ -44,6 +43,10 @@ History:
 	2010-02-24 - GAC - Updated to allow AjaxProxy error messages to be displayed when returning results in an ADFLightbox 
 	2010-03-04 - MFC - Added cfheader to not cache the ajax call.
 	2011-01-06 - RAK - Changed up to use runCommand from utils to avoid the evaluate.
+	2011-01-19 - GAC - Updated the runCommand call reHTML variable to allow calls to methods that return void 
+						also replaced IsDefined with StructKeyExists
+	2011-01-19 - GAC - Added a debug parameter and debug dumps before and after the reHTML processing
+						also added a try/catch around runCommand call, if an error is caught then debugging is auto enabled
 --->
 	
 	<cfheader name="Expires" value="#now()#">
@@ -51,19 +54,23 @@ History:
 	
 	<cfparam name="request.params.method" default="" />
 	<cfparam name="request.params.bean" default="" />
-	<cfparam name="request.params.returnformat" default="plain">
-	<cfparam name="request.params.addMainTable" default="0">
+	<cfparam name="request.params.returnformat" default="plain" />
+	<cfparam name="request.params.addMainTable" default="0" type="boolean" />
+	<cfparam name="request.params.debug" default="0" type="boolean" /> 
 	<cfscript>
 		bean = structNew();
 		reHTML = "";
 		argStr = "";
+		reDebugRaw = "";
+		reDebugProcessed = "";
 		args = StructNew();
 		// set the flag that controls whether additional code is added to the reHTML output
 		forceOutput = false;
 		// set the flag for if we have a serialized form to pass to the function as a structure 
 		containsSerializedForm = false;
-		// Verify if the bean and method combo are allowed to be accessed
-		//	through the ajax proxy
+		// get the utils, scripts amd csSecurity beans 
+		utils = server.ADF.objectFactory.getBean("utils_1_0");
+		// Verify if the bean and method combo are allowed to be accessed through the ajax proxy
 		passedSecurity = server.ADF.objectFactory.getBean("csSecurity_1_0").validateProxy(request.params.bean, request.params.method);
 		if ( passedSecurity )
 		{
@@ -81,16 +88,31 @@ History:
 						serialFormStruct = server.ADF.objectFactory.getBean("csData_1_0").serializedFormStringToStruct(request.params[thisParam]);
 						StructInsert(args,"serializedForm",serialFormStruct);
 					}
-					else{
+					else
+					{
 						StructInsert(args,thisParam,request.params[thisParam]);
 					}
 				}
 			}
-			utils = server.ADF.objectFactory.getBean("utils_1_0");
-			reHTML = utils.runCommand(trim(request.params.bean),trim(request.params.method),args);
-			
+			try 
+			{
+				// Run the Bean, Method and Args and get a return value
+				reHTML = utils.runCommand(trim(request.params.bean),trim(request.params.method),args);
+			} 
+			catch( Any e ) 
+			{
+				request.params.debug = 1;
+				reHTML = e;
+			}	
+			// Build the DUMP for debugging the RAW value of reHTML
+			if ( request.params.debug ) {
+				// If the variable reHTML doesn't exist set the debug output to the string: void 
+				if (!StructKeyExists(variables,"reHTML")){debugRaw="void";}else{debugRaw=reHTML;}
+				reDebugRaw = utils.doDump(debugRaw,"RAW OUTPUT",1,1);
+			}
 			// Check to see if reHTML was destroyed by a method that returns void before attempting to process the return
-			if ( StructKeyExists(variables,"reHTML") ) {
+			if ( StructKeyExists(variables,"reHTML") ) 
+			{
 				if ( request.params.returnFormat eq "json" )
 				{
 					json = server.ADF.objectFactory.getBean("json");
@@ -111,7 +133,7 @@ History:
 			else
 			{
 				// The method call returned void and destroyed the reHTML variable
-				// reHTML = "";
+				// reHTML = ""; 
 			}
 		}
 		else
@@ -119,6 +141,20 @@ History:
 			// set forceOutput to true to allow error string to be displayed in the ADFLightbox
 			forceOutput = true;
 			reHTML = "The Bean: #request.params.bean# with method: #request.params.method# is not accessible remotely via Ajax Proxy.";	
+		}
+		// build the dump for debugging the Processed value of reHTML
+		if ( !passedSecurity OR request.params.returnformat NEQ "plain" ) 
+		{
+			// If the variable reHTML doesn't exist set the debug output to the string: void 
+			if (!StructKeyExists(variables,"reHTML")){debugProcessed="void";}else{debugProcessed=reHTML;}
+			reDebugProcessed = utils.doDump(debugProcessed,"PROCESSED OUTPUT",1,1);
+		}
+		// pass the debug dumps to the reHTML for output
+		if ( request.params.debug ) 
+		{
+			// set forceOutput to true to allow the debug dump to be displayed in the ADFLightbox
+			forceOutput=true;
+			reHTML = reDebugRaw & reDebugProcessed;
 		}
 	</cfscript>
 </cfsilent>
@@ -129,6 +165,3 @@ History:
 		<cfoutput>#TRIM(reHTML)#</cfoutput>
 	<cfif request.params.addMainTable><cfoutput></td></tr></table></cfoutput></cfif>
 </cfif>
-
-
-
