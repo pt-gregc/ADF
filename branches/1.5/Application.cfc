@@ -28,6 +28,7 @@ Summary:
 	Application file.
 History:
 	2009-06-17 - RLW - Created
+	2011-01-19 - RAK - Fixed typo in utils
 --->
 <cfcomponent>
 	

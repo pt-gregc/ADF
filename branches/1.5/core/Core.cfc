@@ -101,6 +101,7 @@ History:
 	2010-12-15 - GAC - Modified - Added the ADF version to the reset message
 	2010-12-20 - MFC - Modified - Added check at top to verify if ADF space exists in the SERVER and APPLICATION 
 									and set the force reset flag.
+	2011-01-19 - RAK - Modified - Added cache reset
 --->
 <cffunction name="reset" access="remote" returnType="Struct">
 	<cfargument name="type" type="string" required="false" default="all" hint="The type of the ADF to reset.  Options are 'Server', 'Site' or 'All'. Defaults to 'All'.">
