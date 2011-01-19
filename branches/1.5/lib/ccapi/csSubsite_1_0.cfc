@@ -179,8 +179,9 @@ Arguments:
 History:
 	2009-06-25 - MFC - Created
 	2009-07-29 - RLW - Migrated to CSSubsite and converted app calls to global
+	2011-01-19 - GAC - Made the access for this function public 
 --->
-<cffunction name="handleCreateSubsite" access="private" returntype="numeric" hint="">
+<cffunction name="handleCreateSubsite" access="public" returntype="numeric" hint="">
 	<cfargument name="subsitePath" type="string" required="true">	
 	<cfscript>
 		var retSubID = 0;
