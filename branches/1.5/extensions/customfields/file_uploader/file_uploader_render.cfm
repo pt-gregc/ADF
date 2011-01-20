@@ -57,7 +57,7 @@ end user license agreement.
 			//The folder is actually the custom field's ID so we can look up the prop values
 			jQuery('##upload_btn_#fqFieldName#').uploadify({
 				'uploader'  : '/ADF/thirdParty/jquery/uploadify/uploadify.swf',
-				'script'    : '/ADF/extensions/customfields/file_uploader/handleFileUpload.cfm?subsiteURL#request.subsite.url#',
+				'script'    : '/ADF/extensions/customfields/file_uploader/handleFileUpload.cfm?subsiteURL=#request.subsite.url#',
 				'cancelImg' : '/ADF/thirdParty/jquery/uploadify/cancel.png',
 				'auto'      : true,
 				'folder'    : '/#uploadUUID#/#fieldQuery.inputID#',

@@ -51,6 +51,13 @@ end user license agreement.
 			}
 		}
 	</script>
+<!---
+	This version is using the wrapFieldHTML functionality, what this does is it takes
+	the HTML that you want to put into the TD of the right section of the display, you
+	can optionally disable this by adding the includeLabel = false (fourth parameter)
+	when false it simply creates a TD and puts your content inside it. This wrapper handles
+	everything from description to simple form field handling.
+--->
 	<cfsavecontent variable="inputHTML">
 		<cfoutput>
 			<input name="#fqFieldName#" id='#fqFieldName#' value="#currentValue#" <cfif readOnly>disabled="disabled"</cfif>>
