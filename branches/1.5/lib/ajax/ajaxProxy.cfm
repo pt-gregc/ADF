@@ -107,7 +107,7 @@ History:
 			// Build the DUMP for debugging the RAW value of reHTML
 			if ( request.params.debug ) {
 				// If the variable reHTML doesn't exist set the debug output to the string: void 
-				if (!StructKeyExists(variables,"reHTML")){debugRaw="void";}else{debugRaw=reHTML;}
+				if ( !StructKeyExists(variables,"reHTML") ){debugRaw="void";}else{debugRaw=reHTML;}
 				reDebugRaw = utils.doDump(debugRaw,"RAW OUTPUT",1,1);
 			}
 			// Check to see if reHTML was destroyed by a method that returns void before attempting to process the return
@@ -146,7 +146,7 @@ History:
 		if ( !passedSecurity OR request.params.returnformat NEQ "plain" ) 
 		{
 			// If the variable reHTML doesn't exist set the debug output to the string: void 
-			if (!StructKeyExists(variables,"reHTML")){debugProcessed="void";}else{debugProcessed=reHTML;}
+			if ( !StructKeyExists(variables,"reHTML") ){debugProcessed="void";}else{debugProcessed=reHTML;}
 			reDebugProcessed = utils.doDump(debugProcessed,"PROCESSED OUTPUT",1,1);
 		}
 		// pass the debug dumps to the reHTML for output
