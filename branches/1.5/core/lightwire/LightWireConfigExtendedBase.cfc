@@ -32,8 +32,126 @@ end user license agreement.
 </cffunction>
 
 <!---
-	/* ***************************************************************
-	/*
+	/* *************************************************************** */
+	Author: 	G. Cronkright
+	Name:
+		$addSingleton
+	Summary:
+		Override method for the Lightwire addSingleton method with added error handling.
+		Used to add the configuration properties for a Singleton.
+	Returns:
+		void
+	Arguments:
+		String - FullClassPath 
+		String - BeanName 
+		String - InitMethod 
+	History:
+		2011-01-20 - GAC - Copied from Lightwire BaseConfigObject.cfc
+						   Modified to add error logging
+--->
+<cffunction name="addSingleton" returntype="void" hint="I add the configuration properties for a Singleton." output="false">
+	<cfargument name="FullClassPath" required="true" type="string" hint="The full class path to the bean including its name. E.g. for com.UserService.cfc it would be com.UserService.">
+	<cfargument name="BeanName" required="false" default="" type="string" hint="An optional name to be able to use to refer to this bean. If you don't provide this, the name of the bean will be used as a default. E.g. for com.UserService, it'll be named UserService unless you put something else here. If you put UserS, it'd be available as UserS, but NOT as UserService.">
+	<cfargument name="InitMethod" required="false" default="" type="string" hint="A default custom initialization method for LightWire to call on the bean after constructing it fully (including setter and mixin injection) but before returning it.">
+	<cfscript>
+		var buildError = StructNew();
+
+		try {
+			// Call the addSingleton method from the extended BaseConfigObject in Lightwire
+			Super.addSingleton(argumentCollection=arguments);
+			//addBean(FullClassPath, BeanName, 1, InitMethod);
+		}
+		catch(Any e) {
+			// Build the Error Struct
+			buildError.args = arguments;
+			buildError.details = e;
+			// Log the Error struct and add it to the ADF buildErrors Array 
+			doConfigBuildErrorLogging("addSingleton",buildError);
+		}
+	</cfscript>
+</cffunction>
+
+<!---
+	/* *************************************************************** */
+	Author: 	G. Cronkright
+	Name:
+		$addTransient
+	Summary:
+		Override method for the Lightwire addTransient method with added error handling.
+		Used to add the configuration properties for a Transient.
+	Returns:
+		void
+	Arguments:
+		String - FullClassPath 
+		String - BeanName 
+		String - InitMethod 
+	History:
+		2011-01-20 - GAC - Copied from Lightwire BaseConfigObject.cfc
+						   Modified to add error logging
+--->
+<cffunction name="addTransient" returntype="void" hint="I add the configuration properties for a Transient." output="false">
+	<cfargument name="FullClassPath" required="true" type="string" hint="The full class path to the bean including its name. E.g. for com.User.cfc it would be com.User.">
+	<cfargument name="BeanName" required="false" default="" type="string" hint="An optional name to be able to use to refer to this bean. If you don't provide this, the name of the bean will be used as a default. E.g. for com.User, it'll be named User unless you put something else here. If you put UserBean, it'd be available as UserBean, but NOT as User.">
+	<cfargument name="InitMethod" required="false" default="" type="string" hint="A default custom initialization method for LightWire to call on the bean after constructing it fully (including setter and mixin injection) but before returning it.">
+	<cfscript>
+		var buildError = StructNew();
+
+		try {
+			// Call the addTransient method from the extended BaseConfigObject in Lightwire
+			Super.addTransient(argumentCollection=arguments);
+			//addBean(FullClassPath, BeanName, 0, InitMethod);
+		}
+		catch( Any e ) {
+			// Build the Error Struct
+			buildError.args = arguments;
+			buildError.details = e;
+			// Log the Error struct and add it to the ADF buildErrors Array 
+			doConfigBuildErrorLogging("addTransient",buildError);
+		}
+	</cfscript>
+</cffunction>
+
+<!---
+	/* *************************************************************** */
+	Author: 	G. Cronkright
+	Name:
+		$addConstructorDependency
+	Summary:
+		Override method for the Lightwire addConstructorDependency method with added error handling.
+		Used to  add a constructor object dependency for a bean.
+	Returns:
+		void
+	Arguments:
+		String - BeanName 
+		String - InjectedBeanName 
+		String - PropertyName 
+	History:
+		2011-01-20 - GAC - Copied from Lightwire BaseConfigObject.cfc
+						   Modified to add error logging
+--->
+<cffunction name="addConstructorDependency" returntype="void" hint="I add a constructor object dependency for a bean." output="false">
+	<cfargument name="BeanName" required="true" type="string" hint="The name of the bean to set the constructor dependencies for.">
+	<cfargument name="InjectedBeanName" required="true" default="" type="string" hint="The name of the bean to inject.">
+	<cfargument name="PropertyName" required="false" default="" type="string" hint="The optional property name to pass the bean into. Defaults to the bean name if not provided.">
+	<cfscript>
+		var buildError = StructNew();
+		
+		try {
+			// Call the addTransient method from the extended BaseConfigObject in Lightwire
+			Super.addConstructorDependency(argumentCollection=arguments);
+		}
+		catch( Any e ) {
+			// Build the Error Struct
+			buildError.args = arguments;
+			buildError.details = e;
+			// Log the Error struct and add it to the ADF buildErrors Array 
+			doConfigBuildErrorLogging("addConstructorDependency",buildError);
+		}
+	</cfscript>
+</cffunction>
+
+<!---
+	/* *************************************************************** */
 	Author: 	M. Carroll
 	Name:
 		$getComPathForCustomAppDir
@@ -64,8 +182,7 @@ end user license agreement.
 </cffunction>
 
 <!---
-	/* ***************************************************************
-	/*
+	/* *************************************************************** */
 	Author: 	M. Carroll
 	Name:
 		$loadADFAppBeanConfig
@@ -79,6 +196,7 @@ end user license agreement.
 		String - path
 	History:
 		2009-05-11 - MFC - Created
+		2011-01-21 - GAC - Modified to add error logging around the cfinclude
 --->
 <cffunction name="loadADFAppBeanConfig" returntype="void" access="public" output="true" hint="Loads the custom apps bean config file.">
 	<cfargument name="path" type="string" required="false" default="\ADF\apps\">
@@ -88,23 +206,37 @@ end user license agreement.
 		var retFilteredQry = QueryNew("temp");
 		var i = 1;
 		var dirPath = "";
-	
+		var appBeanConfigPath = "";
+		//var logFileName = "ADF_loadADFAppBeanConfig_Errors";
+		var buildError = StructNew();
 		// Recurse the custom app directory
 		appLibDirQry = directoryFiles(arguments.path, "true");
 		// Query the results to find the 'appBeanConfig.cfm' files
 		retFilteredQry = filterQueryByCFCFile(appLibDirQry, 'appBeanConfig.cfm');
 	</cfscript>
 
-	<!--- Build the include statements --->
+	<!--- Build the appBeanConfig include statements --->
 	<cfloop index="i" from="1" to="#retFilteredQry.RecordCount#">
-		<cfset dirPath = Replace(retFilteredQry.directory[i],ExpandPath(arguments.path),"")> 
-		<cfinclude template="#arguments.path##dirPath#/#retFilteredQry.name[i]#">
+		<cfset dirPath = Replace(retFilteredQry.directory[i],ExpandPath(arguments.path),"") />
+		<cfset appBeanConfigPath = "#arguments.path##dirPath#/#retFilteredQry.name[i]#" /> 
+		<cftry>
+			<!--- // Include the the appBeanConfig file from each app --->
+			<cfinclude template="#appBeanConfigPath#">
+			<cfcatch>
+				<!--- // Build the Error Struct --->
+				<cfset buildError.appBeanConfigPath = appBeanConfigPath />
+				<!--- <cfset buildError.args = arguments /> --->
+				<cfset buildError.details = cfcatch />
+				<!--- // Log the Error struct and add it to the ADF buildErrors Array --->
+				<cfset doConfigBuildErrorLogging("loadADFAppBeanConfig",buildError) />
+				<!--- <cfexit /> --->
+			</cfcatch>
+		</cftry>
 	</cfloop>
 </cffunction>
 
 <!---
-	/* ***************************************************************
-	/*
+	/* *************************************************************** */
 	Author: 	M. Carroll
 	Name:
 		$loadADFLibComponents
@@ -160,8 +292,7 @@ end user license agreement.
 </cffunction>
 
 <!---
-	/* ***************************************************************
-	/*
+	/* *************************************************************** */
 	Author: 	M. Carroll
 	Name:
 		$processMetadata
@@ -228,8 +359,7 @@ end user license agreement.
 </cffunction>
 
 <!---
-	/* ***************************************************************
-	/*
+	/* *************************************************************** */
 	Author: 	M. Carroll
 	Name:
 		$loadDependencies
@@ -281,20 +411,19 @@ end user license agreement.
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	M. Carroll
-Name:
-	$addConfigStruct
-Summary:
-	Stores the config struct into the config for the object factory.
-Returns:
-	Void
-Arguments:
-	String - beanName
-	Struct - configStruct
-History:
-	2009-08-07 - MFC - Created
+	/* *************************************************************** */
+	Author: 	M. Carroll
+	Name:
+		$addConfigStruct
+	Summary:
+		Stores the config struct into the config for the object factory.
+	Returns:
+		Void
+	Arguments:
+		String - beanName
+		Struct - configStruct
+	History:
+		2009-08-07 - MFC - Created
 --->
 <cffunction name="addConfigStruct" access="public" returntype="void" hint="Stores the config struct into the config for the object factory.">
 	<cfargument name="beanName" type="string" required="true">
@@ -307,8 +436,7 @@ History:
 </cffunction>
 
 <!---
-	/* ***************************************************************
-	/*
+	/* *************************************************************** */
 	Author: 	M. Carroll
 	Name:
 		$loadSiteComponents
@@ -354,8 +482,7 @@ History:
 <!--- UTILITY FUNCTIONS --->
 
 <!---
-	/* ***************************************************************
-	/*
+	/* *************************************************************** */
 	Author: 	M. Carroll
 	Name:
 		$directoryFiles
@@ -380,8 +507,7 @@ History:
 </cffunction>
 
 <!---
-	/* ***************************************************************
-	/*
+	/* *************************************************************** */
 	Author: 	M. Carroll
 	Name:
 		$filterQueryByCFCFile
@@ -416,8 +542,7 @@ History:
 </cffunction>
 
 <!---
-	/* ***************************************************************
-	/*
+	/* *************************************************************** */
 	Author: 	M. Carroll
 	Name:
 		$buildBeanDataStruct
@@ -454,24 +579,23 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	M. Carroll
-Name:
-	$processCFCPath
-Summary:
-	Returns the CFC path for the component relative to the ADF or site name for the full directory path.
-Returns:
-	String - Com Path relative to the ADF or site name.
-Arguments:
-	String - dirPath - Directory Path
-History:
-	2009-10-19 - MFC - Created
-	2010-03-29 - MFC/GAC - Restructured for correct request variables and paths.
-	2010-10-20 - RLW - fixed bug that required the ADF to be installed in a directory named "ADF"
-	2010-11-23 - RLW - fixed bug loading the site level ADF components overrides (/cs_apps/lib/)
-	2010-12-08 - RAK - Fixing bug loading site component overrides (/_cs_apps/lib)
-									added expandPAth and changed hardcoded var to request.site.csAppsURL
+	/* *************************************************************** */
+	Author: 	M. Carroll
+	Name:
+		$processCFCPath
+	Summary:
+		Returns the CFC path for the component relative to the ADF or site name for the full directory path.
+	Returns:
+		String - Com Path relative to the ADF or site name.
+	Arguments:
+		String - dirPath - Directory Path
+	History:
+		2009-10-19 - MFC - Created
+		2010-03-29 - MFC/GAC - Restructured for correct request variables and paths.
+		2010-10-20 - RLW - fixed bug that required the ADF to be installed in a directory named "ADF"
+		2010-11-23 - RLW - fixed bug loading the site level ADF components overrides (/cs_apps/lib/)
+		2010-12-08 - RAK - Fixing bug loading site component overrides (/_cs_apps/lib)
+										added expandPath and changed hardcoded var to request.site.csAppsURL
 --->
 <cffunction name="processCFCPath" access="private" returntype="string" hint="Returns the CFC path for the component relative to the ADF or site name for the full directory path.">
 	<cfargument name="dirPath" type="string" required="true">
@@ -502,6 +626,42 @@ History:
 			retComPath = retComPath & ".";
 	</cfscript>
 	<cfreturn retComPath>
+</cffunction>
+
+<!---
+	/* ***************************************************************
+	/*
+	Author: 	G. Cronkright
+	Name:
+		doBuildErrorLogging
+	Summary:
+		Create a Log file for the given error and add the error struct to the Application.ADF.buildErrors Array
+	Returns:
+		Boolean
+	Arguments:
+		String - meathodName
+	History:
+		2011-01-21 - GAC - Created
+--->
+<cffunction name="doConfigBuildErrorLogging" access="public" returntype="void">
+	<cfargument name="methodName" type="string" required="false" default="GenericBuild">
+	<cfargument name="errorDetailsStruct" type="struct" required="false" default="#StructNew()#">
+	<cfscript>
+		var dump = "";
+		var logFileName = dateFormat(now(), "yyyymmdd") & "." & request.site.name & ".ADF_" & arguments.methodName & "_Errors.htm";
+		var errorStruct = arguments.errorDetailsStruct;	
+		// Add the methodName to the errorStruct
+		errorStruct.ADFmethodName = arguments.methodName;
+	</cfscript>
+	<!--- // Package the error dump and write it to a html file in the logs directory --->
+	<cfsavecontent variable="dump">
+		<cfdump var="#errorStruct#" label="#arguments.methodName# Error" expand="false">
+	</cfsavecontent>
+	<cffile action="append" file="#request.cp.commonSpotDir#logs/#logFileName#" output="#request.formattedtimestamp# - #dump#" addnewline="true">
+	<cfscript>
+		// Add the errorStruct to the server.ADF.buildErrors Array 
+		ArrayAppend(server.ADF.buildErrors,errorStruct);
+	</cfscript>
 </cffunction>
 
 </cfcomponent>

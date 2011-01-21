@@ -42,7 +42,7 @@ History:
 <cfproperty name="version" value="1_0_0">
 
 <cfscript>
-	variables.ADFversion = "1.5.0";
+	variables.ADFversion = "1.5"; // use a dot delimited version number
 </cfscript>
 	
 <cffunction name="init" output="true" returntype="void">
@@ -161,7 +161,7 @@ History:
 							createObject("component", "ADF.core.Core").init();
 							// 2010-06-23 jrybacek Reload ADF site
 							createObject("component", "#request.site.name#._cs_apps.ADF").init();
-							rtnMsg = "ADF #ADFversion# framework has been reset succesfully!";
+							rtnMsg = "ADF #ADFversion# framework  has been reset succesfully!";
 							ADFReset = true;
 							break;
 						case "SERVER":
@@ -180,10 +180,13 @@ History:
 							rtnMsg = "Invalid argument '#arguments.type#' passed to method reset.";
 							break;
 					}
-					if(ADFReset){//Reset the cache.
+					if ( ADFReset ) //Reset the cache.
 						application.ADFCache = StructNew();
-					}
 				</cfscript>
+				<!--- // If sever.ADF.buildError Array has any errors... throw an exception (used the cfthrow tag for CF8 compatibility) --->
+				<cfif StructKeyExists(server.ADF,"buildErrors") AND ArrayLen(server.ADF.buildErrors)>
+					<cfthrow type="ADFBuildError" message="ADF Build Errors Occured" detail="Check the Server.ADF.buildErrors for Details." />
+				</cfif>
 			</cflock>
 			<cfcatch>
 				<cfsavecontent variable="dump">
@@ -204,10 +207,8 @@ History:
 						<cfdump var="#application.ADF#" label="application.ADF" expand="false">
 					</cfif>
 				</cfsavecontent>
-
-
+				<!--- // Log the error content --->
 				<cfif StructKeyExists(request,"site")>
-					<!--- Log the error content --->
 					<cfset siteName = request.site.name>
 				</cfif>
 				<cfset logFileName = dateFormat(now(), "yyyymmdd") & "." & siteName & ".ADF_Load_Errors.htm">

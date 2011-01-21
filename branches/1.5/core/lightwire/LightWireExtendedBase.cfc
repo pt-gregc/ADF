@@ -22,4 +22,77 @@ end user license agreement.
 
 <cfproperty name="version" value="1_0_0">
 
+<!---
+	/* *************************************************************** */
+	Author: 	G. Cronkright
+	Name:
+		$getBean
+	Summary:
+		Override method for the Lightwire getBean method with added error handling.
+		Used return a bean with all of its dependencies loaded..
+	Returns:
+		void
+	Arguments:
+		String - ObjectName 
+	History:
+		2011-01-20 - GAC - Copied from Lightwire Lightwire.cfc
+						   Modified to add error logging
+--->
+<cffunction name="getBean" returntype="any" access="public" output="false" hint="I return a bean with all of its dependencies loaded.">
+	<cfargument name="ObjectName" type="string" required="yes" hint="I am the name of the object to generate.">
+	<cfscript>
+		var ReturnObject = '';
+		var buildError = StructNew();
+		
+		try {
+			// Call the getBean method from the extended Lightwire.cfc in Lightwire
+			ReturnObject = Super.getBean(argumentCollection=arguments);
+		}
+		catch( Any e ) {
+			// Build the Error Struct
+			buildError.args = arguments;
+			buildError.details = e;
+			// Log the Error struct and add it to the ADF buildErrors Array 
+			doBuildErrorLogging("getBean",buildError);
+		}
+		return ReturnObject;
+	</cfscript>	
+</cffunction>
+
+<!---
+	/* ***************************************************************
+	/*
+	Author: 	G. Cronkright
+	Name:
+		doBuildErrorLogging
+	Summary:
+		Create a Log file for the given error and add the error struct to the Application.ADF.buildErrors Array
+	Returns:
+		Boolean
+	Arguments:
+		String - meathodName
+	History:
+		2011-01-21 - GAC - Created
+--->
+<cffunction name="doBuildErrorLogging" access="public" returntype="void">
+	<cfargument name="methodName" type="string" required="false" default="GenericBuild">
+	<cfargument name="errorDetailsStruct" type="struct" required="false" default="#StructNew()#">
+	<cfscript>
+		var dump = "";
+		var logFileName = dateFormat(now(), "yyyymmdd") & "." & request.site.name & ".ADF_" & arguments.methodName & "_Errors.htm";
+		var errorStruct = arguments.errorDetailsStruct;	
+		// Add the methodName to the errorStruct
+		errorStruct.ADFmethodName = arguments.methodName;
+	</cfscript>
+	<!--- // Package the error dump and write it to a html file in the logs directory --->
+	<cfsavecontent variable="dump">
+		<cfdump var="#errorStruct#" label="#arguments.methodName# Error" expand="false">
+	</cfsavecontent>
+	<cffile action="append" file="#request.cp.commonSpotDir#logs/#logFileName#" output="#request.formattedtimestamp# - #dump#" addnewline="true">
+	<cfscript>
+		// Add the errorStruct to the server.ADF.buildErrors Array 
+		ArrayAppend(server.ADF.buildErrors,errorStruct);
+	</cfscript>
+</cffunction>
+
 </cfcomponent>
