@@ -19,8 +19,7 @@ end user license agreement.
 --->
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	
 	PaperThin, Inc. 
 Name:
@@ -29,6 +28,7 @@ Summary:
 	Base component for Custom Application Common Framework
 History:
 	2009-05-11 - MFC - Created
+	2011-01-21 - GAC - Added a getADFversion function
 --->
 <cfcomponent name="Base" hint="Base component for Custom Application Common Framework">
 
@@ -40,6 +40,29 @@ History:
 			super.init(argumentCollection=arguments);
 		StructAppend(variables, arguments, false);
 		return this;
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	G. Cronkright
+Name:
+	getADFversion
+Summary:
+	Returns the ADF Version
+Returns:
+	String - ADF Version
+Arguments:
+	Void
+History:
+	2011-01-20 - GAC - Created
+--->
+<cffunction name="getADFversion" access="public" returntype="string">
+	<cfscript>
+		var ADFversion = "1.0";
+		if ( StructKeyExists(server.ADF,"version") )
+			ADFversion = server.ADF.version;
+	 	return ADFversion;
 	</cfscript>
 </cffunction>
 

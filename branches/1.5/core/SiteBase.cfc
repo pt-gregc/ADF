@@ -58,6 +58,7 @@ History:
 		application.ADF.library = StructNew(); // Stores library components
 		application.ADF.dependencyStruct = StructNew();  // Stores the bean dependency list
 		application.ADF.siteAppList = ""; // Stores a list of the sites Apps loaded 
+		application.ADF.version = "";
 	</cfscript>	
 	
 </cffunction>
@@ -95,6 +96,9 @@ History:
 		
 		// Load the site components
 		loadSiteComponents();
+		
+		// Adds the ADF version to the Application.ADF stuct
+		application.ADF.version = getADFversion();
 	</cfscript>
 </cffunction>
 
