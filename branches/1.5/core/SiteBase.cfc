@@ -19,8 +19,7 @@ end user license agreement.
 --->
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	
 	PaperThin, Inc. 
 Name:
@@ -29,14 +28,14 @@ Summary:
 	Site Base component for the ADF
 History:
 	2009-08-14 - MFC - Created
+	2011-01-21 - GAC - Added a version variable to Application.ADF
 --->
 <cfcomponent displayname="SiteBase" extends="ADF.core.AppBase">
 
 <cfproperty name="version" value="1_0_0">
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	M. Carroll
 Name:
 	$initSite
@@ -64,20 +63,19 @@ History:
 </cffunction>
 
 <!---
-	/* ***************************************************************
-	/*
-	Author: 	M. Carroll
-	Name:
-		$loadSite
-	Summary:
-		Load the Application.ADF object factory, site specific components, and 
-			environment variables for the current site.
-	Returns:
-		Void
-	Arguments:
-		Void
-	History:
-		2009-08-07 - MFC - Created
+/* *************************************************************** */
+Author: 	M. Carroll
+Name:
+	$loadSite
+Summary:
+	Load the Application.ADF object factory, site specific components, and 
+		environment variables for the current site.
+Returns:
+	Void
+Arguments:
+	Void
+History:
+	2009-08-07 - MFC - Created
 --->
 <cffunction name="loadSite" access="private" returntype="void" hint="Stores the ADF Lib Components into application.ADF space.">
 	
@@ -103,19 +101,18 @@ History:
 </cffunction>
 
 <!---
-	/* ***************************************************************
-	/*
-	Author: 	M. Carroll
-	Name:
-		$configEnvironment
-	Summary:
-		Initializes the server.ADF.environment space for the site.
-	Returns:
-		Void
-	Arguments:
-		Void
-	History:
-		2009-08-10 - MFC - Created
+/* *************************************************************** */
+Author: 	M. Carroll
+Name:
+	$configEnvironment
+Summary:
+	Initializes the server.ADF.environment space for the site.
+Returns:
+	Void
+Arguments:
+	Void
+History:
+	2009-08-10 - MFC - Created
 --->
 <cffunction name="configSiteEnvironment" access="private" returntype="void" hint="Initializes the server.ADF.environment space for the site.">
 	
@@ -128,19 +125,18 @@ History:
 </cffunction>
 
 <!---
-	/* ***************************************************************
-	/*
-	Author: 	M. Carroll
-	Name:
-		$loadSiteComponents
-	Summary:
-		Load the site components in the APPLICATION.ADF object factory into APPLICATION.ADF components
-	Returns:
-		Void
-	Arguments:
-		Void
-	History:
-		2009-08-07 - MFC - Created
+/* *************************************************************** */
+Author: 	M. Carroll
+Name:
+	$loadSiteComponents
+Summary:
+	Load the site components in the APPLICATION.ADF object factory into APPLICATION.ADF components
+Returns:
+	Void
+Arguments:
+	Void
+History:
+	2009-08-07 - MFC - Created
 --->
 <cffunction name="loadSiteComponents" access="private" returntype="void" hint="Stores the site specific components in '/_cs_apps/components' into application.ADF space."> 
 	
@@ -160,8 +156,7 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	M. Carroll
 Name:
 	$loadLibrary
@@ -204,8 +199,7 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	M. Carroll
 Name:
 	$resetLibrary
@@ -235,20 +229,19 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	M. Carroll
-Name:
-	$loadSiteAjaxProxyWhiteList
-Summary:
-	Loads the site Ajax Service Proxy white list file
-Returns:
-	Void
-Arguments:
-	Void
-History:
-	2009-08-25 - MFC - Created
-	2009-11-05 - MFC - Updated for the ajax proxy security based on bean and method.
+	/* *************************************************************** */
+	Author: 	M. Carroll
+	Name:
+		$loadSiteAjaxProxyWhiteList
+	Summary:
+		Loads the site Ajax Service Proxy white list file
+	Returns:
+		Void
+	Arguments:
+		Void
+	History:
+		2009-08-25 - MFC - Created
+		2009-11-05 - MFC - Updated for the ajax proxy security based on bean and method.
 --->
 <cffunction name="loadSiteAjaxProxyWhiteList" access="private" returntype="void" hint="">
 	
@@ -266,29 +259,27 @@ History:
 </cffunction>
 
 <!---
-	/* ***************************************************************
-	/*
-	Author: 	Ron West
-	Name:
-		$setAjaxProxyURL
-	Summary:	
-		Each site can have its own AjaxProxy URL - we will default this to:
-		/_cs_apps/ajaxProxy.cfm
-	Returns:
-		Void
-	Arguments:
-		String proxyURL
-	History:
-		2009-10-14 - RLW - Created
-	--->
+/* *************************************************************** */
+Author: 	Ron West
+Name:
+	$setAjaxProxyURL
+Summary:	
+	Each site can have its own AjaxProxy URL - we will default this to:
+	/_cs_apps/ajaxProxy.cfm
+Returns:
+	Void
+Arguments:
+	String proxyURL
+History:
+	2009-10-14 - RLW - Created
+--->
 <cffunction name="setAjaxProxyURL" access="public" returntype="void" hint="Sets the URL to the AjaxProxy">
 	<cfargument name="proxyURL" type="string" required="true" hint="The server relative URL to the ajaxProxy.cfm file">
 	<cfset application.ADF.ajaxProxy = arguments.proxyURL>
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author:
 	PaperThin, Inc.
 	Ryan Kahn
@@ -299,7 +290,8 @@ Summary:
 Returns:
 	void
 Arguments:
-
+	string - beanName
+	string - adfBeanName
 History:
  	1/18/11 - RAK - Created
 --->
@@ -311,6 +303,7 @@ History:
 		if(server.ADF.objectFactory.containsBean(beanName)){
 			StructInsert(application.ADF,adfBeanName,server.ADF.objectFactory.getSingleton(beanName),true);
 		}else{
+			// TODO: Need to check this... not sure the cfscript version of cfthrow is CF8 compatible
 			throw("Could not find bean name: '#beanName#' while calling loadLibraryComponent");
 		}
 	</cfscript>
