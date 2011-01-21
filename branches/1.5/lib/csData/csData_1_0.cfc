@@ -1881,4 +1881,39 @@ History:
 	</cfscript>
 </cffunction>
 
+<!---
+/* ***************************************************************
+/*
+Author: 	Ryan Kahn
+Name:
+	$getRSSFeedURLFromElementID
+Summary:
+	Given an elementID get the RSS feed url
+Returns:
+	String rssFeedURL
+Arguments:
+	Numeric elementID
+History:
+	2010-10-15 - RAK - Created
+--->
+<cffunction name="getRSSFeedURLFromElementID">
+	<cfargument name="elementID" required="true" type="numeric" hint="attributes.elementinfo.id">
+	<cfscript>
+		var rssData = "";
+		var pageURL = "";
+	</cfscript>
+	<cfquery name="rssData" datasource="#request.site.datasource#">
+		select xpub.pageid, xfmt.name as fmtName, xpub.name as pubName from xmlpublications xpub
+		join xmlpublicationformat xfmt on xfmt.XMLPublicationFormatID = xpub.XMLPublicationFormatID
+		where xpub.controlid = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.elementID#">
+	</cfquery>
+	<cfif rssData.recordCount>
+		<cfscript>
+			pageURL = application.ADF.csData.getCSPageURL(rssData.pageID);
+			pageURL = pageURL&"?xml="&rssData.pubName&","&rssData.fmtName;
+		</cfscript>
+	</cfif>
+	<cfreturn pageURL>
+</cffunction>
+
 </cfcomponent>
