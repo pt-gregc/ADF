@@ -19,8 +19,7 @@ end user license agreement.
 --->
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Application Development Framework (ADF)
 Copyright (c) 2009 PaperThin, Inc.
 Dual licensed under the MIT and GPL licenses.
@@ -34,10 +33,17 @@ Summary:
 	Core component for Custom Application Common Framework
 History:
 	2009-06-22 - MFC - Created
+	2011-01-20 - GAC - Modified - Added a shared variable for ADF version
+									Added a function that returns the ADF version
+	2011-01-21 - GAC - Modified - Added a place to store build errors that occur while building the ADF
 --->
 <cfcomponent name="Core" hint="Core component for Application Development Framework">
 
 <cfproperty name="version" value="1_0_0">
+
+<cfscript>
+	variables.ADFversion = "1.5.0";
+</cfscript>
 	
 <cffunction name="init" output="true" returntype="void">
 	<cfscript>
@@ -51,6 +57,8 @@ History:
 		server.ADF.library = StructNew(); // Stores library components
 		server.ADF.proxyWhiteList = StructNew(); // Stores Ajax Proxy White List
 		server.ADF.dir = expandPath('/ADF');
+		server.ADF.buildErrors = ArrayNew(1); // Place to store errors that occur while building the ADF
+		server.ADF.version = getADFversion(); // Get the ADF version
 		
 		// Build object factory 
 		server.ADF.beanConfig = createObject("component","ADF.core.lightwire.BeanConfig").init();
@@ -84,6 +92,25 @@ History:
 </cffunction>
 
 <!---
+	/* ***************************************************************
+	/*
+	Author: 	G. Cronkright
+	Name:
+		getADFversion
+	Summary:
+		Returns the ADF Version
+	Returns:
+		String - ADF Version
+	Arguments:
+		Void
+	History:
+		2011-01-20 - GAC - Created
+--->
+<cffunction name="getADFversion" access="public" returntype="string">
+	<cfreturn variables.ADFversion />
+</cffunction>
+
+<!---
 /* *************************************************************** */
 Author: 	jrybacek
 Name:
@@ -102,6 +129,7 @@ History:
 	2010-12-20 - MFC - Modified - Added check at top to verify if ADF space exists in the SERVER and APPLICATION 
 									and set the force reset flag.
 	2011-01-19 - RAK - Modified - Added cache reset
+	2011-01-20 - GAC - Modified - Get the ADF version from the getADFversion function
 --->
 <cffunction name="reset" access="remote" returnType="Struct">
 	<cfargument name="type" type="string" required="false" default="all" hint="The type of the ADF to reset.  Options are 'Server', 'Site' or 'All'. Defaults to 'All'.">
@@ -111,7 +139,7 @@ History:
 		var returnStruct = StructNew();
 		var siteName = "";
 		var logFileName = "";
-		var ADFversion = "v1.5";
+		var ADFversion = "v" & getADFversion();
 		var forceReset = false;
 				
 		// Check if the ADF space exists in the SERVER and APPLICATION
@@ -184,7 +212,7 @@ History:
 				</cfif>
 				<cfset logFileName = dateFormat(now(), "yyyymmdd") & "." & siteName & ".ADF_Load_Errors.htm">
 				<cffile action="append" file="#request.cp.commonSpotDir#logs/#logFileName#" output="#request.formattedtimestamp# - #dump#" addnewline="true">
-				<cfset rtnMsg = "Error building the ADF. <a href='/commonspot/logs/#logFileName#' target='_blank'>View the log</a>">
+				<cfset rtnMsg = "Error building the ADF #ADFversion#. <a href='/commonspot/logs/#logFileName#' target='_blank'>View the log</a>">
 			</cfcatch>
 		</cftry>
 	</cfif>
