@@ -47,6 +47,7 @@ History:
 						also replaced IsDefined with StructKeyExists
 	2011-01-19 - GAC - Added a debug parameter and debug dumps before and after the reHTML processing
 						also added a try/catch around runCommand call, if an error is caught then debugging is auto enabled
+	2011-01-24 - GAC - Added the Return type of XML
 --->
 	
 	<cfheader name="Expires" value="#now()#">
@@ -123,6 +124,16 @@ History:
 					else
 						reHTML = json.encode(reHTML);
 				}
+				else if ( request.params.returnFormat eq "xml" )
+				{
+					reHTML = Server.CommonSpot.MapFactory.serialize(reHTML,"data",0); //Server.CommonSpot.MapFactory.serialize(Arguments.bean,Arguments.tagName,JavaCast("boolean",Arguments.forceLCase));
+					if ( IsXML(reHTML) ) 
+						reHTML = XmlParse(reHTML);
+					if ( !IsXmlDoc(reHTML) ) {
+						forceOutput = true;
+						reHTML = "Error converting return format into xml";
+					}
+				}
 				if ( isStruct(reHTML) or isArray(reHTML) or isObject(reHTML) ) 
 				{
 					// set forceOutput to true to allow error string to be displayed in the ADFLightbox
@@ -159,6 +170,7 @@ History:
 	</cfscript>
 </cfsilent>
 <cfif StructKeyExists(variables,"reHTML")>
+	<cfif request.params.returnFormat eq "xml" AND forceOutput IS false><cfcontent type="text/xml; charset=utf-8"></cfif>
 	<cfscript>if ( forceOutput IS true ) { application.ADF.scripts.loadADFLightbox(force=1); }</cfscript>
 	<!--- // if this is a lighbox window then add in the main table --->
 	<cfif request.params.addMainTable><cfoutput><table id="MainTable"><tr><td></cfoutput></cfif>
