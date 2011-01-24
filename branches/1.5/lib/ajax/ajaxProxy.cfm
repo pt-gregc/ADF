@@ -57,6 +57,7 @@ History:
 	<cfparam name="request.params.bean" default="" />
 	<cfparam name="request.params.returnformat" default="plain" />
 	<cfparam name="request.params.addMainTable" default="0" type="boolean" />
+	<!--- // When using a returnformat of JSON or XML and the debug parameter, you may need to set the ajax call dataType to 'text' or 'html' --->
 	<cfparam name="request.params.debug" default="0" type="boolean" /> 
 	<cfscript>
 		bean = structNew();
