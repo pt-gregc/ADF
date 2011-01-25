@@ -31,49 +31,57 @@ History:
 	2010-03-12 - MFC - Created
 	2010-12-14 - MFC - Added Callback functionality for the Lightbox and
 						Dialog header and footers.
+	2011-01-25 - RAK - Updating to use ADF lightbox, fixed bugs with callback 
+						functionality and improved ability
 --->
 <!--- // Include the CommonSpot process for a datasheet --->
 
-<!--- Render the dlg header --->
-<cfscript>
-	CD_DialogName = request.params.title;
-	CD_Title=CD_DialogName;
-	CD_IncludeTableTop=1;
-	CD_CheckLock=0;
-	CD_CheckLogin=1;
-	CD_CheckPageAlive=0;
-</cfscript>
-<CFINCLUDE TEMPLATE="/commonspot/dlgcontrols/dlgcommon-head.cfm">
-<cfoutput><tr><td></cfoutput>
-
 <!--- // if we are returning then handle the delete --->
+<cfoutput>
+	#application.ADF.scripts.loadADFLightbox()#
+</cfoutput>
 <cfif (StructKeyExists(Request.Params,"doDelete")) AND (Request.Params.doDelete neq 0)>
 
+
+	<!--- Render the dlg header --->
+	<cfscript>
+		CD_DialogName = request.params.title;
+		CD_Title=CD_DialogName;
+		CD_IncludeTableTop=1;
+		CD_CheckLock=0;
+		CD_CheckLogin=1;
+		CD_CheckPageAlive=0;
+	</cfscript>
+	<CFINCLUDE TEMPLATE="/commonspot/dlgcontrols/dlgcommon-head.cfm">
+	<cfoutput><tr><td></cfoutput>
+	
 	<!--- Delete the CE record --->
 	<cfif (Request.Params.FormID NEQ 0) AND (Request.Params.PageID NEQ 0)>
 		<cfscript>
 			application.ADF.cedata.deleteCE(datapageidList=Request.Params.PageID);
 		</cfscript>
 	</cfif>
-
 	<cfoutput><div style="width:100%;text-align:center;" class="cs_dlgNormal">Record deleted successfully</div></cfoutput>
 	<!--- Call the Callback function if defined --->
-	<!--- <cfif LEN(arguments.callback)>
+	<cfif StructKeyExists(request.params,"callback") and LEN(request.params.callback)>
 		<cfoutput>
 		<script type="text/javascript">
 			// Set back the lightbox callback
-			getCallback('#arguments.callback#');
+			var values = {
+				dataPageID: #request.params.dataPageID#,
+				formID: #request.params.formID#
+			};
+			getCallback('#request.params.callback#',values);
 		</script>
 		</cfoutput>
-	<cfelse>	
-		<cfset forms = server.ADF.objectFactory.getBean("forms_1_0")>
-		<!--- <cfoutput>#forms.closeLBAndRefresh()#</cfoutput> --->
-	</cfif> --->
-	
-<cfelse>
-	<cfinclude template="/commonspot/controls/datasheet/cs-delete-form-data.cfm">	
-</cfif>
+	<cfelse>
+		<cfset forms = server.ADF.objectFactory.getBean("forms_1_5")>
+		<cfoutput>#forms.closeLBAndRefresh()#</cfoutput>
+	</cfif>
 
-<!--- Render the dlg footer --->
-<cfoutput></tr></td></cfoutput>
-<CFINCLUDE template="/commonspot/dlgcontrols/dlgcommon-foot.cfm">
+	<!--- Render the dlg footer --->
+	<cfoutput></tr></td></cfoutput>
+	<CFINCLUDE template="/commonspot/dlgcontrols/dlgcommon-foot.cfm">
+<cfelse>
+	<cfinclude template="/commonspot/controls/datasheet/cs-delete-form-data.cfm">
+</cfif>
