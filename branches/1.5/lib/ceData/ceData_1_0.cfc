@@ -2409,7 +2409,7 @@ History:
 			}
 		}else{
 			arguments.newOverride.bean = "csContent_1_0";
-			arguments.newOverride.method = "makeNewContent";
+			arguments.newOverride.method = "populateContent";
 		}
 		arguments.newOverride.args.elementName = arguments.elementName;
 		arguments.newOverride.args.data = StructNew();
