@@ -75,6 +75,7 @@ History:
 	2010-12-27 - MFC/RAK - Updated the form storage for the callback into the Document pageWindow space.
 							Removed the form data storage in the cookie.
 	2011-01-13 - MFC - Updated the form result LB Action params.
+	2011-01-24 - RAK - Updated the code to handle callbacks pointing at checkboxes returning values only when checked
 --->
 <cffunction name="renderAddEditForm" access="public" returntype="String" hint="Returns the HTML for an Add/Edit Custom element record">
 	<cfargument name="formID" type="numeric" required="true">
@@ -199,7 +200,11 @@ History:
 								var name = jQuery(this).attr("name");
 								//Case insensitive replace
 								name = name.replace(/_fieldName/i,"");
-								rtnStruct[jQuery(this).attr("value")] = jQuery("[name='"+name+"']").attr("value");
+								if( jQuery("[name='"+name+"']").attr("type") === "checkbox" && !jQuery("[name='"+name+"']:checked").length){
+									rtnStruct[jQuery(this).attr("value")] = "";
+								}else{
+									rtnStruct[jQuery(this).attr("value")] = jQuery("[name='"+name+"']").attr("value");
+								}
 							});
 							return rtnStruct;
 						}
