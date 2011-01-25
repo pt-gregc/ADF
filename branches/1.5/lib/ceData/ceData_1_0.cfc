@@ -2310,4 +2310,256 @@ History:
 	</cfscript>
 </cffunction>
 
+<!---
+/* ***************************************************************
+/*
+Author:
+	PaperThin, Inc.
+	Ryan Kahn
+Name:
+	$differentialSync
+Summary:
+	Given a list of custom elements, custom element create or update or optionally delete elements
+Returns:
+	boolean
+Arguments:
+
+History:
+ 	12/22/10 - RAK - Created
+--->
+<cffunction name="differentialSync" access="public" returntype="struct" hint="Given a list of custom elements, custom element create or update or optionally delete elements">
+	<cfargument name="elementName" type="string" required="true" default="" hint="Name of the element to sync">
+	<cfargument name="newElements" type="array" required="true" default="" hint="'New' or old Elements to be sync'd">
+	<cfargument name="preformDelete" type="boolean" required="false" default="false" hint="Boolean flag to preform delete. Does not delete by default.">
+	<cfargument name="primaryKeys" type="string" required="false" default="_pageID" hint="A list of primary keys to use to compare elements 'reserved word' _pageID, ex: links,title,_pageID">
+	<cfargument name="ignoreFields" type="string" required="false" default="" hint="A List of field names to ignore">
+   <cfargument name="newOverride" type="struct" required="false" default="#StructNew()#" hint="Override of the new functionality. Specify a bean and method.">
+	<cfargument name="updateOverride" type="struct" required="false" default="#StructNew()#" hint="Override of the update functionality. Specify a bean and method.">
+	<cfargument name="deleteOverride" type="struct" required="false" default="#StructNew()#" hint="Override of the delete functionality. Specify a bean and method.">
+  	<cfscript>
+		var returnStruct = StructNew();
+		var srcElements = "";
+		var len = "";
+		var tempStruct = StructNew();
+		var srcElementStruct = '';
+		var i = '';
+		var keysToSync = '';
+		var syncLen = '';
+		var currentKey = '';
+		var currentElement = '';
+		var isDifferent = '';
+		var j = '';
+		var currentKeyValue = '';
+		var newKeyValue = '';
+		var commandArray = ArrayNew(1);
+		var deleteList = '';
+		var dataPageIDList = '';
+		var scheduleParams = "";
+		returnStruct.success = false;
+		returnStruct.msg = "An unknown error occurred.";
+
+		//*********************************************Begin validation*********************************************//
+
+		if(!Len(arguments.elementName)){
+			returnStruct.msg = "Element name must be defined.";
+			return returnStruct;
+		}
+		if(!ArrayLen(arguments.newElements)){
+			returnStruct.msg = "The list of elements to by sync'd is not defined.";
+			return returnStruct;
+		}
+		if(!StructIsEmpty(arguments.updateOverride)){
+			//The defined an override
+			if(!StructKeyExists(arguments.updateOverride,"bean")
+					|| !StructKeyExists(arguments.updateOverride,"method")
+					|| !Len(arguments.updateOverride.method)
+					|| !Len(arguments.updateOverride.bean)){
+				returnStruct.msg = "Invalid structure for updateOverride, it must be a structure with keys bean and method which are string values.";
+				return returnStruct;
+			}
+		}else{
+			arguments.updateOverride.bean = "csContent_1_0";
+			arguments.updateOverride.method = "populateContent";
+		}
+		arguments.updateOverride.args.elementName = arguments.elementName;
+		arguments.updateOverride.args.data = StructNew();
+		if(!StructIsEmpty(arguments.deleteOverride)){
+			//The defined an override
+			if(!StructKeyExists(arguments.deleteOverride,"bean")
+					|| !StructKeyExists(arguments.deleteOverride,"method")
+					|| !Len(arguments.deleteOverride.method)
+					|| !Len(arguments.deleteOverride.bean)){
+				returnStruct.msg = "Invalid structure for deleteOverride, it must be a structure with keys bean and method which are string values.";
+				return returnStruct;
+			}
+		}else{
+			arguments.deleteOverride.bean = "ceData_1_0";
+			arguments.deleteOverride.method = "deleteCE";
+		}
+		arguments.deleteOverride.args.datapageidList = "";
+
+		if(!StructIsEmpty(arguments.newOverride)){
+			//The defined an override
+			if(!StructKeyExists(arguments.newOverride,"bean")
+					|| !StructKeyExists(arguments.newOverride,"method")
+					|| !Len(arguments.newOverride.method)
+					|| !Len(arguments.newOverride.bean)){
+				returnStruct.msg = "Invalid structure for newOverride, it must be a structure with keys bean and method which are string values.";
+				return returnStruct;
+			}
+		}else{
+			arguments.newOverride.bean = "csContent_1_0";
+			arguments.newOverride.method = "makeNewContent";
+		}
+		arguments.newOverride.args.elementName = arguments.elementName;
+		arguments.newOverride.args.data = StructNew();
+
+		//*********************************************End Validation*********************************************//
+		
+		/*
+			Goal: Update the elements that have been changed and don't touch those which have not.
+			1. Get all the existing records (srcElements)
+				a. first serialize the primary key fields and store them in a lookup struct for detection
+			2. Loop over newElements (arguments.newElements)
+			3. If the newElement exists in the srcElements record check to see if it changed.
+			4. If the subjectID does not exist in struct create a new record
+			5. Loop over remaining subjectID's and delete them
+		*/
+		//1. Get all the existing records (srcElements)
+		srcElements = getCEData(arguments.elementName);
+		//1a. first serialize the primary key fields and store them in a lookup struct for detection
+		srcElementStruct = StructNew();
+		len=ArrayLen(srcElements);
+		for(i=1;i<=len;i++){
+			StructInsert(srcElementStruct,__generateStructKey(srcElements[i],arguments.primaryKeys),srcElements[i],true);
+		}
+		//2. Loop over newElements (arguments.newElements)
+		/*
+			However first lets get a list of keys that will be checked.
+			1. get a list of all keys
+			2. Remove from the list the ignored keys
+		*/
+		keysToSync = StructKeyList(arguments.newElements[1].values);
+		len = ListLen(arguments.ignoreFields);
+		for(i=1;i<=len;i++){
+			currentKey = ListGetAt(arguments.ignoreFields,i);
+			keysToSync = ListDeleteAt(keysToSync,ListFindNoCase(keysToSync,currentKey));
+		}
+		syncLen = ListLen(keysToSync);
+		len=ArrayLen(arguments.newElements);
+		for(i=1;i<=len;i++){
+			newElement = arguments.newElements[i];
+			//Figure out the element's lookup key
+			currentKey = __generateStructKey(newElement,arguments.primaryKeys);
+			//3. If the newElement exists in the srcElements record check to see if it changed.
+			if(StructKeyExists(srcElementStruct,currentKey)){
+				currentElement = srcElementStruct[currentKey];
+				/* Check to see if it changes...
+				1. Loop over comparing each key in the sync list
+				2. If we notice a discrepancy flag it for update.
+				3. Remove the element from the srcElementStruct since we found it
+				*/
+				isDifferent = false;
+				if(Len(ignoreFields)){//Check each key individually
+					for(j=1;j<=syncLen;j++){
+						syncKey = ListGetAt(keysToSync,j);
+						currentKeyValue = StructFind(currentElement.values,syncKey);
+						newKeyValue = StructFind(newElement.values,syncKey);
+						if(!currentKeyValue.Equals(newKeyValue)){
+							isDifferent = true;
+							break;
+						}
+					}
+				}else{//check the entire object. Faster.
+					currentKeyValue = currentElement.values;
+					newKeyValue = newElement.values;
+					if(!currentKeyValue.Equals(newKeyValue)){
+						isDifferent = true;
+					}
+				}
+				if(isDifferent){
+					//We have a change on our hands! Do something!
+				   arguments.updateOverride = duplicate(updateOverride);
+					arguments.updateOverride.args.data = newElement.values;
+					arguments.updateOverride.args.data.pageID = newElement.pageID;
+					ArrayAppend(commandArray,arguments.updateOverride);
+				}else{
+					//This guy is not different. Do nothing for now.
+				}
+				StructDelete(srcElementStruct,currentKey);
+			}else{
+				//A new guy eh...
+				arguments.newOverride = duplicate(newOverride);
+				arguments.newOverride.args.data = StructNew();
+				arguments.newOverride.args.data = newElement.values;
+				ArrayAppend(commandArray,arguments.newOverride);
+			}
+		}
+		//5. Loop over remaining subjectID's and delete them
+		if(arguments.preformDelete){
+			deleteList = StructKeyList(srcElementStruct);
+			len = ListLen(deleteList);
+			dataPageIDList = "";
+			for(i=1;i<=len;i++){
+				currentElement = structFind(srcElementStruct,listGetAt(deleteList,i));
+				dataPageIDList = ListAppend(dataPageIDList,currentElement.pageID);
+			}
+			arguments.deleteOverride.args.datapageidList = dataPageIDList;
+			ArrayAppend(commandArray,arguments.deleteOverride);
+		}
+//		Application.ADF.utils.doDump(commandArray,"commandArray",true);
+		returnStruct.msg = "Differential sync scheduled succesfully!";
+		returnStruct.success=true;
+		returnStruct.scheduleID=arguments.elementName&"-differentialSync";
+		scheduleParams = StructNew();
+		scheduleParams.delay = 1;
+		scheduleParams.tasksPerBatch = 25;
+		application.ADF.scheduler.scheduleProcess(returnStruct.scheduleID,commandArray,scheduleParams);
+		return returnStruct;
+	</cfscript>
+</cffunction>
+
+
+<!---
+/* ***************************************************************
+/*
+Author: 	
+	PaperThin, Inc.
+	Ryan Kahn
+Name:
+	$_getStructKey
+Summary:	
+	Helper function for getting the structures unique identifier as a string
+Returns:
+	string
+Arguments:
+	
+History:
+ 	1/20/11 - RAK - Created
+--->
+<cffunction name="__generateStructKey" access="private" returntype="string" hint="Helper function for getting the structures unique identifier as a string">
+	<cfargument name="element" type="struct" required="true" default="" hint="Element that we will get the key from">
+	<cfargument name="primaryKeys" type="string" required="true" default="" hint="String of keys to search within the element for">
+	<cfscript>
+		var tempStruct = StructNew();
+		var pkLength = ListLen(arguments.primaryKeys);
+		var i = "";
+		var currentKey = "";
+		for(i=1;i<=pkLength;i++){
+			//Insert into the struct the value from the other struct and keep its level
+			currentKey = ListGetAt(arguments.primaryKeys,i);
+			if(currentKey == "_pageID"){//Reserved pageID vkey
+				StructInsert(tempStruct,currentKey,ToString(arguments.element.pageID),true);
+			}else{
+				StructInsert(tempStruct,currentKey,StructFind(arguments.element.values,currentKey),true);
+			}
+		}
+		rtn = SerializeJSON(tempStruct);
+		return rtn;
+	</cfscript>
+
+</cffunction>
+
+
+
 </cfcomponent>
