@@ -343,6 +343,7 @@ History:
 	<cfreturn folder&fileName>
 </cffunction>
 
+
 <!---
 /* ***************************************************************
 /*
@@ -357,18 +358,22 @@ Summary:
 Returns:
 	Struct
 Arguments:
-	filePath - String
-	clean - boolean
+	filePath - String - File path to .exportedCE file
+	clean - boolean - Wipe all existing data
+	ceName - String - Set this if you are importing a csv, this is how we know what to import.
 History:
- 	Dec 4, 2010 - RAK - Created
+ 	2010-12-04 - RAK - Created
+	2011-01-26 - RAK - Updated to allow importing csv files
 --->
 <cffunction name="importCEData" access="public" returntype="Struct" hint="Given the contents of an import file, import the data">
 	<cfargument name="filePath" type="string" required="true" default="" hint="File path to .exportedCE file">
 	<cfargument name="clean" type="boolean" required="false" default="false" hint="Wipe all existing data">
+	<cfargument name="ceName" type="string" required="false" default="" hint="Set this if you are importing a csv, this is how we know what to import.">
 	<cfscript>
+		var rowData = '';
+		var tempStruct = '';
 		var dataToImport = "";
 		var ceData = "";
-		var ceName = "";
 		var i = 1;
 		var currentCE = "";
 		var populateResults = "";
@@ -395,6 +400,31 @@ History:
 		}
 		// Horray! The file existed and had content
 		ceData = Server.Commonspot.UDF.util.deserialize(dataToImport);
+	</cfscript>
+	<cfif !isArray(ceData) && Find(",",dataToImport) && Len(ceName)>
+		<!---	Boo, we didnt deserialize properly which means its probably a csv. Parse the crap out of it--->
+		<cfscript>
+			if(!Find('"',dataToImport)){
+				//Wrap everything with quotes.
+				for(i=2;i lte ListLen(dataToImport,chr(10)); i++){
+					rowData = ListGetAt(dataToImport,i,chr(10));
+					rowData = '"#Replace(rowData,",",'","',"ALL")#"';
+					dataToImport = ListSetAt(dataToImport,i,rowData,chr(10));
+				}
+				//Replace the empty strings with Chr(1) and remove all the quotes we just added.
+				dataToImport = Replace(dataToImport,'""',Chr(1),"ALL");
+				dataToImport = Replace(dataToImport,'"',"","ALL");
+			}
+			ceData = variables.data.queryToArrayOfStructures(variables.data.csvToQuery(dataToImport));
+			for(i=1;i <= ArrayLen(ceData);i++){
+				tempStruct = StructNew();
+				tempStruct.values = ceData[i];
+				tempStruct.formName = arguments.ceName;
+				ceData[i] = tempStruct;
+			}
+		</cfscript>
+	</cfif>
+	<cfscript>
 		if(!ArrayLen(ceData)){
 			returnStruct.msg = "There was no data to import";
 			return returnStruct;
@@ -410,7 +440,9 @@ History:
 			currentCE.elementType = "custom";
 			currentCE.submitChange = true;
 			currentCE.submitChangeComment = "Element imported using CE Data import utility.";
-			currentCE.dataPageID = ceData[i].pageID;
+			if(StructKeyExists(ceData[i],"pageID")){
+				currentCE.dataPageID = ceData[i].pageID;
+			}
 			structAppend(currentCE,ceData[i].values);
 
 			//Build the populateContent call for the schedule
@@ -419,7 +451,7 @@ History:
 			scheduleStruct.method = "populateContent";
 			scheduleStruct.args.elementName = ceName;
 			scheduleStruct.args.data = currentCE;
-			
+
 			//Add the item to the schedule
 			ArrayAppend(scheduleArray,scheduleStruct);
 		}
@@ -455,7 +487,7 @@ Arguments:
 	name - string
 	pageID - numeric
 History:
- 	Dec 15, 2010 - RAK - Created
+	2010-12-15 - RAK - Created
 --->
 <cffunction name="getElementByNameAndCSPageID" access="public" returntype="struct" hint="ElementStruct">
 	<cfargument name="name" type="string" required="true" default="" hint="Name of the element">
@@ -683,8 +715,8 @@ Summary:
 Returns:
 	numeric
 Arguments:
-	numeric
-	numeric
+	controlID - numeric
+	pageID - numeric
 History:
 	2010-12-23 - MFC - Created
 --->
@@ -730,7 +762,14 @@ Summary:
 Returns:
 	boolean
 Arguments:
-
+	elementName - string - Name of the element to sync
+	newElements - array - 'New' or old Elements to be sync'd
+	preformDelete - boolean - Boolean flag to preform delete. Does not delete by default.
+	primaryKeys - string - A list of primary keys to use to compare elements 'reserved word' _pageID, ex: links,title,_pageID
+	ignoreFields - string - A List of field names to ignore
+	newOverride - struct - Override of the new functionality. Specify a bean and method.
+	updateOverride - struct - Override of the update functionality. Specify a bean and method.
+	deleteOverride - struct - Override of the delete functionality. Specify a bean and method.
 History:
  	12/22/10 - RAK - Created
 --->
@@ -939,9 +978,10 @@ Summary:
 Returns:
 	string
 Arguments:
-	
+	element - struct- Element that we will get the key from
+	primaryKeys - string- String of keys to search within the element for
 History:
- 	1/20/11 - RAK - Created
+ 	1/20/11 - RAK - Createdring - String of keys to search within the element for
 --->
 <cffunction name="__generateStructKey" access="private" returntype="string" hint="Helper function for getting the structures unique identifier as a string">
 	<cfargument name="element" type="struct" required="true" default="" hint="Element that we will get the key from">
