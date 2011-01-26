@@ -26,12 +26,14 @@ Name:
 	utils_1_0.cfc
 Summary:
 	Util functions for the ADF Library
+Version:
+	1.0.1
 History:
 	2009-06-22 - MFC - Created
 --->
 <cfcomponent displayname="utils_1_0" extends="ADF.core.Base" hint="Util functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_0">
+<cfproperty name="version" value="1_0_1">
 <cfproperty name="type" value="singleton">
 <cfproperty name="ceData" type="dependency" injectedBean="ceData_1_0">
 <cfproperty name="wikiTitle" value="Utils_1_0">
@@ -851,53 +853,6 @@ History:
 	
 		return(final_list);
 	</cfscript>
-</cffunction>
-
-
-<!---
-/* ***************************************************************
-/*
-Author:
-	PaperThin, Inc.
-	Ryan Kahn
-Name:
-	$runCommand
-Summary:
-	Runs the given command
-Returns:
-	Any
-Arguments:
-
-History:
- 	Dec 3, 2010 - RAK - Created
-	2010-12-21 - GAC - Modified - Fixed the default variable for the args parameter
-	2010-12-21 - GAC - Modified - var scoped the bean local variable
-	2010-01-19 - GAC - Modified - Updated the returnVariable to allow calls to methods that return void
---->
-<cffunction name="runCommand" access="public" returntype="Any" hint="Runs the given command">
-	<cfargument name="beanName" type="string" required="true" default="" hint="Name of the bean you would like to call">
-	<cfargument name="methodName" type="string" required="true" default="" hint="Name of the method you would like to call">
-	<cfargument name="args" type="Struct" required="false" default="#StructNew()#" hint="Structure of arguments for the speicified call">
-	<cfscript>
-		var local = StructNew();
-		var bean = "";
-		// load the bean that we will call - check in application scope first
-		if( application.ADF.objectFactory.containsBean(arguments.beanName) )
-			bean = application.ADF.objectFactory.getBean(arguments.beanName);
-		else if( server.ADF.objectFactory.containsBean(arguments.beanName) )
-			bean = server.ADF.objectFactory.getBean(arguments.beanName);
-	</cfscript>
-   	<cfinvoke component = "#bean#"
-				 method = "#arguments.methodName#"
-				 returnVariable = "local.returnData"
-				 argumentCollection = "#arguments.args#" />
-	<cfscript>
-		// Check to make sure the local.returnData was not destroyed by a method that returns void
-		if ( StructKeyExists(local,"returnData") )
-			return local.returnData;
-		else
-			return;
-	</cfscript>		 
 </cffunction>
 
 </cfcomponent>

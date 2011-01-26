@@ -26,6 +26,8 @@ Name:
 	UI_1_0.cfc
 Summary:
 	UI functions for the ADF Library
+Version:
+	1.0.0
 History:
 	2010-12-21 - GAC - Created
 	2011-01-21 - GAC - Moved in the lightbox wrapper function from forms_1_5
@@ -35,9 +37,9 @@ History:
 
 <cfproperty name="version" value="1_0_0" />
 <cfproperty name="type" value="singleton" />
-<cfproperty name="ceData" injectedBean="ceData_1_0" type="dependency" />
-<cfproperty name="csData" injectedBean="csData_1_0" type="dependency" />
-<cfproperty name="scripts" injectedBean="scripts_1_5" type="dependency" />
+<cfproperty name="ceData" injectedBean="ceData_1_1" type="dependency" />
+<cfproperty name="csData" injectedBean="csData_1_1" type="dependency" />
+<cfproperty name="scripts" injectedBean="scripts_1_1" type="dependency" />
 <cfproperty name="wikiTitle" value="UI_1_0" />
 
 <!---
@@ -69,6 +71,7 @@ History:
 	2010-12-15 - GAC - Modified - Added bean, method and lbTitle parameters
 	2010-12-21 - GAC - Modified - Added a linkClass parameter
 	2011-01-20 - GAC - Moved to the ui_1_0 lib from the Forms_1_5 lib
+	2011-01-25 - MFC - Modified - Updated bean param default value to "forms_1_1"
 --->
 <cffunction name="buildAddEditLink" access="public" returntype="string" output="false">
 	<cfargument name="linkTitle" type="string" required="true">
@@ -76,7 +79,7 @@ History:
 	<cfargument name="dataPageID" type="numeric" required="false" default="0">
 	<cfargument name="refreshparent" type="boolean" required="false" default="false">
 	<cfargument name="urlParams" type="string" required="false" default="">
-	<cfargument name="formBean" type="string" required="false" default="forms_1_5">
+	<cfargument name="formBean" type="string" required="false" default="forms_1_1">
 	<cfargument name="formMethod" type="string" required="false" default="renderAddEditForm">
 	<cfargument name="lbTitle" type="string" required="false" default="#arguments.linkTitle#">
 	<cfargument name="linkClass" type="string" required="false" default="">   
@@ -120,10 +123,11 @@ Arguments:
 	String linkClass
 History:
 	2010-12-21 - GAC - Created - Based on RLWs buildAddEditLink function in forms_1_5
+	2011-01-25 - MFC - Modified - Updated bean param default value to "forms_1_1"
 --->
 <cffunction name="buildLBAjaxProxyLink" access="public" returntype="string" output="false">
 	<cfargument name="linkTitle" type="string" required="true">
-	<cfargument name="bean" type="string" required="false" default="forms_1_5">
+	<cfargument name="bean" type="string" required="false" default="forms_1_1">
 	<cfargument name="method" type="string" required="false" default="renderAddEditForm">
 	<cfargument name="urlParams" type="string" required="false" default=""> 
 	<cfargument name="lbTitle" type="string" required="false" default="#arguments.linkTitle#">

@@ -26,12 +26,14 @@ Name:
 	csSecurity_1_0.cfc
 Summary:
 	Custom Element Security functions for the ADF Library
+Version:
+	1.0.1
 History:
 	2009-07-08 - MFC - Created
 --->
 <cfcomponent displayname="csSecurity_1_0" extends="ADF.core.Base" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_0">
+<cfproperty name="version" value="1_0_1">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="CSSecurity_1_0">
 

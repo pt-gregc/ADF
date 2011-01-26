@@ -26,12 +26,14 @@ Name:
 	forms_1_0.cfc
 Summary:
 	Form functions for the ADF Library
+Version:
+	1.0.1
 History:
 	2009-06-22 - MFC - Created
 --->
 <cfcomponent displayname="forms_1_0" extends="ADF.core.Base" hint="Form functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_0">
+<cfproperty name="version" value="1_0_1">
 <cfproperty name="type" value="transient">
 <cfproperty name="ceData" injectedBean="ceData_1_0" type="dependency">
 <cfproperty name="scripts" injectedBean="scripts_1_0" type="dependency">
@@ -373,157 +375,5 @@ History:
 		</div> --->
 	</cfoutput>
 </cffunction>
-<!---
-/* ***************************************************************
-/*
-Author: 	Ron West
-Name:
-	$buildAddEditLink
-Summary:	
-	Returns a nice string to renderAddEditForm with lightbox enabled
-Returns:
-	String rtnStr
-Arguments:
-	String linkTitle
-	String formName
-	Numeric dataPageID
-	Boolean refreshparent
-	String urlParams - additional URL parameters to be passed to the form
-History:
-  	2010-09-30 - RLW - Created
- 	2010-10-18 - GAC - Modified - Added a RefreshParent parameter
-   	2010-10-18 - GAC - Modified - Added a urlParams parameter
---->
-<cffunction name="buildAddEditLink" access="public" returntype="string" output="false">
-	<cfargument name="linkTitle" type="string" required="true">
-	<cfargument name="formName" type="string" required="true">
-	<cfargument name="dataPageID" type="numeric" required="false" default="0">
-	<cfargument name="refreshparent" type="boolean" required="false" default="false"> 
-	<cfargument name="urlParams" type="string" required="false" default=""> 
-	<cfscript>
-		var rtnStr = "";
-		var formID = variables.ceData.getFormIDByCEName(arguments.formName);
-		var lbAction = "norefresh";
-		var uParams = "";
-		if ( arguments.refreshparent IS true )
-			lbAction = "refreshparent";
-		if ( LEN(TRIM(arguments.urlParams)) ) {
-			uParams = TRIM(arguments.urlParams);
-			if ( Find("&",uParams,"1") NEQ 1 ) 
-				uParams = "&" & uParams;
-		}
-	</cfscript>
-	<cfsavecontent variable="rtnStr">
-		<cfoutput><a href="javascript:;" rel="#application.ADF.ajaxProxy#?bean=forms_1_0&method=renderAddEditForm&formID=#formID#&dataPageID=#arguments.dataPageID#&lbAction=#lbAction##uParams#" class="ADFLightbox">#arguments.linkTitle#</a></cfoutput>
-	</cfsavecontent>
-	<cfreturn rtnStr>
-</cffunction>
 
-
-
-
-<!---
-/* ***************************************************************
-/*
-Author:
-	PaperThin, Inc.
-	Ryan Kahn
-Name:
-	$isFieldReadOnly
-Summary:
-	Given xparams determines if the field is readOnly
-Returns:
-	boolean
-Arguments:
-
-History:
- 	Dec 6, 2010 - RAK - Created
---->
-<cffunction name="isFieldReadOnly" access="public" returntype="boolean" hint="Given xparams determines if the field is readOnly">
-	<cfargument name="xparams" type="struct" required="true" default="" hint="XParams struct">
-	<cfscript>
-		// Get the list permissions and compare
-		var commonGroups = application.ADF.data.ListInCommon(request.user.grouplist, arguments.xparams.pedit);
-		// Set the read only
-		var readOnly = true;
-		// Check if the user does have edit permissions
-		if ( (arguments.xparams.UseSecurity EQ 0) OR ( (arguments.xparams.UseSecurity EQ 1) AND (ListLen(commonGroups)) ) )
-			readOnly = false;
-		return readOnly;
-	</cfscript>
-</cffunction>
-
-<!---
-/* ***************************************************************
-/*
-Author:
-	PaperThin, Inc.
-	Ryan Kahn
-Name:
-	$wrapFieldHTML
-Summary:
-	Wraps the given information with valid html for the current commonspot and configuration
-Returns:
-	String
-Arguments:
-
-History:
- 	Dec 6, 2010 - RAK - Created
---->
-<cffunction name="wrapFieldHTML" access="public" returntype="String" hint="Wraps the given information with valid html for the current commonspot and configuration">
-	<cfargument name="fieldInputHTML" type="string" required="true" default="" hint="HTML for the field input, do a cfSaveContent on the input field and pass that in here">
-	<cfargument name="fieldQuery" type="query" required="true" default="" hint="fieldQuery value">
-	<cfargument name="attr" type="struct" required="true" default="" hint="Attributes value">
-	<cfscript>
-		var row = arguments.fieldQuery.currentRow;
-		var fqFieldName = "fic_#arguments.fieldQuery.ID[row]#_#arguments.fieldQuery.INPUTID[row]#";
-		var description = arguments.fieldQuery.DESCRIPTION[row];
-		var fieldName = arguments.fieldQuery.fieldName[row];
-		var xparams = arguments.attr.parameters[arguments.fieldQuery.inputID[row]];
-		var labelStart = arguments.attr.itemBaselineParamStart;
-		var labelEnd = arguments.attr.itemBaseLineParamEnd;
-		var renderSimpleFormField = false;
-
-		//If the fields are required change the label start and end
-		if(xparams.req eq "Yes"){
-			labelStart = arguments.attr.reqItemBaselineParamStart;
-			labelEnd = arguments.attr.reqItemBaseLineParamEnd;
-		}
-
-		// determine if this is rendererd in a simple form or the standard custom element interface
-		if ( (StructKeyExists(request, "simpleformexists")) AND (request.simpleformexists EQ 1) ){
-			renderSimpleFormField = true;
-		}
-	</cfscript>
-	<cfsavecontent variable="returnHTML">
-		<cfoutput>
-			<tr>
-				<td valign="top">
-					#labelStart#
-					<label for="#fqFieldName#">#xParams.label#:</label>
-					#labelEnd#
-				</td>
-				<td>
-					#arguments.fieldInputHTML#
-				</td>
-			</tr>
-			<cfif Len(description)>
-				<!--- If there is a description print out a new row and the description --->
-				<tr>
-					<td></td>
-					<td>
-						#arguments.attr.descParamStart#
-						#description#
-						<br/><br/>
-						#arguments.attr.descParamEnd#
-					</td>
-				</tr>
-			</cfif>
-			<cfif renderSimpleFormField>
-				<input type="hidden" name="#fqFieldName#_FIELDNAME" id="#fqFieldName#_FIELDNAME" value="#ReplaceNoCase(fieldName, 'fic_','')#">
-			</cfif>
-		</cfoutput>
-	</cfsavecontent>
-	<cfreturn returnHTML>
-</cffunction>
 </cfcomponent>

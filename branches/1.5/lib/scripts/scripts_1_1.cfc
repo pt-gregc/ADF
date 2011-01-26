@@ -23,20 +23,22 @@ end user license agreement.
 Author: 	
 	PaperThin, Inc. 
 Name:
- scripts_1_5.cfc
+	scripts_1_1.cfc
 Summary:
 	Scripts functions for the ADF Library
+Version:
+	1.1.0
 History:
-	2009-06-22 - MFC - Created
-	2010-10-04 - RAK - Made massive revisons to script loading
-			everything now goes through one central script loader. Every single function was modified.
+	2010-10-04 - RAK - Created - New v1.1
+						Made massive revisons to script loading everything now goes 
+						through one central script loader. Every single function was modified.
 --->
-<cfcomponent displayname="scripts_1_5" extends="ADF.lib.scripts.scripts_1_0" hint="Scripts functions for the ADF Library">
+<cfcomponent displayname="scripts_1_1" extends="ADF.lib.scripts.scripts_1_0" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" default="1_5_0">
-<cfproperty name="scriptsService" injectedBean="scriptsService_1_5" type="dependency">
+<cfproperty name="version" default="1_1_0">
+<cfproperty name="scriptsService" injectedBean="scriptsService_1_1" type="dependency">
 <cfproperty name="type" value="singleton">
-<cfproperty name="wikiTitle" value="Scripts_1_5">
+<cfproperty name="wikiTitle" value="Scripts_1_1">
 
 <!---
 /* ***************************************************************

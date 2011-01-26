@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2010.
+PaperThin, Inc. Copyright(C) 2011.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -26,14 +26,16 @@ Name:
 	csapi.cfc
 Summary:
 	CS API functions for the ADF Library
+Version:
+	1.0.0
 History:
-	2010-08-26 - RLW - Created
+	2010-08-26 - MFC - Created
 --->
-<cfcomponent displayname="csapi" extends="ADF.core.Base" hint="CS API functions for the ADF Library">
+<cfcomponent displayname="csapi_1_0" extends="ADF.core.Base" hint="CS API functions for the ADF Library">
 	
 <cfproperty name="version" value="1_0_0">
-<cfproperty name="utils" type="dependency" injectedBean="utils_1_0">
-<cfproperty name="wikiTitle" value="CSAPI">
+<cfproperty name="utils" type="dependency" injectedBean="utils_1_1">
+<cfproperty name="wikiTitle" value="CSAPI_1_0">
 
 <cfscript>
 	variables.ccapiObj = "";

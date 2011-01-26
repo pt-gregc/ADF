@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2010.
+PaperThin, Inc. Copyright(C) 2011.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files
@@ -23,20 +23,22 @@ end user license agreement.
 Author:
 	PaperThin, Inc.
 Name:
-	forms_1_5.cfc
+	forms_1_1.cfc
 Summary:
 	Form functions for the ADF Library
+Version:
+	1.1.0
 History:
 	2009-09-28 - MFC - Created
-	2010-12-20 - MFC - Updated Forms_1_5 for dependency to Scripts_1_5.
+	2010-12-20 - MFC - Updated Forms_1_1 for dependency to Scripts_1_5.
 --->
-<cfcomponent displayname="forms_1_5" extends="ADF.lib.forms.forms_1_0" hint="Form functions for the ADF Library">
+<cfcomponent displayname="forms_1_1" extends="ADF.lib.forms.forms_1_0" hint="Form functions for the ADF Library">
 
-<cfproperty name="version" value="1_5_0">
+<cfproperty name="version" value="1_1_0">
 <cfproperty name="type" value="transient">
-<cfproperty name="ceData" injectedBean="ceData_1_0" type="dependency">
-<cfproperty name="scripts" injectedBean="scripts_1_5" type="dependency">
-<cfproperty name="wikiTitle" value="Forms_1_5">
+<cfproperty name="ceData" injectedBean="ceData_1_1" type="dependency">
+<cfproperty name="scripts" injectedBean="scripts_1_1" type="dependency">
+<cfproperty name="wikiTitle" value="Forms_1_1">
 
 <!---
 /* *************************************************************** */
@@ -418,6 +420,7 @@ History:
    	2010-10-18 - GAC - Modified - Added a urlParams parameter
 	2010-12-15 - GAC - Modified - Added bean, method and lbTitle parameters
 	2010-12-21 - GAC - Modified - Added a linkClass parameter
+	2011-01-25 - MFC - Modified - Updated formBean param default value to "forms_1_1"
 --->
 <cffunction name="buildAddEditLink" access="public" returntype="string" output="false">
 	<cfargument name="linkTitle" type="string" required="true">
@@ -425,7 +428,7 @@ History:
 	<cfargument name="dataPageID" type="numeric" required="false" default="0">
 	<cfargument name="refreshparent" type="boolean" required="false" default="false">
 	<cfargument name="urlParams" type="string" required="false" default="">
-	<cfargument name="formBean" type="string" required="false" default="forms_1_5">
+	<cfargument name="formBean" type="string" required="false" default="forms_1_1">
 	<cfargument name="formMethod" type="string" required="false" default="renderAddEditForm">
 	<cfargument name="lbTitle" type="string" required="false" default="#arguments.linkTitle#">
 	<cfargument name="linkClass" type="string" required="false" default="">   

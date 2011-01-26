@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2010.
+PaperThin, Inc. Copyright(C) 2011.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -23,20 +23,19 @@ end user license agreement.
 Author: 	
 	PaperThin, Inc. 
 Name:
-	date_1_0.cfc
+	date_1_1.cfc
 Summary:
 	Date Utils functions for the ADF Library
 Version:
-	1.0.1
+	1.1.0
 History:
-	2009-06-22 - MFC - Created
-	2010-09-21 - MFC - Added formatDateTimeISO8601 and getDateFields functions.
+	2011-01-25 - MFC - Created - New v1.1
 --->
-<cfcomponent displayname="date_1_0" extends="ADF.core.Base" hint="Date Utils functions for ADF Library">
+<cfcomponent displayname="date_1_1" extends="ADF.lib.date.date_1_0" hint="Date Utils functions for ADF Library">
 
-<cfproperty name="version" value="1_0_1">
+<cfproperty name="version" value="1_1_0">
 <cfproperty name="type" value="singleton">
-<cfproperty name="wikiTitle" value="Date_1_0">
+<cfproperty name="wikiTitle" value="Date_1_1">
 
 <!---
 /* ***************************************************************
@@ -218,6 +217,77 @@ History:
 		var theDate = createDate(arguments.theYear, 12, 31);
 	</cfscript>
 	<cfreturn csDateFormat(theDate)>
+</cffunction>
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
+Name:
+	$formatDateTimeISO8601
+Summary:
+	Format the date/time to the ISO8601 string.
+Returns:
+	string
+Arguments:
+	string
+	string
+History:
+	2010-09-20 - MFC - Created
+--->
+<cffunction name="formatDateTimeISO8601" access="public" returntype="string" output="true" hint="">
+	<cfargument name="date" type="string" required="false" default="#now()#" hint="">
+	<cfargument name="time" type="string" required="false" default="#now()#" hint="">
+	
+	<cfscript>
+		var tzData = GetTimeZoneInfo();
+		var tzStamp = "";
+				
+		// Set the timezone 
+		if ( tzData.utcHourOffset GTE 0 ){
+			if ( LEN(tzData.utcHourOffset) EQ 1 )
+				tzStamp = "+0" & tzData.utcHourOffset & ":00";
+			else
+				tzStamp = "+" & tzData.utcHourOffset & ":00";
+		}
+		else
+			tzStamp = "-" & tzData.utcHourOffset & ":00";
+		
+		// Build the string
+		return DateFormat(arguments.date, "YYYY-MM-DD") & "T" & TimeFormat(arguments.time, "HH:MM:SS") & tzStamp;
+	</cfscript>
+</cffunction>
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
+Name:
+	$getDateFields
+Summary:
+	Returns a structure with the date fields separated into each field.
+Returns:
+	struct
+Arguments:
+	string
+	string
+History:
+	2010-09-21 - MFC - Created
+--->
+<cffunction name="getDateFields" access="public" returntype="struct" output="true" hint="">
+	<cfargument name="date" type="string" required="false" default="#now()#" hint="">
+	<cfargument name="time" type="string" required="false" default="#now()#" hint="">
+	
+	<cfscript>
+		var dateFields = StructNew();
+		dateFields.year = year(arguments.date);
+		dateFields.month = month(arguments.date);
+		dateFields.day = day(arguments.date);
+		dateFields.hour = hour(arguments.time);
+		dateFields.minute = minute(arguments.time);
+		dateFields.second = second(arguments.time);
+		return dateFields;
+	</cfscript>
 </cffunction>
 
 </cfcomponent>

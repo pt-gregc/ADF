@@ -26,11 +26,13 @@ Name:
 	csContent_1_0.cfc
 Summary:
 	CCAPI Content functions for the ADF Library
+Version:
+	1.0.1
 History:
 	2009-06-17 - RLW - Created
 --->
 <cfcomponent displayname="csContent_1_0" hint="Constructs a CCAPI instance and then allows you to populate Custom Elements and Textblocks" extends="ADF.core.Base">
-<cfproperty name="version" value="1_0_0">
+<cfproperty name="version" value="1_0_1">
 <cfproperty name="type" value="transient">
 <cfproperty name="ccapi" type="dependency" injectedBean="ccapi">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_0">

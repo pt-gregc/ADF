@@ -26,6 +26,8 @@ Name:
 	csUpload_1_0.cfc
 Summary:
 	CCAPI Upload functions for the ADF Library
+Version:
+	1.0.0
 History:
 	2009-06-17 - MFC - Created
 ---> 

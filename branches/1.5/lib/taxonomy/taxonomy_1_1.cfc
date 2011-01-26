@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="taxonomy_1_1" extends="ADF.lib.taxonomy.taxonomy_1_0" hint="Taxonomy functions for the ADF Library">
 
-<cfproperty name="version" value="1_1">
+<cfproperty name="version" value="1_1_0">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Taxonomy_1_1">
 

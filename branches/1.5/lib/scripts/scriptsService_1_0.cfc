@@ -26,11 +26,13 @@ Name:
 	scriptsService_1_0.cfc
 Summary:
 	Scripts Service functions for the ADF Library
+Version:
+	1.0.1
 History:
 	2009-06-17 - RLW - Created
 --->
 <cfcomponent displayname="scriptsService_1_0" extends="ADF.core.Base" hint="Scripts Service functions for the ADF Library">
-<cfproperty name="version" default="1_0_0">
+<cfproperty name="version" default="1_0_1">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="ScriptsService_1_0">
 

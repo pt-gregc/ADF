@@ -4,7 +4,7 @@
     <csData_1_0>getSubsiteID,getSiteTemplates,getSubsiteStruct,getPagesBySubsiteID,getPageDataArray</csData_1_0>
     <ajaxService_1_0>addSubsite,loadGeneralChooser</ajaxService_1_0>
     <forms_1_0>renderAddEditForm,renderDeleteForm</forms_1_0>
-    <forms_1_5>renderAddEditForm,renderDeleteForm,loadCFFormProtect,verifyCFFormProtect</forms_1_5>
+    <forms_1_1>renderAddEditForm,renderDeleteForm,loadCFFormProtect,verifyCFFormProtect</forms_1_1>
     <link_builder>htmlAddEditLinkBuilder,renderLinks,listManagement,removeLink</link_builder>
     <utils_1_0>getCFTypes,scriptExists,getFieldTypes,updateCustomFieldType,updateListItems</utils_1_0>
 	<scheduler_1_0>getScheduleStatus,pauseSchedule,processNextScheduleItem,resumeSchedule</scheduler_1_0>

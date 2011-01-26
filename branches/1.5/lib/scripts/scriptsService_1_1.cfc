@@ -23,16 +23,19 @@ end user license agreement.
 Author: 	
 	PaperThin, Inc. 
 Name:
-	scriptsService_1_5.cfc
+	scriptsService_1_1.cfc
 Summary:
 	Scripts Service functions for the ADF Library
+Version:
+	1.1.0
 History:
 	2010-12-10 - RAK - Created
 --->
-<cfcomponent displayname="scriptsService_1_5" extends="ADF.lib.scripts.scriptsService_1_0" hint="Scripts Service functions for the ADF Library">
-<cfproperty name="version" default="1_5_0">
+<cfcomponent displayname="scriptsService_1_1" extends="ADF.lib.scripts.scriptsService_1_0" hint="Scripts Service functions for the ADF Library">
+
+<cfproperty name="version" default="1_1_0">
 <cfproperty name="type" value="singleton">
-<cfproperty name="wikiTitle" value="ScriptsService_1_5">
+<cfproperty name="wikiTitle" value="ScriptsService_1_1">
 
 <!---
 /* ***************************************************************

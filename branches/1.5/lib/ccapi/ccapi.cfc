@@ -26,15 +26,18 @@ Name:
 	ccapi.cfc
 Summary:
 	CCAPI functions for the ADF Library
+Version:
+	1.0.1
 History:
 	2009-06-17 - RLW - Created
 	2010-02-18 - RLW - Changed web service object to use direct CF component call
+	2011-01-25 - MFC - Update to v1.0.1. Updated dependency to Utils_1_1.
 --->
 <cfcomponent displayname="ccapi" extends="ADF.core.Base" hint="CCAPI functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_0">
+<cfproperty name="version" value="1_0_1">
 <cfproperty name="CoreConfig" type="dependency" injectedBean="CoreConfig">
-<cfproperty name="utils" type="dependency" injectedBean="utils_1_0">
+<cfproperty name="utils" type="dependency" injectedBean="utils_1_1">
 <cfproperty name="wikiTitle" value="CCAPI">
 
 <cfscript>

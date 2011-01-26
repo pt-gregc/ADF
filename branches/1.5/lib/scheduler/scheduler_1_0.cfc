@@ -27,15 +27,19 @@ Name:
 	scheduler_1_0.cfc
 Summary:
 	Scheduler base for the ADF
+Version:
+	1.0.0
 History:
 	2010-11-30 - RAK - Created
 --->
 <cfcomponent displayname="scheduler_1_0" extends="ADF.core.Base" hint="Scheduler base for the ADF">
+	
 	<cfproperty name="version" value="1_0_0">
 	<cfproperty name="type" value="singleton">
-	<cfproperty name="wikiTitle" value="scheduler_1_0">
+	<cfproperty name="wikiTitle" value="Scheduler_1_0">
+	
 	<cfscript>
-//		Verify the schedule structure exists
+		// Verify the schedule structure exists
 		if(!StructKeyExists(application,"schedule")){
 			application.schedule = StructNew();
 		}
