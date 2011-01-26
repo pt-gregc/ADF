@@ -1059,4 +1059,171 @@ History:
 	</cfif>
 </cffunction>
 
+<!---
+/* ***************************************************************
+/*
+Author: 	
+	S. Smith
+Name:
+	$loadJQueryCookie
+Summary:
+	Loads the JQuery Cookie plugin if not loaded.
+Returns:
+	None
+Arguments:
+	Boolean - force - Forces JQuery Cookie script header to load.
+History:
+	2010-05-07 - SFS - Created
+--->
+<cffunction name="loadJQueryCookie" access="public" output="true" returntype="void" hint="Loads the JQuery Cookie plugin if not loaded.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery Cookie script header to load.">
+	<cfif (not variables.scriptsService.isScriptLoaded("jqueryCookie")) OR (arguments.force)>
+		<cfoutput>
+			<script type="text/javascript" src="/ADF/thirdParty/jquery/cookie/jquery.cookie.js"></script>
+		</cfoutput>
+		<!--- If we force, then don't record the loaded script --->
+		<cfif NOT arguments.force>
+			<cfset variables.scriptsService.loadedScript("jqueryCookie")>
+		</cfif>
+	</cfif>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$loadJQueryDataTables
+Summary:
+	Loads the JQuery DataTables Headers if not loaded.
+Returns:
+	None
+Arguments:
+	String - version - JQuery DataTables version to load.
+	Boolean - force - Forces JQuery DataTables script header to load.
+History:
+	2010-05-19 - MFC - Created
+--->
+<cffunction name="loadJQueryDataTables" access="public" output="true" returntype="void" hint="Loads the JQuery DataTables Headers if not loaded.">
+<cfargument name="version" type="string" required="false" default="1.6.2" hint="JQuery DataTables version to load.">
+<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery DataTables script header to load.">
+<cfif (not variables.scriptsService.isScriptLoaded("jqueryDataTables")) OR (arguments.force)>
+	<cfoutput>
+		<script type="text/javascript" src="/ADF/thirdParty/jquery/datatables/js/jquery.dataTables-#arguments.version#.min.js"></script>
+		<link rel='stylesheet' href='/ADF/thirdParty/jquery/datatables/css/demo_page.css' type='text/css' media='screen' />
+		<link rel='stylesheet' href='/ADF/thirdParty/jquery/datatables/css/demo_table_jui.css' type='text/css' media='screen' />
+		<link rel='stylesheet' href='/ADF/thirdParty/jquery/datatables/css/demo_table.css' type='text/css' media='screen' />
+	</cfoutput>
+	<!--- If we force, then don't record the loaded script --->
+	<cfif NOT arguments.force>
+		<cfset variables.scriptsService.loadedScript("jqueryDataTables")>
+	</cfif>
+</cfif>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$loadJQueryField
+Summary:
+	Loads the JQuery Field plugin.
+Returns:
+	None
+Arguments:
+	String - version - JQuery Field version to load.
+History:
+	2010-09-27 - RLW - Created
+--->
+<cffunction name="loadJQueryField" access="public" output="true" returntype="void" hint="Loads the JQuery Field plugin if not loaded.">
+<cfargument name="version" type="string" required="false" default="0.9.8" hint="JQuery Field plugin version to load.">
+<cfif not variables.scriptsService.isScriptLoaded("jqueryField")>
+	<cfoutput>
+		<script type="text/javascript" src="/ADF/thirdParty/jquery/field/jquery.field-#arguments.version#.min.js"></script>
+	</cfoutput>
+	<cfset variables.scriptsService.loadedScript("jqueryField")>
+</cfif>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$loadJQueryBlockUI
+Summary:
+	Loads the JQuery BlockUI plugin which can be triggered to block ui during ajax call
+Returns:
+	None
+Arguments:
+	String - version - JQuery BlockUI version to load.
+History:
+	2010-09-27 - RLW - Created
+--->
+<cffunction name="loadJQueryBlockUI" access="public" output="true" returntype="void" hint="Loads the JQuery BlockUI plugin if not loaded.">
+<cfargument name="version" type="string" required="false" default="2.35" hint="JQuery BlockUI plugin version to load.">
+<cfif not variables.scriptsService.isScriptLoaded("jQueryBlockUI")>
+	<cfoutput>
+		<script type="text/javascript" src="/ADF/thirdParty/jquery/blockUI/jquery.blockUI-#arguments.version#.js"></script>
+	</cfoutput>
+	<cfset variables.scriptsService.loadedScript("jQueryBlockUI")>
+</cfif>
+</cffunction>
+
+<!---
+/* ***************************************************************
+/*
+Author: 	
+	PaperThin, Inc.
+	Ryan kahn
+Name:
+	$loadJQueryDatePick
+Summary:	
+	Loads the DatePick plugin for jQuery
+Returns:
+	Void
+Arguments:
+	Version
+History:
+ 	2010-09-27 - RAK - Created
+--->
+<cffunction name="loadJQueryDatePick" access="public" output="true" returntype="void" hint="Loads the DatePick plugin for jQuery"> 
+	#loadJQuery()#
+	<cfif not variables.scriptsService.isScriptLoaded("datePick")>
+		<cfoutput>
+			<style type='text/css'>@import '/ADF/thirdParty/jquery/datepick/jquery.datepick.css';</style>
+			<script type='text/javascript' src='/ADF/thirdParty/jquery/datepick/jquery.datepick.pack.js'></script>
+		</cfoutput>
+		<cfset variables.scriptsService.loadedScript("datePick")>
+	</cfif>
+</cffunction>
+
+<!---
+/* ***************************************************************
+/*
+Author: 	
+	PaperThin, Inc.
+	S. Smith
+Name:
+	$loadjQueryBBQ
+Summary:	
+	Loads the BBQ plugin for jQuery
+Returns:
+	Void
+Arguments:
+	Version
+History:
+ 	2010-07-08 - SFS - Created
+--->
+<cffunction name="loadJQueryBBQ" access="public" output="true" returntype="void" hint="Loads the BBQ plugin for jQuery"> 
+	<cfargument name="version" type="string" required="false" default="1.2.1" hint="Script version to load.">
+	<cfif not variables.scriptsService.isScriptLoaded("bbq")>
+		<cfoutput>
+			<script type='text/javascript' src='/ADF/thirdParty/jquery/bbq/jquery.ba-bbq-#arguments.version#.min.js'></script>
+		</cfoutput>
+		<cfset variables.scriptsService.loadedScript("bbq")>
+	</cfif>
+</cffunction>
+
 </cfcomponent>

@@ -42,46 +42,6 @@ History:
 <!---
 /* ***************************************************************
 /*
-Author: 	Ryan Kahn
-Name:
-	$getPageIdsUsingTemplateID
-Summary:	
-	Returns an array of page ids that DIRECTLY utilize the template
-Returns:
-	Array pageID's
-Arguments:
-	Numeric templateID
-History:
- 2010-10-08 - RAK - Created
---->
-<cffunction name="getPageIdsUsingTemplateID" access="public" returntype="array" hint="Returns an array of page ids that DIRECTLY utilize the template">
-	<cfargument name="templateID" type="numeric" required="true">
-	<cfargument name="subsiteID" type="numeric" required="false" default="-1" hint="Gets only pages that reside within this subsite that directly utilize the template">
-	<cfargument name="includeSubsiteDescendants" type="boolean" required="false" default="false" hint="If true and subsiteID is selected will return pages that directly utilize the template within the subsite and its ancestors">
-	<cfscript>
-		var subsiteList = "";
-		var decendants = "";
-		if(arguments.subsiteID neq -1){
-			subsiteList="#arguments.subsiteID#";
-			if(arguments.includeSubsiteDescendants and StructKeyExists(application.subsitecache,arguments.subsiteID)){
-				subsiteList = subsiteList&","&request.subsitecache[arguments.subsiteID].DESCENDANTLIST;
-			}
-		}
-	</cfscript>
-	<cfquery name="templatePages" datasource="#request.site.datasource#">
-		SELECT id
-		  FROM sitePages
-		 WHERE InheritedTemplateList like <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.templateID#,%">
-		<cfif Len(subsiteList)>
-			AND <cfmodule template="/commonspot/utilities/handle-in-list.cfm" field="SubSiteID" list="#subsiteList#">
-		</cfif>
-	</cfquery>
-	<cfreturn ListToArray(valueList(templatePages.ID))>
-</cffunction>
-
-<!---
-/* ***************************************************************
-/*
 Author: 	
 	PaperThin, Inc.
 	Ryan Kahn

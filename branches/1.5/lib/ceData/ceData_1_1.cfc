@@ -42,48 +42,6 @@ History:
 <!---
 /* ***************************************************************
 /*
-Author: 	S. Smith
-Name:
-	$arrayOfCEDataToQuery
-Summary:
-	Returns Query from a Custom Element Array of Structures
-Returns:
-	Query
-Arguments:
-	Array
-History:
-	2010-07-27 - SFS - Created based upon the arrayOfStructuresToQuery function in data_1_0.cfc
---->
-<cffunction name="arrayOfCEDataToQuery" access="public" returntype="query">
-	<cfargument name="theArray" type="array" required="true">
-
-	<cfscript>
-		var colNames = "";
-		var theQuery = queryNew("");
-		var i=0;
-		var j=0;
-		//if there's nothing in the array, return the empty query
-		if(NOT arrayLen(arguments.theArray))
-			return theQuery;
-		//get the column names into an array =
-		colNames = structKeyArray(arguments.theArray[1]["values"]);
-		//build the query based on the colNames
-		theQuery = queryNew(arrayToList(colNames));
-		//add the right number of rows to the query
-		queryAddRow(theQuery, arrayLen(arguments.theArray));
-		//for each element in the array, loop through the columns, populating the query
-		for(i=1; i LTE arrayLen(arguments.theArray); i=i+1){
-			for(j=1; j LTE arrayLen(colNames); j=j+1){
-				querySetCell(theQuery, colNames[j], arguments.theArray[i]["values"][colNames[j]], i);
-			}
-		}
-	    return theQuery;
-	</cfscript>
-</cffunction>
-
-<!---
-/* ***************************************************************
-/*
 Author: 	Ryan Kahn
 Name:
 	$getTabsFromFormID

@@ -219,5 +219,76 @@ History:
 	</cfscript>
 	<cfreturn csDateFormat(theDate)>
 </cffunction>
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
+Name:
+	$formatDateTimeISO8601
+Summary:
+	Format the date/time to the ISO8601 string.
+Returns:
+	string
+Arguments:
+	string
+	string
+History:
+	2010-09-20 - MFC - Created
+--->
+<cffunction name="formatDateTimeISO8601" access="public" returntype="string" output="true" hint="">
+	<cfargument name="date" type="string" required="false" default="#now()#" hint="">
+	<cfargument name="time" type="string" required="false" default="#now()#" hint="">
+	
+	<cfscript>
+		var tzData = GetTimeZoneInfo();
+		var tzStamp = "";
+				
+		// Set the timezone 
+		if ( tzData.utcHourOffset GTE 0 ){
+			if ( LEN(tzData.utcHourOffset) EQ 1 )
+				tzStamp = "+0" & tzData.utcHourOffset & ":00";
+			else
+				tzStamp = "+" & tzData.utcHourOffset & ":00";
+		}
+		else
+			tzStamp = "-" & tzData.utcHourOffset & ":00";
+		
+		// Build the string
+		return DateFormat(arguments.date, "YYYY-MM-DD") & "T" & TimeFormat(arguments.time, "HH:MM:SS") & tzStamp;
+	</cfscript>
+</cffunction>
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
+Name:
+	$getDateFields
+Summary:
+	Returns a structure with the date fields separated into each field.
+Returns:
+	struct
+Arguments:
+	string
+	string
+History:
+	2010-09-21 - MFC - Created
+--->
+<cffunction name="getDateFields" access="public" returntype="struct" output="true" hint="">
+	<cfargument name="date" type="string" required="false" default="#now()#" hint="">
+	<cfargument name="time" type="string" required="false" default="#now()#" hint="">
+	
+	<cfscript>
+		var dateFields = StructNew();
+		dateFields.year = year(arguments.date);
+		dateFields.month = month(arguments.date);
+		dateFields.day = day(arguments.date);
+		dateFields.hour = hour(arguments.time);
+		dateFields.minute = minute(arguments.time);
+		dateFields.second = second(arguments.time);
+		return dateFields;
+	</cfscript>
+</cffunction>
 
 </cfcomponent>
