@@ -1259,7 +1259,7 @@ History:
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
 			<link rel="stylesheet" href="/ADF/thirdParty/jquery/uploadify/uploadify.css" type="text/css" media="screen" />
-			<script type='text/javascript' src='/ADF/thirdParty/jquery/uploadify/jquery.uploadify.v2.1.1.min.js'></script>
+			<script type='text/javascript' src='/ADF/thirdParty/jquery/uploadify/jquery.uploadify.v2.1.0.min.js'></script>
 		</cfoutput>
 	</cfsavecontent>
 	#variables.scriptsService.renderScriptOnce("uploadify",outputHTML)#
