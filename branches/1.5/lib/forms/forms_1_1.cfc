@@ -133,7 +133,7 @@ History:
 				<cfoutput>#arguments.customizedFinalHtml#</cfoutput>
 			<cfelse>
 				<!--- If the LB Action is to refresh parent --->
-				<cfif arguments.lbAction EQ "refreshparent">
+				<cfif arguments.lbAction EQ "refreshparent" and LEN(arguments.callback) eq 0>
 					<script type='text/javascript'>
 						closeLBReloadParent();
 					</script>
