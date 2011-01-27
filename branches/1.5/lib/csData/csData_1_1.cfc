@@ -195,4 +195,92 @@ History:
 	<cfreturn pageURL>
 </cffunction>
 
+<!---
+/* *************************************************************** */
+Author: 	Greg Cronkright
+Name:
+	$findReplaceStandardMetadata
+Summary:
+	From a pageID get the Standard Metadata for the page and then does a find/replace on values in the Standard Metadata
+	structure. Uses a Array of structs that contains findText and replaceText to go through the designated fields.
+	For use with createPage when build a new page from and existing page.
+	When building findReplaceTextArray, each array item requires two keys: findText and replaceText 
+	Example:
+		foo = ArrayNew(1);
+		foo[1].findtext = "Test Home";
+		foo[1].replacetext = "New Dev";
+		--This will change instances of the text: "Test Home Page" to "New Dev Page" 
+		--and then returns the normal standardMetadata structure
+	Remember it processes the array in order, so the last find/replace array item will take precedence
+Returns:
+	Struct struct
+Arguments:
+	numeric - csPageID 
+	array - findReplaceTextArray 
+	string - fieldList
+History:
+	201a-01-26 - GAC - Created
+--->
+<cffunction name="findReplaceStandardMetadata" access="public" returntype="struct" 
+	hint="From a pageID get the Standard Metadata for the page and then does a find/replace on values in the Standard Metadata structure. Uses a Array of structs that contains findText and replaceText to go through the designated fields.">
+	<cfargument name="csPageID" type="numeric" required="true">
+	<cfargument name="findReplaceTextArray" type="array" required="false" default="#ArrayNew(1)#" hint="An array of structs with the source text to find and destination text to replace when creating the destination page.">
+	<cfargument name="fieldList" type="string" required="false" default="Name,Title,Caption,Description,FileName" hint="List of standardMetadata fields to process. If blank, it will check them all.">
+	<cfscript>
+		var stndMetaStruct = getStandardMetadata(arguments.csPageID);
+		var newStndMetaStruct = StructNew();
+		var findReplaceArray = arguments.findReplaceTextArray;
+		var structKeyList = TRIM(arguments.fieldList);
+		var findTxt = "";
+		var replaceTxt = "";
+		var findFileName = "";
+		var replaceFileName = "";
+		var key = "";
+		var findPos = 0;
+		var findFilePos = 0;	
+		var s = 1;
+		
+		// structKeyList has no value get a list of all the keys in the structure
+		if ( LEN(structKeyList) EQ 0 )
+			structKeyList = StructKeyList(stndMetaStruct);
+		
+		// If findReplace data was provided, do the work on the standard metadata
+		if ( ArrayLen(findReplaceArray) ) {
+			// Loop over the findReplace Array
+			for( s=1; s LTE ArrayLen(findReplaceArray); s=s+1 ) {
+				// Get the Find Text and the Replace text
+				findTxt = "";
+				if ( StructKeyExists(findReplaceArray[s],"findtext") ) 
+					findTxt = findReplaceArray[s].findtext;
+				replaceTxt = "";
+				if ( StructKeyExists(findReplaceArray[s],"replacetext") ) 
+					replaceTxt = findReplaceArray[s].replacetext;
+				// Do not process if the findTxt has no value
+				if ( LEN(findTxt) ) {
+					// Loop over the metadata value that match the KEY LIST
+					for ( key IN stndMetaStruct ) {
+						if ( ListFindNoCase(structKeyList,key) ) {
+							if ( key EQ "FILENAME" ) {
+						  		// Add dashes to the find and replace text for file name matching
+						  		findFileName  = REReplaceNoCase(findTxt,"[\s]","-","all");
+						 		replaceFileName  = REReplaceNoCase(replaceTxt,"[\s]","-","all");
+						  		// If the FIND text is found, replace it with the REPLACE text
+						  		findFilePos = FindNoCase(findFileName, stndMetaStruct["FILENAME"]);
+						  		if ( findFilePos ) 
+						   			stndMetaStruct["FILENAME"] = ReplaceNoCase(stndMetaStruct["FILENAME"],findFileName,replaceFileName,"all");
+						 	} else {
+						 		// If the FIND text is found, replace it with the REPLACE text
+						  		findPos = FindNoCase(findTxt, stndMetaStruct[key]);
+						  		if ( findPos ) 
+						  			stndMetaStruct[key] = ReplaceNoCase(stndMetaStruct[key],findTxt,replaceTxt,"all");
+						 	}
+						}
+					}
+				}
+			}
+		}
+		return stndMetaStruct;
+	</cfscript>
+</cffunction>
+
 </cfcomponent>
