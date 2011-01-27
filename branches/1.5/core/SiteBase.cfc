@@ -29,6 +29,7 @@ Summary:
 History:
 	2009-08-14 - MFC - Created
 	2011-01-21 - GAC - Added a version variable to Application.ADF
+	2011-01-26 - GAC - Added a method for setLightboxProxyURL
 --->
 <cfcomponent displayname="SiteBase" extends="ADF.core.AppBase">
 
@@ -276,6 +277,27 @@ History:
 <cffunction name="setAjaxProxyURL" access="public" returntype="void" hint="Sets the URL to the AjaxProxy">
 	<cfargument name="proxyURL" type="string" required="true" hint="The server relative URL to the ajaxProxy.cfm file">
 	<cfset application.ADF.ajaxProxy = arguments.proxyURL>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	Greg Cronkright
+Name:
+	$setLightboxProxyURL
+Summary:	
+	Each site can have its own lightboxProxy URL - we will default this to:
+	/_cs_apps/lightboxProxy.cfm
+Returns:
+	Void
+Arguments:
+	String proxyURL
+History:
+	2009-10-14 - RLW - Created
+	2011-01-26 - GAC - Modified - Based on code from RLWs setAjaxProxyURL
+--->
+<cffunction name="setLightboxProxyURL" access="public" returntype="void" hint="Sets the URL to the LightboxProxy">
+	<cfargument name="proxyURL" type="string" required="true" hint="The server relative URL to the lightboxProxy.cfm file">
+	<cfset application.ADF.lightboxProxy = arguments.proxyURL>
 </cffunction>
 
 <!---
