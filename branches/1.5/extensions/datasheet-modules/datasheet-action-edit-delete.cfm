@@ -1,12 +1,10 @@
 <cfif len(request.Datasheet.CurrentColumnValue)>
 	<cfscript>
-		application.ADF.scripts.loadJQuery();
-		application.ADF.scripts.loadADFLightbox();
 		AjaxPath = application.ADF.ajaxProxy;
-		AjaxBean = "forms_2_0";
+		AjaxBean = "forms_1_1";
 		AjaxMethod = "renderAddEditForm";
 		
-		AjaxDeleteBean = "forms_1_0";
+		AjaxDeleteBean = "forms_1_1";
 		AjaxDeleteMethod = "renderDeleteForm";
 		
 		formID = edata.MetadataForm;
@@ -14,6 +12,9 @@
 	<cfsavecontent variable="tdHTML">
 		<cfoutput>
 			<td align="center" valign="middle">
+				#application.ADF.scripts.loadJQuery()#
+				#application.ADF.scripts.loadJQueryUI()#
+				#application.ADF.scripts.loadADFLightbox()#
 				<style>
 					div.ds-icons {
 						padding: 1px 10px;
