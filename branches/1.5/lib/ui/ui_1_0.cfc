@@ -214,11 +214,12 @@ History:
  	2011-01-05 - RAK - Created
 	2011-01-19 - GAC - Modified - Moved to the UI Lib. And Changed the name of the function.
 								 Segmented out the 6.x LB header and footer so they could be used outside of the wrap function 
+	2011-01-28 - GAC - Modified - Removed the parameter isForm and added the parameter for tdClass so CSS classes can be added to the inner TD of the lightBox header
 --->
 <cffunction name="wrapHTMLwithLBHeaderFooter" access="public" returntype="string" output="false" hint="Given html returns html that is wrapped properly with the CS 6.x lightbox header and footer code.">
 	<cfargument name="html" type="string" default="" hint="HTML to wrap">
-	<cfargument name="isForm" type="boolean" default="true">
 	<cfargument name="lbTitle" type="string" default="">
+	<cfargument name="tdClass" type="string" default="" hint="Use to add CSS classes to the outer TD wrapper: ie. formResultContainer of addEditRenderForm Results">
 	<cfargument name="forceLightboxResize" type="boolean" default="false">
 	<cfscript>
 		var retHTML = "";
@@ -251,11 +252,12 @@ Returns:
 Arguments:
 	boolean isForm
 History:
-	2011-01-19 - GAC - Created 
+	2011-01-19 - GAC - Created
+	2011-01-28 - GAC - Modified - Removed the parameter isForm and added the parameter for tdClass so CSS classes can be added to the inner TD of the lightBox header
 --->
 <cffunction name="lightboxHeader" access="public" returntype="string" output="false" hint="Returns HTML for the CS 6.x lightbox header (use with the lightboxFooter)">
-	<cfargument name="isForm" type="boolean" default="false">
 	<cfargument name="lbTitle" type="string" default="">
+	<cfargument name="tdClass" type="string" default="" hint="Use to add CSS classes to the inner TD of the lightBox header: ie. formResultContainer of addEditRenderForm Results">
 	<cfargument name="forceLightboxResize" type="boolean" default="false">
 	<cfscript>
 		var retHTML = "";
@@ -286,7 +288,7 @@ History:
 			<cfoutput>
 				<CFINCLUDE TEMPLATE="/commonspot/dlgcontrols/dlgcommon-head.cfm">
 				<tr>
-					<td<cfif arguments.isForm> class="formResultContainer"</cfif>>
+					<td<cfif LEN(TRIM(arguments.tdClass))> class="#arguments.tdClass#"</cfif>>
 				<cfif arguments.forceLightboxResize>
 				<script type="text/javascript">
 			        <!--
