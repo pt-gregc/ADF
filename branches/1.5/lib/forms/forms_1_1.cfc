@@ -30,7 +30,7 @@ Version:
 	1.1.0
 History:
 	2009-09-28 - MFC - Created
-	2010-12-20 - MFC - Updated Forms_1_1 for dependency to Scripts_1_5.
+	2010-12-20 - MFC - Updated Forms_1_1 for dependency to Scripts_1_1.
 --->
 <cfcomponent displayname="forms_1_1" extends="ADF.lib.forms.forms_1_0" hint="Form functions for the ADF Library">
 
@@ -38,6 +38,7 @@ History:
 <cfproperty name="type" value="transient">
 <cfproperty name="ceData" injectedBean="ceData_1_1" type="dependency">
 <cfproperty name="scripts" injectedBean="scripts_1_1" type="dependency">
+<cfproperty name="ui" injectedBean="ui_1_0" type="dependency">
 <cfproperty name="wikiTitle" value="Forms_1_1">
 
 <!---
@@ -69,8 +70,8 @@ History:
 						Removed commented and unneeded code in the dlg header variables.
 	2010-12-20 - MFC - Undo the param to force load ADF Lightbox scripts and the UDF to load
 						into a variable.  These work now that Forms has the dependency for
-						Scripts_1_5.
-	2010-12-20 - RAK - Fixed a bunch of issues related to forms 1_5 callbacks not working properly.
+						Scripts_1_1.
+	2010-12-20 - RAK - Fixed a bunch of issues related to forms 1_1 callbacks not working properly.
 	2010-12-21 - MFC - Added force params to loading scripts in the formResultHTML content block.
 						Updated the form result to use the customizedFinalHtml argument or the default.
 						Removed the renderResult param and IF blocks.
@@ -242,6 +243,7 @@ History:
 	2010-07-23 - SFS - Added argument to supply the lightbox dialog with a title needed for CS CE delete function.
 	2010-10-29 - MFC - Updated the delete form for CS 6 Lightbox styles.
 	2010-12-21 - MFC - Removed the JQuery version in the param.
+	2011-01-20 - GAC - Updated the conflicting title code was attempting to set the Lightbox DialogName
 --->
 <cffunction name="renderDeleteForm" access="public" returntype="String" hint="Renders the standard datasheet delete module">
 	<cfargument name="formID" type="numeric" required="true" hint="The FormID for the Custom Element">
@@ -253,7 +255,13 @@ History:
 	<cfsavecontent variable="deleteFormHTML">
 		<!--- Render the dlg header --->
 		<cfscript>
-			CD_DialogName = request.params.title;
+			// Use the Title passed in or if available use the title in the request.params for the Lightbox DialogName
+			if ( LEN(TRIM(arguments.title)) ) 
+				CD_DialogName = arguments.title;
+			else if ( StructKeyExists(request.params,"title")) 
+				CD_DialogName = request.params.title;
+			else 
+				CD_DialogName = "";
 			CD_Title=CD_DialogName;
 			CD_IncludeTableTop=1;
 			CD_CheckLock=0;
@@ -405,34 +413,20 @@ Summary:
 Returns:
 	string
 Arguments:
-
+	string - HTML
+	string - tdClass 
 History:
- 	1/5/11 - RAK - Created
+ 	2011-05-11 - RAK - Created
+	2011-01-20 - GAC - Moved a updated version to the UI lib and added the parameter for 
+						tdClass so CSS classes can be added to the inner TD of the lightBox header
 --->
 <cffunction name="wrapHTMLWithLightbox" access="public" returntype="string" hint="Given html returns html that is wrapped properly with the lightbox code.">
 	<cfargument name="html" type="string" required="true" default="" hint="HTML to wrap">
+	<cfargument name="tdClass" type="string" default="formResultContainer" hint="Use to add CSS classes to the TD wrapper around the provied HTML. Default: formResultContainer">
 	<cfset var returnHTML = "">
 	<cfsavecontent variable="returnHTML">
 		<cfoutput>
-			<cfscript>
-				if(StructKeyExists( request.params,"title")){
-					CD_DialogName = request.params.title;
-				}else{
-					 CD_DialogName = "";
-				}
-				CD_Title=CD_DialogName;
-				CD_IncludeTableTop=1;
-				CD_CheckLock=0;
-				CD_CheckLogin=1;
-				CD_CheckPageAlive=0;
-			</cfscript>
-			<CFINCLUDE TEMPLATE="/commonspot/dlgcontrols/dlgcommon-head.cfm">
-				<tr>
-					<td class="formResultContainer">
-						#html#
-					</td>
-				</tr>
-			<CFINCLUDE template="/commonspot/dlgcontrols/dlgcommon-foot.cfm">
+			#variables.ui.wrapHTMLwithLBHeaderFooter(argumentCollection=arguments)#
 		</cfoutput>
 	</cfsavecontent>
 	<cfreturn returnHTML>
