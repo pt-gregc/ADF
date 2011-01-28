@@ -270,7 +270,7 @@ History:
 					</script>
 					<cfset buttonLabel = "New #xParams.label#">
 					<cfset ceFormID = application.ADF.cedata.getFormIDByCEName(xparams.customElement)>
-					<a href="javascript:;" rel="#application.ADF.ajaxProxy#?bean=Forms_1_5&method=renderAddEditForm&formid=#ceFormID#&datapageid=0&lbAction=refreshparent&title=#buttonLabel#" id="addNew" class="ADFLightbox add-button ui-state-default ui-corner-all">#buttonLabel#</a>
+					<a href="javascript:;" rel="#application.ADF.ajaxProxy#?bean=Forms_1_1&method=renderAddEditForm&formid=#ceFormID#&datapageid=0&lbAction=refreshparent&title=#buttonLabel#" id="addNew" class="ADFLightbox add-button ui-state-default ui-corner-all">#buttonLabel#</a>
 		 		</cfif>
 			</div>
 		</td>

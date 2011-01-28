@@ -75,7 +75,7 @@ History:
 		</script>
 		</cfoutput>
 	<cfelse>
-		<cfset forms = server.ADF.objectFactory.getBean("forms_1_5")>
+		<cfset forms = server.ADF.objectFactory.getBean("Forms_1_1")>
 		<cfoutput>#forms.closeLBAndRefresh()#</cfoutput>
 	</cfif>
 
