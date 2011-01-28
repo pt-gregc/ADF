@@ -78,29 +78,30 @@ Arguments:
 		The elements (including textblocks) must have names declared (More -> Name)
 	array: destCCAPINames
 		The elements (including textblocks) must have ccapi mapping information.
-	array: findReplaceStandardMetadata
-		An array of structs with the source text to find and destination text to replace in the values of the
-		Standard Metadata struct when creating the destination page.
+	array: destStandardMetadata
+		An structs of standard metadata fields/values that will be used to overwrite the values of the standard metadata
+		from the source page
 History:
 	2010-11-05 - RAK - Created
 	2011-01-14 - GAC - Modified - Coverted Applicatio.ADF calls to Global
 	2011-01-14 - GAC - Added logic to Get convert Taxonomy terms to a termID list
 	2011-01-15 - GAC - Moved the convert Taxonomy terms to termids into the getCustomMetadata function
-	2011-01-26 - GAC - Added a call to a method that does a find and replace of Standard Metadata values (ie. Name, Title, Caption, Description and FileName)
-						the function replaces the source info with the new info for destination before creating the destination page
---->
+	2011-01-28 - GAC - Added a parameter to pass in a destination Standard Metadata struct. This can be the entire standard metadata struct or specified standard metadata fields.
+						The modified Standard metadata will be used when creating the destination page.
+--->	
 <cffunction name="copyPage" access="public" returntype="boolean" hint="Duplicates the page from source to destination using destination template. ">
 	<cfargument name="sourcePageID" type="numeric" required="true">
 	<cfargument name="destinationSubsiteID" type="numeric" required="true">
 	<cfargument name="destinationTemplateID" type="numeric" required="false">
 	<cfargument name="sourceNames" type="array" required="false" default="#ArrayNew(1)#" hint="The elements (including textblocks) must have names declared (More -> Name)">
 	<cfargument name="destCCAPINames" type="array" required="false" default="#ArrayNew(1)#" hint="The elements (including textblocks) must have ccapi mapping information.">
-	<cfargument name="findReplaceStandardMetadata" type="array" required="false" default="#ArrayNew(1)#" hint="An array of structs with the source text to find and destination text to replace in the values of the Standard Metadata struct when creating the destination page.">
-
+	<cfargument name="destStandardMetadata" type="struct" required="false" default="#StructNew()#" hint="A Struct of Standard Metadata fields that will overwrite the Standard Metadata from the source page when creating the destination page.">
+	
 	<cfscript>
 		var i = 1;
 		var j = 1;
 		var k = 1;
+		var dsmKey = "";
 		var customElementFormID = "";
 		var elementInformation = "";
 		var customData = "";
@@ -119,9 +120,13 @@ History:
 			return false;
 		}
 		
-		// If a findReplaceStandardMetadata Array was provided, do some work on the standard metadata
-		if ( ArrayLen(arguments.findReplaceStandardMetadata) ) 
-			sourcePage = variables.csData.findReplaceStandardMetadata(arguments.sourcePageID,arguments.findReplaceStandardMetadata); 
+		// Check to see if a destination standard metadata struct has been provided with any fields/values to be used to replace the Source page standard metadata values
+		if ( !StructIsEmpty(arguments.destStandardMetadata) ) {
+			for ( dsmKey IN  arguments.destStandardMetadata ) {
+				if ( StructKeyExists(sourcePage,dsmKey) )
+					sourcePage[dsmKey] = arguments.destStandardMetadata[dsmKey];
+			}
+		}
 		
 		//Does the page exist? If so throw an exception telling them so
 		if ( variables.csData.getCSPageByName(sourcePage.name,arguments.destinationSubsiteID) ) {
