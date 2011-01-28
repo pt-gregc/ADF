@@ -59,6 +59,7 @@ History:
 	2008-09-15 - RLW - Created
 	2011-01-14 - GAC - Modified - Added an option to convert Taxonomy terms to a termID list
 	2011-01-18 - GAC - Modified - Removed debugging code and updated some in-line comments
+	2011-01-28 - RLW - Modified - Added doctype as an optional argument to handle document metadata bindings
 --->
 <cffunction name="getCustomMetadata" access="public" returntype="struct">
 	<cfargument name="pageID" type="numeric" required="yes">
@@ -66,6 +67,7 @@ History:
     <cfargument name="subsiteID" type="numeric" required="no" default="-1">
     <cfargument name="inheritedTemplateList" type="string" required="no" default="">
 	<cfargument name="convertTaxonomyTermsToIDs" type="boolean" required="no" default="false">
+	<cfargument name="docType" type="string" required="no" default="">
 	<cfscript>
 		var stdMetadata = "";
 		var custMetadata = StructNew();
@@ -82,7 +84,7 @@ History:
     		stdMetadata = getStandardMetadata(arguments.pageID);
     		arguments.categoryID = stdMetadata.categoryID;
     		arguments.subsiteID = stdMetadata.subsiteID;
-    		arguments.inheritedTemplateList = stdMetadata.inheritedTemplateList;
+    		//arguments.inheritedTemplateList = stdMetadata.inheritedTemplateList;
     	</cfscript>
     </cfif>
     <!--- // call the standard build struct module with the argument collection --->
