@@ -78,11 +78,16 @@ Arguments:
 		The elements (including textblocks) must have names declared (More -> Name)
 	array: destCCAPINames
 		The elements (including textblocks) must have ccapi mapping information.
+	array: findReplaceStandardMetadata
+		An array of structs with the source text to find and destination text to replace in the values of the
+		Standard Metadata struct when creating the destination page.
 History:
 	2010-11-05 - RAK - Created
 	2011-01-14 - GAC - Modified - Coverted Applicatio.ADF calls to Global
 	2011-01-14 - GAC - Added logic to Get convert Taxonomy terms to a termID list
 	2011-01-15 - GAC - Moved the convert Taxonomy terms to termids into the getCustomMetadata function
+	2011-01-26 - GAC - Added a call to a method that does a find and replace of Standard Metadata values (ie. Name, Title, Caption, Description and FileName)
+						the function replaces the source info with the new info for destination before creating the destination page
 --->
 <cffunction name="copyPage" access="public" returntype="boolean" hint="Duplicates the page from source to destination using destination template. ">
 	<cfargument name="sourcePageID" type="numeric" required="true">
@@ -90,6 +95,7 @@ History:
 	<cfargument name="destinationTemplateID" type="numeric" required="false">
 	<cfargument name="sourceNames" type="array" required="false" default="#ArrayNew(1)#" hint="The elements (including textblocks) must have names declared (More -> Name)">
 	<cfargument name="destCCAPINames" type="array" required="false" default="#ArrayNew(1)#" hint="The elements (including textblocks) must have ccapi mapping information.">
+	<cfargument name="findReplaceStandardMetadata" type="array" required="false" default="#ArrayNew(1)#" hint="An array of structs with the source text to find and destination text to replace in the values of the Standard Metadata struct when creating the destination page.">
 
 	<cfscript>
 		var i = 1;
@@ -106,12 +112,16 @@ History:
 		var custMetadata = variables.csData.getCustomMetadata(pageid=arguments.sourcePageID,convertTaxonomyTermsToIDs=1);
 		var sourcePage = variables.csData.getStandardMetadata(arguments.sourcePageID);
 		var ccapiElements = "";
-		
+		 
 		//Error checking
 		if ( ArrayLen(sourceNames) neq ArrayLen(destCCAPINames) ) {
 			variables.utils.logAppend("Source custom element list is not the same length of custom element names.","copyPageLog.txt");
 			return false;
 		}
+		
+		// If a findReplaceStandardMetadata Array was provided, do some work on the standard metadata
+		if ( ArrayLen(arguments.findReplaceStandardMetadata) ) 
+			sourcePage = variables.csData.findReplaceStandardMetadata(arguments.sourcePageID,arguments.findReplaceStandardMetadata); 
 		
 		//Does the page exist? If so throw an exception telling them so
 		if ( variables.csData.getCSPageByName(sourcePage.name,arguments.destinationSubsiteID) ) {
