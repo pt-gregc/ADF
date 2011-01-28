@@ -71,7 +71,7 @@ History:
 		// set the flag for if we have a serialized form to pass to the function as a structure 
 		containsSerializedForm = false;
 		// get the utils, scripts amd csSecurity beans 
-		utils = server.ADF.objectFactory.getBean("utils_1_0");
+		utils = server.ADF.objectFactory.getBean("utils_1_1");
 		// Verify if the bean and method combo are allowed to be accessed through the ajax proxy
 		passedSecurity = server.ADF.objectFactory.getBean("csSecurity_1_0").validateProxy(request.params.bean, request.params.method);
 		if ( passedSecurity )
