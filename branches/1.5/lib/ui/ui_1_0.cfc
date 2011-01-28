@@ -219,7 +219,7 @@ History:
 <cffunction name="wrapHTMLwithLBHeaderFooter" access="public" returntype="string" output="false" hint="Given html returns html that is wrapped properly with the CS 6.x lightbox header and footer code.">
 	<cfargument name="html" type="string" default="" hint="HTML to wrap">
 	<cfargument name="lbTitle" type="string" default="">
-	<cfargument name="tdClass" type="string" default="" hint="Use to add CSS classes to the outer TD wrapper: ie. formResultContainer of addEditRenderForm Results">
+	<cfargument name="tdClass" type="string" default="" hint="Used to add CSS classes to the outer TD wrapper like 'formResultContainer' for the addEditRenderForm results">
 	<cfargument name="forceLightboxResize" type="boolean" default="false">
 	<cfscript>
 		var retHTML = "";
@@ -257,7 +257,7 @@ History:
 --->
 <cffunction name="lightboxHeader" access="public" returntype="string" output="false" hint="Returns HTML for the CS 6.x lightbox header (use with the lightboxFooter)">
 	<cfargument name="lbTitle" type="string" default="">
-	<cfargument name="tdClass" type="string" default="" hint="Use to add CSS classes to the inner TD of the lightBox header: ie. formResultContainer of addEditRenderForm Results">
+	<cfargument name="tdClass" type="string" default="" hint="Used to add CSS classes to the outer TD wrapper like 'formResultContainer' for the addEditRenderForm results">
 	<cfargument name="forceLightboxResize" type="boolean" default="false">
 	<cfscript>
 		var retHTML = "";
