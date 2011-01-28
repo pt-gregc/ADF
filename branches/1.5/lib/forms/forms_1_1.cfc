@@ -422,7 +422,7 @@ History:
 --->
 <cffunction name="wrapHTMLWithLightbox" access="public" returntype="string" hint="Given html returns html that is wrapped properly with the lightbox code.">
 	<cfargument name="html" type="string" required="true" default="" hint="HTML to wrap">
-	<cfargument name="tdClass" type="string" default="formResultContainer" hint="Use to add CSS classes to the TD wrapper around the provied HTML. Default: formResultContainer">
+	<cfargument name="tdClass" type="string" default="formResultContainer" hint="Used to add CSS classes to the TD wrapper around the provied HTML. Default: formResultContainer">
 	<cfset var returnHTML = "">
 	<cfsavecontent variable="returnHTML">
 		<cfoutput>
