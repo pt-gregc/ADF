@@ -48,6 +48,7 @@ History:
 	2011-01-19 - GAC - Added a debug parameter and debug dumps before and after the reHTML processing
 						also added a try/catch around runCommand call, if an error is caught then debugging is auto enabled
 	2011-01-24 - GAC - Added the Return type of XML
+	2011-01-30 - RLW - Added a new parameter that allows commands to be run from ADF applications
 --->
 	
 	<cfheader name="Expires" value="#now()#">
@@ -58,13 +59,16 @@ History:
 	<cfparam name="request.params.returnformat" default="plain" />
 	<cfparam name="request.params.addMainTable" default="0" type="boolean" />
 	<!--- // When using a returnformat of JSON or XML and the debug parameter, you may need to set the ajax call dataType to 'text' or 'html' --->
-	<cfparam name="request.params.debug" default="0" type="boolean" /> 
+	<cfparam name="request.params.debug" default="0" type="boolean" />
+	<cfparam name="request.params.appName" default="" type="string" />
 	<cfscript>
 		bean = structNew();
 		reHTML = "";
 		argStr = "";
 		reDebugRaw = "";
 		reDebugProcessed = "";
+		// list of parameters in request.params to exclude
+		argExcludeList = "bean,method,appName,addMainTable,returnFormat,debug";
 		args = StructNew();
 		// set the flag that controls whether additional code is added to the reHTML output
 		forceOutput = false;
@@ -80,7 +84,7 @@ History:
 			for( itm=1; itm lte listLen(structKeyList(request.params)); itm=itm+1 )
 			{
 				thisParam = listGetAt(structKeyList(request.params), itm);
-				if( thisParam neq "method" and thisParam neq "bean" )
+				if( not listFindNoCase(argExcludeList, thisParam) )
 				{
 					// Check if the argument name is 'serializedForm'
 					if ( thisParam EQ 'serializedForm' )
@@ -99,7 +103,7 @@ History:
 			try 
 			{
 				// Run the Bean, Method and Args and get a return value
-				reHTML = utils.runCommand(trim(request.params.bean),trim(request.params.method),args);
+				reHTML = utils.runCommand(trim(request.params.bean),trim(request.params.method),args,request.params.appName);
 			} 
 			catch( Any e ) 
 			{
