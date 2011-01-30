@@ -56,17 +56,22 @@ History:
  	Dec 3, 2010 - RAK - Created
 	2010-12-21 - GAC - Modified - Fixed the default variable for the args parameter
 	2010-12-21 - GAC - Modified - var scoped the bean local variable
-	2010-01-19 - GAC - Modified - Updated the returnVariable to allow calls to methods that return void
+	2011-01-19 - GAC - Modified - Updated the returnVariable to allow calls to methods that return void
+	2011-01-30 - RLW - Modified - Added an optional appName param that can be used to execute a method from an app bean
 --->
 <cffunction name="runCommand" access="public" returntype="Any" hint="Runs the given command">
 	<cfargument name="beanName" type="string" required="true" default="" hint="Name of the bean you would like to call">
 	<cfargument name="methodName" type="string" required="true" default="" hint="Name of the method you would like to call">
 	<cfargument name="args" type="Struct" required="false" default="#StructNew()#" hint="Structure of arguments for the speicified call">
+	<cfargument name="appName" type="string" required="false" default="" hint="Pass in an App Name to allow the method to be exectuted from an app bean">
 	<cfscript>
 		var local = StructNew();
 		var bean = "";
-		// load the bean that we will call - check in application scope first
-		if( application.ADF.objectFactory.containsBean(arguments.beanName) )
+		// if there has been an app name passed through go directly to that
+		if( len(arguments.appName) and structKeyExists(application, arguments.appName) and isObject(evaluate("application." & arguments.appName & "." & beanName)) )
+			bean = evaluate("application." & arguments.appName & "." & beanName);
+		// check in application scope
+		else if( application.ADF.objectFactory.containsBean(arguments.beanName) )
 			bean = application.ADF.objectFactory.getBean(arguments.beanName);
 		else if( server.ADF.objectFactory.containsBean(arguments.beanName) )
 			bean = server.ADF.objectFactory.getBean(arguments.beanName);
@@ -83,5 +88,7 @@ History:
 			return;
 	</cfscript>		 
 </cffunction>
+
+
 
 </cfcomponent>
