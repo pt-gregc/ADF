@@ -26,17 +26,21 @@ end user license agreement.
 		2010-10-29 - RAK - Refactored whole file to use /ADF/core/Core.cfc's Reset function
 		2010-12-20 - MFC - Added check at top to verify if ADF space exists in the SERVER and APPLICATION.
 							Removed IF to only run all the reset code when a user is logged in.
+		2011-31-01 - RAK - Updating so force reset doesnt notify the user.
  --->
 <cfscript>
 	// Initialize the RESET TYPE variable
 	// Determine what kind of reset is needed (if any)
 	adfResetType = "";
-	
+	force = false;
 	// Check if the ADF space exists in the SERVER and APPLICATION
-	if ( NOT StructKeyExists(server, "ADF") )
+	if ( NOT StructKeyExists(server, "ADF") ){
 		adfResetType = "ALL";
-	else if ( NOT StructKeyExists(application, "ADF") )
+		force = true;
+	}else if ( NOT StructKeyExists(application, "ADF") ){
+		force = true;
 		adfResetType = "SITE";
+	}
 </cfscript>
 
 <!--- Check if the user is logged in run the reset commands --->
@@ -65,7 +69,9 @@ end user license agreement.
 		resetResults = adfCore.reset(adfResetType);
 	</cfscript>
 	<cfoutput>
-		<b>#resetResults.message#</b>
+		<cfif !force>
+			<b>#resetResults.message#</b>
+		</cfif>
 	</cfoutput>
 </cfif>
 
