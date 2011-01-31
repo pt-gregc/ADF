@@ -40,8 +40,7 @@ History:
 <cfproperty name="wikiTitle" value="CEData_1_1">
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	Ryan Kahn
 Name:
 	$getTabsFromFormID
@@ -84,8 +83,7 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	Ryan Kahn
 Name:
 	$getFieldsFromTabID
@@ -128,8 +126,7 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	Ryan Kahn
 Name:
 	$getFieldDefaultValueFromID
@@ -225,8 +222,7 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	Ryan Kahn
 Name:
 	$getFieldValueByFieldID
@@ -264,8 +260,7 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author:
 	PaperThin, Inc.
 	Ryan Kahn
@@ -279,13 +274,15 @@ Arguments:
 	ceName - string
 History:
  	Dec 4, 2010 - RAK - Created
+	2011-01-28 - GAC - Modified - Added a exportFolder parameter so an alternate destionation folder can be assigned
 --->
 <cffunction name="exportCEData" access="public" returntype="string" hint="given a ce name export its data to a file. Return that file path.">
 	<cfargument name="ceName" type="string" required="true" default="" hint="CE name to export data from">
+	<cfargument name="exportFolder" type="string" required="false" default="#request.site.CSAPPSWEBURL#dashboard/ceExports/" hint="Destination Folder for export file">
 	<cfscript>
 		var ceDataSerialized = "";
 		var ceData = variables.getCEData(arguments.ceName);
-		var folder = ExpandPath("#request.site.CSAPPSWEBURL#dashboard/ceExports/");
+		var folder = ExpandPath("#arguments.exportFolder#");
 		var fileName = "#arguments.ceName#--#DateFormat(now(),'YYYY-MM-DD')#-#TimeFormat(now(),'HH-MM')#.txt";
 		if(!ArrayLen(ceData)){
 			//We have no CE data! return an empty string back
@@ -297,14 +294,13 @@ History:
 		<cfmodule template="/commonspot/utilities/cp-cffile.cfm" action="MKDIR"directory="#folder#" replicate="false">
 	</cfif>
 	<!---	save the file--->
-   <cffile action = "write"  file ="#folder##fileName#" output="#Server.Commonspot.UDF.util.serializeBean(ceData)#">
-	<cfreturn folder&fileName>
+    <cffile action = "write"  file ="#folder##fileName#" output="#Server.Commonspot.UDF.util.serializeBean(ceData)#">
+    <cfreturn folder&fileName>
 </cffunction>
 
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author:
 	PaperThin, Inc.
 	Ryan Kahn
@@ -319,14 +315,17 @@ Arguments:
 	filePath - String - File path to .exportedCE file
 	clean - boolean - Wipe all existing data
 	ceName - String - Set this if you are importing a csv, this is how we know what to import.
+	ccapiCEName - string - Use this field if you Custom Element name is different than your CCAPI config XML node name
 History:
  	2010-12-04 - RAK - Created
 	2011-01-26 - RAK - Updated to allow importing csv files
+	2011-01-28 - GAC - Added a parameter for passing in the CCAPI config XML node name
 --->
 <cffunction name="importCEData" access="public" returntype="Struct" hint="Given the contents of an import file, import the data">
 	<cfargument name="filePath" type="string" required="true" default="" hint="File path to .exportedCE file">
 	<cfargument name="clean" type="boolean" required="false" default="false" hint="Wipe all existing data">
 	<cfargument name="ceName" type="string" required="false" default="" hint="Set this if you are importing a csv, this is how we know what to import.">
+	<cfargument name="ccapiCEName" type="string" required="false" default="#arguments.ceName#" hint="Use this field if you Custom Element name is different than your CCAPI config XML node name">
 	<cfscript>
 		var rowData = '';
 		var tempStruct = '';
@@ -388,6 +387,9 @@ History:
 			return returnStruct;
 		}
 		ceName = ceData[1].formName;
+		if ( LEN(TRIM(arguments.ccapiCEName)) )
+			ceName = arguments.ccapiCEName;
+		
 		//We have a valid structure! lets do our clean if requested and continue on.
 		if(arguments.clean){
 			variables.deleteByElementName(ceName);
@@ -413,6 +415,7 @@ History:
 			//Add the item to the schedule
 			ArrayAppend(scheduleArray,scheduleStruct);
 		}
+//Application.ADF.utils.doDump(scheduleArray,"scheduleArray",0);
 
 		//Setup the schedule params
 		scheduleParams = StructNew();
@@ -430,8 +433,7 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author:
 	PaperThin, Inc.
 	Ryan Kahn
@@ -708,8 +710,7 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author:
 	PaperThin, Inc.
 	Ryan Kahn
@@ -911,21 +912,20 @@ History:
 			arguments.deleteOverride.args.datapageidList = dataPageIDList;
 			ArrayAppend(commandArray,arguments.deleteOverride);
 		}
-//		Application.ADF.utils.doDump(commandArray,"commandArray",true);
+Application.ADF.utils.doDump(commandArray,"commandArray",true);
 		returnStruct.msg = "Differential sync scheduled succesfully!";
 		returnStruct.success=true;
 		returnStruct.scheduleID=arguments.elementName&"-differentialSync";
 		scheduleParams = StructNew();
 		scheduleParams.delay = 1;
 		scheduleParams.tasksPerBatch = 25;
-		application.ADF.scheduler.scheduleProcess(returnStruct.scheduleID,commandArray,scheduleParams);
+//application.ADF.scheduler.scheduleProcess(returnStruct.scheduleID,commandArray,scheduleParams);
 		return returnStruct;
 	</cfscript>
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	
 	PaperThin, Inc.
 	Ryan Kahn
