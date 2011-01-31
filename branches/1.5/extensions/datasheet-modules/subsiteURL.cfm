@@ -31,6 +31,7 @@ end user license agreement.
 	History:
 		2009-07-30 - RLW - Created
 		2010-01-12 - GAC - Modified - Added URL text Sorting
+		2010-01-31 - GAC - Modified - Added handling for deleted/missing SubsiteIDs
 --->
 <cfscript>
 	subsiteID = request.datasheet.currentColumnValue;
@@ -38,9 +39,16 @@ end user license agreement.
 
 <cfsavecontent variable="tdHTML">
 	<cfoutput>
+		<cfif StructKeyExists(request.subsiteCache,subsiteID)>
 		<td><!--- <a href="#request.subsiteCache[subsiteID].url#"> --->#request.subsiteCache[subsiteID].url#<!--- </a> ---></td>
+		<cfelse>
+		<td><em>[SubsiteID: #subsiteID# - Not Found]</em></td>
+		</cfif>
 	</cfoutput>
 </cfsavecontent>
-
+<cfif StructKeyExists(request.subsiteCache,subsiteID)>
 <cfset Request.datasheet.currentSortValue = request.subsiteCache[subsiteID].url />
+<cfelse>
+<cfset Request.datasheet.currentSortValue = "__error" />
+</cfif>
 <cfset request.datasheet.currentFormattedValue = tdHTML>
