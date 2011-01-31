@@ -34,6 +34,12 @@ end user license agreement.
 		 */
 		setAjaxProxyURL("#request.site.csAppsWebURL#ajaxProxy.cfm");
 		/*
+		 *	Set the sites lightboxProxy URL
+		 *	By default this file will be located in your sites /_cs_apps/ directory
+		 */
+		setLightboxProxyURL("#request.site.csAppsWebURL#lightboxProxy.cfm");
+		
+		/*
 		 *	Load the ADF Application into application space
 		 *  
 		 *  SAMPLE:

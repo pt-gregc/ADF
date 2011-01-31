@@ -18,4 +18,4 @@ in this directory, you agree to the terms and conditions of the applicable
 end user license agreement.
 --->
 
-<cfinclude template="/ADF/lib/ajax/ajaxProxy.cfm">
+<cfinclude template="/ADF/lib/lightbox/lightboxProxy.cfm">
