@@ -922,7 +922,7 @@ History:
 	2009-12-02 - SFS - Added check to make sure jqueryUI is loaded ahead of time
 --->
 <cffunction name="loadJQueryUIStars" access="public" output="true" returntype="void" hint="Loads the JQuery UI Stars plugin"> 
-	<cfargument name="version" type="string" required="false" default="2.1" hint="Script version to load.">
+	<cfargument name="version" type="string" required="false" default="3.0" hint="Script version to load.">
 	<cfset var outputHTML = "">
 	<cfoutput>
 		#loadJQueryUI()#

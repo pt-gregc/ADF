@@ -41,13 +41,20 @@ History:
 	currentValue = attributes.currentValues[fqFieldName];
 	// the param structure which will hold all of the fields from the props dialog
 	xparams = parameters[fieldQuery.inputID];
-	
+	numberOfStars = 5;
+	if(StructKeyExists(xparams,"numberOfStars")){
+		numberOfStars = xparams.numberOfStars;
+	}
+	halfStars = 0;
+	if(StructKeyExists(xparams,"halfStars")){
+		halfStars = xparams.halfStars;
+	}
 	// Load the scripts
-	scriptsObj = server.ADF.objectFactory.getBean("scripts_1_0");
-	scriptsObj.loadJQuery("1.3.2", 1);
-	scriptsObj.loadJQueryUI();
-	scriptsObj.loadJQueryUIStars();
-	
+	application.ADF.scripts.loadJQuery();
+	application.ADF.scripts.loadJQueryUI();
+	application.ADF.scripts.loadJQueryUIStars();
+
+
 	// find if we need to render the simple form field
 	renderSimpleFormField = false;
 	if ( (StructKeyExists(request, "simpleformexists")) AND (request.simpleformexists EQ 1) )
@@ -84,6 +91,9 @@ History:
 		jQuery(document).ready(function(){ 
 			jQuery("###fqFieldName#_renderStars").stars({
 				inputType: "select",
+				<cfif halfStars>
+			   	split: 2,
+				</cfif>
 				callback: function(ui, type, value){
 					// Callback for the selection, get the object value
 					selectObj = $("###fqFieldName#_renderStars").stars("select", value);
@@ -123,11 +133,13 @@ History:
 			</cfscript>
 			<div id="#fqFieldName#_renderStars">
 				<select name='#fqFieldName#_select' id='#fqFieldName#_select' onchange='#fqFieldName#_loadSelection()' <cfif readOnly>disabled='disabled'</cfif>>
-					<option value="1" <cfif currentValue EQ 1>selected</cfif>>Very poor</option>
-					<option value="2" <cfif currentValue EQ 2>selected</cfif>>Not that bad</option>
-					<option value="3" <cfif currentValue EQ 3>selected</cfif>>Average</option>
-					<option value="4" <cfif currentValue EQ 4>selected</cfif>>Good</option>
-					<option value="5" <cfif currentValue EQ 5>selected</cfif>>Perfect</option>
+					<cfloop from="1" to="#numberOfStars#" index="i">
+						<cfset currentVal = i>
+						<cfif halfStars>
+							<cfset currentVal = i/2>
+						</cfif>
+						<option value="#currentVal#" <cfif currentValue EQ currentVal>selected</cfif>>#currentVal#</option>
+					</cfloop>
 				</select>
 			</div>
 		</td>
