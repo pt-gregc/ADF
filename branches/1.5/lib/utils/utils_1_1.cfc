@@ -51,13 +51,17 @@ Summary:
 Returns:
 	Any
 Arguments:
-
+	string - beanName
+	string - methodName
+	struct - args
+	string - appName
 History:
  	Dec 3, 2010 - RAK - Created
 	2010-12-21 - GAC - Modified - Fixed the default variable for the args parameter
 	2010-12-21 - GAC - Modified - var scoped the bean local variable
 	2011-01-19 - GAC - Modified - Updated the returnVariable to allow calls to methods that return void
 	2011-01-30 - RLW - Modified - Added an optional appName param that can be used to execute a method from an app bean
+	2011-02-01 - GAC - Comments - Updated the comments with the arguments list
 --->
 <cffunction name="runCommand" access="public" returntype="Any" hint="Runs the given command">
 	<cfargument name="beanName" type="string" required="true" default="" hint="Name of the bean you would like to call">
@@ -89,6 +93,54 @@ History:
 	</cfscript>		 
 </cffunction>
 
-
+<!---
+/* ***************************************************************
+/*
+Author:
+	PaperThin, Inc.
+	Greg Cronkright
+Name:
+	$buildRunCommandArgs
+Summary:
+	Builds the args struct for the runCommand method
+Returns:
+	struct
+Arguments:
+	struct params - a Structure of parameters for the specified call
+	string excludeList - a list of arguments to exclude from the return args struct
+History:
+ 	2010-12-21 - GAC - Created
+--->
+<cffunction name="buildRunCommandArgs" access="public" returntype="struct" hint="Builds the args struct for the runCommand method">
+	<cfargument name="params" type="struct" required="false" default="#StructNew()#" hint="Structure of parameters to be passed to the runCommand method">
+	<cfargument name="excludeList" type="string" required="false" default="bean,method,appName" hint="a list of arguments to exclude from the return args struct">
+	<cfscript>
+		var args = StructNew();
+		var itm = 1;
+		var thisParam = "";
+		var serialFormStruct = StructNew();
+		// loop through arguments.params parameters to get the args
+		for( itm=1; itm lte listLen(structKeyList(arguments.params)); itm=itm+1 )
+		{
+			thisParam = listGetAt(structKeyList(arguments.params), itm);
+			// Do no add the param to the args struct if it is in the excludeList
+			if( not listFindNoCase(arguments.excludeList, thisParam) )
+			{
+				// Check if the argument name is 'serializedForm'
+				if ( thisParam EQ 'serializedForm' )
+				{
+					// get the serialized form string into a structure
+					serialFormStruct = Application.ADF.csData.serializedFormStringToStruct(arguments.params[thisParam]);
+					StructInsert(args,"serializedForm",serialFormStruct);
+				}
+				else
+				{
+					StructInsert(args,thisParam,arguments.params[thisParam]);
+				}
+			}
+		}
+		return args;
+	</cfscript>
+</cffunction>
 
 </cfcomponent>
