@@ -58,6 +58,7 @@ History:
 	2011-01-19 - GAC - Created
 	2011-01-28 - GAC - Modified - Removed the parameter isForm and added the parameter for tdClass so CSS classes can be added to the inner TD of the lightBox header
 	2011-01-30 - RLW/GAC - Added a new parameter that allows commands to be run from ADF applications
+	2011-02-01 - GAC - Modified - Removed the args processing code and replaced it with a call to the utils_1_1 buildRunCommandArgs method
 --->
 <cffunction name="buildLightboxHTML" access="public" returntype="string" hint="Runs the given command">
 	<cfargument name="params" type="struct" required="false" default="#StructNew()#" hint="Structure of parameters for the specified call">
@@ -78,27 +79,6 @@ History:
 		{
 			// convert the params that are passed in to the args struct before passing them to runCommand method
 			args = application.ADF.utils.buildRunCommandArgs(arguments.params,argExcludeList);
-			// TODO: break this loop out into its own method to be shared with AjaxProxy.cfm
-			// loop through request.params parameters to get arguments
-			/* for( itm=1; itm lte listLen(structKeyList(arguments.params)); itm=itm+1 )
-			{
-				thisParam = listGetAt(structKeyList(arguments.params), itm);
-				if( not listFindNoCase(argExcludeList, thisParam) )
-				{
-					// Check if the argument name is 'serializedForm'
-					if ( thisParam EQ 'serializedForm' )
-					{
-						// Set the flag, and get the serialized form string into a structure
-						containsSerializedForm = true;
-						serialFormStruct = Application.ADF.csData.serializedFormStringToStruct(arguments.params[thisParam]);
-						StructInsert(args,"serializedForm",serialFormStruct);
-					}
-					else
-					{
-						StructInsert(args,thisParam,arguments.params[thisParam]);
-					}
-				}
-			} */
 			try 
 			{
 				// Run the Bean, Method and Args and get a return value
