@@ -49,7 +49,7 @@ Author:
 Name:
 	$buildLightboxProxyHTML
 Summary:	
-	Returns HTML for the CS 6.x lightbox header (use with the lightboxFooter)
+	Returns a HTML string for content that displays inside an ADF lightbox 
 Returns:
 	String
 Arguments:
@@ -62,7 +62,7 @@ History:
 								- Removed the arguments: params to restrict processing to only the values found in the request.params struct
 								- Updated the proxyWhiteList error to include the appName
 --->
-<cffunction name="buildLightboxProxyHTML" access="public" returntype="string" hint="Runs the given command">
+<cffunction name="buildLightboxProxyHTML" access="public" returntype="string" hint="Returns a HTML string for content that displays inside an ADF lightbox">
 	<cfscript>
 		var hasError = 0;
 		var bean = "";
@@ -91,15 +91,15 @@ History:
 			if ( StructKeyExists(request.params,"debug") ) 
 				debug = request.params.debug;
 		}
-		passedSecurity = Application.ADF.csSecurity.validateProxy(bean, method);
+		passedSecurity = variables.csSecurity.validateProxy(bean, method);
 		if ( passedSecurity )
 		{
 			// convert the params that are passed in to the args struct before passing them to runCommand method
-			args = application.ADF.utils.buildRunCommandArgs(params,argExcludeList);
+			args = variables.utils.buildRunCommandArgs(params,argExcludeList);
 			try 
 			{
 				// Run the Bean, Method and Args and get a return value
-				local.reHTML = application.ADF.utils.runCommand(trim(bean),trim(method),args,trim(appName));
+				local.reHTML = variables.utils.runCommand(trim(bean),trim(method),args,trim(appName));
 			} 
 			catch( Any e ) 
 			{
@@ -111,7 +111,7 @@ History:
 			if ( debug ) {
 				// If the variable reHTML doesn't exist set the debug output to the string: void 
 				if ( !StructKeyExists(local,"reHTML") ){reDebugRaw="void";}else{reDebugRaw=local.reHTML;}
-				reDebugRaw = Application.ADF.utils.doDump(reDebugRaw,"DEBUG OUTPUT",1,1);
+				reDebugRaw = variables.utils.doDump(reDebugRaw,"DEBUG OUTPUT",1,1);
 			}
 			// Check to see if reHTML was destroyed by a method that returns void before attempting to process the return
 			if ( StructKeyExists(local,"reHTML") ) 

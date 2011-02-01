@@ -20,8 +20,7 @@ in this directory, you agree to the terms and conditions of the applicable
 end user license agreement.
 --->
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author:
 	PaperThin, Inc.
 Name:
