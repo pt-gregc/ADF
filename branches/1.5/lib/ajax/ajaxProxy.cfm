@@ -49,6 +49,7 @@ History:
 						also added a try/catch around runCommand call, if an error is caught then debugging is auto enabled
 	2011-01-24 - GAC - Added the Return type of XML
 	2011-01-30 - RLW - Added a new parameter that allows commands to be run from ADF applications
+	2011-02-01 - GAC - Removed the args loop and replaced it with a method call to convert the parameters that are passed in to the args struct before calling the runCommand method
 --->
 	
 	<cfheader name="Expires" value="#now()#">
@@ -80,26 +81,8 @@ History:
 		passedSecurity = server.ADF.objectFactory.getBean("csSecurity_1_0").validateProxy(request.params.bean, request.params.method);
 		if ( passedSecurity )
 		{
-			// loop through request.params parameters to get arguments
-			for( itm=1; itm lte listLen(structKeyList(request.params)); itm=itm+1 )
-			{
-				thisParam = listGetAt(structKeyList(request.params), itm);
-				if( not listFindNoCase(argExcludeList, thisParam) )
-				{
-					// Check if the argument name is 'serializedForm'
-					if ( thisParam EQ 'serializedForm' )
-					{
-						// Set the flag, and get the serialized form string into a structure
-						containsSerializedForm = true;
-						serialFormStruct = server.ADF.objectFactory.getBean("csData_1_0").serializedFormStringToStruct(request.params[thisParam]);
-						StructInsert(args,"serializedForm",serialFormStruct);
-					}
-					else
-					{
-						StructInsert(args,thisParam,request.params[thisParam]);
-					}
-				}
-			}
+			// convert the params that are passed in to the args struct before passing them to runCommand method
+			args = application.ADF.utils.buildRunCommandArgs(request.params,argExcludeList);
 			try 
 			{
 				// Run the Bean, Method and Args and get a return value
