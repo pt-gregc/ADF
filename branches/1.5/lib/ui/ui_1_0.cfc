@@ -61,7 +61,8 @@ Arguments:
 	String formBean 
 	String formMethod 
 	String lbTitle
-	String linkClass 
+	String linkClass
+	String appName 
 History:
   	2010-09-30 - RLW - Created
  	2010-10-18 - GAC - Modified - Added a RefreshParent parameter
@@ -70,6 +71,7 @@ History:
 	2010-12-21 - GAC - Modified - Added a linkClass parameter
 	2011-01-20 - GAC - Moved to the ui_1_0 lib from the Forms_1_1 lib
 	2011-01-25 - MFC - Modified - Updated bean param default value to "forms_1_1"
+	2011-02-01 - GAC - Modified - Added the appName argument
 --->
 <cffunction name="buildAddEditLink" access="public" returntype="string" output="false">
 	<cfargument name="linkTitle" type="string" required="true">
@@ -80,7 +82,8 @@ History:
 	<cfargument name="formBean" type="string" required="false" default="forms_1_1">
 	<cfargument name="formMethod" type="string" required="false" default="renderAddEditForm">
 	<cfargument name="lbTitle" type="string" required="false" default="#arguments.linkTitle#">
-	<cfargument name="linkClass" type="string" required="false" default="">   
+	<cfargument name="linkClass" type="string" required="false" default="">
+	<cfargument name="appName" type="string" required="false" default="">   
 	<cfscript>
 		var rtnStr = "";
 		var formID = variables.ceData.getFormIDByCEName(arguments.formName);
@@ -95,7 +98,7 @@ History:
 		}
 	</cfscript>
 	<cfsavecontent variable="rtnStr">
-		<cfoutput><a href="javascript:;" rel="#application.ADF.ajaxProxy#?bean=#arguments.formBean#&method=#arguments.formMethod#&formID=#formID#&dataPageID=#arguments.dataPageID#&lbAction=#lbAction#&title=#arguments.lbTitle##uParams#" class="ADFLightbox<cfif LEN(TRIM(arguments.linkClass))> #arguments.linkClass#</cfif>" title="#arguments.linkTitle#">#arguments.linkTitle#</a></cfoutput>
+		<cfoutput><a href="javascript:;" rel="#application.ADF.ajaxProxy#?bean=#arguments.formBean#&method=#arguments.formMethod#<cfif LEN(TRIM(arguments.appName))>&appName=#arguments.appName#</cfif>&formID=#formID#&dataPageID=#arguments.dataPageID#&lbAction=#lbAction#&title=#arguments.lbTitle##uParams#" class="ADFLightbox<cfif LEN(TRIM(arguments.linkClass))> #arguments.linkClass#</cfif>" title="#arguments.linkTitle#">#arguments.linkTitle#</a></cfoutput>
 	</cfsavecontent>
 	<cfreturn rtnStr>
 </cffunction>
@@ -113,23 +116,25 @@ Returns:
 	String rtnStr
 Arguments:
 	String linkTitle
-	String formBean 
-	String formMethod
+	String bean 
+	String method
 	String urlParams - additional URL parameters to be passed to the form 
 	String lbTitle 
 	String linkClass
+	String appName
 History:
 	2010-12-21 - GAC - Created - Based on RLWs buildAddEditLink function in forms_1_1
 	2011-01-25 - MFC - Modified - Updated bean param default value to "forms_1_1"
+	2011-02-01 - GAC - Modified - Added the appName argument
 --->
 <cffunction name="buildLBAjaxProxyLink" access="public" returntype="string" output="false">
 	<cfargument name="linkTitle" type="string" required="true">
 	<cfargument name="bean" type="string" required="false" default="forms_1_1">
 	<cfargument name="method" type="string" required="false" default="renderAddEditForm">
-	<cfargument name="appName" type="string" required="false" default="">
 	<cfargument name="urlParams" type="string" required="false" default=""> 
 	<cfargument name="lbTitle" type="string" required="false" default="#arguments.linkTitle#">
-	<cfargument name="linkClass" type="string" required="false" default="">  
+	<cfargument name="linkClass" type="string" required="false" default="">
+	<cfargument name="appName" type="string" required="false" default="">  
 	<cfscript>
 		var rtnStr = "";
 		var uParams = "";
