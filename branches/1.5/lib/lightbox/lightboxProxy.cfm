@@ -35,6 +35,8 @@ History:
 	2011-01-27 - GAC - Modified - added parameter for forceScripts, addLBHeaderFooter
 	2011-01-27 - GAC - Modified - moved parameter processing code to a lightbox_1_0 component to allow versioning of processing code
 	2011-01-30 - RLW/GAC - Added a new parameter that allows commands to be run from ADF applications
+	2011-02-01 - GAC - Modified - Changed the main method call to buildLightboxProxyHTML
+								- removed the argument: params from the buildLightboxProxyHTML() call
 --->
 	<cfheader name="Expires" value="#now()#">
   	<cfheader name="Pragma" value="no-cache">
@@ -49,11 +51,10 @@ History:
 	<!--- // Add the MainTable table tags unless not needed --->
 	<!--- // addMainTable param will be disabled by the UI.lightboxHeader if a 6.x LB header is output --->
 	<cfparam name="request.params.addMainTable" default="1" type="boolean" />
-	<!--- // When using a returnformat of JSON or XML and the debug parameter, you may need to set the ajax call dataType to 'text' or 'html' --->
+	<!--- // Debug parameter to force a DUMP of the processed method, bean and other passed in parameters  --->
 	<cfparam name="request.params.debug" default="0" type="boolean" /> 
 	<cfscript>
-		//lightbox = server.ADF.objectFactory.getBean("lightbox_1_0");
-		reHTML = Application.ADF.lightbox.buildLightboxHTML(params=request.params);
+		reHTML = Application.ADF.lightbox.buildLightboxProxyHTML();
 	</cfscript>
 </cfsilent>
 <cfif StructKeyExists(variables,"reHTML")>

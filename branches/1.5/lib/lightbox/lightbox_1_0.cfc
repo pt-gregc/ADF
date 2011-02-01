@@ -47,51 +47,68 @@ Author:
 	PaperThin, Inc.
 	G. Cronkright
 Name:
-	$buildLightboxHTML
+	$buildLightboxProxyHTML
 Summary:	
 	Returns HTML for the CS 6.x lightbox header (use with the lightboxFooter)
 Returns:
 	String
 Arguments:
-	struct params - Structure of parameters for the specified call
+	none - only handle values found in the request.params struct
 History:
 	2011-01-19 - GAC - Created
-	2011-01-28 - GAC - Modified - Removed the parameter isForm and added the parameter for tdClass so CSS classes can be added to the inner TD of the lightBox header
 	2011-01-30 - RLW/GAC - Added a new parameter that allows commands to be run from ADF applications
 	2011-02-01 - GAC - Modified - Removed the args processing code and replaced it with a call to the utils_1_1 buildRunCommandArgs method
+								- Changed the method name to buildLightboxProxyHTML
+								- Removed the arguments: params to restrict processing to only the values found in the request.params struct
+								- Updated the proxyWhiteList error to include the appName
 --->
-<cffunction name="buildLightboxHTML" access="public" returntype="string" hint="Runs the given command">
-	<cfargument name="params" type="struct" required="false" default="#StructNew()#" hint="Structure of parameters for the specified call">
+<cffunction name="buildLightboxProxyHTML" access="public" returntype="string" hint="Runs the given command">
 	<cfscript>
 		var hasError = 0;
+		var bean = "";
+		var method = "";
+		var appName = "";
+		var params = StructNew();
+		var debug = 0;
 		var local = StructNew();
 		var reDebugRaw = "";
 		var args = StructNew();
 		// list of parameters in request.params to exclude
 		var argExcludeList = "bean,method,appName,forceScripts,addLBHeaderFooter,addMainTable,debug";
-		// set the flag for if we have a serialized form to pass to the function as a structure 
-		var containsSerializedForm = false;
 		// Verify if the bean and method combo are allowed to be accessed through the ajax proxy
-		var passedSecurity = Application.ADF.csSecurity.validateProxy(arguments.params.bean, arguments.params.method);
+		var passedSecurity = false;
 		// Initalize the reHTML key of the local struct
 		local.reHTML = "";
+		// Since we are relying on the request.params scope make sure the key params are available
+		if ( StructKeyExists(request,"params") ) {
+			params = request.params;
+			if ( StructKeyExists(request.params,"bean") ) 
+				bean = request.params.bean;
+			if ( StructKeyExists(request.params,"method") ) 
+				method = request.params.method;
+			if ( StructKeyExists(request.params,"appName") ) 
+				appName = request.params.appName;
+			if ( StructKeyExists(request.params,"debug") ) 
+				debug = request.params.debug;
+		}
+		passedSecurity = Application.ADF.csSecurity.validateProxy(bean, method);
 		if ( passedSecurity )
 		{
 			// convert the params that are passed in to the args struct before passing them to runCommand method
-			args = application.ADF.utils.buildRunCommandArgs(arguments.params,argExcludeList);
+			args = application.ADF.utils.buildRunCommandArgs(params,argExcludeList);
 			try 
 			{
 				// Run the Bean, Method and Args and get a return value
-				local.reHTML = application.ADF.utils.runCommand(trim(arguments.params.bean),trim(arguments.params.method),args,trim(arguments.params.appName));
+				local.reHTML = application.ADF.utils.runCommand(trim(bean),trim(method),args,trim(appName));
 			} 
 			catch( Any e ) 
 			{
 				hasError = 0; // if set to true, this will output the error html twice, so let debug handle it
-				arguments.params.debug = 1;
+				debug = 1;
 				local.reHTML = e;
 			}	
 			// Build the DUMP for debugging the RAW value of reHTML
-			if ( arguments.params.debug ) {
+			if ( debug ) {
 				// If the variable reHTML doesn't exist set the debug output to the string: void 
 				if ( !StructKeyExists(local,"reHTML") ){reDebugRaw="void";}else{reDebugRaw=local.reHTML;}
 				reDebugRaw = Application.ADF.utils.doDump(reDebugRaw,"DEBUG OUTPUT",1,1);
@@ -116,10 +133,13 @@ History:
 		{
 			// Show error since the bean and/or method are not in the proxyWhiteList.xml file
 			hasError = 1;
-			local.reHTML = "Error: The Bean: #arguments.params.bean# with method: #arguments.params.method# is not accessible remotely via Lightbox Proxy.";	
+			if ( len(trim(appName)) )
+				local.reHTML = "Error: The Bean: #bean# with method: #method# in the App: #appName# is not accessible remotely via Lightbox Proxy.";	
+			else
+				local.reHTML = "Error: The Bean: #bean# with method: #method# is not accessible remotely via Lightbox Proxy.";	
 		}
 		// pass the debug dumps to the reData.htmlStr for output
-		if ( arguments.params.debug ) 
+		if ( debug ) 
 		{
 			if ( hasError )
 				local.reHTML = local.reHTML & reDebugRaw;
