@@ -127,14 +127,15 @@ History:
 			if( not listFindNoCase(arguments.excludeList, thisParam) )
 			{
 				// Check if the argument name is 'serializedForm'
-				if ( thisParam EQ 'serializedForm' )
-				{
+				if ( thisParam EQ 'serializedForm' ){
 					// get the serialized form string into a structure
 					serialFormStruct = Application.ADF.csData.serializedFormStringToStruct(arguments.params[thisParam]);
 					StructInsert(args,"serializedForm",serialFormStruct);
-				}
-				else
-				{
+				}else{
+					if(isJSON(arguments.params[thisParam])){
+						json = server.ADF.objectFactory.getBean("json");
+						arguments.params[thisParam] = json.decode(arguments.params[thisParam]);
+					}
 					StructInsert(args,thisParam,arguments.params[thisParam]);
 				}
 			}
