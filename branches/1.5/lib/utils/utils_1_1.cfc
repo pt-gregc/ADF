@@ -30,12 +30,14 @@ Version:
 	1.1.0
 History:
 	2011-01-25 - MFC - Created
+	2011-02-01 - GAC - Added dependency to csData_1_1
 --->
 <cfcomponent displayname="utils_1_1" extends="ADF.lib.utils.utils_1_0" hint="Util functions for the ADF Library">
 
 <cfproperty name="version" value="1_1_0">
 <cfproperty name="type" value="singleton">
 <cfproperty name="ceData" type="dependency" injectedBean="ceData_1_1">
+<cfproperty name="csData" type="dependency" injectedBean="csData_1_1">
 <cfproperty name="wikiTitle" value="Utils_1_1">
 
 <!---
@@ -109,7 +111,9 @@ Arguments:
 	struct params - a Structure of parameters for the specified call
 	string excludeList - a list of arguments to exclude from the return args struct
 History:
- 	2010-12-21 - GAC - Created
+ 	2011-02-01 - GAC - Created
+	2011-02-01 - RAK - Added the json decode to process data passed in a json objects
+	2011-02-01 - GAC - Modified - converted csData lib calls to global  
 --->
 <cffunction name="buildRunCommandArgs" access="public" returntype="struct" hint="Builds the args struct for the runCommand method">
 	<cfargument name="params" type="struct" required="false" default="#StructNew()#" hint="Structure of parameters to be passed to the runCommand method">
@@ -127,11 +131,12 @@ History:
 			if( not listFindNoCase(arguments.excludeList, thisParam) )
 			{
 				// Check if the argument name is 'serializedForm'
-				if ( thisParam EQ 'serializedForm' ){
+				if(thisParam EQ 'serializedForm'){
 					// get the serialized form string into a structure
-					serialFormStruct = Application.ADF.csData.serializedFormStringToStruct(arguments.params[thisParam]);
+					serialFormStruct = variables.csData.serializedFormStringToStruct(arguments.params[thisParam]);
 					StructInsert(args,"serializedForm",serialFormStruct);
 				}else{
+					// is thisParam is a JSON object process it throught the json lib decode method
 					if(isJSON(arguments.params[thisParam])){
 						json = server.ADF.objectFactory.getBean("json");
 						arguments.params[thisParam] = json.decode(arguments.params[thisParam]);
