@@ -410,7 +410,7 @@ History:
 		{	
 			configStruct = server.ADF.objectFactory.getBean("CoreConfig").getConfigViaXML(proxyWhiteListXMLPath);
 			// Merge this config struct into the server proxy white list 
-			server.ADF.proxyWhiteList = server.ADF.objectFactory.getBean("Data_1_0").structMerge(server.ADF.proxyWhiteList, configStruct);
+			server.ADF.proxyWhiteList = server.ADF.objectFactory.getBean("Data_1_0").structMerge(server.ADF.proxyWhiteList, configStruct, true);
 		}
 	</cfscript>
 </cffunction>

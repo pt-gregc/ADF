@@ -965,10 +965,12 @@ Arguments:
 	Structure struct2      The second struct.
 History:
 	2009-08-26 - MFC - Created
+	2011-02-02 - RAK - Added the ability to merge lists together
 --->
 <cffunction name="structMerge" returntype="struct" access="public" hint="Merge two simple or complex structures in one.">
     <cfargument name="struct1" type="struct" required="true">
     <cfargument name="struct2" type="struct" required="true">
+    <cfargument name="mergeValues" type="boolean" required="false" default="false" hint="Merges values if they can be merged">
    
 	<cfscript>
 		var retStruct = Duplicate(arguments.struct1);  // Set struct1 as the base structure
@@ -992,12 +994,12 @@ History:
 				// Check if have a sub-structure remaining
 				if ( isStruct(retStruct[currKey]) AND isStruct(arguments.struct2[currKey]) )
 					StructInsert(retStruct, currKey, structMerge(retStruct[currKey], arguments.struct2[currKey]), true);
-				
-				else
-				{
+				else if ( isStruct(arguments.struct2[currKey]) ){
 					// Check if we still have a struct in arguments.struct2[currKey]
-					if ( isStruct(arguments.struct2[currKey]) )
-						StructInsert(retStruct, currKey, arguments.struct2[currKey], true);
+					StructInsert(retStruct, currKey, arguments.struct2[currKey], true);
+				}else if(arguments.mergeValues and isSimpleValue(retStruct[currKey]) and isSimpleValue(struct2[currKey])){
+					//Check to see if we have simple values that can have a list merge
+					StructInsert(retStruct, currKey, listAppend(retStruct[currKey],struct2[currKey]), true);
 				}
 			}
 			else

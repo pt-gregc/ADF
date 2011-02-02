@@ -253,7 +253,7 @@ History:
 		if ( fileExists( configPath ) )
 		{
 			configStruct = server.ADF.objectFactory.getBean("CoreConfig").getConfigViaXML(configPath);
-			server.ADF.proxyWhiteList = server.ADF.objectFactory.getBean("Data_1_0").structMerge(server.ADF.proxyWhiteList, configStruct);
+			server.ADF.proxyWhiteList = server.ADF.objectFactory.getBean("Data_1_0").structMerge(server.ADF.proxyWhiteList, configStruct, true);
 		}
 	</cfscript>
 	
