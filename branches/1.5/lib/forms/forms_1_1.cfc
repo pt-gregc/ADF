@@ -432,4 +432,85 @@ History:
 	<cfreturn returnHTML>
 </cffunction>
 
+
+<!---
+/* ***************************************************************
+/*
+Author: 	Dave Beckstrom
+Name:
+	$loadCFFormProtect
+Summary:
+	Creates the cffp CFFormProtect object
+Returns:
+	Any
+Arguments:
+	None
+History:
+	2011-01-07 - DMB - Created
+	2011-02-02 - RAK - Cleaned up return parameters.
+--->
+<cffunction name="loadCFFormProtect" access="public" returntype="any" hint="Loads CFFormProtect">
+	<cfscript>
+	 	return CreateObject("component","ADF.thirdParty.cfformprotect.cffpVerify2").init();
+	</cfscript>
+</cffunction>
+<!---
+/* ***************************************************************
+/*
+Author: 	Dave Beckstrom
+Name:
+	$verifyCFFormProtect
+Summary:
+	Verifies the form and deletes the element if it is invalid
+Returns:
+	boolean
+Arguments:
+	formStruct - struct- Structure of form fields
+	elementName - string- Name of the element to search for
+	primaryKey - string- Primary key to search for in the element
+History:
+	2011-01-13 - DMB - Created
+	1011-02-02 - RAK - Changed parameters so it can work for any element.
+--->
+
+<cffunction name="verifyCFFormProtect" access="public" returntype="boolean" hint="Verifies the form and deletes the element if it is invalid">
+	<cfargument name="formStruct" type="struct" required="true" default="" hint="Structure of form fields">
+	<cfargument name="elementName" type="string" required="true" default="" hint="Name of the element to search for">
+	<cfargument name="primaryKey" type="string" required="false" default="id" hint="Primary key to search for in the element">
+	<cfscript>
+		  // load cfformprotect
+		  var cffp = application.ADF.forms.loadCFFormProtect();
+		  var form = StructNew();
+ 		  var thisFormEntry = StructNew();
+		  var thisPageId = "";
+		  var isValid = true;
+ 		// application.ADF.utils.doDump(formStruct,"formStruct", false);
+
+	</cfscript>
+
+	<cfloop list="#structKeyList(arguments.formStruct)#" index="key">
+		<cfset "form.#key#" = "#arguments.formStruct[key]#">
+	</cfloop>
+
+	<cfif !cffp.testSubmission(form)>
+		<!--- // this was spam --->
+		<cfscript>
+			// get the UUID of the element data just submitted by the simple form
+			thisFormEntry  = application.ADF.ceData.getCEData(arguments.elementName,arguments.primaryKey, form[arguments.primaryKey]);
+			// using the UUID, get the PageId (primary key) of the record just submitted
+			if  (Arraylen(thisFormEntry)) {
+				thisPageId = thisFormEntry[1].pageID;
+			}
+			// delete the spam record from the element.
+			if (len(thisPageID)) {
+				application.ADF.ceData.deleteCE(thisPageID);
+			}
+			isValid = false;
+		</cfscript>
+	</cfif>
+	<cfreturn isValid>
+
+</cffunction>
+
+
 </cfcomponent>
