@@ -1,3 +1,5 @@
+<cfsetting requesttimeout="2500" showdebugoutput="false">
+<cfsilent>
 <!--- 
 The contents of this file are subject to the Mozilla Public License Version 1.1
 (the "License"); you may not use this file except in compliance with the
@@ -17,8 +19,6 @@ By downloading, modifying, distributing, using and/or accessing any files
 in this directory, you agree to the terms and conditions of the applicable 
 end user license agreement.
 --->
-<cfsetting requesttimeout="2500" showdebugoutput="false">
-<cfsilent>
 <!---
 /* ***************************************************************
 /*
@@ -50,22 +50,31 @@ History:
 	2011-01-24 - GAC - Added the Return type of XML
 	2011-01-30 - RLW - Added a new parameter that allows commands to be run from ADF applications
 	2011-02-01 - GAC - Removed the args loop and replaced it with a method call to convert the parameters that are passed in to the args struct before calling the runCommand method
+	2011-02-02 - GAC - Moved all of the parameter and data processing code into a method in the ajax_1_0 lib component
+	2011-02-02 - GAC - Added proxyFile check to see if the method is being called from inside the proxy file
 --->
-	
 	<cfheader name="Expires" value="#now()#">
   	<cfheader name="Pragma" value="no-cache">
 	
-	<cfparam name="request.params.method" default="" />
-	<cfparam name="request.params.bean" default="" />
+	<cfparam name="request.params.method" default="" type="string" />
+	<cfparam name="request.params.bean" default="" type="string" />
 	<cfparam name="request.params.returnformat" default="plain" />
 	<cfparam name="request.params.addMainTable" default="0" type="boolean" />
-	<!--- // When using a returnformat of JSON or XML and the debug parameter, you may need to set the ajax call dataType to 'text' or 'html' --->
+	<!--- // When attempting to DEGUG a RETURNFORMAT of JSON or XML, 
+			you may need to set the ajax call dataType to 'text', 'html' or nothing (ie. best guess) --->
 	<cfparam name="request.params.debug" default="0" type="boolean" />
 	<cfparam name="request.params.appName" default="" type="string" />
 	<cfscript>
+		// reHTML = ""; //Don't initalize the reHTML allows for a return: void
+		forceOutput = false;
+		ajaxData = Application.ADF.ajax.buildAjaxProxyString();
+		forceOutput = ajaxData.forceOutput;
+		if ( StructKeyExists(ajaxData,"reString") )
+			reHTML = ajaxData.reString;
+	</cfscript>
+	<!--- <cfscript>
 		bean = structNew();
 		reHTML = "";
-		argStr = "";
 		reDebugRaw = "";
 		reDebugProcessed = "";
 		// list of parameters in request.params to exclude
@@ -73,8 +82,6 @@ History:
 		args = StructNew();
 		// set the flag that controls whether additional code is added to the reHTML output
 		forceOutput = false;
-		// set the flag for if we have a serialized form to pass to the function as a structure 
-		containsSerializedForm = false;
 		// get the utils, scripts amd csSecurity beans 
 		utils = server.ADF.objectFactory.getBean("utils_1_1");
 		// Verify if the bean and method combo are allowed to be accessed through the ajax proxy
@@ -155,13 +162,13 @@ History:
 			forceOutput=true;
 			reHTML = reDebugRaw & reDebugProcessed;
 		}
-	</cfscript>
+	</cfscript> --->
 </cfsilent>
 <cfif StructKeyExists(variables,"reHTML")>
 	<cfif request.params.returnFormat eq "xml" AND forceOutput IS false><cfcontent type="text/xml; charset=utf-8"></cfif>
 	<cfscript>if ( forceOutput IS true ) { application.ADF.scripts.loadADFLightbox(force=1); }</cfscript>
 	<!--- // if this is a lighbox window then add in the main table --->
 	<cfif request.params.addMainTable><cfoutput><table id="MainTable"><tr><td></cfoutput></cfif>
-		<cfoutput>#TRIM(reHTML)#</cfoutput>
+	<cfoutput>#TRIM(reHTML)#</cfoutput>
 	<cfif request.params.addMainTable><cfoutput></td></tr></table></cfoutput></cfif>
 </cfif>
