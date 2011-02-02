@@ -33,6 +33,7 @@ ADF Requirements:
 	scripts_1_0
 History:
 	2009-11-16 - MFC - Created
+	2011-02-02 - RAK - Updated to allow for customizing number of stars and half stars
 --->
 <cfscript>
 	// initialize some of the attributes variables

@@ -243,6 +243,7 @@ History:
 	History:
 		2009-08-25 - MFC - Created
 		2009-11-05 - MFC - Updated for the ajax proxy security based on bean and method.
+		2011-02-02 - RAK - Updated structMerge to merge the lists also by adding true to the structMerge function
 --->
 <cffunction name="loadSiteAjaxProxyWhiteList" access="private" returntype="void" hint="">
 	

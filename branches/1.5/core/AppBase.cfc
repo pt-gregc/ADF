@@ -396,6 +396,7 @@ Arguments:
 	ARGS
 History:
 	2009-00-00 - MFC - Created
+	2011-02-02 - RAK - Updated structMerge to merge the lists also by adding true to the structMerge function
 --->
 <cffunction name="loadAppProxyWhiteList" access="private" returntype="void" hint="Loads the proxy white list XML for the application.">
 	<cfargument name="appName" type="string" required="true">

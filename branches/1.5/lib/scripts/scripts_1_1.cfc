@@ -920,6 +920,7 @@ Arguments:
 History:
  	2009-11-05 - MFC - Created
 	2009-12-02 - SFS - Added check to make sure jqueryUI is loaded ahead of time
+	2011-02-02 - RAK - Updated default to 3.0
 --->
 <cffunction name="loadJQueryUIStars" access="public" output="true" returntype="void" hint="Loads the JQuery UI Stars plugin"> 
 	<cfargument name="version" type="string" required="false" default="3.0" hint="Script version to load.">

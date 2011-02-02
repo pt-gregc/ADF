@@ -65,6 +65,7 @@ function initADFLB() {
 /*
  * Returns the value of the rel="" tag with
  * additional parameters added to handle lightbox resizing
+ * 2011-02-02 - RAK - Added replacing of ajaxProxy.cfm to lightboxProxy.cfm
  */
 function processRel(relParam) {
 	var newURL = relParam;
@@ -98,6 +99,7 @@ function closeLB(){
 }
 
 // Open the lightbox layer based on URL and set the width and height
+// 2011-02-02 - RAK - Added replacing of ajaxProxy.cfm to lightboxProxy.cfm
 function openLB(url) {
 	url = url.replace(/ajaxProxy.cfm/i, "lightboxProxy.cfm");
 	// Check if the commonspot OR lightbox space has been built
