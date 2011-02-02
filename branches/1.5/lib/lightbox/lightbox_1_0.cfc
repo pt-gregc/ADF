@@ -61,10 +61,16 @@ History:
 								- Changed the method name to buildLightboxProxyHTML
 								- Removed the arguments: params to restrict processing to only the values found in the request.params struct
 								- Updated the proxyWhiteList error to include the appName
+	2011-02-02 - GAC - Modified - Added proxyFile check to see if the method is being called from inside the proxy file
+--->
+<!--- // ATTENTION: 
+		Do not call is method directly. Call from inside the LightboxProxy.cfm file  (method properties are subject to change)
 --->
 <cffunction name="buildLightboxProxyHTML" access="public" returntype="string" hint="Returns a HTML string for content that displays inside an ADF lightbox">
+	<cfargument name="proxyFile" required="false" default="#CGI.SCRIPT_NAME#" /><!--- // Must NOT be required so the Lightbox will display the error --->
 	<cfscript>
 		var hasError = 0;
+		var callingFileName = "lightboxProxy.cfm";
 		var bean = "";
 		var method = "";
 		var appName = "";
@@ -91,60 +97,67 @@ History:
 			if ( StructKeyExists(request.params,"debug") ) 
 				debug = request.params.debug;
 		}
-		passedSecurity = variables.csSecurity.validateProxy(bean, method);
-		if ( passedSecurity )
-		{
-			// convert the params that are passed in to the args struct before passing them to runCommand method
-			args = variables.utils.buildRunCommandArgs(params,argExcludeList);
-			try 
+		if ( arguments.proxyFile NEQ callingFileName ) {
+			// Verify if the bean and method combo are allowed to be accessed through the lightbox proxy
+			passedSecurity = variables.csSecurity.validateProxy(bean, method);
+			if ( passedSecurity )
 			{
-				// Run the Bean, Method and Args and get a return value
-				local.reHTML = variables.utils.runCommand(trim(bean),trim(method),args,trim(appName));
-			} 
-			catch( Any e ) 
-			{
-				hasError = 0; // if set to true, this will output the error html twice, so let debug handle it
-				debug = 1;
-				local.reHTML = e;
-			}	
-			// Build the DUMP for debugging the RAW value of reHTML
-			if ( debug ) {
-				// If the variable reHTML doesn't exist set the debug output to the string: void 
-				if ( !StructKeyExists(local,"reHTML") ){reDebugRaw="void";}else{reDebugRaw=local.reHTML;}
-				reDebugRaw = variables.utils.doDump(reDebugRaw,"DEBUG OUTPUT",1,1);
-			}
-			// Check to see if reHTML was destroyed by a method that returns void before attempting to process the return
-			if ( StructKeyExists(local,"reHTML") ) 
-			{
-				if ( isStruct(local.reHTML) or isArray(local.reHTML) or isObject(local.reHTML) ) 
+				// convert the params that are passed in to the args struct before passing them to runCommand method
+				args = variables.utils.buildRunCommandArgs(params,argExcludeList);
+				try 
 				{
+					// Run the Bean, Method and Args and get a return value
+					local.reHTML = variables.utils.runCommand(trim(bean),trim(method),args,trim(appName));
+				} 
+				catch( Any e ) 
+				{
+					hasError = 0; // if set to true, this will output the error html twice, so let debug handle it
+					debug = 1;
+					local.reHTML = e;
+				}	
+				// Build the DUMP for debugging the RAW value of reHTML
+				if ( debug ) {
+					// If the variable reHTML doesn't exist set the debug output to the string: void 
+					if ( !StructKeyExists(local,"reHTML") ){reDebugRaw="void";}else{reDebugRaw=local.reHTML;}
+					reDebugRaw = variables.utils.doDump(reDebugRaw,"DEBUG OUTPUT",1,1);
+				}
+				// Check to see if reHTML was destroyed by a method that returns void before attempting to process the return
+				if ( StructKeyExists(local,"reHTML") ) 
+				{
+					if ( isStruct(local.reHTML) or isArray(local.reHTML) or isObject(local.reHTML) ) 
+					{
+						hasError = 1;
+						local.reHTML = "Error: unable to convert the return value into string";
+					}
+				}
+				else
+				{
+					// The method call returned void and destroyed the local.reHTML variable
 					hasError = 1;
-					local.reHTML = "Error: unable to convert the return value into string";
+					local.reHTML = "Error: return value came back as 'void'"; 
 				}
 			}
 			else
 			{
-				// The method call returned void and destroyed the local.reHTML variable
+				// Show error since the bean and/or method are not in the proxyWhiteList.xml file
 				hasError = 1;
-				local.reHTML = "Error: return value came back as 'void'"; 
+				if ( len(trim(appName)) )
+					local.reHTML = "Error: The Bean: #bean# with method: #method# in the App: #appName# is not accessible remotely via Lightbox Proxy.";	
+				else
+					local.reHTML = "Error: The Bean: #bean# with method: #method# is not accessible remotely via Lightbox Proxy.";	
 			}
-		}
-		else
-		{
-			// Show error since the bean and/or method are not in the proxyWhiteList.xml file
-			hasError = 1;
-			if ( len(trim(appName)) )
-				local.reHTML = "Error: The Bean: #bean# with method: #method# in the App: #appName# is not accessible remotely via Lightbox Proxy.";	
-			else
-				local.reHTML = "Error: The Bean: #bean# with method: #method# is not accessible remotely via Lightbox Proxy.";	
-		}
-		// pass the debug dumps to the reData.htmlStr for output
-		if ( debug ) 
-		{
-			if ( hasError )
-				local.reHTML = local.reHTML & reDebugRaw;
-			else
-				local.reHTML = reDebugRaw;
+			// pass the debug dumps to the reData.htmlStr for output
+			if ( debug ) 
+			{
+				if ( hasError )
+					local.reHTML = local.reHTML & reDebugRaw;
+				else
+					local.reHTML = reDebugRaw;
+			}
+		} else {
+			// set forceOutput to true to allow error string to be displayed in the ADFLightbox
+			local.forceOutput = true; // for legacy lightbox calls
+			local.reString = "Error: This method can not be called directly. Use the AjaxProxy.cfm file.";	
 		}
 		return local.reHTML;
 	</cfscript>

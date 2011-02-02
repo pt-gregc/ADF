@@ -36,6 +36,7 @@ History:
 	2011-01-30 - RLW/GAC - Added a new parameter that allows commands to be run from ADF applications
 	2011-02-01 - GAC - Modified - Changed the main method call to buildLightboxProxyHTML
 								- removed the argument: params from the buildLightboxProxyHTML() call
+	2011-02-02 - GAC - Added proxyFile check to see if the method is being called from inside the proxy file
 --->
 	<cfheader name="Expires" value="#now()#">
   	<cfheader name="Pragma" value="no-cache">
@@ -49,7 +50,7 @@ History:
 	<cfparam name="request.params.addLBHeaderFooter" default="1" type="boolean" />
 	<!--- // Add the MainTable table tags unless not needed --->
 	<!--- // addMainTable param will be disabled by the UI.lightboxHeader if a 6.x LB header is output --->
-	<cfparam name="request.params.addMainTable" default="1" type="boolean" />
+	<cfparam name="request.params.addMainTable" default="0" type="boolean" />
 	<!--- // Debug parameter to force a DUMP of the processed method, bean and other passed in parameters  --->
 	<cfparam name="request.params.debug" default="0" type="boolean" /> 
 	<cfscript>
