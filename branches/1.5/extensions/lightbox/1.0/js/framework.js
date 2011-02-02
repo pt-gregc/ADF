@@ -45,19 +45,21 @@ defaultHeight = 500;
 function initADFLB() {
 	//alert("initADFLB");
 	jQuery(".ADFLightbox").each(function(){
-        var lightboxURL = processRel(jQuery(this).attr("rel"));
-      	// Unbind any click actions before resetting the binding events
-      	jQuery(this).unbind('click');
-      	
-      	// Bind a click to each instance on this page
-        jQuery(this).click(function () { 
-        	// Check if the commonspot OR lightbox space has been built
-        	if ( (typeof commonspot == 'undefined') || (typeof commonspot.lightbox == 'undefined') )
-        		parent.commonspot.lightbox.openDialog(lightboxURL);
-        	else
-        		commonspot.lightbox.openDialog(lightboxURL);
-        });
-     });
+
+      // Unbind any click actions before resetting the binding events
+		jQuery(this).unbind('click');
+
+		// Bind a click to each instance on this page
+		jQuery(this).click(function () {
+			var lightboxURL = processRel(jQuery(this).attr("rel"));
+			// Check if the commonspot OR lightbox space has been built
+			if ( (typeof commonspot == 'undefined') || (typeof commonspot.lightbox == 'undefined') ){
+				parent.commonspot.lightbox.openDialog(lightboxURL);
+			}else{
+				commonspot.lightbox.openDialog(lightboxURL);
+			}
+		});
+   });
 }
 
 /*
@@ -66,6 +68,7 @@ function initADFLB() {
  */
 function processRel(relParam) {
 	var newURL = relParam;
+	newURL = newURL.replace(/ajaxProxy.cfm/i, "lightboxProxy.cfm");
 	// Split the full url to see if there are parameters
 	var urlArray = newURL.split("?");
 	// create array of new parameters to be added
@@ -81,7 +84,7 @@ function processRel(relParam) {
 			newURL = newURL + initDelim + addParam[i];
 		else
 			newURL = newURL + "&" + addParam[i];
-	}	
+	}
 	return newURL;
 }
 
@@ -96,6 +99,7 @@ function closeLB(){
 
 // Open the lightbox layer based on URL and set the width and height
 function openLB(url) {
+	url = url.replace(/ajaxProxy.cfm/i, "lightboxProxy.cfm");
 	// Check if the commonspot OR lightbox space has been built
 	if ( (typeof commonspot == 'undefined') || (typeof commonspot.lightbox == 'undefined') )
 		parent.commonspot.lightbox.openDialog(url);
