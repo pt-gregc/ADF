@@ -44,12 +44,15 @@ History:
 	<cfparam name="request.params.method" default="" type="string" />
 	<cfparam name="request.params.bean" default="" type="string" />
 	<cfparam name="request.params.appName" default="" type="string" />
-	<!--- // Force the lightbox Scripts unless not needed --->
-	<cfparam name="request.params.forceScripts" default="1" type="boolean" />
-	<!--- // If needed, add the CS 6.x LB Header and Footer --->
+	<!--- // Use Force the lightbox header Scripts  --->
+	<cfparam name="request.params.forceScripts" default="0" type="boolean" />
+	<!--- // Use to add the CS 6.x LB Header and Footer --->
 	<cfparam name="request.params.addLBHeaderFooter" default="1" type="boolean" />
-	<!--- // Add the MainTable table tags unless not needed --->
-	<!--- // addMainTable param will be disabled by the UI.lightboxHeader if a 6.x LB header is output --->
+	<!--- // Use the 'addMainTable' param to add id='MainTable' table tags around the reHTML content. 
+		  // This table tag also get added when using the 'addLBHeaderFooter' param 
+		  // when a 6.x LB header and footer is generated. --->
+	<!--- // To avoid double MainTable tags the UI.lightboxHeader method diables the 'addMainTable'
+		  // param when the 6.x LB header is output when using the 'addLBHeaderFooter' param  --->
 	<cfparam name="request.params.addMainTable" default="0" type="boolean" />
 	<!--- // Debug parameter to force a DUMP of the processed method, bean and other passed in parameters  --->
 	<cfparam name="request.params.debug" default="0" type="boolean" /> 
@@ -62,8 +65,8 @@ History:
 	<cfif request.params.addLBHeaderFooter><cfoutput>#application.ADF.ui.lightboxHeader()#</cfoutput></cfif>
 	<!--- // Add ADF lightbox Scripts Header  --->
 	<cfscript>application.ADF.scripts.loadADFLightbox(force=request.params.forceScripts);</cfscript>
-	<!--- // add in the main table unless intentionally disabled 
-		  // the MainTable tags are not needed when using 6.x LB header footer --->
+	<!--- // Add the MainTable tags 
+		  // - the MainTable tags are not needed when using 6.x LB header footer --->
 	<cfif request.params.addMainTable><cfoutput><table id="MainTable"><tr><td></cfoutput></cfif>
 	<!--- // Output the HTML string --->
 	<cfoutput>#TRIM(reHTML)#</cfoutput>
