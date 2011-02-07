@@ -58,6 +58,7 @@ History:
 	2011-02-01 - GAC - Created - Copied the parameter and data processing code from ajaxProxy.cfm and moved it into this method
 	2011-02-02 - GAC - Modified - fixed debug code conditional logic
 								- Added proxyFile check to see if the method is being called from inside the proxy file
+	2011-02-07 - RLW/GAC - Modified - Added a logic to check if the runCommand method call returns a query, if so, convert the query to an array of structs
 --->
 <!--- // ATTENTION: 
 		Do not call is method directly. Call from inside the AjaxProxy.cfm file (method properties are subject to change) 
@@ -133,6 +134,19 @@ History:
 					// Check to see if local.reString was destroyed by a method that returns void before attempting to process the return
 					if ( StructKeyExists(local,"reString") ) 
 					{
+						// Convert Query to an Array of Structs for Processing
+						if ( IsQuery(local.reString) ) 
+						{
+							local.reString = variables.data.queryToArrayOfStructures(local.reString);
+							if ( !isArray(local.reString) ) 
+							{
+							hasProcessingError = 1; 
+							// set forceOutput to true to allow error string to be displayed in the ADFLightbox
+							local.forceOutput = true; // for legacy lightbox calls
+							local.reString = "Error: unable to convert the return query to an array of structures";
+							}
+						}
+						// if JSON is set as the returnFormat convert return data to an JSON
 						if ( returnFormat eq "json" )
 						{
 							json = server.ADF.objectFactory.getBean("json");
