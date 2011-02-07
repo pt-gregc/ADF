@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="data_1_0" extends="ADF.core.Base" hint="Data Utils component functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_1">
+<cfproperty name="version" value="1_0_2">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Data_1_0">
 
@@ -676,9 +676,11 @@ History:
 		Query queryData
 	History:
 		2009-07-05 - RLW - Created
+		2011-02-07 - GAC - Added parameter to force all StructKeys to lowercase 
 	--->
 <cffunction name="queryToArrayOfStructures" access="public" returntype="Array" hint="Converts a query to an array of structures">
 	<cfargument name="queryData" type="query" required="true" hint="The query that will be converted into an array of structures">
+	<cfargument name="keysToLowercase" type="boolean" required="false" default="false" hint="Use to convert struct key to lowercase">
 	<!---
 	This library is part of the Common Function Library Project. An open source
 		collection of UDF libraries designed for ColdFusion 5.0 and higher. For more information,
@@ -716,10 +718,13 @@ History:
 		for(row = 1; row LTE arguments.queryData.recordcount; row = row + 1){
 			thisRow = structnew();
 			for(col = 1; col LTE arraylen(cols); col = col + 1){
-				thisRow[cols[col]] = arguments.queryData[cols[col]][row];
+				if ( arguments.keysToLowercase ) 
+					thisRow[lcase(cols[col])] = arguments.queryData[cols[col]][row];
+				else
+					thisRow[cols[col]] = arguments.queryData[cols[col]][row];	
 			}
 			arrayAppend(theArray,duplicate(thisRow));
-	}
+		}
 	</cfscript>
 	<cfreturn theArray>
 </cffunction>
