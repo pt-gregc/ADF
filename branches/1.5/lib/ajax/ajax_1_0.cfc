@@ -137,14 +137,15 @@ History:
 						// Convert Query to an Array of Structs for Processing
 						if ( IsQuery(local.reString) ) 
 						{
-							local.reString = variables.data.queryToArrayOfStructures(local.reString);
+							local.reString = variables.data.queryToArrayOfStructures(local.reString,true);
 							if ( !isArray(local.reString) ) 
 							{
-							hasProcessingError = 1; 
-							// set forceOutput to true to allow error string to be displayed in the ADFLightbox
-							local.forceOutput = true; // for legacy lightbox calls
-							local.reString = "Error: unable to convert the return query to an array of structures";
-							}
+								hasProcessingError = 1; 
+								returnFormat = "plain";
+								// set forceOutput to true to allow error string to be displayed in the ADFLightbox
+								local.forceOutput = true; // for legacy lightbox calls
+								local.reString = "Error: unable to convert the return query to an array of structures";
+							} 
 						}
 						// if JSON is set as the returnFormat convert return data to an JSON
 						if ( returnFormat eq "json" )
