@@ -41,8 +41,6 @@ History:
 	#application.ADF.scripts.loadADFLightbox()#
 </cfoutput>
 <cfif (StructKeyExists(Request.Params,"doDelete")) AND (Request.Params.doDelete neq 0)>
-
-
 	<!--- Render the dlg header --->
 	<cfscript>
 		CD_DialogName = request.params.title;
