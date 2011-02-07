@@ -29,4 +29,4 @@
 	DEPRICATED DO NOT USE
 	DEPRICATED DO NOT USE
 --->
-<cfinclude template="pageID-to-link.cfm"/>
+<cfinclude template="1.0/pageID-to-link.cfm"/>

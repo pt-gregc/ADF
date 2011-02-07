@@ -29,4 +29,4 @@
 	DEPRICATED DO NOT USE
 	DEPRICATED DO NOT USE
 --->
-<cfinclude template="edit-delete.cfm"/>
+<cfinclude template="1.0/edit-delete.cfm"/>
