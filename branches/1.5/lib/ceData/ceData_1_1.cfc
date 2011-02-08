@@ -494,6 +494,7 @@ Arguments:
 History:
  	2010-04-08 - RLW - Created
 	2010-12-21 - MFC - Added function to CEDATA
+	2011-02-08 - RAK - Removing ptBlog2 from the function calls as this is not running in ptBlog2 and should never have been here. Its fixed now at least...
 --->
 <cffunction name="buildCEDataArrayFromQuery" access="public" returntype="array" hint="Returns a standard CEData Array to be used in Render Handlers from a ceDataView query">
 	<cfargument name="ceDataQuery" type="query" required="true" hint="ceData Query (usually built from ceDataView) results to be converted">
@@ -526,13 +527,13 @@ History:
 				if( commonField eq "formID" )
 				{
 					if( not len(formName) )
-						formName = application.ptBlog2.ceData.getCENameByFormID(tmp.formID);
+						formName = getCENameByFormID(tmp.formID);
 					tmp.formName = formName;
 				}
 			}
 			tmp.values = structNew();
 			// get the fields structure for this element
-			fieldStruct = application.ptBlog2.forms.getCEFieldNameData(tmp.formName);
+			fieldStruct = variables.forms.getCEFieldNameData(tmp.formName);
 			// loop through the field query and build the values structure
 			for( itm=1; itm lte listLen(structKeyList(fieldStruct)); itm=itm+1 )
 			{
@@ -562,13 +563,14 @@ History:
 	2010-04-07 - RLW - Created
 	2010-06-18 - SF - [Steve Farwell] Bug fix for building the view for MySQL
 	2010-12-21 - MFC - Added function to CEDATA
+	2011-02-08 - RAK - Removing ptBlog2 from the function calls as this is not running in ptBlog2 and should never have been here. Its fixed now at least...
 --->
 <cffunction name="buildRealTypeView" access="public" returntype="boolean">
 	<cfargument name="elementName" type="string" required="true">
 	<cfargument name="viewName" type="string" required="false" default="ce_#arguments.elementName#View">
 	<cfscript>
 		var viewCreated = false;
-		var formID = application.ptBlog2.ceData.getFormIDByCEName(arguments.elementName);
+		var formID = getFormIDByCEName(arguments.elementName);
 		var dbType = Request.Site.SiteDBType;
 		var realTypeView = '';
 		var fieldsSQL = '';
@@ -730,7 +732,8 @@ Arguments:
 	updateOverride - struct - Override of the update functionality. Specify a bean and method.
 	deleteOverride - struct - Override of the delete functionality. Specify a bean and method.
 History:
- 	12/22/10 - RAK - Created
+ 	2010-22-12 - RAK - Created
+ 	2011-31-01 - RAK - Fixed issue where it would not compare properly if the keys passed in did not exactly match those in the elemeent
 --->
 <cffunction name="differentialSync" access="public" returntype="struct" hint="Given a list of custom elements, custom element create or update or optionally delete elements">
 	<cfargument name="elementName" type="string" required="true" default="" hint="Name of the element to sync">
@@ -760,6 +763,7 @@ History:
 		var deleteList = '';
 		var dataPageIDList = '';
 		var scheduleParams = "";
+		var manualCompare = false;
 		returnStruct.success = false;
 		returnStruct.msg = "An unknown error occurred.";
 
@@ -852,6 +856,10 @@ History:
 		}
 		syncLen = ListLen(keysToSync);
 		len=ArrayLen(arguments.newElements);
+		//If the keys on the input struct dont match the keys on the source then we need to manually compare.
+		if(ArrayLen(srcElements) and ListLen(StructKeyList(arguments.newElements[1].values)) neq ListLen(StructKeyList(srcElements[1].values))){
+			manualCompare = true;
+		}
 		for(i=1;i<=len;i++){
 			newElement = arguments.newElements[i];
 			//Figure out the element's lookup key
@@ -865,7 +873,7 @@ History:
 				3. Remove the element from the srcElementStruct since we found it
 				*/
 				isDifferent = false;
-				if(Len(ignoreFields)){//Check each key individually
+				if(Len(ignoreFields) || manualCompare){//Check each key individually
 					for(j=1;j<=syncLen;j++){
 						syncKey = ListGetAt(keysToSync,j);
 						currentKeyValue = StructFind(currentElement.values,syncKey);
@@ -886,7 +894,7 @@ History:
 					//We have a change on our hands! Do something!
 				   arguments.updateOverride = duplicate(updateOverride);
 					arguments.updateOverride.args.data = newElement.values;
-					arguments.updateOverride.args.data.pageID = newElement.pageID;
+					arguments.updateOverride.args.data.dataPageID = currentElement.pageID;
 					ArrayAppend(commandArray,arguments.updateOverride);
 				}else{
 					//This guy is not different. Do nothing for now.
@@ -901,7 +909,7 @@ History:
 			}
 		}
 		//5. Loop over remaining subjectID's and delete them
-		if(arguments.preformDelete){
+		if(arguments.preformDelete and !structIsEmpty(srcElementStruct)){
 			deleteList = StructKeyList(srcElementStruct);
 			len = ListLen(deleteList);
 			dataPageIDList = "";
@@ -912,14 +920,15 @@ History:
 			arguments.deleteOverride.args.datapageidList = dataPageIDList;
 			ArrayAppend(commandArray,arguments.deleteOverride);
 		}
-Application.ADF.utils.doDump(commandArray,"commandArray",true);
 		returnStruct.msg = "Differential sync scheduled succesfully!";
 		returnStruct.success=true;
-		returnStruct.scheduleID=arguments.elementName&"-differentialSync";
-		scheduleParams = StructNew();
-		scheduleParams.delay = 1;
-		scheduleParams.tasksPerBatch = 25;
-//application.ADF.scheduler.scheduleProcess(returnStruct.scheduleID,commandArray,scheduleParams);
+		if(ArrayLen(commandArray)){
+			returnStruct.scheduleID=arguments.elementName&"-differentialSync";
+			scheduleParams = StructNew();
+			scheduleParams.delay = 1;
+			scheduleParams.tasksPerBatch = 25;
+			application.ADF.scheduler.scheduleProcess(returnStruct.scheduleID,commandArray,scheduleParams);
+		}
 		return returnStruct;
 	</cfscript>
 </cffunction>
