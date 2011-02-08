@@ -90,7 +90,7 @@ jQuery.cookie = function (key, value, options) {
 
 	//2010-12-09 - RAK - Updated to handle lightboxing
 	documentCookie = document.cookie;
-	if(typeof commonspot != 'undefined' && typeof commonspot.lightbox != undefined){
+	if(!documentCookie && typeof commonspot != 'undefined' && typeof commonspot.lightbox != undefined){
 		documentCookie = commonspot.lightbox.getPageWindow().document.cookie;
 	}
 
