@@ -48,6 +48,7 @@ History:
 	2010-12-06 - RAK - Added the ability to define an active flag
 						Added ability to dynamically build the display field - <firstName> <lastName>:At <email>
 	2011-01-06 - RAK - Added error catching on evaluate failure.
+	2011-02-08 - RAK - Added the class to the select from the props file for javascript interaction.
 --->
 <cfscript>
 	// the fields current value
@@ -205,7 +206,7 @@ History:
 					readOnly = false;
 			</cfscript>
 			<div id="#fqFieldName#_renderSelect">
-				<select name='#fqFieldName#_select' id='#fqFieldName#_select' onchange='#fqFieldName#_loadSelection()' <cfif readOnly>disabled='disabled'</cfif>>
+				<select name='#fqFieldName#_select' class="#xparams.fldName#" id='#fqFieldName#_select' onchange='#fqFieldName#_loadSelection()' <cfif readOnly>disabled='disabled'</cfif>>
 		 			<option value=''> - Select - </option>
 		 			<cfloop index="cfs_i" from="1" to="#ArrayLen(ceDataArray)#">
 						<cfif ceDataArray[cfs_i].Values['#xparams.valueField#'] EQ currentValue>
