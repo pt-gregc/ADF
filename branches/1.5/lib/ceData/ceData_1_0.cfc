@@ -276,6 +276,7 @@ History:
 	2009-10-22 - MFC - Updated: Changed Return Type Boolean
 	2010-02-04 - MFC - Updated: Changed function to remove the query and make call
 							to CS Module deletefieldvalue.
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="deleteCE" access="public" returntype="boolean">
 	<cfargument name="datapageidList" type="string" required="true">
@@ -285,6 +286,7 @@ History:
 	<cfset var currPageID = 1>
 	<cfset var formID = 0>
 	<cfset var elementFields = "">
+	<cfset var j = "">
 	<!--- Verify the security for the logged in user --->
 	<cfif variables.csSecurity.isValidContributor() OR variables.csSecurity.isValidCPAdmin()>
 		<!--- Loop over the page id list --->
@@ -693,6 +695,7 @@ History:
 	2010-03-05 - SFS - Updated: Additional StructInsert added after the end of StructInsert loop to add
 								DateAdded and DateApproved fields to retStruct
 	2010-12-22 - MFC - Updated: Added AuthorID and OwnerID fields to the return structure.
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="getElementInfoVersionsByPageID" access="public" returntype="array">
 	<cfargument name="pageid" type="Numeric" required="true">
@@ -711,7 +714,8 @@ History:
 		var versionStruct = StructNew();
 		var dataFldName = "";
 		var dataFldVal = "";
-		
+		var dataVersions = '';
+
 		// get the version query for the CE
 		dataVersions = getElementVersionsForPageID(arguments.pageid, arguments.formid);
 
@@ -1421,11 +1425,14 @@ Arguments:
 	String - fieldName - Custom element field for which you want to find all the values.
 History:
 	2009-10-25 - SFS - Created
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="getCEFieldValues" access="public" returntype="string" hint="Returns all values for a particular field in a particular custom element.">
 	<cfargument name="ceName" type="string" required="true" hint="Custom element name.">
 	<cfargument name="fieldName" type="string" required="true" hint="Custom element field name to return data.">
-
+	<cfscript>
+		var itm = '';
+	</cfscript>
 	<cfset var ceDataList = "">	
 	<cfset var ceData = application.adf.ceData.getCEData(arguments.ceName)>
 	<cfset ceData = application.ADF.ceData.arrayOfCEDataSort(ceData,arguments.fieldName,'asc','textnocase','^')>

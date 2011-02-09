@@ -51,6 +51,7 @@ Returns:
 Arguments:
 	number
 History:
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="getTabsFromFormID" hint="Returns array containing form tab name and id ordered by their display name"
 				access="public" 
@@ -61,6 +62,7 @@ History:
 	<cfscript>
 		var returnArray = ArrayNew(1);
 		var tabStruct = StructNew();
+		var formTabQuery = '';
 	</cfscript>
 	<cfquery name="formTabQuery" datasource="#request.site.datasource#">
 		  select TabDisplayName,TabSortName,ID
@@ -94,6 +96,7 @@ Returns:
 Arguments:
 	number
 History:
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="getFieldsFromTabID" hint="Returns array containing form field name and id in order from the tabID"
 				access="public" 
@@ -103,6 +106,7 @@ History:
 	<cfargument name="recurse" type="boolean" required="false" default="false" hint="If true, this function will return a structure containing every fields and the fields default values.">
 	<cfscript>
 		var returnArray = ArrayNew(1);
+		var formFieldQuery = '';
 		var fieldStruct = StructNew();
 	</cfscript>
 	<cfquery name="formFieldQuery" datasource="#request.site.datasource#">
@@ -137,6 +141,7 @@ Returns:
 Arguments:
 	number
 History:
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="getFieldDefaultValueFromID" hint="Returns struct containing form field default values"
 				access="public" 
@@ -150,6 +155,7 @@ History:
 		var defaultValues = StructNew();
 		var multipleFieldQuery = "";
 		var fieldQuery = "";
+		var fieldDefaultValues = '';
 	</cfscript>
 	<cfquery name="formFieldQuery" datasource="#request.site.datasource#">
 		  select FormID
@@ -233,10 +239,14 @@ Returns:
 Arguments:
 	number
 History:
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="getFieldValuesByFieldID" hint="Returns struct containing form field values" access="public" returntype="struct">
 	<cfargument name="fieldID" type="numeric" required="true">
 	<cfscript>
+		var multipleFieldQuery = '';
+		var formFieldQuery = '';
+		var fieldQuery = '';
 		var params = StructNew();
 	</cfscript>
 	<cfquery name="formFieldQuery" datasource="#request.site.datasource#">
@@ -564,11 +574,13 @@ History:
 	2010-06-18 - SF - [Steve Farwell] Bug fix for building the view for MySQL
 	2010-12-21 - MFC - Added function to CEDATA
 	2011-02-08 - RAK - Removing ptBlog2 from the function calls as this is not running in ptBlog2 and should never have been here. Its fixed now at least...
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="buildRealTypeView" access="public" returntype="boolean">
 	<cfargument name="elementName" type="string" required="true">
 	<cfargument name="viewName" type="string" required="false" default="ce_#arguments.elementName#View">
 	<cfscript>
+		var deleteView = '';
 		var viewCreated = false;
 		var formID = getFormIDByCEName(arguments.elementName);
 		var dbType = Request.Site.SiteDBType;
@@ -734,6 +746,7 @@ Arguments:
 History:
  	2010-22-12 - RAK - Created
  	2011-31-01 - RAK - Fixed issue where it would not compare properly if the keys passed in did not exactly match those in the elemeent
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="differentialSync" access="public" returntype="struct" hint="Given a list of custom elements, custom element create or update or optionally delete elements">
 	<cfargument name="elementName" type="string" required="true" default="" hint="Name of the element to sync">
@@ -764,6 +777,7 @@ History:
 		var dataPageIDList = '';
 		var scheduleParams = "";
 		var manualCompare = false;
+      		var syncKey = '';
 		returnStruct.success = false;
 		returnStruct.msg = "An unknown error occurred.";
 

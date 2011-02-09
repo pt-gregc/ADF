@@ -174,10 +174,14 @@ Arguments:
 	Numeric - pageid
 History:
 	2009-05-27 - MFC - Created
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="getImagePageURL" returntype="String" access="public">
 	<cfargument name="pageid" type="numeric" required="true">
-
+	<cfscript>
+		var retURL = '';
+		var sitePageMap = '';
+	</cfscript>
 	<cfquery name="sitePageMap" datasource="#request.site.datasource#">
 		SELECT	SitePages.SubSiteID, SitePages.FileName
 		FROM    SitePages INNER JOIN

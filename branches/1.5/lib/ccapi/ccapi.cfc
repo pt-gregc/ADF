@@ -274,6 +274,7 @@ Arguments:
 	String elementName
 History:
 	2009-05-13 - RLW - Created
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="hasElement" access="public" returntype="numeric">
 	<cfargument name="elementName" type="string" required="true">
@@ -289,6 +290,7 @@ History:
 	<cfargument name="subsiteID" required="false" type="numeric" default="1">
 	<!--- // call the CS API login --->
 	<cfscript>
+		var error = "";
 		var loginResult = "";
 		if( arguments.subsiteID gt 0 )
 			setSubsiteID(arguments.subsiteID);
@@ -396,9 +398,11 @@ Arguments:
 	(Numeric pageID) - the page ID to be cleared
 History:
 	2007-08-08 - RLW - Created
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="clearLock" access="public" returntype="boolean">
 	<cfargument name="pageID" type="numeric" required="true">
+	<cfset var doLockClear = ''>
 	<!--- // clear the lock for this page --->
 	<cfquery name="doLockClear" datasource="#request.site.datasource#" timeout="60">
 		delete

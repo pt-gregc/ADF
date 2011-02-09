@@ -176,10 +176,13 @@ Arguments:
 	Numeric: PageID
 History:
 	2008-12-08 - MFC - Created
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="deletePage" access="public" output="true" returntype="struct" hint="Deletes the page based on the argument data">
 	<cfargument name="deletePageData" type="struct" required="true" hint="Standard Metadata like 'PageID, SubsiteID'">		
 	<cfscript>
+		var deletePageResult = '';
+		var logoutResult = '';
 		var pageData = structNew();
 		var ws = "";
 		var logStruct = structNew();

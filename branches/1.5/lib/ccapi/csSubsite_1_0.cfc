@@ -58,6 +58,7 @@ History:
 	2008-10-16 - RLW - Created
 	2009-06-25 - MFC - Updated logging for success
 						Updated IF block for CCAPI login
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="createSubsite" access="public" returntype="struct" hint="Creates the subsite based on argument data">
 	<cfargument name="subsiteData" type="struct" required="true" hint="Subsite Data struct ex: subsiteData['name'], subsiteData['displayName'], subsiteData['description']">
@@ -71,6 +72,7 @@ History:
 		var ws = "";
 		var logStruct = structNew();
 		var logArray = arrayNew(1);
+		var createResponse = '';
 		result.subsiteCreated = false;
 		// Check if we are not logged in
 		//	OR force login with function argument
@@ -140,6 +142,7 @@ Arguments:
 History:
 	2009-06-25 - MFC - Created
 	2009-07-29 - RLW - Migrated to CSSubsite and converted app calls to global
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="buildSubsitesFromPath" access="public" returntype="numeric" hint="Verifies the subsite path exists or creates the subsites. Returns the last subsites ID.">
 	<cfargument name="subsitePath" type="string" required="true">
@@ -147,6 +150,7 @@ History:
 		var retSubsiteID = 1;
 		var currPath = "/";
 		var currSubsiteID = 0;
+		var ss_i = '';
 		// Loop over the subsite names
 		for ( ss_i = 1; ss_i LTE ListLen(arguments.subsitePath,'/'); ss_i = ss_i + 1) {
 			currPath = currPath & ListGetAt(arguments.subsitePath, ss_i, '/') & "/";

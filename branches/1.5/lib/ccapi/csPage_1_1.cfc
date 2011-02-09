@@ -88,6 +88,7 @@ History:
 	2011-01-15 - GAC - Moved the convert Taxonomy terms to termids into the getCustomMetadata function
 	2011-01-28 - GAC - Added a parameter to pass in a destination Standard Metadata struct. This can be the entire standard metadata struct or specified standard metadata fields.
 						The modified Standard metadata will be used when creating the destination page.
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->	
 <cffunction name="copyPage" access="public" returntype="boolean" hint="Duplicates the page from source to destination using destination template. ">
 	<cfargument name="sourcePageID" type="numeric" required="true">
@@ -113,7 +114,10 @@ History:
 		var custMetadata = variables.csData.getCustomMetadata(pageid=arguments.sourcePageID,convertTaxonomyTermsToIDs=1);
 		var sourcePage = variables.csData.getStandardMetadata(arguments.sourcePageID);
 		var ccapiElements = "";
-		 
+		var newPage = '';
+		var elementTabs = '';
+		var populateContentResults = '';
+
 		//Error checking
 		if ( ArrayLen(sourceNames) neq ArrayLen(destCCAPINames) ) {
 			variables.utils.logAppend("Source custom element list is not the same length of custom element names.","copyPageLog.txt");
