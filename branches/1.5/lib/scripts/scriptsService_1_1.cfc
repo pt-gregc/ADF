@@ -83,7 +83,7 @@ History:
 				if(typeof scriptsLoaded === 'undefined'){
 					var scriptsLoaded= new Array();
 				}
-				//Load arguments.scriptName only once.
+				//Load #arguments.scriptName# only once.
 				if(!("#arguments.scriptName#" in scriptsLoaded)){
 					document.write('#arguments.outputHTML#'+'<script type="text/javascript"><\/script>');
 					scriptsLoaded["#arguments.scriptName#"] = true;

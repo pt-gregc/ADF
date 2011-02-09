@@ -37,7 +37,7 @@ History:
 <cfscript>
 	// Create a script obj
 	application.ADF.scripts.loadJQuery("1.3.2");
-	application.ADF.scripts.loadJQueryUI("1.7.2", "ui-lightness");
+	application.ADF.scripts.loadJQueryUI("1.7", "ui-lightness");
 	application.ADF.scripts.loadADFLightbox();
 	
 	// Action Param

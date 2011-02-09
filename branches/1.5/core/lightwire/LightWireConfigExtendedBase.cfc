@@ -305,11 +305,13 @@ end user license agreement.
 	History:
 		2009-06-05 - MFC - Created
 		2010-04-06 - MFC - Code cleanup.
+		2011-02-09 - RAK - Var'ing un-var'd items
 --->
 <cffunction name="processMetadata" access="private" returntype="void">
 	<cfargument name="beanData" type="struct" required="true">
 	<cfargument name="objFactoryType" type="string" required="false" default="server">
 	<cfscript>
+		var tmpStruct = "";
 		var injected = 0;
 		var metadata = getMetaData(CreateObject("component", arguments.beanData.cfcPath));
 		var i = 1;
@@ -372,10 +374,14 @@ end user license agreement.
 	History:
 		2009-05-15 - MFC - Created
 		2010-04-06 - MFC - Code cleanup.
+		2011-02-09 - RAK - Var'ing un-var'd items
 --->
 <cffunction name="loadDependencies" access="private" returntype="void">
 	<cfargument name="objFactoryType" type="string" required="false" default="server">
 	<cfscript>
+		var appBeanStruct = '';
+		var beanPath = '';
+		var beanData = '';
 		var i = 1;
 		var keys = "";
 		var currRecord = StructNew();
@@ -449,11 +455,12 @@ end user license agreement.
 	History:
 		2009-06-05 - MFC - Created
 		2010-04-06 - MFC - Code cleanup.
+		2011-02-09 - RAK - Var'ing un-var'd items
 --->
 <cffunction name="loadLocalComponents" access="public" returntype="void" hint="Process the site level components into the object factory.">
-	
 	<cfscript>
 		// Get the sites for this server
+		var siteComponents = '';
 		var j = 1;
 		var siteComponentsDir = QueryNew("temp");
 		var siteComponentsFiles = QueryNew("temp");

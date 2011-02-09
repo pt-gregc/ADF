@@ -316,13 +316,14 @@ Arguments:
 	string - beanName
 	string - adfBeanName
 History:
- 	1/18/11 - RAK - Created
+ 	2011-01-18 - RAK - Created
+	2011-02-09 - RAK - Var'ing un-var'd items
 --->
 <cffunction name="loadLibraryComponent" access="public" returntype="void" hint="Allows overriding of ADF beans and creating new ones with names">
 	<cfargument name="beanName" type="string" required="true" default="" hint="Bean name to use in the overloading (ceData_1_5)">
 	<cfargument name="adfBeanName" type="string" required="true" default="" hint="Destination bean name to set the adf bean to (ceData)">
 	<cfscript>
-		bean = "false";
+		var bean = "false";
 		if(server.ADF.objectFactory.containsBean(beanName)){
 			StructInsert(application.ADF,adfBeanName,server.ADF.objectFactory.getSingleton(beanName),true);
 		}else{
