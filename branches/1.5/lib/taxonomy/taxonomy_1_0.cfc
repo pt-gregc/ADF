@@ -184,7 +184,6 @@ History:
 	<cfargument name="currTermPageIdList" type="string" required="false" default="">
 	
 	<cfscript>
-		var retDataStruct = '';
 		var bind_i = 1;
 		var getFieldValues = "";
 		var fieldValueList = "";
