@@ -32,6 +32,7 @@ Version:
 	1.0.0
 History:
 	2010-09-15 - MFC - Created
+	2011-02-09 - RAK - Fixing issue where deletions were not processing properly
 --->
 <!--- Check the params --->
 <cfscript>
@@ -150,7 +151,7 @@ History:
 					function(data){
 						if (data == 'true'){
 							// Call the call backk and Close the lightbox
-							getCallback("#request.params.cbFunct#");
+							getCallback("#request.params.cbFunct#",['#request.params.uuid#','remove']);
 							closeLB();
 							
 							jQuery('div##loadingLB').hide();	
@@ -181,7 +182,7 @@ History:
 		<div id="completeLB" style="display:none;">
 			<div id="completeLBText" style="text-align:center;">
 				<p><strong>Date/Time has been deleted.</strong></p>
-				<a href='javascript:;' onclick='window.parent.#request.params.cbFunct#("#request.params.uuid#","remove");parent.window.tb_remove();'>Return to the Link Builder</a>
+				<a href='javascript:;' onclick='window.parent.#request.params.cbFunct#(["#request.params.uuid#","remove"]);parent.window.tb_remove();'>Return to the Link Builder</a>
 			</div>
 		</div>
 		<div id="loadingLB" style="display:none;">
