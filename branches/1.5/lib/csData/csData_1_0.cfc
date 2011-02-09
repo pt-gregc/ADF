@@ -345,10 +345,12 @@ History:
 	2010-11-08 - MFC - Added PublicReleaseDate to return data
 	2010-12-16 - GAC - Added Confidentiality and IncludeInIndex to return data
 	2010-12-16 - GAC - Added globalKeywords to return data
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="getStandardMetadata" access="public" returntype="struct">
 	<cfargument name="csPageID" required="true" type="numeric">
 	<cfscript>
+		var getData = '';
 		var stdMetadata = structNew();
 		var keywordObj = Server.CommonSpot.ObjectFactory.getObject("keywords");
 		stdMetadata.name = "";
@@ -574,11 +576,13 @@ Arguments:
 	Numeric csSubsiteID
 History:
 	2008-07-10 - RLW - Created
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="getCSPageByName" access="public" returntype="numeric">
 	<cfargument name="csPageName" type="string" required="true">
 	<cfargument name="csSubsiteID" type="numeric" required="true">
 	<cfset var csPageID = 0>
+	<cfset var getPageData = ''>
 	<cfquery name="getPageData" datasource="#request.site.datasource#">
 		select ID, subsiteID
 		from sitePages
@@ -606,11 +610,15 @@ Arguments:
 	String - file name
 History:
 	2008-07-25 - MFC - Created
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="findUploadFileExistsInSubsite" returntype="string" hint="Function returns T/F is file exists in subsite upload folder">
 	<cfargument name="inSubSiteID" type="numeric" required="Yes">
 	<cfargument name="inFileName" type="string" required="Yes">
-
+	<cfscript>
+		var fileDLoadPath = '';
+		var getSubSiteDir = '';
+	</cfscript>
 	<!--- // get the subsite folder path --->
 	<cfquery name="getSubSiteDir" datasource="#request.site.datasource#">
 		SELECT SubSiteDir
@@ -643,12 +651,16 @@ Arguments:
 	String - FileName
 History:
 	2008-07-30 - MFC - Created
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="copyUploadFileToSubsite" returntype="void" hint="Copies the uploaded file from the _cs_uploads to the subsite upload folder.">
 	<cfargument name="inSubSiteID" type="numeric" required="Yes">
 	<cfargument name="inFilePageID" type="numeric" required="Yes">
 	<cfargument name="inFileName" type="string" required="Yes">
-
+	<cfscript>
+		var uploadedFileName = '';
+		var updateUploadedDocsFileName = '';
+	</cfscript> 
 	<!--- Get the name for the file in the _cs_uploads folder --->
 	<cfset uploadedFileName = inFilePageID & "_1" & right(inFileName,4)>
 	<!--- copy the file to the subsites upload folder --->
@@ -678,10 +690,13 @@ History:
 	2008-08-19 - MFC - Created
 	2010-02-04 - MFC - Updated the getDocPublicNames query to add condition "VersionState = 2"
 						to return the current document
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="getUploadedDocPublicName" returntype="string" hint="Returns the public file name for the uploaded document">
 	<cfargument name="inCSPageID" type="numeric" required="Yes">
-
+	<cfscript>
+		var getDocPublicNames = '';
+	</cfscript>
 	<!--- // get the subsite folder path --->
 	<cfquery name="getDocPublicNames" datasource="#request.site.datasource#">
 		SELECT 	PublicFileName
@@ -734,10 +749,14 @@ Arguments:
 	Numeric csSubsiteID
 History:
 	2009-05-22 - SFS - Created
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="getCSPageByIndexTitle" access="public" returntype="numeric">
 	<cfargument name="csPageTitle" type="string" required="true">
 	<cfset var csPageID = 0>
+	<cfscript>
+		var getPageData = '';
+	</cfscript>
 	<cfquery name="getPageData" datasource="#request.site.datasource#">
 		select ID, subsiteID
 		from sitePages
@@ -805,11 +824,14 @@ Arguments:
 	String - file name
 History:
 	2008-07-31 - MFC - Created
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="getUploadedFilePageID" returntype="string" hint="Returns Page ID for the subsite id and uploaded filename.">
 	<cfargument name="inSubSiteID" type="numeric" required="Yes">
 	<cfargument name="inFileName" type="string" required="Yes">
-
+	<cfscript>
+		var getPageID = '';
+	</cfscript>
 	<!--- // get the page id for the subsite and filename --->
 	<cfquery name="getPageID" datasource="#request.site.datasource#">
 		SELECT  SitePages.ID, SitePages.SubSiteID, UploadedDocs.PublicFileName
@@ -835,9 +857,13 @@ Arguments:
 History:
 	2009-05-12 - SFS - Initial Version
 	2009-05-13 - GAC - Update - Added cfqueryparam
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="getContactData" access="public" returntype="query" hint="Retrieves CommonSpot user data when given a user ID.">
 	<cfargument name="userID" required="yes" type="numeric" default="" hint="the numeric ID for the user to get data for">
+	<cfscript>
+		var selectContactData = '';
+	</cfscript>
 	<cfquery name="selectContactData" datasource="#request.site.usersdatasource#" maxrows="1"><!--- USERS DATASOURCE --->
 		SELECT *
 		FROM contacts
@@ -1049,11 +1075,14 @@ Arguments:
 	Numeric - pageID - Page ID to verify the active/inactive status
 History:
 	2009-09-01 - MFC - Created
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="isCSPageActive" access="public" returntype="boolean" hint="Returns T/F for the active status of the page id.">
 	<cfargument name="pageID" type="numeric" required="true" hint="Page ID to verify the active/inactive status">
-	
-	<cfset var retStatus = false>
+	<cfscript>
+		var csPageStatus = '';
+		var retStatus = false;
+	</cfscript>
 	<cfquery name="csPageStatus" datasource="#request.site.datasource#">
 		SELECT 	approvalStatus
 		FROM 	sitepages 
@@ -1477,10 +1506,12 @@ History:
  	2009-11-30 - RLW - Created
 	2010-02-24 - GAC - Modified - Updated to eliminate empty metadata arrays and duplicate pageids
 	2010-08-03 - GAC - Modified - Strip the provided path for comparison from RH files in the root RH directory
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="pagesContainingRH" access="public" returntype="array" hint="">
 	<cfargument name="modulePath" type="string" required="true">
 	<cfscript>
+		var getModuleData = '';
 		var pageDataAry = arrayNew(1);
 		var getPages = queryNew('');
 		var itm = 1;
@@ -1571,6 +1602,7 @@ History:
 <cffunction name="getLanguageName" access="public" returntype="String" hint="Given a languageID retrieve the language name">
 	<cfargument name="langID" type="numeric" required="true">
 	<cfscript>
+		var getData = '';
 		var langName = "";
 	</cfscript>
 	<cfquery name="getData" datasource="#request.site.datasource#">
@@ -1596,11 +1628,15 @@ Returns:
 Arguments:
 	String MIMEType
 History:
- 2010-01-16 - RLW - Created
+ 	2010-01-16 - RLW - Created
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="getDocIcon" access="public" returntype="string" hint="Returns the document Icon based on the MIME type">
 	<cfargument name="MIMEType" type="string" required="true" hint="The MIME type for the document">
-	<cfset var iconPath = "">
+	<cfscript>
+		var getDocInfo = '';
+		var iconPath = "";
+	</cfscript>
 	<cfquery name="getDocInfo" datasource="#request.site.datasource#">
 		select iconPath
 		from formats
@@ -1740,13 +1776,15 @@ Returns:
 Arguments:
 	Numeric templateID
 History:
- 2010-10-08 - RAK - Created
+ 	2010-10-08 - RAK - Created
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="getPageIdsUsingTemplateID" access="public" returntype="array" hint="Returns an array of page ids that DIRECTLY utilize the template">
 	<cfargument name="templateID" type="numeric" required="true">
 	<cfargument name="subsiteID" type="numeric" required="false" default="-1" hint="Gets only pages that reside within this subsite that directly utilize the template">
 	<cfargument name="includeSubsiteDescendants" type="boolean" required="false" default="false" hint="If true and subsiteID is selected will return pages that directly utilize the template within the subsite and its ancestors">
 	<cfscript>
+		var templatePages = '';
 		var subsiteList = "";
 		var decendants = "";
 		if(arguments.subsiteID neq -1){

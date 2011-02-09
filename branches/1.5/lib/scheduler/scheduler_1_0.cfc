@@ -120,10 +120,12 @@ History:
 	History:
 		Nov 30, 2010 - RAK - Created
 		2011-01-13 - GAC - Modified - Updated to add the date string and the site name to the schedule task output log file
+		2011-02-09 - RAK - Var'ing un-var'd variables
 	--->
 	<cffunction name="processNextScheduleItem" access="public" returntype="boolean" hint="Executes the next item in the schedule. If there are no more it marks the schedule as ran.">
 		<cfargument name="scheduleName" type="string" required="true" hint="Unique name for the schedule you want to run">
 		<cfscript>
+			var cfcatchDump = '';
 			var currentSchedule = "";
 			var errorScheduleItem = "";
 			var scheduleURL = "";
@@ -333,9 +335,15 @@ History:
 		String - ScheduleName
 	History:
 		Nov 30, 2010 - RAK - Created
+		2011-02-09 - RAK - Var'ing un-var'd variables
 	--->
 	<cffunction name="getScheduleHTML" access="public" returntype="string" hint="Returns the management HTML for the specified schedule name.">
 		<cfargument name="scheduleName" type="string" required="true" hint="Unique name for the schedule you want to run">
+		<cfscript>
+			var currentSchedule = '';
+			var scheduleID = '';
+			var rtnHTML = '';
+		</cfscript> 
 		<cfsavecontent variable="rtnHTML">
 			<cfoutput>
 				<cfif !StructKeyExists(application.schedule,arguments.scheduleName)>

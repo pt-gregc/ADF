@@ -56,10 +56,14 @@ Arguments:
 	Struct fieldData
 History:
 	2009-03-13 - RLW - Created
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="addToSimpleForm" access="public" returntype="void">
 	<cfargument name="fieldData" type="struct" required="true">
 	<cfscript>
+		var tmpArray = '';
+		var labelFieldName = '';
+		var actualFieldName = '';
 		var itm = 1;
 		var fieldList = structKeyList(arguments.fieldData);
 		// loop through the form fields and find any that match the structure keys
@@ -104,11 +108,14 @@ History:
 	2009-07-07 - MFC - Updated:	Set the call to CEDATA defaultFieldStruct to set to rtnStruct variable,
 									this will default all the CE fields into the return struct.
 	2009-07-31 - MFC - Updated: Updated the 'Replace' to 'ReplaceNoCase'.
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="extractFromSimpleForm" access="public" returntype="Struct">
 	<cfargument name="formStruct" type="struct" required="true">
 	<cfargument name="fieldList" type="String" required="false" default="">
 	<cfscript>
+		var formKeyList = '';
+		var fieldValue = '';
 		var rtnStruct = structNew();
 		var itm = 1;
 		var thisField = "";
@@ -121,7 +128,7 @@ History:
 			// Call CEData to get the fields for the element
 			rtnStruct = variables.ceData.defaultFieldStruct(arguments.formStruct.formName);
 			// Load the fieldList to all the elements fields
-			fieldList = StructKeyList(rtnStruct);
+			arguments.fieldList = StructKeyList(rtnStruct);
 		}
 		formKeyList = StructKeyList(arguments.formStruct);
 	
@@ -137,7 +144,7 @@ History:
 				actualFieldName = ReplaceNoCase(thisField, "_FIELDNAME", "", "all");
 				fieldValue = arguments.formStruct[thisField];
 				// Check if the value that is the field name in the fieldlist
-				if ( ListFindNoCase(fieldList,fieldValue) )
+				if ( ListFindNoCase(arguments.fieldList,fieldValue) )
 				{
 					// Check if the field is in the form, else set to empty string
 					if ( StructKeyExists(arguments.formStruct, actualFieldName) )
@@ -317,7 +324,6 @@ History:
 	<cfargument name="formID" type="numeric" required="true" hint="The FormID for the Custom Element">
 	<cfargument name="dataPageID" type="numeric" required="true" hint="the DataPageID for the record being deleted">
 	<cfargument name="title" type="string" required="no" default="Delete Record" hint="The title of the dialog displayed while deleting">
-	
 	<cfset var deleteFormHTML = "">
 	<cfsavecontent variable="deleteFormHTML">
 		<cfscript>

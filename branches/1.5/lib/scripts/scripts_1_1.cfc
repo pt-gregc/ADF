@@ -1281,8 +1281,12 @@ Returns:
 Arguments:
 History:
  	2010-11-09 - RAK - Created
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="loadSimplePassMeter" access="public" output="true" returntype="void" hint="Loads the simplePassMeter plugin for jQuery">
+	<cfscript>
+		var outputHTML = '';
+	</cfscript>
 	<cfsavecontent variable="outputHTML">
 		<script type='text/javascript' src='/ADF/thirdParty/jquery/simplePassMeter/jquery.simplePassMeter-0.3.min.js'></script>
 		<link rel="stylesheet" href="/ADF/thirdParty/jquery/simplePassMeter/simplePassMeter.css" type="text/css" media="screen" />

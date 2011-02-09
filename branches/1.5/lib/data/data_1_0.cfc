@@ -1418,6 +1418,7 @@ Changes by Raymond Camden and Steven (v2 support amount)
 @return Returns a query.
 @author Jose Diaz-Salcedo (bleachedbug@gmail.com)
 @version 2, November 20, 2008
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="cfRssFeed" access="public" returntype="query" output=false>
     <cfargument name="feedUrl" type="string" required="true"/>
@@ -1429,6 +1430,9 @@ Changes by Raymond Camden and Steven (v2 support amount)
     <cfset var row = "">
     <cfset var title = "">
     <cfset var link = "">
+    <cfscript>
+		var description = '';
+	</cfscript>
     
     <cfhttp url="#news_file#" method="get" />
     

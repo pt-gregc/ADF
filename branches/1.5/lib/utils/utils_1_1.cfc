@@ -114,6 +114,7 @@ History:
  	2011-02-01 - GAC - Created
 	2011-02-01 - RAK - Added the json decode to process data passed in a json objects
 	2011-02-01 - GAC - Modified - converted csData lib calls to global  
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="buildRunCommandArgs" access="public" returntype="struct" hint="Builds the args struct for the runCommand method">
 	<cfargument name="params" type="struct" required="false" default="#StructNew()#" hint="Structure of parameters to be passed to the runCommand method">
@@ -123,6 +124,7 @@ History:
 		var itm = 1;
 		var thisParam = "";
 		var serialFormStruct = StructNew();
+		var json = "";
 		// loop through arguments.params parameters to get the args
 		for( itm=1; itm lte listLen(structKeyList(arguments.params)); itm=itm+1 )
 		{

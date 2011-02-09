@@ -69,6 +69,7 @@ History:
  * @return Returns a date.
  * @author Pete Ruckelshaus (pruckelshaus@yahoo.com)
  * @version 1, September 12, 2007
+	2011-02-09 - RAK - Var'ing un-var'd variables
  */ --->
 <cffunction name="firstDayOfWeek" access="public" returntype="any" hint="Returns a date.">
 	<cfargument name="inDate" type="date" required="false" default="#now()#">
@@ -77,7 +78,7 @@ History:
 		var dowMod = "";
 		var dowMult = "";
 		var firstDayOfWeek = "";
-		date = trim(arguments.inDate);
+		var date = trim(arguments.inDate);
 		dow = dayOfWeek(date);
 		dowMod = decrementValue(dow);
 		dowMult = dowMod * -1;

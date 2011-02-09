@@ -275,6 +275,7 @@ Arguments:
 	String logFileName - log file for task
 History:
 	2009-04-13 - MFC - Created
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="setScheduledTask" access="public" returntype="any">
 	<cfargument name="url" type="string" required="true">
@@ -283,8 +284,8 @@ History:
 	<cfargument name="minuteDelay" type="string" required="true"> 
 	
 	<cfscript>
-		newDate = dateFormat(dateAdd('n', arguments.minuteDelay, now()), "mm/dd/yyyy");
-		newTime = timeFormat(dateAdd('n', arguments.minuteDelay, now()), "HH:mm");
+		var newDate = dateFormat(dateAdd('n', arguments.minuteDelay, now()), "mm/dd/yyyy");
+		var newTime = timeFormat(dateAdd('n', arguments.minuteDelay, now()), "HH:mm");
 	</cfscript>
 	
 	<!--- set scheduled task for "mayo_Fetch_Assets" --->
@@ -383,10 +384,12 @@ Returns:
 Arguments:
 	Void
 History:
- 2009-11-17 - RLW - Created
+ 	2009-11-17 - RLW - Created
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="getFieldTypes" access="public" returntype="Array" hint="Returns back the details for any custom field type that is currently a list">
 	<cfscript>
+		var getFields = '';
 		var data = server.ADF.objectFactory.getBean("Data_1_0");
 		var fieldTypes = arrayNew(1);
 	</cfscript>
@@ -419,7 +422,8 @@ Arguments:
 	String active
 	String type
 History:
- 2009-11-17 - RLW - Created
+ 	2009-11-17 - RLW - Created
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="updateCustomFieldType" access="public" returntype="boolean" hint="Updates a custom field type record">
 	<cfargument name="ID" type="numeric" required="true" hint="The Field ID for the field type">
@@ -428,7 +432,10 @@ History:
 	<cfargument name="type" type="string" required="true">
 	<cfargument name="JSValidator" type="string" required="true">
 	<cfargument name="active" type="string" required="true">
-	<cfset results = true>
+	<cfscript>
+		var results = true;
+		var update = '';
+	</cfscript>
 	<cftry>
 		<cfquery name="update" datasource="#request.site.datasource#">
 			update customFieldTypes
@@ -565,11 +572,17 @@ Returns:
 Arguments:
 	String fieldType
 History:
- 2009-11-30 - RLW - Created
+ 	2009-11-30 - RLW - Created
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="updateListItems" access="public" returntype="struct" hint="Given a fieldType update the fields that use that field type to have list items">
 	<cfargument name="fieldType" type="string" required="true">
 	<cfscript>
+		var fieldData = '';
+		var count = '';
+		var deleteLists = '';
+		var insertList = '';
+		var updateFieldValue = '';
 		var results = structNew();
 		var doUpdate = false;
 		var fieldIDList = "";
@@ -712,6 +725,7 @@ Arguments:
 	String URLparams (addl URL params for page links)
 History:
 	2008-12-05 - SFS - Created
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="buildPagination" access="public" returntype="struct">
 	<cfargument name="page" type="numeric" required="true" default="1">
@@ -721,6 +735,10 @@ History:
 	<cfargument name="URLparams" type="string" required="false" default="">
 
 	<cfscript>
+		var rtn = '';
+		var listStart = '';
+		var listEnd = '';
+		var pg = '';
 		var maxPage = Ceiling(arguments.itemCount / arguments.pageSize);
 		var listLimit = 6;
 		var itemStart = 0;
@@ -824,29 +842,30 @@ History:
  * @author Shawn Seley (shawnse@aol.com) 
  * @version 1, July 10, 2002 
  */
+	2011-02-09 - RAK - Adding arguments to variables. Cleans up varscoper results
  --->
 <cffunction name="ListRandomElements" access="public" returntype="string" hint="Returns specified number of random list elements without repeats.">
 	<cfargument name="theList" type="string" required="yes" default="">
 	<cfargument name="numElements" type="numeric" required="yes" default="1">
 	<cfargument name="theDelim" type="string" required="no" default=",">
-
 	<cfscript>
 		var final_list	= "";
 		var x			= 0;
 		var random_i	= 0;
 		var random_val	= 0;
+
 	
 		if(ArrayLen(Arguments) GTE 3) theDelim = Arguments[3];
 	
-		if(numElements GT ListLen(theList, theDelim)) {
-			numElements = ListLen(theList, theDelim);
+		if(arguments.numElements GT ListLen(arguments.theList, theDelim)) {
+			arguments.numElements = ListLen(arguments.theList, theDelim);
 		}
 	
 		// Build the new list "scratching off" the randomly selected elements from the original list in order to avoid repeats
-		for(x=1; x LTE numElements; x=x+1){
-			random_i	= RandRange(1, ListLen(theList));	// pick a random list element index from the remaining elements
-			random_val	= ListGetAt(theList, random_i);		// get the corresponding list element's value
-			theList		= ListDeleteAt(theList, random_i);	// delete the used element from the list
+		for(x=1; x LTE arguments.numElements; x=x+1){
+			random_i	= RandRange(1, ListLen(arguments.theList));	// pick a random list element index from the remaining elements
+			random_val	= ListGetAt(arguments.theList, random_i);		// get the corresponding list element's value
+			arguments.theList		= ListDeleteAt(arguments.theList, random_i);	// delete the used element from the list
 	
 			final_list	= ListAppend(final_list, random_val , theDelim);
 		}

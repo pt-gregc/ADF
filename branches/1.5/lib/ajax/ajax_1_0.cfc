@@ -58,7 +58,8 @@ History:
 	2011-02-01 - GAC - Created - Copied the parameter and data processing code from ajaxProxy.cfm and moved it into this method
 	2011-02-02 - GAC - Modified - fixed debug code conditional logic
 								- Added proxyFile check to see if the method is being called from inside the proxy file
-	2011-02-07 - RLW/GAC - Modified - Added a logic to check if the runCommand method call returns a query, if so, convert the query to an array of structs
+	2011-02-07 - RLW/GAC - Modified - Added a logic to check if the runCommand method call returns a query, if so, convert the query to an array of structs	
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <!--- // ATTENTION: 
 		Do not call is method directly. Call from inside the AjaxProxy.cfm file (method properties are subject to change) 
@@ -82,6 +83,7 @@ History:
 		var reDebugRaw = "";
 		var reDebugProcessed = "";
 		var passedSecurity = false;
+		var json = '';
 		var strFormatsList = "string,plain,html,text,txt";
 		// list of parameters in request.params to exclude
 		var argExcludeList = "bean,method,appName,addMainTable,returnFormat,debug";

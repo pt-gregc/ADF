@@ -62,6 +62,7 @@ History:
 								- Removed the arguments: params to restrict processing to only the values found in the request.params struct
 								- Updated the proxyWhiteList error to include the appName
 	2011-02-02 - GAC - Modified - Added proxyFile check to see if the method is being called from inside the proxy file
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <!--- // ATTENTION: 
 		Do not call is method directly. Call from inside the LightboxProxy.cfm file  (method properties are subject to change)
@@ -69,6 +70,7 @@ History:
 <cffunction name="buildLightboxProxyHTML" access="public" returntype="string" hint="Returns a HTML string for content that displays inside an ADF lightbox">
 	<cfargument name="proxyFile" required="false" default="#CGI.SCRIPT_NAME#" /><!--- // Must NOT be required so the Lightbox will display the error --->
 	<cfscript>
+		var passedSecurity = '';
 		var hasError = 0;
 		var callingFileName = "lightboxProxy.cfm";
 		var bean = "";

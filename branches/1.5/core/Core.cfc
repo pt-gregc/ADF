@@ -131,6 +131,7 @@ History:
 	2011-01-19 - RAK - Modified - Added cache reset
 	2011-01-20 - GAC - Modified - Gets the ADF version from the getADFversion function
 	2011-02-09 - RAK - Var'ing un-var'd items
+	2011-02-09 - RAK - Fixing typo
 --->
 <cffunction name="reset" access="remote" returnType="Struct">
 	<cfargument name="type" type="string" required="false" default="all" hint="The type of the ADF to reset.  Options are 'Server', 'Site' or 'All'. Defaults to 'All'.">
@@ -162,19 +163,19 @@ History:
 							createObject("component", "ADF.core.Core").init();
 							// 2010-06-23 jrybacek Reload ADF site
 							createObject("component", "#request.site.name#._cs_apps.ADF").init();
-							rtnMsg = "ADF #ADFversion# framework  has been reset succesfully!";
+							rtnMsg = "ADF #ADFversion# framework  has been reset successfully!";
 							ADFReset = true;
 							break;
 						case "SERVER":
 							// 2010-06-23 jrybacek Reload ADF server
 							createObject("component", "ADF.core.Core").init();
-							rtnMsg = "ADF #ADFversion# server framework has been reset succesfully!";
+							rtnMsg = "ADF #ADFversion# server framework has been reset successfully!";
 							ADFReset = true;
 							break;
 						case "SITE":
 							// 2010-06-23 jrybacek Reload ADF site
 							createObject("component", "#request.site.name#._cs_apps.ADF").init();
-							rtnMsg = "ADF #ADFversion# site '#request.site.name#' has been reset succesfully!";
+							rtnMsg = "ADF #ADFversion# site '#request.site.name#' has been reset successfully!";
 							ADFReset = true;
 							break;
 						default:

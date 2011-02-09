@@ -56,11 +56,15 @@ Arguments:
 	pageID - numeric
 History:
  	Dec 15, 2010 - RAK - Created
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="getTextblockData" access="public" returntype="struct" hint="Given a pageID and name, get the textblock data">
 	<cfargument name="name" type="string" required="true" default="" hint="Textblock Name">
 	<cfargument name="pageID" type="numeric" required="true" default="-1" hint="PageID that contains the textblock">
-	<cfset var returnData = StructNew()>
+	<cfscript>
+		var textblockData = '';
+		var returnData = StructNew();
+	</cfscript>
 	<cfif Len(name) eq 0 or pageID lt 1>
 		<cfreturn returnData>
 	</cfif>
@@ -103,12 +107,13 @@ Arguments:
 	String fieldtype
 History:
 	2011-01-14 - GAC - Created
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="getCustomMetadataFieldsByCSPageID" access="public" returntype="struct">
 	<cfargument name="cspageid" type="numeric" required="true">
 	<cfargument name="fieldtype" type="string" default="" hint="Optional - taxonomy, text, select, etc. or a CFT name">
-	
 	<cfscript>
+		var itm = '';
 		var inheritedPageIDList = "";
 		var stdMetadata = getStandardMetadata(arguments.cspageid);
 		var getFormFields = queryNew("temp");

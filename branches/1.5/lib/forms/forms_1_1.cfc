@@ -79,8 +79,9 @@ History:
 							Removed the form data storage in the cookie.
 	2011-01-13 - MFC - Updated the form result LB Action params.
 	2011-01-24 - RAK - Updated the code to handle callbacks pointing at checkboxes returning values only when checked
-	2011-02-08 - MFC - Removed the lightbox dialog header and footer.  
+	2011-02-08 - MFC - Removed the lightbox dialog header and footer.
 						The dialog header/footer code has been moved in the lightbox proxy.
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="renderAddEditForm" access="public" returntype="String" hint="Returns the HTML for an Add/Edit Custom element record">
 	<cfargument name="formID" type="numeric" required="true">
@@ -90,6 +91,7 @@ History:
 	<cfargument name="callback" type="string" required="false" default="">
 
 	<cfscript>
+		var udfResults = '';
 		var APIPostToNewWindow = false;
 		var rtnHTML = "";
 		var formResultHTML = "";
@@ -101,7 +103,7 @@ History:
 		<!--- Set the form result html to the argument if defined --->
 		<cfoutput>
 			<cfscript>
-				// Load the scripts, check if we need to load 
+				// Load the scripts, check if we need to load
 				//	the JSON scripts for the callback.
 				variables.scripts.loadJQuery(force=1);
 				variables.scripts.loadADFLightbox(force=1);
@@ -112,7 +114,7 @@ History:
 					<cfif Len(arguments.callback)>
 						// Get the PageWindow and the form value
 						var pageWindow = commonspot.lightbox.getPageWindow();
-						var value = pageWindow.ADFFormData.formValueStore; 
+						var value = pageWindow.ADFFormData.formValueStore;
 						//Call the callback with the form value
 						getCallback('#arguments.callback#', value);
 					</cfif>
@@ -230,11 +232,11 @@ History:
 		<!--- Render the dlg header --->
 		<cfscript>
 			// Use the Title passed in or if available use the title in the request.params for the Lightbox DialogName
-			if ( LEN(TRIM(arguments.title)) ) 
+			if ( LEN(TRIM(arguments.title)) )
 				CD_DialogName = arguments.title;
-			else if ( StructKeyExists(request.params,"title")) 
+			else if ( StructKeyExists(request.params,"title"))
 				CD_DialogName = request.params.title;
-			else 
+			else
 				CD_DialogName = "";
 			CD_Title=CD_DialogName;
 			CD_IncludeTableTop=1;
@@ -313,6 +315,7 @@ Arguments:
 
 History:
  	Dec 6, 2010 - RAK - Created
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="wrapFieldHTML" access="public" returntype="String" hint="Wraps the given information with valid html for the current commonspot and configuration">
 	<cfargument name="fieldInputHTML" type="string" required="true" default="" hint="HTML for the field input, do a cfSaveContent on the input field and pass that in here">
@@ -320,6 +323,7 @@ History:
 	<cfargument name="attr" type="struct" required="true" default="" hint="Attributes value">
 	<cfargument name="includeLabel" type="boolean" required="false" default="true" hint="Set to false to remove the label on the left">
 	<cfscript>
+		var returnHTML = '';
 		var row = arguments.fieldQuery.currentRow;
 		var fqFieldName = "fic_#arguments.fieldQuery.ID[row]#_#arguments.fieldQuery.INPUTID[row]#";
 		var description = arguments.fieldQuery.DESCRIPTION[row];
@@ -388,10 +392,10 @@ Returns:
 	string
 Arguments:
 	string - HTML
-	string - tdClass 
+	string - tdClass
 History:
  	2011-05-11 - RAK - Created
-	2011-01-20 - GAC - Moved a updated version to the UI lib and added the parameter for 
+	2011-01-20 - GAC - Moved a updated version to the UI lib and added the parameter for
 						tdClass so CSS classes can be added to the inner TD of the lightBox header
 --->
 <cffunction name="wrapHTMLWithLightbox" access="public" returntype="string" hint="Given html returns html that is wrapped properly with the lightbox code.">
@@ -445,6 +449,7 @@ Arguments:
 History:
 	2011-01-13 - DMB - Created
 	1011-02-02 - RAK - Changed parameters so it can work for any element.
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 
 <cffunction name="verifyCFFormProtect" access="public" returntype="boolean" hint="Verifies the form and deletes the element if it is invalid">
@@ -452,14 +457,14 @@ History:
 	<cfargument name="elementName" type="string" required="true" default="" hint="Name of the element to search for">
 	<cfargument name="primaryKey" type="string" required="false" default="id" hint="Primary key to search for in the element">
 	<cfscript>
-		  // load cfformprotect
-		  var cffp = application.ADF.forms.loadCFFormProtect();
-		  var form = StructNew();
- 		  var thisFormEntry = StructNew();
-		  var thisPageId = "";
-		  var isValid = true;
- 		// application.ADF.utils.doDump(formStruct,"formStruct", false);
-
+		var key = '';
+		// load cfformprotect
+		var cffp = application.ADF.forms.loadCFFormProtect();
+		var form = StructNew();
+		var thisFormEntry = StructNew();
+		var thisPageId = "";
+		var isValid = true;
+		// application.ADF.utils.doDump(formStruct,"formStruct", false);
 	</cfscript>
 
 	<cfloop list="#structKeyList(arguments.formStruct)#" index="key">

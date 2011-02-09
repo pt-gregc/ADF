@@ -192,7 +192,7 @@ History:
 				defaultValues.OptionList = params.vallist;
 			}
 			if(structkeyexists(params,"VALSOURCE")
-					and params.VALSOURCE == "element" 
+					and params.VALSOURCE eq "element"
 					and structkeyexists(params,"ELEMENTID") 
 					and Len(params.ELEMENTID)
 				){
@@ -330,6 +330,7 @@ History:
  	2010-12-04 - RAK - Created
 	2011-01-26 - RAK - Updated to allow importing csv files
 	2011-01-28 - GAC - Added a parameter for passing in the CCAPI config XML node name
+	2011-02-09 - RAK - Added arguments. to a variable, seemingly for no reason.
 --->
 <cffunction name="importCEData" access="public" returntype="Struct" hint="Given the contents of an import file, import the data">
 	<cfargument name="filePath" type="string" required="true" default="" hint="File path to .exportedCE file">
@@ -396,9 +397,9 @@ History:
 			returnStruct.msg = "There was no data to import";
 			return returnStruct;
 		}
-		ceName = ceData[1].formName;
+		arguments.ceName = ceData[1].formName;
 		if ( LEN(TRIM(arguments.ccapiCEName)) )
-			ceName = arguments.ccapiCEName;
+			arguments.ceName = arguments.ccapiCEName;
 		
 		//We have a valid structure! lets do our clean if requested and continue on.
 		if(arguments.clean){

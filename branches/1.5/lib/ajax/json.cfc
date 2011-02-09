@@ -26,6 +26,7 @@ Authors: Jehiah Czebotar (jehiah@gmail.com)
          Thomas Messier  (thomas@epiphantastic.com)
 
 Version: 1.9 February 20, 2008
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 
 <cfcomponent displayname="json_1_0" output="No" extends="ADF.core.Base">
@@ -35,7 +36,9 @@ Version: 1.9 February 20, 2008
 	<cffunction name="decode" access="remote" returntype="any" output="no"
 			hint="Converts data frm JSON to CF format">
 		<cfargument name="data" type="string" required="Yes" />
-		
+		<cfscript>
+			var pos = '';
+		</cfscript>
 		<!--- DECLARE VARIABLES --->
 		<cfset var ar = ArrayNew(1) />
 		<cfset var st = StructNew() />
