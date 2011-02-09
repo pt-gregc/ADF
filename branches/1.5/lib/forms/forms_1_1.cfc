@@ -79,6 +79,8 @@ History:
 							Removed the form data storage in the cookie.
 	2011-01-13 - MFC - Updated the form result LB Action params.
 	2011-01-24 - RAK - Updated the code to handle callbacks pointing at checkboxes returning values only when checked
+	2011-02-08 - MFC - Removed the lightbox dialog header and footer.  
+						The dialog header/footer code has been moved in the lightbox proxy.
 --->
 <cffunction name="renderAddEditForm" access="public" returntype="String" hint="Returns the HTML for an Add/Edit Custom element record">
 	<cfargument name="formID" type="numeric" required="true">
@@ -96,17 +98,6 @@ History:
 	</cfscript>
 	<!--- Result from the Form Submit --->
 	<cfsavecontent variable="formResultHTML">
-		<!--- Render the dlg header --->
-		<cfscript>
-			CD_DialogName = request.params.title;
-			CD_Title=CD_DialogName;
-			CD_IncludeTableTop=1;
-			CD_CheckLock=0;
-			CD_CheckLogin=1;
-			CD_CheckPageAlive=0;
-		</cfscript>
-		<CFINCLUDE TEMPLATE="/commonspot/dlgcontrols/dlgcommon-head.cfm">
-		<cfoutput><tr><td class="formResultContainer"></cfoutput>
 		<!--- Set the form result html to the argument if defined --->
 		<cfoutput>
 			<cfscript>
@@ -146,23 +137,11 @@ History:
 				</cfif>
 			</cfif>
 		</cfoutput>
-		<!--- Render the dlg footer --->
-		<cfoutput></tr></td></cfoutput>
-		<CFINCLUDE template="/commonspot/dlgcontrols/dlgcommon-foot.cfm">
 	</cfsavecontent>
 
 	<!--- HTML for the form --->
 	<cfsavecontent variable="rtnHTML">
-		<cfscript>
-			CD_DialogName = request.params.title;
-			CD_Title=CD_DialogName;
-			CD_IncludeTableTop=1;
-			CD_CheckLock=0;
-			CD_CheckLogin=1;
-			CD_CheckPageAlive=0;
-		</cfscript>
-		<CFINCLUDE TEMPLATE="/commonspot/dlgcontrols/dlgcommon-head.cfm">
-        	<cfset udfResults = Server.CommonSpot.UDF.UI.RenderSimpleForm(arguments.dataPageID, arguments.formID, APIPostToNewWindow, formResultHTML)>
+		<cfset udfResults = Server.CommonSpot.UDF.UI.RenderSimpleForm(arguments.dataPageID, arguments.formID, APIPostToNewWindow, formResultHTML)>
 		<cfoutput>
 			<cfscript>
 				// ADF Lightbox needs to be forced to load the browser-all.js into
@@ -170,53 +149,48 @@ History:
 				variables.scripts.loadADFLightbox(force=1);
 			</cfscript>
 			<!--- Call the UDF function --->
-			<tr>
-			<td>
-				#udfResults#
-				<cfif Len(arguments.callback)>
-					#variables.scripts.loadJQuery()#
-					<script type="text/javascript">
-						//Setting this up so that on page load the cookie gets filled with existing values, if there are any
-						jQuery(document).ready(function (){
-							handleFormChange();
-							jQuery("##proxyButton1").live('click',handleFormChange);
-						});
-						function handleFormChange(){
-							// Get the PageWindow and store the form value
-							var pageWindow = commonspot.lightbox.getPageWindow();
-							pageWindow.ADFFormData = {
-								formValueStore: getForm()
-							};
-						}
+			#udfResults#
+			<cfif Len(arguments.callback)>
+				#variables.scripts.loadJQuery()#
+				<script type="text/javascript">
+					//Setting this up so that on page load the cookie gets filled with existing values, if there are any
+					jQuery(document).ready(function (){
+						handleFormChange();
+						jQuery("##proxyButton1").live('click',handleFormChange);
+					});
+					function handleFormChange(){
+						// Get the PageWindow and store the form value
+						var pageWindow = commonspot.lightbox.getPageWindow();
+						pageWindow.ADFFormData = {
+							formValueStore: getForm()
+						};
+					}
 
-						//returns the form values as an object
-						// Obj[fieldName] = fieldValue;
-						function getForm(){
-							var rtnStruct = new Object();
-							var formFields = jQuery("input");
-							formFields = formFields.filter(
-								function(){
-									return jQuery(this).attr("name").toLowerCase().indexOf("fieldname") != -1;
-								}
-							);
-							formFields.each(function (){
-								var name = jQuery(this).attr("name");
-								//Case insensitive replace
-								name = name.replace(/_fieldName/i,"");
-								if( jQuery("[name='"+name+"']").attr("type") === "checkbox" && !jQuery("[name='"+name+"']:checked").length){
-									rtnStruct[jQuery(this).attr("value")] = "";
-								}else{
-									rtnStruct[jQuery(this).attr("value")] = jQuery("[name='"+name+"']").attr("value");
-								}
-							});
-							return rtnStruct;
-						}
-					</script>
-				</cfif>
-			</td>
-			</tr>
+					//returns the form values as an object
+					// Obj[fieldName] = fieldValue;
+					function getForm(){
+						var rtnStruct = new Object();
+						var formFields = jQuery("input");
+						formFields = formFields.filter(
+							function(){
+								return jQuery(this).attr("name").toLowerCase().indexOf("fieldname") != -1;
+							}
+						);
+						formFields.each(function (){
+							var name = jQuery(this).attr("name");
+							//Case insensitive replace
+							name = name.replace(/_fieldName/i,"");
+							if( jQuery("[name='"+name+"']").attr("type") === "checkbox" && !jQuery("[name='"+name+"']:checked").length){
+								rtnStruct[jQuery(this).attr("value")] = "";
+							}else{
+								rtnStruct[jQuery(this).attr("value")] = jQuery("[name='"+name+"']").attr("value");
+							}
+						});
+						return rtnStruct;
+					}
+				</script>
+			</cfif>
 		</cfoutput>
-		<CFINCLUDE template="/commonspot/dlgcontrols/dlgcommon-foot.cfm">
 	</cfsavecontent>
 	<cfreturn rtnHTML>
 
