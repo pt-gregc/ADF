@@ -220,13 +220,13 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	M. Carroll
 Name:
 	$CSVToArray
 Summary:
 	CSV format to Array
+	http://www.bennadel.com/blog/991-CSVToArray-ColdFusion-UDF-For-Parsing-CSV-Data-Files.htm
 Returns:
 	Array
 Arguments:
@@ -236,6 +236,8 @@ Arguments:
 	Boolean - Trim
 History:
 	2008-10-30 - MFC - Created
+	2011-02-09 - MFC - Renamed the "LOCAL" variable name.
+						Updated the comment header for the credits.
 --->
 <cffunction name="CSVToArray" access="public" returntype="array" output="false" hint="Takes a CSV file or CSV data value and converts it to an array of arrays based on the given field delimiter. Line delimiter is assumed to be new line / carriage return related.">
 	<!--- Define arguments. --->
@@ -245,7 +247,7 @@ History:
 	<cfargument name="Trim" type="boolean" required="false" default="true" hint="Flags whether or not to trim the END of the file for line breaks and carriage returns."/>
 
 	<!--- Define the local scope. --->
-	<cfset var LOCAL = StructNew() />
+	<cfset var _LOCAL = StructNew() />
 
 	<!---
 	Check to see if we are using a CSV File. If so,
@@ -286,7 +288,7 @@ History:
 	CSV tokens including the field values as well as any
 	delimiters along the way.
 	--->
-	<cfset LOCAL.Pattern = CreateObject(
+	<cfset _LOCAL.Pattern = CreateObject(
 	"java",
 	"java.util.regex.Pattern"
 	).Compile(
@@ -310,17 +312,17 @@ History:
 	CSV data). This will allows us to iterate over all the
 	tokens in the CSV data for individual evaluation.
 	--->
-	<cfset LOCAL.Matcher = LOCAL.Pattern.Matcher( JavaCast( "string", ARGUMENTS.CSV ) ) />
+	<cfset _LOCAL.Matcher = _LOCAL.Pattern.Matcher( JavaCast( "string", ARGUMENTS.CSV ) ) />
 
 	<!---
 	Create an array to hold the CSV data. We are going
 	to create an array of arrays in which each nested
 	array represents a row in the CSV data file.
 	--->
-	<cfset LOCAL.Data = ArrayNew( 1 ) />
+	<cfset _LOCAL.Data = ArrayNew( 1 ) />
 
 	<!--- Start off with a new array for the new data. --->
-	<cfset ArrayAppend( LOCAL.Data, ArrayNew( 1 ) ) />
+	<cfset ArrayAppend( _LOCAL.Data, ArrayNew( 1 ) ) />
 
 
 	<!---
@@ -332,13 +334,13 @@ History:
 	Each match will have at least the field value and
 	possibly an optional trailing delimiter.
 	--->
-	<cfloop condition="LOCAL.Matcher.Find()">
+	<cfloop condition="_LOCAL.Matcher.Find()">
 		<!---
 		Get the delimiter. We know that the delimiter will
 		always be matched, but in the case that it matched
 		the START expression, it will not have a length.
 		--->
-		<cfset LOCAL.Delimiter = LOCAL.Matcher.Group(	JavaCast( "int", 1 ) ) />
+		<cfset _LOCAL.Delimiter = _LOCAL.Matcher.Group(	JavaCast( "int", 1 ) ) />
 
 		<!---
 		Check for delimiter length and is not the field
@@ -347,16 +349,16 @@ History:
 		need to check the length because it might be the
 		START STRING match which is empty.
 		--->
-		<cfif (	Len( LOCAL.Delimiter ) AND (LOCAL.Delimiter NEQ ARGUMENTS.Delimiter) )>
+		<cfif (	Len( _LOCAL.Delimiter ) AND (_LOCAL.Delimiter NEQ ARGUMENTS.Delimiter) )>
 			<!--- Start new row data array. --->
-			<cfset ArrayAppend(	LOCAL.Data,	ArrayNew( 1 )	) />
+			<cfset ArrayAppend(	_LOCAL.Data,	ArrayNew( 1 )	) />
 		</cfif>
 
 		<!---
 		Get the field token value in group 2 (which may
 		not exist if the field value was not qualified.
 		--->
-		<cfset LOCAL.Value = LOCAL.Matcher.Group( JavaCast( "int", 2 ) ) />
+		<cfset _LOCAL.Value = _LOCAL.Matcher.Group( JavaCast( "int", 2 ) ) />
 
 		<!---
 		Check to see if the value exists. If it doesn't
@@ -364,30 +366,30 @@ History:
 		it does exist, then we want to replace any escaped
 		embedded quotes.
 		--->
-		<cfif StructKeyExists( LOCAL, "Value" )>
+		<cfif StructKeyExists( _LOCAL, "Value" )>
 		<!---
 		Replace escpaed quotes with an unescaped double
 		quote. No need to perform regex for this.
 		--->
-			<cfset LOCAL.Value = Replace(	LOCAL.Value,"""""","""","all"	) />
+			<cfset _LOCAL.Value = Replace(	_LOCAL.Value,"""""","""","all"	) />
 		<cfelse>
 
 		<!---
 		No qualified field value was found, so use group
 		3 - the non-qualified alternative.
 		--->
-			<cfset LOCAL.Value = LOCAL.Matcher.Group(	JavaCast( "int", 3 ) ) />
+			<cfset _LOCAL.Value = _LOCAL.Matcher.Group(	JavaCast( "int", 3 ) ) />
 		</cfif>
 
 		<!--- Add the field value to the row array. --->
-		<cfset ArrayAppend(	LOCAL.Data[ ArrayLen( LOCAL.Data ) ],	LOCAL.Value	) />
+		<cfset ArrayAppend(	_LOCAL.Data[ ArrayLen( _LOCAL.Data ) ],	_LOCAL.Value	) />
 	</cfloop>
 
 	<!---
 	At this point, our array should contain the parsed
 	contents of the CSV value. Return the array.
 	--->
-	<cfreturn LOCAL.Data />
+	<cfreturn _LOCAL.Data />
 </cffunction>
 
 <!---
