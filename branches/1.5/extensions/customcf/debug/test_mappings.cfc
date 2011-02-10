@@ -29,10 +29,11 @@ Summary:
 	A simple test component to verify the cfmapping for the '/ADF' is setup correctly
 History:
 	2009-06-11 - GAC - Created
+	2011-02-09 - GAC - Removed self-closing tag slash
 --->
 <cfcomponent name="Test_Mapping" hint="A component to test the CF Mapping for the Application Development Framework">
 
 	<cffunction name="verifyMapping" output="true" returntype="boolean">
-		<cfreturn true />
+		<cfreturn true>
 	</cffunction>
 </cfcomponent>
