@@ -126,13 +126,13 @@ Arguments:
 	Struct data - the data for the element
 History:
 	2010-01-15 - GAC - Created
+	2011-02-09 - GAC - Removed self-closing CF tag slashes
 --->
 <cffunction name="uploadDocument" access="public" returntype="struct" hint="Use this method to upload a document into the upload folder of an designated subsite">
-	<cfargument name="subsiteid" type="numeric" required="true" />
-	<cfargument name="data" type="struct" required="true" hint="Data for upload document." />
-	<cfargument name="docBinaryData" type="Binary" required="true" hint="Binary data of the document." />
-	<cfargument name="doLogin" type="numeric" required="false" default="0" hint="Force the login always" />
-		
+	<cfargument name="subsiteid" type="numeric" required="true">
+	<cfargument name="data" type="struct" required="true" hint="Data for upload document.">
+	<cfargument name="docBinaryData" type="Binary" required="true" hint="Binary data of the document.">
+	<cfargument name="doLogin" type="numeric" required="false" default="0" hint="Force the login always">	
 	<cfscript>
 		var result = structNew();
 		var uploadResponse = "";
@@ -182,9 +182,9 @@ History:
 			// TODO: plug the logging option into the CCAPI config settings
 			if( variables.ccapi.loggingEnabled() and arrayLen(logArray) )
 				variables.utils.bulkLogAppend(logArray);
+				
+		return result;
 	</cfscript>
-		
-	<cfreturn result>
 </cffunction>
 
 </cfcomponent>
