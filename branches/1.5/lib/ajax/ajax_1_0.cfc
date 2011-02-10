@@ -60,6 +60,7 @@ History:
 								- Added proxyFile check to see if the method is being called from inside the proxy file
 	2011-02-07 - RLW/GAC - Modified - Added a logic to check if the runCommand method call returns a query, if so, convert the query to an array of structs	
 	2011-02-09 - RAK - Var'ing un-var'd variables
+	2011-02-09 - GAC - Modified - renamed the 'local' variable to 'result' since local is a reserved word in CF9
 --->
 <!--- // ATTENTION: 
 		Do not call is method directly. Call from inside the AjaxProxy.cfm file (method properties are subject to change) 
@@ -67,7 +68,7 @@ History:
 <cffunction name="buildAjaxProxyString" access="public" returntype="struct" hint="Returns a struct which has a reString key whose value is string built from a method call">
 	<cfargument name="proxyFile" required="false" default="#CGI.SCRIPT_NAME#"><!--- // Must NOT be required so the Lightbox will display the error --->
 	<cfscript>
-		var local = StructNew();
+		var result = StructNew();
 		var hasCommandError = 0;
 		var hasProcessingError = 0;
 		var callingFileName = "ajaxProxy.cfm";
@@ -87,10 +88,10 @@ History:
 		var strFormatsList = "string,plain,html,text,txt";
 		// list of parameters in request.params to exclude
 		var argExcludeList = "bean,method,appName,addMainTable,returnFormat,debug";
-		// initalize the reString key of the local struct
-		local.reString = "";
+		// initalize the reString key of the result struct
+		result.reString = "";
 		// set the flag that controls whether additional code is added to the reHTML output
-		local.forceOutput = false;
+		result.forceOutput = false;
 		// Since we are relying on the request.params scope make sure the main params are available
 		if ( StructKeyExists(request,"params") ) {
 			params = request.params;
@@ -115,38 +116,38 @@ History:
 				try 
 				{
 					// Run the Bean, Method and Args and get a return value
-					local.reString = variables.utils.runCommand(trim(bean),trim(method),args,trim(appName));
+					result.reString = variables.utils.runCommand(trim(bean),trim(method),args,trim(appName));
 				} 
 				catch( Any e ) 
 				{
 					debug = 1;
 					hasCommandError = 1; // try/catch thows and error skip the runCommand return data processing
 					// Set Error output to the return String
-					local.reString = e;
+					result.reString = e;
 				}	
-				// Build the DUMP for debugging the RAW value of local.reString
+				// Build the DUMP for debugging the RAW value of result.reString
 				if ( debug ) {
-					// If the variable local.reString doesn't exist set the debug output to the string: void 
-					if ( !StructKeyExists(local,"reString") ){debugRaw="void";}else{debugRaw=local.reString;}
+					// If the variable result.reString doesn't exist set the debug output to the string: void 
+					if ( !StructKeyExists(result,"reString") ){debugRaw="void";}else{debugRaw=result.reString;}
 					reDebugRaw = variables.utils.doDump(debugRaw,"RAW OUTPUT",1,1);
 				}
 				// if runCommand throws an error skip processing jump down to the debug output
 				if ( !hasCommandError ) 
 				{
-					// Check to see if local.reString was destroyed by a method that returns void before attempting to process the return
-					if ( StructKeyExists(local,"reString") ) 
+					// Check to see if result.reString was destroyed by a method that returns void before attempting to process the return
+					if ( StructKeyExists(result,"reString") ) 
 					{
 						// Convert Query to an Array of Structs for Processing
-						if ( IsQuery(local.reString) ) 
+						if ( IsQuery(result.reString) ) 
 						{
-							local.reString = variables.data.queryToArrayOfStructures(local.reString,true);
-							if ( !isArray(local.reString) ) 
+							result.reString = variables.data.queryToArrayOfStructures(result.reString,true);
+							if ( !isArray(result.reString) ) 
 							{
 								hasProcessingError = 1; 
 								returnFormat = "plain";
 								// set forceOutput to true to allow error string to be displayed in the ADFLightbox
-								local.forceOutput = true; // for legacy lightbox calls
-								local.reString = "Error: unable to convert the return query to an array of structures";
+								result.forceOutput = true; // for legacy lightbox calls
+								result.reString = "Error: unable to convert the return query to an array of structures";
 							} 
 						}
 						// if JSON is set as the returnFormat convert return data to an JSON
@@ -156,47 +157,47 @@ History:
 							// when jsonp calls are made there will be a variable called "jsonpCallback" it will
 							// represent the method in the caller to be executed - wrap the content in that function call
 							if( structKeyExists(request.params, "jsonpCallback") )
-								local.reString = "#request.params.jsonpCallback#(" & json.encode(local.reString) & ");";
+								result.reString = "#request.params.jsonpCallback#(" & json.encode(result.reString) & ");";
 							else 
 							{
-								local.reString = json.encode(local.reString);
-								if ( !IsJSON(local.reString) ) 
+								result.reString = json.encode(result.reString);
+								if ( !IsJSON(result.reString) ) 
 								{
 									hasProcessingError = 1; 
 									// set forceOutput to true to allow error string to be displayed in the ADFLightbox
-									local.forceOutput = true; // for legacy lightbox calls
-									local.reString = "Error: unable to convert the return value to json";
+									result.forceOutput = true; // for legacy lightbox calls
+									result.reString = "Error: unable to convert the return value to json";
 								}
 							}	
 						}
 						else if ( returnFormat eq "xml" )
 						{
 							// convert return data to XML using CS internal serialize function
-							local.reString = Server.CommonSpot.MapFactory.serialize(local.reString,"data",0); //Server.CommonSpot.MapFactory.serialize(Arguments.bean,Arguments.tagName,JavaCast("boolean",Arguments.forceLCase));
+							result.reString = Server.CommonSpot.MapFactory.serialize(result.reString,"data",0); //Server.CommonSpot.MapFactory.serialize(Arguments.bean,Arguments.tagName,JavaCast("boolean",Arguments.forceLCase));
 							// make return is an XML string
-							if ( IsXML(local.reString) ) 
-								local.reString = XmlParse(local.reString);
-							if ( !IsXmlDoc(local.reString) ) 
+							if ( IsXML(result.reString) ) 
+								result.reString = XmlParse(result.reString);
+							if ( !IsXmlDoc(result.reString) ) 
 							{
 								hasProcessingError = 1; 
 								// set forceOutput to true to allow error string to be displayed in the ADFLightbox
-								local.forceOutput = true; // for legacy lightbox calls
-								local.reString = "Error: unable to convert the return value to xml";
+								result.forceOutput = true; // for legacy lightbox calls
+								result.reString = "Error: unable to convert the return value to xml";
 							}
 						}
-						if ( isStruct(local.reString) or isArray(local.reString) or isObject(local.reString) ) 
+						if ( isStruct(result.reString) or isArray(result.reString) or isObject(result.reString) ) 
 						{
 							hasProcessingError = 1; 
 							// set forceOutput to true to allow error string to be displayed in the ADFLightbox
-							local.forceOutput = true; // for legacy lightbox calls
-							local.reString = "Error: unable to convert the return value to a string";
+							result.forceOutput = true; // for legacy lightbox calls
+							result.reString = "Error: unable to convert the return value to a string";
 						}
 					}
 					else
 					{
-						// The method call returned void and destroyed the local.reString variable
+						// The method call returned void and destroyed the result.reString variable
 						hasProcessingError = 0;  // returning void is not considered an error
-						// local.reString = "Error: return value came back as 'void'"; 
+						// result.reString = "Error: return value came back as 'void'"; 
 					}
 				}
 			}
@@ -204,46 +205,46 @@ History:
 			{
 				hasProcessingError = 1; 
 				// set forceOutput to true to allow error string to be displayed in the ADFLightbox
-				local.forceOutput = true; // for legacy lightbox calls
+				result.forceOutput = true; // for legacy lightbox calls
 				if ( len(trim(appName)) )
-					local.reString = "Error: The Bean: #bean# with method: #method# in the App: #appName# is not accessible remotely via Ajax Proxy.";	
+					result.reString = "Error: The Bean: #bean# with method: #method# in the App: #appName# is not accessible remotely via Ajax Proxy.";	
 				else
-					local.reString = "Error: The Bean: #bean# with method: #method# is not accessible remotely via Ajax Proxy.";	
+					result.reString = "Error: The Bean: #bean# with method: #method# is not accessible remotely via Ajax Proxy.";	
 			}
-			// build the dump for debugging the Processed value of local.reString
+			// build the dump for debugging the Processed value of result.reString
 			if ( debug AND passedSecurity AND ListFindNoCase(strFormatsList,returnformat) EQ 0 ) 
 			{
 				// If the variable reHTML doesn't exist set the debug output to the string: void 
-				if ( !StructKeyExists(local,"reString") ){debugProcessed="void";}else{debugProcessed=local.reString;}
+				if ( !StructKeyExists(result,"reString") ){debugProcessed="void";}else{debugProcessed=result.reString;}
 				reDebugProcessed = variables.utils.doDump(debugProcessed,"PROCESSED OUTPUT",1,1);
 			}
 			// pass the debug dumps to the reHTML for output
 			if ( debug ) 
 			{
 				// set forceOutput to true to allow the debug dump to be displayed in the ADFLightbox
-				local.forceOutput = true; // for legacy lightbox calls
+				result.forceOutput = true; // for legacy lightbox calls
 				if ( hasCommandError OR (IsSimpleValue(debugRaw) AND debugRaw EQ "void") )
 				{
 					// if runCommand has error, return only the first DUMP which contains the CATCH info
-					local.reString = reDebugRaw;
+					result.reString = reDebugRaw;
 				}
 				else if ( hasProcessingError ) 
 				{
 					// if processing has an error, return the processing error and the first DUMP
-					local.reHTML = local.reString & reDebugRaw;
+					result.reHTML = result.reString & reDebugRaw;
 				} 
 				else
 				{
 					// for a debug with no errors, return both the runCommand DUMP and the processing DUMP
-					local.reString = reDebugRaw & reDebugProcessed;
+					result.reString = reDebugRaw & reDebugProcessed;
 				}
 			}
 		} else {
 			// set forceOutput to true to allow error string to be displayed in the ADFLightbox
-			local.forceOutput = true; // for legacy lightbox calls
-			local.reString = "Error: This method can not be called directly. Use the AjaxProxy.cfm file.";	
+			result.forceOutput = true; // for legacy lightbox calls
+			result.reString = "Error: This method can not be called directly. Use the AjaxProxy.cfm file.";	
 		}
-		return local;
+		return result;
 	</cfscript>
 </cffunction>
 
