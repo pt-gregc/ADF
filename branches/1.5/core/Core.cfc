@@ -70,8 +70,7 @@ History:
 </cffunction>
 
 <!---
-	/* ***************************************************************
-	/*
+	/* *************************************************************** */
 	Author: 	M. Carroll
 	Name:
 		getADFMapping
@@ -92,8 +91,7 @@ History:
 </cffunction>
 
 <!---
-	/* ***************************************************************
-	/*
+	/* *************************************************************** */
 	Author: 	G. Cronkright
 	Name:
 		getADFversion
@@ -105,9 +103,10 @@ History:
 		Void
 	History:
 		2011-01-20 - GAC - Created
+		2011-02-09 - GAC - Removed self-closing cfreturn slash
 --->
 <cffunction name="getADFversion" access="public" returntype="string">
-	<cfreturn variables.ADFversion />
+	<cfreturn variables.ADFversion>
 </cffunction>
 
 <!---
@@ -132,6 +131,7 @@ History:
 	2011-01-20 - GAC - Modified - Gets the ADF version from the getADFversion function
 	2011-02-09 - RAK - Var'ing un-var'd items
 	2011-02-09 - RAK - Fixing typo
+	2011-02-09 - GAC - Removed self-closing slash on cfthrow
 --->
 <cffunction name="reset" access="remote" returnType="Struct">
 	<cfargument name="type" type="string" required="false" default="all" hint="The type of the ADF to reset.  Options are 'Server', 'Site' or 'All'. Defaults to 'All'.">
@@ -187,7 +187,7 @@ History:
 				</cfscript>
 				<!--- // If sever.ADF.buildError Array has any errors... throw an exception (used the cfthrow tag for CF8 compatibility) --->
 				<cfif StructKeyExists(server.ADF,"buildErrors") AND ArrayLen(server.ADF.buildErrors)>
-					<cfthrow type="ADFBuildError" message="ADF Build Errors Occured" detail="Check the Server.ADF.buildErrors for Details." />
+					<cfthrow type="ADFBuildError" message="ADF Build Errors Occured" detail="Check the Server.ADF.buildErrors for Details.">
 				</cfif>
 			</cflock>
 			<cfcatch>
