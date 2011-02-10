@@ -64,6 +64,7 @@ History:
 	2011-01-19 - GAC - Modified - Updated the returnVariable to allow calls to methods that return void
 	2011-01-30 - RLW - Modified - Added an optional appName param that can be used to execute a method from an app bean
 	2011-02-01 - GAC - Comments - Updated the comments with the arguments list
+	2011-02-09 - GAC - Modified - renamed the 'local' variable to 'result' since local is a reserved word in CF9
 --->
 <cffunction name="runCommand" access="public" returntype="Any" hint="Runs the given command">
 	<cfargument name="beanName" type="string" required="true" default="" hint="Name of the bean you would like to call">
@@ -71,7 +72,7 @@ History:
 	<cfargument name="args" type="Struct" required="false" default="#StructNew()#" hint="Structure of arguments for the speicified call">
 	<cfargument name="appName" type="string" required="false" default="" hint="Pass in an App Name to allow the method to be exectuted from an app bean">
 	<cfscript>
-		var local = StructNew();
+		var result = StructNew();
 		var bean = "";
 		// if there has been an app name passed through go directly to that
 		if( len(arguments.appName) and structKeyExists(application, arguments.appName) and isObject(evaluate("application." & arguments.appName & "." & beanName)) )
@@ -83,13 +84,13 @@ History:
 			bean = server.ADF.objectFactory.getBean(arguments.beanName);
 	</cfscript>
    	<cfinvoke component = "#bean#"
-				 method = "#arguments.methodName#"
-				 returnVariable = "local.returnData"
-				 argumentCollection = "#arguments.args#" />
+			  method = "#arguments.methodName#"
+			  returnVariable = "result.reData"
+			  argumentCollection = "#arguments.args#">
 	<cfscript>
 		// Check to make sure the local.returnData was not destroyed by a method that returns void
-		if ( StructKeyExists(local,"returnData") )
-			return local.returnData;
+		if ( StructKeyExists(result,"reData") )
+			return result.reData;
 		else
 			return;
 	</cfscript>		 
