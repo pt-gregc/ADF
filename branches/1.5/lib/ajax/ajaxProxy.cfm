@@ -52,32 +52,26 @@ History:
 	2011-02-01 - GAC - Removed the args loop and replaced it with a method call to convert the parameters that are passed in to the args struct before calling the runCommand method
 	2011-02-02 - GAC - Moved all of the parameter and data processing code into a method in the ajax_1_0 lib component
 	2011-02-02 - GAC - Added proxyFile check to see if the method is being called from inside the proxy file
+	2011-02-09 - GAC - Removed ADFlightbox specific code
 --->
 	<cfheader name="Expires" value="#now()#">
   	<cfheader name="Pragma" value="no-cache">
 	
-	<cfparam name="request.params.method" default="" type="string" />
-	<cfparam name="request.params.bean" default="" type="string" />
-	<cfparam name="request.params.returnformat" default="plain" />
-	<cfparam name="request.params.addMainTable" default="0" type="boolean" />
+	<cfparam name="request.params.method" default="" type="string">
+	<cfparam name="request.params.bean" default="" type="string">
+	<cfparam name="request.params.returnformat" default="plain">
 	<!--- // When attempting to DEGUG a RETURNFORMAT of JSON or XML, 
 			you may need to set the ajax call dataType to 'text', 'html' or nothing (ie. best guess) --->
-	<cfparam name="request.params.debug" default="0" type="boolean" />
-	<cfparam name="request.params.appName" default="" type="string" />
+	<cfparam name="request.params.debug" default="0" type="boolean">
+	<cfparam name="request.params.appName" default="" type="string">
 	<cfscript>
-		// reHTML = ""; //Don't initalize the reHTML allows for a return: void
-		forceOutput = false;
+		// reAJAX = ""; //Don't initalize the reAJAX allows for a return: void
 		ajaxData = Application.ADF.ajax.buildAjaxProxyString();
-		forceOutput = ajaxData.forceOutput;
 		if ( StructKeyExists(ajaxData,"reString") )
-			reHTML = ajaxData.reString;
+			reAJAX = ajaxData.reString;
 	</cfscript>
 </cfsilent>
-<cfif StructKeyExists(variables,"reHTML")>
-	<cfif request.params.returnFormat eq "xml" AND forceOutput IS false><cfcontent type="text/xml; charset=utf-8"></cfif>
-	<cfscript>if ( forceOutput IS true ) { application.ADF.scripts.loadADFLightbox(force=1); }</cfscript>
-	<!--- // if this is a lighbox window then add in the main table --->
-	<cfif request.params.addMainTable><cfoutput><table id="MainTable"><tr><td></cfoutput></cfif>
-	<cfoutput>#TRIM(reHTML)#</cfoutput>
-	<cfif request.params.addMainTable><cfoutput></td></tr></table></cfoutput></cfif>
+<cfif StructKeyExists(variables,"reAJAX")>
+	<cfif request.params.returnFormat eq "xml"><cfcontent type="text/xml; charset=utf-8"></cfif>
+	<cfoutput>#TRIM(reAJAX)#</cfoutput>
 </cfif>

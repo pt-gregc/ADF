@@ -61,6 +61,7 @@ History:
 	2011-02-07 - RLW/GAC - Modified - Added a logic to check if the runCommand method call returns a query, if so, convert the query to an array of structs	
 	2011-02-09 - RAK - Var'ing un-var'd variables
 	2011-02-09 - GAC - Modified - renamed the 'local' variable to 'result' since local is a reserved word in CF9
+	2011-02-09 - GAC - Removed ADFlightbox specific forceOutput variable
 --->
 <!--- // ATTENTION: 
 		Do not call is method directly. Call from inside the AjaxProxy.cfm file (method properties are subject to change) 
@@ -90,8 +91,6 @@ History:
 		var argExcludeList = "bean,method,appName,addMainTable,returnFormat,debug";
 		// initalize the reString key of the result struct
 		result.reString = "";
-		// set the flag that controls whether additional code is added to the reHTML output
-		result.forceOutput = false;
 		// Since we are relying on the request.params scope make sure the main params are available
 		if ( StructKeyExists(request,"params") ) {
 			params = request.params;
@@ -145,8 +144,6 @@ History:
 							{
 								hasProcessingError = 1; 
 								returnFormat = "plain";
-								// set forceOutput to true to allow error string to be displayed in the ADFLightbox
-								result.forceOutput = true; // for legacy lightbox calls
 								result.reString = "Error: unable to convert the return query to an array of structures";
 							} 
 						}
@@ -164,8 +161,6 @@ History:
 								if ( !IsJSON(result.reString) ) 
 								{
 									hasProcessingError = 1; 
-									// set forceOutput to true to allow error string to be displayed in the ADFLightbox
-									result.forceOutput = true; // for legacy lightbox calls
 									result.reString = "Error: unable to convert the return value to json";
 								}
 							}	
@@ -180,16 +175,12 @@ History:
 							if ( !IsXmlDoc(result.reString) ) 
 							{
 								hasProcessingError = 1; 
-								// set forceOutput to true to allow error string to be displayed in the ADFLightbox
-								result.forceOutput = true; // for legacy lightbox calls
 								result.reString = "Error: unable to convert the return value to xml";
 							}
 						}
 						if ( isStruct(result.reString) or isArray(result.reString) or isObject(result.reString) ) 
 						{
 							hasProcessingError = 1; 
-							// set forceOutput to true to allow error string to be displayed in the ADFLightbox
-							result.forceOutput = true; // for legacy lightbox calls
 							result.reString = "Error: unable to convert the return value to a string";
 						}
 					}
@@ -204,8 +195,6 @@ History:
 			else
 			{
 				hasProcessingError = 1; 
-				// set forceOutput to true to allow error string to be displayed in the ADFLightbox
-				result.forceOutput = true; // for legacy lightbox calls
 				if ( len(trim(appName)) )
 					result.reString = "Error: The Bean: #bean# with method: #method# in the App: #appName# is not accessible remotely via Ajax Proxy.";	
 				else
@@ -221,8 +210,6 @@ History:
 			// pass the debug dumps to the reHTML for output
 			if ( debug ) 
 			{
-				// set forceOutput to true to allow the debug dump to be displayed in the ADFLightbox
-				result.forceOutput = true; // for legacy lightbox calls
 				if ( hasCommandError OR (IsSimpleValue(debugRaw) AND debugRaw EQ "void") )
 				{
 					// if runCommand has error, return only the first DUMP which contains the CATCH info
@@ -240,8 +227,6 @@ History:
 				}
 			}
 		} else {
-			// set forceOutput to true to allow error string to be displayed in the ADFLightbox
-			result.forceOutput = true; // for legacy lightbox calls
 			result.reString = "Error: This method can not be called directly. Use the AjaxProxy.cfm file.";	
 		}
 		return result;
