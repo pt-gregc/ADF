@@ -197,6 +197,7 @@ end user license agreement.
 	History:
 		2009-05-11 - MFC - Created
 		2011-01-21 - GAC - Modified to add error logging around the cfinclude
+		2011-02-09 - GAC - Removed self-closing CF tag slashes
 --->
 <cffunction name="loadADFAppBeanConfig" returntype="void" access="public" output="true" hint="Loads the custom apps bean config file.">
 	<cfargument name="path" type="string" required="false" default="\ADF\apps\">
@@ -217,19 +218,18 @@ end user license agreement.
 
 	<!--- Build the appBeanConfig include statements --->
 	<cfloop index="i" from="1" to="#retFilteredQry.RecordCount#">
-		<cfset dirPath = Replace(retFilteredQry.directory[i],ExpandPath(arguments.path),"") />
-		<cfset appBeanConfigPath = "#arguments.path##dirPath#/#retFilteredQry.name[i]#" /> 
+		<cfset dirPath = Replace(retFilteredQry.directory[i],ExpandPath(arguments.path),"")>
+		<cfset appBeanConfigPath = "#arguments.path##dirPath#/#retFilteredQry.name[i]#"> 
 		<cftry>
 			<!--- // Include the the appBeanConfig file from each app --->
 			<cfinclude template="#appBeanConfigPath#">
 			<cfcatch>
 				<!--- // Build the Error Struct --->
-				<cfset buildError.appBeanConfigPath = appBeanConfigPath />
-				<!--- <cfset buildError.args = arguments /> --->
-				<cfset buildError.details = cfcatch />
+				<cfset buildError.appBeanConfigPath = appBeanConfigPath>
+				<!--- <cfset buildError.args = arguments> --->
+				<cfset buildError.details = cfcatch>
 				<!--- // Log the Error struct and add it to the ADF buildErrors Array --->
-				<cfset doConfigBuildErrorLogging("loadADFAppBeanConfig",buildError) />
-				<!--- <cfexit /> --->
+				<cfset doConfigBuildErrorLogging("loadADFAppBeanConfig",buildError)>
 			</cfcatch>
 		</cftry>
 	</cfloop>
