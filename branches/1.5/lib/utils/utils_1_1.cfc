@@ -88,7 +88,7 @@ History:
 			  returnVariable = "result.reData"
 			  argumentCollection = "#arguments.args#">
 	<cfscript>
-		// Check to make sure the local.returnData was not destroyed by a method that returns void
+		// Check to make sure the result.returnData was not destroyed by a method that returns void
 		if ( StructKeyExists(result,"reData") )
 			return result.reData;
 		else
