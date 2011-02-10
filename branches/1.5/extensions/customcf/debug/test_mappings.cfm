@@ -29,7 +29,7 @@ Summary:
 	A simple output page to test if the server and cf mappings for the '/ADF' are setup correctly
 History:
 	2009-06-11 - GAC - Created
-	2011-02-09 - GAC - Removed self-closing slashes
+	2011-02-09 - GAC - Removed self-closing CF tag slashes
 Directions: 
 	Call this file directly from a browser using the following URL replacing {domainname} with your site's domain or IP:
 	http://{domainname}/ADF/extensions/customcf/debug/test_mappings.cfm 
