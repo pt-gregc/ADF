@@ -991,6 +991,7 @@ History:
 	2009-08-12 - GAC - Created
 	2009-09-14 - MFC - Updated the SQL statement to work with Oracle DB.
 	2009-09-23 - GAC - Set the request.subsitecache to [1]
+	2011-02-09 - GAC - Removed self-closing CF tag slashes
 --->
 <cffunction name="getDefaultRenderHandlerPath" returntype="string" access="public" 
 			hint="Returns the Path for the Default Render Handler for an Element.">
@@ -1005,8 +1006,8 @@ History:
 		SELECT CustomElementModules.ModulePath
 		FROM   AvailableControls, CustomElementModules
 		WHERE AvailableControls.ID = CustomElementModules.ElementType
-		AND LTRIM(RTRIM(AvailableControls.ShortDesc)) = <cfqueryparam cfsqltype="cf_sql_varchar" value="#TRIM(arguments.elementName)#" />
-	  	AND CustomElementModules.IsDefault = <cfqueryparam cfsqltype="cf_sql_bit" value="1" />
+		AND LTRIM(RTRIM(AvailableControls.ShortDesc)) = <cfqueryparam cfsqltype="cf_sql_varchar" value="#TRIM(arguments.elementName)#">
+	  	AND CustomElementModules.IsDefault = <cfqueryparam cfsqltype="cf_sql_bit" value="1">
 	</cfquery>
 
 	<cfscript>
@@ -1016,7 +1017,7 @@ History:
 			rhpath = getRenderHandler.ModulePath[1];
 	</cfscript>
 	
-	<cfreturn rhpath />
+	<cfreturn rhpath>
 </cffunction>
 
 <!---
@@ -1145,6 +1146,7 @@ Arguments:
 	Array - dataArray - Render Handler data array
 History:
 	2009-09-11 - MFC - Created
+	2011-02-09 - GAC - Removed self-closing CF tag slashes
 --->
 <cffunction name="getDefaultRenderHandlerHTML" access="public" returntype="string" hint="Returns the HTML for the default render handler with the passed in element name.">
 	<cfargument name="elementName" type="string" required="true" hint="Custom element name">
@@ -1156,7 +1158,7 @@ History:
 	<cfif LEN(TRIM(renderHandlerPath))>
 		<cfsavecontent variable="retHTML">
 			<cfset RHDataArray = arguments.dataArray>
-			<cfinclude template="#renderHandlerPath#" />
+			<cfinclude template="#renderHandlerPath#">
 		</cfsavecontent>
 	<cfelse>
 		retHTML = "<em>Can not find the Default Render Handler for this Content Type!</em>";
@@ -1340,53 +1342,54 @@ Actions:
 History:
 	2009-09-30 - GAC - Created
 	2010-08-12 - GAC - Modified - Cleaned up old debug code
+	2011-02-09 - GAC - Removed self-closing CF tag slashes
 --->
 <cffunction name="CSFile" access="public" returntype="struct">
-	<cfargument name="action" type="string" required="yes" hint="MOVE,COPY,WRITE,APPEND,UPLOAD,COPY,MOVE,DELETE,RENAME" />
-	<cfargument name="output" type="string" required="no" default="" hint="Content of the file to be created." />
-	<cfargument name="mode" type="numeric" required="no" default="775" />
-	<cfargument name="source" type="string" required="no" default="" />
-	<cfargument name="destination" type="string" required="no" default="" />
-	<cfargument name="file" type="string" required="no" default="" />
-	<cfargument name="filefield" type="string" required="no" default="" />
-	<cfargument name="newfilename" type="string" required="no" default="" />
-	<cfargument name="nameconflict" type="string" required="no" default="Error" />>
-	<cfargument name="directory" type="string" required="no" default="" />
-	<cfargument name="filter" type="string" required="no" default="" />
-	<cfargument name="direxists" type="string" required="no" default="1" />
-	<cfargument name="addnewline" type="string" required="no" default="Yes" />
+	<cfargument name="action" type="string" required="yes" hint="MOVE,COPY,WRITE,APPEND,UPLOAD,COPY,MOVE,DELETE,RENAME">
+	<cfargument name="output" type="string" required="no" default="" hint="Content of the file to be created.">
+	<cfargument name="mode" type="numeric" required="no" default="775">
+	<cfargument name="source" type="string" required="no" default="">
+	<cfargument name="destination" type="string" required="no" default="">
+	<cfargument name="file" type="string" required="no" default="">
+	<cfargument name="filefield" type="string" required="no" default="">
+	<cfargument name="newfilename" type="string" required="no" default="">
+	<cfargument name="nameconflict" type="string" required="no" default="Error">
+	<cfargument name="directory" type="string" required="no" default="">
+	<cfargument name="filter" type="string" required="no" default="">
+	<cfargument name="direxists" type="string" required="no" default="1">
+	<cfargument name="addnewline" type="string" required="no" default="Yes">
    
-	<cfset var retStruct = StructNew() />
-	<cfset var CFfile = "" />
-	<cfset var CPfile = "" />
-	<cfset var CFDirectory = "" />
-	<cfset var deletedFiles = "" />
-	<cfset var failedDeletions = "" />
-	<cfset var filesFound = "" />
-	<cfset var ActionSuccess = false />
+	<cfset var retStruct = StructNew()>
+	<cfset var CFfile = "">
+	<cfset var CPfile = "">
+	<cfset var CFDirectory = "">
+	<cfset var deletedFiles = "">
+	<cfset var failedDeletions = "">
+	<cfset var filesFound = "">
+	<cfset var ActionSuccess = false>
 	
 	<cftry>
 		<cfif Arguments.Action IS "MOVE"> <!--- // No "Move" Action in CP-CFFILE --->
 			<!--- // copy file --->
-			<cfset Arguments.Action = "COPY" />
+			<cfset Arguments.Action = "COPY">
 			<cfmodule template="/commonspot/utilities/cp-cffile.cfm"
 	    			attributecollection="#arguments#">
 			<!--- // delete file --->
-			<cfset Arguments.Action = "DELETE" />
-			<cfset Arguments.file = Arguments.Source />
-			<cfset Arguments.Source = "" />
-			<cfset Arguments.destination = "" />
+			<cfset Arguments.Action = "DELETE">
+			<cfset Arguments.file = Arguments.Source>
+			<cfset Arguments.Source = "">
+			<cfset Arguments.destination = "">
 			<cfmodule template="/commonspot/utilities/cp-cffile.cfm"
 	    			attributecollection="#arguments#">
-	    	<cfset Arguments.Action = "MOVE" />
+	    	<cfset Arguments.Action = "MOVE">
 		<cfelse>
 			<!--- // call the standard build struct module with the argument collection --->
 			<cfmodule template="/commonspot/utilities/cp-cffile.cfm"
 	    		attributecollection="#arguments#">
 		</cfif>
-		<cfset ActionSuccess = true />
+		<cfset ActionSuccess = true>
 		<cfcatch>
-			<cfset ActionSuccess = false />
+			<cfset ActionSuccess = false>
 		</cfcatch>
 	</cftry>
 
@@ -1398,7 +1401,7 @@ History:
 		retStruct["Success"] = ActionSuccess;
 	</cfscript>
 
-    <cfreturn retStruct />
+    <cfreturn retStruct>
 </cffunction>
 
 <!---

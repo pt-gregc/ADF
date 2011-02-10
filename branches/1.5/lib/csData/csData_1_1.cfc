@@ -108,6 +108,7 @@ Arguments:
 History:
 	2011-01-14 - GAC - Created
 	2011-02-09 - RAK - Var'ing un-var'd variables
+	2011-02-09 - GAC - Removed self-closing CF tag slashes
 --->
 <cffunction name="getCustomMetadataFieldsByCSPageID" access="public" returntype="struct">
 	<cfargument name="cspageid" type="numeric" required="true">
@@ -138,11 +139,11 @@ History:
 				ON FormInputControlMap.FieldID = FormInputControl.ID
 		WHERE      FormInputControlMap.FormID IN ( SELECT	DISTINCT FormID
 													 FROM      Data_FieldValue 
-													 WHERE     PageID IN (<cfqueryparam cfsqltype="cf_sql_integer" value="#inheritedPageIDList#" list="true" />)
+													 WHERE     PageID IN (<cfqueryparam cfsqltype="cf_sql_integer" value="#inheritedPageIDList#" list="true">)
 													 AND 	   VersionState = 2
 													)
 		<cfif LEN(TRIM(arguments.fieldtype))>
-		AND FormInputControl.Type = <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.fieldtype#" />	
+		AND FormInputControl.Type = <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.fieldtype#">	
        	</cfif>  	
 		ORDER BY   FormControl.FormName,FormInputControl.FieldName
 	</cfquery>
