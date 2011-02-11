@@ -63,7 +63,8 @@ Arguments:
 	String formMethod 
 	String lbTitle
 	String linkClass
-	String appName 
+	String appName
+	String uiTheme 
 History:
   	2010-09-30 - RLW - Created
  	2010-10-18 - GAC - Modified - Added a RefreshParent parameter
@@ -74,6 +75,7 @@ History:
 	2011-01-25 - MFC - Modified - Updated bean param default value to "forms_1_1"
 	2011-02-01 - GAC - Modified - Added the appName argument
 	2011-02-03 - GAC - Modified - Updated to use use lightboxProxy.cfm instead of ajaxProxy.cfm
+	2011-02-09 - GAC - Modified - Added the jquery and jueryUI headers and a jqueryUI theme parameter
 --->
 <cffunction name="buildAddEditLink" access="public" returntype="string" output="false">
 	<cfargument name="linkTitle" type="string" required="true">
@@ -85,7 +87,8 @@ History:
 	<cfargument name="formMethod" type="string" required="false" default="renderAddEditForm">
 	<cfargument name="lbTitle" type="string" required="false" default="#arguments.linkTitle#">
 	<cfargument name="linkClass" type="string" required="false" default="">
-	<cfargument name="appName" type="string" required="false" default="">   
+	<cfargument name="appName" type="string" required="false" default=""> 
+	<cfargument name="uiTheme" type="string" required="false" default="ui-lightness">  
 	<cfscript>
 		var rtnStr = "";
 		var formID = variables.ceData.getFormIDByCEName(arguments.formName);
@@ -100,8 +103,12 @@ History:
 		}
 	</cfscript>
 	<cfsavecontent variable="rtnStr">
+		<cfscript>
+			variables.scripts.loadJQuery();
+			variables.scripts.loadJQueryUI(themeName=arguments.uiTheme);
+		</cfscript>
 		<cfoutput><a href="javascript:;" rel="#application.ADF.lightboxProxy#?bean=#arguments.formBean#&method=#arguments.formMethod#<cfif LEN(TRIM(arguments.appName))>&appName=#arguments.appName#</cfif>&formID=#formID#&dataPageID=#arguments.dataPageID#&lbAction=#lbAction#&title=#arguments.lbTitle##uParams#" class="ADFLightbox<cfif LEN(TRIM(arguments.linkClass))> #arguments.linkClass#</cfif>" title="#arguments.linkTitle#">#arguments.linkTitle#</a></cfoutput>
-	</cfsavecontent><!--- // &addLBHeaderFooter=0 --->
+	</cfsavecontent>
 	<cfreturn rtnStr>
 </cffunction>
 
@@ -124,11 +131,13 @@ Arguments:
 	String lbTitle 
 	String linkClass
 	String appName
+	String uiTheme
 History:
 	2010-12-21 - GAC - Created - Based on RLWs buildAddEditLink function in forms_1_1
 	2011-01-25 - MFC - Modified - Updated bean param default value to "forms_1_1"
 	2011-02-01 - GAC - Modified - Added the appName argument
 	2011-02-03 - GAC - Modified - Updated to use the buildLightboxProxyLink method which uses lightboxProxy.cfm instead of ajaxProxy.cfm
+	2011-02-09 - GAC - Modified - Added a jqueryUI theme parameter
 --->
 <cffunction name="buildLBAjaxProxyLink" access="public" returntype="string" output="false">
 	<cfargument name="linkTitle" type="string" required="true">
@@ -137,25 +146,14 @@ History:
 	<cfargument name="urlParams" type="string" required="false" default=""> 
 	<cfargument name="lbTitle" type="string" required="false" default="#arguments.linkTitle#">
 	<cfargument name="linkClass" type="string" required="false" default="">
-	<cfargument name="appName" type="string" required="false" default=""> 
+	<cfargument name="appName" type="string" required="false" default="">
+	<cfargument name="uiTheme" type="string" required="false" default="ui-lightness"> 
 	<cfscript>
 		var rtnStr = "";
 	</cfscript>
 	<cfsavecontent variable="rtnStr">
 		<cfoutput>#buildLightboxProxyLink(argumentCollection=arguments)#</cfoutput>
 	</cfsavecontent>
-	<!--- <cfscript>
-		var rtnStr = "";
-		var uParams = "";
-		if ( LEN(TRIM(arguments.urlParams)) ) {
-			uParams = TRIM(arguments.urlParams);
-			if ( Find("&",uParams,"1") NEQ 1 ) 
-				uParams = "&" & uParams;
-		}
-	</cfscript>
-	<cfsavecontent variable="rtnStr">
-		<cfoutput><a href="javascript:;" rel="#application.ADF.ajaxProxy#?bean=#arguments.bean#&method=#arguments.method#<cfif LEN(TRIM(arguments.appName))>&appName=#arguments.appName#</cfif>&title=#arguments.lbTitle##uParams#" class="ADFLightbox<cfif LEN(TRIM(arguments.linkClass))> #arguments.linkClass#</cfif>" title="#arguments.linkTitle#">#arguments.linkTitle#</a></cfoutput>
-	</cfsavecontent> --->
 	<cfreturn rtnStr>
 </cffunction>
 
@@ -178,8 +176,10 @@ Arguments:
 	String urlParams - additional URL parameters to be passed to the form 
 	String lbTitle 
 	String linkClass
+	String uiTheme
 History:
 	2011-02-01 - GAC - Created - For LightboxProxy.cfm - Based on RLWs buildAddEditLink function in forms_1_1
+	2011-02-09 - GAC - Modified - Added the jquery and jueryUI headers and a jqueryUI theme parameter
 --->
 <cffunction name="buildLightboxProxyLink" access="public" returntype="string" output="false">
 	<cfargument name="linkTitle" type="string" required="true">
@@ -188,7 +188,8 @@ History:
 	<cfargument name="urlParams" type="string" required="false" default=""> 
 	<cfargument name="lbTitle" type="string" required="false" default="#arguments.linkTitle#">
 	<cfargument name="linkClass" type="string" required="false" default="">
-	<cfargument name="appName" type="string" required="false" default="">    
+	<cfargument name="appName" type="string" required="false" default="">
+	<cfargument name="uiTheme" type="string" required="false" default="ui-lightness">    
 	<cfscript>
 		var rtnStr = "";
 		var uParams = "";
@@ -199,11 +200,14 @@ History:
 		}
 	</cfscript>
 	<cfsavecontent variable="rtnStr">
+		<cfscript>
+			variables.scripts.loadJQuery();
+			variables.scripts.loadJQueryUI(themeName=arguments.uiTheme);
+		</cfscript>
 		<cfoutput><a href="javascript:;" rel="#application.ADF.lightboxProxy#?bean=#arguments.bean#&method=#arguments.method#<cfif LEN(TRIM(arguments.appName))>&appName=#arguments.appName#</cfif>&title=#arguments.lbTitle##uParams#" class="ADFLightbox<cfif LEN(TRIM(arguments.linkClass))> #arguments.linkClass#</cfif>" title="#arguments.linkTitle#">#arguments.linkTitle#</a></cfoutput>
 	</cfsavecontent>
 	<cfreturn rtnStr>
 </cffunction>
-
 
 <!---
 /* *************************************************************** */
@@ -222,15 +226,18 @@ Arguments:
 	String urlParams - additional URL parameters to be passed to the form 
 	String lbTitle 
 	String linkClass
+	String uiTheme
 History:
 	2010-12-21 - GAC - Created - Based on RLWs buildAddEditLink function in forms_1_1
+	2011-02-09 - GAC - Modified - Added the jquery and jueryUI headers and a jqueryUI theme parameter
 --->
 <cffunction name="buildLBcsPageLink" access="public" returntype="string" output="false">
 	<cfargument name="linkTitle" type="string" required="true">
 	<cfargument name="csPage" type="string" required="false" default="" hint="csPageID or csPageURL">
 	<cfargument name="urlParams" type="string" required="false" default=""> 
 	<cfargument name="lbTitle" type="string" required="false" default="#arguments.linkTitle#">
-	<cfargument name="linkClass" type="string" required="false" default="">  
+	<cfargument name="linkClass" type="string" required="false" default=""> 
+	<cfargument name="uiTheme" type="string" required="false" default="ui-lightness"> 
 	<cfscript>
 		var rtnStr = "";
 		var csPgURL = "";
@@ -248,6 +255,10 @@ History:
 		}
 	</cfscript>
 	<cfsavecontent variable="rtnStr">
+		<cfscript>
+			variables.scripts.loadJQuery();
+			variables.scripts.loadJQueryUI(themeName=arguments.uiTheme);
+		</cfscript>
 		<cfoutput><a href="javascript:;" rel="#csPgURL#?title=#arguments.lbTitle##uParams#" class="ADFLightbox<cfif LEN(TRIM(arguments.linkClass))> #arguments.linkClass#</cfif>" title="#arguments.linkTitle#">#arguments.linkTitle#</a></cfoutput>
 	</cfsavecontent>
 	<cfreturn rtnStr>
@@ -312,6 +323,7 @@ History:
 	2011-01-19 - GAC - Created
 	2011-01-28 - GAC - Modified - Removed the parameter isForm and added the parameter for tdClass so CSS classes can be added to the inner TD of the lightBox header
 	2011-02-09 - GAC - Comments - Updated the list of arguments in the comments header
+	2011-02-11 - GAC - Modified - Fixed the logic with the LB Fixed the logic with the LB Header/Footer render twice protection
 --->
 <cffunction name="lightboxHeader" access="public" returntype="string" output="false" hint="Returns HTML for the CS 6.x lightbox header (use with the lightboxFooter)">
 	<cfargument name="lbTitle" type="string" default="">
@@ -320,14 +332,13 @@ History:
 	<cfscript>
 		var retHTML = "";
 	    var productVersion = ListFirst(ListLast(request.cp.productversion," "),".");
-	    if ( productVersion GTE 6 ) {
-	     	// Request.params variable to override/disable the addMainTable in LightboxProxy.cfm if 6.x LB header and footer are used
-	    	request.params.addMainTable = false;
-	    }
+	    // Global variable set to keep the 6.x LB Header from rendering twice
+	    if ( !StructKeyExists(variables,"hasLightBoxHeader") )
+	    	variables.hasLightBoxHeader = false;
 	</cfscript>
 	<cfsavecontent variable="retHTML">
 		<!--- // Load the CommonSpot Lightbox Header when in version 6.0 --->
-		<cfif productVersion GTE 6 AND !StructKeyExists(variables,"hasLightBoxHeader")>
+		<cfif productVersion GTE 6 AND variables.hasLightBoxHeader IS false>
 			<cfscript>
 				// Use the Title passed in or if available use the title in the request.params for the Lightbox DialogName
 				if ( LEN(TRIM(arguments.lbTitle)) ) 
@@ -363,7 +374,7 @@ History:
 		</cfif>		
 	</cfsavecontent>
 	<cfscript>
-		// Shared variable set to keep the 6.x LB Header from rendering twice
+		// Global variable set to keep the 6.x LB Header from rendering twice
 		// and to be detected by the 6.x LB Footer
 	    variables.hasLightBoxHeader = true;
 	</cfscript>
@@ -385,15 +396,21 @@ Arguments:
 	none
 History:
 	2011-01-19 - GAC - Created 
+	2011-02-11 - GAC - Modified - Fixed the logic with the LB Header/Footer render twice protection
 --->
 <cffunction name="lightboxFooter" access="public" returntype="string" output="false" hint="Returns HTML for the CS 6.x lightbox footer (use with the lightboxHeader)">
 	<cfscript>
 		var retHTML = "";
 	    var productVersion = ListFirst(ListLast(request.cp.productversion," "),".");
+	    // Global variable set to keep the 6.x LB Header and Footer from rendering twice
+	    if ( !StructKeyExists(variables,"hasLightBoxHeader") )
+	    	variables.hasLightBoxHeader = false;
+	    if ( !StructKeyExists(variables,"hasLightBoxFooter") )
+	    	variables.hasLightBoxFooter = false;
 	</cfscript>
 	<cfsavecontent variable="retHTML">
 		<!--- // Load the CommonSpot Lightbox Footer when in version 6.x --->
-		<cfif productVersion GTE 6 AND variables.hasLightBoxHeader AND !StructKeyExists(variables,"hasLightBoxFooter")>
+		<cfif productVersion GTE 6 AND variables.hasLightBoxHeader IS true AND variables.hasLightBoxFooter IS false>
 			<cfoutput></td>
 				</tr>
 			<CFINCLUDE template="/commonspot/dlgcontrols/dlgcommon-foot.cfm">
@@ -401,7 +418,7 @@ History:
 		</cfif>		
 	</cfsavecontent>
 	<cfscript>
-		// Shared variable set to keep the 6.x LB Footer from rendering twice
+		// Global variable set to keep the 6.x LB Footer from rendering twice
 	    variables.hasLightBoxFooter = true;
 	</cfscript>
 	<cfreturn retHTML>
