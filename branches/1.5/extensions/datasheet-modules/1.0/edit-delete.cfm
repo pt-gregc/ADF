@@ -68,10 +68,10 @@ History:
 <cfsavecontent variable="tdHTML">
 	<cfoutput>
 		<!---	If client side sorting is disabled put the load JQuery information in the better location--->
-		<cfif not eparam.permitClientSideSort>
-			#headerData#
-		</cfif>
 		<td align="center" valign="middle">
+			<cfif not eparam.permitClientSideSort>
+				#headerData#
+			</cfif>
 			<style>
 				.ds-icons {
 					padding: 1px 10px;
