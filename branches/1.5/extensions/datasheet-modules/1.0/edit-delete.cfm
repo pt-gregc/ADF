@@ -28,6 +28,7 @@ Summary:
 	Prints out edit/delete buttons for your datasheet. This uses forms_1_1 and auto detects its information.
 History:
 	2011-02-07 - RAK - Created
+	2011-02-15 - RAK - Updated to handle client side sorting in a better way.
 --->
 <cfscript>
 	//Path to open the ligthbox to
@@ -59,10 +60,17 @@ History:
 		#application.ADF.scripts.loadADFLightbox()#
 	</cfoutput>
 </cfsavecontent>
-<cfhtmlhead text="#headerData#">
+<!---If client side sorting is enabled we need to put stuff in the headers--->
+<cfif eparam.permitClientSideSort>
+	<cfhtmlhead text="#headerData#">
+</cfif>
 
 <cfsavecontent variable="tdHTML">
 	<cfoutput>
+		<!---	If client side sorting is disabled put the load JQuery information in the better location--->
+		<cfif not eparam.permitClientSideSort>
+			#headerData#
+		</cfif>
 		<td align="center" valign="middle">
 			<style>
 				.ds-icons {

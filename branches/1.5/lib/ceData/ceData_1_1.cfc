@@ -576,6 +576,7 @@ History:
 	2010-12-21 - MFC - Added function to CEDATA
 	2011-02-08 - RAK - Removing ptBlog2 from the function calls as this is not running in ptBlog2 and should never have been here. Its fixed now at least...
 	2011-02-09 - RAK - Var'ing un-var'd variables
+	2011-02-15 - RAK - Removing lowercasing of view values
 --->
 <cffunction name="buildRealTypeView" access="public" returntype="boolean">
 	<cfargument name="elementName" type="string" required="true">
@@ -658,7 +659,7 @@ History:
 				</cfcase>
 				<cfdefaultcase> <!--- NEEDSWORK fieldtype like List, should add ListID column, fieldtype like email, could add 'lower case' function to avoid case sensitive issue --->
 				CASE
-					WHEN FieldID = #ID# THEN LOWER(fieldvalue)
+					WHEN FieldID = #ID# THEN fieldvalue
 					ELSE null
 				END
 				</cfdefaultcase>
@@ -748,6 +749,7 @@ History:
  	2010-22-12 - RAK - Created
  	2011-31-01 - RAK - Fixed issue where it would not compare properly if the keys passed in did not exactly match those in the elemeent
 	2011-02-09 - RAK - Var'ing un-var'd variables
+	2011-02-14 - RAK - Fixing issue where it tries to delete from index 0 of a list
 --->
 <cffunction name="differentialSync" access="public" returntype="struct" hint="Given a list of custom elements, custom element create or update or optionally delete elements">
 	<cfargument name="elementName" type="string" required="true" default="" hint="Name of the element to sync">
@@ -867,7 +869,9 @@ History:
 		len = ListLen(arguments.ignoreFields);
 		for(i=1;i<=len;i++){
 			currentKey = ListGetAt(arguments.ignoreFields,i);
-			keysToSync = ListDeleteAt(keysToSync,ListFindNoCase(keysToSync,currentKey));
+			if(ListFindNoCase(keysToSync,currentKey)){
+				keysToSync = ListDeleteAt(keysToSync,ListFindNoCase(keysToSync,currentKey));
+			}
 		}
 		syncLen = ListLen(keysToSync);
 		len=ArrayLen(arguments.newElements);
