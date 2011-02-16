@@ -38,6 +38,10 @@ History:
 								- removed the argument: params from the buildLightboxProxyHTML() call
 	2011-02-02 - GAC - Added proxyFile check to see if the method is being called from inside the proxy file
 	2011-02-09 - GAC - Removed the addMainTable parameter
+	2011-02-16 - MFC - Reordered the HTML build process to build the lightbox headers/footer
+						inline with the HTML content block.
+						This is required for the FORMS_1_1 when implementing the UDF.UI.RenderSimpleForm function.
+							The dialog header must be loaded before the UDF HTML.
 --->
 	<cfheader name="Expires" value="#now()#">
   	<cfheader name="Pragma" value="no-cache">
@@ -50,18 +54,14 @@ History:
 	<!--- // Use to add the CS 6.x LB Header and Footer --->
 	<cfparam name="request.params.addLBHeaderFooter" default="1" type="boolean">
 	<!--- // Debug parameter to force a DUMP of the processed method, bean and other passed in parameters  --->
-	<cfparam name="request.params.debug" default="0" type="boolean"> 
-	<cfscript>
-		reHTML = Application.ADF.lightbox.buildLightboxProxyHTML();
-	</cfscript>
+	<cfparam name="request.params.debug" default="0" type="boolean">
 </cfsilent>
-<cfif StructKeyExists(variables,"reHTML")>
-	<!--- // Add CS 6.x lightbox Header  --->
-	<cfif request.params.addLBHeaderFooter><cfoutput>#application.ADF.ui.lightboxHeader()#</cfoutput></cfif>
-	<!--- // Add ADF lightbox Scripts Header  --->
-	<cfscript>application.ADF.scripts.loadADFLightbox(force=request.params.forceScripts);</cfscript>
-	<!--- // Output the HTML string --->
-	<cfoutput>#TRIM(reHTML)#</cfoutput>
-	<!--- // Add CS 6.x lightbox Footer  --->
-	<cfif request.params.addLBHeaderFooter><cfoutput>#application.ADF.ui.lightboxFooter()#</cfoutput></cfif>
-</cfif>
+
+<!--- // Add CS 6.x lightbox Header  --->
+<cfif request.params.addLBHeaderFooter><cfoutput>#application.ADF.ui.lightboxHeader()#</cfoutput></cfif>
+<!--- // Add ADF lightbox Scripts Header  --->
+<cfscript>application.ADF.scripts.loadADFLightbox(force=request.params.forceScripts);</cfscript>
+<!--- // 2011-02-16 - Call the Lightbox Proxy to build the HTML, then Output the HTML string --->
+<cfoutput>#TRIM(Application.ADF.lightbox.buildLightboxProxyHTML())#</cfoutput>
+<!--- // Add CS 6.x lightbox Footer  --->
+<cfif request.params.addLBHeaderFooter><cfoutput>#application.ADF.ui.lightboxFooter()#</cfoutput></cfif>
