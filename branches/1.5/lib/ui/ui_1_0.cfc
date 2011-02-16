@@ -282,12 +282,16 @@ History:
 	2011-01-19 - GAC - Modified - Moved to the UI Lib. And Changed the name of the function.
 								 Segmented out the 6.x LB header and footer so they could be used outside of the wrap function 
 	2011-01-28 - GAC - Modified - Removed the parameter isForm and added the parameter for tdClass so CSS classes can be added to the inner TD of the lightBox header
+	2011-02-14 - MFC - Modified - Removed forceLightboxResize argument.
+									Removed the global header/footer variables.
+									Added lbCheckLogin parameter to validate if the user is authenticated.
 --->
 <cffunction name="wrapHTMLwithLBHeaderFooter" access="public" returntype="string" output="false" hint="Given html returns html that is wrapped properly with the CS 6.x lightbox header and footer code.">
 	<cfargument name="html" type="string" default="" hint="HTML to wrap">
 	<cfargument name="lbTitle" type="string" default="">
 	<cfargument name="tdClass" type="string" default="" hint="Used to add CSS classes to the outer TD wrapper like 'formResultContainer' for the addEditRenderForm results">
-	<cfargument name="forceLightboxResize" type="boolean" default="false">
+	<cfargument name="lbCheckLogin" type="boolean" default="1" required="false">
+	
 	<cfscript>
 		var retHTML = "";
 	</cfscript>
@@ -318,27 +322,28 @@ Returns:
 Arguments:
 	string lbTitle
 	string tdClass
-	boolean forceLightboxResize
+	boolean lbCheckLogin
 History:
 	2011-01-19 - GAC - Created
 	2011-01-28 - GAC - Modified - Removed the parameter isForm and added the parameter for tdClass so CSS classes can be added to the inner TD of the lightBox header
 	2011-02-09 - GAC - Comments - Updated the list of arguments in the comments header
 	2011-02-11 - GAC - Modified - Fixed the logic with the LB Fixed the logic with the LB Header/Footer render twice protection
+	2011-02-14 - MFC - Modified - Removed forceLightboxResize argument.
+									Removed the global header/footer variables.
+									Added lbCheckLogin parameter to validate if the user is authenticated.
 --->
 <cffunction name="lightboxHeader" access="public" returntype="string" output="false" hint="Returns HTML for the CS 6.x lightbox header (use with the lightboxFooter)">
 	<cfargument name="lbTitle" type="string" default="">
 	<cfargument name="tdClass" type="string" default="" hint="Used to add CSS classes to the outer TD wrapper like 'formResultContainer' for the addEditRenderForm results">
-	<cfargument name="forceLightboxResize" type="boolean" default="false">
+	<cfargument name="lbCheckLogin" type="boolean" default="1" required="false">
+	
 	<cfscript>
 		var retHTML = "";
 	    var productVersion = ListFirst(ListLast(request.cp.productversion," "),".");
-	    // Global variable set to keep the 6.x LB Header from rendering twice
-	    if ( !StructKeyExists(variables,"hasLightBoxHeader") )
-	    	variables.hasLightBoxHeader = false;
 	</cfscript>
 	<cfsavecontent variable="retHTML">
 		<!--- // Load the CommonSpot Lightbox Header when in version 6.0 --->
-		<cfif productVersion GTE 6 AND variables.hasLightBoxHeader IS false>
+		<cfif productVersion GTE 6>
 			<cfscript>
 				// Use the Title passed in or if available use the title in the request.params for the Lightbox DialogName
 				if ( LEN(TRIM(arguments.lbTitle)) ) 
@@ -350,34 +355,17 @@ History:
 				CD_Title=CD_DialogName;
 				CD_IncludeTableTop=1;
 				CD_CheckLock=0;
-				CD_CheckLogin=1;
+				// 2011-02-16 - Added flag to check if the user is authenticated
+				CD_CheckLogin=arguments.lbCheckLogin;
 				CD_CheckPageAlive=0;
-				//CD_OnLoad="handleOnLoad();";
-				//CD_OnLoad="";
-		        APIPostToNewWindow = false;
-			</cfscript>
+		    </cfscript>
 			<cfoutput>
 				<CFINCLUDE TEMPLATE="/commonspot/dlgcontrols/dlgcommon-head.cfm">
 				<tr>
 					<td<cfif LEN(TRIM(arguments.tdClass))> class="#arguments.tdClass#"</cfif>>
-				<cfif arguments.forceLightboxResize>
-				<script type="text/javascript">
-			        <!--
-			        function handleOnLoad()
-			        {
-			           ResizeWindow();
-			        }
-			        // -->
-		        </script>
-		        </cfif>
 			</cfoutput> 
 		</cfif>		
 	</cfsavecontent>
-	<cfscript>
-		// Global variable set to keep the 6.x LB Header from rendering twice
-		// and to be detected by the 6.x LB Footer
-	    variables.hasLightBoxHeader = true;
-	</cfscript>
 	<cfreturn retHTML>
 </cffunction>
 
@@ -397,30 +385,22 @@ Arguments:
 History:
 	2011-01-19 - GAC - Created 
 	2011-02-11 - GAC - Modified - Fixed the logic with the LB Header/Footer render twice protection
+	2011-02-14 - MFC - Modified - Removed the global header/footer variables.
 --->
 <cffunction name="lightboxFooter" access="public" returntype="string" output="false" hint="Returns HTML for the CS 6.x lightbox footer (use with the lightboxHeader)">
 	<cfscript>
 		var retHTML = "";
 	    var productVersion = ListFirst(ListLast(request.cp.productversion," "),".");
-	    // Global variable set to keep the 6.x LB Header and Footer from rendering twice
-	    if ( !StructKeyExists(variables,"hasLightBoxHeader") )
-	    	variables.hasLightBoxHeader = false;
-	    if ( !StructKeyExists(variables,"hasLightBoxFooter") )
-	    	variables.hasLightBoxFooter = false;
 	</cfscript>
 	<cfsavecontent variable="retHTML">
 		<!--- // Load the CommonSpot Lightbox Footer when in version 6.x --->
-		<cfif productVersion GTE 6 AND variables.hasLightBoxHeader IS true AND variables.hasLightBoxFooter IS false>
+		<cfif productVersion GTE 6>
 			<cfoutput></td>
 				</tr>
 			<CFINCLUDE template="/commonspot/dlgcontrols/dlgcommon-foot.cfm">
 			</cfoutput>
 		</cfif>		
 	</cfsavecontent>
-	<cfscript>
-		// Global variable set to keep the 6.x LB Footer from rendering twice
-	    variables.hasLightBoxFooter = true;
-	</cfscript>
 	<cfreturn retHTML>
 </cffunction>
 
