@@ -125,8 +125,7 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	M. Carroll
 Name:
 	$searchConfigurationCE
@@ -140,21 +139,26 @@ History:
 	2009-08-06 - MFC - Created
 	2010-06-30 - MFC - Updated to search on lower case form name.
 						Resolved bug with Oracle DB.s
+	2011-02-14 - MFC - Code clean up: Removed the tabs in the SQL statement, 
+						removed QueryNew, cfscript block for variables.
 --->
 <cffunction name="getConfigurationCE" access="private" returntype="query">
 	<cfargument name="appName" type="string" required="true">
 	
 	<!--- Initialize the variables --->
-	<cfset var getCE = QueryNew("temp")>
-	<cfset var ceConfigNameSpace = LCAse(arguments.appName) & " configuration">
-	<cfset var ceConfigNameUnderscore = LCAse(arguments.appName) & "_configuration">
-
-	<!--- Query to get the data for the custom element by pageid --->
+	<cfscript>
+		var getCE = "";
+		var ceConfigNameSpace = LCase(arguments.appName) & " configuration";
+		var ceConfigNameUnderscore = LCase(arguments.appName) & "_configuration";
+	</cfscript>
+	
+	<!--- Query to get the data for the custom element by form name --->
 	<cfquery name="getCE" datasource="#request.site.datasource#">
-		SELECT 	ID, FormName
-		FROM 	FormControl
-		WHERE 	((LOWER(FormName) = <cfqueryparam cfsqltype="cf_sql_varchar" value="#ceConfigNameUnderscore#">) OR (LOWER(FormName) = <cfqueryparam cfsqltype="cf_sql_varchar" value="#ceConfigNameSpace#">))
-		AND 	(FormControl.action = '' OR FormControl.action is null)
+		SELECT ID, FormName
+		  FROM FormControl
+		 WHERE ((LOWER(FormName) = <cfqueryparam cfsqltype="cf_sql_varchar" value="#ceConfigNameUnderscore#">) 
+		       OR (LOWER(FormName) = <cfqueryparam cfsqltype="cf_sql_varchar" value="#ceConfigNameSpace#">))
+		   AND (FormControl.action = '' OR FormControl.action is null)
 	</cfquery>
 	<cfreturn getCE>
 </cffunction>
