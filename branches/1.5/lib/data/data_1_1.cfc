@@ -110,4 +110,82 @@ History:
 	</cfscript>
 </cffunction>
 
+<!---
+/* *************************************************************** */
+	From CFLib on 2/18/2011 [GAC]
+
+	This function takes URLs in a text string and turns them into links.
+	Version 2 by Lucas Sherwood, lucas@thebitbucket.net.
+	Version 3 Updated to allow for ;
+	
+	@param strText      	Text to parse. (Required)
+	@param target      		Optional target for links. Defaults to "". (Optional)
+	@param paragraph      	Optionally add paragraphFormat to returned string. (Optional)
+	@return Returns a string.
+	@author Joel Mueller (lucas@thebitbucket.netjmueller@swiftk.com)
+	@version 3, August 11, 2004
+	
+	History:
+		2011-02-09 - GAC - Added
+--->
+
+<cffunction name="activateURL" access="public" returntype="string" hint="">
+	<cfargument name="strText" type="string" required="false" default="" hint="A text string to search through for URLs">
+	<cfargument name="target" type="string" required="false" default="" hint="A valid A HREF target: _blank, _self">
+	<cfargument name="paragraph" type="string" required="false" default="false" hint="If true, add paragraphFormat to returned string">
+	<cfscript>
+	    var nextMatch = 1;
+	    var objMatch = "";
+	    var outstring = "";
+	    var thisURL = "";
+	    var thisLink = "";
+	    
+	    do {
+	        objMatch = REFindNoCase("(((https?:|ftp:|gopher:)\/\/)|(www\.|ftp\.))[-[:alnum:]\?%,\.\/&##!;@:=\+~_]+[A-Za-z0-9\/]", arguments.strText, nextMatch, true);
+	        if (objMatch.pos[1] GT nextMatch OR objMatch.pos[1] EQ nextMatch) {
+	            outString = outString & Mid(arguments.strText, nextMatch, objMatch.pos[1] - nextMatch);
+	        } else {
+	            outString = outString & Mid(arguments.strText, nextMatch, Len(arguments.strText));
+	        }
+	        nextMatch = objMatch.pos[1] + objMatch.len[1];
+	        if (ArrayLen(objMatch.pos) GT 1) {
+	            // If the preceding character is an @, assume this is an e-mail address
+	            // (for addresses like admin@ftp.cdrom.com)
+	            if (Compare(Mid(arguments.strText, Max(objMatch.pos[1] - 1, 1), 1), "@") NEQ 0) {
+	                thisURL = Mid(arguments.strText, objMatch.pos[1], objMatch.len[1]);
+	                thisLink = "<a href=""";
+	                switch (LCase(Mid(arguments.strText, objMatch.pos[2], objMatch.len[2]))) {
+	                    case "www.": {
+	                        thisLink = thisLink & "http://";
+	                        break;
+	                    }
+	                    case "ftp.": {
+	                        thisLink = thisLink & "ftp://";
+	                        break;
+	                    }
+	                }
+	                thisLink = thisLink & thisURL & """";
+	                if (Len(Target) GT 0) {
+	                    thisLink = thisLink & " target=""" & arguments.target & """";
+	                }
+	                thisLink = thisLink & ">" & thisURL & "</a>";
+	                outString = outString & thisLink;
+	                // arguments.strText = Replace(arguments.strText, thisURL, thisLink);
+	                // nextMatch = nextMatch + Len(thisURL);
+	            } else {
+	                outString = outString & Mid(arguments.strText, objMatch.pos[1], objMatch.len[1]);
+	            }
+	        }
+	    } while (nextMatch GT 0);
+	        
+	    // Now turn e-mail addresses into mailto: links.
+	    outString = REReplace(outString, "([[:alnum:]_\.\-]+@([[:alnum:]_\.\-]+\.)+[[:alpha:]]{2,4})", "<a href=""mailto:\1"">\1</a>", "ALL");
+	        
+	    if ( arguments.paragraph ) 
+	        outString = ParagraphFormat(outString);
+	        
+		return outString;
+	</cfscript>
+</cffunction>
+
 </cfcomponent>
