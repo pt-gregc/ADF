@@ -27,13 +27,15 @@ Name:
 Summary:
 	CommonSpot Data Utils functions for the ADF Library
 Version:
-	1.0.1
+	1.0.2
 History:
 	2009-06-22 - MFC - Created
+	2011-02-23 - GAC - Added a helper method getGlobalKeywords that is used by getStandardMetadata to handle 
+					   the retrieval of Global Keywords from either CommonSpot 5.x or 6.x
 --->
 <cfcomponent displayname="csData_1_0" extends="ADF.core.Base" hint="CommonSpot Data Utils functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_1">
+<cfproperty name="version" value="1_0_2">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_0">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_0">
