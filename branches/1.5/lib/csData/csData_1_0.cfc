@@ -62,6 +62,7 @@ History:
 	2011-01-14 - GAC - Modified - Added an option to convert Taxonomy terms to a termID list
 	2011-01-18 - GAC - Modified - Removed debugging code and updated some in-line comments
 	2011-01-28 - RLW - Modified - Added doctype as an optional argument to handle document metadata bindings
+	2011-02-23 - DMB - Modified - Added logic to pass doctype automatically for all non-pages.
 --->
 <cffunction name="getCustomMetadata" access="public" returntype="struct">
 	<cfargument name="pageID" type="numeric" required="yes">
@@ -80,19 +81,35 @@ History:
 		var taxTermTextList = "";
 		var taxTermIDList = "";
 	</cfscript>
-	<!--- // IF we are missing categoryID, subsiteID OR inheritedTemplateList get them! --->
+	<!--- // If we are missing categoryID, subsiteID OR inheritedTemplateList get them! --->
     <cfif arguments.categoryID eq -1 or arguments.subsiteID eq -1 or Len(inheritedTemplateList) eq 0>
     	<cfscript>
     		stdMetadata = getStandardMetadata(arguments.pageID);
     		arguments.categoryID = stdMetadata.categoryID;
     		arguments.subsiteID = stdMetadata.subsiteID;
-    		//arguments.inheritedTemplateList = stdMetadata.inheritedTemplateList;
+    		arguments.inheritedTemplateList = stdMetadata.inheritedTemplateList;
     	</cfscript>
     </cfif>
+	
+	
+	<!--- If item is not a page (e.g. metadata form bound to a pdf) get the doctype --->
+	<cfquery name="getDocType" datasource="#request.site.datasource#">
+		SELECT  doctype from sitepages 
+                 where id = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.pageid#"> AND
+				 doctype <> '' or doctype <> null
+    </cfquery>
+
+	<!--- pass doctype for non-pages --->
+	<cfscript>
+	             if ((getDocType.recordcount > 0) and (len(getDocType.doctype)))  {
+	                	arguments.doctype   = getDocType.doctype; 
+	                   }
+	</cfscript>
+	
     <!--- // call the standard build struct module with the argument collection --->
     <cfmodule template="/commonspot/metadata/build-struct.cfm" attributecollection="#arguments#">
-    <!--- <cfreturn request.metadata> --->
-	<cfscript>
+     <!---  <cfreturn request.metadata>  ---> 
+	 <cfscript>
 		// Copy the Module Struct to a local custMetaData variable
 		if ( StructKeyExists(request,"metadata") )
 			custMetadata = request.metadata;
@@ -119,7 +136,7 @@ History:
 			}
 		}
 		return custMetadata;
-	</cfscript>
+	</cfscript>  
 </cffunction>
 
 <!---
