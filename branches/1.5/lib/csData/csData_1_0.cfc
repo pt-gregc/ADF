@@ -346,13 +346,16 @@ History:
 	2010-12-16 - GAC - Added Confidentiality and IncludeInIndex to return data
 	2010-12-16 - GAC - Added globalKeywords to return data
 	2011-02-09 - RAK - Var'ing un-var'd variables
+	2011-02-23 - GAC - Added global keyword compatibility for CS5.x and CS6.x by moving the global keyword retrieval
+					   to a helper method getGlobalKeywords which has CS version detection
 --->
 <cffunction name="getStandardMetadata" access="public" returntype="struct">
 	<cfargument name="csPageID" required="true" type="numeric">
 	<cfscript>
 		var getData = '';
 		var stdMetadata = structNew();
-		var keywordObj = Server.CommonSpot.ObjectFactory.getObject("keywords");
+		var keywordsArray = ArrayNew(1);
+		// build Standard Metadata return structure
 		stdMetadata.name = "";
 		stdMetadata.title = "";
 		stdMetadata.caption = "";
@@ -402,10 +405,10 @@ History:
 			stdMetadata.title = getData.title;
 			stdMetadata.caption = getData.caption;
 			stdMetadata.description = getData.description;
-			// If page has a title get global Keywords (same criteria as CS6)
+			// If page has a title get global Keywords (same criteria as CommonSpot )
 			if ( LEN(TRIM(stdMetadata.title)) ) {
-				stdMetadata.globalKeywords = keywordObj.getDelimitedListForObject(objectID=arguments.csPageID);
-				stdMetadata.globalKeywords = Replace(stdMetadata.globalKeywords, ",", ", ", "ALL");
+				keywordsArray = getGlobalKeywords(arguments.csPageID);
+				stdMetadata.globalKeywords = ArrayToList(keywordsArray, ", ");
 			}
 			stdMetadata.categoryName = "";
 			stdMetadata.subsiteID = getData.subsiteID;
@@ -1806,6 +1809,63 @@ History:
 		</cfif>
 	</cfquery>
 	<cfreturn ListToArray(valueList(templatePages.ID))>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	G. Cronkright
+Name:
+	$getGlobalKeywords
+Summary:
+	Returns a array of Global Keywords from a csPageID
+Returns:
+	Array 
+Arguments:
+	numeric csPageID
+History:
+	2011-02-23 - GAC - Created - Added to allow CommonSpot version detection for retrieving global keywords
+								 This is a helper method for the getStandardMetadata 
+--->
+<cffunction name="getGlobalKeywords" access="public" returntype="array" output="true" hint="Returns a array of Global Keywords from a csPageID">
+	<cfargument name="csPageID" type="numeric" required="true" hint="CommonSpot Page ID">
+	<cfscript>
+		var keywordsArray = ArrayNew(1);
+	 	var globalKeywordsList = "";
+	 	var qryGlobalKeywords = QueryNew("tmp");
+	 	var productVersion = ListFirst(ListLast(request.cp.productversion," "),".");
+	 	var keywordObj = "";
+	</cfscript>
+	<cfif productVersion LT 6>
+		<!--- // If CS 5.x get the Keywords directly from the DB --->
+		<cfquery name="qryGlobalKeywords" datasource="#Request.Site.DataSource#">
+			  SELECT Distinct Keyword
+			    FROM Keywords,UserKeywords
+			   WHERE Keywords.ID=UserKeywords.KeywordID
+				 AND UserID=0
+				 AND PageID=<cfqueryparam value="#arguments.csPageID#" cfsqltype="CF_SQL_INTEGER">
+			ORDER BY Keyword
+		</cfquery>
+		<cfscript>
+			// Get the list of global keywords from the qryGlobalKeywords query
+			if ( qryGlobalKeywords.RecordCount gt 0 ) 
+				globalKeywordsList = ValueList(qryGlobalKeywords.Keyword);
+		</cfscript>
+	<cfelse>
+		<cfscript>
+			// If CS 6.x or greater create the Keywords Object
+			keywordObj = Server.CommonSpot.ObjectFactory.getObject("keywords");
+			// Get the list of global keywords from the keywordObj
+			if ( StructKeyExists(keywordObj,"getDelimitedListForObject") ) 
+				globalKeywordsList = keywordObj.getDelimitedListForObject(objectID=arguments.csPageID);
+		</cfscript>
+	</cfif>
+	<cfscript>
+		// Parse the list of global keywords into an Array
+		if ( LEN(TRIM(globalKeywordsList)) )
+			keywordsArray = ListToArray(globalKeywordsList,',');
+				
+		return keywordsArray;
+	</cfscript>
 </cffunction>
 
 </cfcomponent>
