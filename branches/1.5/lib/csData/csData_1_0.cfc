@@ -96,12 +96,12 @@ History:
 	<cfquery name="getDocType" datasource="#request.site.datasource#">
 		SELECT  doctype from sitepages 
                  where id = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.pageid#"> AND
-				 doctype <> '' or doctype <> null
+				 ((doctype <> '' or doctype <> null) and (doctype <> '0'))
     </cfquery>
 
 	<!--- pass doctype for non-pages --->
 	<cfscript>
-	             if ((getDocType.recordcount > 0) and (len(getDocType.doctype)))  {
+	             if ((getDocType.recordcount gt 0) and (len(getDocType.doctype)))  {
 	                	arguments.doctype   = getDocType.doctype; 
 	                   }
 	</cfscript>
