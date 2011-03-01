@@ -7,6 +7,7 @@
     <forms_1_1>renderAddEditForm,renderDeleteForm,loadCFFormProtect,verifyCFFormProtect</forms_1_1>
     <link_builder>htmlAddEditLinkBuilder,renderLinks,listManagement,removeLink</link_builder>
     <utils_1_0>getCFTypes,scriptExists,getFieldTypes,updateCustomFieldType,updateListItems</utils_1_0>
+    <utils_1_1>getThumbnailOfResource</utils_1_1>
 	<scheduler_1_0>getScheduleStatus,pauseSchedule,processNextScheduleItem,resumeSchedule</scheduler_1_0>
 	<taxonomy_1_1>getFacetStructForTaxonomy,getTopTermStructForFacet</taxonomy_1_1>
 </settings>

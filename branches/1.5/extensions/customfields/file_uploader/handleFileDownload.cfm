@@ -6,7 +6,16 @@
 		displayName = Replace(displayName," ", "_", "all");
 		filePath = "";
 		if(StructKeyExists(fieldDefaultValues,"filePath")){
-			filePath = fieldDefaultValues.filePath&"\"&fileName;
+			concatenator = '';
+			if(Find('/',fieldDefaultValues.filePath)){
+				concatenator = '/';
+			}else{
+				concatenator = '\';
+			}
+			if(right(fieldDefaultValues.filePath, 1) is concatenator){
+				concatenator = "";
+			}
+			filePath = fieldDefaultValues.filePath&concatenator&fileName;
 		}
 	</cfscript>
    <cfheader name="content-disposition" value="attachment; filename=#displayName#;">
@@ -19,3 +28,5 @@
 		fileName - the filename that is stored in the record
 	</cfoutput>
 </cfif>
+
+

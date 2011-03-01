@@ -152,4 +152,50 @@ History:
 	</cfscript>
 </cffunction>
 
+
+<!---
+/* ***************************************************************
+/*
+Author:
+	PaperThin, Inc.
+	Ryan Kahn
+Name:
+	$getThumbnailOfResource
+Summary:
+	Returns the url to the thumbnail of a resource
+Returns:
+	string
+Arguments:
+	filePath - string - Fully qualified path to resource.
+	destinationURL - string - Optional - URL to destination folder. EX: /mySite/images/ (If not specified it puts the image next to the file)
+History:
+ 	3/1/11 - RAK - Created
+--->
+<cffunction name="getThumbnailOfResource" access="public" returntype="string" hint="Returns the url to the thumbnail of a resource">
+	<cfargument name="filePath" type="string" required="true" default="" hint="Fully qualified path to resource.">
+	<cfargument name="destinationURL" type="string" required="false" default="" hint="URL to destination folder. EX: /mySite/images/ (If not specified it puts the image next to the file)">
+	<cfscript>
+		var documentName = "";
+		var destination = "";
+		filePath = Replace(filePath,'\\','/');
+		documentName = ListGetAt(filePath,ListLen(filePath,'/'),'/');
+
+		if(Len(destinationURL)){
+			destination = expandPath(destinationURL);
+		}else{
+			destination = Replace(filePath,documentName,'');
+		}
+	</cfscript>
+	<cfpdf
+		source="#filePath#"
+		action = "thumbnail"
+		destination = "#destination#"
+		overwrite="yes"
+		pages="1"
+		format="png"
+	>
+	<cfreturn "#destinationURL##Left(documentName,Len(documentName)-4)#_page_1.png">
+</cffunction>
+
+
 </cfcomponent>

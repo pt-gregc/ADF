@@ -27,11 +27,22 @@
 				<cfthrow type="custom" detail="Invalid filetype selected for upload." message="Invalid Filetype">
 			</cfif>
 		</cfif>
+		<script>
+			parent.uploadSuccess();
+		</script>
 	</cfoutput>
-<cfcatch type="any">	
+<cfcatch type="any">
 	<cfscript>
 		application.ADF.utils.logAppend(cfcatch.message,"fileUploadErrors.txt");
 	</cfscript>
-	<cfthrow type="custom" detail="#cfcatch.detail#" message="#cfcatch.message#">
+	<cfoutput>
+		<script>
+			<cfif cfcatch.type eq "custom">
+				parent.uploadFailure("#cfcatch.message#");
+			<cfelse>
+				parent.uploadFailure("");
+			</cfif>
+		</script>
+	</cfoutput>
 </cfcatch>
 </cftry>

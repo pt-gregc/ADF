@@ -992,4 +992,103 @@ History:
 
 </cffunction>
 
+<!---
+/* ***************************************************************
+/*
+Author:
+	PaperThin, Inc.
+	Ryan Kahn
+Name:
+	$searchForCEData
+Summary:
+	Wrapper function for getCEData
+Returns:
+	array
+Arguments:
+	 customElementName - string- Custom element name
+	 searchValues - string- Values to search for
+	 searchFields - string- Fields to search within
+History:
+ 	2011-02-25 - RAK - Created
+--->
+<cffunction name="searchForCEData" access="public" returntype="array" hint="Wrapper function for getCEData">
+	<cfargument name="customElementName" type="string" required="true" hint="Custom element name">
+	<cfargument name="searchValues" type="string" required="false" default="" hint="Values to search for">
+	<cfargument name="searchFields" type="string" required="false" default="" hint="Fields to search within">
+	<cfreturn getCeData(
+						customElementName = arguments.customElementName,
+						queryType="search",
+						searchValues = arguments.searchValues,
+						searchFields = arguments.searchFields
+	)>
+</cffunction>
+
+<!---
+/* ***************************************************************
+/*
+Author:
+	PaperThin, Inc.
+	Ryan Kahn
+Name:
+	$multipleFieldFindCEData
+Summary:
+	Wrapper function for getCEData multi call
+Returns:
+	array
+Arguments:
+
+History:
+ 	2011-02-25 - RAK - Created
+--->
+<cffunction name="multipleFieldFindCEData" access="public" returntype="array" hint="Wrapper function for getCEData multi call">
+	<cfargument name="customElementName" type="string" required="true" hint="Custom element name">
+	<cfargument name="searchValues" type="string" required="false" default="" hint="Values to search for">
+	<cfargument name="searchFields" type="string" required="false" default="" hint="Fields to search within">
+		<cfreturn getCeData(
+						customElementName = arguments.customElementName,
+						queryType="multi",
+						searchValues = arguments.searchValues,
+						searchFields = arguments.searchFields
+	)>
+</cffunction>
+
+
+
+<!---
+/* ***************************************************************
+/*
+Author:
+	PaperThin, Inc.
+	Ryan Kahn
+Name:
+	$findFileCEFieldID
+Summary:
+	Finds the custom element's field ID
+Returns:
+	string
+Arguments:
+
+History:
+	2011-02-15 - RAK - Created
+--->
+<cffunction name="findFileCEFieldID" access="public" returntype="string" hint="Finds the custom element's field ID">
+	<cfargument name="ceName" type="string" required="true" default="" hint="Custom element name to search within">
+	<cfargument name="fieldName" type="string" required="true" default="" hint="Field Name to search for">
+	<cfscript>
+		var tabs = '';
+		var tab = '';
+		var field = '';
+		 tabs = application.ADF.ceData_1_1.getTabsFromFormID(getFormIDByCEName(arguments.ceName),true);
+	</cfscript>
+	<cfloop array="#tabs#" index="tab">
+		<cfloop array="#tab.fields#" index="field">
+			<cfif field.FIELDNAME eq arguments.fieldName>
+				<cfreturn field.fieldID>
+			</cfif>
+		</cfloop>
+	</cfloop>
+	<cfreturn "">
+</cffunction>
+
+
 </cfcomponent>

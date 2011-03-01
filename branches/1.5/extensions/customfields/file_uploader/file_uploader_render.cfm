@@ -21,25 +21,35 @@ end user license agreement.
 	application.ADF.scripts.loadJQuery();
 	application.ADF.scripts.loadADFLightbox();
 	application.ADF.scripts.loadJQueryUI();
-	application.ADF.scripts.loadUploadify();
-	
+
+	uploadUUID = CreateUUID();
+
 	// the fields current value
 	currentValue = attributes.currentValues[fqFieldName];
+	currentFilename = "";
+	if(Len(currentValue)){
+		//Replace out the --uuid from the filename
+		rightCharacters = Len(uploadUUID)+2+4;
+		currentFilename = Replace(currentValue,Right(currentValue,rightCharacters),'')&Right(currentValue,4);
+	}
+
 	// the param structure which will hold all of the fields from the props dialog
 	xparams = parameters[fieldQuery.inputID];
 	// find if we need to render the simple form field
 	renderSimpleFormField = false;
 	if ( (StructKeyExists(request, "simpleformexists")) AND (request.simpleformexists EQ 1) )
 		renderSimpleFormField = true;
-		
-	uploadUUID = CreateUUID();
 
-	
+
 	acceptedFileTypes = xparams.filetypes;
 	for(i=1;i<=ListLen(acceptedFileTypes);i++){
 		acceptedFileTypes = ListSetAt(acceptedFileTypes,i,"*."&ListGetAt(acceptedFileTypes,i));
 	}
 	acceptedFileTypes = ListChangeDelims(acceptedFileTypes,";");
+
+	fieldDefaultValues = application.ADF.ceData.getFieldValuesByFieldID(fieldQuery.inputID);
+	filePath = fieldDefaultValues.filePath;
+	imageURL = "/ADF/extensions/customfields/file_uploader/handleFileDownload.cfm?subsiteURL=#request.subsite.url#&fieldID=#fieldQuery.inputID#&filename=";
 </cfscript>
 <cfoutput>
 	<script>
@@ -47,54 +57,31 @@ end user license agreement.
 		#fqFieldName#=new Object();
 		#fqFieldName#.id='#fqFieldName#';
 		#fqFieldName#.tid=#rendertabindex#;
-		//#fqFieldName#.msg="Please upload a document!";
-		// Push on to validation array
-		//vobjects_#attributes.formname#.push(#fqFieldName#);
-		
-		jQuery(function(){
-			handleExistingData();
-			//the folder is not REALLY a folder! This is for security reasons. 
-			//The folder is actually the custom field's ID so we can look up the prop values
-			jQuery('##upload_btn_#fqFieldName#').uploadify({
-				'uploader'  : '/ADF/thirdParty/jquery/uploadify/uploadify.swf',
-				'script'    : '/ADF/extensions/customfields/file_uploader/handleFileUpload.cfm?subsiteURL=#request.subsite.url#',
-				'cancelImg' : '/ADF/thirdParty/jquery/uploadify/cancel.png',
-				'auto'      : true,
-				'folder'    : '/#uploadUUID#/#fieldQuery.inputID#',
-				'fileDesc'	: '#acceptedFileTypes#',
-				'fileExt'	: '#acceptedFileTypes#',
-				'onProgress': function(event,queue,fileObj,data){
-					if(data.percentage == 100){
-						tempName = fileObj.name.replace(fileObj.type,"");
-						tempName = tempName+"--#uploadUUID#"+fileObj.type;
-						jQuery("###fqFieldName#").val(tempName);
-						jQuery("##errorMsg_#fqFieldName#").html("Upload Success!");
-					}
-				},
-				'onCancel'	: function(event,queueID,fileObj){
-					jQuery("###fqFieldName#").val("");
-					jQuery("##errorMsg_#fqFieldName#").html("");
-				},
-				'onError'	: function(event,queueID,fileObj,errorObj){
-					jQuery("##errorMsg_#fqFieldName#").html("File upload error. Possibly due to invalid filetype. Please try again with a valid file.");
-					return true;
-				}
-			});
 
+		jQuery(document).ready( function(){
+			#fqFieldName#setView(false);
+			<cfif Len(currentValue)>
+				#fqFieldName#handleFileUploadComplete("#currentFilename#","#currentValue#");
+			</cfif>
 		});
-		
-		function handleExistingData(){
-			currentValue = jQuery("###fqFieldName#").val();
-			if(currentValue.length > 0){
-				//We have existing value!
-				jQuery("###fqFieldName#_currentSelection").html(currentValue);
-				setView(true);
-			}else{
-				setView(false);
-			}
+
+		function #fqFieldName#handleFileUploadComplete(fileName,fileValue){
+<!---			<img src='#imageURL##fileValue#'>--->
+			jQuery.post("#application.ADF.ajaxProxy#",{
+				bean: "utils_1_1",
+				method: "getThumbnailOfResource",
+				filePath: '#filePath#/'+fileValue
+			},function(results){
+				jQuery("###fqFieldName#_thumbnail").html('<img src="#imageURL#'+encodeURI(results)+'">');
+			});
+			jQuery("###fqFieldName#_currentSelection").html(fileName);
+			jQuery("###fqFieldName#").val(fileValue);
+//			jQuery("##errorMsg_#fqFieldName#").html("Upload Success!");
+			#fqFieldName#setView(true);
+			jQuery("###fqFieldName#_currentSelection").show();
 		}
 		
-		function setView(selected){
+		function #fqFieldName#setView(selected){
 			if(!selected){
 				jQuery("###fqFieldName#_currentSelection").hide();
 				jQuery("##clear_btn_#fqFieldName#").hide();
@@ -105,9 +92,12 @@ end user license agreement.
 			}
 		}
 		
-		function clearButtonClick(){
+		function #fqFieldName#clearButtonClick(){
 			jQuery("###fqFieldName#").val("");
-			setView(false);
+			jQuery("###fqFieldName#_thumbnail").html("");
+			jQuery("##errorMsg_#fqFieldName#").html("");
+			jQuery("###fqFieldName#_currentSelection").html("");
+			#fqFieldName#setView(false);
 		}
 		
 	</script>
@@ -126,11 +116,12 @@ end user license agreement.
 		<td class="cs_dlgLabelSmall">
 			<div style="min-height:100px">
 				<div id="#fqFieldName#_currentSelection">#currentValue#</div>
+				<div id="#fqFieldName#_thumbnail"></div>
 				<div id="uploadHolder_#fqFieldName#" style="min-width:475px">
-					<div id="upload_btn_#fqFieldName#"></div>
-					<div id="errorMsg_#fqFieldName#"></div>
+					<iframe height="70px" width="375px" scrolling="no" frameBorder="0" src="/ADF/extensions/customfields/file_uploader/fileUploadForm.cfm?subsiteURL=#request.subsite.url#&fieldName=#fqFieldName#&uploadUUID=#uploadUUID#&inputID=#fieldQuery.inputID#"></iframe>
 				</div>
-				<input type="button" value="Clear" name="clear_btn_#fqFieldName#" id="clear_btn_#fqFieldName#" onclick="clearButtonClick()">
+				<div id="errorMsg_#fqFieldName#"></div>
+				<input type="button" value="Clear" name="clear_btn_#fqFieldName#" id="clear_btn_#fqFieldName#" onclick="#fqFieldName#clearButtonClick()">
 			</div>
 		</td>
 	</tr>
