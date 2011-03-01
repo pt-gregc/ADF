@@ -1091,4 +1091,52 @@ History:
 </cffunction>
 
 
+<!---
+/* ***************************************************************
+/*
+Author:
+	Ryan Kahn
+Name:
+	$getCEData
+Summary:
+	Returns array of structs for all data matching the Custom Element.
+	Params can specify exact fields for searching.
+Returns:
+	Query
+Arguments:
+	String - Custom Element Name
+	String - Element Field Name
+	String - Item Values to Search
+	String - Query Type, options [selected,notSelected,search]
+	String - Search Values
+History:
+	2011-03-01 - RAK - Created, adds security into getCEdata
+--->
+<cffunction name="getCEData" access="public" returntype="array" hint="Returns array of structs for all data matching the Custom Element.">
+	<cfargument name="customElementName" type="string" required="true">
+	<cfargument name="customElementFieldName" type="string" required="false" default="">
+	<cfargument name="item" type="any" required="false" default="">
+	<cfargument name="queryType" type="string" required="false" default="selected">
+	<cfargument name="searchValues" type="string" required="false" default="">
+	<cfargument name="searchFields" type="string" required="false" default="">
+	<!---
+		2011-03-01 - RAK - Security determining if you can get the CEData is set in the proxyWhitelist files
+	--->
+	<cfscript>
+		if(NOT variables.csSecurity.validateProxy("getCEDataSecurity",arguments.customElementName)){
+			/*Security failed. Append to the log and return nothing useful.*/
+			application.ADF.utils.logAppend("Get CEData call to non-whitelisted element: #arguments.customElementName#","getCEDataSecurityException.txt");
+			return ArrayNew(1);
+		}else{
+			/*Passed security! Pass off to parent.*/
+			return super.getCEData(
+				arguments.customElementName,
+				arguments.customElementFieldName,
+				arguments.item,
+				arguments.queryType,
+				arguments.searchValues,
+				arguments.searchFields);
+		}
+	</cfscript>
+</cffunction>
 </cfcomponent>
