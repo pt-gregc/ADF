@@ -1549,8 +1549,8 @@ History:
 		}
 	</cfscript>
 	<!--- // retrieve the moduleID --->
-	<cfquery name="getModuleData" datasource="#request.site.datasource#">
-		select top 1 ID
+	<cfquery name="getModuleData" datasource="#request.site.datasource#" maxrows="1">
+		select ID
 		from CustomElementModules
 		where modulePath = <cfqueryparam cfsqltype="cf_sql_varchar" value="#modPath#">
 	</cfquery>
