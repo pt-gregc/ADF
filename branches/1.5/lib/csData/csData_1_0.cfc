@@ -1532,6 +1532,7 @@ History:
 	2010-02-24 - GAC - Modified - Updated to eliminate empty metadata arrays and duplicate pageids
 	2010-08-03 - GAC - Modified - Strip the provided path for comparison from RH files in the root RH directory
 	2011-02-09 - RAK - Var'ing un-var'd variables
+	2011-03-20 - SFS - Modified getModuleData to be database agnostic
 --->
 <cffunction name="pagesContainingRH" access="public" returntype="array" hint="">
 	<cfargument name="modulePath" type="string" required="true">
