@@ -1307,9 +1307,10 @@ Summary:
 Returns:
 	Void
 Arguments:
-	Version
+	String - Version
 History:
  	2010-12-13 - GAC - Created
+	2011-03-08 - GAC - Updated the renderScriptOnce with correct variable path
 --->
 <cffunction name="loadJQueryHighlight" access="public" output="true" returntype="void" hint="Loads the Highlight plugin for jQuery">
 	<cfargument name="version" type="string" required="false" default="3.0.0" hint="Script version to load.">
@@ -1317,7 +1318,33 @@ History:
 	<cfsavecontent variable="outputHTML">
 		<script type='text/javascript' src='/ADF/thirdParty/jquery/highlight/jquery.highlight-#arguments.version#.yui.js'></script>
 	</cfsavecontent>
-	#renderScriptOnce("highlight",outputHTML)#
+	#variables.scriptsService.renderScriptOnce("highlight",outputHTML)#
+</cffunction>
+
+<!---
+/* ***************************************************************
+/*
+Author:
+	PaperThin, Inc.
+	G. Cronkright
+Name:
+	$loadjQueryTimeAgo
+Summary:
+	Loads the TimeAgo (automatically updating fuzzy timestamps) plugin for jQuery
+Returns:
+	Void
+Arguments:
+	String - Version
+History:
+ 	2011-03-08 - GAC - Created
+--->
+<cffunction name="loadjQueryTimeAgo" access="public" output="true" returntype="void" hint="Loads the TimeAgo (automatically updating fuzzy timestamps) plugin for jQuery">
+	<cfargument name="version" type="string" required="false" default="0.9.3" hint="Script version to load.">
+	<cfset var outputHTML = "">
+	<cfsavecontent variable="outputHTML">
+		<script type='text/javascript' src='/ADF/thirdParty/jquery/timeago/jquery.timeago-#arguments.version#.js'></script>
+	</cfsavecontent>
+	#variables.scriptsService.renderScriptOnce("timeago",outputHTML)#
 </cffunction>
 
 <!---
