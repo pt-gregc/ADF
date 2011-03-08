@@ -41,6 +41,7 @@ History:
 						to make it evaluate a CF expression.
 	2010-12-06 - RAK - Added the ability to define an active flag
 						Added ability to dynamically build the display field - <firstName> <lastName>:At <email>
+	2011-03-08 - MFC - Updated AJAX calls for bean "ceData_1_1".
 --->
 <cfscript>
 	// initialize some of the attributes variables
@@ -132,10 +133,11 @@ History:
 		if(elementName.length <= 0){
 			return;
 		}
+		// 2011-03-18 - MFC - Updated to the 'ceData_1_1'.
 		jQuery.ajax({
 					type: 'POST',
 					url: "#application.ADF.ajaxProxy#",
-					data: { 	  bean: "ceData_1_0",
+					data: { 	  bean: "ceData_1_1",
 								method: "getFormIDByCEName",
 								CENAME: elementName},
 					success: handleFormIDPost,
@@ -143,17 +145,18 @@ History:
 				});
 
 	}
-
+	
 	function handleFormIDPost(results){
 		if(results != 0){
+			// 2011-03-18 - MFC - Updated to the 'ceData_1_1'.
 			jQuery.ajax({
 				  type: 'POST',
 				  url: "#application.ADF.ajaxProxy#",
-				  data: { 			  bean: "ceData_1_0",
-										method: "getTabsFromFormID",
-								returnformat: "json",
-										formID: results,
-									  recurse: true},
+				  data: { bean: "ceData_1_1",
+						  method: "getTabsFromFormID",
+						  returnformat: "json",
+						  formID: results,
+						  recurse: true},
 				  success: handleTabsFromFormIDPost,
 				  async: false
 				},"json");
