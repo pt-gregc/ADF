@@ -76,6 +76,7 @@ History:
 	2011-02-01 - GAC - Modified - Added the appName argument
 	2011-02-03 - GAC - Modified - Updated to use use lightboxProxy.cfm instead of ajaxProxy.cfm
 	2011-02-09 - GAC - Modified - Added the jquery and jueryUI headers and a jqueryUI theme parameter
+	2011-03-08 - GAC - Modified - Added the ADFLightbox script headers
 --->
 <cffunction name="buildAddEditLink" access="public" returntype="string" output="false">
 	<cfargument name="linkTitle" type="string" required="true">
@@ -105,6 +106,7 @@ History:
 	<cfsavecontent variable="rtnStr">
 		<cfscript>
 			variables.scripts.loadJQuery();
+			variables.scripts.loadADFLightbox();
 			variables.scripts.loadJQueryUI(themeName=arguments.uiTheme);
 		</cfscript>
 		<cfoutput><a href="javascript:;" rel="#application.ADF.lightboxProxy#?bean=#arguments.formBean#&method=#arguments.formMethod#<cfif LEN(TRIM(arguments.appName))>&appName=#arguments.appName#</cfif>&formID=#formID#&dataPageID=#arguments.dataPageID#&lbAction=#lbAction#&title=#arguments.lbTitle##uParams#" class="ADFLightbox<cfif LEN(TRIM(arguments.linkClass))> #arguments.linkClass#</cfif>" title="#arguments.linkTitle#">#arguments.linkTitle#</a></cfoutput>
@@ -180,6 +182,7 @@ Arguments:
 History:
 	2011-02-01 - GAC - Created - For LightboxProxy.cfm - Based on RLWs buildAddEditLink function in forms_1_1
 	2011-02-09 - GAC - Modified - Added the jquery and jueryUI headers and a jqueryUI theme parameter
+	2011-03-08 - GAC - Modified - Added the ADFLightbox script headers
 --->
 <cffunction name="buildLightboxProxyLink" access="public" returntype="string" output="false">
 	<cfargument name="linkTitle" type="string" required="true">
@@ -202,6 +205,7 @@ History:
 	<cfsavecontent variable="rtnStr">
 		<cfscript>
 			variables.scripts.loadJQuery();
+			variables.scripts.loadADFLightbox();
 			variables.scripts.loadJQueryUI(themeName=arguments.uiTheme);
 		</cfscript>
 		<cfoutput><a href="javascript:;" rel="#application.ADF.lightboxProxy#?bean=#arguments.bean#&method=#arguments.method#<cfif LEN(TRIM(arguments.appName))>&appName=#arguments.appName#</cfif>&title=#arguments.lbTitle##uParams#" class="ADFLightbox<cfif LEN(TRIM(arguments.linkClass))> #arguments.linkClass#</cfif>" title="#arguments.linkTitle#">#arguments.linkTitle#</a></cfoutput>
@@ -230,6 +234,7 @@ Arguments:
 History:
 	2010-12-21 - GAC - Created - Based on RLWs buildAddEditLink function in forms_1_1
 	2011-02-09 - GAC - Modified - Added the jquery and jueryUI headers and a jqueryUI theme parameter
+	2011-03-08 - GAC - Modified - Added the ADFLightbox script headers
 --->
 <cffunction name="buildLBcsPageLink" access="public" returntype="string" output="false">
 	<cfargument name="linkTitle" type="string" required="true">
@@ -257,6 +262,7 @@ History:
 	<cfsavecontent variable="rtnStr">
 		<cfscript>
 			variables.scripts.loadJQuery();
+			variables.scripts.loadADFLightbox();
 			variables.scripts.loadJQueryUI(themeName=arguments.uiTheme);
 		</cfscript>
 		<cfoutput><a href="javascript:;" rel="#csPgURL#?title=#arguments.lbTitle##uParams#" class="ADFLightbox<cfif LEN(TRIM(arguments.linkClass))> #arguments.linkClass#</cfif>" title="#arguments.linkTitle#">#arguments.linkTitle#</a></cfoutput>
