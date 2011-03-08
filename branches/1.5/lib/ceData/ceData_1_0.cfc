@@ -831,6 +831,7 @@ History:
 	2009-01-20 - MFC - Created
 	2009-05-06 - MFC - Updated: Return if block to return 0, if no records found
 	2009-10-16 - MFC - Updated: Add lookup for CE Name with spaces OR underscores
+	2011-03-07 - MFC - Updated: Replace the dash to underscore.
 --->
 <cffunction name="getFormIDByCEName" access="public" returntype="numeric">
 	<cfargument name="CEName" type="string" required="true">
@@ -839,6 +840,8 @@ History:
 	<cfset var getFormID = QueryNew("temp")>
 	<cfset var tmpCENameSpaces = Replace(arguments.CEName, "_", " ", "all")>
 	<cfset var tmpCENameUnders = Replace(arguments.CEName, " ", "_", "all")>
+	<!--- 2011-03-07 - MFC - Replace the dash to underscore  --->
+	<cfset tmpCENameUnders = Replace(tmpCENameUnders, "-", "_", "all")>
 	
 	<!--- Query to get the data for the custom element by pageid --->
 	<cfquery name="getFormID" datasource="#request.site.datasource#">
