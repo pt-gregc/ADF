@@ -184,12 +184,13 @@ Arguments:
 History:
 	2010-08-26 - MFC - Created
 	2010-10-25 - MFC - Updated the command to build the httpSubsiteURL variable.
+	2011-03-10 - SFS - The getSubsiteQueryByID call assumed the profile app was installed. Changed the call to call the ADF version instead.
 --->
 <cffunction name="buildSubsiteFullURL" access="private" returntype="string" output="true" hint="">
 	<cfargument name="subsiteID" type="numeric" required="true" hint="">
 	
 	<cfscript>
-		var subsiteData = application.ptProfile.csData.getSubsiteQueryByID(subsiteID=arguments.subsiteID);
+		var subsiteData = application.adf.csData.getSubsiteQueryByID(subsiteID=arguments.subsiteID);
 		var httpSubsiteURL = Replace(request.site.url, request.site.CP_URL, "") & subsiteData.SubSiteURL;
 		
 		return httpSubsiteURL;
