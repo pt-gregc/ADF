@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2010.
+PaperThin, Inc. Copyright(C) 2011.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -19,137 +19,77 @@ end user license agreement.
 --->
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author:
 	PaperThin, Inc.
 Name:
 	datasheet_jquery_ui_style.cfm
 Summary:
 	Renders the JQuery UI headers for a datasheet.
+	
+	THIS IS ONLY A STARTER FILE! 
+	FOLLOW the steps below to implement.
 History:
 	2009-07-20 - MFC - Created
+	2011-03-09 - MFC - Updated to include the ADD button, 
+						removed JQuery "$", 
+						and added comments to customize
 --->
+
+<!--- STEPS TO IMPLEMENT
+	1. Copy this script to your site "/customcf/" directory.
+	2. Rename the copied file to specify the custom element name
+		(ex. "profile_manager.cfm", "myElement_manager.cfm")
+	3. Edit the "TODO" comment lines to define the custom element name 
+		and the text for the Add New button.
+	4. Add this custom script to a page and then configure the datasheet.
+ --->
 <cfscript>
-	application.ADF.scripts.loadJQuery("1.3.1");
-	application.ADF.scripts.loadJQueryUI("1.7.1", "ui-lightness");
-	application.ADF.scripts.loadThickbox("3.1");
+	// TODO - Add in custom element name that this manager is working with.
+	ceName = "";
+	// TODO - Add the text for the button to Add New.
+	request.params.addButtonTitle = "Add New Record";
+	
+	// Load the scripts and get the CE Form ID
+	application.ADF.scripts.loadJQuery();
+	application.ADF.scripts.loadJQueryUI();
+	application.ADF.scripts.loadADFLightbox();
+	request.params.formid = application.ADF.cedata.getFormIDByCEName(ceName);
 </cfscript>
 <cfoutput>
 <script type="text/javascript">
-	$(function() {
+	jQuery(function() {
 		// Hover states on the static widgets
-		$("div.ds-icons").hover(
-			function() { $(this).addClass('ui-state-hover'); },
-			function() { $(this).removeClass('ui-state-hover'); }
+		jQuery("div.ds-icons, a.add-button").hover(
+			function() { jQuery(this).addClass('ui-state-hover'); },
+			function() { jQuery(this).removeClass('ui-state-hover'); }
 		);
 	});
 </script>
 
-<!--- CODE FOR ADD NEW --->
-<!--- <div id="addNew" style="padding:20px;">
-	<cfif request.user.id gt 0>
-		<cftry>
-			<cfif (StructKeyExists(server.ADF.environment[request.site.id]['article_editor'], "add_article_menu_link")) AND (LEN(server.ADF.environment[request.site.id]['article_editor']['add_article_menu_link']))>
-				<a href="#server.ADF.environment[request.site.id]['article_editor']['add_article_menu_link']#?&formID=1564&dataPageId=0&lbAction=norefresh&keepThis=true&TB_iframe=true&height=550&width=700" id="addNewArticle" title="Add Article" class="thickbox">Add New Article</a><br />
-			<cfelse>
-				<cfthrow type="Application" detail="Error with the PT_Profile config file ADDURL tag." message="Error with the PT_Profile config file ADDURL tag.">
-			</cfif>
-			<cfcatch>
-				Error Detail: #cfcatch.message#<br />
-			</cfcatch>
-		</cftry>
-	<cfelse>
-		Please <a href="#request.subsitecache[1].url#login.cfm">LOGIN</a> to manage your profile.<br />
-		<!--- <cfexit> --->
-	</cfif>
-</div>
- --->
-
-<!--- CODE FOR SEARCHING THROUGH DATASHEET --->
-<!--- Check if we have some search text --->
-<!--- <cfif NOT StructKeyExists(request.params, "searchText")>
-	<cfset request.params.searchText = "">
-</cfif> --->
- <!--- Jquery for the search form --->
-<!--- <script>
-	jQuery(document).ready(function(){
-		// Hide the Datasheet filter drop-down
-		//jQuery('select##cs_ds_view').hide();
-		jQuery('form##ds_1663_1658').hide();
-		
-		// Hover for the buttons
-		jQuery('a.search_link').hover(
-			function () {
-				$(this).addClass('ui-state-hover');
-			}, 
-			function () {
-				$(this).removeClass('ui-state-hover');
-			}
-		);
-		jQuery('a.all_link').hover(
-			function () {
-				$(this).addClass('ui-state-hover');
-			}, 
-			function () {
-				$(this).removeClass('ui-state-hover');
-			}
-		);
-		
-		// Handle the search
-		jQuery('a.search_link').click(function () {
-			// All Articles = 'itemid_1663=2'
-			// Search Keywords = 'itemid_1663=3'
-			
-			// Get the search text
-			var searchText = jQuery('input##searchText').val();
-			var newURL = '#cgi.script_name#';
-			//alert(searchText);
-			// Check if we have a search value
-			if ( searchText != '' )
-				newURL += "?itemid_1663=3";
-			else 
-				newURL += "?itemid_1663=2";
-			
-			//alert(newURL);
-			// add the search text
-			newURL += "&searchText=" + searchText;
-			// redirect the page
-			location.href = newURL;
-		});
-		
-		// Handle the View All link
-		jQuery('a.all_link').click(function () {
-			// All Articles = 'itemid_1663=2'
-			// Get the search text
-			var newURL = '#cgi.script_name#';
-			// Set for the View All DS
-			newURL += "?itemid_1663=2";
-			//alert(newURL);
-			// redirect the page
-			location.href = newURL;
-		});
-	});
-</script>
 <style>
-	a.search_link, a.all_link {
+	a.add-button {
 		padding: 1px 10px;
 		text-decoration: none;
+		margin-left: 20px;
+		width: 115px;
+		height: 16px;
 	}
-</style> --->
-<!--- Search Form --->
-<!--- <div id="searchForm">
-	<input type="text" class="searchFld" id="searchText" name="searchText" tabindex="1" value="#request.params.searchText#" size="30" />
-	<a class="search_link ui-state-default ui-corner-all" href="##">Search</a>
-	<a class="all_link ui-state-default ui-corner-all" href="##">View All Articles</a>
-</div> --->
+	div.ds-icons {
+		padding: 1px 10px;
+		text-decoration: none;
+		margin-left: 20px;
+		width: 30px;
+	}
+</style>
+<div id="addNew" style="padding:20px;">
+	<cfif LEN(request.user.userid)>
+		<a href="javascript:;" rel="#application.ADF.ajaxProxy#?bean=Forms_1_1&method=renderAddEditForm&formid=#request.params.formid#&datapageid=0&lbAction=refreshparent&title=#request.params.addButtonTitle#&addMainTable=false" id="addNew" title="#request.params.addButtonTitle#" class="ADFLightbox add-button ui-state-default ui-corner-all">#request.params.addButtonTitle#</a><br />
+	<cfelse>
+		Please <a href="#request.subsitecache[1].url#login.cfm">LOGIN</a> to add new records.<br />
+	</cfif>
+</div>
 
-<!--- Datasheet Action Column Links
-EDIT:
-<div class='ds-icons ui-state-default ui-corner-all' title='edit' ><div style='margin-left:auto;margin-right:auto;' class='ui-icon ui-icon-pencil'></div></div>
-DELETE:
-<div class='ds-icons ui-state-default ui-corner-all' title='delete' ><div style='margin-left:auto;margin-right:auto;' class='ui-icon ui-icon-trash'></div></div>
- --->
 </cfoutput>
 <!--- Render for the datasheet module --->
 <CFMODULE TEMPLATE="/commonspot/utilities/ct-render-named-element.cfm"
