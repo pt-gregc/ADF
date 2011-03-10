@@ -279,6 +279,7 @@ Arguments:
 	String - fieldName - custom element unique fqFieldName
 History:
 	2009-05-29 - MFC - Created
+	2011-03-10 - SFS - The loadSearchBox function had an invalid field name of "search-box". ColdFusion considers variables with a "-" as invalid. Removed "-".
 --->
 <cffunction name="loadSearchBox" access="private" returntype="string" hint="General Chooser - Search box HTML content.">
 	<cfargument name="fieldName" type="String" required="true">
@@ -300,7 +301,7 @@ History:
 			}
 		</style>
 		<div id="search-chooser">
-			<input type="text" class="searchFld-chooser" id="#arguments.fieldName#-searchFld" name="search-box" tabindex="1" onblur="this.value = this.value || this.defaultValue;" onfocus="this.value='';" value="Search" />
+			<input type="text" class="searchFld-chooser" id="#arguments.fieldName#-searchFld" name="searchbox" tabindex="1" onblur="this.value = this.value || this.defaultValue;" onfocus="this.value='';" value="Search" />
 			<input type="button" id="#arguments.fieldName#-searchBtn" value="Search" style="width:60px;"> 
 		</div>
 		</cfoutput>
