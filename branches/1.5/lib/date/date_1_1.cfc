@@ -54,11 +54,14 @@ History:
 	History:
 		2011-03-08 - GAC - Added
 		2011-03-09 - GAC - Update - Added ParseDateTime() and returnFormat=Data - from the comments of Ben's blog post
+		2011-03-10 - GAC - Removed ReplaceFirst and changed to REReplace CF function.
 	--->
 	<cffunction name="ISOToDateTime" access="public" returntype="date" output="false" hint="Converts an ISO 8601 date/time stamp with optional dashes to a ColdFusion date/time stamp.">
 		<cfargument name="ISODateTime" type="string" required="true" hint="ISO 8601 date/time stamp.">
 		<!--- // When returning the converted date/time stamp, allow for optional dashes. --->
-		<cfreturn ParseDateTime(arguments.ISODateTime.ReplaceFirst("^.*?(\d{4})-?(\d{2})-?(\d{2})T([\d:]+).*$","$1-$2-$3 $4"))>
+		<!--- <cfreturn ParseDateTime(arguments.ISODateTime.ReplaceFirst("^.*?(\d{4})-?(\d{2})-?(\d{2})T([\d:]+).*$","$1-$2-$3 $4"))> --->
+		 <cfreturn ParseDateTime(REReplace(arguments.ISODateTime, "^.*?(\d{4})-?(\d{2})-?(\d{2})T([\d:]+).*$", "\1-\2-\3 \4", "ONE"))>
+		<!---<cfreturn arguments.ISODateTime.ReplaceFirst("^.*?(\d{4})-?(\d{2})-?(\d{2})T([\d:]+).*$","$1-$2-$3 $4")> --->
 	</cffunction>
 	
 	<!---
@@ -78,18 +81,25 @@ History:
 		String - ISO8601DateTime
 	History:
 		2011-03-08 - GAC - Created - Based on ISOToDateTime
+		2011-03-10 - GAC - Modified - Added check to make sure passed in value is a valid ISO8601 date/time stamp
 	--->
 	<cffunction name="ISOToDateTimeStruct" access="public" returntype="struct" output="false" hint="Converts an ISO 8601 date/time stamp to a structure of various data/time formats.">
 		<cfargument name="ISODateTime" type="string" required="true" hint="ISO 8601 date/time stamp.">
 			
 		<cfscript>
 			var dtStruct = StructNew();
+			var dateTime = arguments.ISODateTime;
 			
-			dtStruct.ISO8601DateTime = arguments.ISODateTime;
-			dtStruct.dateTime = ISOToDateTime(arguments.ISODateTime);
+			// Check to see if ISODateTime is an ISO8601 DateTime
+			//  - if not attempt but a valid date/time stamp attempt to convert it to the ISO8601 standard
+			if ( Find("T",dateTime) NEQ 11 AND IsDate(dateTime) )
+				dateTime = formatDateTimeISO8601(dateTime,dateTime);
+			
+			dtStruct.ISO8601DateTime = dateTime;
+			dtStruct.dateTime = ISOToDateTime(dateTime);
 			dtStruct.date = DateFormat(dtStruct.dateTime);
-			dtStruct.time = TimeFormat(dtStruct.dateTime);
-			dtStruct.csFormattedDateTime = csDateFormat(DateFormat(dtStruct.date),TimeFormat(dtStruct.time));
+			dtStruct.time = TimeFormat(dtStruct.dateTime,"long");
+			dtStruct.csDateTime = csDateFormat(dtStruct.date,dtStruct.time);
 
 			return dtStruct;
 		</cfscript>
