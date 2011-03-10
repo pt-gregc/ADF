@@ -20,8 +20,7 @@ in this directory, you agree to the terms and conditions of the applicable
 end user license agreement.
 --->
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author:
 	PaperThin, Inc.
 Name:
@@ -53,6 +52,8 @@ History:
 	2011-02-02 - GAC - Moved all of the parameter and data processing code into a method in the ajax_1_0 lib component
 	2011-02-02 - GAC - Added proxyFile check to see if the method is being called from inside the proxy file
 	2011-02-09 - GAC - Removed ADFlightbox specific code
+	2011-03-10 - MFC - Added check for subsiteURL param, then load the APPLICATION.CFC 
+						to load the lightbox within the specific subsites application scope.
 --->
 	<cfheader name="Expires" value="#now()#">
   	<cfheader name="Pragma" value="no-cache">
@@ -64,7 +65,17 @@ History:
 			you may need to set the ajax call dataType to 'text', 'html' or nothing (ie. best guess) --->
 	<cfparam name="request.params.debug" default="0" type="boolean">
 	<cfparam name="request.params.appName" default="" type="string">
+	<!--- Default the subsiteURL param --->
+	<cfparam name="request.params.subsiteURL" default="" type="string">
+	
 	<cfscript>
+		/*	Check if the subsiteURL is defined.
+	     *	If defined, then load the APPLICATION.CFC to load the lightbox within 
+		 * 		the specific subsites application scope.
+		 */
+		if ( LEN(request.params.subsiteURL) )
+			CreateObject("component","ADF.lib.ajax.Application").onRequestStart();	
+	
 		// reAJAX = ""; //Don't initalize the reAJAX allows for a return: void
 		ajaxData = Application.ADF.ajax.buildAjaxProxyString();
 		if ( StructKeyExists(ajaxData,"reString") )

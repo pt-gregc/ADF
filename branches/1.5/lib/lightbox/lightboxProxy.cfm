@@ -42,6 +42,8 @@ History:
 						inline with the HTML content block.
 						This is required for the FORMS_1_1 when implementing the UDF.UI.RenderSimpleForm function.
 							The dialog header must be loaded before the UDF HTML.
+	2011-03-10 - MFC - Added check for subsiteURL param, then load the APPLICATION.CFC 
+						to load the lightbox within the specific subsites application scope.
 --->
 	<cfheader name="Expires" value="#now()#">
   	<cfheader name="Pragma" value="no-cache">
@@ -55,6 +57,17 @@ History:
 	<cfparam name="request.params.addLBHeaderFooter" default="1" type="boolean">
 	<!--- // Debug parameter to force a DUMP of the processed method, bean and other passed in parameters  --->
 	<cfparam name="request.params.debug" default="0" type="boolean">
+	<!--- Default the subsiteURL param --->
+	<cfparam name="request.params.subsiteURL" default="" type="string">
+	
+	<cfscript>
+		/*	Check if the subsiteURL is defined.
+	     *	If defined, then load the APPLICATION.CFC to load the lightbox within 
+		 * 		the specific subsites application scope.
+		 */
+		if ( LEN(request.params.subsiteURL) )
+			CreateObject("component","ADF.lib.lightbox.Application").onRequestStart();	
+	</cfscript>
 </cfsilent>
 
 <!--- // Add CS 6.x lightbox Header  --->
