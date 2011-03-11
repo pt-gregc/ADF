@@ -44,6 +44,8 @@ History:
 							The dialog header must be loaded before the UDF HTML.
 	2011-03-10 - MFC - Added check for subsiteURL param, then load the APPLICATION.CFC 
 						to load the lightbox within the specific subsites application scope.
+	2011-03-11 - MFC - Updated the APPLICATION.CFC to use the ADF Application file
+						and loading the sites Application space function directly.
 --->
 	<cfheader name="Expires" value="#now()#">
   	<cfheader name="Pragma" value="no-cache">
@@ -66,7 +68,7 @@ History:
 		 * 		the specific subsites application scope.
 		 */
 		if ( LEN(request.params.subsiteURL) )
-			CreateObject("component","ADF.lib.lightbox.Application").onRequestStart();	
+			CreateObject("component","ADF.Application").loadSiteAppSpace(request.params.subsiteURL);	
 	</cfscript>
 </cfsilent>
 

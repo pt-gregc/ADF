@@ -29,6 +29,8 @@ Summary:
 History:
 	2009-06-17 - RLW - Created
 	2011-01-19 - RAK - Fixed typo in utils
+	2011-03-11 - MFC - Added If condition to check if subsiteURL is defined in request.params and has a value.
+						Changed loadSiteAppSpace function to 'public' access.
 --->
 <cfcomponent>
 	
@@ -39,7 +41,10 @@ History:
 		<!--- <cfinclude template="/commonspot/Application.cfm"> --->
 		<cfscript>
 			// this will come through an AJAX call
-			if( structKeyExists(form, "subsiteURL") )
+			// Check if subsiteURL is defined in request.params and has a value.
+			if( structKeyExists(request.params, "subsiteURL") AND LEN(request.params.subsiteURL) )
+				loadSiteAppSpace(request.params.subsiteURL);
+			else if( structKeyExists(form, "subsiteURL") )
 				loadSiteAppSpace(form.subsiteURL);
 			else if( structKeyExists(url, "subsiteURL") )
 				loadSiteAppSpace(url.subsiteURL);
@@ -50,7 +55,7 @@ History:
 		
 	</cffunction>
 	
-	<cffunction name="loadSiteAppSpace" access="private" returntype="void">
+	<cffunction name="loadSiteAppSpace" access="public" returntype="void">
 		<cfargument name="subsiteURL" required="true" type="string">
 		<cfinclude template="#arguments.subsiteURL#Application.cfm">
 	</cffunction>
