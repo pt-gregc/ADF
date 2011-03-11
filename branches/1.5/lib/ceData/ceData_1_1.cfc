@@ -1111,8 +1111,10 @@ Arguments:
 	String - Search Values
 History:
 	2011-03-01 - RAK - Created, adds security into getCEdata
+	2011-03-10 - MFC - NOT READY FOR PRIMETIME YET!
+						More thought needed for the existing ADF users.
 --->
-<cffunction name="getCEData" access="public" returntype="array" hint="Returns array of structs for all data matching the Custom Element.">
+<!--- <cffunction name="getCEData" access="public" returntype="array" hint="Returns array of structs for all data matching the Custom Element.">
 	<cfargument name="customElementName" type="string" required="true">
 	<cfargument name="customElementFieldName" type="string" required="false" default="">
 	<cfargument name="item" type="any" required="false" default="">
@@ -1138,5 +1140,5 @@ History:
 				arguments.searchFields);
 		}
 	</cfscript>
-</cffunction>
+</cffunction> --->
 </cfcomponent>
