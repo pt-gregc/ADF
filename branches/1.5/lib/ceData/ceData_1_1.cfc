@@ -96,13 +96,14 @@ Returns:
 Arguments:
 	number
 History:
+	2011-01-30 - RLW - modified the argument tabID to be a list instead of just a single tabID
 	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="getFieldsFromTabID" hint="Returns array containing form field name and id in order from the tabID"
 				access="public" 
 				returntype="array"
 				description="From tab id this can return either a simple listing of fields/fieldid in order. With recursive flag to true this function will return the fields/fieldid as normal but each field will have its default settings also.">
-	<cfargument name="tabID" type="numeric" required="true">
+	<cfargument name="tabIDList" type="string" required="true">
 	<cfargument name="recurse" type="boolean" required="false" default="false" hint="If true, this function will return a structure containing every fields and the fields default values.">
 	<cfscript>
 		var returnArray = ArrayNew(1);
@@ -114,7 +115,7 @@ History:
 			 from FormInputControlMap
     inner join FormInputControl 
 				ON FormInputControl.ID = FormInputControlMap.FieldID
-  			where TabID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.tabID#">
+  			where TabID in (<cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.tabIDList#" list="Yes">)
 		order by ItemPos
 	</cfquery>
 	<cfloop query="formFieldQuery">
@@ -231,17 +232,19 @@ History:
 /* *************************************************************** */
 Author: 	Ryan Kahn
 Name:
-	$getFieldValueByFieldID
+	$getFieldParamsByID
 Summary:
-	Returns struct containing form field values
+	Returns struct containing form parameters for a field (e.g. ID, Label, Required etc...)
 Returns:
 	struct
 Arguments:
 	number
 History:
+
+	2011-01-30 - RLW - Modified - Added additional parameters to the return structure
 	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
-<cffunction name="getFieldValuesByFieldID" hint="Returns struct containing form field values" access="public" returntype="struct">
+<cffunction name="getFieldParamsByID" hint="Returns struct containing form field parameters (e.g. ID, Label, Required etc...)" access="public" returntype="struct">
 	<cfargument name="fieldID" type="numeric" required="true">
 	<cfscript>
 		var multipleFieldQuery = '';
@@ -255,7 +258,7 @@ History:
   			where FieldID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.fieldID#">
 	</cfquery>
 	<cfloop query="formFieldQuery">
-		<cfset multipleFieldQuery = application.adf.cedata.getElementFieldsByFormID(formID)>
+		<cfset multipleFieldQuery = getElementFieldsByFormID(formID)>
 		<!---
 			getElementFieldsByFormID returns a resultset that contains EVERY field in the form, we just want the ONE field we need info from...
 		--->
@@ -264,6 +267,10 @@ History:
 		</cfquery>
 		<cfscript>
 			params = server.commonspot.udf.util.wddxdecode(fieldQuery.params[1],1);
+			// add in some additional params from the query
+			params.type = fieldQuery.type;
+			params.name = fieldQuery.fieldName;
+		//	params.description = fieldQuery.description;
 		</cfscript>
 	</cfloop>
 	<cfreturn params>
