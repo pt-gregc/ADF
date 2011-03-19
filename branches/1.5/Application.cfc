@@ -41,13 +41,12 @@ History:
 		<!--- <cfinclude template="/commonspot/Application.cfm"> --->
 		<cfscript>
 			// this will come through an AJAX call
-			// Check if subsiteURL is defined in request.params and has a value.
-			if( structKeyExists(request.params, "subsiteURL") AND LEN(request.params.subsiteURL) )
-				loadSiteAppSpace(request.params.subsiteURL);
+			if( structKeyExists(url, "subsiteURL") )
+				loadSiteAppSpace(url.subsiteURL);
 			else if( structKeyExists(form, "subsiteURL") )
 				loadSiteAppSpace(form.subsiteURL);
-			else if( structKeyExists(url, "subsiteURL") )
-				loadSiteAppSpace(url.subsiteURL);
+			else if( structKeyExists(request.params, "subsiteURL") AND LEN(request.params.subsiteURL) ) // Check if subsiteURL is defined in request.params and has a value.
+				loadSiteAppSpace(request.params.subsiteURL);
 			// Verify the security for the logged in user
 			if ( NOT server.ADF.objectFactory.getBean("csSecurity_1_0").isValidContributor() )
 				server.ADF.objectFactory.getBean("utils_1_0").abort();
