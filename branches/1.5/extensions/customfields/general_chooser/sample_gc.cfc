@@ -31,6 +31,8 @@ Summary:
 	Sample General Chooser Property Component
 History:
 	2010-06-21 - MFC - Created
+	2011-03-20 - MFC - Updated component to simplify the customizations process and performance.
+						Removed Ajax loading process.
 --->
 <cfcomponent name="sample_gc" extends="ADF.extensions.customfields.general_chooser.general_chooser">
 
@@ -40,10 +42,6 @@ History:
 	variables.CE_FIELD = "";
 	variables.SEARCH_FIELDS = "";
 	variables.ORDER_FIELD = "";
-	
-	// LAYOUT FLAGS
-	variables.SHOW_SECTION1 = true;  // Boolean
-	variables.SHOW_SECTION2 = true;  // Boolean
 	
 	// STYLES
 	variables.MAIN_WIDTH = 580;
@@ -57,12 +55,10 @@ History:
 	variables.SELECT_ITEM_CLASS = "ui-state-default";
 	variables.JQUERY_UI_THEME = "ui-lightness";
 	
-	// ADDITIONS
+	// NEW VARIABLES v1.1
+	variables.SHOW_SEARCH = true;  // Boolean
 	variables.SHOW_ALL_LINK = true;  // Boolean
-	variables.ADD_NEW_FLAG = false;	// Boolean
-	variables.ADD_NEW_URL = "";
-	variables.ADD_NEW_LB_WIDTH = 600;
-	variables.ADD_NEW_LB_HEIGHT = 420;
+	variables.SHOW_ADD_LINK = true;  // Boolean
 </cfscript>
 
 </cfcomponent>
