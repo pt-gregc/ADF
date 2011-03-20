@@ -31,6 +31,7 @@ History:
 	2011-01-19 - RAK - Fixed typo in utils
 	2011-03-11 - MFC - Added If condition to check if subsiteURL is defined in request.params and has a value.
 						Changed loadSiteAppSpace function to 'public' access.
+	2011-03-19 - RLW - Moved the conditional logic of url scope check up because left panels don't have request.params until after Application.cfm executes
 --->
 <cfcomponent>
 	
