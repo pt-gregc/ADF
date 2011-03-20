@@ -90,8 +90,7 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	M. Carroll
 Name:
 	$validateProxy
@@ -104,6 +103,8 @@ Arguments:
 	String - method - Method requesting permission
 History:
 	2009-11-05 - MFC - Created
+	2011-03-20 - MFC - Reconfigured Proxy White List to store in application space 
+						to avoid conflicts with multiple sites. 
 --->
 <cffunction name="validateProxy" access="public" returntype="boolean" hint="Returns T/F for if the component method is in the Proxy White List.">
 	<cfargument name="bean" type="string" required="true" hint="Component bean name">
@@ -111,9 +112,9 @@ History:
 	
 	<cfscript>
 		// Check if the bean exists in the proxy white list struct
-		if ( StructKeyExists(server.ADF.proxyWhiteList, arguments.bean) ){
+		if ( StructKeyExists(application.ADF.proxyWhiteList, arguments.bean) ){
 			// If we have a method list and we have a match to our argument
-			if ( (ListFindNoCase(server.ADF.proxyWhiteList[arguments.bean], arguments.method)) )
+			if ( (ListFindNoCase(application.ADF.proxyWhiteList[arguments.bean], arguments.method)) )
 				return true;
 			else
 				return false;

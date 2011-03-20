@@ -383,8 +383,7 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	M. Carroll
 Name:
 	$loadAppProxyWhiteList
@@ -397,6 +396,8 @@ Arguments:
 History:
 	2009-00-00 - MFC - Created
 	2011-02-02 - RAK - Updated structMerge to merge the lists also by adding true to the structMerge function
+	2011-03-20 - MFC - Reconfigured Proxy White List to store in application space 
+						to avoid conflicts with multiple sites. 
 --->
 <cffunction name="loadAppProxyWhiteList" access="private" returntype="void" hint="Loads the proxy white list XML for the application.">
 	<cfargument name="appName" type="string" required="true">
@@ -410,8 +411,8 @@ History:
 		if ( FileExists(proxyWhiteListXMLPath) )
 		{	
 			configStruct = server.ADF.objectFactory.getBean("CoreConfig").getConfigViaXML(proxyWhiteListXMLPath);
-			// Merge this config struct into the server proxy white list 
-			server.ADF.proxyWhiteList = server.ADF.objectFactory.getBean("Data_1_0").structMerge(server.ADF.proxyWhiteList, configStruct, true);
+			// Merge this config struct into the application proxy white list 
+			application.ADF.proxyWhiteList = server.ADF.objectFactory.getBean("Data_1_0").structMerge(application.ADF.proxyWhiteList, configStruct, true);
 		}
 	</cfscript>
 </cffunction>

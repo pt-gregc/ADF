@@ -48,6 +48,9 @@ Arguments:
 	Void
 History:
 	2009-08-17 - MFC - Created
+	2011-03-20 - MFC - Reconfigured Proxy White List to store in application space 
+						to avoid conflicts with multiple sites. 
+					   Declare variable for Application space.
 --->
 <cffunction name="initSite" access="private" returntype="void">
 	
@@ -59,6 +62,8 @@ History:
 		application.ADF.dependencyStruct = StructNew();  // Stores the bean dependency list
 		application.ADF.siteAppList = ""; // Stores a list of the sites Apps loaded 
 		application.ADF.version = "";
+		// Set the proxyWhiteList from the Server Apps ProxyWhiteList
+		application.ADF.proxyWhiteList = server.ADF.proxyWhiteList;
 	</cfscript>	
 	
 </cffunction>
@@ -230,20 +235,22 @@ History:
 </cffunction>
 
 <!---
-	/* *************************************************************** */
-	Author: 	M. Carroll
-	Name:
-		$loadSiteAjaxProxyWhiteList
-	Summary:
-		Loads the site Ajax Service Proxy white list file
-	Returns:
-		Void
-	Arguments:
-		Void
-	History:
-		2009-08-25 - MFC - Created
-		2009-11-05 - MFC - Updated for the ajax proxy security based on bean and method.
-		2011-02-02 - RAK - Updated structMerge to merge the lists also by adding true to the structMerge function
+/* *************************************************************** */
+Author: 	M. Carroll
+Name:
+	$loadSiteAjaxProxyWhiteList
+Summary:
+	Loads the site Ajax Service Proxy white list file
+Returns:
+	Void
+Arguments:
+	Void
+History:
+	2009-08-25 - MFC - Created
+	2009-11-05 - MFC - Updated for the ajax proxy security based on bean and method.
+	2011-02-02 - RAK - Updated structMerge to merge the lists also by adding true to the structMerge function
+	2011-03-20 - MFC - Reconfigured Proxy White List to store in application space 
+					to avoid conflicts with multiple sites. 
 --->
 <cffunction name="loadSiteAjaxProxyWhiteList" access="private" returntype="void" hint="">
 	
@@ -254,7 +261,7 @@ History:
 		if ( fileExists( configPath ) )
 		{
 			configStruct = server.ADF.objectFactory.getBean("CoreConfig").getConfigViaXML(configPath);
-			server.ADF.proxyWhiteList = server.ADF.objectFactory.getBean("Data_1_0").structMerge(server.ADF.proxyWhiteList, configStruct, true);
+			application.ADF.proxyWhiteList = server.ADF.objectFactory.getBean("Data_1_0").structMerge(application.ADF.proxyWhiteList, configStruct, true);
 		}
 	</cfscript>
 	
