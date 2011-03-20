@@ -315,7 +315,6 @@ History:
     <cfreturn folder&fileName>
 </cffunction>
 
-
 <!---
 /* *************************************************************** */
 Author:
@@ -584,6 +583,7 @@ History:
 	2011-02-08 - RAK - Removing ptBlog2 from the function calls as this is not running in ptBlog2 and should never have been here. Its fixed now at least...
 	2011-02-09 - RAK - Var'ing un-var'd variables
 	2011-02-15 - RAK - Removing lowercasing of view values
+	2011-03-14 - MFC - Update the viewname variable to remove spaces.
 --->
 <cffunction name="buildRealTypeView" access="public" returntype="boolean">
 	<cfargument name="elementName" type="string" required="true">
@@ -597,6 +597,8 @@ History:
 		var fieldsSQL = '';
 		var fldqry = '';
 		var intType = '';
+		// Remove the spaces in the name
+		arguments.viewName = Replace(arguments.viewName, " ", "_", "all");
 		switch (dbtype)
 		{
 			case 'Oracle':
@@ -1059,8 +1061,6 @@ History:
 	)>
 </cffunction>
 
-
-
 <!---
 /* ***************************************************************
 /*
@@ -1096,7 +1096,6 @@ History:
 	</cfloop>
 	<cfreturn "">
 </cffunction>
-
 
 <!---
 /* ***************************************************************
