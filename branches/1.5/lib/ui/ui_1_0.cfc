@@ -337,6 +337,7 @@ History:
 	2011-02-14 - MFC - Modified - Removed forceLightboxResize argument.
 									Removed the global header/footer variables.
 									Added lbCheckLogin parameter to validate if the user is authenticated.
+	2011-03-20 - MFC - Added Else statement to add Table tag for CS5 lightbox resizing.
 --->
 <cffunction name="lightboxHeader" access="public" returntype="string" output="false" hint="Returns HTML for the CS 6.x lightbox header (use with the lightboxFooter)">
 	<cfargument name="lbTitle" type="string" default="">
@@ -370,6 +371,13 @@ History:
 				<tr>
 					<td<cfif LEN(TRIM(arguments.tdClass))> class="#arguments.tdClass#"</cfif>>
 			</cfoutput> 
+		<cfelse>
+			<!--- CS 5 and under, add Table Tab --->
+			<cfoutput>
+				<table id="MainTable">
+					<tr>
+						<td>
+			</cfoutput> 
 		</cfif>		
 	</cfsavecontent>
 	<cfreturn retHTML>
@@ -392,6 +400,8 @@ History:
 	2011-01-19 - GAC - Created 
 	2011-02-11 - GAC - Modified - Fixed the logic with the LB Header/Footer render twice protection
 	2011-02-14 - MFC - Modified - Removed the global header/footer variables.
+	2011-03-20 - MFC - Added Else statement to add Table tag for CS5 lightbox resizing.
+						Added scripts to resize the dialog on load.
 --->
 <cffunction name="lightboxFooter" access="public" returntype="string" output="false" hint="Returns HTML for the CS 6.x lightbox footer (use with the lightboxHeader)">
 	<cfscript>
@@ -405,6 +415,24 @@ History:
 				</tr>
 			<CFINCLUDE template="/commonspot/dlgcontrols/dlgcommon-foot.cfm">
 			</cfoutput>
+		<cfelse>
+			<!--- CS 5 and under, close Table Tab --->
+			<cfoutput>
+						</td>
+					</tr>
+				</table>
+				<!--- Load JQuery to resize the dialog after loading --->
+				<!--- TODO: Possibly not do this through JQuery --->
+				<cfscript>
+					application.ADF.scripts.loadJQuery();
+				</cfscript>
+				<script type="text/javascript">
+					// Resize with the CS lightbox scripts
+					jQuery(document).ready(function() {
+						commonspot.lightbox.recalcLightboxSizeByPos(commonspot.lightbox.stack.length-1);
+					});
+				</script>
+			</cfoutput> 
 		</cfif>		
 	</cfsavecontent>
 	<cfreturn retHTML>
