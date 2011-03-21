@@ -384,5 +384,32 @@ History:
      <cfreturn NewQuery />
  </cffunction>
 
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Greg Cronkright
+Name:
+	$countWordsInString
+Summary:
+	Counts the number of words in a string
+Returns:
+	String
+Arguments:
+	string - textStr
+History:
+	2011-03-11 - GAC - 	Based on the word counting from trimStringByWordCount in data_1_0 
+						which was originally written by David Grant (david@insite.net)
+--->
+<cffunction name="countWordsInString" access="public" returntype="String" hint="Counts the number of words in string">
+	<cfargument name="textStr" required="yes" type="string" hint="The string to count">
+	<cfscript>
+		var numWords = 0;
+		var str = trim(arguments.textStr);
+		str = REReplace(str,"[[:space:]]{2,}"," ","ALL");
+		numWords = listLen(str," ");
+		return numWords;
+	</cfscript>
+</cffunction>
 
 </cfcomponent>
