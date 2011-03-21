@@ -12,10 +12,12 @@
 			jQuery(".uploadFailure").hide();
 		}
 		function uploadSuccess(){
+			<!--- This trickery takes the file: test.pdf and converts it to test--#request.params.uploadUUID#.pdf --->
 			var fileValue = jQuery('[name="filename"]').val();
-			fileValue = fileValue.split('.');
-        	var extension =  fileValue.pop();
-			fileValue = fileValue+"--#request.params.uploadUUID#."+extension;
+			var fileExtensionRegex = /(\.[^.]+)$/;
+			var extension = fileValue.match(fileExtensionRegex)[0];
+			fileValue = fileValue.replace(fileExtensionRegex,'');
+			fileValue = fileValue+"--#request.params.uploadUUID#"+extension;
 			jQuery(".uploading").hide();
 			jQuery('[name="filedata"]').val("");
 			jQuery(".form").show();

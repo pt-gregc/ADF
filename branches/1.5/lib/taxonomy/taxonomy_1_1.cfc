@@ -170,6 +170,7 @@ Arguments:
 	string
 History:
 	2011-01-04 - MFC - Created
+	2011-03-02 - RAK - Added sorting on target term as a secondary sort.
 --->
 <cffunction name="getTermByRelationships" access="public" returntype="query" output="true" hint="">
 	<cfargument name="taxonomyID" type="numeric" required="true">
@@ -201,7 +202,7 @@ History:
 		<cfif LEN(arguments.relationshipName) GT 0>
 			AND		TaxonomyRelationshipType.TypeName = <cfqueryparam value="#arguments.relationshipName#" cfsqltype="cf_sql_varchar">
 		</cfif>
-		ORDER BY 	SourceTerm
+		ORDER BY 	SourceTerm, targetTerm
 	</cfquery>
 	<cfreturn termQry>
 </cffunction>

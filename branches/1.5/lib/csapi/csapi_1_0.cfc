@@ -190,7 +190,7 @@ History:
 	<cfargument name="subsiteID" type="numeric" required="true" hint="">
 	
 	<cfscript>
-		var subsiteData = application.adf.csData.getSubsiteQueryByID(subsiteID=arguments.subsiteID);
+		var subsiteData = application.ADF.csData.getSubsiteQueryByID(subsiteID=arguments.subsiteID);
 		var httpSubsiteURL = Replace(request.site.url, request.site.CP_URL, "") & subsiteData.SubSiteURL;
 		
 		return httpSubsiteURL;
