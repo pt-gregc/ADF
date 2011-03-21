@@ -174,34 +174,79 @@ Arguments:
 	Void
 History:
 	2009-08-10 - MFC - Created
+	2011-03-20 - RLW - Added support to load a "version" of library components
 --->
 <cffunction name="loadLibrary" access="private" returntype="void" hint="Loads the latest ADF library components into the application space">
-	
+	<cfargument name="loadVersion" type="string" required="false" default="#getADFVersion()#" hint="Pass in the specific ADF version you would like to load">
 	<cfscript>
-		var libKeys = StructKeyList(server.ADF.library);
+		var libKeys = "";
 		var localLibKeys = "";
 		var i = 1;
-		
+		var libVersions = structNew();
+		var thisComponent = "";
+		var thisComponentEasyName = "";
+
 		// Load the ADF Lib components
 		application.ADF.beanConfig.loadADFLibComponents("#request.site.csAppsURL#lib/", "", "application");
+
 		// Refresh the Object Factory
-		application.ADF.objectFactory = createObject("component","ADF.core.lightwire.LightWireExtendedBase").init(application.ADF.beanConfig);
-		localLibKeys = StructKeyList(application.ADF.library);
+		application.ADF.objectFactory = createObject("component","ADF.core.lightwire.LightWireExtendedBase").init(application.ADF.beanConfig);		
+
+		//localLibKeys = StructKeyList(application.ADF.library);
 		
+		// retrieve the libraryComponents to load
+		libVersions = loadLibVersions();
+		// verify that the passed in version is valid
+		if( structKeyExists(libVersions, "v_" & arguments.loadVersion) )
+			libKeys = structKeyList(libVersions["v_" & arguments.loadVersion] );
+		else
+			libKeys = structKeyList(libVersions["v_" & getADFVersion()] );
+			
 		// loop over the keys that are the lib component names
 		for ( i = 1; i LTE ListLen(libKeys); i = i + 1)
 		{
+			// build the variables for loading components
+			thisComponent = listGetAt(libKeys, i);
+			thisComponentEasyName = listFirst(thisComponent, "_");
+			
 			// Load the bean into application space
-			application.ADF[ListGetAt(libKeys,i)] = server.ADF.objectFactory.getBean(server.ADF.library[ListGetAt(libKeys,i)]);
+			application.ADF[thisComponentEasyName] = server.ADF.objectFactory.getBean(thisComponent);
 		}
-		// loop over the keys that are the local lib component names
+
 		// 	This will override any server lib components
 		for ( i = 1; i LTE ListLen(localLibKeys); i = i + 1)
 		{
 			// Load the bean into application space
 			application.ADF[ListGetAt(localLibKeys,i)] = application.ADF.objectFactory.getBean(application.ADF.library[ListGetAt(localLibKeys,i)]);
 		}
+
 	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	R. West
+Name:
+	$loadLibVersions
+Summary:
+	Loads the mapping between library component versions and ADF versions
+Returns:
+	Struct rtnData
+Arguments:
+	Void
+History:
+	2011-03-20 - RLW - Created
+--->
+<cffunction name="loadLibVersions" access="public" returnType="struct" hint="Loads the mapping between library component versions and ADF versions">
+	<cfscript>
+		var versionXMLStr = "";
+		var rtnData = structNew();
+	</cfscript>
+	<!--- // read the XML file from the /ADF/lib directory --->
+	<cffile action="read" file="#expandPath('/ADF/lib/')#version.xml" variable="versionXMLStr">
+	<!--- // deserialize the XML into CF --->
+	<cfset rtnData = deserializeXML(versionXMLStr)>
+	<cfreturn rtnData>
 </cffunction>
 
 <!---
