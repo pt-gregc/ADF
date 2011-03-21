@@ -554,5 +554,46 @@ History:
 		return keywordsArray;
 	</cfscript>
 </cffunction>
-
+<!---
+/* ***************************************************************
+/*
+Author: 	R. West
+Name:
+	$getElementsByPageID
+Summary:
+	Returns an array of elements from the given pageID
+Returns:
+	Array elements
+Arguments:
+	String pageIDList
+	Boolean TBandCEOnly
+	Boolean onlyNamedElements
+History:
+	2011-03-19 - RLW - Created
+--->
+<cffunction name="getElementsByPageID" access="public" returnType="array" hint="Returns an array of elements from the given CS PageID">
+	<cfargument name="pageIDList" type="string" required="true" hint="List of CommonSpot PageIDs">
+	<cfargument name="TBandCEOnly" type="boolean" required="false" default="true" hint="Only return Custom Elements and Textblock Elements">
+	<cfargument name="onlyNamedElements" type="boolean" required="false" default="true" hint="Only return elements that have a specified name">
+	<cfscript>
+		var elements = arrayNew(1);
+		var qryGetElements = queryNew("");
+	</cfscript>
+	<cfquery name="qryGetElements" dataSource="#request.site.datasource#">
+		select DISTINCT ci.controlID, ci.controlName, ci.controlType, ci.pageID, ac.name, ac.shortDesc, ac.longDesc
+		from controlInstance ci, availableControls ac
+		where ci.pageID in (<cfqueryparam CFSQLType="CF_SQL_INTEGER" list="Yes" value="#arguments.pageIDList#">)
+		<cfif arguments.TBandCEOnly>
+			and ( ci.controlType in (<cfqueryparam CFSQLType="CF_SQL_INTEGER" list="Yes" value="#request.constants.elementTEXTBLOCK#,#request.constants.elementTEXTBLOCK_NOHDR#">)
+			or ci.controlType > <cfqueryparam CFSQLType="CF_SQL_INTEGER" value="#request.constants.elementMaxFactory#">)
+		</cfif>
+		<cfif arguments.onlyNamedElements>
+			and ci.controlName IS NOT NULL
+		</cfif>
+		and ci.controlType = ac.ID
+		order by controlName, controlID
+	</cfquery>
+	<!--- // convert the elements query to an array of structs --->
+	<cfreturn variables.data.queryToArrayOfStructures(qryGetElements)>
+</cffunction>
 </cfcomponent>

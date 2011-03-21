@@ -30,11 +30,12 @@ Version:
 	1.1.0
 History:
 	2011-01-25 - RLW - Created - New v1.1
+	2011-03-20 - RLW - Updated ccapi version to new 1.1
 ---> 
 <cfcomponent displayname="csPage_1_1" extends="ADF.lib.ccapi.csPage_1_0" hint="Constructs a CCAPI instance and then creates or deletes a page with the given information">
 <cfproperty name="version" value="1_1_0">
 <cfproperty name="type" value="transient">
-<cfproperty name="ccapi" type="dependency" injectedBean="ccapi">
+<cfproperty name="ccapi" type="dependency" injectedBean="ccapi_1_1">
 <cfproperty name="csData" type="dependency" injectedBean="csData_1_1">
 <cfproperty name="ceData" type="dependency" injectedBean="ceData_1_1">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">

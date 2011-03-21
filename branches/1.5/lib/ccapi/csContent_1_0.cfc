@@ -30,11 +30,12 @@ Version:
 	1.0.1
 History:
 	2009-06-17 - RLW - Created
+	2011-03-20 - RLW - Updated to use the new ccapi_1_0 component (was the original ccapi.cfc file)
 --->
 <cfcomponent displayname="csContent_1_0" hint="Constructs a CCAPI instance and then allows you to populate Custom Elements and Textblocks" extends="ADF.core.Base">
 <cfproperty name="version" value="1_0_1">
 <cfproperty name="type" value="transient">
-<cfproperty name="ccapi" type="dependency" injectedBean="ccapi">
+<cfproperty name="ccapi" type="dependency" injectedBean="ccapi_1_0">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_0">
 <cfproperty name="wikiTitle" value="CSContent_1_0">
 
@@ -60,6 +61,7 @@ Arguments:
 History:
 	2008-05-30 - RLW - Created
 	2010-12-09 - RAK - added forceSubsiteID and forcePageID functionality
+	2011-03-19 - RLW - added support for controlID in config
 --->
 <cffunction name="populateContent" access="public" returntype="struct" hint="Use this method to populate content for either a Textblock or Custom Element">
 	<cfargument name="elementName" type="string" required="true" hint="The name of the element from the CCAPI configuration">
@@ -84,7 +86,6 @@ History:
 		elements = variables.ccapi.getElements();
 		ws = variables.ccapi.getWS();
 		result.contentUpdated = false;
-		
 		// get the settings for this element
 		if ( isStruct(elements) and structKeyExists(elements, arguments.elementName) )
 		{
@@ -121,7 +122,11 @@ History:
 
 			// construct specific data for the content creation API
 			contentStruct.pageID = thisElement["pageID"];
-			contentStruct.controlName = thisElement["controlName"];				
+			if( structKeyExists(thisElement, "controlID") )
+				contentStruct.controlID = thisElement["controlID"];
+			else
+				contentStruct.controlName = thisElement["controlName"];	
+							
 			
 			// if we find the option to submit change in the data
 			if( structKeyExists(arguments.data, "submitChange") )
