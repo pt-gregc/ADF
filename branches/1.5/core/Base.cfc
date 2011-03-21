@@ -66,4 +66,31 @@ History:
 	</cfscript>
 </cffunction>
 
+<!---
+/* ***************************************************************
+/*
+Author:
+	PaperThin, Inc.
+	Ron West
+Name:
+	$deserializeXML
+Summary:
+	Converts XML into CF struct
+Returns:
+	Struct rtnData
+Arguments:
+	String XMLString
+History:
+ 	2011-03-20 - RLW - Created
+--->
+<cffunction name="deserializeXML" access="public" returnType="struct" hint="Converts XML into CF Struct">
+	<cfargument name="XMLString" type="string" required="true" hint="XML String to be deserialized into CF">
+	<cfscript>
+		var rtnData = structNew();
+		if( isXML(arguments.XMLString) )
+			rtnData = Server.CommonSpot.MapFactory.deserialize(arguments.XMLString);
+	</cfscript>
+	<cfreturn rtnData>
+</cffunction>
+
 </cfcomponent>
