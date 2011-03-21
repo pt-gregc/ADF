@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings>
+	<v_1.0>
+		<!-- // ajax -->
+		<ajax_1_0/>
+		<!-- // CCAPI -->
+		<ccapi_1_0/>
+		<csContent_1_0/>
+		<csPage_1_0/>
+		<csSubsite_1_0/>
+		<csSubsite_1_0/>
+		<!-- // cedata -->
+		<ceData_1_0/>
+		<!-- // csData -->
+		<csData_1_0/>
+		<!-- // csSecurity -->
+		<csSecurity_1_0/>
+		<!-- // data -->
+		<data_1_0/>
+		<!-- // date -->
+		<date_1_0/>
+		<!-- // forms -->
+		<forms_1_0/>
+		<!-- // scripts -->
+		<scripts_1_0/>
+		<scriptsService_1_0/>
+		<!-- // taxonomy -->
+		<taxonomy_1_0/>
+		<!-- // utils -->
+		<utils_1_0/>
+	</v_1.0>
+	<v_1.5>
+		<!-- // ajax -->
+		<ajax_1_0/>
+		<!-- // CCAPI -->
+		<ccapiConfig_1_0/>
+		<ccapi_1_1/>
+		<csContent_1_1/>
+		<csPage_1_1/>
+		<csSubsite_1_1/>
+		<csSubsite_1_1/>
+		<!-- // cedata -->
+		<ceData_1_1/>
+		<!-- // csapi -->
+		<csapi_1_0/>
+		<!-- // csData -->
+		<csData_1_1/>
+		<!-- // csSecurity -->
+		<csSecurity_1_0/>
+		<!-- // data -->
+		<data_1_1/>
+		<!-- // date -->
+		<date_1_1/>
+		<!-- // forms -->
+		<forms_1_1/>
+		<!-- // lightbox -->
+		<lightbox_1_0/>
+		<!-- // scripts -->
+		<scripts_1_1/>
+		<scriptsService_1_1/>
+		<!-- // taxonomy -->
+		<taxonomy_1_1/>
+		<!-- // ui -->
+		<ui_1_0/>
+		<!-- // utils -->
+		<utils_1_1/>
+	</v_1.5>
+</settings>
