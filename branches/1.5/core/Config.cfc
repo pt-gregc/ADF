@@ -52,6 +52,7 @@ History:
 	History:
 		2009-05-17 - RLW - Created
 		2009-11-19 - GAC - Modified to read a XML config values from an included .CFM file
+		2011-03-20 - RLW - Modified to use the new deserializeXML function loaded into Base
 	--->
 <cffunction name="getConfigViaXML" access="public" returntype="struct" output="true">
 	<cfargument name="filePath" type="string" required="true">
@@ -78,7 +79,7 @@ History:
 			<cffile action="read" file="#arguments.filePath#" variable="configXML">
 		</cfif>
 		<cftry>
-			<cfset configStruct = Server.CommonSpot.MapFactory.deserialize(configXML)>
+			<cfset configStruct = deserializeXML(configXML)>
 			<cfcatch>
 				<!--- // TODO: this needs some error catching --->
 				<!--- <cfdump var="#cfcatch#" lablel="cfcatch" expand="false"> --->
