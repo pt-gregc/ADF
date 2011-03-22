@@ -343,7 +343,7 @@ History:
 						if (structKeyExists(parsed["feed"].XMLChildren[index], "modified")) querySetCell(retQuery, "pubDate", parsed["feed"].XMLChildren[index].modified.XMLText, rows);
 						if (structKeyExists(parsed["feed"].XMLChildren[index], "created")) querySetCell(retQuery, "pubDate", parsed["feed"].XMLChildren[index].created.XMLText, rows);
 						//2011-03-14 - RAK - added updated parsing..
-						if (structKeyExists(parsed["feed"].XMLChildren[index], "updated")) querySetCell(retQuery, "pubDate", application.ADF.utils_1_1.DateConvertISO8601(parsed["feed"].XMLChildren[index].updated.XMLText,0), rows);
+						if (structKeyExists(parsed["feed"].XMLChildren[index], "updated")) querySetCell(retQuery, "pubDate", application.ADF.date.ISOToDateTime(parsed["feed"].XMLChildren[index].updated.XMLText,0), rows);
 
 
 
