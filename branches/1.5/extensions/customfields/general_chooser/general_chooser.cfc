@@ -66,6 +66,7 @@ History:
 	variables.SHOW_SEARCH = true;  // Boolean
 	variables.SHOW_ALL_LINK = true;  // Boolean
 	variables.SHOW_ADD_LINK = true;  // Boolean
+	variables.SHOW_EDIT_DELETE_LINKS = false;  // Boolean
 </cfscript>
 
 <!---
@@ -127,6 +128,7 @@ Arguments:
 	ARGS
 History:
 	2011-01-14 - MFC - Created
+	2011-03-27 - MFC - Updates for IE styling.
 --->
 <cffunction name="loadStyles" access="public" returntype="string" output="true" hint="">
 	<cfargument name="fieldName" type="string" required="true">
@@ -235,13 +237,18 @@ History:
 					width: #variables.SELECT_ITEM_WIDTH#px;
 					height: #variables.SELECT_ITEM_HEIGHT#px;
 				}
+				/* ITEM CLASS w/ EDIT/DELETE LINKS */
+				###arguments.fieldName#-sortable1 li.itemEditDelete,
+				###arguments.fieldName#-sortable2 li.itemEditDelete { 
+					height: #variables.SELECT_ITEM_HEIGHT+20#px;
+				}
 				
 				/* ADD LINK */
 				div###arguments.fieldName#-gc-section2 div##add-new-items a.#arguments.fieldName#-ui-buttons {
 					padding: 1px 10px;
 					text-decoration: none;
 					margin-left: 20px;
-					width: 115px;
+					width: 120px;
 					height: 16px;
 				}
 				/* SEARCH BUTTON */
@@ -249,7 +256,7 @@ History:
 					padding: 1px 10px;
 					text-decoration: none;
 					margin-left: 5px;
-					width: 115px;
+					/* width: 115px; */
 					height: 16px;
 				}
 				
@@ -339,7 +346,7 @@ History:
 		<cfsavecontent variable="retAddLinkHTML">
 			<cfoutput>
 				<div id="add-new-items">
-					<a href="javascript:;" rel="#application.ADF.ajaxProxy#?bean=Forms_1_1&method=renderAddEditForm&formID=#ceFormID#&dataPageId=0&callback=#arguments.fieldName#_addNewCallback&title=Add New Record" class="ADFLightbox ui-state-default ui-corner-all #arguments.fieldName#-ui-buttons">Add New Item</a>
+					<a href="javascript:;" rel="#application.ADF.ajaxProxy#?bean=Forms_1_1&method=renderAddEditForm&formID=#ceFormID#&dataPageId=0&callback=#arguments.fieldName#_formCallback&title=Add New Record" class="ADFLightbox ui-state-default ui-corner-all #arguments.fieldName#-ui-buttons">Add New Item</a>
 				</div>
 			</cfoutput>
 		</cfsavecontent>
@@ -370,6 +377,8 @@ Arguments:
 History:
 	2009-10-16 - MFC - Created
 	2011-01-14 - MFC - Updated for ADF V1.5 to build in edit/delete icons and actions.
+	2011-03-20 - MFC - Added flag for Edit/Delete links to the item row.
+	2011-03-27 - MFC - Updates for IE styling.
 --->
 <cffunction name="getSelections" access="public" returntype="string" hint="Returns the html code for the selections of the profile select custom element.">
 	<cfargument name="item" type="string" required="false" default="">
@@ -381,8 +390,8 @@ History:
 	<cfscript>
 		var retHTML = "";
 		var i = 1;
-		var editLink = "";
-		var deleteLink = "";
+		var editDeleteLinks = "";
+		var itemCls = "";
 		var ceDataArray = getChooserData(arguments.item, arguments.queryType, arguments.searchValues, arguments.csPageID);
 		// Loop over the data 	
 		for ( i=1; i LTE ArrayLen(ceDataArray); i=i+1) {
@@ -392,9 +401,17 @@ History:
 					AND StructKeyExists(ceDataArray[i].Values, "#variables.CE_FIELD#") 
 					AND LEN(ceDataArray[i].Values[variables.CE_FIELD]) )
 			{
-				editLink = "<a href='javascript:;' rel='#application.ADF.ajaxProxy#?bean=Forms_1_1&method=renderAddEditForm&formID=#ceDataArray[i].formID#&datapageId=#ceDataArray[i].pageID#&callback=#arguments.fieldID#_editCallback&title=Edit Record' class='ADFLightbox ui-icon ui-icon-pencil' style='float:left;'></a>";
-				deleteLink = "<a href='javascript:;' rel='#application.ADF.ajaxProxy#?bean=Forms_1_1&method=renderDeleteForm&formID=#ceDataArray[i].formID#&datapageId=#ceDataArray[i].pageID#&callback=#arguments.fieldID#_deleteCallback&title=Delete Record' class='ADFLightbox ui-icon ui-icon-trash' style='float:left;'></a>";
-				retHTML = retHTML & "<li id='#ceDataArray[i].Values[variables.CE_FIELD]#' class='#variables.SELECT_ITEM_CLASS#'><div class='itemCell'>#LEFT(ceDataArray[i].Values[variables.ORDER_FIELD],26)#<br />#editLink#&nbsp;#deleteLink#</li>";
+				// Reset the item class on every loop iteration
+				itemCls = variables.SELECT_ITEM_CLASS;
+				// Build the Edit/Delete links
+				if ( variables.SHOW_EDIT_DELETE_LINKS ) {
+					editDeleteLinks = "<br /><table><tr><td><a href='javascript:;' rel='#application.ADF.ajaxProxy#?bean=Forms_1_1&method=renderAddEditForm&formID=#ceDataArray[i].formID#&datapageId=#ceDataArray[i].pageID#&callback=#arguments.fieldID#_formCallback&title=Edit Record' class='ADFLightbox ui-icon ui-icon-pencil'></a></td>";
+					editDeleteLinks = editDeleteLinks & "<td><a href='javascript:;' rel='#application.ADF.ajaxProxy#?bean=Forms_1_1&method=renderDeleteForm&formID=#ceDataArray[i].formID#&datapageId=#ceDataArray[i].pageID#&callback=#arguments.fieldID#_formCallback&title=Delete Record' class='ADFLightbox ui-icon ui-icon-trash'></a></td></tr></table>";
+				    // Set the item class to add the spacing for the edit/delete links
+				    itemCls = itemCls & " itemEditDelete";
+				}
+				// Build the item, and add the Edit/Delete links
+				retHTML = retHTML & "<li id='#ceDataArray[i].Values[variables.CE_FIELD]#' class='#itemCls#'><div class='itemCell'>#LEFT(ceDataArray[i].Values[variables.ORDER_FIELD],26)##editDeleteLinks#</li>";
 			}
 		}
 	</cfscript>
