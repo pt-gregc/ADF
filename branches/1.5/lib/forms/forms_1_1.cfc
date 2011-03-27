@@ -224,6 +224,8 @@ History:
 	2010-10-29 - MFC - Updated the delete form for CS 6 Lightbox styles.
 	2010-12-21 - MFC - Removed the JQuery version in the param.
 	2011-01-20 - GAC - Updated the conflicting title code was attempting to set the Lightbox DialogName
+	2011-03-26 - MFC - Removed the lightbox header and footer from rendering.  The Lightbox proxy 
+						now renders the header and footer.
 --->
 <cffunction name="renderDeleteForm" access="public" returntype="String" hint="Renders the standard datasheet delete module">
 	<cfargument name="formID" type="numeric" required="true" hint="The FormID for the Custom Element">
@@ -233,23 +235,6 @@ History:
 
 	<cfset var deleteFormHTML = "">
 	<cfsavecontent variable="deleteFormHTML">
-		<!--- Render the dlg header --->
-		<cfscript>
-			// Use the Title passed in or if available use the title in the request.params for the Lightbox DialogName
-			if ( LEN(TRIM(arguments.title)) )
-				CD_DialogName = arguments.title;
-			else if ( StructKeyExists(request.params,"title"))
-				CD_DialogName = request.params.title;
-			else
-				CD_DialogName = "";
-			CD_Title=CD_DialogName;
-			CD_IncludeTableTop=1;
-			CD_CheckLock=0;
-			CD_CheckLogin=1;
-			CD_CheckPageAlive=0;
-		</cfscript>
-		<CFINCLUDE TEMPLATE="/commonspot/dlgcontrols/dlgcommon-head.cfm">
-		<cfoutput><tr><td></cfoutput>
 		<cfscript>
 			variables.scripts.loadJquery(force=1);
 			variables.scripts.loadADFLightbox(force=1);
@@ -264,9 +249,6 @@ History:
 			CD_DIALOGNAME = arguments.title;
 		</cfscript>
 		<cfinclude template="/ADF/extensions/datasheet-modules/delete_element_handler.cfm">
-		<!--- Render the dlg footer --->
-		<cfoutput></tr></td></cfoutput>
-		<CFINCLUDE template="/commonspot/dlgcontrols/dlgcommon-foot.cfm">
 	</cfsavecontent>
 	<cfreturn deleteFormHTML>
 </cffunction>
