@@ -82,6 +82,8 @@ History:
 	2011-02-08 - MFC - Removed the lightbox dialog header and footer.
 						The dialog header/footer code has been moved in the lightbox proxy.
 	2011-02-09 - RAK - Var'ing un-var'd variables
+	2011-03-26 - MFC - Commented out force JQuery, the loadADFLightbox with force will load JQuery.
+						Removed the loadADFLightbox force argument when loading the form.
 --->
 <cffunction name="renderAddEditForm" access="public" returntype="String" hint="Returns the HTML for an Add/Edit Custom element record">
 	<cfargument name="formID" type="numeric" required="true">
@@ -105,7 +107,9 @@ History:
 			<cfscript>
 				// Load the scripts, check if we need to load
 				//	the JSON scripts for the callback.
-				variables.scripts.loadJQuery(force=1);
+				// 2011-03-26 - MFC - Commented out force JQuery, the loadADFLightbox with force will
+				//						load JQuery.
+				//variables.scripts.loadJQuery(force=1);
 				variables.scripts.loadADFLightbox(force=1);
 			</cfscript>
 			<script type='text/javascript'>
@@ -148,7 +152,7 @@ History:
 			<cfscript>
 				// ADF Lightbox needs to be forced to load the browser-all.js into
 				//	the lightbox window for CE's with RTE fields
-				variables.scripts.loadADFLightbox(force=1);
+				variables.scripts.loadADFLightbox();
 			</cfscript>
 			<!--- Call the UDF function --->
 			#udfResults#
@@ -266,7 +270,6 @@ History:
 	</cfsavecontent>
 	<cfreturn deleteFormHTML>
 </cffunction>
-
 
 <!---
 /* ***************************************************************
@@ -410,7 +413,6 @@ History:
 	<cfreturn returnHTML>
 </cffunction>
 
-
 <!---
 /* ***************************************************************
 /*
@@ -432,9 +434,9 @@ History:
 	 	return CreateObject("component","ADF.thirdParty.cfformprotect.cffpVerify2").init();
 	</cfscript>
 </cffunction>
+
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	Dave Beckstrom
 Name:
 	$verifyCFFormProtect
@@ -451,7 +453,6 @@ History:
 	1011-02-02 - RAK - Changed parameters so it can work for any element.
 	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
-
 <cffunction name="verifyCFFormProtect" access="public" returntype="boolean" hint="Verifies the form and deletes the element if it is invalid">
 	<cfargument name="formStruct" type="struct" required="true" default="" hint="Structure of form fields">
 	<cfargument name="elementName" type="string" required="true" default="" hint="Name of the element to search for">
@@ -490,6 +491,5 @@ History:
 	<cfreturn isValid>
 
 </cffunction>
-
 
 </cfcomponent>

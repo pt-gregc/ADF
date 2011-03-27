@@ -374,7 +374,7 @@ History:
 		<cfelse>
 			<!--- CS 5 and under, add Table Tab --->
 			<cfoutput>
-				<table id="MainTable">
+				<table id="MainTable" width="100px" height="100px">
 					<tr>
 						<td>
 			</cfoutput> 
@@ -422,7 +422,6 @@ History:
 					</tr>
 				</table>
 				<!--- Load JQuery to resize the dialog after loading --->
-				<!--- TODO: Possibly not do this through JQuery --->
 				<cfscript>
 					application.ADF.scripts.loadJQuery();
 				</cfscript>

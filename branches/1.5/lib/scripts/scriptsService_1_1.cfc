@@ -58,6 +58,7 @@ History:
  	2010-10-04 - RAK - Created
  	2010-12-10 - RAK - Updated so this will be compatible with previous version and dups will not exist!
 	2010-12-21 - MFC - Removed the hard coded force debugging.
+	2010-03-27 - MFC - Output the scripts directly when in IE, not through JavaScript.
 --->
 <cffunction name="renderScriptOnce" access="public" output="true" returntype="void" hint="Given unescaped outputHML and script name handles adding code to the page">
 	<cfargument name="scriptName" type="string" required="true" hint="Name of the script that is being ran">
@@ -72,29 +73,41 @@ History:
 			loadedScript(arguments.scriptName);
 			//Clean the arguments.outputHTML for javascript strings
 			arguments.outputHTML = Trim(arguments.outputHTML);
-			arguments.outputHTML = Replace(arguments.outputHTML,'/','\/',"all");
-			arguments.outputHTML = Replace(arguments.outputHTML,"'",'"',"all");
-			arguments.outputHTML = ReReplace(arguments.outputHTML,'\n','',"all");
-			arguments.outputHTML = ReReplace(arguments.outputHTML,'\t','',"all");
 		</cfscript>
-		<cfoutput>
-			<!--- If no scripts have been loaded yet make a new array of scriptsLoaded --->
-			<script type="text/javascript">
-				if(typeof scriptsLoaded === 'undefined'){
-					var scriptsLoaded= new Array();
-				}
-				//Load #arguments.scriptName# only once.
-				if(!("#arguments.scriptName#" in scriptsLoaded)){
-					document.write('#arguments.outputHTML#'+'<script type="text/javascript"><\/script>');
-					scriptsLoaded["#arguments.scriptName#"] = true;
-					<cfif request.ADFScriptsDebugging>
-							document.write("Loading: #arguments.scriptName#\<br/\>");
-						}else{
-							document.write("#arguments.scriptName# already loaded\<br/\>");
-					</cfif>
+		
+		<!--- 2011-03-27 - MFC - Output the scripts directly when in IE, not through JavaScript. --->
+		<!--- Detect if IE to not load through JS --->
+		<cfif ListContains(CGI.HTTP_USER_AGENT, "MSIE")>
+			<cfoutput>
+				#arguments.outputHTML#
+			</cfoutput>
+		<cfelse>
+			<!--- Else use JS to load through all other browsers --->
+			<cfscript>
+				arguments.outputHTML = Replace(arguments.outputHTML,'/','\/',"all");
+				arguments.outputHTML = Replace(arguments.outputHTML,"'",'"',"all");
+				arguments.outputHTML = ReReplace(arguments.outputHTML,'\n','',"all");
+				arguments.outputHTML = ReReplace(arguments.outputHTML,'\t','',"all");
+			</cfscript>
+			<cfoutput>
+				<!--- If no scripts have been loaded yet make a new array of scriptsLoaded --->
+				<script type="text/javascript">
+					if(typeof scriptsLoaded === 'undefined'){
+						var scriptsLoaded= new Array();
 					}
-			</script>
-		</cfoutput>
+					//Load #arguments.scriptName# only once.
+					if(!("#arguments.scriptName#" in scriptsLoaded)){
+						document.write('#arguments.outputHTML#'+'<script type="text/javascript"><\/script>');
+						scriptsLoaded["#arguments.scriptName#"] = true;
+						<cfif request.ADFScriptsDebugging>
+								document.write("Loading: #arguments.scriptName#\<br/\>");
+							}else{
+								document.write("#arguments.scriptName# already loaded\<br/\>");
+						</cfif>
+						}
+				</script>
+			</cfoutput>
+		</cfif>
 	</cfif>
 </cffunction>
 
