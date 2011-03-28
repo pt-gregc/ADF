@@ -33,6 +33,7 @@ History:
 	2010-06-21 - MFC - Created
 	2011-03-20 - MFC - Updated component to simplify the customizations process and performance.
 						Removed Ajax loading process.
+	2011-03-28 - MFC - Updated the variable flags.
 --->
 <cfcomponent name="sample_gc" extends="ADF.extensions.customfields.general_chooser.general_chooser">
 
@@ -59,6 +60,7 @@ History:
 	variables.SHOW_SEARCH = true;  // Boolean
 	variables.SHOW_ALL_LINK = true;  // Boolean
 	variables.SHOW_ADD_LINK = true;  // Boolean
+	variables.SHOW_EDIT_DELETE_LINKS = false;  // Boolean
 </cfscript>
 
 </cfcomponent>
