@@ -28,6 +28,8 @@ Summary:
 	Prints out edit/delete buttons for your datasheet. Renders the default action edit and delete forms.
 History:
 	2011-02-07 - RAK - Created
+	2011-03-11 - MFC - Updated to add class "ADF-Edit-Delete" to TD for custom styling.
+						Add align and valign to TD to make standard with the "edit-delete" DS-module.
 --->
 
 <!--- Load the JQuery UI Styles --->
@@ -64,7 +66,7 @@ History:
 
 <cfsavecontent variable="Request.Datasheet.CurrentFormattedValue">
 	<cfoutput>
-		<td>
+		<td align="center" valign="middle" class="ADF-Edit-Delete">
 			<a style="float: left;" href="javascript:doActionCol(paramList_#attributes.CONTROLID#_#request.DatasheetRow.getRow()#,'edit-form-data.cfm','edit',#attributes.CONTROLID#,'actiontarget');" title='Edit'>			
 				<div class='ds-icons ui-state-default ui-corner-all' title='edit' >
 					<div style='margin-left:auto;margin-right:auto;' class='ui-icon ui-icon-pencil'></div>
