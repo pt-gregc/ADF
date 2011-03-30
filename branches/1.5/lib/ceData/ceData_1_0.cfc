@@ -863,7 +863,7 @@ History:
 /* *************************************************************** */
 Author: 	M. Carroll, M. Mendelson ( THE AU Master)
 Name:
-	$getPageIDForFormID
+	$getPageIDForElement
 Summary:
 	Returns Page ID's in Data_FieldValue matching Form ID
 Returns:
