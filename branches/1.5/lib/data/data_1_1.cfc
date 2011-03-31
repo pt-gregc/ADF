@@ -436,4 +436,46 @@ History:
 	</cfscript>
 </cffunction>
 
+<!---
+/* *************************************************************** */
+Author: 	
+	Pete Freitag
+Name:
+	$EscapeExtendedChars
+Summary:
+	Escapes extended chararacters from a string
+Returns:
+	String
+Arguments:
+	String - str
+Source:
+	URL: http://www.petefreitag.com/item/202.cfm
+History:
+	2011-03-31 - GAC - Added
+--->
+<cffunction name="EscapeExtendedChars" returntype="string" access="public" output="false" hint="Escapes extended chararacters from a string">
+	<cfargument name="str" type="string" required="true">
+	<cfset var buf = CreateObject("java", "java.lang.StringBuffer")>
+	<cfset var len = Len(arguments.str)>
+	<cfset var char = "">
+	<cfset var charcode = 0>
+	<cfset buf.ensureCapacity(JavaCast("int", len+20))>
+	<cfif NOT len>
+		<cfreturn arguments.str>
+	</cfif>
+	<cfloop from="1" to="#len#" index="i">
+		<cfset char = arguments.str.charAt(JavaCast("int", i-1))>
+		<cfset charcode = JavaCast("int", char)>
+		<cfif (charcode GT 31 AND charcode LT 127) OR charcode EQ 10
+			OR charcode EQ 13 OR charcode EQ 9>
+				<cfset buf.append(JavaCast("string", char))>
+		<cfelse>
+			<cfset buf.append(JavaCast("string", "&##"))>
+			<cfset buf.append(JavaCast("string", charcode))>
+			<cfset buf.append(JavaCast("string", ";"))>
+		</cfif>
+	</cfloop>
+	<cfreturn buf.toString()>
+</cffunction>
+
 </cfcomponent>
