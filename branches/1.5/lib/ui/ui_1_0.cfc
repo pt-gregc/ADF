@@ -338,6 +338,7 @@ History:
 									Removed the global header/footer variables.
 									Added lbCheckLogin parameter to validate if the user is authenticated.
 	2011-03-20 - MFC - Added Else statement to add Table tag for CS5 lightbox resizing.
+	2011-03-30 - MFC - Updated the CS 5 lightbox to make the table width/height dynamic.
 --->
 <cffunction name="lightboxHeader" access="public" returntype="string" output="false" hint="Returns HTML for the CS 6.x lightbox header (use with the lightboxFooter)">
 	<cfargument name="lbTitle" type="string" default="">
@@ -372,9 +373,17 @@ History:
 					<td<cfif LEN(TRIM(arguments.tdClass))> class="#arguments.tdClass#"</cfif>>
 			</cfoutput> 
 		<cfelse>
-			<!--- CS 5 and under, add Table Tab --->
+			<cfscript>
+				// Default Width
+				if ( NOT StructKeyExists(request.params, "width") )
+					request.params.width = 500;
+		
+				// Default Height
+				if ( NOT StructKeyExists(request.params, "height") )
+					request.params.height = 500;
+			</cfscript>
 			<cfoutput>
-				<table id="MainTable" width="100px" height="100px">
+				<table id="MainTable" width="#request.params.width#px" height="#request.params.height#px">
 					<tr>
 						<td>
 			</cfoutput> 
