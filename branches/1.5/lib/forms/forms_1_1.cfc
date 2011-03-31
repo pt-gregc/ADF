@@ -234,10 +234,11 @@ History:
 	<cfargument name="callback" type="string" required="false" default="" hint="The callback Javascript function that will be called on succesful deletion">
 
 	<cfset var deleteFormHTML = "">
+	<!--- Check if the user is logged In --->
 	<cfsavecontent variable="deleteFormHTML">
 		<cfscript>
-			variables.scripts.loadJquery(force=1);
-			variables.scripts.loadADFLightbox(force=1);
+			variables.scripts.loadJquery();
+			variables.scripts.loadADFLightbox();
 
 			//targetModule = "#request.subsiteCache[1].url#datasheet-modules/delete-form-data.cfm";
 			targetModule = "/ADF/extensions/datasheet-modules/delete_element_handler.cfm";

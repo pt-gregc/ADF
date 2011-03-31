@@ -33,53 +33,55 @@ History:
 						Dialog header and footers.
 	2011-01-25 - RAK - Updating to use ADF lightbox, fixed bugs with callback 
 						functionality and improved ability
+	2011-03-31 - MFC - 
 --->
-<!--- // Include the CommonSpot process for a datasheet --->
 
 <!--- // if we are returning then handle the delete --->
-<cfoutput>
-	#application.ADF.scripts.loadADFLightbox()#
-</cfoutput>
 <cfif (StructKeyExists(Request.Params,"doDelete")) AND (Request.Params.doDelete neq 0)>
-	<!--- Render the dlg header --->
+	<!--- Load ADF Lightbox for callback function --->
 	<cfscript>
-		CD_DialogName = request.params.title;
-		CD_Title=CD_DialogName;
-		CD_IncludeTableTop=1;
-		CD_CheckLock=0;
-		CD_CheckLogin=1;
-		CD_CheckPageAlive=0;
+		application.ADF.scripts.loadADFLightbox();
 	</cfscript>
-	<CFINCLUDE TEMPLATE="/commonspot/dlgcontrols/dlgcommon-head.cfm">
-	<cfoutput><tr><td></cfoutput>
 	
-	<!--- Delete the CE record --->
-	<cfif (Request.Params.FormID NEQ 0) AND (Request.Params.PageID NEQ 0)>
-		<cfscript>
-			application.ADF.cedata.deleteCE(datapageidList=Request.Params.PageID);
-		</cfscript>
-	</cfif>
-	<cfoutput><div style="width:100%;text-align:center;" class="cs_dlgNormal">Record deleted successfully</div></cfoutput>
-	<!--- Call the Callback function if defined --->
-	<cfif StructKeyExists(request.params,"callback") and LEN(request.params.callback)>
-		<cfoutput>
-		<script type="text/javascript">
-			// Set back the lightbox callback
-			var values = {
-				dataPageID: #request.params.dataPageID#,
-				formID: #request.params.formID#
-			};
-			getCallback('#request.params.callback#',values);
-		</script>
-		</cfoutput>
+	<!--- Render the dlg header --->
+	<cfoutput>#application.ADF.ui.lightboxHeader(lbCheckLogin=true)#</cfoutput>
+	
+	<!--- Verify the security for the logged in user --->
+	<cfif application.ADF.csSecurity.isValidContributor() OR application.ADF.csSecurity.isValidCPAdmin()>
+		<!--- Delete the CE record --->
+		<cfif (Request.Params.FormID NEQ 0) AND (Request.Params.PageID NEQ 0)>
+			<cfscript>
+				application.ADF.cedata.deleteCE(datapageidList=Request.Params.PageID);
+			</cfscript>
+		</cfif>
+		<cfoutput><div style="width:100%;text-align:center;" class="cs_dlgNormal">Record deleted successfully</div></cfoutput>
+		<!--- Call the Callback function if defined --->
+		<cfif StructKeyExists(request.params,"callback") and LEN(request.params.callback)>
+			<cfoutput>
+			<script type="text/javascript">
+				// Set back the lightbox callback
+				var values = {
+					dataPageID: #request.params.dataPageID#,
+					formID: #request.params.formID#
+				};
+				getCallback('#request.params.callback#',values);
+			</script>
+			</cfoutput>
+		<cfelse>
+			<cfoutput>#application.ADF.forms.closeLBAndRefresh()#</cfoutput>
+		</cfif>
 	<cfelse>
-		<cfset forms = server.ADF.objectFactory.getBean("Forms_1_1")>
-		<cfoutput>#forms.closeLBAndRefresh()#</cfoutput>
+		<cfoutput>
+			<div style="width:100%;text-align:center;" class="cs_dlgNormal">
+				Access denied to delete records through this module.<br /><br />
+				Please contact the site administrator.
+			</div>
+		</cfoutput>
 	</cfif>
 
 	<!--- Render the dlg footer --->
-	<cfoutput></tr></td></cfoutput>
-	<CFINCLUDE template="/commonspot/dlgcontrols/dlgcommon-foot.cfm">
+	<cfoutput>#application.ADF.ui.lightboxFooter()#</cfoutput>
 <cfelse>
+	<!--- // Include the CommonSpot process for a datasheet --->	
 	<cfinclude template="/commonspot/controls/datasheet/cs-delete-form-data.cfm">
 </cfif>

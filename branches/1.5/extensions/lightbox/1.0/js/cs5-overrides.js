@@ -2,7 +2,7 @@
 lbResizeWindow = function()
 {
 	doRecalc = false;
-	curTab = "";
+	curTab = commonspot.lightbox.stack.length;
 
 	if (typeof ResizeWindowSafe != 'undefined')		// this variable is set in dlgcommon-head for legacy dialogs (initially set to 0, then to 1 upon calling dlgcommon-foot)
 	{ 
@@ -36,7 +36,7 @@ lbResizeWindow_Meat = function(doRecalc, currentTab)
 				maintable.style.height = '';
 			
 			if (top.commonspot)
-        	top.commonspot.lightbox.initCurrent( maintable.offsetWidth, maintable.offsetHeight + 40);
+        		top.commonspot.lightbox.initCurrent( maintable.offsetWidth, maintable.offsetHeight + 40);
 		}	
 	}	
 }
