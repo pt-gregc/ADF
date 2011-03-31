@@ -114,7 +114,7 @@ History:
 			</cfscript>
 			<script type='text/javascript'>
 				jQuery(document).ready(function(){
-					ResizeWindow();
+					lbResizeWindow();
 					<cfif Len(arguments.callback)>
 						// Get the PageWindow and the form value
 						var pageWindow = commonspot.lightbox.getPageWindow();

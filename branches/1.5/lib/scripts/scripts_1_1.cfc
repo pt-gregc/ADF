@@ -814,6 +814,9 @@ History:
 						IncludeJs('/ADF/extensions/lightbox/1.0/js/util.js', 'script');
 					}
 	    		</script>
+				
+				<!--- Load the CS5 Resize override functions --->
+				<script type='text/javascript' src='/ADF/extensions/lightbox/#arguments.version#/js/cs5-overrides.js'></script>
 				</cfoutput>
 			<cfelse>
 				<cfoutput>

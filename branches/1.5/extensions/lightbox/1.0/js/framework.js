@@ -196,3 +196,14 @@ function closeLBReloadParent(){
 		commonspot.lightbox.closeCurrentWithReload();
 }
 
+// Custom ResizeWindow function to resolve problems with the
+// 	lightbox framework in CS 5.  
+// CS 5 also uses the 'ResizeWindow' function to resize the window dialogs.
+// A new custom resize function needs to be implemented. 
+// If the user is runnin in CS 5, this function is overrided by loading the
+//	cs5-overrides.js to replace this function with the lightbox resize code.
+lbResizeWindow = function()
+{
+	// We are in CS 6 so resize the LB normally
+	ResizeWindow();
+}
