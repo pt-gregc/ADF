@@ -34,6 +34,7 @@ History:
 	2010-11-11 - MFC - 		Added onclick to the img to select the radio button. 
 								Due to problem reported with Mac browser and label 
 								select is not checking the radio field.
+	2011-03-28 - MFC - Added check for if the photo URL is defined.
 --->
 <cfscript>
 	// the fields current value
@@ -186,7 +187,10 @@ History:
 					<label for="#currOptionName#">
 						<input type="radio" name="#fqFieldName#" id="#currOptionName#" value="#currOptionName#"<cfif currentValue eq "#currOptionName#"> checked="checked"</cfif>/>
 						<span>#layoutOptions[i].description#</span><br/>
-						<img src="#layoutOptions[i].image#" onclick="#fqFieldName#_loadSelection('#currOptionName#');" />
+						<!--- Check for if the image field is defined --->
+						<cfif LEN(layoutOptions[i].image)>
+							<img src="#layoutOptions[i].image#" onclick="#fqFieldName#_loadSelection('#currOptionName#');" />
+						</cfif>
 					</label>
 				</div>
 			</cfif>
