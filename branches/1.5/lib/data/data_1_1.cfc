@@ -128,7 +128,6 @@ History:
 	History:
 		2011-02-09 - GAC - Added
 --->
-
 <cffunction name="activateURL" access="public" returntype="string" hint="">
 	<cfargument name="strText" type="string" required="false" default="" hint="A text string to search through for URLs">
 	<cfargument name="target" type="string" required="false" default="" hint="A valid A HREF target: _blank, _self">
@@ -187,8 +186,6 @@ History:
 		return outString;
 	</cfscript>
 </cffunction>
-
-
 
 <!---
 From CFLib on 2011-03-10 [RAK]
@@ -358,8 +355,6 @@ History:
 
 </cffunction>
 
-
-
 <!---
 /* ***************************************************************
 /*
@@ -379,7 +374,6 @@ Source:
 History:
 	2011-03-14 - RAK - Pulled in from example on website
 --->
-
 <cffunction name="queryAppend" access="public" returntype="query" output="false" hint="This takes two queries and appends the second one to the first one. Returns the resultant third query.">
      <!--- Define arguments. --->
      <cfargument name="QueryOne" type="query" required="true" />
