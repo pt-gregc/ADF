@@ -512,6 +512,8 @@ History:
  	2010-04-08 - RLW - Created
 	2010-12-21 - MFC - Added function to CEDATA
 	2011-02-08 - RAK - Removing ptBlog2 from the function calls as this is not running in ptBlog2 and should never have been here. Its fixed now at least...
+	2011-04-04 - MFC - Updated function to load the Forms from the server object factory.
+						Attempted to add dependency but ADF build throws error.
 --->
 <cffunction name="buildCEDataArrayFromQuery" access="public" returntype="array" hint="Returns a standard CEData Array to be used in Render Handlers from a ceDataView query">
 	<cfargument name="ceDataQuery" type="query" required="true" hint="ceData Query (usually built from ceDataView) results to be converted">
@@ -550,7 +552,7 @@ History:
 			}
 			tmp.values = structNew();
 			// get the fields structure for this element
-			fieldStruct = variables.forms.getCEFieldNameData(tmp.formName);
+			fieldStruct = server.ADF.objectFactory.getBean("Forms_1_1").getCEFieldNameData(tmp.formName);
 			// loop through the field query and build the values structure
 			for( itm=1; itm lte listLen(structKeyList(fieldStruct)); itm=itm+1 )
 			{
