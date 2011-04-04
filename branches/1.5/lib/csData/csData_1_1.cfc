@@ -554,6 +554,7 @@ History:
 		return keywordsArray;
 	</cfscript>
 </cffunction>
+
 <!---
 /* ***************************************************************
 /*
@@ -596,4 +597,5 @@ History:
 	<!--- // convert the elements query to an array of structs --->
 	<cfreturn variables.data.queryToArrayOfStructures(qryGetElements)>
 </cffunction>
+
 </cfcomponent>

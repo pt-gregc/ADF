@@ -137,7 +137,6 @@ History:
 	<cfreturn Server.Commonspot.UDF.util.deserialize(cfhttp.fileContent)>
 </cffunction>
 
-
 <cffunction name="login" access="public" returntype="void">
 	<cfargument name="subsiteID" required="false" type="numeric" default="1">
 	<!--- // call the CS API login --->
@@ -151,7 +150,6 @@ History:
 	</cfscript>
 </cffunction>
 
-
 <cffunction name="setSubsiteID" access="public" returntype="void">
 	<cfargument name="subsiteID" type="numeric" required="true">
 	<cfset variables.subsiteID = arguments.subsiteID>
@@ -163,10 +161,10 @@ History:
 <cffunction name="setCCAPIToken" access="public" returntype="void">
 	<cfset variables.token = variables.ccapiObj.getSSID()>
 </cffunction>
+
 <cffunction name="getCCAPIToken" access="public" returntype="string">
 	<cfreturn variables.token>
 </cffunction>
-
 
 <!---
 /* *************************************************************** */

@@ -213,7 +213,6 @@ History:
 	</cfoutput>
 </cffunction>
 
-
 <!---
 /* ***************************************************************
 /*
@@ -520,7 +519,6 @@ History:
 		#variables.scriptsService.renderScriptOnce("swfObject",outputHTML)#
 	</cfoutput>
 </cffunction>
-
 
 <!---
 /* ***************************************************************
@@ -1371,4 +1369,5 @@ History:
 	<cfargument name="debugMode" type="boolean" required="true">
 	<cfset request.ADFScriptsDebugging = debugMode>
 </cffunction>
+
 </cfcomponent>

@@ -178,6 +178,7 @@ History:
 	</cfscript>
 	<cfreturn logoutResult>
 </cffunction>
+
 <!---
 /* ***************************************************************
 /*
@@ -214,6 +215,7 @@ History:
 	</cfscript>
 	<cfreturn rtnVar>
 </cffunction>
+
 <!---
 /* ***************************************************************
 /*
@@ -245,6 +247,7 @@ History:
 	</cfscript>
 	<cfreturn true>
 </cffunction>
+
 <!---
 	/* ***************************************************************
 	/*
@@ -271,6 +274,5 @@ History:
 	</cfscript>
 	<cfreturn doLogging>
 </cffunction>
-
 
 </cfcomponent>

@@ -152,7 +152,6 @@ History:
 	</cfscript>
 </cffunction>
 
-
 <!---
 /* ***************************************************************
 /*
@@ -196,4 +195,5 @@ History:
 	>
 	<cfreturn "#destinationURL##Left(documentName,Len(documentName)-4)#_page_1.png">
 </cffunction>
+
 </cfcomponent>
