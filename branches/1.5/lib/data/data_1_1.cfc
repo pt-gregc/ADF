@@ -472,4 +472,42 @@ History:
 	<cfreturn buf.toString()>
 </cffunction>
 
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
+Name:
+	$arrayOfStructsSortMultiKeys
+Summary:
+	Sorts an Array Of Structures based on the multiple structure keys.
+Returns:
+	array
+Arguments:
+	array - aOfS - Array of structure data set.
+	string - orderByKeyList - Structure keys to sort the Array.  
+History:
+	2011-04-04 - MFC - Created
+--->
+<cffunction name="arrayOfStructsSortMultiKeys" access="public" returntype="array" output="true" hint="Sorts an Array Of Structures based on the multiple structure keys.">
+	<cfargument name="aOfS" type="array" required="true">
+	<cfargument name="orderByKeyList" type="string" required="true">
+
+	<cfscript>
+		// Make the array an query
+		var aOfSQry = arrayOfStructuresToQuery(arguments.aOfS);
+		var sortedQry = "";
+	</cfscript>
+	<!--- Query the data set to ORDER BY --->
+	<cfquery name="sortedQry" dbtype="query">
+        SELECT *
+          FROM aOfSQry
+      ORDER BY #arguments.orderByKeyList#
+	</cfquery>
+	<cfscript>
+		// Transform the query back to array of structs and Return
+		return queryToArrayOfStructures(sortedQry);
+	</cfscript>
+</cffunction>
+
 </cfcomponent>
