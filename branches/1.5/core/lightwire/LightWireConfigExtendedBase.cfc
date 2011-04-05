@@ -20,7 +20,7 @@ end user license agreement.
 
 <cfcomponent name="LightWireConfigBase" extends="ADF.thirdParty.lightwire.BaseConfigObject" output="false">
 
-<cfproperty name="version" value="1_0_0">
+<cfproperty name="version" value="1_5_0">
 
 <cffunction name="init" returntype="any" hint="I initialize default LightWire config properties." output=false access="public">
 	<cfscript>

@@ -29,10 +29,12 @@ Summary:
 History:
 	2009-05-11 - MFC - Created
 	2011-01-21 - GAC - Added a getADFversion function
+	2011-04-05 - MFC - Updated the version property.
+					   Added a getCSVersion function.
 --->
 <cfcomponent name="Base" hint="Base component for Custom Application Common Framework">
 
-<cfproperty name="version" value="1_0_0">
+<cfproperty name="version" value="1_5_0">
 	
 <cffunction name="init" output="true" returntype="any">
 	<cfscript>
@@ -65,6 +67,33 @@ History:
 	 	return ADFversion;
 	</cfscript>
 </cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 
+	PaperThin, Inc.
+	M. Carroll
+Name:
+	getCSversion
+Summary:
+	Returns the CS Version as based on the "server.ADF.csVersion" loaded
+		in Core.cfc.
+Returns:
+	String - ADF Version
+Arguments:
+	Void
+History:
+	2011-04-05 - MFC - Created
+--->
+<cffunction name="getCSVersion" access="public" returntype="string">
+	<cfscript>
+		var csVersion = "5.1.0";
+		if ( StructKeyExists(server.ADF,"csVersion") )
+			csVersion = server.ADF.csVersion;
+	 	return csVersion;
+	</cfscript>
+</cffunction>
+
 
 <!---
 /* ***************************************************************

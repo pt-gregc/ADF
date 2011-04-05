@@ -30,10 +30,11 @@ History:
 	2009-08-14 - MFC - Created
 	2011-01-21 - GAC - Added a version variable to Application.ADF
 	2011-01-26 - GAC - Added a method for setLightboxProxyURL
+	2011-04-05 - MFC - Updated the version property.
 --->
 <cfcomponent displayname="SiteBase" extends="ADF.core.AppBase">
 
-<cfproperty name="version" value="1_0_0">
+<cfproperty name="version" value="1_5_0">
 
 <!---
 /* *************************************************************** */
@@ -82,6 +83,7 @@ Arguments:
 	Void
 History:
 	2009-08-07 - MFC - Created
+	2011-04-05 - MFC - Added 'application.ADF.csVersion' variable.
 --->
 <cffunction name="loadSite" access="private" returntype="void" hint="Stores the ADF Lib Components into application.ADF space.">
 	
@@ -103,6 +105,7 @@ History:
 		
 		// Adds the ADF version to the Application.ADF stuct
 		application.ADF.version = getADFversion();
+		application.ADF.csVersion = getCSVersion();
 	</cfscript>
 </cffunction>
 

@@ -36,13 +36,17 @@ History:
 	2011-01-20 - GAC - Modified - Added a shared variable for ADF version
 									Added a function that returns the ADF version
 	2011-01-21 - GAC - Modified - Added a place to store build errors that occur while building the ADF
+	2011-04-05 - MFC - Modified - Updated the version property.
+								  Added a shared variable for CS version
+								  Added a function that returns the CS version
 --->
 <cfcomponent name="Core" hint="Core component for Application Development Framework">
 
-<cfproperty name="version" value="1_0_0">
+<cfproperty name="version" value="1_5_0">
 
 <cfscript>
 	variables.ADFversion = "1.5"; // use a dot delimited version number
+	variables.csVersion = ListLast(request.cp.productversion, " "); // CS product version
 </cfscript>
 	
 <cffunction name="init" output="true" returntype="void">
@@ -59,6 +63,7 @@ History:
 		server.ADF.dir = expandPath('/ADF');
 		server.ADF.buildErrors = ArrayNew(1); // Place to store errors that occur while building the ADF
 		server.ADF.version = getADFversion(); // Get the ADF version
+		server.ADF.csVersion = getCSVersion(); // Get the ADF version
 		
 		// Build object factory 
 		server.ADF.beanConfig = createObject("component","ADF.core.lightwire.BeanConfig").init();
@@ -107,6 +112,27 @@ History:
 --->
 <cffunction name="getADFversion" access="public" returntype="string">
 	<cfreturn variables.ADFversion>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 
+	PaperThin, Inc.
+	M. Carroll
+Name:
+	getCSversion
+Summary:
+	Returns the CS Version as the numeric value.
+Returns:
+	String - ADF Version
+Arguments:
+	Void
+History:
+	2011-04-05 - MFC - Created
+--->
+<cffunction name="getCSVersion" access="public" returntype="string">
+	<!--- Return CS version from the Product Version variable --->
+	<cfreturn variables.csVersion>
 </cffunction>
 
 <!---

@@ -30,10 +30,11 @@ History:
 	2009-08-14 - MFC - Created
 	2010-04-06 - MFC - Cleaned the loadApp code.  Removed verifyLocalAppBeanConfigExists function.
 	2010-04-08 - MFC - Updated loadSiteAppComponents function.
+	2011-04-05 - MFC - Modified - Updated the version property.
 --->
 <cfcomponent name="AppBase" extends="ADF.core.Base" hint="App Base component for the ADF">
 
-<cfproperty name="version" value="1_0_0">
+<cfproperty name="version" value="1_5_0">
 
 <cffunction name="init" output="true" returntype="any">
 	<cfscript>

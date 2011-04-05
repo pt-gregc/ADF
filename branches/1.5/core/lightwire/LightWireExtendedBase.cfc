@@ -20,7 +20,7 @@ end user license agreement.
 
 <cfcomponent name="LightWireExtendedBase" extends="ADF.thirdParty.lightwire.LightWire" output="false">
 
-<cfproperty name="version" value="1_0_0">
+<cfproperty name="version" value="1_5_0">
 
 <!---
 	/* *************************************************************** */
