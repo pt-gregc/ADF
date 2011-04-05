@@ -79,13 +79,13 @@ Summary:
 	Returns the CS Version as based on the "server.ADF.csVersion" loaded
 		in Core.cfc.
 Returns:
-	String - ADF Version
+	numeric - ADF Version
 Arguments:
 	Void
 History:
 	2011-04-05 - MFC - Created
 --->
-<cffunction name="getCSVersion" access="public" returntype="string">
+<cffunction name="getCSVersion" access="public" returntype="numeric">
 	<cfscript>
 		var csVersion = "5.1.0";
 		if ( StructKeyExists(server.ADF,"csVersion") )

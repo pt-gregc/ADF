@@ -46,7 +46,8 @@ History:
 
 <cfscript>
 	variables.ADFversion = "1.5"; // use a dot delimited version number
-	variables.csVersion = ListLast(request.cp.productversion, " "); // CS product version
+	// CS product version, get the decimal value
+	variables.csVersion = Val(ListLast(request.cp.productversion, " "));
 </cfscript>
 	
 <cffunction name="init" output="true" returntype="void">
@@ -124,13 +125,13 @@ Name:
 Summary:
 	Returns the CS Version as the numeric value.
 Returns:
-	String - ADF Version
+	numeric - ADF Version
 Arguments:
 	Void
 History:
 	2011-04-05 - MFC - Created
 --->
-<cffunction name="getCSVersion" access="public" returntype="string">
+<cffunction name="getCSVersion" access="public" returntype="numeric">
 	<!--- Return CS version from the Product Version variable --->
 	<cfreturn variables.csVersion>
 </cffunction>
