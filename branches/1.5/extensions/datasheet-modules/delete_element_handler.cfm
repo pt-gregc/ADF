@@ -33,7 +33,8 @@ History:
 						Dialog header and footers.
 	2011-01-25 - RAK - Updating to use ADF lightbox, fixed bugs with callback 
 						functionality and improved ability
-	2011-03-31 - MFC - 
+	2011-03-31 - MFC - Updated for the security check before running the delete function.
+	2011-04-05 - MFC - Fixed the variable name in the callback JS.
 --->
 
 <!--- // if we are returning then handle the delete --->
@@ -61,8 +62,8 @@ History:
 			<script type="text/javascript">
 				// Set back the lightbox callback
 				var values = {
-					dataPageID: #request.params.dataPageID#,
-					formID: #request.params.formID#
+					dataPageID: #request.params.PageID#,
+					formID: #request.params.FormID#
 				};
 				getCallback('#request.params.callback#',values);
 			</script>
