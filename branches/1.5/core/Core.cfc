@@ -159,6 +159,7 @@ History:
 	2011-02-09 - RAK - Var'ing un-var'd items
 	2011-02-09 - RAK - Fixing typo
 	2011-02-09 - GAC - Removed self-closing slash on cfthrow
+	2011-04-06 - MFC - Changed the ADF reset error log to not append to the file and overwrite the file.
 --->
 <cffunction name="reset" access="remote" returnType="Struct">
 	<cfargument name="type" type="string" required="false" default="all" hint="The type of the ADF to reset.  Options are 'Server', 'Site' or 'All'. Defaults to 'All'.">
@@ -241,7 +242,7 @@ History:
 					<cfset siteName = request.site.name>
 				</cfif>
 				<cfset logFileName = dateFormat(now(), "yyyymmdd") & "." & siteName & ".ADF_Load_Errors.htm">
-				<cffile action="append" file="#request.cp.commonSpotDir#logs/#logFileName#" output="#request.formattedtimestamp# - #dump#" addnewline="true">
+				<cffile action="write" file="#request.cp.commonSpotDir#logs/#logFileName#" output="#request.formattedtimestamp# - #dump#" addnewline="true">
 				<cfset rtnMsg = "Error building the ADF #ADFversion#. <a href='/commonspot/logs/#logFileName#' target='_blank'>View the log</a>">
 			</cfcatch>
 		</cftry>

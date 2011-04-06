@@ -178,6 +178,8 @@ Arguments:
 History:
 	2009-08-10 - MFC - Created
 	2011-03-20 - RLW - Added support to load a "version" of library components
+	2011-04-06 - MFC - Uncommented the 'localLibKeys' variable to load for the site
+						LIB component overrides.
 --->
 <cffunction name="loadLibrary" access="private" returntype="void" hint="Loads the latest ADF library components into the application space">
 	<cfargument name="loadVersion" type="string" required="false" default="#getADFVersion()#" hint="Pass in the specific ADF version you would like to load">
@@ -195,8 +197,6 @@ History:
 		// Refresh the Object Factory
 		application.ADF.objectFactory = createObject("component","ADF.core.lightwire.LightWireExtendedBase").init(application.ADF.beanConfig);		
 
-		//localLibKeys = StructKeyList(application.ADF.library);
-		
 		// retrieve the libraryComponents to load
 		libVersions = loadLibVersions();
 		// verify that the passed in version is valid
@@ -215,7 +215,9 @@ History:
 			// Load the bean into application space
 			application.ADF[thisComponentEasyName] = server.ADF.objectFactory.getBean(thisComponent);
 		}
-
+		
+		// Set the list of the Local LIB component overrides
+		localLibKeys = StructKeyList(application.ADF.library);
 		// 	This will override any server lib components
 		for ( i = 1; i LTE ListLen(localLibKeys); i = i + 1)
 		{
