@@ -50,7 +50,7 @@ History:
 <script type="text/javascript">
 	<!-- 
 	paramList_#attributes.CONTROLID#_#request.DatasheetRow.getRow()# = new Object();
- 	 -->
+	-->
 </script>
 </cfoutput>
 <!--- Add the column data to the paramList for the Row --->
@@ -67,12 +67,14 @@ History:
 <cfsavecontent variable="Request.Datasheet.CurrentFormattedValue">
 	<cfoutput>
 		<td align="center" valign="middle" class="ADF-Edit-Delete">
-			<a style="float: left;" href="javascript:doActionCol(paramList_#attributes.CONTROLID#_#request.DatasheetRow.getRow()#,'edit-form-data.cfm','edit',#attributes.CONTROLID#,'actiontarget');" title='Edit'>			
+			<!--- <a style="float: left;" href="javascript:doActionCol(paramList_#attributes.CONTROLID#_#request.DatasheetRow.getRow()#,'edit-form-data.cfm','edit',#attributes.CONTROLID#,'actiontarget');" title='Edit'>			 --->
+			<a style="float: left;" href="javascript:doActionCol(paramList_#attributes.CONTROLID#_#request.DatasheetRow.getRow()#,1,#attributes.CONTROLID#,'edit','actiontarget','0');" title='Edit'>			
 				<div class='ds-icons ui-state-default ui-corner-all' title='edit' >
 					<div style='margin-left:auto;margin-right:auto;' class='ui-icon ui-icon-pencil'></div>
 				</div>
 			</a>
-			<a style="float: left; margin-left: 3px; margin-right: 3px;" href="javascript:doActionCol(paramList_#attributes.CONTROLID#_#request.DatasheetRow.getRow()#,'delete-form-data.cfm','delete',#attributes.CONTROLID#,'actiontarget');" title='Delete'>
+			<!--- <a style="float: left; margin-left: 3px; margin-right: 3px;" href="javascript:doActionCol(paramList_#attributes.CONTROLID#_#request.DatasheetRow.getRow()#,'delete-form-data.cfm','delete',#attributes.CONTROLID#,'actiontarget');" title='Delete'> --->
+			<a style="float: left; margin-left: 3px; margin-right: 3px;" href="javascript:doActionCol(paramList_#attributes.CONTROLID#_#request.DatasheetRow.getRow()#,2,#attributes.CONTROLID#,'delete','actiontarget','0');" title='Delete'>
 				<div class='ds-icons ui-state-default ui-corner-all' title='delete' >
 					<div style='margin-left:auto;margin-right:auto;' class='ui-icon ui-icon-trash'></div>
 				</div>
