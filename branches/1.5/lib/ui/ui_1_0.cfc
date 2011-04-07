@@ -338,47 +338,49 @@ History:
 									Removed the global header/footer variables.
 									Added lbCheckLogin parameter to validate if the user is authenticated.
 	2011-03-20 - MFC - Added Else statement to add Table tag for CS5 lightbox resizing.
+	2011-04-07 - RAK - Prevented this from getting called 2x in the same request and producing duplicate stuff
 --->
 <cffunction name="lightboxHeader" access="public" returntype="string" output="false" hint="Returns HTML for the CS 6.x lightbox header (use with the lightboxFooter)">
 	<cfargument name="lbTitle" type="string" default="">
 	<cfargument name="tdClass" type="string" default="" hint="Used to add CSS classes to the outer TD wrapper like 'formResultContainer' for the addEditRenderForm results">
 	<cfargument name="lbCheckLogin" type="boolean" default="1" required="false">
-	
 	<cfscript>
 		var retHTML = "";
-	    var productVersion = ListFirst(ListLast(request.cp.productversion," "),".");
+		var productVersion = ListFirst(ListLast(request.cp.productversion," "),".");
 	</cfscript>
-	<cfsavecontent variable="retHTML">
-		<!--- // Load the CommonSpot Lightbox Header when in version 6.0 --->
-		<cfif productVersion GTE 6>
-			<cfscript>
-				// Use the Title passed in or if available use the title in the request.params for the Lightbox DialogName
-				if ( LEN(TRIM(arguments.lbTitle)) ) 
-					CD_DialogName = arguments.lbTitle;
-				else if ( StructKeyExists(request.params,"title")) 
-					CD_DialogName = request.params.title;
-				else 
-					CD_DialogName = "";
-				CD_Title=CD_DialogName;
-				CD_IncludeTableTop=1;
-				CD_CheckLock=0;
-				// 2011-02-16 - Added flag to check if the user is authenticated
-				CD_CheckLogin=arguments.lbCheckLogin;
-				CD_CheckPageAlive=0;
-		    </cfscript>
-			<cfoutput>
-				<CFINCLUDE TEMPLATE="/commonspot/dlgcontrols/dlgcommon-head.cfm">
-				<tr>
-					<td<cfif LEN(TRIM(arguments.tdClass))> class="#arguments.tdClass#"</cfif>>
-			</cfoutput> 
-		<cfelse>
-			<cfoutput>
-				<table id="MainTable">
+	<cfif NOT StructKeyExists(request,"HaveRunDlgCommonHead")>
+		<cfsavecontent variable="retHTML">
+			<!--- // Load the CommonSpot Lightbox Header when in version 6.0 --->
+			<cfif productVersion GTE 6>
+				<cfscript>
+					// Use the Title passed in or if available use the title in the request.params for the Lightbox DialogName
+					if ( LEN(TRIM(arguments.lbTitle)) )
+						CD_DialogName = arguments.lbTitle;
+					else if ( StructKeyExists(request.params,"title"))
+						CD_DialogName = request.params.title;
+					else
+						CD_DialogName = "";
+					CD_Title=CD_DialogName;
+					CD_IncludeTableTop=1;
+					CD_CheckLock=0;
+					// 2011-02-16 - Added flag to check if the user is authenticated
+					CD_CheckLogin=arguments.lbCheckLogin;
+					CD_CheckPageAlive=0;
+				 </cfscript>
+				<cfoutput>
+					<CFINCLUDE TEMPLATE="/commonspot/dlgcontrols/dlgcommon-head.cfm">
 					<tr>
-						<td>
-			</cfoutput> 
-		</cfif>		
-	</cfsavecontent>
+						<td<cfif LEN(TRIM(arguments.tdClass))> class="#arguments.tdClass#"</cfif>>
+				</cfoutput>
+			<cfelse>
+				<cfoutput>
+					<table id="MainTable">
+						<tr>
+							<td>
+				</cfoutput>
+			</cfif>
+		</cfsavecontent>
+	</cfif>
 	<cfreturn retHTML>
 </cffunction>
 
@@ -402,38 +404,42 @@ History:
 	2011-03-20 - MFC - Added Else statement to add Table tag for CS5 lightbox resizing.
 						Added scripts to resize the dialog on load.
 	2011-03-30 - MFC - Changed the lightbox resize to call "lbResizeWindow()" in CS 5.
+	2011-04-07 - RAK - Prevented this from getting called 2x in the same request and producing duplicate stuff
 --->
 <cffunction name="lightboxFooter" access="public" returntype="string" output="false" hint="Returns HTML for the CS 6.x lightbox footer (use with the lightboxHeader)">
 	<cfscript>
 		var retHTML = "";
-	    var productVersion = ListFirst(ListLast(request.cp.productversion," "),".");
+	   var productVersion = ListFirst(ListLast(request.cp.productversion," "),".");
 	</cfscript>
-	<cfsavecontent variable="retHTML">
-		<!--- // Load the CommonSpot Lightbox Footer when in version 6.x --->
-		<cfif productVersion GTE 6>
-			<cfoutput></td>
-				</tr>
-			<CFINCLUDE template="/commonspot/dlgcontrols/dlgcommon-foot.cfm">
-			</cfoutput>
-		<cfelse>
-			<!--- CS 5 and under, close Table Tab --->
-			<cfoutput>
-						</td>
+	<cfif NOT StructKeyExists(request,"ADFRanDLGFoot")>
+		<cfset request.ADFRanDLGFoot = true>
+		<cfsavecontent variable="retHTML">
+			<!--- // Load the CommonSpot Lightbox Footer when in version 6.x --->
+			<cfif productVersion GTE 6>
+				<cfoutput></td>
 					</tr>
-				</table>
-				<!--- Load JQuery to resize the dialog after loading --->
-				<cfscript>
-					application.ADF.scripts.loadJQuery();
-				</cfscript>
-				<script type="text/javascript">
-					// Resize with the CS lightbox scripts
-					jQuery(document).ready(function() {
-						lbResizeWindow();
-					});
-				</script>
-			</cfoutput> 
-		</cfif>		
-	</cfsavecontent>
+				<CFINCLUDE template="/commonspot/dlgcontrols/dlgcommon-foot.cfm">
+				</cfoutput>
+			<cfelse>
+				<!--- CS 5 and under, close Table Tab --->
+				<cfoutput>
+							</td>
+						</tr>
+					</table>
+					<!--- Load JQuery to resize the dialog after loading --->
+					<cfscript>
+						application.ADF.scripts.loadJQuery();
+					</cfscript>
+					<script type="text/javascript">
+						// Resize with the CS lightbox scripts
+						jQuery(document).ready(function() {
+							lbResizeWindow();
+						});
+					</script>
+				</cfoutput>
+			</cfif>
+		</cfsavecontent>
+	</cfif>
 	<cfreturn retHTML>
 </cffunction>
 

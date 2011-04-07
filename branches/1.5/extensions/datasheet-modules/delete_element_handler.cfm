@@ -35,7 +35,48 @@ History:
 						functionality and improved ability
 	2011-03-31 - MFC - Updated for the security check before running the delete function.
 	2011-04-05 - MFC - Fixed the variable name in the callback JS.
+	2011-04-07 - RAK - Created display for CS 6.1 and above because we cant do our previous schemes for the confirmation
 --->
+<cfscript>
+	if (NOT StructKeyExists(Request.Params,"doDelete"))
+		Request.Params.doDelete = 0;
+</cfscript>
+
+<!---If its 6.1 we need to render the forms ourseleves because we cant specify the action properly.--->
+<cfif application.ADF.csVersion GTE 6.1 and Request.Params.doDelete EQ 0>
+	<cfoutput>
+		#application.ADF.ui.lightboxHeader(lbCheckLogin=true)#
+		<tr>
+			<td class="cs_dlgNormal">
+				<form action="/ADF/extensions/datasheet-modules/delete_element_handler.cfm?subsiteURL=#request.subsite.url#" method="post">
+					<input type="hidden" value="1" name="dodelete">
+					<CFLOOP index="fld" list="#StructKeyList(Request.Params)#">
+						<CFIF fld NEQ 'csModule'>
+							<input type="hidden" name="#fld#" value="#Request.Params[fld]#"/>
+						</CFIF>
+					</CFLOOP>
+					<div align="center">
+						Are you sure you wish to delete this record?
+						<br /><br />
+						<CFMODULE TEMPLATE="/commonspot/dlgcontrols/ct-common-pushbuttons.cfm"
+								HelpID="#CD_dialogName#"
+								OK="1"
+								OKLabel="Yes"
+								OKButtonClass="clsGeneralButton"
+								Cancel="1"
+								CancelLabel="No"
+								CancelButtonClass="clsCancelButton">
+					</div>
+				</form>
+			</td>
+		</tr>
+		<!--- Render the dlg footer --->
+		#application.ADF.ui.lightboxFooter()#
+	</cfoutput>
+	<!---We dont want to process anymore because we already displayed the form.--->
+	<CFEXIT>
+</cfif>
+
 
 <!--- // if we are returning then handle the delete --->
 <cfif (StructKeyExists(Request.Params,"doDelete")) AND (Request.Params.doDelete neq 0)>
@@ -43,10 +84,10 @@ History:
 	<cfscript>
 		application.ADF.scripts.loadADFLightbox();
 	</cfscript>
-	
+
 	<!--- Render the dlg header --->
 	<cfoutput>#application.ADF.ui.lightboxHeader(lbCheckLogin=true)#</cfoutput>
-	
+
 	<!--- Verify the security for the logged in user --->
 	<cfif application.ADF.csSecurity.isValidContributor() OR application.ADF.csSecurity.isValidCPAdmin()>
 		<!--- Delete the CE record --->
@@ -83,6 +124,6 @@ History:
 	<!--- Render the dlg footer --->
 	<cfoutput>#application.ADF.ui.lightboxFooter()#</cfoutput>
 <cfelse>
-	<!--- // Include the CommonSpot process for a datasheet --->	
+	<!--- // Include the CommonSpot process for a datasheet --->
 	<cfinclude template="/commonspot/controls/datasheet/cs-delete-form-data.cfm">
 </cfif>
