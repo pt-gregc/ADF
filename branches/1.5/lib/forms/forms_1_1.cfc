@@ -226,6 +226,7 @@ History:
 	2011-01-20 - GAC - Updated the conflicting title code was attempting to set the Lightbox DialogName
 	2011-03-26 - MFC - Removed the lightbox header and footer from rendering.  The Lightbox proxy 
 						now renders the header and footer.
+	2011-04-07 - MFC - Added 'realTargetModule' variable for when deleting in CS6.1 and Greater.
 --->
 <cffunction name="renderDeleteForm" access="public" returntype="String" hint="Renders the standard datasheet delete module">
 	<cfargument name="formID" type="numeric" required="true" hint="The FormID for the Custom Element">
@@ -240,8 +241,12 @@ History:
 			variables.scripts.loadJquery();
 			variables.scripts.loadADFLightbox();
 
-			//targetModule = "#request.subsiteCache[1].url#datasheet-modules/delete-form-data.cfm";
 			targetModule = "/ADF/extensions/datasheet-modules/delete_element_handler.cfm";
+			
+			// IF in CS6.1 or greater set into 'RealTargetModule' variable
+			if ( application.ADF.csVersion GTE 6.1 )
+				realTargetModule = targetModule;
+			
 			request.params.pageID = arguments.dataPageID;
 			request.params.formID = arguments.formID;
 			if(Len(arguments.callback)){
