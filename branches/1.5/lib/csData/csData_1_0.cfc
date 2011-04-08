@@ -266,26 +266,32 @@ History:
 </cffunction>
 
 <!---
-	/* ***************************************************************
-	/*
-	Author: 	M. Carroll
-	Name:
-		$getCommonSpotSites
-	Summary:
-		Returns the CommonSpot sites for the server.
-	Returns:
-		Query - CommonSpot sites on the server
-	Arguments:
-		Void
-	History:
-		2009-06-05 - MFC - Created
+/* *************************************************************** */
+Author: 	M. Carroll
+Name:
+	$getCommonSpotSites
+Summary:
+	Returns the CommonSpot sites for the server.
+Returns:
+	Query - CommonSpot sites on the server
+Arguments:
+	Void
+History:
+	2009-06-05 - MFC - Created
+	2011-04-08 - MFC - Updated query to return 'DataSourceName' and 'RootURL' fields.
+						Added parameter for the site ID.
 --->
 <cffunction name="getCommonSpotSites" access="public" returntype="query" output="false" hint="Returns the CommonSpot sites for the server.">
+	<cfargument name="siteID" type="numeric" required="false" default="0">
+	
 	<cfset var siteQuery = QueryNew("tmp")>
 	<cfquery name="siteQuery" datasource="#request.serverdatasource#">
-		SELECT 		SiteID, SiteName, RootPath
+		SELECT 		SiteID, SiteName, RootPath, DataSourceName, RootURL
 		FROM 		ServerSites
 		WHERE		SiteState = 1
+		<cfif arguments.siteID GT 0>
+			AND     SiteID = <cfqueryparam value="#arguments.siteID#" cfsqltype="cf_sql_numeric">
+		</cfif>
 		ORDER BY	SiteName
 	</cfquery>
 	<cfreturn siteQuery>
