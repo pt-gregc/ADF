@@ -750,6 +750,7 @@ History:
 	2010-04-30 - MFC - Updated the Lightbox framework to resolve issues.
 	2010-12-21 - MFC - Updated the codes for HTML and scripts.
 						Commented IF condition for loading the "commonspot/javascript/browser-all.js" link.
+	2011-04-08 - RAK - Added includes to 6.1 overrides if this is in fact 6.1 or greater.
 --->
 <cffunction name="loadADFLightbox" access="public" output="true" returntype="void" hint="ADF Lightbox Framework for the ADF Library">
 	<cfargument name="version" type="string" required="false" default="1.0" hint="ADF Lightbox version to load">
