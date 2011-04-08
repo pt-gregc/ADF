@@ -782,7 +782,11 @@ History:
 		<cfoutput>
 			<script type='text/javascript' src='/ADF/extensions/lightbox/#arguments.version#/js/framework.js'></script>
 			<!--- Load lightbox override styles --->
-			<link href="/ADF/extensions/lightbox/#arguments.version#/css/lightbox_overrides.css" rel="stylesheet" type="text/css">
+			<cfif application.ADF.csVersion GTE 6.1>
+	         <link href="/ADF/extensions/lightbox/#arguments.version#/css/lightbox_overrides_6_1.css" rel="stylesheet" type="text/css">
+			<cfelse>
+	         <link href="/ADF/extensions/lightbox/#arguments.version#/css/lightbox_overrides.css" rel="stylesheet" type="text/css">
+			</cfif>
 		</cfoutput>
 			<!--- Load the CommonSpot Lightbox when not in version 6.0 --->
 			<cfif productVersion LT 6 >
