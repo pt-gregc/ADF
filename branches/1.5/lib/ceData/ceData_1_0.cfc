@@ -886,6 +886,8 @@ History:
 								Find any of the items in a list that match a list item in a 
 									CE field that stores a list of values.
 								Removed if statements for condition " contains in 'list' ".
+	2011-04-18 - MFC - Updated: Fix data_listItems query for the strItemValue field with the 
+									'list' query type.
 --->
 <cffunction name="getPageIDForElement" access="public" returntype="query" hint="Returns Page ID Query in Data_FieldValue matching Form ID">
 	<cfargument name="formid" type="numeric" required="true">
@@ -905,6 +907,7 @@ History:
 	</cfscript>
 
 	<!--- // queryType eq list get the listID's first that match the input --->
+	<!--- 2011-04-18 - Fix data_listItems query for the strItemValue WHERE statement field. --->
 	<cfif (arguments.queryType EQ "list") OR (arguments.queryType EQ "numericList")>
 		<cfquery name="getListItemIDs" datasource="#request.site.datasource#">
 			SELECT DISTINCT listID
@@ -912,8 +915,8 @@ History:
 			WHERE
 				<cfif arguments.queryType eq "numericList">
 					numItemValue in (<cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.item#" list="true">)
-				<!--- <cfelse>
-					strItemValue in (#preserveSingleQuotes(listQualify(arguments.item, "'"))#) --->
+				<cfelse>
+					strItemValue in (<cfqueryparam cfsqltype="cf_sql_varchar" value="#preserveSingleQuotes(arguments.item)#" list="true">)
 				</cfif>
 		</cfquery>
 	</cfif>
