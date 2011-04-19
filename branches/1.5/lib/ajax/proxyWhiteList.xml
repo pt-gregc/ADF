@@ -11,7 +11,7 @@
 	<utils_1_1>getThumbnailOfResource</utils_1_1>
 	<scheduler_1_0>getScheduleStatus,pauseSchedule,processNextScheduleItem,resumeSchedule</scheduler_1_0>
 	<taxonomy_1_1>getFacetStructForTaxonomy,getTopTermStructForFacet</taxonomy_1_1>
-	<ccapi>loadPanel</ccapi>
+	<ccapiConfig_1_0>loadPanel</ccapiConfig_1_0>
 	<!-- This determines what Custom Elements you can get from getCEData, acts as a whitelist. -->
 	<getCEDataSecurity></getCEDataSecurity>
 </settings>
