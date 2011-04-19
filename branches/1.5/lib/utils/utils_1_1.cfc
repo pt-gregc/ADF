@@ -75,18 +75,23 @@ History:
 		var result = StructNew();
 		var bean = "";
 		// if there has been an app name passed through go directly to that
-		if( len(arguments.appName) and structKeyExists(application, arguments.appName) and isObject(evaluate("application." & arguments.appName & "." & beanName)) )
-			bean = evaluate("application." & arguments.appName & "." & beanName);
+		if( Len(arguments.appName)
+				and StructKeyExists(application, arguments.appName)
+				and StructKeyExists(StructFind(application,arguments.appName), arguments.beanName)){
+			bean = StructFind( StructFind(application,arguments.appName),arguments.beanName);
 		// check in application scope
-		else if( application.ADF.objectFactory.containsBean(arguments.beanName) )
+		}else if( application.ADF.objectFactory.containsBean(arguments.beanName) ){
 			bean = application.ADF.objectFactory.getBean(arguments.beanName);
-		else if( server.ADF.objectFactory.containsBean(arguments.beanName) )
+		}else if( server.ADF.objectFactory.containsBean(arguments.beanName) ){
 			bean = server.ADF.objectFactory.getBean(arguments.beanName);
+		}else if(StructKeyExists(application.ADF,arguments.beanName)){
+			bean = StructFind(application.ADF,arguments.beanName);
+		}
 	</cfscript>
-   	<cfinvoke component = "#bean#"
-			  method = "#arguments.methodName#"
-			  returnVariable = "result.reData"
-			  argumentCollection = "#arguments.args#">
+	<cfinvoke component = "#bean#"
+		  method = "#arguments.methodName#"
+		  returnVariable = "result.reData"
+		  argumentCollection = "#arguments.args#">
 	<cfscript>
 		// Check to make sure the result.returnData was not destroyed by a method that returns void
 		if ( StructKeyExists(result,"reData") )
