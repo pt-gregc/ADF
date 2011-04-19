@@ -51,17 +51,15 @@ end user license agreement.
 		/*
 		 *	Define the ADF Lib components to load into the sites application space.
 		 *	Loading the most recent versions of the ADF Lib components
+		 *	
+		 *	Note: you can pass a previous ADF version number (e.g. 1.0) to this function to load that
+		 *	versions ADF Library Components
+		 *	
+		 *	See /ADF/lib/version.xml to see which ADF Library Components are loaded for that ADF Version
 		 *
 		 */
 		loadLibrary();
 		
-		/*
-		 *	Define specific ADF Lib component version to load into the sites application space.
-		 *	
-		 *	SAMPLE:
-		 *		resetLibrary("csdata_1_0", "csdata");
-		 *
-		 */
 	</cfscript>
 </cffunction>
 
