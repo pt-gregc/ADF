@@ -42,6 +42,7 @@ History:
 	2010-12-06 - RAK - Added the ability to define an active flag
 						Added ability to dynamically build the display field - <firstName> <lastName>:At <email>
 	2011-03-08 - MFC - Updated AJAX calls for bean "ceData_1_1".
+	2011-04-20 - RAK - Added the ability to have a multiple select field and size it
 --->
 <cfscript>
 	// initialize some of the attributes variables
@@ -72,6 +73,14 @@ History:
 		currentValues.activeFlagValue = "";
 	if( not structKeyExists(currentValues, "addButton") )
 		currentValues.addButton = 0;
+	if( not structKeyExists(currentValues, "multipleSelect") )
+		currentValues.multipleSelect = 0;
+	if( not structKeyExists(currentValues, "multipleSelectSize") )
+		currentValues.multipleSelectSize = 1;
+
+
+
+
 
 </cfscript>
 <cfoutput>
@@ -80,7 +89,7 @@ History:
 		application.ADF.scripts.loadJQuerySelectboxes();
 	</cfscript>
 <script type="text/javascript">
-	fieldProperties['#typeid#'].paramFields = "#prefix#customElement,#prefix#valueField,#prefix#displayField,#prefix#renderField,#prefix#defaultVal,#prefix#fldName,#prefix#forceScripts,#prefix#displayFieldBuilder,#prefix#activeFlagField,#prefix#activeFlagValue,#prefix#addButton";
+	fieldProperties['#typeid#'].paramFields = "#prefix#customElement,#prefix#valueField,#prefix#displayField,#prefix#renderField,#prefix#defaultVal,#prefix#fldName,#prefix#forceScripts,#prefix#displayFieldBuilder,#prefix#activeFlagField,#prefix#activeFlagValue,#prefix#addButton,#prefix#multipleSelect,#prefix#multipleSelectSize";
 	// allows this field to support the orange icon (copy down to label from field name)
 	fieldProperties['#typeid#'].jsLabelUpdater = '#prefix#doLabel';
 	// allows this field to have a common onSubmit Validator
@@ -296,6 +305,19 @@ History:
 			<td class="cs_dlgLabelSmall">
 				Yes <input type="radio" id="#prefix#addButton" name="#prefix#addButton" value="1" <cfif currentValues.addButton EQ "1">checked</cfif>>&nbsp;&nbsp;&nbsp;
 				No <input type="radio" id="#prefix#addButton" name="#prefix#addButton" value="0" <cfif currentValues.addButton EQ "0">checked</cfif>><br />
+		</td>
+	</tr>
+	<tr>
+		<td class="cs_dlgLabelSmall">Multiple Select:</td>
+		<td class="cs_dlgLabelSmall">
+				Yes <input type="radio" id="#prefix#multipleSelect" name="#prefix#multipleSelect" value="1" <cfif currentValues.multipleSelect EQ "1">checked</cfif>>&nbsp;&nbsp;&nbsp;
+				No <input type="radio" id="#prefix#multipleSelect" name="#prefix#multipleSelect" value="0" <cfif currentValues.multipleSelect EQ "0">checked</cfif>><br />
+		</td>
+	</tr>
+	<tr>
+		<td class="cs_dlgLabelSmall">Multiple Select Size:</td>
+		<td class="cs_dlgLabelSmall">
+				<input id="#prefix#multipleSelectSize" name="#prefix#multipleSelectSize" value="#currentValues.multipleSelectSize#" size="3">
 		</td>
 	</tr>
 

@@ -49,6 +49,7 @@ History:
 						Added ability to dynamically build the display field - <firstName> <lastName>:At <email>
 	2011-01-06 - RAK - Added error catching on evaluate failure.
 	2011-02-08 - RAK - Added the class to the select from the props file for javascript interaction.
+	2011-04-20 - RAK - Added the ability to have a multiple select field
 --->
 <cfscript>
 	// the fields current value
@@ -145,9 +146,15 @@ History:
 		{
 			//alert("fire");
 			// Selected value
-			var selectedVal = jQuery("select###fqFieldName#_select").find(':selected').val();
-			//alert(selectedVal);
-			// put the selected value into the 
+			var selectedVal = "";
+			jQuery("select###fqFieldName#_select").find(':selected').each(function(index,item){
+				if(selectedVal.length){
+					selectedVal += ","
+				}
+				selectedVal += jQuery(item).val();
+			});
+			console.log(selectedVal);
+			// put the selected value into the
 			jQuery("input[name=#fqFieldName#]").val(selectedVal);
 		}
 		
@@ -206,10 +213,11 @@ History:
 					readOnly = false;
 			</cfscript>
 			<div id="#fqFieldName#_renderSelect">
-				<select name='#fqFieldName#_select' class="#xparams.fldName#" id='#fqFieldName#_select' onchange='#fqFieldName#_loadSelection()' <cfif readOnly>disabled='disabled'</cfif>>
-		 			<option value=''> - Select - </option>
+				<!---2011-04-20 - RAK - Added multiple select ability--->
+				<select <cfif StructKeyExists(xparams,"multipleSelect") and StructKeyExists(xparams,"multipleSelectSize") and xparams.multipleSelect>multiple="multiple" size="#xparams.multipleSelectSize#"</cfif> name='#fqFieldName#_select' class="#xparams.fldName#" id='#fqFieldName#_select' onchange='#fqFieldName#_loadSelection()' <cfif readOnly>disabled='disabled'</cfif>>
+					<option value=''> - Select - </option>
 		 			<cfloop index="cfs_i" from="1" to="#ArrayLen(ceDataArray)#">
-						<cfif ceDataArray[cfs_i].Values['#xparams.valueField#'] EQ currentValue>
+						<cfif ListFind(currentValue,ceDataArray[cfs_i].Values['#xparams.valueField#'])>
 							<cfset isSelected = true>
 						<cfelse>
 							<cfset isSelected = false>
