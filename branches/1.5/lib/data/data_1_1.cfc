@@ -201,8 +201,9 @@ History:
 	2011-03-14 - RAK - Created
 	2011-03-14 - RAK - Normalized columns
 	2011-03-14 - RAK - Added date time parsing
+	2011-04-20 - RAK - Changed if's to else if's to prevent issue wtih overlapping tags.
 --->
-<cffunction name="feedToQuery" returntype="struct" output="false">
+<cffunction name="feedToQuery" returntype="struct" output="false" access="public">
 	/**
 	 * Converts an RSS 0.9+, ATOM or RDF feed into a query.
 	 *
@@ -265,7 +266,7 @@ History:
 			}
 		}
 		//RSS
-		if (find("<rss", parsed))
+		else if (find("<rss", parsed))
 		{
 			if (isArray(XMLSearch(parsed, "/rss/")))
 			{
@@ -305,7 +306,7 @@ History:
 			}
 		}
 		//ATOM
-		if (find("<feed", parsed))
+		else if (find("<feed", parsed))
 		{
 			retStruct.channel = structNew();
 			if (structKeyExists(parsed["feed"], "title")) retStruct.channel.title = parsed["feed"].title.XMLText;
