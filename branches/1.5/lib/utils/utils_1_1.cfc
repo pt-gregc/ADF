@@ -65,6 +65,7 @@ History:
 	2011-01-30 - RLW - Modified - Added an optional appName param that can be used to execute a method from an app bean
 	2011-02-01 - GAC - Comments - Updated the comments with the arguments list
 	2011-02-09 - GAC - Modified - renamed the 'local' variable to 'result' since local is a reserved word in CF9
+	2011-04-19 - RAK - Modified loading beans by bean name to not use evaluate and added fallback for application.ADF.beanName
 --->
 <cffunction name="runCommand" access="public" returntype="Any" hint="Runs the given command">
 	<cfargument name="beanName" type="string" required="true" default="" hint="Name of the bean you would like to call">
