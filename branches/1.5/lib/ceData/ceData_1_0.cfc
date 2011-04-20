@@ -951,6 +951,7 @@ History:
 										FROM Data_FieldValue
 										WHERE ( fieldValue IN (<cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.item#" list="true">) )
 										AND ( FieldID IN (<cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.fieldid#" list="true">) )
+										AND VersionState = 2
 										)
 				</cfif>
 				AND		FieldID IN (<cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.searchFields#" list="true">)
@@ -964,6 +965,7 @@ History:
 								WHERE FormID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.formid#">
 								AND FieldID = <cfqueryparam cfsqltype="cf_sql_integer" value="#ListGetAt(arguments.searchFields,itm)#">
 								AND LOWER(fieldValue) = <cfqueryparam cfsqltype="cf_sql_varchar" value="#ListGetAt(arguments.searchValues,itm)#">
+								AND VersionState = 2
 							)
 					</cfloop>
 				</cfif>
