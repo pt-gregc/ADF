@@ -1,3 +1,4 @@
+<cfsetting requestTimeout = 240>
 <cftry>
 	<cfoutput>
 		<cfif !StructKeyExists(form,"filename") 
@@ -11,7 +12,7 @@
 		</cfscript>
 		<cfif fieldID gt 0>
 			<cfscript>
-				fieldDefaultValues = application.ADF.ceData.getFieldValuesByFieldID(fieldID);
+				fieldDefaultValues = application.ADF.ceData.getFieldParamsByID(fieldID);
 				form.folder = fieldDefaultValues.filepath;
 				fileExtension = ListGetat(form.filename,ListLen(form.filename,"."),".");
 				//If its a valid extension, move it to the uploaded directory!

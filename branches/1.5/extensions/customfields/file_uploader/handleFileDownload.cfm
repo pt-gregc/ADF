@@ -1,6 +1,6 @@
 <cfif StructKeyExists(request.params,"fieldID") and StructKeyExists(request.params,"fileName")>
 	<cfscript>
-		fieldDefaultValues = application.ADF.ceData.getFieldValuesByFieldID(request.params.fieldID);
+		fieldDefaultValues = application.ADF.ceData.getFieldParamsByID(request.params.fieldID);
 		fileName = request.params.fileName;
 		displayName = listFirst(fileName,"--")&"."&listLast(fileName,".");
 		displayName = Replace(displayName," ", "_", "all");

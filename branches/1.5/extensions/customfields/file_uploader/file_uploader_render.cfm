@@ -47,7 +47,7 @@ end user license agreement.
 	}
 	acceptedFileTypes = ListChangeDelims(acceptedFileTypes,";");
 
-	fieldDefaultValues = application.ADF.ceData.getFieldValuesByFieldID(fieldQuery.inputID);
+	fieldDefaultValues = application.ADF.ceData.getFieldParamsByID(fieldQuery.inputID);
 	filePath = fieldDefaultValues.filePath;
 	imageURL = "/ADF/extensions/customfields/file_uploader/handleFileDownload.cfm?subsiteURL=#request.subsite.url#&fieldID=#fieldQuery.inputID#&filename=";
 </cfscript>
