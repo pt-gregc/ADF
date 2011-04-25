@@ -30,6 +30,7 @@ History:
 	2011-02-07 - RAK - Created
 	2011-03-11 - MFC - Updated to add class "ADF-Edit-Delete" to TD for custom styling.
 						Add align and valign to TD to make standard with the "edit-delete" DS-module.
+	2011-04-25 - MFC - Updated for CS Version checks for the anchor tag JavaScript.
 --->
 
 <!--- Load the JQuery UI Styles --->
@@ -67,14 +68,24 @@ History:
 <cfsavecontent variable="Request.Datasheet.CurrentFormattedValue">
 	<cfoutput>
 		<td align="center" valign="middle" class="ADF-Edit-Delete">
-			<!--- <a style="float: left;" href="javascript:doActionCol(paramList_#attributes.CONTROLID#_#request.DatasheetRow.getRow()#,'edit-form-data.cfm','edit',#attributes.CONTROLID#,'actiontarget');" title='Edit'>			 --->
-			<a style="float: left;" href="javascript:doActionCol(paramList_#attributes.CONTROLID#_#request.DatasheetRow.getRow()#,1,#attributes.CONTROLID#,'edit','actiontarget','0');" title='Edit'>			
+			<!--- Check for CS Version --->
+			<cfif application.ADF.csVersion EQ 6>
+				<a style="float: left;" href="javascript:doActionCol(paramList_#attributes.CONTROLID#_#request.DatasheetRow.getRow()#,'edit-form-data.cfm','edit',#attributes.CONTROLID#,'actiontarget');" title='Edit'>
+			<cfelseif application.ADF.csVersion GT 6>
+				<!--- TODO: CS6.1 Update to make this CFT work. --->
+				<a style="float: left;" href="javascript:doActionCol(paramList_#attributes.CONTROLID#_#request.DatasheetRow.getRow()#,1,#attributes.CONTROLID#,'edit','actiontarget','0');" title='Edit'>
+			</cfif>
 				<div class='ds-icons ui-state-default ui-corner-all' title='edit' >
 					<div style='margin-left:auto;margin-right:auto;' class='ui-icon ui-icon-pencil'></div>
 				</div>
 			</a>
-			<!--- <a style="float: left; margin-left: 3px; margin-right: 3px;" href="javascript:doActionCol(paramList_#attributes.CONTROLID#_#request.DatasheetRow.getRow()#,'delete-form-data.cfm','delete',#attributes.CONTROLID#,'actiontarget');" title='Delete'> --->
-			<a style="float: left; margin-left: 3px; margin-right: 3px;" href="javascript:doActionCol(paramList_#attributes.CONTROLID#_#request.DatasheetRow.getRow()#,2,#attributes.CONTROLID#,'delete','actiontarget','0');" title='Delete'>
+			<!--- Check for CS Version --->
+			<cfif application.ADF.csVersion EQ 6>
+				<a style="float: left; margin-left: 3px; margin-right: 3px;" href="javascript:doActionCol(paramList_#attributes.CONTROLID#_#request.DatasheetRow.getRow()#,'delete-form-data.cfm','delete',#attributes.CONTROLID#,'actiontarget');" title='Delete'>
+			<cfelseif application.ADF.csVersion GT 6>
+				<!--- TODO: CS6.1 Update to make this CFT work. --->
+				<a style="float: left; margin-left: 3px; margin-right: 3px;" href="javascript:doActionCol(paramList_#attributes.CONTROLID#_#request.DatasheetRow.getRow()#,2,#attributes.CONTROLID#,'delete','actiontarget','0');" title='Delete'>
+			</cfif>
 				<div class='ds-icons ui-state-default ui-corner-all' title='delete' >
 					<div style='margin-left:auto;margin-right:auto;' class='ui-icon ui-icon-trash'></div>
 				</div>
