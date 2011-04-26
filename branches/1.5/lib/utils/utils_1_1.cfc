@@ -202,4 +202,62 @@ History:
 	<cfreturn "#destinationURL##Left(documentName,Len(documentName)-4)#_page_1.png">
 </cffunction>
 
+<!---
+/* ***************************************************************
+/*
+Author:
+	PaperThin, Inc.
+	Ron West
+Name:
+	$IPInRange
+Summary:
+	Returns a boolean active flag if the current users IP is within the given range
+Returns:
+	boolean
+Arguments:
+	String startIP
+	String endIP
+	String ip
+History:
+ 	2011-04-26 - RLW - Created
+--->
+<cffunction name="IPInRange" access="public" returnType="boolean" hint="Returns true if the current users IP is within the valid range ">
+	<cfargument name="startIP" type="string" required="true" hint="Starting IP Range - can be as low as 1.0">
+	<cfargument name="endIP" type="string" required="true" hint="Ending IP Range - can be as low as 1.1">
+	<cfargument name="ip" type="string" required="false" default="#cgi.remote_addr#" hint="IP to check - defaults to current users IP">
+	<cfscript>
+		/**
+		Based off of the following function
+		
+		* determine if IP is with in a range.
+		* 04-mar-2010 renamed to IPinRange so as not to conflict w/existing UDF
+		* 
+		* @param start      start IP range (Required)
+		* @param end      end IP range (Required)
+		* @param ip      IP to test if in range (Required)
+		* @return Returns a boolean. 
+		* @author A. Cole (acole76@NOSPAMgmail.com) 
+		* @version 0, March 4, 2010 
+		*/
+	    var startArray = listtoarray(arguments.startIP, ".");
+	    var endArray = listtoarray(arguments.endIP, ".");
+	    var ipArray = listtoarray(arguments.ip, ".");
+	    var s = 0;
+	    var e = 0;
+	    var c = 0;
+	    // check the length of the array and insert blank entries if the ip range was short an octet
+	   	while(arrayLen(startArray) lt 4){
+	   		arrayAppend(startArray, 256);
+	   	}
+	   	while(arrayLen(endArray) lt 4){
+	   		arrayAppend(endArray, 256);
+	   	}
+	    // build string for comparison
+	    s = ((16777216 * startArray[1]) + (65536 * startArray[2]) + (256 * startArray[3]) + startArray[4]);
+	    e = ((16777216 * endArray[1]) + (65536 * endArray[2]) + (256 * endArray[3]) + endArray[4]);
+	    c = ((16777216 * ipArray[1]) + (65536 * ipArray[2]) + (256 * ipArray[3]) + ipArray[4]);
+	</cfscript>
+	<cfreturn isvalid("range", c, s, e)>
+</cffunction>
+
 </cfcomponent>
