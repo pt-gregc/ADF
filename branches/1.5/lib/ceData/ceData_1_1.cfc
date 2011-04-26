@@ -586,6 +586,7 @@ History:
 	2011-02-09 - RAK - Var'ing un-var'd variables
 	2011-02-15 - RAK - Removing lowercasing of view values
 	2011-03-14 - MFC - Update the viewname variable to remove spaces.
+	2011-04-25 - MFC - Commented out the Oracle DB cast for "large_textarea,formatted_text_block".
 --->
 <cffunction name="buildRealTypeView" access="public" returntype="boolean">
 	<cfargument name="elementName" type="string" required="true">
@@ -657,8 +658,12 @@ History:
 								WHEN (fieldvalue is NOT NULL or fieldValue <> '')
 								THEN fieldvalue
 					<cfif dbtype is 'oracle'>
+								<!--- TODO 
+										Issue with Oracle DB and casting the 'memovalue' field. 
+										Commented out to make this work in Oracle, but still needs to be resolved.
+								 --->
 								<!--- WHEN length(memovalue) < 4000 THEN CAST(memovalue as varchar2(4000)) --->
-								ELSE CAST([memovalue] AS nvarchar2(2000))
+								<!--- ELSE CAST([memovalue] AS nvarchar2(2000)) --->
 					<cfelseif dbtype is 'mssql'>
 								ELSE CAST([memovalue] AS nvarchar(2000))
                     <cfelse>  
