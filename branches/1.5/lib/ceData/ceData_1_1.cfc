@@ -589,6 +589,7 @@ History:
 	2011-04-25 - MFC - Commented out the Oracle DB cast for "large_textarea,formatted_text_block".
 	2011-04-27 - MFC - Updated the SQL WHEN condition to only check for empty string.
 						Updated the "large_textarea,formatted_text_block" CASE for the IF condition when 'SQLServer'.
+						Changed memoValue field size to "max".
 --->
 <cffunction name="buildRealTypeView" access="public" returntype="boolean">
 	<cfargument name="elementName" type="string" required="true">
@@ -666,7 +667,7 @@ History:
 									<!--- WHEN length(memovalue) < 4000 THEN CAST(memovalue as varchar2(4000)) --->
 									<!--- ELSE CAST([memovalue] AS nvarchar2(2000)) --->
 						<cfelseif dbtype is 'SQLServer'>
-									ELSE CAST([memovalue] AS nvarchar(2000))
+									ELSE CAST([memovalue] AS nvarchar(max))
 	                    <cfelse>  
 	                    			<!--- Don't CAST if using MySQL ---> 
 						</cfif>
