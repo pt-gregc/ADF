@@ -1166,7 +1166,7 @@ Author:
 Name:
 	$arrayOfCEDataMerge
 Summary:
-	Merges 2 arrays of CEData
+	Merges 2 arrays of CEData without duplicates.
 Returns:
 	array
 Arguments:
@@ -1174,7 +1174,7 @@ Arguments:
 History:
  	2011-04-27 - RAK - Created
 --->
-<cffunction name="arrayOfCEDataMerge" access="public" returntype="array" hint="Merges 2 arrays of CEData">
+<cffunction name="arrayOfCEDataMerge" access="public" returntype="array" hint="Merges 2 arrays of CEData without duplicates.">
 	<cfargument name="array1" type="array" required="true" default="" hint="Array to merge">
 	<cfargument name="array2" type="array" required="true" default="" hint="Array to merge">
 	<cfscript>
