@@ -240,7 +240,6 @@ Returns:
 Arguments:
 	number
 History:
-
 	2011-01-30 - RLW - Modified - Added additional parameters to the return structure
 	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
@@ -1156,5 +1155,44 @@ History:
 		}
 	</cfscript>
 </cffunction> --->
+
+
+<!---
+/* ***************************************************************
+/*
+Author:
+	PaperThin, Inc.
+	Ryan Kahn
+Name:
+	$arrayOfCEDataMerge
+Summary:
+	Merges 2 arrays of CEData
+Returns:
+	array
+Arguments:
+
+History:
+ 	2011-04-27 - RAK - Created
+--->
+<cffunction name="arrayOfCEDataMerge" access="public" returntype="array" hint="Merges 2 arrays of CEData">
+	<cfargument name="array1" type="array" required="true" default="" hint="Array to merge">
+	<cfargument name="array2" type="array" required="true" default="" hint="Array to merge">
+	<cfscript>
+		var dataStruct = StructNew();
+		var rtnArray = ArrayNew(1);
+
+		for(i=1;i<=ArrayLen(array1);i++){
+			StructInsert(dataStruct,array1[i].pageID,array1[i],true);
+		}
+		for(i=1;i<=ArrayLen(array2);i++){
+			StructInsert(dataStruct,array2[i].pageID,array2[i],true);
+		}
+		for(key in dataStruct){
+			ArrayAppend(rtnArray,StructFind(dataStruct,key));
+		}
+		return rtnArray;
+	</cfscript>
+</cffunction>
+
 
 </cfcomponent>
