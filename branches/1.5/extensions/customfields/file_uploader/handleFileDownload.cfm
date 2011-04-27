@@ -2,8 +2,14 @@
 	<cfscript>
 		fieldDefaultValues = application.ADF.ceData.getFieldParamsByID(request.params.fieldID);
 		fileName = request.params.fileName;
-		displayName = listFirst(fileName,"--")&"."&listLast(fileName,".");
-		displayName = Replace(displayName," ", "_", "all");
+
+		//Get the display name, remove the --UUID from the text. Maintain the extension
+		totalLength = Len(fileName);
+		extension = listLast(fileName,".");
+		removeLength = Len(extension)+38;
+		displayName = Left(fileName,totalLength-removeLength)&"."&extension;
+
+
 		filePath = "";
 		if(StructKeyExists(fieldDefaultValues,"filePath")){
 			concatenator = '';
