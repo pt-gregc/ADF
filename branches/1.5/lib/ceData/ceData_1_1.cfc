@@ -587,6 +587,8 @@ History:
 	2011-02-15 - RAK - Removing lowercasing of view values
 	2011-03-14 - MFC - Update the viewname variable to remove spaces.
 	2011-04-25 - MFC - Commented out the Oracle DB cast for "large_textarea,formatted_text_block".
+	2011-04-27 - MFC - Updated the SQL WHEN condition to only check for empty string.
+						Updated the "large_textarea,formatted_text_block" CASE for the IF condition when 'SQLServer'.
 --->
 <cffunction name="buildRealTypeView" access="public" returntype="boolean">
 	<cfargument name="elementName" type="string" required="true">
@@ -632,7 +634,6 @@ History:
 			 where forminputcontrolMap.fieldID  = fic.ID
 				and forminputcontrolMap.formID = <cfqueryparam value="#formID#" cfsqltype="cf_sql_integer">
 		</cfquery>
-		
 		<cfquery name="realTypeView" datasource="#Request.Site.DataSource#">
 			CREATE VIEW #arguments.viewName# AS
 			SELECT
@@ -640,45 +641,45 @@ History:
 				max(
 				<cfswitch expression="#fldqry.type#">
 					<cfcase value="integer">
-					CASE
-						WHEN FieldID = #ID# THEN CAST(fieldvalue as #intType#)
-						ELSE 0
-					END
+						CASE
+							WHEN FieldID = #ID# THEN CAST(fieldvalue as #intType#)
+							ELSE 0
+						END
+						</cfcase>
+						<cfcase value="float">
+						CASE
+							WHEN FieldID = #ID# THEN CAST(fieldvalue as DECIMAL(7,2))
+							ELSE 0.0
+						END
+						</cfcase>
+					<cfcase value="large_textarea,formatted_text_block">
+						CASE
+							WHEN FieldID = #ID# THEN
+								CASE
+									<!--- 2011-04-27 - MFC - Changed condition to only check for empty string. --->
+									WHEN fieldValue <> '' THEN fieldvalue
+						<cfif dbtype is 'oracle'>
+									<!--- TODO 
+											Issue with Oracle DB and casting the 'memovalue' field. 
+											Commented out to make this work in Oracle, but still needs to be resolved.
+									 --->
+									<!--- WHEN length(memovalue) < 4000 THEN CAST(memovalue as varchar2(4000)) --->
+									<!--- ELSE CAST([memovalue] AS nvarchar2(2000)) --->
+						<cfelseif dbtype is 'SQLServer'>
+									ELSE CAST([memovalue] AS nvarchar(2000))
+	                    <cfelse>  
+	                    			<!--- Don't CAST if using MySQL ---> 
+						</cfif>
+					   		END
+							ELSE null
+						END
 					</cfcase>
-					<cfcase value="float">
-					CASE
-						WHEN FieldID = #ID# THEN CAST(fieldvalue as DECIMAL(7,2))
-						ELSE 0.0
-					END
-					</cfcase>
-				<cfcase value="large_textarea,formatted_text_block">
-					CASE
-						WHEN FieldID = #ID# THEN
-							CASE
-								WHEN (fieldvalue is NOT NULL or fieldValue <> '')
-								THEN fieldvalue
-					<cfif dbtype is 'oracle'>
-								<!--- TODO 
-										Issue with Oracle DB and casting the 'memovalue' field. 
-										Commented out to make this work in Oracle, but still needs to be resolved.
-								 --->
-								<!--- WHEN length(memovalue) < 4000 THEN CAST(memovalue as varchar2(4000)) --->
-								<!--- ELSE CAST([memovalue] AS nvarchar2(2000)) --->
-					<cfelseif dbtype is 'mssql'>
-								ELSE CAST([memovalue] AS nvarchar(2000))
-                    <cfelse>  
-                    			<!--- Don't CAST if using MySQL --->          
-					</cfif>
-				   		END
-						ELSE null
-					END
-				</cfcase>
-				<cfdefaultcase> <!--- NEEDSWORK fieldtype like List, should add ListID column, fieldtype like email, could add 'lower case' function to avoid case sensitive issue --->
-				CASE
-					WHEN FieldID = #ID# THEN fieldvalue
-					ELSE null
-				END
-				</cfdefaultcase>
+					<cfdefaultcase> <!--- NEEDSWORK fieldtype like List, should add ListID column, fieldtype like email, could add 'lower case' function to avoid case sensitive issue --->
+						CASE
+							WHEN FieldID = #ID# THEN fieldvalue
+							ELSE null
+						END
+					</cfdefaultcase>
 				</cfswitch>
 				<!--- ) as FieldID#ID#, --->
 				) as #listGetAt(fieldName, 2, "_")#,
