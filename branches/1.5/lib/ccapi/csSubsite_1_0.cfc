@@ -60,6 +60,7 @@ History:
 	2009-06-25 - MFC - Updated logging for success
 						Updated IF block for CCAPI login
 	2011-02-09 - RAK - Var'ing un-var'd variables
+	2011-04-27 - MFC - Added Parent SubsiteID to the success log.
 --->
 <cffunction name="createSubsite" access="public" returntype="struct" hint="Creates the subsite based on argument data">
 	<cfargument name="subsiteData" type="struct" required="true" hint="Subsite Data struct ex: subsiteData['name'], subsiteData['displayName'], subsiteData['description']">
@@ -118,7 +119,7 @@ History:
 			result.subsiteCreated = "true";
 			result.response = createResponse;
 			
-			logStruct.msg = "Subsite Created: #arguments.subsiteData.name# - #listRest(createResponse, ':')#";
+			logStruct.msg = "Subsite Created: #arguments.subsiteData.name# - #listRest(createResponse, ':')# - Parent Subsite [#variables.ccapi.getSubsiteID()#]";
 			logStruct.logFile = 'CCAPI_create_subsite.log';
 			arrayAppend(logArray, logStruct);
 		}
