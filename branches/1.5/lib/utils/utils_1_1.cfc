@@ -247,7 +247,7 @@ History:
 	    var c = 0;
 	    // check the length of the array and insert blank entries if the ip range was short an octet
 	   	while(arrayLen(startArray) lt 4){
-	   		arrayAppend(startArray, 256);
+	   		arrayAppend(startArray, 1);
 	   	}
 	   	while(arrayLen(endArray) lt 4){
 	   		arrayAppend(endArray, 256);
