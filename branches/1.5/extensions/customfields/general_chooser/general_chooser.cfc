@@ -288,11 +288,20 @@ History:
 						Merged in the code for the show all link.
 	2011-03-10 - SFS - The loadSearchBox function had an invalid field name of "search-box". 
 						ColdFusion considers variables with a "-" as invalid. Removed "-".
+	2011-04-28 - GAC - Added a check to see if the old "SHOW_SECTION1" variable was being used 
+						via site or app level override file. If so, then it will pass the value to the SHOW_SEARCH variable
 --->
 <cffunction name="loadSearchBox" access="public" returntype="string" hint="General Chooser - Search box HTML content.">
 	<cfargument name="fieldName" type="String" required="true">
 	
-	<cfset var retSearchBoxHTML = "">
+	<cfscript>
+		var retSearchBoxHTML = "";
+		
+		// Backward compatibility to allow the variables from General Chooser v1.0 site and app override GC files to honored
+		if ( StructKeyExists(variables,"SHOW_SECTION1") )
+			variables.SHOW_SEARCH = variables.SHOW_SECTION1;
+	</cfscript>
+	
 	<!--- Check the variable flags for rendering --->
 	<cfif variables.SHOW_SEARCH EQ true>
 		<cfsavecontent variable="retSearchBoxHTML">
@@ -331,12 +340,22 @@ Arguments:
 	None
 History:
 	2009-05-29 - MFC - Created
-	2011-01-14 - MFC - Updated Add new link to utilize forms_1_5 by default.
+	2011-01-14 - MFC - Updated Add new link to utilize forms_1_1 by default.
+	2011-04-28 - GAC - Added a check to see if the old "ADD_NEW_FLAG" or "SHOW_SECTION2" variables were being used 
+						via site or app level override files. If so, then passed appropriate value to the SHOW_ADD_LINK variable
 --->
 <cffunction name="loadAddNewLink" access="public" returntype="string" hint="General Chooser - Add New Link HTML content.">
 	<cfargument name="fieldName" type="String" required="true">
 	
-	<cfset var retAddLinkHTML = "">
+	<cfscript>
+		var retAddLinkHTML = "";
+	
+		// Backward compatibility to allow the variables from General Chooser v1.0 site and app override GC files to honored
+		if ( StructKeyExists(variables,"SHOW_SECTION2") AND variables.SHOW_SECTION2 EQ false )
+			variables.SHOW_ADD_LINK = false;
+		if ( StructKeyExists(variables,"ADD_NEW_FLAG") AND variables.SHOW_ADD_LINK NEQ false )
+			variables.SHOW_ADD_LINK = variables.ADD_NEW_FLAG;
+	</cfscript>
 	
 	<!--- Check if we want to display show all link --->
 	<cfif variables.SHOW_ADD_LINK EQ true>
