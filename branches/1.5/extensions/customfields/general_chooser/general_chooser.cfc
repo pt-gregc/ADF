@@ -129,6 +129,7 @@ Arguments:
 History:
 	2011-01-14 - MFC - Created
 	2011-03-27 - MFC - Updates for IE styling.
+	2011-04-28 - GAC - Updates for styling the Show All Items link
 --->
 <cffunction name="loadStyles" access="public" returntype="string" output="true" hint="">
 	<cfargument name="fieldName" type="string" required="true">
@@ -180,15 +181,21 @@ History:
 				/* Main Area Selection Section */
 				div###arguments.fieldName#-gc-main-area div###arguments.fieldName#-gc-section3 {
 					clear:  both;
+					padding-top: 10px;
 				}
 				
 				/* Search Box */
 				div###arguments.fieldName#-gc-top-area div##search-chooser {
-					margin-bottom: 10px;
+					/* margin-bottom: 10px; */
 					border: none;
 					width: 250px;
-					height: 25px;
+					/* height: 25px; */ 
 				}
+				/* Show All Items Link Box */
+				div###arguments.fieldName#-gc-top-area div##search-chooser div##show-all-items {
+					margin-top: 4px;
+				}
+				
 				div###arguments.fieldName#-gc-main-area input {
 					border-color: ##fff;
 				}
@@ -310,16 +317,14 @@ History:
 				<div id="search-chooser">
 					<input type="text" class="searchFld-chooser" id="#arguments.fieldName#-searchFld" name="searchbox" tabindex="1" onblur="this.value = this.value || this.defaultValue;" onfocus="this.value='';" value="Search" />
 					<a href="javascript:;" id="#arguments.fieldName#-searchBtn" class="ui-state-default ui-corner-all #arguments.fieldName#-ui-buttons">Search</a>
-				</div>
-			</cfoutput>
-			<cfif variables.SHOW_ALL_LINK EQ true>
-				<!--- Render out the show all link to the field type --->
-				<cfoutput>
+					<cfif variables.SHOW_ALL_LINK EQ true>
+					<!--- Render out the show all link to the field type --->
 					<div id="show-all-items">
 						<a id="#arguments.fieldName#-showAllItems" href="javascript:;">Show All Items</a>
 					</div>	
-				</cfoutput>
-			</cfif>
+					</cfif>
+				</div>
+			</cfoutput>
 		</cfsavecontent>
 	</cfif>
 	<cfreturn retSearchBoxHTML>
