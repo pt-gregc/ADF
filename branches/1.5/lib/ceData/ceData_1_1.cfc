@@ -1156,10 +1156,8 @@ History:
 	</cfscript>
 </cffunction> --->
 
-
 <!---
-/* ***************************************************************
-/*
+/* ************************************************************** */
 Author:
 	PaperThin, Inc.
 	Ryan Kahn
@@ -1170,9 +1168,11 @@ Summary:
 Returns:
 	array
 Arguments:
-
+	array
+	array
 History:
  	2011-04-27 - RAK - Created
+	2011-04-28 - MFC - Var'd looping variables.
 --->
 <cffunction name="arrayOfCEDataMerge" access="public" returntype="array" hint="Merges 2 arrays of CEData without duplicates.">
 	<cfargument name="array1" type="array" required="true" default="" hint="Array to merge">
@@ -1180,6 +1180,8 @@ History:
 	<cfscript>
 		var dataStruct = StructNew();
 		var rtnArray = ArrayNew(1);
+		var i = 1;
+		var key = "";
 
 		for(i=1;i<=ArrayLen(array1);i++){
 			StructInsert(dataStruct,array1[i].pageID,array1[i],true);
@@ -1193,6 +1195,5 @@ History:
 		return rtnArray;
 	</cfscript>
 </cffunction>
-
 
 </cfcomponent>
