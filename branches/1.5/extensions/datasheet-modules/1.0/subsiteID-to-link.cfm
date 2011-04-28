@@ -32,6 +32,7 @@ end user license agreement.
 		2009-07-30 - RLW - Created
 		2010-01-12 - GAC - Modified - Added URL text Sorting
 		2011-02-07 - RAK - Renamed file
+		2011-04-28 - RAK - Fixed so that it wont throw an error if they try to translate a bad subsite.
 --->
 <cfscript>
 	subsiteID = request.datasheet.currentColumnValue;
@@ -39,7 +40,16 @@ end user license agreement.
 
 <cfsavecontent variable="tdHTML">
 	<cfoutput>
-		<td><!--- <a href="#request.subsiteCache[subsiteID].url#"> --->#request.subsiteCache[subsiteID].url#<!--- </a> ---></td>
+		<td>
+			<cfif StructKeyExists(request.subsiteCache,subsiteID)>
+				<a href="#request.subsiteCache[subsiteID].url#">
+					#request.subsiteCache[subsiteID].url#
+				</a>
+			<cfelse>
+				Subsite does not exist.
+			</cfif>
+
+		</td>
 	</cfoutput>
 </cfsavecontent>
 
