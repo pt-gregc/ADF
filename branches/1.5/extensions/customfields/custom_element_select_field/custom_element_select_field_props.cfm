@@ -103,19 +103,19 @@ History:
 		var customElement = "###prefix#customElement";
 		var customElementValue = "###prefix#valueField";
 		<cfif len(currentValues.customElement) gt 0>
-			setElementFields("#currentValues.customElement#");
+			#prefix#setElementFields("#currentValues.customElement#");
 			jQuery("###prefix#valueField").selectOptions("#currentValues.valueField#");
 			jQuery("###prefix#displayField").selectOptions("#currentValues.displayField#");
 			jQuery("###prefix#activeFlagField").selectOptions("#currentValues.activeFlagField#");
 
-			handleDisplayFieldChange();
+			#prefix#handleDisplayFieldChange();
 		</cfif>
 
 		jQuery(customElement).change(function(){
-			setElementFields(jQuery(customElement).val());
-			handleDisplayFieldChange();
+			#prefix#setElementFields(jQuery(customElement).val());
+			#prefix#handleDisplayFieldChange();
 		});
-		jQuery('###prefix#displayField').change(handleDisplayFieldChange);
+		jQuery('###prefix#displayField').change(#prefix#handleDisplayFieldChange);
 		jQuery("###prefix#fieldBuilder").change(function(){
 			var fieldBuilderVal = jQuery("###prefix#fieldBuilder").val();
 			//If the selected value is not -- and its the "build your own" add to the end of the string
@@ -129,7 +129,7 @@ History:
 		});
 	});
 
-	function handleDisplayFieldChange(){
+	function #prefix#handleDisplayFieldChange(){
 		if(jQuery('###prefix#displayField').val() == "Other"){
 			jQuery(".other").show();
 		}else{
@@ -138,7 +138,7 @@ History:
 		}
 	}
 
-	function setElementFields(elementName){
+	function #prefix#setElementFields(elementName){
 		if(elementName.length <= 0){
 			return;
 		}
@@ -149,13 +149,13 @@ History:
 					data: { 	  bean: "ceData_1_1",
 								method: "getFormIDByCEName",
 								CENAME: elementName},
-					success: handleFormIDPost,
+					success: #prefix#handleFormIDPost,
 		  		 	async: false
 				});
 
 	}
 	
-	function handleFormIDPost(results){
+	function #prefix#handleFormIDPost(results){
 		if(results != 0){
 			// 2011-03-18 - MFC - Updated to the 'ceData_1_1'.
 			jQuery.ajax({
@@ -166,20 +166,20 @@ History:
 						  returnformat: "json",
 						  formID: results,
 						  recurse: true},
-				  success: handleTabsFromFormIDPost,
+				  success: #prefix#handleTabsFromFormIDPost,
 				  async: false
 				},"json");
 		}
 	}
 
-	function handleTabsFromFormIDPost(results){
-		fields = new Object();
+	function  #prefix#handleTabsFromFormIDPost(results){
+		var fields = new Object();
 		if(typeof results === "string"){
 			results = jQuery.parseJSON(results);
 		}
-		fieldInfo = results;
+		var fieldInfo = results;
 		if(!jQuery.isArray(fieldInfo)){
-			fieldInfoTemp = Array();
+			var fieldInfoTemp = Array();
 			fieldInfoTemp[1] = fieldInfo;
 			fieldInfo = fieldInfoTemp;
 		}
@@ -188,7 +188,8 @@ History:
 				fields[field.DEFAULTVALUES.FIELDNAME] = field.DEFAULTVALUES.LABEL;
 			});
 		});
-		//Remove options
+
+				//Remove options
 		jQuery("###prefix#valueField").removeOption(/./);
 		jQuery("###prefix#displayField").removeOption(/./);
 		jQuery("###prefix#fieldBuilder").removeOption(/./);
@@ -215,7 +216,7 @@ History:
 	}
 </script>
 <!--- query to get the Custom Element List --->
-<cfset customElements = server.ADF.objectFactory.getBean("ceData_1_0").getAllCustomElements()>
+<cfset customElements = server.ADF.objectFactory.getBean("ceData_1_1").getAllCustomElements()>
 <table>
 	<tr>
 		<td class="cs_dlgLabelSmall">Custom Element:</td>
