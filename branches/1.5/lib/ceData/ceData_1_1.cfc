@@ -1196,4 +1196,53 @@ History:
 	</cfscript>
 </cffunction>
 
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Greg Cronkright
+Name:
+	$getCEDataActiveRecords
+Summary:	
+	Returns an array of element data based on an Active Field and the Active Value. 
+Returns:
+	Array 
+Arguments:
+	String - Custom Element Name
+	String - activeField
+	String - activeValue
+History:
+	2011-05-03 - GAC - Created
+--->
+<cffunction name="getCEDataActiveRecords" access="public" returntype="array" hint="Returns an array of element data based on an Active Field and the Active Value.">
+	<cfargument name="customElementName" type="string" required="true">
+	<cfargument name="activeField" type="string" required="true">
+	<cfargument name="activeValue" type="string" required="false" default="">
+	<cfscript>
+		var ceArray = ArrayNew(1);
+		var ceFieldsStruct = StructNew();
+		var activeArray = ArrayNew(1);
+		var itm = 1;
+		
+		// Get the Field names struct from the custome element
+		ceFieldsStruct = defaultFieldStruct(arguments.customElementName);
+		
+		// Verify that the field name passed in for the ActiveField is a field in the Custom Element
+		if ( StructKeyExists(ceFieldsStruct,arguments.activeField) ) {
+			// Use getCEData to retrieve all the records in the element. 
+			ceArray = getCEData(arguments.customElementName);
+			
+			// Loop over returned records in the ceArray and filter results by the given criteria
+			for ( itm=1; itm LTE ArrayLen(ceArray); itm=itm+1 ) {
+				//  - Filter out records that do not match the 'activeValue' for the 'activeField'
+				if ( StructKeyExists(ceArray[itm].values,arguments.activeField) AND TRIM(ceArray[itm].values[arguments.activeField]) EQ arguments.activeValue ) 
+					arrayAppend(activeArray, ceArray[itm]);
+			}
+			// Convert activeArray back the ceArray for the return
+			ceArray = activeArray;
+		}	
+     	return ceArray;
+     </cfscript>
+</cffunction>
+
 </cfcomponent>
