@@ -160,6 +160,8 @@ History:
 	2011-02-09 - RAK - Fixing typo
 	2011-02-09 - GAC - Removed self-closing slash on cfthrow
 	2011-04-06 - MFC - Changed the ADF reset error log to not append to the file and overwrite the file.
+	2011-05-03 - MFC - Commented out 'Application.ADF' cfdump from the debug log. CFDump was too large and
+						caused performance slowness loading debug html.
 --->
 <cffunction name="reset" access="remote" returnType="Struct">
 	<cfargument name="type" type="string" required="false" default="all" hint="The type of the ADF to reset.  Options are 'Server', 'Site' or 'All'. Defaults to 'All'.">
@@ -231,11 +233,12 @@ History:
 					</cfif>
 					
 					<!--- Dump the application.ADF --->
-					<cfif NOT StructKeyExists(application, "ADF")>
+					<!--- 2011-05-03 - MFC - Commented out 'Application.ADF' cfdump from the debug log. --->
+					<!--- <cfif NOT StructKeyExists(application, "ADF")>
 						<cfoutput><p>application.ADF Does not exist.</p></cfoutput>
 					<cfelse>
 						<cfdump var="#application.ADF#" label="application.ADF" expand="false">
-					</cfif>
+					</cfif> --->
 				</cfsavecontent>
 				<!--- // Log the error content --->
 				<cfif StructKeyExists(request,"site")>
