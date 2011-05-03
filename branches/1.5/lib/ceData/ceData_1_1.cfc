@@ -1190,30 +1190,4 @@ History:
 	</cfscript>
 </cffunction>
 
-<!---
-/* *************************************************************** */
-Author: 	
-	PaperThin, Inc.
-	Greg Cronkright
-Name:
-	$getCEDataActiveRecords
-Summary:	
-	Returns an array of element data based on an Active Field and the Active Value. 
-Returns:
-	Array 
-Arguments:
-	String - Custom Element Name
-	String - activeField
-	String - activeValue
-History:
-	2011-05-03 - GAC - Created
-	2011-05-03 - RAK - Cleaned up. I find it debatable that we even keep this function.
---->
-<cffunction name="getCEDataActiveRecords" access="public" returntype="array" hint="Returns an array of element data based on an Active Field and the Active Value.">
-	<cfargument name="customElementName" type="string" required="true">
-	<cfargument name="activeField" type="string" required="true">
-	<cfargument name="activeValue" type="string" required="false" default="">
-	<cfreturn getCEData(arguments.customElementName,arguments.activeField,arguments.activeValue)>
-</cffunction>
-
 </cfcomponent>
