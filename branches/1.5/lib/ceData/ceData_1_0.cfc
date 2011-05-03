@@ -888,6 +888,7 @@ History:
 								Removed if statements for condition " contains in 'list' ".
 	2011-04-18 - MFC - Updated: Fix data_listItems query for the strItemValue field with the 
 									'list' query type.
+	2011-05-03 - RAK - Added the ability to search the memo field also
 --->
 <cffunction name="getPageIDForElement" access="public" returntype="query" hint="Returns Page ID Query in Data_FieldValue matching Form ID">
 	<cfargument name="formid" type="numeric" required="true">
@@ -955,7 +956,12 @@ History:
 										)
 				</cfif>
 				AND		FieldID IN (<cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.searchFields#" list="true">)
-				AND		LOWER(fieldValue) LIKE '%' + <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.searchValues#"> + '%'
+				<!--- 2011-05-03 - RAK - Added the ability to search the memo field also --->
+				AND (
+					LOWER(fieldValue) LIKE '%' + <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.searchValues#"> + '%'
+					OR
+					[MemoValue] LIKE '%' + <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.searchValues#"> + '%'
+				)
 			<!--- Build the where clause for the MULTI --->
 			<cfelseif arguments.queryType EQ "multi">
 				<cfif ListLen(arguments.searchFields)>
