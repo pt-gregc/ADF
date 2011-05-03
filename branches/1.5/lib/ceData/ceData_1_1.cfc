@@ -589,6 +589,7 @@ History:
 	2011-04-27 - MFC - Updated the SQL WHEN condition to only check for empty string.
 						Updated the "large_textarea,formatted_text_block" CASE for the IF condition when 'SQLServer'.
 						Changed memoValue field size to "max".
+	2011-05-03 - RAK - Modified code to default to try the memo field if the data is null or ''
 --->
 <cffunction name="buildRealTypeView" access="public" returntype="boolean">
 	<cfargument name="elementName" type="string" required="true">
@@ -651,32 +652,25 @@ History:
 							WHEN FieldID = #ID# THEN CAST(fieldvalue as DECIMAL(7,2))
 							ELSE 0.0
 						END
-						</cfcase>
-					<cfcase value="large_textarea,formatted_text_block">
-						CASE
-							WHEN FieldID = #ID# THEN
-								CASE
-									<!--- 2011-04-27 - MFC - Changed condition to only check for empty string. --->
-									WHEN fieldValue <> '' THEN fieldvalue
-						<cfif dbtype is 'oracle'>
-									<!--- TODO 
-											Issue with Oracle DB and casting the 'memovalue' field. 
-											Commented out to make this work in Oracle, but still needs to be resolved.
-									 --->
-									<!--- WHEN length(memovalue) < 4000 THEN CAST(memovalue as varchar2(4000)) --->
-									<!--- ELSE CAST([memovalue] AS nvarchar2(2000)) --->
-						<cfelseif dbtype is 'SQLServer'>
-									ELSE CAST([memovalue] AS nvarchar(max))
-	                    <cfelse>  
-	                    			<!--- Don't CAST if using MySQL ---> 
-						</cfif>
-					   		END
-							ELSE null
-						END
 					</cfcase>
 					<cfdefaultcase> <!--- NEEDSWORK fieldtype like List, should add ListID column, fieldtype like email, could add 'lower case' function to avoid case sensitive issue --->
 						CASE
-							WHEN FieldID = #ID# THEN fieldvalue
+							WHEN FieldID = #ID# THEN
+								CASE
+									WHEN fieldValue <> '' THEN fieldvalue
+									<cfif dbtype is 'oracle'>
+										<!--- TODO
+											Issue with Oracle DB and casting the 'memovalue' field.
+											Commented out to make this work in Oracle, but still needs to be resolved.
+										--->
+										<!--- WHEN length(memovalue) < 4000 THEN CAST(memovalue as varchar2(4000)) --->
+										<!--- ELSE CAST([memovalue] AS nvarchar2(2000)) --->
+									<cfelseif dbtype is 'SQLServer'>
+										ELSE CAST([memovalue] AS nvarchar(max))
+									<cfelse>
+										<!--- Don't CAST if using MySQL --->
+									</cfif>
+								END
 							ELSE null
 						END
 					</cfdefaultcase>
@@ -1213,36 +1207,13 @@ Arguments:
 	String - activeValue
 History:
 	2011-05-03 - GAC - Created
+	2011-05-03 - RAK - Cleaned up. I find it debatable that we even keep this function.
 --->
 <cffunction name="getCEDataActiveRecords" access="public" returntype="array" hint="Returns an array of element data based on an Active Field and the Active Value.">
 	<cfargument name="customElementName" type="string" required="true">
 	<cfargument name="activeField" type="string" required="true">
 	<cfargument name="activeValue" type="string" required="false" default="">
-	<cfscript>
-		var ceArray = ArrayNew(1);
-		var ceFieldsStruct = StructNew();
-		var activeArray = ArrayNew(1);
-		var itm = 1;
-		
-		// Get the Field names struct from the custome element
-		ceFieldsStruct = defaultFieldStruct(arguments.customElementName);
-		
-		// Verify that the field name passed in for the ActiveField is a field in the Custom Element
-		if ( StructKeyExists(ceFieldsStruct,arguments.activeField) ) {
-			// Use getCEData to retrieve all the records in the element. 
-			ceArray = getCEData(arguments.customElementName);
-			
-			// Loop over returned records in the ceArray and filter results by the given criteria
-			for ( itm=1; itm LTE ArrayLen(ceArray); itm=itm+1 ) {
-				//  - Filter out records that do not match the 'activeValue' for the 'activeField'
-				if ( StructKeyExists(ceArray[itm].values,arguments.activeField) AND TRIM(ceArray[itm].values[arguments.activeField]) EQ arguments.activeValue ) 
-					arrayAppend(activeArray, ceArray[itm]);
-			}
-			// Convert activeArray back the ceArray for the return
-			ceArray = activeArray;
-		}	
-     	return ceArray;
-     </cfscript>
+	<cfreturn getCEData(arguments.customElementName,arguments.activeField,arguments.activeValue)>
 </cffunction>
 
 </cfcomponent>
