@@ -153,7 +153,6 @@ History:
 				}
 				selectedVal += jQuery(item).val();
 			});
-			console.log(selectedVal);
 			// put the selected value into the
 			jQuery("input[name=#fqFieldName#]").val(selectedVal);
 		}
