@@ -135,6 +135,7 @@ History:
 		}
 	}
 
+	//When the element name gets updated begin the process for updating the select fields
 	function #prefix#setElementFields(elementName){
 		if(elementName.length <= 0){
 			return;
@@ -151,7 +152,8 @@ History:
 				});
 
 	}
-	
+
+	//Given a formID get the tabs and pass it off to the next step
 	function #prefix#handleFormIDPost(results){
 		if(results != 0){
 			// 2011-03-18 - MFC - Updated to the 'ceData_1_1'.
@@ -169,6 +171,7 @@ History:
 		}
 	}
 
+	//Handle getting the tab data and populate the select boxes.
 	function  #prefix#handleTabsFromFormIDPost(results){
 		var fields = new Object();
 		if(typeof results === "string"){
@@ -180,6 +183,8 @@ History:
 			fieldInfoTemp[1] = fieldInfo;
 			fieldInfo = fieldInfoTemp;
 		}
+
+		//Loop over each tab to create an object keyed on the field name with a value of label.
 		jQuery(fieldInfo).each(function(fieldIndex,tab){
 			jQuery(tab['FIELDS']).each(function(index,field){
 				fields[field.DEFAULTVALUES.FIELDNAME] = field.DEFAULTVALUES.LABEL;
