@@ -178,8 +178,9 @@ History:
 			
 			// 2011-05-04 - MFC - Added check for CS 5 to decode the HTML escaped param WDDX.
 			// Check if in CS 5 or lower to decode the HTML in the wddx
-			if ( application.ADF.csVersion LT 6 )
+			if ( application.ADF.csVersion LT 6 ){
 				fieldQuery.params[1] = server.commonspot.udf.data.fromHTML(fieldQuery.params[1]);
+			}
 
 			params = server.commonspot.udf.util.wddxdecode(fieldQuery.params[1],1);
 			defaultValues = StructNew();
@@ -248,6 +249,7 @@ Arguments:
 History:
 	2011-01-30 - RLW - Modified - Added additional parameters to the return structure
 	2011-02-09 - RAK - Var'ing un-var'd variables
+	2011-05-04 - RAK - Added check for CS 5 to decode the HTML escaped param WDDX.
 --->
 <cffunction name="getFieldParamsByID" hint="Returns struct containing form field parameters (e.g. ID, Label, Required etc...)" access="public" returntype="struct">
 	<cfargument name="fieldID" type="numeric" required="true">
@@ -272,6 +274,12 @@ History:
 		</cfquery>
 		<cfscript>
 			params = server.commonspot.udf.util.wddxdecode(fieldQuery.params[1],1);
+			// 2011-05-04 - RAK - Added check for CS 5 to decode the HTML escaped param WDDX.
+			// Check if in CS 5 or lower to decode the HTML in the wddx
+			if ( application.ADF.csVersion LT 6 ){
+				params = server.commonspot.udf.data.fromHTML(params);
+			}
+
 			// add in some additional params from the query
 			params.type = fieldQuery.type;
 			params.name = fieldQuery.fieldName;
