@@ -143,6 +143,7 @@ Arguments:
 	number
 History:
 	2011-02-09 - RAK - Var'ing un-var'd variables
+	2011-05-04 - MFC - Added check for CS 5 to decode the HTML escaped param WDDX.
 --->
 <cffunction name="getFieldDefaultValueFromID" hint="Returns struct containing form field default values"
 				access="public" 
@@ -173,8 +174,13 @@ History:
 		</cfquery>
 		<cfscript>
 			fieldDefaultValues = application.ADF.cedata.getElementInfoByPageID(pageid=0,formid=formID);
-			
 			rtnStruct = StructNew();
+			
+			// 2011-05-04 - MFC - Added check for CS 5 to decode the HTML escaped param WDDX.
+			// Check if in CS 5 or lower to decode the HTML in the wddx
+			if ( application.ADF.csVersion LT 6 )
+				fieldQuery.params[1] = server.commonspot.udf.data.fromHTML(fieldQuery.params[1]);
+
 			params = server.commonspot.udf.util.wddxdecode(fieldQuery.params[1],1);
 			defaultValues = StructNew();
 			defaultValues.type = fieldQuery.type[1];
@@ -1035,8 +1041,7 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author:
 	PaperThin, Inc.
 	Ryan Kahn
