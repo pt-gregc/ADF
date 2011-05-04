@@ -1064,8 +1064,7 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author:
 	PaperThin, Inc.
 	Ryan Kahn
@@ -1076,9 +1075,11 @@ Summary:
 Returns:
 	string
 Arguments:
-
+	string - ceName - Custom element name to search within
+	string - fieldName - Field Name to search for
 History:
 	2011-02-15 - RAK - Created
+	2011-05-04 - MFC - Updated call to 'getTabsFromFormID' function to be local.
 --->
 <cffunction name="findFileCEFieldID" access="public" returntype="string" hint="Finds the custom element's field ID">
 	<cfargument name="ceName" type="string" required="true" default="" hint="Custom element name to search within">
@@ -1087,7 +1088,7 @@ History:
 		var tabs = '';
 		var tab = '';
 		var field = '';
-		 tabs = application.ADF.ceData_1_1.getTabsFromFormID(getFormIDByCEName(arguments.ceName),true);
+		tabs = getTabsFromFormID(getFormIDByCEName(arguments.ceName),true);
 	</cfscript>
 	<cfloop array="#tabs#" index="tab">
 		<cfloop array="#tab.fields#" index="field">
