@@ -43,6 +43,7 @@ History:
 						Added ability to dynamically build the display field - <firstName> <lastName>:At <email>
 	2011-03-08 - MFC - Updated AJAX calls for bean "ceData_1_1".
 	2011-04-20 - RAK - Added the ability to have a multiple select field and size it
+	2011-05-04 - MFC - Updated JQuery functions to work with older JQuery versions.
 --->
 <cfscript>
 	// initialize some of the attributes variables
@@ -77,10 +78,6 @@ History:
 		currentValues.multipleSelect = 0;
 	if( not structKeyExists(currentValues, "multipleSelectSize") )
 		currentValues.multipleSelectSize = 1;
-
-
-
-
 
 </cfscript>
 <cfoutput>
@@ -183,7 +180,7 @@ History:
 			fieldInfoTemp[1] = fieldInfo;
 			fieldInfo = fieldInfoTemp;
 		}
-		fieldInfo.each(function(tab){
+		jQuery(fieldInfo).each(function(fieldIndex,tab){
 			jQuery(tab['FIELDS']).each(function(index,field){
 				fields[field.DEFAULTVALUES.FIELDNAME] = field.DEFAULTVALUES.LABEL;
 			});
