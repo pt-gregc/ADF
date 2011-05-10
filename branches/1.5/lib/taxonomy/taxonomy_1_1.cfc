@@ -171,12 +171,14 @@ Arguments:
 History:
 	2011-01-04 - MFC - Created
 	2011-03-02 - RAK - Added sorting on target term as a secondary sort.
+	2011-05-10 - RAK - Added the ability to specify the sourceTermIDList and made targettermIDList optional
 --->
 <cffunction name="getTermByRelationships" access="public" returntype="query" output="true" hint="">
 	<cfargument name="taxonomyID" type="numeric" required="true">
-	<cfargument name="targetTermIDList" type="string" required="true">
+	<cfargument name="targetTermIDList" type="string" required="false" default="">
 	<cfargument name="targetFacetID" type="numeric" required="false" default="0">
 	<cfargument name="relationshipName" type="string" required="false" default="">
+	<cfargument name="sourceTermIDList" type="string" required="false"  default="" hint="Source term ID's">
 	
 	<cfset var termQry = QueryNew("null")>
 	<!--- Query the term relationships --->
@@ -195,7 +197,11 @@ History:
 						TaxonomyDataView AS TaxonomyDataView_1 ON Term_Relationship.TaxonomyID = TaxonomyDataView_1.TaxonomyID AND 
 						Term_Relationship.IdTarget = TaxonomyDataView_1.TermID
 		WHERE 		TaxonomyDataView.TaxonomyID = <cfqueryparam value="#arguments.taxonomyID#" cfsqltype="cf_sql_integer">
-		AND 		TaxonomyDataView_1.TermID IN (<cfqueryparam value="#arguments.targetTermIDList#" cfsqltype="cf_sql_integer" list="true">)
+		<cfif Len(targetTermIDList)>
+			AND 		TaxonomyDataView_1.TermID IN (<cfqueryparam value="#arguments.targetTermIDList#" cfsqltype="cf_sql_integer" list="true">)
+		<cfelseif Len(sourceTermIDList)>
+	      AND 		TaxonomyDataView.TermID IN (<cfqueryparam value="#arguments.sourceTermIDList#" cfsqltype="cf_sql_integer" list="true">)
+		</cfif>
 		<cfif arguments.targetFacetID GT 0>
 			AND		TaxonomyDataView_1.FacetID = <cfqueryparam value="#arguments.targetFacetID#" cfsqltype="cf_sql_integer">
 		</cfif>

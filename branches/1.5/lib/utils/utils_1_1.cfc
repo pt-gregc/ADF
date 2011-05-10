@@ -174,7 +174,8 @@ Arguments:
 	filePath - string - Fully qualified path to resource.
 	destinationURL - string - Optional - URL to destination folder. EX: /mySite/images/ (If not specified it puts the image next to the file)
 History:
- 	3/1/11 - RAK - Created
+ 	2011-03-01 - RAK - Created
+ 	2011-05-10 - RAK - fixed bug related to unix systems
 --->
 <cffunction name="getThumbnailOfResource" access="public" returntype="string" hint="Returns the url to the thumbnail of a resource">
 	<cfargument name="filePath" type="string" required="true" default="" hint="Fully qualified path to resource.">
@@ -182,9 +183,8 @@ History:
 	<cfscript>
 		var documentName = "";
 		var destination = "";
-		filePath = Replace(filePath,'\\','/');
-		documentName = ListGetAt(filePath,ListLen(filePath,'/'),'/');
-
+		filePath = Replace(filePath,'\','/',"ALL");
+		documentName = listLast(filePath,"/");
 		if(Len(destinationURL)){
 			destination = expandPath(destinationURL);
 		}else{

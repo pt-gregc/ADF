@@ -758,7 +758,7 @@ Author:
 Name:
 	$differentialSync
 Summary:
-	Given a list of custom elements, custom element create or update or optionally delete elements
+	Given a list of custom elements, create or update or optionally delete elements.
 Returns:
 	boolean
 Arguments:
@@ -776,7 +776,7 @@ History:
 	2011-02-09 - RAK - Var'ing un-var'd variables
 	2011-02-14 - RAK - Fixing issue where it tries to delete from index 0 of a list
 --->
-<cffunction name="differentialSync" access="public" returntype="struct" hint="Given a list of custom elements, custom element create or update or optionally delete elements">
+<cffunction name="differentialSync" access="public" returntype="struct" hint="Given a list of custom elements, create or update or optionally delete elements.">
 	<cfargument name="elementName" type="string" required="true" default="" hint="Name of the element to sync">
 	<cfargument name="newElements" type="array" required="true" default="" hint="'New' or old Elements to be sync'd">
 	<cfargument name="preformDelete" type="boolean" required="false" default="false" hint="Boolean flag to preform delete. Does not delete by default.">

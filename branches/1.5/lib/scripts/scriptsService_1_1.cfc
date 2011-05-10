@@ -129,7 +129,8 @@ Arguments:
 	preamble - the text in the filename that goes before the version number to be found. ex: jquery-
 	postamble - The text in the filename that goes after the version number ex: .custom.js
 History:
- 	1/18/11 - RAK - Created
+ 	2011-01-18 - RAK - Created
+ 	2011-05-10 - RAK - Modified findScript to trim out the min prior to checking to see if there is anything other than 0-9 and .
 --->
 <cffunction name="findScript" access="public" returntype="struct" hint="Finds the closest matching script to the version number in the filesystem">
 	<cfargument name="version" type="string" required="true" default="1.0" hint="version number to search for (only accepts 0-9 and periods)">
@@ -155,6 +156,7 @@ History:
 		var adfDir = "/ADF/thirdParty/#defaultDirectory#/";
 		var tempFile = "";
 		var cacheString = "#defaultDirectory#/#preamble##version##postamble#";
+		tempVersion = Replace(tempVersion,"min","","ALL");
 		rtn.success=false;
 		if(REFind("[^0-9.]",tempVersion)){
 			rtn.message = "Version information can only contain 0-9 and periods.";
