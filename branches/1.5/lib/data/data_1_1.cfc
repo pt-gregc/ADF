@@ -202,6 +202,8 @@ History:
 	2011-03-14 - RAK - Normalized columns
 	2011-03-14 - RAK - Added date time parsing
 	2011-04-20 - RAK - Changed if's to else if's to prevent issue wtih overlapping tags.
+	2011-05-11 - RAK - Added success/failure return value to function
+	2011-05-11 - RAK - Added improved error handling and reporting.
 --->
 <cffunction name="feedToQuery" returntype="struct" output="false" access="public">
 	/**
@@ -230,9 +232,21 @@ History:
 	</cfif>
 
 	<cfscript>
-		nodeToReplace = mid(XMLText, 1, evaluate(find("?>", XMLText) + 1));
-		XMLText = replaceNoCase(XMLText, nodeToReplace, "", "ALL");
-		parsed = XMLParse(XMLText);
+		retStruct.success = false;
+		if(isXML(XMLText)){
+			nodeToReplace = mid(XMLText, 1, evaluate(find("?>", XMLText) + 1));
+			XMLText = replaceNoCase(XMLText, nodeToReplace, "", "ALL");
+			parsed = XMLParse(XMLText);
+		}else{
+			application.ADF.utils.logAppend(
+					"Could not parse XML data in feedToQuery. <br/>"
+					&"Feed URL: #path#. <br/>"
+					&"XML Results: <br/>"
+					&Application.ADF.utils.doDump(XMLText,"XMLText",0,1)
+					&"<br/><br/>"
+					,"feedToQueryErrors.html"
+				);
+		}
 		//RDF
 		if (find("<rdf:RDF", parsed))
 		{
@@ -263,6 +277,7 @@ History:
 					}
 				}
 				retStruct.query = retQuery;
+				retStruct.success = true;
 			}
 		}
 		//RSS
@@ -303,6 +318,7 @@ History:
 					}
 				}
 				retStruct.query = retQuery;
+				retStruct.success = true;
 			}
 		}
 		//ATOM
@@ -350,6 +366,7 @@ History:
 				}
 			}
 			retStruct.query = retQuery;
+			retStruct.success = true;
 		}
 	</cfscript>
 	<cfreturn retStruct />
