@@ -260,4 +260,103 @@ History:
 	<cfreturn isvalid("range", c, s, e)>
 </cffunction>
 
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+	Ryan Kahn
+Name:
+	$urlEncodeStruct
+Summary:
+	Converts a structure into a URL encoded key value pair string
+Returns:
+	string
+Arguments:
+	urlstruct - Struct - Structure of key value pairs for the url encoding
+History:
+ 	2011-05-12 - RAK - Created
+--->
+<cffunction name="urlEncodeStruct" access="public" returntype="string" hint="Converts a structure into a URL encoded key value pair string">
+	<cfargument name="urlStruct" type="struct" required="true" default="" hint="Structure of key value pairs for the url encoding">
+	<cfset var rtnString = "">
+	<!---Loop over each key in the structure, lowercase and encode it .
+				and assign it to its value and add it to the list with a delim of &
+	--->
+	<cfloop collection="#arguments.urlStruct#" item="key">
+		<cfscript>
+			rtnString = listAppend(rtnString,URLEncodedFormat(LCase(key))&"="&URLEncodedFormat(arguments.urlStruct[key]),"&");
+		</cfscript>
+	</cfloop>
+	<cfreturn rtnString>
+</cffunction>
+
+
+
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+	Ryan Kahn
+Name:
+	$xslTransform
+Summary:
+	Transforms the xml file while still processing xsl:import tags.
+Returns:
+	string
+Arguments:
+
+History:
+ 	2011-05-13 - RAK - Created
+--->
+<cffunction name="xslTransform" access="public" returntype="string" output="No" hint="Transforms the xml file while still processing xsl:import tags.">
+	<cfargument name="xmlSource" type="string" required="yes">
+	<cfargument name="xslSource" type="string" required="yes">
+	<cfargument name="stParameters" type="struct" default="#StructNew()#" required="No">
+
+	<cfscript>
+		var source = ""; var transformer = ""; var aParamKeys = ""; var pKey = "";
+		var xmlReader = ""; var xslReader = ""; var pLen = 0;
+		var xmlWriter = ""; var xmlResult = ""; var pCounter = 0;
+		var tFactory = createObject("java", "javax.xml.transform.TransformerFactory").newInstance();
+
+		//if xml use the StringReader - otherwise, just assume it is a file source.
+		if(Find("<", arguments.xslSource) neq 0){
+			xslReader = createObject("java", "java.io.StringReader").init(arguments.xslSource);
+			source = createObject("java", "javax.xml.transform.stream.StreamSource").init(xslReader);
+		}else{
+			source = createObject("java", "javax.xml.transform.stream.StreamSource").init("file:///#arguments.xslSource#");
+		}
+
+		transformer = tFactory.newTransformer(source);
+
+		//if xml use the StringReader - otherwise, just assume it is a file source.
+		if(Find("<", arguments.xmlSource) neq 0){
+			xmlReader = createObject("java", "java.io.StringReader").init(arguments.xmlSource);
+			source = createObject("java", "javax.xml.transform.stream.StreamSource").init(xmlReader);
+		}else{
+			source = createObject("java", "javax.xml.transform.stream.StreamSource").init("file:///#arguments.xmlSource#");
+		}
+
+		//use a StringWriter to allow us to grab the String out after.
+		xmlWriter = createObject("java", "java.io.StringWriter").init();
+
+		xmlResult = createObject("java", "javax.xml.transform.stream.StreamResult").init(xmlWriter);
+
+		if(StructCount(arguments.stParameters) gt 0){
+			aParamKeys = structKeyArray(arguments.stParameters);
+			pLen = ArrayLen(aParamKeys);
+			for(pCounter = 1; pCounter LTE pLen; pCounter = pCounter + 1){
+				//set params
+				pKey = aParamKeys[pCounter];
+				transformer.setParameter(pKey, arguments.stParameters[pKey]);
+			}
+		}
+
+		transformer.transform(source, xmlResult);
+
+		return xmlWriter.toString();
+	</cfscript>
+</cffunction>
+
+
 </cfcomponent>
