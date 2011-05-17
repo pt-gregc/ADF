@@ -69,10 +69,10 @@ History:
 	2011-05-17 - RAK - Verified we were able to find the bean before we invoked commands upon it
 --->
 <cffunction name="runCommand" access="public" returntype="Any" hint="Runs the given command">
-	<cfargument name="beanName" type="string" required="true" hint="Name of the bean you would like to call">
-	<cfargument name="methodName" type="string" required="true" hint="Name of the method you would like to call">
+	<cfargument name="beanName" type="string" required="true" default="" hint="Name of the bean you would like to call">
+	<cfargument name="methodName" type="string" required="true" default="" hint="Name of the method you would like to call">
 	<cfargument name="args" type="Struct" required="false" default="#StructNew()#" hint="Structure of arguments for the speicified call">
-	<cfargument name="appName" type="string" required="false" hint="Pass in an App Name to allow the method to be exectuted from an app bean">
+	<cfargument name="appName" type="string" required="false" default="" hint="Pass in an App Name to allow the method to be exectuted from an app bean">
 	<cfscript>
 		var result = StructNew();
 		var bean = "";
