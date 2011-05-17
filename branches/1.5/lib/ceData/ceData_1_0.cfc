@@ -1440,6 +1440,7 @@ Arguments:
 History:
 	2009-10-25 - SFS - Created
 	2011-02-09 - RAK - Var'ing un-var'd variables
+	2011-05-17 - RAK - Replaced evaluate with a more direct efficient expression
 --->
 <cffunction name="getCEFieldValues" access="public" returntype="string" hint="Returns all values for a particular field in a particular custom element.">
 	<cfargument name="ceName" type="string" required="true" hint="Custom element name.">
@@ -1452,7 +1453,7 @@ History:
 	<cfset ceData = application.ADF.ceData.arrayOfCEDataSort(ceData,arguments.fieldName,'asc','textnocase','^')>
 	
 	<cfloop from="1" to="#arrayLen(ceData)#" index="itm">
-		<cfset ceDataList = ListAppend(ceDataList,Evaluate("ceData[itm].values.#arguments.fieldname#"))>
+		<cfset ceDataList = ListAppend(ceDataList,StructFind(ceData[itm].values,arguments.fieldname))>
 	</cfloop>
 
 	<cfreturn ceDataList>

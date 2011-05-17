@@ -204,6 +204,7 @@ History:
 	2011-04-20 - RAK - Changed if's to else if's to prevent issue wtih overlapping tags.
 	2011-05-11 - RAK - Added success/failure return value to function
 	2011-05-11 - RAK - Added improved error handling and reporting.
+	2011-05-17 - RAK - Removed extra evaluate
 --->
 <cffunction name="feedToQuery" returntype="struct" output="false" access="public">
 	/**
@@ -234,7 +235,7 @@ History:
 	<cfscript>
 		retStruct.success = false;
 		if(isXML(XMLText)){
-			nodeToReplace = mid(XMLText, 1, evaluate(find("?>", XMLText) + 1));
+			nodeToReplace = mid(XMLText, 1, find("?>", XMLText) + 1);
 			XMLText = replaceNoCase(XMLText, nodeToReplace, "", "ALL");
 			parsed = XMLParse(XMLText);
 		}else{

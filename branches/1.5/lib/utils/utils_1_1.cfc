@@ -66,12 +66,13 @@ History:
 	2011-02-01 - GAC - Comments - Updated the comments with the arguments list
 	2011-02-09 - GAC - Modified - renamed the 'local' variable to 'result' since local is a reserved word in CF9
 	2011-04-19 - RAK - Modified loading beans by bean name to not use evaluate and added fallback for application.ADF.beanName
+	2011-05-17 - RAK - Verified we were able to find the bean before we invoked commands upon it
 --->
 <cffunction name="runCommand" access="public" returntype="Any" hint="Runs the given command">
-	<cfargument name="beanName" type="string" required="true" default="" hint="Name of the bean you would like to call">
-	<cfargument name="methodName" type="string" required="true" default="" hint="Name of the method you would like to call">
+	<cfargument name="beanName" type="string" required="true" hint="Name of the bean you would like to call">
+	<cfargument name="methodName" type="string" required="true" hint="Name of the method you would like to call">
 	<cfargument name="args" type="Struct" required="false" default="#StructNew()#" hint="Structure of arguments for the speicified call">
-	<cfargument name="appName" type="string" required="false" default="" hint="Pass in an App Name to allow the method to be exectuted from an app bean">
+	<cfargument name="appName" type="string" required="false" hint="Pass in an App Name to allow the method to be exectuted from an app bean">
 	<cfscript>
 		var result = StructNew();
 		var bean = "";
@@ -89,10 +90,12 @@ History:
 			bean = StructFind(application.ADF,arguments.beanName);
 		}
 	</cfscript>
-	<cfinvoke component = "#bean#"
-		  method = "#arguments.methodName#"
-		  returnVariable = "result.reData"
-		  argumentCollection = "#arguments.args#">
+	<cfif isObject(bean)>
+		<cfinvoke component = "#bean#"
+			  method = "#arguments.methodName#"
+			  returnVariable = "result.reData"
+			  argumentCollection = "#arguments.args#">
+	</cfif>
 	<cfscript>
 		// Check to make sure the result.returnData was not destroyed by a method that returns void
 		if ( StructKeyExists(result,"reData") )

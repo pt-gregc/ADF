@@ -1001,6 +1001,7 @@ Arguments:
 	String - beanName - Bean Name object to search
 History:
 	2009-08-21 - MFC - Created
+	2011-05-17 - RAK - Replaced evaluate with a more appropriate efficient method
 --->
 <cffunction name="validateADFBeanObject" access="public" returntype="struct" hint="Search the Application spaces on the site for the for the bean object.">
 	<cfargument name="beanName" type="String" required="true">
@@ -1015,7 +1016,7 @@ History:
 		for ( i = 1; i LTE ListLen(appSpaceList); i = i + 1)
 		{
 			// Find the bean name in the application space
-			if ( StructKeyExists( Evaluate('application.#ListGetAt(appSpaceList,i)#'), arguments.beanName) )
+			if ( StructKeyExists(application,ListGetAt(appSpaceList,i)) && StructKeyExists( StructFind(application,ListGetAt(appSpaceList,i)), arguments.beanName) )
 			{
 				statusStruct.validated = true;
 				statusStruct.nameSpace = ListGetAt(appSpaceList,i);

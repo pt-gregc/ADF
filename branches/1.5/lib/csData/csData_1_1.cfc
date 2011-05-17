@@ -158,7 +158,7 @@ Arguments:
 	name - string
 	pageID - numeric
 History:
- 	Dec 15, 2010 - RAK - Created
+ 	2010-12-15 - RAK - Created
 	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="getTextblockData" access="public" returntype="struct" hint="Given a pageID and name, get the textblock data">

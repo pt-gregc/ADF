@@ -9,11 +9,15 @@ Summary: Each ADF Application can have configuration variables which can
 History:
 	2010-04-11 - RLW - Created
 	2011-04-08 - MFC - Updated the styles for the Edit and Show/Hide buttons
+	2011-05-13 - RAK - Updated to allow for adding this script directly to the page using attributes
 --->
 <cfparam name="appName" default="foo">
 <cfparam name="formWidth" default="600">
 <cfparam name="formHeight" default="400">
 <cfscript>
+	if(StructKeyExists(attributes,"appName")){
+		appName = attributes.appName;
+	}
 	elementName = "#appName# Configuration";
 	appConfigArray = arrayNew(1);
 	appConfig = structNew();
@@ -61,12 +65,12 @@ History:
 		});
 	</script>
 	<style type="text/css">
-		##configBtn { cursor: pointer; padding: 2px; width: 175px; margin-top: 8px; }
+		##configBtn { cursor: pointer; padding: 2px; width: 125px; margin-top: 8px; }
 		##config { padding: 3px; }
 		##config dt { background-color: ##c0c0c0; float: left; clear: left; border: 1px solid ##000; padding: 5px; }
 		##config dd { float: left; border: 1px solid ##000; padding: 5px; }
-		div##configuration div##editConfig { padding: 1px 10px; width: 110px; height: 16px; }
-		div##configuration div##configBtn { padding: 1px 10px; width: 152px; height: 16px; }
+		div##configuration div##editConfig { padding: 1px 10px; width: 125px; height: 16px; }
+		div##configuration div##configBtn { padding: 1px 10px; width: 175px; height: 16px; }
 	</style>
 	<div id="configuration">
 		<cfif dataPageID gt 0>
@@ -74,8 +78,8 @@ History:
 			<div id="configBtn" class="ui_button ui-state-default ui-corner-all">Show/Hide Configuration</div>
 			<dl id="config" style="display:none;">
 				<cfloop list="#structKeyList(appConfig)#" index="key">
-				<dt>#key#</dt>
-				<dd>#appConfig[key]#</dd>
+					<dt>#key#</dt>
+					<dd>#appConfig[key]#</dd>
 				</cfloop>
 			</dl>
 		<cfelse>
