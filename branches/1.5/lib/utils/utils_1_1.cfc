@@ -293,8 +293,6 @@ History:
 	<cfreturn rtnString>
 </cffunction>
 
-
-
 <!---
 /* *************************************************************** */
 Author:
@@ -360,6 +358,5 @@ History:
 		return xmlWriter.toString();
 	</cfscript>
 </cffunction>
-
 
 </cfcomponent>
