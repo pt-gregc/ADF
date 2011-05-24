@@ -343,7 +343,7 @@ History:
 <cffunction name="lightboxHeader" access="public" returntype="string" output="false" hint="Returns HTML for the CS 6.x lightbox header (use with the lightboxFooter)">
 	<cfargument name="lbTitle" type="string" default="">
 	<cfargument name="tdClass" type="string" default="" hint="Used to add CSS classes to the outer TD wrapper like 'formResultContainer' for the addEditRenderForm results">
-	<cfargument name="lbCheckLogin" type="boolean" default="1" required="false">
+	<cfargument name="lbCheckLogin" type="boolean" default="0" required="false">
 	<cfscript>
 		var retHTML = "";
 		var productVersion = ListFirst(ListLast(request.cp.productversion," "),".");
