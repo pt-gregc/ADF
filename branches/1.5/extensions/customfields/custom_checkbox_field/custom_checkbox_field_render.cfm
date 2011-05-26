@@ -45,10 +45,18 @@ History:
 	currentValue = attributes.currentValues[fqFieldName];
 	// the param structure which will hold all of the fields from the props dialog
 	xparams = parameters[fieldQuery.inputID];
+	
 	if ( NOT StructKeyExists(xparams, "fldClass") )
 		xparams.fldClass = "";
+		
 	if ( NOT StructKeyExists(xparams, "fldName") )
 		xparams.fldName = fqFieldName;
+	else if ( LEN(TRIM(xparams.fldName)) EQ 0 )
+		xparams.fldName = ReplaceNoCase(xParams.fieldName,'fic_','');
+		
+	// Set the field ID from the field name
+	xparams.fldID = xparams.fldName;
+	
 	// Check the default value
 	if ( LEN(currentValue) LTE 0 ) {
 		currentValue = 'no';
@@ -69,7 +77,8 @@ History:
 		// javascript validation to make sure they have text to be converted
 		#fqFieldName# = new Object();
 		#fqFieldName#.id = '#fqFieldName#';
-		//#fqFieldName#.tid = #rendertabindex#;
+		#fqFieldName#.tid = #rendertabindex#;
+		
 		//#fqFieldName#.validator = "validateLength()";
 		//#fqFieldName#.msg = "Please upload a document.";
 		// push on to validation array
@@ -83,13 +92,13 @@ History:
 			
 				// Set the value of the checkbox
 				if ( jQuery('input[name=#fqFieldName#]').val() == 'yes' ) {
-					jQuery('###xparams.fldName#_checkbox').attr('checked', 'checked');
+					jQuery('###xparams.fldID#_checkbox').attr('checked', 'checked');
 				}
 							
 				// On Change Action
-				jQuery('###xparams.fldName#_checkbox').change( function(){
+				jQuery('###xparams.fldID#_checkbox').change( function(){
 					// Check the checkbox status
-					if ( jQuery('###xparams.fldName#_checkbox:checked').val() == 'yes' )
+					if ( jQuery('###xparams.fldID#_checkbox:checked').val() == 'yes' )
 						currVal = "yes";
 					else
 						currVal = "no";
@@ -139,11 +148,11 @@ History:
 			</cfscript>
 			<div id="#fqFieldName#_renderCheckbox">
 				<!--- <input type='checkbox' name='#fqFieldName#_checkbox' id='#fqFieldName#_checkbox' value='yes' <cfif readOnly>readonly="true"</cfif>> --->
-				<input type='checkbox' name='#fqFieldName#_checkbox' id='#xparams.fldName#_checkbox'<cfif LEN(TRIM(xparams.fldClass))> class="#xparams.fldClass#"</cfif> value='yes' <cfif readOnly>readonly="true"</cfif>>
+				<input type='checkbox' name='#fqFieldName#_checkbox' id='#xparams.fldID#_checkbox'<cfif LEN(TRIM(xparams.fldClass))> class="#xparams.fldClass#"</cfif> value='yes' <cfif readOnly>readonly="true"</cfif>>
 			</div>
 		</td>
 	</tr>
-	<input type='hidden' name='#fqFieldName#' id='#xparams.fldName#' value='#currentValue#'>
+	<input type='hidden' name='#fqFieldName#' id='#xparams.fldID#' value='#currentValue#'>
 	<!--- // include hidden field for simple form processing --->
 	<cfif renderSimpleFormField>
 		<input type="hidden" name="#fqFieldName#_FIELDNAME" id="#fqFieldName#_FIELDNAME" value="#ReplaceNoCase(xParams.fieldName, 'fic_','')#">
