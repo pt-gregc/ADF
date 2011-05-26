@@ -36,6 +36,7 @@ ADF Requirements:
 	scripts_1_0
 History:
 	2009-07-06 - MFC - Created
+	2011-05-26 - GAC - Modified - added a class parameter and updated the id attributes on the input field
 --->
 <cfscript>
 	// initialize some of the attributes variables
@@ -45,16 +46,18 @@ History:
 	currentValues = attributes.currentValues;
 	
 	if( not structKeyExists(currentValues, "renderField") )
-		currentValues.renderField = "no";
+		currentValues.renderField = "yes";
 	if( not structKeyExists(currentValues, "defaultVal") )
 		currentValues.defaultVal = "no";
 	if( not structKeyExists(currentValues, "fldName") )
 		currentValues.fldName = "";
+	if( not structKeyExists(currentValues, "fldClass") )
+		currentValues.fldClass = "";
 </cfscript>
 
 <cfoutput>
 <script type="text/javascript">
-	fieldProperties['#typeid#'].paramFields = "#prefix#renderField,#prefix#defaultVal,#prefix#fldName";
+	fieldProperties['#typeid#'].paramFields = "#prefix#renderField,#prefix#defaultVal,#prefix#fldName,#prefix#fldClass";
 	// allows this field to support the orange icon (copy down to label from field name)
 	fieldProperties['#typeid#'].jsLabelUpdater = '#prefix#doLabel';
 	// allows this field to have a common onSubmit Validator
@@ -72,6 +75,13 @@ History:
 		<td class="cs_dlgLabelSmall">
 			<input type="text" name="#prefix#fldName" id="#prefix#fldName" value="#currentValues.fldName#" size="40">
 			<br/><span>Please enter the field name to be used via JavaScript.  If blank, will use default name.</span>
+		</td>
+	</tr>
+	<tr>
+		<td class="cs_dlgLabelSmall">Class Name:</td>
+		<td class="cs_dlgLabelSmall">
+			<input type="text" name="#prefix#fldClass" id="#prefix#fldClass" class="cs_dlgControl" value="#currentValues.fldClass#" size="40">
+			<br/><span>Please enter a class name to be used via JavaScript or CSS.  If blank, a class attribute will not be added.</span>
 		</td>
 	</tr>
 	<tr>
