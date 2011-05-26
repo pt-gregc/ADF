@@ -34,14 +34,20 @@ History:
 	2011-03-09 - MFC - Updated to include the ADD button, 
 						removed JQuery "$", 
 						and added comments to customize
+	2011-05-10 - GAC -  Added a variable to set the jQueryUI theme 
+						Replaced link code with the UI lib component call to the buildAddEditLink method
+						- This moves the hardcoded "Forms_1_1" method url parameter to inside the buildAddEditLink method call
+						- This moves the call to getFormIDByCEName inside the buildAddEditLink method call
+						- This moves the lightbox URL variable "application.ADF.ajaxProxy" to inside the buildAddEditLink and updates it to application.ADF.lightboxProxy for ADF 1.5
+						
 --->
 
 <!--- STEPS TO IMPLEMENT
 	1. Copy this script to your site "/customcf/" directory.
 	2. Rename the copied file to specify the custom element name
 		(ex. "profile_manager.cfm", "myElement_manager.cfm")
-	3. Edit the "TODO" comment lines to define the custom element name 
-		and the text for the Add New button.
+	3. Edit the "TODO" comment lines to define the custom element name, the text for the Add New button 
+		and the jQuery UI theme name.
 	4. Add this custom script to a page and then configure the datasheet.
  --->
 <cfscript>
@@ -49,13 +55,21 @@ History:
 	ceName = "";
 	// TODO - Add the text for the button to Add New.
 	request.params.addButtonTitle = "Add New Record";
+	// TODO - Set the jQuery UI Theme 
+	uiTheme = "ui-lightness";
 	
-	// Load the scripts and get the CE Form ID
+	// Load the jQuery scripts 
 	application.ADF.scripts.loadJQuery();
-	application.ADF.scripts.loadJQueryUI();
+	application.ADF.scripts.loadJQueryUI(themeName=UItheme);
 	application.ADF.scripts.loadADFLightbox();
-	request.params.formid = application.ADF.cedata.getFormIDByCEName(ceName);
+	
+	
+	// TODO: Uncomment the "request.params.formid" line if you would like the formid available to
+	//       your datasheet modules or other scripts on your page
+	// Get the CE Form ID
+	//request.params.formid = application.ADF.cedata.getFormIDByCEName(ceName);
 </cfscript>
+
 <cfoutput>
 <script type="text/javascript">
 	jQuery(function() {
@@ -82,15 +96,26 @@ History:
 		width: 30px;
 	}
 </style>
+
 <div id="addNew" style="padding:20px;">
 	<cfif LEN(request.user.userid)>
-		<a href="javascript:;" rel="#application.ADF.ajaxProxy#?bean=Forms_1_1&method=renderAddEditForm&formid=#request.params.formid#&datapageid=0&lbAction=refreshparent&title=#request.params.addButtonTitle#&addMainTable=false" id="addNew" title="#request.params.addButtonTitle#" class="ADFLightbox add-button ui-state-default ui-corner-all">#request.params.addButtonTitle#</a><br />
+		<!--- <a href="javascript:;" rel="#application.ADF.ajaxProxy#?bean=Forms_1_1&method=renderAddEditForm&formid=#request.params.formid#&datapageid=0&lbAction=refreshparent&title=#request.params.addButtonTitle#&addMainTable=false" id="addNew" title="#request.params.addButtonTitle#" class="ADFLightbox add-button ui-state-default ui-corner-all">#request.params.addButtonTitle#</a><br /> --->
+		#application.ADF.ui.buildAddEditLink(
+					linkTitle=request.params.addButtonTitle
+					,formName=ceName
+					,dataPageID=0
+					,refreshparent=true
+					,urlParams=""
+					,lbTitle=request.params.addButtonTitle
+					,linkClass="add-button ds-icons ui_button ui-state-default ui-corner-all"
+					,uiTheme=uiTheme
+				)#
 	<cfelse>
 		Please <a href="#request.subsitecache[1].url#login.cfm">LOGIN</a> to add new records.<br />
 	</cfif>
 </div>
-
 </cfoutput>
+
 <!--- Render for the datasheet module --->
 <CFMODULE TEMPLATE="/commonspot/utilities/ct-render-named-element.cfm"
 	elementtype="datasheet"
