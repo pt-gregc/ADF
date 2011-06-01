@@ -37,6 +37,7 @@ ADF Requirements:
 History:
 	2009-07-06 - MFC - Created
 	2011-05-26 - GAC - Modified - added a class parameter and updated the id attributes on the input field
+	2011-06-01 - GAC - Modified - added trim around the field name variable to remove extra spaces, updated the jquery checked logic and added additional logic to allow seeing other boolean values as checked
 --->
 <cfscript>
 	// Load JQuery to the script
@@ -55,7 +56,7 @@ History:
 		xparams.fldName = ReplaceNoCase(xParams.fieldName,'fic_','');
 		
 	// Set the field ID from the field name
-	xparams.fldID = xparams.fldName;
+	xparams.fldID = TRIM(xparams.fldName);
 	
 	// Check the default value
 	if ( LEN(currentValue) LTE 0 ) {
@@ -91,14 +92,15 @@ History:
 			if ( '#xparams.renderField#' == 'yes' ) {
 			
 				// Set the value of the checkbox
-				if ( jQuery('input[name=#fqFieldName#]').val() == 'yes' ) {
+				if ( jQuery('input[name=#fqFieldName#]').val() == 'yes' || jQuery('input[name=#fqFieldName#]').val() == 1 ) {
 					jQuery('###xparams.fldID#_checkbox').attr('checked', 'checked');
 				}
 							
 				// On Change Action
-				jQuery('###xparams.fldID#_checkbox').change( function(){
+				jQuery('###xparams.fldID#_checkbox').change( function() {
 					// Check the checkbox status
-					if ( jQuery('###xparams.fldID#_checkbox:checked').val() == 'yes' )
+					//if ( jQuery('###xparams.fldID#_checkbox:checked').val() == 'yes' )
+					if ( jQuery(this).attr("checked") )
 						currVal = "yes";
 					else
 						currVal = "no";
@@ -129,7 +131,7 @@ History:
 		}
 	</cfscript>
 	<tr id="#fqFieldName#_fieldRow">
-		<td class="#tdClass#" valign="top">
+		<td class="#tdClass#" valign="top" nowrap="nowrap">
 			<!--- <font face="Verdana,Arial" color="##000000" size="2"> --->
 				<cfif xparams.req eq "Yes"><strong></cfif>
 				#labelText#
