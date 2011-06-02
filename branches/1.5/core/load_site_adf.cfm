@@ -27,6 +27,7 @@ end user license agreement.
 		2010-12-20 - MFC - Added check at top to verify if ADF space exists in the SERVER and APPLICATION.
 							Removed IF to only run all the reset code when a user is logged in.
 		2011-31-01 - RAK - Updating so force reset doesnt notify the user.
+		2011-06-02 - RAK - Added * to end of regular expression so it would validate input on the entire string not just the first character
  --->
 <cfscript>
 	// Initialize the RESET TYPE variable
@@ -83,8 +84,9 @@ end user license agreement.
 			// Verify if the ADF dump var exists
 			// [MFC] - Changed "isDefined" to "LEN"
 			// [RAK] - 2010-11-01 - Fixing security issue with cfscript code being passed into the evaluate from any logged in user
+			// [RAK] - 2011-06-02 - Added * to end of regular expression because it was only validating the first character instead of every character in the string
 			//Anything that is not a-z or 0-9 or '.' or '[' or ']'
-			regularExpression = '[^a-z0-9\.\[\]]]';
+			regularExpression = '[^a-z0-9\.\[\]]]*';
 			if ( LEN(url.ADFDumpVar) GT 0 and !ReFindNoCase(regularExpression,url.ADFDumpVar)){
 				CreateObject("component","ADF.lib.utils.Utils_1_0").dodump(evaluate(url.ADFDumpVar), #url.ADFDumpVar#, false);
 			}else{
