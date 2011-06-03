@@ -775,6 +775,8 @@ History:
  	2011-31-01 - RAK - Fixed issue where it would not compare properly if the keys passed in did not exactly match those in the elemeent
 	2011-02-09 - RAK - Var'ing un-var'd variables
 	2011-02-14 - RAK - Fixing issue where it tries to delete from index 0 of a list
+	2011-06-02 - RAK - added the ability to specify your own sync source of an array of CEDAta
+	2011-06-03 - RAK - added the ability to specify the ccapi name, if not specified it defaults to using the element name
 --->
 <cffunction name="differentialSync" access="public" returntype="struct" hint="Given a list of custom elements, create or update or optionally delete elements.">
 	<cfargument name="elementName" type="string" required="true" default="" hint="Name of the element to sync">
@@ -785,6 +787,8 @@ History:
    <cfargument name="newOverride" type="struct" required="false" default="#StructNew()#" hint="Override of the new functionality. Specify a bean and method.">
 	<cfargument name="updateOverride" type="struct" required="false" default="#StructNew()#" hint="Override of the update functionality. Specify a bean and method.">
 	<cfargument name="deleteOverride" type="struct" required="false" default="#StructNew()#" hint="Override of the delete functionality. Specify a bean and method.">
+	<cfargument name="syncSourceContent" type="array" required="false" hint="Array of CE Data to use as the sync source">
+	<cfargument name="elementCCAPIName" type="string" required="false" default="#arguments.elementName#" hint="CCAPI name for the element to be updated">
   	<cfscript>
 		var returnStruct = StructNew();
 		var srcElements = "";
@@ -832,7 +836,7 @@ History:
 			arguments.updateOverride.bean = "csContent_1_0";
 			arguments.updateOverride.method = "populateContent";
 		}
-		arguments.updateOverride.args.elementName = arguments.elementName;
+		arguments.updateOverride.args.elementName = arguments.elementCCAPIName;
 		arguments.updateOverride.args.data = StructNew();
 		if(!StructIsEmpty(arguments.deleteOverride)){
 			//The defined an override
@@ -862,11 +866,11 @@ History:
 			arguments.newOverride.bean = "csContent_1_0";
 			arguments.newOverride.method = "populateContent";
 		}
-		arguments.newOverride.args.elementName = arguments.elementName;
+		arguments.newOverride.args.elementName = arguments.elementCCAPIName;
 		arguments.newOverride.args.data = StructNew();
 
 		//*********************************************End Validation*********************************************//
-		
+
 		/*
 			Goal: Update the elements that have been changed and don't touch those which have not.
 			1. Get all the existing records (srcElements)
@@ -877,7 +881,11 @@ History:
 			5. Loop over remaining subjectID's and delete them
 		*/
 		//1. Get all the existing records (srcElements)
-		srcElements = getCEData(arguments.elementName);
+		if(StructKeyExists(arguments,"syncSourceContent")){
+			srcElements = arguments.syncSourceContent;
+		}else{
+			srcElements = getCEData(arguments.elementName);
+		}
 		//1a. first serialize the primary key fields and store them in a lookup struct for detection
 		srcElementStruct = StructNew();
 		len=ArrayLen(srcElements);
@@ -1203,5 +1211,6 @@ History:
 		return rtnArray;
 	</cfscript>
 </cffunction>
+
 
 </cfcomponent>
