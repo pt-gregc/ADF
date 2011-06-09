@@ -1402,7 +1402,9 @@ History:
 		</cfscript>
 	</cfoutput>
 	<cfsavecontent variable="outputHTML">
-		<script type='text/javascript' src='/ADF/thirdParty/jquery/jsTree/jquery.jstree.js'></script>
+		<cfoutput>
+			<script type='text/javascript' src='/ADF/thirdParty/jquery/jsTree/jquery.jstree.js'></script>
+		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
 		#variables.scriptsService.renderScriptOnce("jstree",outputHTML)#
@@ -1428,7 +1430,9 @@ History:
 <cffunction name="loadJQueryHotkeys" access="public" returntype="void" hint="Loads jQuery Hotkeys plugin">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
-		<script type='text/javascript' src='/ADF/thirdParty/jquery/hotkeys/jquery.hotkeys.js'></script>
+		<cfoutput>
+			<script type='text/javascript' src='/ADF/thirdParty/jquery/hotkeys/jquery.hotkeys.js'></script>
+		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
 		#variables.scriptsService.renderScriptOnce("jQueryHotkeys",outputHTML)#
