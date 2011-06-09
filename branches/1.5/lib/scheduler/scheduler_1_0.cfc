@@ -46,8 +46,7 @@ History:
 </cfscript>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author:
 	PaperThin, Inc.
 	Ryan Kahn
@@ -60,6 +59,11 @@ Returns:
 Arguments:
 	String - scheduleName
 	Array - commands
+		Commands can be a string value for an HTML URL or structure.
+		Structure format used to access an ADF bean object.
+			commands.bean - Name of the ADF object factory bean.
+			commands.method - Name of the method in the bean to run.
+			commands.arg - Structure for the arguments to the method.
 	Struct - scheduleParams
 History:
 	Nov 30, 2010 - RAK - Created
