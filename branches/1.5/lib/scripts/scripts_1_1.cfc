@@ -43,6 +43,28 @@ History:
 <!---
 /* ***************************************************************
 /*
+Author:
+	PaperThin, Inc.
+	Ryan kahn
+Name:
+	$setDebugMode
+Summary:
+	display to the screen all the scripts as they load. Also displays when scripts are already loaded
+Returns:
+	Void
+Arguments:
+	Version 1.0
+History:
+ 	2010-10-04 - RAK - Created
+--->
+<cffunction name="setDebugMode" access="public" description="Set to true to display to the screen all the scripts as they load. Also displays when scripts are already loaded.">
+	<cfargument name="debugMode" type="boolean" required="true">
+	<cfset request.ADFScriptsDebugging = debugMode>
+</cffunction>
+
+<!---
+/* ***************************************************************
+/*
 Author: 	M. Carroll
 Name:
 	$loadJQuery
@@ -1354,25 +1376,62 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	
+/* *************************************************************** */
+Author:
 	PaperThin, Inc.
-	Ryan kahn
+	Ryan Kahn
 Name:
-	$setDebugMode
-Summary:	
-	display to the screen all the scripts as they load. Also displays when scripts are already loaded
+	$loadJSTree
+Summary:
+	Loads the jsTree plugin
 Returns:
-	Void
+	void
 Arguments:
-	Version 1.0
+
 History:
- 	2010-10-04 - RAK - Created
+ 	2011-05-31 - RAK - Created
 --->
-<cffunction name="setDebugMode" access="public" description="Set to true to display to the screen all the scripts as they load. Also displays when scripts are already loaded.">
-	<cfargument name="debugMode" type="boolean" required="true">
-	<cfset request.ADFScriptsDebugging = debugMode>
+<cffunction name="loadJSTree" access="public" returntype="void" hint="Loads the jsTree plugin">
+	<cfoutput>
+		<cfscript>
+			var outputHTML = "";
+			//Dependencies
+			loadJQuery();
+			loadJQueryCookie();
+			loadJQueryHotkeys();
+		</cfscript>
+	</cfoutput>
+	<cfsavecontent variable="outputHTML">
+		<script type='text/javascript' src='/ADF/thirdParty/jquery/jsTree/jquery.jstree.js'></script>
+	</cfsavecontent>
+	<cfoutput>
+		#variables.scriptsService.renderScriptOnce("jstree",outputHTML)#
+	</cfoutput>
 </cffunction>
 
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+	Ryan Kahn
+Name:
+	$loadJQueryHotkeys
+Summary:
+	Loads jQuery Hotkeys plugin
+Returns:
+	void
+Arguments:
+
+History:
+ 	2011-05-31 - RAK - Created
+--->
+<cffunction name="loadJQueryHotkeys" access="public" returntype="void" hint="Loads jQuery Hotkeys plugin">
+	<cfset var outputHTML = "">
+	<cfsavecontent variable="outputHTML">
+		<script type='text/javascript' src='/ADF/thirdParty/jquery/hotkeys/jquery.hotkeys.js'></script>
+	</cfsavecontent>
+	<cfoutput>
+		#variables.scriptsService.renderScriptOnce("jQueryHotkeys",outputHTML)#
+	</cfoutput>
+</cffunction>
 </cfcomponent>
