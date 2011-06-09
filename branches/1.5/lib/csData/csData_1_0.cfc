@@ -498,9 +498,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
 Name:
 	$formatSubsiteURL
 Summary:	
@@ -511,18 +512,19 @@ Arguments:
 	String subsiteURL
 History:
 	2009-06-30 - RLW - Created
+	2011-06-09 - MFC - Moved the "replace" line to the start of the function.
 --->
 <cffunction name="formatSubsiteURL" access="public" returntype="String" hint="Allows the subsiteURL to have a proper format">
 	<cfargument name="subsiteURL" type="string" required="true" hint="The URL that needs to be formatted">
 	<cfscript>
 		var formattedSubsiteURL = trim(arguments.subsiteURL);
+		// make sure all the slashes are forward slashes
+		formattedSubsiteURL = replace(formattedSubsiteURL, "\", "/", "all");
 		// make sure there is a previous slash
 		if( not left(formattedSubsiteURL, 1) eq "/" )
 			formattedSubsiteURL = "/" & formattedSubsiteURL;
 		if( not right(formattedSubsiteURL, 1) eq "/" )
 			formattedSubsiteURL = formattedSubsiteURL & "/";
-		// make sure all the slashes are forward slashes
-		formattedSubsiteURL = replace(formattedSubsiteURL, "\", "/", "all");
 	</cfscript>
 	<cfreturn formattedSubsiteURL>
 </cffunction>
