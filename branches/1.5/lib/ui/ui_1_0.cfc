@@ -339,6 +339,7 @@ History:
 									Added lbCheckLogin parameter to validate if the user is authenticated.
 	2011-03-20 - MFC - Added Else statement to add Table tag for CS5 lightbox resizing.
 	2011-04-07 - RAK - Prevented this from getting called 2x in the same request and producing duplicate stuff
+	2011-05-24 - RLW - Changed the "lbCheckLogin" arg to default to false.
 --->
 <cffunction name="lightboxHeader" access="public" returntype="string" output="false" hint="Returns HTML for the CS 6.x lightbox header (use with the lightboxFooter)">
 	<cfargument name="lbTitle" type="string" default="">
