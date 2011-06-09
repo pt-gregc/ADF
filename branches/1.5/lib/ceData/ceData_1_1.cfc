@@ -527,6 +527,7 @@ History:
 	2011-02-08 - RAK - Removing ptBlog2 from the function calls as this is not running in ptBlog2 and should never have been here. Its fixed now at least...
 	2011-04-04 - MFC - Updated function to load the Forms from the server object factory.
 						Attempted to add dependency but ADF build throws error.
+	2011-05-26 - MFC - Modified function to set the fieldStruct variable outside of the cfloop.					
 --->
 <cffunction name="buildCEDataArrayFromQuery" access="public" returntype="array" hint="Returns a standard CEData Array to be used in Render Handlers from a ceDataView query">
 	<cfargument name="ceDataQuery" type="query" required="true" hint="ceData Query (usually built from ceDataView) results to be converted">
@@ -536,16 +537,27 @@ History:
 		var row = "";
 		var column = "";
 		var tmp = "";
+		var defaultTmp = StructNew(); // Default temp for common fields over each loop
 		var formName = "";
 		var i = "";
-		var commonFieldList = "pageID,formID,dateAdded,dateCreated";
+		//var commonFieldList = "pageID,formID,dateAdded,dateCreated";
+		var commonFieldList = "pageID,formID";
 		var fieldStruct = structNew();
+		
+		// Check that we have a query with values
+		if ( arguments.ceDataQuery.recordCount GTE 1 ){
+			// Setup the default common fields 
+			// get the fields structure for this element
+			fieldStruct = server.ADF.objectFactory.getBean("Forms_1_0").getCEFieldNameData(getCENameByFormID(arguments.ceDataQuery["formID"][1]));
+		}
 	</cfscript>
-	<!--- <cfdump var="#arguments.ceDataQuery#"> --->
-
+	
 	<cfloop from="1" to="#arguments.ceDataQuery.recordCount#" index="row">
 		<cfscript>
 			tmp = structNew();
+			// Set the tmp to the default values from the common fields
+			//tmp = defaultTmp;
+			
 			// add in common fields			
 			for( i=1; i lte listLen(commonFieldList); i=i+1 )
 			{				
@@ -561,11 +573,11 @@ History:
 					if( not len(formName) )
 						formName = getCENameByFormID(tmp.formID);
 					tmp.formName = formName;
-				}
+				} 
 			}
+			
 			tmp.values = structNew();
-			// get the fields structure for this element
-			fieldStruct = server.ADF.objectFactory.getBean("Forms_1_1").getCEFieldNameData(tmp.formName);
+			
 			// loop through the field query and build the values structure
 			for( itm=1; itm lte listLen(structKeyList(fieldStruct)); itm=itm+1 )
 			{
