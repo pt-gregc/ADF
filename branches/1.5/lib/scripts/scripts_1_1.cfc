@@ -1390,11 +1390,14 @@ Arguments:
 
 History:
  	2011-05-31 - RAK - Created
+ 	2011-06-13 - RAK - removed a bug where I was defining a var after a output was opened
 --->
 <cffunction name="loadJSTree" access="public" returntype="void" hint="Loads the jsTree plugin">
+	<cfscript>
+		var outputHTML = "";
+	</cfscript>
 	<cfoutput>
 		<cfscript>
-			var outputHTML = "";
 			//Dependencies
 			loadJQuery();
 			loadJQueryCookie();
