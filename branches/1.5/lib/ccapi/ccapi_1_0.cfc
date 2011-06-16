@@ -260,8 +260,7 @@ History:
 </cffunction>--->
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	Ron West
 Name:
 	$hasElement
@@ -286,6 +285,23 @@ History:
 	<cfreturn elementExists>
 </cffunction>
 
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
+Name:
+	$login
+Summary:	
+	Login to the CCAPI for the subsite.
+Returns:
+	Void
+Arguments:
+	numeric - subsiteID
+History:
+	2009-05-13 - RLW - Created
+	2011-06-16 - MFC - Updated login verification logic for success or error.
+--->
 <cffunction name="login">
 	<cfargument name="subsiteID" required="false" type="numeric" default="1">
 	<!--- // call the CS API login --->
@@ -301,20 +317,23 @@ History:
 			csPassword = getCSPassword(),
 			subSiteID = getSubsiteID(),
 			subSiteURL = '');
-
-		// verify that the login was successful and set the SSID
-		if( ListFirst(loginResult, ":") is "Error" )
-		{					
+		
+		// Verify that the login was successful and set the SSID
+		if ( ListFirst(loginResult, ":") is "Success" ){
+			// Set the SSID
+			setSSID(listRest(loginResult, ":"));
+			// Log Success
+			if( loggingEnabled() )
+				variables.utils.logAppend("#request.formattedTimestamp# - Success logging in to CCAPI: #loginResult#, [SubSiteID:#subSiteID#]", "CCAPI_ws_login.log");
+		}
+		else {
+			// Clear the SSID
+			setSSID("");
 			error = listLast(loginResult, ":");
-			// log error
-			// TODO Move to the main logging utilities in the factory
+			// Log Error
 			if( loggingEnabled() )
 				variables.utils.logAppend("#request.formattedTimestamp# - Error logging in to CCAPI: #error#", "CCAPI_ws_login.log");
 		}
-		else if( loggingEnabled() )
-			variables.utils.logAppend("#request.formattedTimestamp# - Success logging in to CCAPI: #loginResult#, [subSiteID:#subSiteID#]", "CCAPI_ws_login.log");
-		// set the SSID
-		setSSID(listRest(loginResult, ":"));
 	</cfscript>
 	<cfreturn this>
 </cffunction>
