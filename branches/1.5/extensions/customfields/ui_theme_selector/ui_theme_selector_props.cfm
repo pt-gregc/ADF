@@ -31,6 +31,7 @@ Version:
 	1.0.0
 History:
 	2011-06-14 - GAC - Created
+	2011-06-16 - GAC - Fixed the default jqueryUIurl and slashes for non Windows OS's
 --->
 <cfscript>
 	// initialize some of the attributes variables
@@ -41,16 +42,20 @@ History:
 	
 	uiFilterStr = "jquery-ui";
 	defaultVersion = "jquery-ui-1.8";
-	jQueryUIurl = "/ADF/thirdParty/jquery/UI";
+	jQueryUIurl = "/ADF/thirdParty/jquery/ui";
 	jQueryUIpath = ExpandPath(jQueryUIurl);
+//application.ADF.utils.doDump(jQueryUIpath);	
 	
 	if( not structKeyExists(currentValues, "uiVersionPath") )
-		currentValues.uiVersionPath = jQueryUIpath & "\" & defaultVersion;
+		currentValues.uiVersionPath = jQueryUIpath & "/" & defaultVersion;
+
+//application.ADF.utils.doDump(currentValues,"currentValues",0);	
 				 
 </cfscript>
 
 <!--- // Get a list of jQuery UI versions --->
 <cfdirectory action="list" directory="#jQueryUIpath#" name="qVersions" type="dir">
+<!--- <cfdump var ="#qVersions#" expand="false"> --->
 
 <cfoutput>
 	<script language="JavaScript" type="text/javascript">
@@ -86,7 +91,7 @@ History:
 				<select name="#prefix#uiVersionPath" id="#prefix#uiVersionPath" class="cs_dlgControl">
 		           	<cfloop query="qVersions">
 			           	<cfif FindNoCase(uiFilterStr,name)>
-				           	<cfset uiThemePath = qVersions.directory & "\" & qVersions.name>
+				           	<cfset uiThemePath = qVersions.directory & "/" & qVersions.name>
 				           	<option value="#uiThemePath#"<cfif currentValues.uiVersionPath EQ uiThemePath> selected="selected"</cfif>>#qVersions.name#</option>
 		            	</cfif>
 					</cfloop>

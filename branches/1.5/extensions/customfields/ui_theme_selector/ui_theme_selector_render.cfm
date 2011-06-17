@@ -31,6 +31,7 @@ Version:
 	1.0.0
 History:
 	2011-06-14 - GAC - Created
+	2011-06-16 - GAC - Fixed the default jqueryUIurl and slashes for non Windows OS's
 --->
 <cfscript>
 	// the fields current value
@@ -42,9 +43,14 @@ History:
 	readOnly = application.ADF.forms.isFieldReadOnly(xparams);
 
 	uiFilterOutList = ".svn,base"; // Add DIRs that need to be filtered from the theme drop down
+	defaultTheme = "ui-lightness";
 	defaultVersion = "jquery-ui-1.8";
-	jQueryUIurl = "/ADF/thirdParty/jquery/UI/#defaultVersion#";
+	
+	jQueryUIurl = "/ADF/thirdParty/jquery/ui";
 	jQueryUIpath = ExpandPath(jQueryUIurl);
+
+	defaultVersionURL = "#jQueryUIurl#/#defaultVersion#";
+	defaultVersionPath = ExpandPath(defaultVersionURL);
 
 	// Validate if the property field has been defined
 	if ( NOT StructKeyExists(xparams,"fldID") )
@@ -52,13 +58,10 @@ History:
 	else if ( LEN(TRIM(xparams.fldID)) LTE 0 )
 		xparams.fldID = ReplaceNoCase(xParams.fieldName,'fic_','');
 
-	if ( NOT StructKeyExists(xparams,"uiVersion") )
-		xparams.uiVersion = "jquery-ui-1.8"; //jquery-ui-1.8
-		
 	if ( NOT StructKeyExists(xparams,"uiVersionPath") )
-		xparams.uiVersionPath = defaultVersion & "\css"; 
+		xparams.uiVersionPath = defaultVersionPath & "/css"; 
 	else
-		xparams.uiVersionPath = xparams.uiVersionPath & "\css";	
+		xparams.uiVersionPath = xparams.uiVersionPath & "/css";	
 
 	// Load the JQuery Plugin Headers
 	//application.ADF.scripts.loadjQuery();
