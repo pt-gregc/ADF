@@ -1233,8 +1233,10 @@ History:
 	<cfset var outputHTML = "">
 	#loadJQuery()#
 	<cfsavecontent variable="outputHTML">
-		<style type='text/css'>@import '/ADF/thirdParty/jquery/datepick/jquery.datepick.css';</style>
-		<script type='text/javascript' src='/ADF/thirdParty/jquery/datepick/jquery.datepick.pack.js'></script>
+		<cfoutput>
+			<style type='text/css'>@import '/ADF/thirdParty/jquery/datepick/jquery.datepick.css';</style>
+			<script type='text/javascript' src='/ADF/thirdParty/jquery/datepick/jquery.datepick.pack.js'></script>
+		</cfoutput>
 	</cfsavecontent>
 	#variables.scriptsService.renderScriptOnce("datePick",outputHTML)#
 </cffunction>
@@ -1259,7 +1261,9 @@ History:
 	<cfargument name="version" type="string" required="false" default="2.35" hint="JQuery BlockUI plugin version to load.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
-		<script type="text/javascript" src="/ADF/thirdParty/jquery/blockUI/jquery.blockUI-#arguments.version#.js"></script>
+		<cfoutput>
+			<script type="text/javascript" src="/ADF/thirdParty/jquery/blockUI/jquery.blockUI-#arguments.version#.js"></script>
+		</cfoutput>
 	</cfsavecontent>
 	#variables.scriptsService.renderScriptOnce("jQueryBlockUI",outputHTML)#
 </cffunction>
@@ -1316,8 +1320,10 @@ History:
 		var outputHTML = '';
 	</cfscript>
 	<cfsavecontent variable="outputHTML">
-		<script type='text/javascript' src='/ADF/thirdParty/jquery/simplePassMeter/jquery.simplePassMeter-0.3.min.js'></script>
-		<link rel="stylesheet" href="/ADF/thirdParty/jquery/simplePassMeter/simplePassMeter.css" type="text/css" media="screen" />
+		<cfoutput>
+			<script type='text/javascript' src='/ADF/thirdParty/jquery/simplePassMeter/jquery.simplePassMeter-0.3.min.js'></script>
+			<link rel="stylesheet" href="/ADF/thirdParty/jquery/simplePassMeter/simplePassMeter.css" type="text/css" media="screen" />
+		</cfoutput>
 	</cfsavecontent>
 	#variables.scriptsService.renderScriptOnce("simplePassMeter",outputHTML)#
 </cffunction>
@@ -1344,7 +1350,9 @@ History:
 	<cfargument name="version" type="string" required="false" default="3.0.0" hint="Script version to load.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
-		<script type='text/javascript' src='/ADF/thirdParty/jquery/highlight/jquery.highlight-#arguments.version#.yui.js'></script>
+		<cfoutput>
+			<script type='text/javascript' src='/ADF/thirdParty/jquery/highlight/jquery.highlight-#arguments.version#.yui.js'></script>
+		</cfoutput>
 	</cfsavecontent>
 	#variables.scriptsService.renderScriptOnce("highlight",outputHTML)#
 </cffunction>
@@ -1370,7 +1378,9 @@ History:
 	<cfargument name="version" type="string" required="false" default="0.9.3" hint="Script version to load.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
-		<script type='text/javascript' src='/ADF/thirdParty/jquery/timeago/jquery.timeago-#arguments.version#.js'></script>
+		<cfoutput>
+			<script type='text/javascript' src='/ADF/thirdParty/jquery/timeago/jquery.timeago-#arguments.version#.js'></script>
+		</cfoutput>
 	</cfsavecontent>
 	#variables.scriptsService.renderScriptOnce("timeago",outputHTML)#
 </cffunction>
