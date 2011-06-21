@@ -198,6 +198,7 @@ end user license agreement.
 		2009-05-11 - MFC - Created
 		2011-01-21 - GAC - Modified to add error logging around the cfinclude
 		2011-02-09 - GAC - Removed self-closing CF tag slashes
+		2011-05-13 - MFC - Set the expand path variable outside of the CFLOOP
 --->
 <cffunction name="loadADFAppBeanConfig" returntype="void" access="public" output="true" hint="Loads the custom apps bean config file.">
 	<cfargument name="path" type="string" required="false" default="\ADF\apps\">
@@ -210,6 +211,8 @@ end user license agreement.
 		var appBeanConfigPath = "";
 		//var logFileName = "ADF_loadADFAppBeanConfig_Errors";
 		var buildError = StructNew();
+		// Get the expand path for our loop
+		var expandedPath = ExpandPath(arguments.path);
 		// Recurse the custom app directory
 		appLibDirQry = directoryFiles(arguments.path, "true");
 		// Query the results to find the 'appBeanConfig.cfm' files
@@ -218,7 +221,7 @@ end user license agreement.
 
 	<!--- Build the appBeanConfig include statements --->
 	<cfloop index="i" from="1" to="#retFilteredQry.RecordCount#">
-		<cfset dirPath = Replace(retFilteredQry.directory[i],ExpandPath(arguments.path),"")>
+		<cfset dirPath = Replace(retFilteredQry.directory[i], expandedPath, "")>
 		<cfset appBeanConfigPath = "#arguments.path##dirPath#/#retFilteredQry.name[i]#"> 
 		<cftry>
 			<!--- // Include the the appBeanConfig file from each app --->
