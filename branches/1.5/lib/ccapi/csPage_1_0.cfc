@@ -80,6 +80,7 @@ History:
 	2008-10-07 - RLW - Created
 	2009-07-12 - RLW - added a check for "pageExists" prior to creating the page
 	2009-07-15 - RLW - changed the return format to structure and built consistent struct response
+	2011-06-21 - MFC - Added logout call at the end of the process.
 --->
 <cffunction name="createPage" access="public" output="true" returntype="struct" hint="Creates a page using the argument data passed in">
 	<cfargument name="stdMetadata" type="struct" required="true" hint="Standard Metadata would include 'Title, Description, TemplateId, SubsiteID etc...'">
@@ -153,6 +154,8 @@ History:
 			logStruct.logFile = 'CCAPI_create_pages_errors.log';
 			arrayAppend(logArray, logStruct);
 		}
+		// Logout
+		variables.ccapi.logout();
 		// clear locks before starting
 		variables.ccapi.clearLock(result.newPageID);
 		// handle logging
