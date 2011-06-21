@@ -598,4 +598,35 @@ History:
 	<cfreturn variables.data.queryToArrayOfStructures(qryGetElements)>
 </cffunction>
 
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
+Name:
+	$getUploadedDocPageURL
+Summary:
+	Returns the CS page url for the uploaded document.
+Returns:
+	String
+Arguments:
+	Numeric - pageID - CommonSpot Page ID
+	Numeric - subsiteID - CommonSpot subsite ID for the document.
+History:
+	2009-10-22 - MFC - Created
+	2010-02-04 - MFC - Updated to use the getUploadedDocPublicName to get the document public name
+	2011-06-17 - MFC - Updated the function to build the path to loader to pass through the security module.
+--->
+<cffunction name="getUploadedDocPageURL" access="public" returntype="string" hint="Returns the CS page url for the uploaded document.">
+	<cfargument name="pageID" type="numeric" required="true" hint="CommonSpot Page ID">
+	
+	<cfscript>
+		// Get the subsite URL for the uploaded doc
+		var docSubisteID = application.ptImport.csData.getSubsiteIDByPageID(pageid=arguments.pageID);
+		// Build the doc path for the subsite security for get file
+		var docGetFilePath = request.subsiteCache[docSubisteID].DLGLOADER & "?csModule=security/getfile&PageID=" & arguments.pageID;
+		return docGetFilePath;
+	</cfscript>
+</cffunction>
+
 </cfcomponent>
