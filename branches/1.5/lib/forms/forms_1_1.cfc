@@ -227,13 +227,14 @@ History:
 	2011-03-26 - MFC - Removed the lightbox header and footer from rendering.  The Lightbox proxy 
 						now renders the header and footer.
 	2011-04-07 - MFC - Added 'realTargetModule' variable for when deleting in CS6.1 and Greater.
+	2011-06-22 - GAC - Added a callback ID list parameter to include IDs of records to be modified by the callback other than the one being deleted 
 --->
 <cffunction name="renderDeleteForm" access="public" returntype="String" hint="Renders the standard datasheet delete module">
 	<cfargument name="formID" type="numeric" required="true" hint="The FormID for the Custom Element">
 	<cfargument name="dataPageID" type="numeric" required="true" hint="the DataPageID for the record being deleted">
 	<cfargument name="title" type="string" required="no" default="Delete Record" hint="The title of the dialog displayed while deleting">
 	<cfargument name="callback" type="string" required="false" default="" hint="The callback Javascript function that will be called on succesful deletion">
-
+	<cfargument name="cbIDlist" type="string" required="false" default="" hint="The list of IDs to pass to the call back function">
 	<cfset var deleteFormHTML = "">
 	<!--- Check if the user is logged In --->
 	<cfsavecontent variable="deleteFormHTML">
@@ -249,8 +250,11 @@ History:
 			
 			request.params.pageID = arguments.dataPageID;
 			request.params.formID = arguments.formID;
-			if(Len(arguments.callback)){
+			if(Len(arguments.callback))
+			{
 				request.params.callback = arguments.callback;
+				if(Len(Trim(arguments.cbIDlist)))
+					request.params.cbIDlist = arguments.cbIDlist;
 			}
 			CD_DIALOGNAME = arguments.title;
 		</cfscript>

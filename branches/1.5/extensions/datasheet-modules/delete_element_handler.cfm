@@ -36,6 +36,8 @@ History:
 	2011-03-31 - MFC - Updated for the security check before running the delete function.
 	2011-04-05 - MFC - Fixed the variable name in the callback JS.
 	2011-04-07 - RAK - Created display for CS 6.1 and above because we cant do our previous schemes for the confirmation
+	2011-06-22 - GAC - Added a callback ID list param in the request.params that are being passed to the callback function 
+						to include IDs of records to be modified by the callback other than the one being deleted 
 --->
 <cfscript>
 	if (NOT StructKeyExists(Request.Params,"doDelete"))
@@ -105,6 +107,9 @@ History:
 				var values = {
 					dataPageID: #request.params.PageID#,
 					formID: #request.params.FormID#
+					<cfif StructKeyExists(request.params,"cbIDlist") AND LEN(TRIM(request.params.cbIDlist))>
+					,cbIDlist: '#request.params.cbIDlist#'
+					</cfif>
 				};
 				getCallback('#request.params.callback#',values);
 			</script>
