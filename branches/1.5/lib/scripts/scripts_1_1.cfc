@@ -1451,4 +1451,29 @@ History:
 		#variables.scriptsService.renderScriptOnce("jQueryHotkeys",outputHTML)#
 	</cfoutput>
 </cffunction>
+
+<!---
+/* ***************************************************************
+/*
+Author:
+	Mike Tangorre (mtangorre@figleaf.com)
+Name:
+	$loadJQueryDump
+Summary:
+	Loads the dump jQuery plugin and necessary libraries
+Returns:
+	None
+Arguments:
+	None
+History:
+	2011-06-01 - MTT - Created
+--->
+<cffunction name="loadJQueryDump" access="public" output="true" returntype="void" hint="Loads the dump plugin for jquery">
+	<cfset var outputHTML = "">
+	<cfsavecontent variable="outputHTML">
+		<script type="text/javascript" src="/ADF/thirdparty/jquery/dump/jquery.dump.js"></script>
+	</cfsavecontent>
+	#variables.scriptsService.renderScriptOnce("jQueryDump",outputHTML)#
+</cffunction>
+</cfcomponent>
 </cfcomponent>
