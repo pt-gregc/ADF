@@ -1456,6 +1456,7 @@ History:
 /* ***************************************************************
 /*
 Author:
+	Fig Leaf Software
 	Mike Tangorre (mtangorre@figleaf.com)
 Name:
 	$loadJQueryDump
