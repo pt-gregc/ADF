@@ -32,6 +32,7 @@ History:
 	2010-10-04 - RAK - Created - New v1.1
 						Made massive revisons to script loading everything now goes 
 						through one central script loader. Every single function was modified.
+	2011-06-24 - GAC - Removed a misplaced double </cfcomponent> end tag
 --->
 <cfcomponent displayname="scripts_1_1" extends="ADF.lib.scripts.scripts_1_0" hint="Scripts functions for the ADF Library">
 	
@@ -1453,8 +1454,7 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author:
 	Fig Leaf Software
 	Mike Tangorre (mtangorre@figleaf.com)
@@ -1468,13 +1468,16 @@ Arguments:
 	None
 History:
 	2011-06-01 - MTT - Created
+	2011-06-24 - GAC - Modified - Added CFOUTPUTS around the renderScriptOnce method call
 --->
 <cffunction name="loadJQueryDump" access="public" output="true" returntype="void" hint="Loads the dump plugin for jquery">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
 		<script type="text/javascript" src="/ADF/thirdparty/jquery/dump/jquery.dump.js"></script>
 	</cfsavecontent>
+	<cfoutput>
 	#variables.scriptsService.renderScriptOnce("jQueryDump",outputHTML)#
+	</cfoutput>
 </cffunction>
-</cfcomponent>
+
 </cfcomponent>
