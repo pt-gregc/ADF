@@ -920,6 +920,7 @@ Arguments:
 	Version
 History:
  	2009-11-04 - MFC - Created
+	2011-06-24 - GAC - Added CFOUTPUTS around the renderScriptOnce method call
 --->
 <cffunction name="loadDropCurves" access="public" output="true" returntype="void" hint="Loads the Drop Curves plugin for jQuery"> 
 	<cfargument name="version" type="string" required="false" default="0.1.2" hint="Script version to load.">
@@ -929,7 +930,9 @@ History:
 			<script type='text/javascript' src='/ADF/thirdParty/jquery/dropcurves/jquery.dropCurves-#arguments.version#.min.js'></script>
 		</cfoutput>
 	</cfsavecontent>
+	<cfoutput>
 	#variables.scriptsService.renderScriptOnce("dropcurves",outputHTML)#
+	</cfoutput>
 </cffunction>
 
 <!---
@@ -950,6 +953,7 @@ History:
  	2009-11-05 - MFC - Created
 	2009-12-02 - SFS - Added check to make sure jqueryUI is loaded ahead of time
 	2011-02-02 - RAK - Updated default to 3.0
+	2011-06-24 - GAC - Added CFOUTPUTS around the renderScriptOnce method call
 --->
 <cffunction name="loadJQueryUIStars" access="public" output="true" returntype="void" hint="Loads the JQuery UI Stars plugin"> 
 	<cfargument name="version" type="string" required="false" default="3.0" hint="Script version to load.">
@@ -963,7 +967,9 @@ History:
 			<link rel='stylesheet' href='/ADF/thirdParty/jquery/ui/stars/#arguments.version#/ui.stars.min.css' type='text/css' media='screen' />
 		</cfoutput>
 	</cfsavecontent>
+	<cfoutput>
 	#variables.scriptsService.renderScriptOnce("jqueryuistars",outputHTML)#
+	</cfoutput>
 </cffunction>
 
 <!---
@@ -982,6 +988,7 @@ Arguments:
 	Version
 History:
  	2009-11-05 - RLW - Created
+	2011-06-24 - GAC - Added CFOUTPUTS around the renderScriptOnce method call
 --->
 <cffunction name="loadJQuerySuperfish" access="public" output="true" returntype="void" hint="Loads the JQuery UI Stars plugin"> 
 	<cfargument name="version" type="string" required="false" default="1.4.8" hint="Script version to load.">
@@ -993,7 +1000,9 @@ History:
 			<link rel='stylesheet' href='/ADF/thirdParty/jquery/superfish/css/superfish.css' type='text/css' media='screen' />
 		</cfoutput>
 	</cfsavecontent>
+	<cfoutput>
 	#variables.scriptsService.renderScriptOnce("jquerySuperfish",outputHTML)#
+	</cfoutput>
 </cffunction>
 
 <!---
@@ -1012,6 +1021,7 @@ Arguments:
 	Version
 History:
  	2009-12-15 - MFC - Created
+	2011-06-24 - GAC - Added CFOUTPUTS around the renderScriptOnce method call
 --->
 <cffunction name="loadJCrop" access="public" output="true" returntype="void" hint="Loads the JQuery Crop plugin"> 
 	<cfset var outputHTML = "">
@@ -1021,7 +1031,9 @@ History:
 			<link rel='stylesheet' href='/ADF/thirdParty/jquery/jcrop/css/jquery.Jcrop.css' type='text/css' media='screen' />
 		</cfoutput>
 	</cfsavecontent>
+	<cfoutput>
 	#variables.scriptsService.renderScriptOnce("jquerycrop",outputHTML)#
+	</cfoutput>
 </cffunction>
 
 <!---
@@ -1040,6 +1052,7 @@ Arguments:
 	Boolean - force - Forces JQuery checkboxes script header to load.
 History:
 	2010-03-04 - GAC - Created
+	2011-06-24 - GAC - Added CFOUTPUTS around the renderScriptOnce method call
 --->
 <cffunction name="loadJQueryCheckboxes" access="public" output="true" returntype="void" hint="Loads the JQuery checkboxes Headers if not loaded.">
 	<cfargument name="version" type="string" required="false" default="2.1" hint="JQuery Checkboxes version to load.">
@@ -1050,11 +1063,13 @@ History:
 			<script type="text/javascript" src="/ADF/thirdParty/jquery/checkboxes/jquery.checkboxes-#arguments.version#.min.js"></script>
 		</cfoutput>
 	</cfsavecontent>
-	<cfif arguments.force>
-		#outputHTML#
-	<cfelse>
-		#variables.scriptsService.renderScriptOnce("checkboxes",outputHTML)#
-	</cfif>
+	<cfoutput>
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("checkboxes",outputHTML)#
+		</cfif>
+	</cfoutput>
 </cffunction>
 
 <!---
@@ -1073,6 +1088,7 @@ Arguments:
 	Boolean - force - Forces JQuery JSON script header to load.
 History:
 	2010-03-04 - GAC - Created
+	2011-06-24 - GAC - Added CFOUTPUTS around the renderScriptOnce method call
 --->
 <cffunction name="loadJQueryJSON" access="public" output="true" returntype="void" hint="Loads the JQuery JSON Headers if not loaded.">
 	<cfargument name="version" type="string" required="false" default="2.2" hint="JQuery JSON version to load.">
@@ -1081,13 +1097,15 @@ History:
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
 			<script type="text/javascript" src="/ADF/thirdParty/jquery/json/jquery.json-#arguments.version#.min.js"></script>
-	</cfoutput>
+		</cfoutput>
 	</cfsavecontent>
-	<cfif arguments.force>
-		#outputHTML#
-	<cfelse>
-		#variables.scriptsService.renderScriptOnce("loadJQueryJSON",outputHTML)#
-	</cfif>
+	<cfoutput>
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("loadJQueryJSON",outputHTML)#
+		</cfif>
+	</cfoutput>
 </cffunction>
 
 <!---
@@ -1134,6 +1152,7 @@ Arguments:
 	Boolean - force - Forces JQuery Cookie script header to load.
 History:
 	2010-05-07 - SFS - Created
+	2011-06-24 - GAC - Added CFOUTPUTS around the renderScriptOnce method call
 --->
 <cffunction name="loadJQueryCookie" access="public" output="true" returntype="void" hint="Loads the JQuery Cookie plugin if not loaded.">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery Cookie script header to load.">
@@ -1143,11 +1162,13 @@ History:
 			<script type="text/javascript" src="/ADF/thirdParty/jquery/cookie/jquery.cookie.js"></script>
 		</cfoutput>
 	</cfsavecontent>
-	<cfif arguments.force>
-		#outputHTML#
-	<cfelse>
-		#variables.scriptsService.renderScriptOnce("jqueryCookie",outputHTML)#
-	</cfif>
+	<cfoutput>
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("jqueryCookie",outputHTML)#
+		</cfif>
+	</cfoutput>
 </cffunction>
 
 <!---
@@ -1165,6 +1186,7 @@ Arguments:
 	Boolean - force - Forces JQuery DataTables script header to load.
 History:
 	2010-05-19 - MFC - Created
+	2011-06-24 - GAC - Added CFOUTPUTS around the renderScriptOnce method call
 --->
 <cffunction name="loadJQueryDataTables" access="public" output="true" returntype="void" hint="Loads the JQuery DataTables Headers if not loaded.">
 	<cfargument name="version" type="string" required="false" default="1.6.2" hint="JQuery DataTables version to load.">
@@ -1178,11 +1200,13 @@ History:
 			<link rel='stylesheet' href='/ADF/thirdParty/jquery/datatables/css/demo_table.css' type='text/css' media='screen' />
 		</cfoutput>
 	</cfsavecontent>
-	<cfif arguments.force>
-		#outputHTML#
-	<cfelse>
-		#variables.scriptsService.renderScriptOnce("jqueryDataTables",outputHTML)#
-	</cfif>
+	<cfoutput>
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("jqueryDataTables",outputHTML)#
+		</cfif>
+	</cfoutput>
 </cffunction>
 
 <!---
@@ -1201,6 +1225,7 @@ Arguments:
 	Version
 History:
  	2010-07-08 - SFS - Created
+	2011-06-24 - GAC - Added CFOUTPUTS around the renderScriptOnce method call
 --->
 <cffunction name="loadJQueryBBQ" access="public" output="true" returntype="void" hint="Loads the BBQ plugin for jQuery"> 
 	<cfargument name="version" type="string" required="false" default="1.2.1" hint="Script version to load.">
@@ -1210,7 +1235,9 @@ History:
 			<script type='text/javascript' src='/ADF/thirdParty/jquery/bbq/jquery.ba-bbq-#arguments.version#.min.js'></script>
 		</cfoutput>
 	</cfsavecontent>
+	<cfoutput>
 	#variables.scriptsService.renderScriptOnce("bbq",outputHTML)#
+	</cfoutput>
 </cffunction>
 
 <!---
@@ -1229,6 +1256,7 @@ Arguments:
 	Version
 History:
  	2010-09-27 - RAK - Created
+	2011-06-24 - GAC - Added CFOUTPUTS around the renderScriptOnce method call
 --->
 <cffunction name="loadJQueryDatePick" access="public" output="true" returntype="void" hint="Loads the DatePick plugin for jQuery"> 
 	<cfset var outputHTML = "">
@@ -1239,7 +1267,9 @@ History:
 			<script type='text/javascript' src='/ADF/thirdParty/jquery/datepick/jquery.datepick.pack.js'></script>
 		</cfoutput>
 	</cfsavecontent>
+	<cfoutput>
 	#variables.scriptsService.renderScriptOnce("datePick",outputHTML)#
+	</cfoutput>
 </cffunction>
 
 <!---
@@ -1257,6 +1287,7 @@ Arguments:
 
 History:
 	2010-09-27 - RLW - Created
+	2011-06-24 - GAC - Added CFOUTPUTS around the renderScriptOnce method call
 --->
 <cffunction name="loadJQueryBlockUI" access="public" output="true" returntype="void" hint="Loads the JQuery BlockUI plugin if not loaded.">
 	<cfargument name="version" type="string" required="false" default="2.35" hint="JQuery BlockUI plugin version to load.">
@@ -1266,7 +1297,9 @@ History:
 			<script type="text/javascript" src="/ADF/thirdParty/jquery/blockUI/jquery.blockUI-#arguments.version#.js"></script>
 		</cfoutput>
 	</cfsavecontent>
+	<cfoutput>
 	#variables.scriptsService.renderScriptOnce("jQueryBlockUI",outputHTML)#
+	</cfoutput>
 </cffunction>
 
 <!---
@@ -1284,6 +1317,7 @@ Returns:
 Arguments:
 History:
  	2010-10-26 - RAK - Created
+	2011-06-24 - GAC - Added CFOUTPUTS around the renderScriptOnce method call
 --->
 <cffunction name="loadUploadify" access="public" output="true" returntype="void" hint="Loads the uploadify plugin for jQuery"> 
 	<cfset var outputHTML = "">
@@ -1296,7 +1330,9 @@ History:
 			<script type='text/javascript' src='/ADF/thirdParty/jquery/uploadify/jquery.uploadify.v2.1.0.min.js'></script>
 		</cfoutput>
 	</cfsavecontent>
+	<cfoutput>
 	#variables.scriptsService.renderScriptOnce("uploadify",outputHTML)#
+	</cfoutput>
 </cffunction>
 
 <!---
@@ -1315,6 +1351,7 @@ Arguments:
 History:
  	2010-11-09 - RAK - Created
 	2011-02-09 - RAK - Var'ing un-var'd variables
+	2011-06-24 - GAC - Added CFOUTPUTS around the renderScriptOnce method call
 --->
 <cffunction name="loadSimplePassMeter" access="public" output="true" returntype="void" hint="Loads the simplePassMeter plugin for jQuery">
 	<cfscript>
@@ -1326,7 +1363,9 @@ History:
 			<link rel="stylesheet" href="/ADF/thirdParty/jquery/simplePassMeter/simplePassMeter.css" type="text/css" media="screen" />
 		</cfoutput>
 	</cfsavecontent>
+	<cfoutput>
 	#variables.scriptsService.renderScriptOnce("simplePassMeter",outputHTML)#
+	</cfoutput>
 </cffunction>
 
 <!---
@@ -1346,6 +1385,7 @@ Arguments:
 History:
  	2010-12-13 - GAC - Created
 	2011-03-08 - GAC - Updated the renderScriptOnce with correct variable path
+	2011-06-24 - GAC - Added CFOUTPUTS around the renderScriptOnce method call
 --->
 <cffunction name="loadJQueryHighlight" access="public" output="true" returntype="void" hint="Loads the Highlight plugin for jQuery">
 	<cfargument name="version" type="string" required="false" default="3.0.0" hint="Script version to load.">
@@ -1355,7 +1395,9 @@ History:
 			<script type='text/javascript' src='/ADF/thirdParty/jquery/highlight/jquery.highlight-#arguments.version#.yui.js'></script>
 		</cfoutput>
 	</cfsavecontent>
+	<cfoutput>
 	#variables.scriptsService.renderScriptOnce("highlight",outputHTML)#
+	</cfoutput>
 </cffunction>
 
 <!---
@@ -1374,6 +1416,7 @@ Arguments:
 	String - Version
 History:
  	2011-03-08 - GAC - Created
+	2011-06-24 - GAC - Added CFOUTPUTS around the renderScriptOnce method call
 --->
 <cffunction name="loadjQueryTimeAgo" access="public" output="true" returntype="void" hint="Loads the TimeAgo (automatically updating fuzzy timestamps) plugin for jQuery">
 	<cfargument name="version" type="string" required="false" default="0.9.3" hint="Script version to load.">
@@ -1383,7 +1426,9 @@ History:
 			<script type='text/javascript' src='/ADF/thirdParty/jquery/timeago/jquery.timeago-#arguments.version#.js'></script>
 		</cfoutput>
 	</cfsavecontent>
+	<cfoutput>
 	#variables.scriptsService.renderScriptOnce("timeago",outputHTML)#
+	</cfoutput>
 </cffunction>
 
 <!---
@@ -1468,7 +1513,7 @@ Arguments:
 	None
 History:
 	2011-06-01 - MTT - Created
-	2011-06-24 - GAC - Modified - Added CFOUTPUTS around the renderScriptOnce method call
+	2011-06-24 - GAC - Added CFOUTPUTS around the renderScriptOnce method call
 --->
 <cffunction name="loadJQueryDump" access="public" output="true" returntype="void" hint="Loads the dump plugin for jquery">
 	<cfset var outputHTML = "">
