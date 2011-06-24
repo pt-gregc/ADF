@@ -44,6 +44,9 @@ History:
 	2011-03-08 - MFC - Updated AJAX calls for bean "ceData_1_1".
 	2011-04-20 - RAK - Added the ability to have a multiple select field and size it
 	2011-05-04 - MFC - Updated JQuery functions to work with older JQuery versions.
+	2011-06-23 - RAK - Added sortField option
+	2011-06-23 - GAC - Added the addtional field descriptions to the display field and sort field options
+					- Modified the "Other" option  from the displayFieldBuilder to be "--Other--" to make more visible and to avoid CE field name conflicts 
 --->
 <cfscript>
 	// initialize some of the attributes variables
@@ -78,6 +81,8 @@ History:
 		currentValues.multipleSelect = 0;
 	if( not structKeyExists(currentValues, "multipleSelectSize") )
 		currentValues.multipleSelectSize = 1;
+	if( not structKeyExists(currentValues, "sortByField") )
+		currentValues.sortByField = "";
 
 </cfscript>
 <cfoutput>
@@ -86,7 +91,7 @@ History:
 		application.ADF.scripts.loadJQuerySelectboxes();
 	</cfscript>
 <script type="text/javascript">
-	fieldProperties['#typeid#'].paramFields = "#prefix#customElement,#prefix#valueField,#prefix#displayField,#prefix#renderField,#prefix#defaultVal,#prefix#fldName,#prefix#forceScripts,#prefix#displayFieldBuilder,#prefix#activeFlagField,#prefix#activeFlagValue,#prefix#addButton,#prefix#multipleSelect,#prefix#multipleSelectSize";
+	fieldProperties['#typeid#'].paramFields = "#prefix#customElement,#prefix#valueField,#prefix#displayField,#prefix#renderField,#prefix#defaultVal,#prefix#fldName,#prefix#forceScripts,#prefix#displayFieldBuilder,#prefix#activeFlagField,#prefix#activeFlagValue,#prefix#addButton,#prefix#multipleSelect,#prefix#multipleSelectSize,#prefix#sortByField";
 	// allows this field to support the orange icon (copy down to label from field name)
 	fieldProperties['#typeid#'].jsLabelUpdater = '#prefix#doLabel';
 	// allows this field to have a common onSubmit Validator
@@ -104,6 +109,7 @@ History:
 			jQuery("###prefix#valueField").selectOptions("#currentValues.valueField#");
 			jQuery("###prefix#displayField").selectOptions("#currentValues.displayField#");
 			jQuery("###prefix#activeFlagField").selectOptions("#currentValues.activeFlagField#");
+			jQuery("###prefix#sortByField").selectOptions("#currentValues.sortByField#");
 
 			#prefix#handleDisplayFieldChange();
 		</cfif>
@@ -116,7 +122,7 @@ History:
 		jQuery("###prefix#fieldBuilder").change(function(){
 			var fieldBuilderVal = jQuery("###prefix#fieldBuilder").val();
 			//If the selected value is not -- and its the "build your own" add to the end of the string
-			if(fieldBuilderVal != "--" && jQuery('###prefix#displayField').val() == "Other"){
+			if(fieldBuilderVal != "--" && jQuery('###prefix#displayField').val() == "--Other--"){
 				var tempVal = jQuery("###prefix#displayFieldBuilder").val();
 				tempVal = tempVal + String.fromCharCode(171) + fieldBuilderVal + String.fromCharCode(187);
 				jQuery("###prefix#displayFieldBuilder").val(tempVal);
@@ -127,10 +133,12 @@ History:
 	});
 
 	function #prefix#handleDisplayFieldChange(){
-		if(jQuery('###prefix#displayField').val() == "Other"){
+		if(jQuery('###prefix#displayField').val() == "--Other--"){
 			jQuery(".other").show();
+			jQuery(".otherMsg").hide();
 		}else{
 			jQuery(".other").hide();
+			jQuery(".otherMsg").show();
 			jQuery("###prefix#displayFieldBuilder").val("");
 		}
 	}
@@ -196,6 +204,8 @@ History:
 		jQuery("###prefix#displayField").removeOption(/./);
 		jQuery("###prefix#fieldBuilder").removeOption(/./);
 		jQuery("###prefix#activeFlagField").removeOption(/./);
+		jQuery("###prefix#sortByField").removeOption(/./);
+
 
 		//Add new options
 		jQuery("###prefix#valueField").addOption(fields);
@@ -204,12 +214,15 @@ History:
 		jQuery("###prefix#activeFlagField").addOption(fields);
 		jQuery("###prefix#activeFlagField").selectOptions('--');
 
+		jQuery("###prefix#sortByField").addOption({"--":'--'});
+		jQuery("###prefix#sortByField").addOption(fields);
+		jQuery("###prefix#sortByField").selectOptions('--');
 
 		jQuery("###prefix#fieldBuilder").addOption({"--":'--'});
 		jQuery("###prefix#fieldBuilder").addOption(fields);
 		jQuery("###prefix#fieldBuilder").selectOptions('--');
 
-		fields["Other"] = "Other";
+		fields["--Other--"] = "--Other--";
 		jQuery("###prefix#displayField").addOption(fields);
 
 		//Deselect everything
@@ -244,16 +257,25 @@ History:
 		<td class="cs_dlgLabelSmall">
 			<select  name="#prefix#displayField" id="#prefix#displayField">
 			</select>
+			<br /><span class="otherMsg">Select '--Other--' to build Custom Display Text from the available fields.</span>
 		</td>
 	</tr>
 	<tr class="other" style="display:none">
-		<td></td>
+		<td class="cs_dlgLabelSmall">Custom Display Text:</td>
 		<td class="cs_dlgLabelSmall">
-			<span>Build your own display. Select a field from the drop down to have it added to the field.</span>
+			<span>Build your own display. Select a field from the drop down to have it added to the Custom Display Text field.</span>
 			<br/>
 			<select id="#prefix#fieldBuilder"></select>
 			<br/>
 			<input type="text" name="#prefix#displayFieldBuilder" value="#currentValues.displayFieldBuilder#" id="#prefix#displayFieldBuilder" size="40">
+		</td>
+	</tr>
+	<tr>
+		<td class="cs_dlgLabelSmall">Sort By Field:</td>
+		<td class="cs_dlgLabelSmall">
+			<select name="#prefix#sortByField" id="#prefix#sortByField">
+			</select>
+			<br /><span>Leave blank to sort by the Select Display Field or Custom Display Text.</span>
 		</td>
 	</tr>
 	<tr>
@@ -323,6 +345,5 @@ History:
 				<input id="#prefix#multipleSelectSize" name="#prefix#multipleSelectSize" value="#currentValues.multipleSelectSize#" size="3">
 		</td>
 	</tr>
-
 </table>
 </cfoutput>

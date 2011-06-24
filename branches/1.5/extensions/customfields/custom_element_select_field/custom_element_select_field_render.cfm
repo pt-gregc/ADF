@@ -50,13 +50,21 @@ History:
 	2011-01-06 - RAK - Added error catching on evaluate failure.
 	2011-02-08 - RAK - Added the class to the select from the props file for javascript interaction.
 	2011-04-20 - RAK - Added the ability to have a multiple select field
+	2011-06-23 - RAK - Added sortField option
+	2011-06-23 - GAC - Added the the conditional logic for the sortField option 
+					- Modified the "Other" option  from the displayFieldBuilder to be "--Other--" to make more visible and to avoid CE field name conflicts 
+					- Added code to display the Description text 
 --->
 <cfscript>
 	// the fields current value
 	currentValue = attributes.currentValues[fqFieldName];
 	// the param structure which will hold all of the fields from the props dialog
 	xparams = parameters[fieldQuery.inputID];
-
+	// the current row from the fieldQuery
+	currentRow = fieldQuery.currentRow;
+	// the description for the field 
+	currentDescription = fieldQuery.DESCRIPTION[currentRow];
+	
 	// Set the defaults
 	if( StructKeyExists(xParams, "forceScripts") AND (xParams.forceScripts EQ "1") )
 		xParams.forceScripts = true;
@@ -72,8 +80,10 @@ History:
 		renderSimpleFormField = true;
 
 	if ( NOT StructKeyExists(xparams, "fldName") OR (LEN(xparams.fldName) LTE 0) )
-		xparams.fldName = fqFieldName;
-
+		xparams.fldName = fqFieldName;	
+	if ( NOT StructKeyExists(xparams, "sortByField") OR (LEN(xparams.sortByField) LTE 0) )
+		xparams.sortByField = "--";
+		
 	// Get the data records
 	if(StructKeyExists(xparams,"activeFlagField") and Len(xparams.activeFlagField)
 			and StructKeyExists(xparams,"activeFlagValue") and Len(xparams.activeFlagValue)){
@@ -87,13 +97,14 @@ History:
 	}
 
 
-	// Sort the list by the display field value, if its other.. all bets are off we sort via jquery...
-	if ( StructKeyExists(xparams, "displayField") AND LEN(xparams.displayField) AND xparams.displayField neq "Other" ){
+	// Sort the list by the display field value, if its other.. all bets are off we sort via jquery... 
+	if ( xparams.sortByField neq "--" ) {
+		ceDataArray = application.ADF.cedata.arrayOfCEDataSort(ceDataArray, xparams.sortByField);
+	}else if( StructKeyExists(xparams, "displayField") AND LEN(xparams.displayField) AND xparams.displayField neq "--Other--" ) {
 		ceDataArray = application.ADF.cedata.arrayOfCEDataSort(ceDataArray, xparams.displayField);
 	}else{
 		application.ADF.scripts.loadJQuerySelectboxes();
 	}
-
 
 	// Check if we do not have a current value then set to the default
 	if ( (LEN(currentValue) LTE 0) OR (currentValue EQ "") ){
@@ -175,7 +186,7 @@ History:
 			if ( '#xparams.renderField#' == 'no' ) {
 				jQuery("###fqFieldName#_fieldRow").hide();
 			}
-			<cfif xparams.displayField eq "Other">
+			<cfif xparams.displayField eq "--Other--">
 				jQuery("###fqFieldName#_select").sortOptions();
 			</cfif>
 		});
@@ -222,7 +233,7 @@ History:
 							<cfset isSelected = false>
 						</cfif>
                   <option value="#ceDataArray[cfs_i].Values['#xparams.valueField#']#" <cfif isSelected>selected</cfif>>
-							<cfif xparams.displayField eq "Other" and Len(xparams.displayFieldBuilder)>
+							<cfif xparams.displayField eq "--Other--" and Len(xparams.displayFieldBuilder)>
 								<cfscript>
 									//String building!
 									displayField = xparams.displayFieldBuilder;
@@ -280,6 +291,7 @@ History:
 					<cfset ceFormID = application.ADF.cedata.getFormIDByCEName(xparams.customElement)>
 					<a href="javascript:;" rel="#application.ADF.ajaxProxy#?bean=Forms_1_1&method=renderAddEditForm&formid=#ceFormID#&datapageid=0&lbAction=refreshparent&title=#buttonLabel#" id="addNew" class="ADFLightbox add-button ui-state-default ui-corner-all">#buttonLabel#</a>
 		 		</cfif>
+		 		<cfif LEN(TRIM(currentDescription))><br /><span class="CS_Form_Description">#currentDescription#</span></cfif>
 			</div>
 		</td>
 	</tr>
