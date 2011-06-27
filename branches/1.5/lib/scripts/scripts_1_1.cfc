@@ -1525,4 +1525,54 @@ History:
 	</cfoutput>
 </cffunction>
 
+<!---
+/* ***************************************************************
+/*
+Author:
+	Fig Leaf Software
+	Mike Tangorre (mtangorre@figleaf.com)
+Name:
+	$loadJQueryDoTimeout
+Summary:
+	Loads the doTimeout jQuery plugin
+Returns:
+	None
+Arguments:
+	None
+History:
+	2011-06-22 - MTT - Created
+--->
+<cffunction name="loadJQueryDoTimeout" access="public" output="true" returntype="void" hint="Loads the do timeout plugin for jquery">
+	<cfset var outputHTML = "">
+	<cfsavecontent variable="outputHTML">
+		<script type="text/javascript" src="/ADF/thirdparty/jquery/dotimeout/jquery.dotimeout.plugin.js"></script>
+	</cfsavecontent>
+	#variables.scriptsService.renderScriptOnce("jQueryDoTimeout",outputHTML)#
+</cffunction>
+
+<!---
+/* ***************************************************************
+/*
+Author:
+	Fig Leaf Software
+	Mike Tangorre (mtangorre@figleaf.com)
+Name:
+	$loadJQueryTextLimit
+Summary:
+	Loads the text limit jQuery plugin
+Returns:
+	None
+Arguments:
+	None
+History:
+	2011-06-22 - MTT - Created
+--->
+<cffunction name="loadJQueryTextLimit" access="public" output="true" returntype="void" hint="Loads the text limit plugin for jquery">
+	<cfset var outputHTML = "">
+	<cfsavecontent variable="outputHTML">
+		<script type="text/javascript" src="/ADF/thirdparty/jquery/textlimit/jquery.textlimit.plugin.js"></script>
+	</cfsavecontent>
+	#variables.scriptsService.renderScriptOnce("jQueryTextLimit",outputHTML)#
+</cffunction>
+
 </cfcomponent>
