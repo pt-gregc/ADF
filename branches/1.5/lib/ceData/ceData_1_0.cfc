@@ -1657,6 +1657,7 @@ History:
 /* ***************************************************************
 /*
 Author: 	S. Smith
+			Mike Tangorre (mtangorre@figleaf.com)
 Name:
 	$arrayOfCEDataToQuery
 Summary:
@@ -1666,33 +1667,60 @@ Returns:
 Arguments:
 	Array
 History:
-	2010-07-27 - SFS - Created based upon the arrayOfStructuresToQuery function in data_1_0.cfc
+	2010-07-27 - SFS - 	Created based upon the arrayOfStructuresToQuery function in data_1_0.cfc
+	2011-06-28 - MT  - 	Modified the query returned to include the following fields: dateadded, 
+						dateapproved, formid, formname, and pageid fields from the CE data array that is 
+						passed in instead of just the values from the values structure.
 --->
-<cffunction name="arrayOfCEDataToQuery" access="public" returntype="query">
-	<cfargument name="theArray" type="array" required="true">
+<cffunction name="arrayOfCEDataToQuery" returntype="query" output="false" access="public" hint="">
 
+	<cfargument name="theArray" type="array" required="true" />
+	
 	<cfscript>
-		var colNames = "";
-		var theQuery = queryNew("");
-		var i=0;
-		var j=0;
-		//if there's nothing in the array, return the empty query
-		if(NOT arrayLen(arguments.theArray))
-			return theQuery;
-		//get the column names into an array =
-		colNames = structKeyArray(arguments.theArray[1]["values"]);
-		//build the query based on the colNames
-		theQuery = queryNew(arrayToList(colNames));
-		//add the right number of rows to the query
-		queryAddRow(theQuery, arrayLen(arguments.theArray));
-		//for each element in the array, loop through the columns, populating the query
-		for(i=1; i LTE arrayLen(arguments.theArray); i=i+1){
-			for(j=1; j LTE arrayLen(colNames); j=j+1){
-				querySetCell(theQuery, colNames[j], arguments.theArray[i]["values"][colNames[j]], i);
+	
+		var data = arguments.theArray;
+		var qColumns = arrayNew(1);
+		var qData = "";
+		var columns = "";
+		var i = 0;
+		var x = 0;
+		var y = 0;
+		
+		// store all the top level keys
+		qColumns[1] = structKeyArray(data[1]);
+		// store all the values sub structure keys
+		qColumns[2] = structKeyArray(data[1].values);
+		// add all the top level keys to the list
+		columns = arrayToList(qColumns[1]);
+		// remove the "values" list element, we don't need it
+		columns = listDeleteAt(columns,listFindNoCase(columns,"values"));
+		// add all the values sub structure keys to the list
+		columns = listAppend(columns,arrayToList(qColumns[2]));
+		// create new query object with our column list
+		qData = queryNew(columns);
+		// size the query based on the size of the data array passed in
+		queryAddRow(qData,arrayLen(data));
+		
+		// loop over the data array passed in
+		for( i=1; i lte arrayLen(data); i++) {
+			// loop over the keys
+			for( x=1; x lte arrayLen(qColumns[1]); x++ ) {
+				// if the key is "values"
+				if( qColumns[1][x] eq "values" ) {
+					// loop over the values sub-structure
+					for( y=1; y lte arrayLen(qColumns[2]); y++ ) {
+						querySetCell(qData,qColumns[2][y],data[i]["#qColumns[1][x]#"]["#qColumns[2][y]#"],i);
+					}
+				} else {
+					querySetCell(qData,qColumns[1][x],data[i]["#qColumns[1][x]#"],i);
+				}
 			}
 		}
-	    return theQuery;
+		
+		return qData;
+	
 	</cfscript>
+	
 </cffunction>
 
 </cfcomponent>
