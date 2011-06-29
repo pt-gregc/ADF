@@ -1463,8 +1463,7 @@ History:
 	<cfreturn pageDataAry>
 </cffunction>
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	Ron West
 Name:
 	$pagesContainingRH
@@ -1480,6 +1479,9 @@ History:
 	2010-08-03 - GAC - Modified - Strip the provided path for comparison from RH files in the root RH directory
 	2011-02-09 - RAK - Var'ing un-var'd variables
 	2011-03-20 - SFS - Modified getModuleData to be database agnostic
+	2010-06-29 - GAC - Modified - Set the getModuleData query to return multiple module IDs instead of maxrow=1 from the CustomElementModule table. 
+									Then the returned Module IDs are converted to a List to be used in the WHERE statement using an IN to get all the PageIDs 
+									from the data_custom_render table. This will allow the correct pageData will be returned if multiple elements  use the same render handler.
 --->
 <cffunction name="pagesContainingRH" access="public" returntype="array" hint="">
 	<cfargument name="modulePath" type="string" required="true">
@@ -1490,23 +1492,24 @@ History:
 		var itm = 1;
 		var pageMetadata = structNew();
 		var modPath = TRIM(arguments.modulePath);
+		var moduleIDlist = "";
 		
 		// If the passed in ModulePath is in the CS Default RH directory, strip the path info and just leave the file name
-		if ( Lcase(ListFirst(modPath,"/")) IS "renderhandlers" OR FindNoCase(request.site.renderhandlerURL,modPath) ) {
+		if ( Lcase(ListFirst(modPath,"/")) IS "renderhandlers" OR FindNoCase(request.site.renderhandlerURL,modPath) ) 
 			modPath = ListLast(modPath,"/");
-		}
 	</cfscript>
 	<!--- // retrieve the moduleID --->
-	<cfquery name="getModuleData" datasource="#request.site.datasource#" maxrows="1">
+	<cfquery name="getModuleData" datasource="#request.site.datasource#">
 		select ID
 		from CustomElementModules
 		where modulePath = <cfqueryparam cfsqltype="cf_sql_varchar" value="#modPath#">
 	</cfquery>
 	<cfif getModuleData.recordCount>
+		<cfset moduleIDlist = ValueList(getModuleData.ID)>
 		<cfquery name="getPages" datasource="#request.site.datasource#">
 			select distinct pageID
 			from data_custom_render
-			where moduleID = <cfqueryparam cfsqltype="cf_sql_integer" value="#getModuleData.ID#">
+			where moduleID IN (<cfqueryparam cfsqltype="cf_sql_integer" value="#moduleIDlist#" list="true">)
 		</cfquery>
 		<cfscript>
 			if( getPages.recordCount )
