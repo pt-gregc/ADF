@@ -162,7 +162,7 @@ History:
 	2011-04-06 - MFC - Changed the ADF reset error log to not append to the file and overwrite the file.
 	2011-05-03 - MFC - Commented out 'Application.ADF' cfdump from the debug log. CFDump was too large and
 						caused performance slowness loading debug html.
-	2011-06-29 - MTT - Added a response header indicating if the ADF was reset (true) or not (false). The response header is "CS_ADF_Reset".
+	2011-06-29 - MTT - Added a response header indicating if the ADF was reset (true) or not (false). The response header is "X-CS_ADF_Reset".
 --->
 <cffunction name="reset" access="remote" returnType="Struct">
 	<cfargument name="type" type="string" required="false" default="all" hint="The type of the ADF to reset.  Options are 'Server', 'Site' or 'All'. Defaults to 'All'.">
@@ -256,9 +256,9 @@ History:
 		// 2011-06-29 - MT - Set a response header indicating if the ADF was reset or not
 		//
 		if ( ADFReset ) {
-			getPageContext().getResponse().setHeader( "CS_ADF_Reset" , "true" );
+			getPageContext().getResponse().setHeader( "X-CS_ADF_Reset" , "true" );
 		} else {
-			getPageContext().getResponse().setHeader( "CS_ADF_Reset" , "false" );
+			getPageContext().getResponse().setHeader( "X-CS_ADF_Reset" , "false" );
 		}
 		returnStruct.success = ADFReset;
 		returnStruct.message = "&nbsp;"&DateFormat(now(),"yyyy-mm-dd")&" "&TimeFormat(now(),"hh:mm:ss")&" - "&rtnMsg;
