@@ -64,8 +64,7 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	M. Carroll
 Name:
 	$loadJQuery
@@ -82,20 +81,26 @@ History:
 	2009-11-11 - MFC - Update to force flag to not log the script loaded when forced.
 	2010-08-26 - MFC - Updated to load 1.4 by default
 	2011-01-19 - RAK - Updated to use findScript in scriptsService
+	2011-06-29 - MFC - Force jQuery no conflict when in CS 6.2 or above.
 --->
 <cffunction name="loadJQuery" access="public" returntype="void" hint="Loads the JQuery Headers if not loaded.">
 	<cfargument name="version" type="string" required="false" default="1.4" hint="JQuery version to load.">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfargument name="noConflict" type="boolean" required="false" default="0" hint="JQuery no conflict flag.">
-	<cfset var outputHTML = "">
-	<cfset var findScript = variables.scriptsService.findScript(arguments.version,"jquery","jquery-",".js")>
+	<cfscript>
+		var outputHTML = "";
+		var findScript = variables.scriptsService.findScript(arguments.version,"jquery","jquery-",".js");
+		
+		// 2011-06-29 - MFC - Force jQuery no conflict when in CS 6.2 or above.
+		if ( application.ADF.csVersion GTE 6.2 )
+			arguments.noConflict = true;
+	</cfscript>
 	<cfif findScript.success>
 		<cfsavecontent variable="outputHTML">
 			<cfoutput>
 				<script type="text/javascript" src="#findScript.message#"></script>
 				<cfif arguments.noConflict>
-					<script type="text/javascript"></script>
-					No conflict mode!
+					<!--- Put jQuery into a no conflict mode --->
 					<script type="text/javascript">
 						jQuery.noConflict();
 					</script>

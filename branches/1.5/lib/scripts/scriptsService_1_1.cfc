@@ -85,7 +85,7 @@ History:
 		<cfelse>
 			<!--- Else use JS to load through all other browsers --->
 			<cfscript>
-				<!--- Removing single line scripts because it comments code out when we remove line breaks! -> // --->
+				// Removing single line scripts because it comments code out when we remove line breaks!
 				arguments.outputHTML = ReReplace(arguments.outputHTML,'//[^\n]*\n?','',"all");
 
 				arguments.outputHTML = Replace(arguments.outputHTML,'/','\/',"all");
