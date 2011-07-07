@@ -32,6 +32,7 @@ Version:
 History:
 	2011-06-14 - GAC - Created
 	2011-06-16 - GAC - Fixed the default jqueryUIurl and slashes for non Windows OS's
+	2011-07-07 - GAC - Fixed a typo in the property field label
 --->
 <cfscript>
 	// initialize some of the attributes variables
@@ -86,7 +87,7 @@ History:
 	</script>
 	<table>
 		<tr>
-			<td class="cs_dlgLabelSmall" valign="top" nowrap="nowrap">Selected an installed jQuery UI Version:</td>
+			<td class="cs_dlgLabelSmall" valign="top" nowrap="nowrap">Select an installed jQuery UI Version:</td>
 			<td class="cs_dlgLabelSmall">
 				<select name="#prefix#uiVersionPath" id="#prefix#uiVersionPath" class="cs_dlgControl">
 		           	<cfloop query="qVersions">
