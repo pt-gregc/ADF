@@ -789,6 +789,9 @@ History:
 	2011-02-14 - RAK - Fixing issue where it tries to delete from index 0 of a list
 	2011-06-02 - RAK - added the ability to specify your own sync source of an array of CEDAta
 	2011-06-03 - RAK - added the ability to specify the ccapi name, if not specified it defaults to using the element name
+	2011-07-08 - MFC - Replaced variable named 'len'.
+						Added check to remove duplicate records in the source data on the delete process (in step 1a).
+						Updated the build key list in step 5 with a unique delimiter for key values that may contain "," in the text.
 --->
 <cffunction name="differentialSync" access="public" returntype="struct" hint="Given a list of custom elements, create or update or optionally delete elements.">
 	<cfargument name="elementName" type="string" required="true" default="" hint="Name of the element to sync">
@@ -796,7 +799,7 @@ History:
 	<cfargument name="preformDelete" type="boolean" required="false" default="false" hint="Boolean flag to preform delete. Does not delete by default.">
 	<cfargument name="primaryKeys" type="string" required="false" default="_pageID" hint="A list of primary keys to use to compare elements 'reserved word' _pageID, ex: links,title,_pageID">
 	<cfargument name="ignoreFields" type="string" required="false" default="" hint="A List of field names to ignore">
-   <cfargument name="newOverride" type="struct" required="false" default="#StructNew()#" hint="Override of the new functionality. Specify a bean and method.">
+    <cfargument name="newOverride" type="struct" required="false" default="#StructNew()#" hint="Override of the new functionality. Specify a bean and method.">
 	<cfargument name="updateOverride" type="struct" required="false" default="#StructNew()#" hint="Override of the update functionality. Specify a bean and method.">
 	<cfargument name="deleteOverride" type="struct" required="false" default="#StructNew()#" hint="Override of the delete functionality. Specify a bean and method.">
 	<cfargument name="syncSourceContent" type="array" required="false" hint="Array of CE Data to use as the sync source">
@@ -804,7 +807,6 @@ History:
   	<cfscript>
 		var returnStruct = StructNew();
 		var srcElements = "";
-		var len = "";
 		var tempStruct = StructNew();
 		var srcElementStruct = '';
 		var i = '';
@@ -821,10 +823,13 @@ History:
 		var dataPageIDList = '';
 		var scheduleParams = "";
 		var manualCompare = false;
-      		var syncKey = '';
+      	var syncKey = '';
+      	var currSrcElementKey = ""; // Stores the current source element key for building the 'srcElementStruct'.
+      	var dupSrcDataPageIDList = ""; // List for DataPageIDs for duplicate recs in source data.
+		
 		returnStruct.success = false;
 		returnStruct.msg = "An unknown error occurred.";
-
+		
 		//*********************************************Begin validation*********************************************//
 
 		if(!Len(arguments.elementName)){
@@ -900,10 +905,17 @@ History:
 		}
 		//1a. first serialize the primary key fields and store them in a lookup struct for detection
 		srcElementStruct = StructNew();
-		len=ArrayLen(srcElements);
-		for(i=1;i<=len;i++){
-			StructInsert(srcElementStruct,__generateStructKey(srcElements[i],arguments.primaryKeys),srcElements[i],true);
+		for(i=1;i<=ArrayLen(srcElements);i++){
+			// 2011-07-08 - MFC
+			//	Set the source element key to a variable.
+			//	Check if the key already exists, then we have a duplicate record.
+			currSrcElementKey = __generateStructKey(srcElements[i],arguments.primaryKeys);
+			if ( NOT StructKeyExists(srcElementStruct, currSrcElementKey) )
+				StructInsert(srcElementStruct,currSrcElementKey,srcElements[i],true);
+			else
+				dupSrcDataPageIDList = ListAppend(dupSrcDataPageIDList, srcElements[i].pageID);
 		}
+
 		//2. Loop over newElements (arguments.newElements)
 		/*
 			However first lets get a list of keys that will be checked.
@@ -911,20 +923,19 @@ History:
 			2. Remove from the list the ignored keys
 		*/
 		keysToSync = StructKeyList(arguments.newElements[1].values);
-		len = ListLen(arguments.ignoreFields);
-		for(i=1;i<=len;i++){
+		for(i=1;i<=ListLen(arguments.ignoreFields);i++){
 			currentKey = ListGetAt(arguments.ignoreFields,i);
 			if(ListFindNoCase(keysToSync,currentKey)){
 				keysToSync = ListDeleteAt(keysToSync,ListFindNoCase(keysToSync,currentKey));
 			}
 		}
 		syncLen = ListLen(keysToSync);
-		len=ArrayLen(arguments.newElements);
 		//If the keys on the input struct dont match the keys on the source then we need to manually compare.
 		if(ArrayLen(srcElements) and ListLen(StructKeyList(arguments.newElements[1].values)) neq ListLen(StructKeyList(srcElements[1].values))){
 			manualCompare = true;
 		}
-		for(i=1;i<=len;i++){
+
+		for(i=1;i<=ArrayLen(arguments.newElements);i++){
 			newElement = arguments.newElements[i];
 			//Figure out the element's lookup key
 			currentKey = __generateStructKey(newElement,arguments.primaryKeys);
@@ -954,6 +965,7 @@ History:
 						isDifferent = true;
 					}
 				}
+				
 				if(isDifferent){
 					//We have a change on our hands! Do something!
 				   arguments.updateOverride = duplicate(updateOverride);
@@ -972,18 +984,27 @@ History:
 				ArrayAppend(commandArray,arguments.newOverride);
 			}
 		}
+
 		//5. Loop over remaining subjectID's and delete them
 		if(arguments.preformDelete and !structIsEmpty(srcElementStruct)){
-			deleteList = StructKeyList(srcElementStruct);
-			len = ListLen(deleteList);
+			// 2011-07-08 - MFC - Build the key list with a unique delimiter for key values that contain ",".
+			deleteList = StructKeyList(srcElementStruct, "++");
 			dataPageIDList = "";
-			for(i=1;i<=len;i++){
-				currentElement = structFind(srcElementStruct,listGetAt(deleteList,i));
+			for(i=1;i<=ListLen(deleteList,"++");i++){
+				currentElement = structFind(srcElementStruct,listGetAt(deleteList,i,"++"));
 				dataPageIDList = ListAppend(dataPageIDList,currentElement.pageID);
 			}
+			
+			// 2011-07-08 - MFC - Added Step 5a.
+			// 5a. Get any duplicate records and add to the delete dataPageIDList
+			if ( ListLen(dupSrcDataPageIDList) )
+				dataPageIDList = ListAppend(dataPageIDList, dupSrcDataPageIDList);
+			
+			// Add the dataPageIDList to the delete command
 			arguments.deleteOverride.args.datapageidList = dataPageIDList;
 			ArrayAppend(commandArray,arguments.deleteOverride);
 		}
+		
 		returnStruct.msg = "Differential sync scheduled succesfully!";
 		returnStruct.success=true;
 		if(ArrayLen(commandArray)){
