@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2010.
+PaperThin, Inc. Copyright(C) 2011.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -31,6 +31,7 @@ History:
 	2011-01-21 - GAC - Added a getADFversion function
 	2011-04-05 - MFC - Updated the version property.
 					   Added a getCSVersion function.
+	2011-07-11 - MFC - Updated INIT function to remove call to "super.init".
 --->
 <cfcomponent name="Base" hint="Base component for Custom Application Common Framework">
 
@@ -38,8 +39,6 @@ History:
 	
 <cffunction name="init" output="true" returntype="any">
 	<cfscript>
-		if(StructKeyExists(super, 'init'))
-			super.init(argumentCollection=arguments);
 		StructAppend(variables, arguments, false);
 		return this;
 	</cfscript>

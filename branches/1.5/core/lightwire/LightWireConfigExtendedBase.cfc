@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2010.
+PaperThin, Inc. Copyright(C) 2011.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -18,6 +18,18 @@ in this directory, you agree to the terms and conditions of the applicable
 end user license agreement.
 --->
 
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 
+Name:
+	LightWireConfigExtendedBase,cfc
+Summary:
+	LightWire Configuration component extended from the Base.cfc.
+History:
+	2009-08-14 - MFC - Created
+	2011-07-11 - MFC/AW - Updated Init and loadADFAppBeanConfig for performance improvements.
+--->
 <cfcomponent name="LightWireConfigBase" extends="ADF.thirdParty.lightwire.BaseConfigObject" output="false">
 
 <cfproperty name="version" value="1_5_0">
@@ -199,6 +211,7 @@ end user license agreement.
 		2011-01-21 - GAC - Modified to add error logging around the cfinclude
 		2011-02-09 - GAC - Removed self-closing CF tag slashes
 		2011-05-13 - MFC - Set the expand path variable outside of the CFLOOP
+		2011-07-11 - MFC/AW - Updated AppConfig path building.
 --->
 <cffunction name="loadADFAppBeanConfig" returntype="void" access="public" output="true" hint="Loads the custom apps bean config file.">
 	<cfargument name="path" type="string" required="false" default="\ADF\apps\">
@@ -207,12 +220,11 @@ end user license agreement.
 		var appLibDirQry = QueryNew("temp");
 		var retFilteredQry = QueryNew("temp");
 		var i = 1;
-		var dirPath = "";
-		var appBeanConfigPath = "";
-		//var logFileName = "ADF_loadADFAppBeanConfig_Errors";
-		var buildError = StructNew();
-		// Get the expand path for our loop
-		var expandedPath = ExpandPath(arguments.path);
+		var dirPath = '';
+		var expPath = ExpandPath(arguments.path);
+		var target = '';
+		var appComPath = '';
+		
 		// Recurse the custom app directory
 		appLibDirQry = directoryFiles(arguments.path, "true");
 		// Query the results to find the 'appBeanConfig.cfm' files
@@ -221,11 +233,14 @@ end user license agreement.
 
 	<!--- Build the appBeanConfig include statements --->
 	<cfloop index="i" from="1" to="#retFilteredQry.RecordCount#">
-		<cfset dirPath = Replace(retFilteredQry.directory[i], expandedPath, "")>
-		<cfset appBeanConfigPath = "#arguments.path##dirPath#/#retFilteredQry.name[i]#"> 
+		<cfscript>
+			dirPath = Replace(retFilteredQry.directory[i], expPath, "");
+			target = Replace('#arguments.path##dirPath#/#retFilteredQry.name[i]#', '\', '/', 'all');
+			appComPath = getComPathForCustomAppDir(dirPath);
+		</cfscript>
 		<cftry>
 			<!--- // Include the the appBeanConfig file from each app --->
-			<cfinclude template="#appBeanConfigPath#">
+			<cfinclude template="#target#">
 			<cfcatch>
 				<!--- // Build the Error Struct --->
 				<cfset buildError.appBeanConfigPath = appBeanConfigPath>
@@ -507,7 +522,7 @@ end user license agreement.
 		2009-05-11 - MFC - Created
 --->
 <cffunction name="directoryFiles" returntype="query" access="private" output="true" hint="Returns the files for the directory.">
-	<cfargument name="dirPath" type="string" required="true" default="\adf\lib\com">
+	<cfargument name="dirPath" type="string" required="true" default="\ADF\lib\com">
 	<cfargument name="recurse" type="string" required="false" default="false">
 	
 	<cfset var dirQry = QueryNew("tmp")>

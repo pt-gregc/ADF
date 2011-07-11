@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2010.
+PaperThin, Inc. Copyright(C) 2011.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -20,11 +20,6 @@ end user license agreement.
 
 <!---
 /* *************************************************************** */
-Application Development Framework (ADF)
-Copyright (c) 2009 PaperThin, Inc.
-Dual licensed under the MIT and GPL licenses.
-http://consulting.paperthin.com/services-wiki/index.php/ADF:Licenses
-
 Author: 	
 	PaperThin, Inc. 
 Name:
@@ -162,7 +157,7 @@ History:
 	2011-04-06 - MFC - Changed the ADF reset error log to not append to the file and overwrite the file.
 	2011-05-03 - MFC - Commented out 'Application.ADF' cfdump from the debug log. CFDump was too large and
 						caused performance slowness loading debug html.
-	2011-06-29 - MTT - Added a response header indicating if the ADF was reset (true) or not (false). The response header is "X-CS_ADF_Reset".
+	2011-06-29 - MT - Set a response header indicating if the ADF was reset or not.
 --->
 <cffunction name="reset" access="remote" returnType="Struct">
 	<cfargument name="type" type="string" required="false" default="all" hint="The type of the ADF to reset.  Options are 'Server', 'Site' or 'All'. Defaults to 'All'.">
@@ -255,11 +250,8 @@ History:
 		//
 		// 2011-06-29 - MT - Set a response header indicating if the ADF was reset or not
 		//
-		if ( ADFReset ) {
-			getPageContext().getResponse().setHeader( "X-CS_ADF_Reset" , "true" );
-		} else {
-			getPageContext().getResponse().setHeader( "X-CS_ADF_Reset" , "false" );
-		}
+		getPageContext().getResponse().setHeader( "X-CS_ADF_Reset" , "#ADFReset#" );
+		
 		returnStruct.success = ADFReset;
 		returnStruct.message = "&nbsp;"&DateFormat(now(),"yyyy-mm-dd")&" "&TimeFormat(now(),"hh:mm:ss")&" - "&rtnMsg;
 		return returnStruct;
