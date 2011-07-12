@@ -60,6 +60,7 @@ History:
 	2010-12-21 - MFC - Removed the hard coded force debugging.
 	2010-03-27 - MFC - Output the scripts directly when in IE, not through JavaScript.
 	2011-06-29 - RAK - Fixed a bug where we were not removing single line comments from scripts which was commenting out code when we removed line breaks.
+	2011-07-12 - RAK - Updated REGEX expressions to kill rtns, newlines, and tabs. 
 --->
 <cffunction name="renderScriptOnce" access="public" output="true" returntype="void" hint="Given unescaped outputHML and script name handles adding code to the page">
 	<cfargument name="scriptName" type="string" required="true" hint="Name of the script that is being ran">
@@ -85,15 +86,15 @@ History:
 		<cfelse>
 			<!--- Else use JS to load through all other browsers --->
 			<cfscript>
-				// Removing single line scripts because it comments code out when we remove line breaks!
-				arguments.outputHTML = ReReplace(arguments.outputHTML,'//[^\n]*\n?','',"all");
+				// remove single line script comments because they comment code out when we remove line breaks!
+				arguments.outputHTML = ReReplace(arguments.outputHTML, '//[^\r\n]*', '', "all");
 
-				arguments.outputHTML = Replace(arguments.outputHTML,'/','\/',"all");
-				arguments.outputHTML = Replace(arguments.outputHTML,"'",'"',"all");
-				
+				// escape forward slashes and single quotes
+				arguments.outputHTML = Replace(arguments.outputHTML, '/', '\/', "all");
+				arguments.outputHTML = Replace(arguments.outputHTML, "'", "\'", "all");
 
-				arguments.outputHTML = ReReplace(arguments.outputHTML,'\n','',"all");
-				arguments.outputHTML = ReReplace(arguments.outputHTML,'\t','',"all");
+				// kill rtns, newlines, and tabs
+				arguments.outputHTML = ReReplace(arguments.outputHTML,'[\r\n\t]','',"all");
 			</cfscript>
 			<cfoutput>
 				<!--- If no scripts have been loaded yet make a new array of scriptsLoaded --->
@@ -113,7 +114,7 @@ History:
 						}
 				</script>
 			</cfoutput>
-		</cfif>
+		</cfif> 
 	</cfif>
 </cffunction>
 
