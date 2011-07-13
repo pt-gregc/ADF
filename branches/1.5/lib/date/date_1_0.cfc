@@ -86,30 +86,34 @@ History:
 	</cfscript>
 	<cfreturn firstDayOfWeek>
 </cffunction>
+
 <!---
-	/* ***************************************************************
-	/*
-	Author: 	Ron West
-	Name:
-		$lastDayOfWeek
-	Summary:	
-		Given the current date find out what the last day of the week is
-	Returns:
-		String lastDay
-	Arguments:
-		String inDate
-	History:
-		2009-09-23 - RLW - Created
-	--->
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
+Name:
+	$lastDayOfWeek
+Summary:	
+	Given the current date find out what the last day of the week is
+Returns:
+	String lastDay
+Arguments:
+	String inDate
+History:
+	2009-09-23 - RLW - Created
+	2011-07-13 - GAC - passed the inDate parameter through to the firstDayOfWeek function so this can be used on dates other than Now() 
+--->
 <cffunction name="lastDayOfWeek" access="public" returntype="String" hint="Given the current date find out what the last day of the week is">
 	<cfargument name="inDate" type="date" required="false" default="#now()#">
 	<cfscript>
-		var returnDate = firstDayOfWeek();
+		var returnDate = firstDayOfWeek(arguments.inDate);
 		if( isDate(returnDate) )
 			returnDate = dateAdd("d", 6, returnDate);
 	</cfscript>
 	<cfreturn returnDate>
 </cffunction>
+
 <!--- // returns date for first of month --->
 <cffunction name="firstOfMonth" access="public" output="false" returntype="any" hint="Returns date for first of month">
 	<cfargument name="inMonth" required="true" type="string">
