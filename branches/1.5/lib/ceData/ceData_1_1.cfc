@@ -1053,7 +1053,7 @@ History:
 			}
 		}
 		rtn = SerializeJSON(tempStruct);
-		return rtn;
+		return Replace(rtn,",","","ALL");
 	</cfscript>
 
 </cffunction>
