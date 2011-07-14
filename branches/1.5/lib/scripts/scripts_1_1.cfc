@@ -779,11 +779,12 @@ History:
 	2010-12-21 - MFC - Updated the codes for HTML and scripts.
 						Commented IF condition for loading the "commonspot/javascript/browser-all.js" link.
 	2011-04-08 - RAK - Added includes to 6.1 overrides if this is in fact 6.1 or greater.
-	2011-07-11 - MFC - Moved the HTML cfsavecontent block to Lightbox 1.0 "loadLightbox" function.
+	2011-07-14 - MFC - Run check for if commonspot.lightbox is defined yet
 --->
 <cffunction name="loadADFLightbox" access="public" output="true" returntype="void" hint="ADF Lightbox Framework for the ADF Library">
 	<cfargument name="version" type="string" required="false" default="1.0" hint="ADF Lightbox version to load">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
+	<cfset var productVersion = ListFirst(ListLast(request.cp.productversion," "),".")>
 	<cfset var outputHTML = "">
 	<cfoutput>
 		#LoadJQuery(force=arguments.force)#
@@ -807,8 +808,102 @@ History:
 		if ( NOT StructKeyExists(request.params, "subtitle") )
 			request.params.subtitle = "";
 	</cfscript>
-	<!--- Call the Lightbox 1.0 to load the ADF Lightbox HTML --->
-	<cfset outputHTML = application.ADF.lightbox.loadLightbox(version=arguments.version)>
+	<cfsavecontent variable="outputHTML">
+		<cfoutput>
+			<script type='text/javascript' src='/ADF/extensions/lightbox/#arguments.version#/js/framework.js'></script>
+			<!--- Load lightbox override styles --->
+			<cfif application.ADF.csVersion GTE 6.1>
+	         <link href="/ADF/extensions/lightbox/#arguments.version#/css/lightbox_overrides_6_1.css" rel="stylesheet" type="text/css">
+			<cfelse>
+	         <link href="/ADF/extensions/lightbox/#arguments.version#/css/lightbox_overrides.css" rel="stylesheet" type="text/css">
+			</cfif>
+		</cfoutput>
+			<!--- Load the CommonSpot Lightbox when not in version 6.0 --->
+			<cfif productVersion LT 6 >
+				<!--- Load the CommonSpot 6.0 Lightbox Framework --->
+				<cfoutput>
+				<script type='text/javascript' src='/ADF/extensions/lightbox/#arguments.version#/js/browser-all.js'></script>
+				
+				<!--- Setup the CommonSpot 6.0 Lightbox framework --->
+				<script type="text/javascript">	
+					if ((typeof commonspot == 'undefined' || !commonspot.lightbox) && (!top.commonspot || !top.commonspot.lightbox))
+						loadNonDashboardFiles();
+					else if ( typeof parent.commonspot != 'undefined' ){
+						var commonspot = parent.commonspot;
+					}
+					else if ( typeof top.commonspot != 'undefined' ){
+						var commonspot = top.commonspot;
+					}
+					
+					/*
+					 Loads in the Commonspot.util space for CS 5. This exists already in CS 6.
+					 
+	    			 Check if the commonspot.util.dom space exists,
+						If none, then build this from the Lightbox Util.js
+					*/
+					if ( (typeof commonspot.util == 'undefined') || (typeof commonspot.util.dom == 'undefined') )
+					{
+						IncludeJs('/ADF/extensions/lightbox/1.0/js/util.js', 'script');
+					}
+	    		</script>
+				
+				<!--- Load the CS5 Resize override functions --->
+				<script type='text/javascript' src='/ADF/extensions/lightbox/#arguments.version#/js/cs5-overrides.js'></script>
+				</cfoutput>
+			<cfelse>
+				<cfoutput>
+					<!--- Load lightbox override styles --->
+					<!--- Check if the request page exists for if we are on a CS page --->
+					<!--- <cfif NOT StructKeyExists(request, "page")> --->
+						<!--- Load the CommonSpot 6.0 Lightbox Framework --->
+						<script type='text/javascript' src='/commonspot/javascript/browser-all.js'></script>
+					<!--- </cfif> --->
+
+					<!--- Setup the CommonSpot 6.0 Lightbox framework --->
+					<!--- <cfinclude template="/commonspot/non-dashboard-include.cfm"> --->
+					<script type="text/javascript">
+						if (typeof commonspot == 'undefined' || !commonspot.lightbox){	
+							if ( typeof parent.commonspot != 'undefined' ){
+								var commonspot = parent.commonspot;
+							}
+							else if ( typeof top.commonspot != 'undefined' ){
+								var commonspot = top.commonspot;
+							}
+							else {
+								loadNonDashboardFiles();
+							}
+						}
+						if (parent.commonspot && typeof newWindow == 'undefined'){
+							var arrFiles = [
+										{fileName: '/commonspot/javascript/lightbox/overrides.js', fileType: 'script', fileID: null},
+										{fileName: '/commonspot/javascript/lightbox/window_ref.js', fileType: 'script', fileID: null}
+									];
+							loadDashboardFiles(arrFiles);
+						}	
+					</script>
+				</cfoutput>
+			</cfif>
+			<cfoutput>
+			<script type="text/javascript">
+				jQuery(document).ready(function(){
+					/*
+						Set the Jquery to initialize the ADF Lightbox
+					*/
+					initADFLB();
+					
+					/*
+						get local references to objects we need in parent frame
+						commonspot object has state, so we need that instance; others are static, but why load them again
+						var commonspot = parent.commonspot;
+					*/
+					// Run check for if commonspot.lightbox is defined yet
+					if ( (typeof commonspot != 'undefined') && (typeof commonspot.lightbox != 'undefined') ) {
+						commonspot.lightbox.initCurrent(#request.params.width#, #request.params.height#, { title: '#request.params.title#', subtitle: '#request.params.subtitle#', close: 'true', reload: 'true' });
+					}
+				});
+			</script>
+		</cfoutput>
+	</cfsavecontent>
 	<cfoutput>
 		<cfif arguments.force>
 			#outputHTML#
