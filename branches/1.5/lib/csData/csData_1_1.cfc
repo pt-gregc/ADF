@@ -600,6 +600,44 @@ History:
 
 <!---
 /* *************************************************************** */
+Author:
+	PaperThin, Inc.
+	Ryan Kahn
+Name:
+	$getCSPageByTitle
+Summary:
+	Returns CSPage from a specified subsite with a specified title
+Returns:
+	numeric
+Arguments:
+
+History:
+ 	2011-07-15 - RAK - Created
+--->
+<cffunction name="getCSPageByTitle" access="public" returntype="numeric" hint="Returns CSPage from a specified subsite with a specified title">
+	<cfargument name="csPagetitle" type="string" required="true">
+	<cfargument name="csSubsiteID" type="numeric" required="true">
+	<cfargument name="includeRegisteredURLS" type="boolean" required="false" default="true" hint="If set to false it will not search for registered URLS">
+	<cfset var csPageID = 0>
+	<cfset var getPageData = ''>
+	<cfquery name="getPageData" datasource="#request.site.datasource#">
+		select ID, subsiteID
+		from sitePages
+		where title = <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.csPagetitle#">
+		and subsiteID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.csSubsiteID#">
+		and (
+			pageType = <cfqueryparam cfsqltype="cf_sql_integer" value="#request.constants.pgTypeNormal#">
+			<cfif includeRegisteredURLS>
+				or pageType = <cfqueryparam cfsqltype="cf_sql_integer" value="#request.constants.pgTypeRegisteredURL#">
+			</cfif>
+		)
+	</cfquery>
+	<cfif getPageData.recordCount>
+		<cfset csPageID = getPageData.ID>
+	</cfif>
+	<cfreturn csPageID>
+</cffunction>
+/* *************************************************************** */
 Author: 	
 	PaperThin, Inc.
 	M. Carroll

@@ -301,6 +301,7 @@ Arguments:
 History:
 	2009-05-13 - RLW - Created
 	2011-06-16 - MFC - Updated login verification logic for success or error.
+		2011-07-14 - RAK - Made sure that the user was logged out before they logged back in again. AKA cleaned up logged in sessions
 --->
 <cffunction name="login">
 	<cfargument name="subsiteID" required="false" type="numeric" default="1">
@@ -308,6 +309,9 @@ History:
 	<cfscript>
 		var error = "";
 		var loginResult = "";
+		if(loggedIn()){
+			logout();
+		}
 		if( arguments.subsiteID gt 0 )
 			setSubsiteID(arguments.subsiteID);
 			

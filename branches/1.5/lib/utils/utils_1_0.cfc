@@ -87,9 +87,10 @@ Arguments:
 	String logFile [optional] - an alternative log file
 History:
 	2008-06-17 - RLW - Created
+	2011-07-15 - RAK - Converted msg to be able to take anything
 --->
 <cffunction name="logAppend" access="public" returntype="void">
-	<cfargument name="msg" type="string" required="true">
+	<cfargument name="msg" type="any" required="true">
 	<cfargument name="logFile" type="string" required="false" default="debug.log">
 	<cfargument name="addTimeStamp" type="boolean" required="false" default="true">
 	<cfargument name="logDir" type="string" required="false" default="#request.cp.commonSpotDir#logs/">
@@ -103,6 +104,9 @@ History:
 		<!--- Check if the file exists --->
 		<cfif NOT directoryExists(arguments.logdir)>
 			<cfdirectory action="create" directory="#arguments.logdir#">
+		</cfif>
+		<cfif !isSimpleValue(msg)>
+			<cfset msg = Application.ADF.utils.doDump(msg,"",0,1)>
 		</cfif>
 		<cffile action="append" file="#arguments.logDir##logFileName#" output="#application.adf.date.csDateFormat(utcNow,utcNow)# (UTC) - #arguments.msg#" addnewline="true">
 		<cfcatch type="any">
