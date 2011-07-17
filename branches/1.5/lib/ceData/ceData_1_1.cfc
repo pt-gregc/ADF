@@ -792,6 +792,8 @@ History:
 	2011-07-08 - MFC - Replaced variable named 'len'.
 						Added check to remove duplicate records in the source data on the delete process (in step 1a).
 						Updated the build key list in step 5 with a unique delimiter for key values that may contain "," in the text.
+	2011-07-17 - MFC - Removed update to step 5, this has been cleared up when generating the key.
+						Added call to clear the "currentElement" variable when looping in step 2.
 --->
 <cffunction name="differentialSync" access="public" returntype="struct" hint="Given a list of custom elements, create or update or optionally delete elements.">
 	<cfargument name="elementName" type="string" required="true" default="" hint="Name of the element to sync">
@@ -939,6 +941,8 @@ History:
 			newElement = arguments.newElements[i];
 			//Figure out the element's lookup key
 			currentKey = __generateStructKey(newElement,arguments.primaryKeys);
+			// Clear the variable when iterating
+			currentElement = StructNew();
 			//3. If the newElement exists in the srcElements record check to see if it changed.
 			if(StructKeyExists(srcElementStruct,currentKey)){
 				currentElement = srcElementStruct[currentKey];
@@ -968,7 +972,7 @@ History:
 				
 				if(isDifferent){
 					//We have a change on our hands! Do something!
-				   arguments.updateOverride = duplicate(updateOverride);
+				    arguments.updateOverride = duplicate(updateOverride);
 					arguments.updateOverride.args.data = newElement.values;
 					arguments.updateOverride.args.data.dataPageID = currentElement.pageID;
 					ArrayAppend(commandArray,arguments.updateOverride);
@@ -987,11 +991,10 @@ History:
 
 		//5. Loop over remaining subjectID's and delete them
 		if(arguments.preformDelete and !structIsEmpty(srcElementStruct)){
-			// 2011-07-08 - MFC - Build the key list with a unique delimiter for key values that contain ",".
-			deleteList = StructKeyList(srcElementStruct, "++");
+			deleteList = StructKeyList(srcElementStruct);
 			dataPageIDList = "";
-			for(i=1;i<=ListLen(deleteList,"++");i++){
-				currentElement = structFind(srcElementStruct,listGetAt(deleteList,i,"++"));
+			for(i=1;i<=ListLen(deleteList);i++){
+				currentElement = structFind(srcElementStruct,listGetAt(deleteList,i));
 				dataPageIDList = ListAppend(dataPageIDList,currentElement.pageID);
 			}
 			
@@ -1004,7 +1007,7 @@ History:
 			arguments.deleteOverride.args.datapageidList = dataPageIDList;
 			ArrayAppend(commandArray,arguments.deleteOverride);
 		}
-		
+
 		returnStruct.msg = "Differential sync scheduled succesfully!";
 		returnStruct.success=true;
 		if(ArrayLen(commandArray)){
@@ -1033,7 +1036,9 @@ Arguments:
 	element - struct- Element that we will get the key from
 	primaryKeys - string- String of keys to search within the element for
 History:
- 	1/20/11 - RAK - Createdring - String of keys to search within the element for
+ 	2011-01-20 - RAK - Created - String of keys to search within the element for
+	2011-07-17 - MFC - Updated to add check for the key value before adding to the tempStruct.
+					   Updated the return to encrypt the key to avoid any problems with JSON string as key.
 --->
 <cffunction name="__generateStructKey" access="private" returntype="string" hint="Helper function for getting the structures unique identifier as a string">
 	<cfargument name="element" type="struct" required="true" default="" hint="Element that we will get the key from">
@@ -1043,17 +1048,22 @@ History:
 		var pkLength = ListLen(arguments.primaryKeys);
 		var i = "";
 		var currentKey = "";
+		var keyValue = "";
 		for(i=1;i<=pkLength;i++){
 			//Insert into the struct the value from the other struct and keep its level
 			currentKey = ListGetAt(arguments.primaryKeys,i);
 			if(currentKey == "_pageID"){//Reserved pageID vkey
 				StructInsert(tempStruct,currentKey,ToString(arguments.element.pageID),true);
 			}else{
-				StructInsert(tempStruct,currentKey,StructFind(arguments.element.values,currentKey),true);
+				// Set the key value and then check if key has a value.
+				keyValue = StructFind(arguments.element.values,currentKey);		
+				if ( LEN(keyValue) )
+					StructInsert(tempStruct,currentKey,StructFind(arguments.element.values,currentKey),true);
 			}
 		}
 		rtn = SerializeJSON(tempStruct);
-		return Replace(rtn,",","","ALL");
+		// Encrypt the key to avoid any problems with JSON string as key.
+		return ENCRYPT(rtn, "diffSync", "CFMX_COMPAT", "Hex");
 	</cfscript>
 
 </cffunction>
