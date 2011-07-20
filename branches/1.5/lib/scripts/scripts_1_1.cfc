@@ -1530,7 +1530,7 @@ History:
 		<script type="text/javascript" src="/ADF/thirdparty/jquery/dump/jquery.dump.js"></script>
 	</cfsavecontent>
 	<cfoutput>
-	#variables.scriptsService.renderScriptOnce("jQueryDump",outputHTML)#
+		#variables.scriptsService.renderScriptOnce("jQueryDump",outputHTML)#
 	</cfoutput>
 </cffunction>
 
@@ -1550,13 +1550,16 @@ Arguments:
 	None
 History:
 	2011-06-22 - MTT - Created
+	2011-07-20 - RAK - Added cfOutput to the code so that it will actually print the results
 --->
 <cffunction name="loadJQueryDoTimeout" access="public" output="true" returntype="void" hint="Loads the do timeout plugin for jquery">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
 		<script type="text/javascript" src="/ADF/thirdparty/jquery/dotimeout/jquery.dotimeout.plugin.js"></script>
 	</cfsavecontent>
-	#variables.scriptsService.renderScriptOnce("jQueryDoTimeout",outputHTML)#
+	<cfoutput>
+		#variables.scriptsService.renderScriptOnce("jQueryDoTimeout",outputHTML)#
+	</cfoutput>
 </cffunction>
 
 <!---
@@ -1575,13 +1578,16 @@ Arguments:
 	None
 History:
 	2011-06-22 - MTT - Created
+	2011-07-20 - RAK - Added cfOutput to the code so that it will actually print the results
 --->
 <cffunction name="loadJQueryTextLimit" access="public" output="true" returntype="void" hint="Loads the text limit plugin for jquery">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
 		<script type="text/javascript" src="/ADF/thirdparty/jquery/textlimit/jquery.textlimit.plugin.js"></script>
 	</cfsavecontent>
-	#variables.scriptsService.renderScriptOnce("jQueryTextLimit",outputHTML)#
+	<cfoutput>
+		#variables.scriptsService.renderScriptOnce("jQueryTextLimit",outputHTML)#
+	</cfoutput>
 </cffunction>
 
 </cfcomponent>
