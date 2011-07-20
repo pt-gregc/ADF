@@ -1211,6 +1211,7 @@ History:
 	2009-11-20 - RLW - clearing HTML entities from the CPIMAGE string via trick (xmlParse())
 	2010-03-08 - MFC - Added logic when checking for numeric characters to exit the loop when
 						find the first non-numeric character.
+	2011-06-24 - RLW - Added "imageID" into the structure returned
 --->
 <cffunction name="decipherCPIMAGE" access="public" returntype="struct" hint="Returns the proper structure for an image based on the 'CPIMAGE:' text provided by CEData() calls">
 	<cfargument name="cpimage" type="string" required="true" hint="The 'CPIMAGE:' text that is returned from the CEData() call">
@@ -1240,8 +1241,10 @@ History:
 				loopCount = strLen+1;
 			}
 		}	
-		if( len(imageID) )
+		if( len(imageID) ){
 			imageData.resolvedURL.serverRelative = getImagePageURL(imageID);
+			imageData.imageID = imageID;
+		}
 	</cfscript>
 	<cfreturn imageData>
 </cffunction>
