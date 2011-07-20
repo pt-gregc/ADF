@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- // RLW 2011-03-19 - created -->
+<!-- // RLW 2011-06-24 - added csUpload to version 1.0 and version 1.5 -->
 <settings>
 	<v_1.0>
 		<!-- // ajax -->
@@ -9,6 +11,7 @@
 		<csPage_1_0/>
 		<csSubsite_1_0/>
 		<csSubsite_1_0/>
+		<csUpload_1_0/>
 		<!-- // cedata -->
 		<ceData_1_0/>
 		<!-- // csData -->
@@ -39,6 +42,7 @@
 		<csPage_1_1/>
 		<csSubsite_1_1/>
 		<csSubsite_1_1/>
+		<csUpload_1_1/>
 		<!-- // csapi -->
 		<csapi_1_0/>
 		<!-- // cedata -->
