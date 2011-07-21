@@ -698,6 +698,7 @@ History:
 	2010-12-07 - MFC - Updated the LB Properties to verify the request.params variables 
 						outside the scriptservice check. This runs the verify for every 
 						call to the load ADF LB.
+	2011-07-21 - MFC - Run check for if commonspot.lightbox is defined yet.
 --->
 <cffunction name="loadADFLightbox" access="public" output="true" returntype="void" hint="ADF Lightbox Framework for the ADF Library">
 	<cfargument name="version" type="string" required="false" default="1.0" hint="ADF Lightbox version to load">
@@ -845,7 +846,9 @@ History:
 				// get local references to objects we need in parent frame
 				// commonspot object has state, so we need that instance; others are static, but why load them again
 				//var commonspot = parent.commonspot;
-				commonspot.lightbox.initCurrent(#request.params.width#, #request.params.height#, { title: '#request.params.title#', subtitle: '#request.params.subtitle#', close: 'true', reload: 'true' });
+				if ( (typeof commonspot != 'undefined') && (typeof commonspot.lightbox != 'undefined') ) {
+					commonspot.lightbox.initCurrent(#request.params.width#, #request.params.height#, { title: '#request.params.title#', subtitle: '#request.params.subtitle#', close: 'true', reload: 'true' });
+				}
 			});
 		</script>
 		</cfoutput>
