@@ -56,12 +56,18 @@ History:
 	2009-07-20 - MFC - Created
 	2009-11-11 - MFC - Update to force flag to not log the script loaded when forced.
 	2010-08-26 - MFC - Updated to load 1.4 by default
+	2011-07-21 - MFC - Force jQuery no conflict when in CS 6.2 or above.
 --->
 <cffunction name="loadJQuery" access="public" output="true" returntype="void" hint="Loads the JQuery Headers if not loaded.">
 	<cfargument name="version" type="string" required="false" default="1.4" hint="JQuery version to load.">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfargument name="noConflict" type="boolean" required="false" default="0" hint="JQuery no conflict flag.">
 
+	<cfscript>
+		// 2011-07-21 - MFC - Force jQuery no conflict when in CS 6.2 or above.
+		if ( StructKeyExists(application.ADF, "csVersion") AND (application.ADF.csVersion GTE 6.2) )
+			arguments.noConflict = true;
+	</cfscript>
 	<!--- Check if the header is out yet, or we want to force rendering --->
 	<cfif (not variables.scriptsService.isScriptLoaded("jQuery")) OR (arguments.force)>
 		<cfoutput>
