@@ -1590,4 +1590,34 @@ History:
 	</cfoutput>
 </cffunction>
 
+<!---
+/* ***************************************************************
+/*
+Author:
+	Fig Leaf Software
+	Mike Tangorre (mtangorre@figleaf.com)
+Name:
+	$loadJQueryFileUpload
+Summary:
+	Loads the file upload jQuery plugin
+Returns:
+	None
+Arguments:
+	None
+History:
+	2011-07-26 - MTT - Created
+--->
+<cffunction name="loadJQueryFileUpload" access="public" output="true" returntype="void" hint="Loads the file upload plugin for jquery">
+	<cfset var outputHTML = "">
+	<cfsavecontent variable="outputHTML">
+		<link rel="stylesheet" href="/ADF/thirdparty/jquery/fileupload/jquery.fileupload-ui.css">
+		<script type="text/javascript" src="/ADF/thirdparty/jquery/fileupload/jquery.iframe-transport.js"></script>
+		<script type="text/javascript" src="/ADF/thirdparty/jquery/fileupload/jquery.fileupload.js"></script>
+		<script type="text/javascript" src="/ADF/thirdparty/jquery/fileupload/jquery.fileupload-ui.js"></script>
+	</cfsavecontent>
+	<cfoutput>
+		#variables.scriptsService.renderScriptOnce("jQueryFileUpload",outputHTML)#
+	</cfoutput>
+</cffunction>
+
 </cfcomponent>
