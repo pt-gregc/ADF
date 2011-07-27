@@ -1327,16 +1327,18 @@ Arguments:
 History:
  	2010-10-26 - RAK - Created
 	2011-06-24 - GAC - Added CFOUTPUTS around the renderScriptOnce method call
+	2011-07-27 - MTT - Added the version argument. Created a folder for each version inside of /uploadify and renamed each minified version of the uploadify js file to jquery.uploadify.min.js (removing the version numbers from the file names). This lets us keep all the packaged files together per version.
 --->
-<cffunction name="loadUploadify" access="public" output="true" returntype="void" hint="Loads the uploadify plugin for jQuery"> 
+<cffunction name="loadUploadify" access="public" output="true" returntype="void" hint="Loads the uploadify plugin for jQuery">
+	<cfargument name="version" type="string" required="false" default="2.1.0" hint="JQuery Uploadify plugin version to load.">
 	<cfset var outputHTML = "">
 	<cfoutput>
 		#loadSWFObject()#
 	</cfoutput>
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
-			<link rel="stylesheet" href="/ADF/thirdParty/jquery/uploadify/uploadify.css" type="text/css" media="screen" />
-			<script type='text/javascript' src='/ADF/thirdParty/jquery/uploadify/jquery.uploadify.v2.1.0.min.js'></script>
+			<link rel="stylesheet" href="/ADF/thirdParty/jquery/uploadify/#arguments.version#/uploadify.css" type="text/css" media="screen" />
+			<script type='text/javascript' src='/ADF/thirdParty/jquery/uploadify/#arguments.version#/jquery.uploadify.min.js'></script>
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
