@@ -37,6 +37,7 @@ ADF Requirements:
 History:
 	2009-07-06 - MFC - Created
 	2011-05-26 - GAC - Modified - added a class parameter and updated the id attributes on the input field
+	2011-07-19 - GAC - Modified - added a parameter to assign the stored value (ie. 1, Yes or True )
 --->
 <cfscript>
 	// initialize some of the attributes variables
@@ -49,6 +50,10 @@ History:
 		currentValues.renderField = "yes";
 	if( not structKeyExists(currentValues, "defaultVal") )
 		currentValues.defaultVal = "no";
+	if( not structKeyExists(currentValues, "checkedVal") )
+		currentValues.checkedVal = "yes";
+	if( not structKeyExists(currentValues, "uncheckedVal") )
+		currentValues.uncheckedVal = "no";
 	if( not structKeyExists(currentValues, "fldName") )
 		currentValues.fldName = "";
 	if( not structKeyExists(currentValues, "fldClass") )
@@ -57,21 +62,30 @@ History:
 
 <cfoutput>
 <script type="text/javascript">
-	fieldProperties['#typeid#'].paramFields = "#prefix#renderField,#prefix#defaultVal,#prefix#fldName,#prefix#fldClass";
+	fieldProperties['#typeid#'].paramFields = "#prefix#renderField,#prefix#defaultVal,#prefix#fldName,#prefix#fldClass,#prefix#checkedVal,#prefix#uncheckedVal";
 	// allows this field to support the orange icon (copy down to label from field name)
 	fieldProperties['#typeid#'].jsLabelUpdater = '#prefix#doLabel';
 	// allows this field to have a common onSubmit Validator
-	//fieldProperties['#typeid#'].jsValidator = '#prefix#doValidate';
+	fieldProperties['#typeid#'].jsValidator = '#prefix#doValidate';
 	// handling the copy label function
 	function #prefix#doLabel(str)
 	{
 		document.#formname#.#prefix#label.value = str;
 	}
-
+	function #prefix#doValidate()
+	{
+		if( jQuery("###prefix#checkedVal").attr("value").length == 0 )
+		{
+			alert('Please enter a valid Checked value for the checkbox');
+			jQuery("###prefix#checkedVal").focus();
+			return false;
+		}
+		return true;
+	}
 </script>
 <table>
 	<tr>
-		<td class="cs_dlgLabelSmall">Field Name:</td>
+		<td class="cs_dlgLabelSmall">Field ID:</td>
 		<td class="cs_dlgLabelSmall">
 			<input type="text" name="#prefix#fldName" id="#prefix#fldName" value="#currentValues.fldName#" size="40">
 			<br/><span>Please enter the field name to be used via JavaScript.  If blank, will use default name.</span>
@@ -96,6 +110,20 @@ History:
 		<td class="cs_dlgLabelSmall">
 			<input type="radio" name="#prefix#defaultVal" id="#prefix#defaultVal" value="yes" <cfif currentValues.defaultVal eq 'yes'>checked</cfif>>Checked
 			<input type="radio" name="#prefix#defaultVal" id="#prefix#defaultVal" value="no" <cfif currentValues.defaultVal eq 'no'>checked</cfif>>Unchecked
+		</td>
+	</tr>
+	<tr>
+		<td class="cs_dlgLabelSmall">Checked Value: (Required)</td>
+		<td class="cs_dlgLabelSmall">
+			<input type="text" name="#prefix#checkedVal" id="#prefix#checkedVal" class="cs_dlgControl" value="#currentValues.checkedVal#">
+			<br/><span>Indicate the value that is stored when the checkbox is <strong>Checked</strong>.</span>
+		</td>
+	</tr>
+	<tr>
+		<td class="cs_dlgLabelSmall">Unchecked Value: </td>
+		<td class="cs_dlgLabelSmall">
+			<input type="text" name="#prefix#uncheckedVal" id="#prefix#uncheckedVal" class="cs_dlgControl" value="#currentValues.uncheckedVal#">
+			<br/><span>Indicate the value that is stored when the checkbox is <strong>Unchecked</strong>. Default is 'no'. This field can also be blank.</span>
 		</td>
 	</tr>
 </table>

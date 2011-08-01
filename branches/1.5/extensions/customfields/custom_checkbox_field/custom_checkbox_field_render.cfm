@@ -54,16 +54,24 @@ History:
 		xparams.fldName = fqFieldName;
 	else if ( LEN(TRIM(xparams.fldName)) EQ 0 )
 		xparams.fldName = ReplaceNoCase(xParams.fieldName,'fic_','');
+	
+	// Set the value that is stored when the checkbox is checked
+	if ( NOT StructKeyExists(xparams, "checkedVal") )
+		xparams.checkedVal = "yes";
+	// Set the value that is stored when the checkbox is checked
+	if ( NOT StructKeyExists(xparams, "uncheckedVal") )
+		xparams.uncheckedVal = "no";
 		
 	// Set the field ID from the field name
 	xparams.fldID = TRIM(xparams.fldName);
 	
 	// Check the default value
-	if ( LEN(currentValue) LTE 0 ) {
-		currentValue = 'no';
+	if ( LEN(currentValue) LTE 0 ) 
+	{
+		currentValue = xparams.uncheckedVal; //'no'
 		// If defaulted to checked
 		if ( xparams.defaultVal EQ "yes" )
-			currentValue = 'yes';
+			currentValue = xparams.checkedVal; //'yes'
 	}
 	
 	// find if we need to render the simple form field
@@ -92,7 +100,8 @@ History:
 			if ( '#xparams.renderField#' == 'yes' ) {
 			
 				// Set the value of the checkbox
-				if ( jQuery('input[name=#fqFieldName#]').val() == 'yes' || jQuery('input[name=#fqFieldName#]').val() == 1 ) {
+				if ( jQuery('input[name=#fqFieldName#]').val() == '#xparams.checkedVal#' ) // || jQuery('input[name=#fqFieldName#]').val() == 1
+				{
 					jQuery('###xparams.fldID#_checkbox').attr('checked', 'checked');
 				}
 							
@@ -101,9 +110,9 @@ History:
 					// Check the checkbox status
 					//if ( jQuery('###xparams.fldID#_checkbox:checked').val() == 'yes' )
 					if ( jQuery(this).attr("checked") )
-						currVal = "yes";
+						currVal = "#xparams.checkedVal#";
 					else
-						currVal = "no";
+						currVal = "#xparams.uncheckedVal#";
 					// Set the form field
 					jQuery('input[name=#fqFieldName#]').val(currVal);
 					
@@ -116,47 +125,24 @@ History:
 			}
 		});
 	</script>
-	<!--- hidden field to store the value --->
 	
-	<cfscript>
-		if ( structKeyExists(request, "element") )
-		{
-			labelText = '<span class="CS_Form_Label_Baseline"><label for="#fqFieldName#">#xParams.label#:</label></span>';
-			tdClass = 'CS_Form_Label_Baseline';
-		}
-		else
-		{
-			labelText = '<label for="#fqFieldName#">#xParams.label#:</label>';
-			tdClass = 'cs_dlgLabel';
-		}
-	</cfscript>
-	<tr id="#fqFieldName#_fieldRow">
-		<td class="#tdClass#" valign="top" nowrap="nowrap">
-			<!--- <font face="Verdana,Arial" color="##000000" size="2"> --->
-				<cfif xparams.req eq "Yes"><strong></cfif>
-				#labelText#
-				<cfif xparams.req eq "Yes"></strong></cfif>
-			<!--- </font> --->
-		</td>
-		<td class="cs_dlgLabelSmall">
-			<cfscript>
-				// Get the list permissions and compare
-				commonGroups = server.ADF.objectFactory.getBean("data_1_0").ListInCommon(request.user.grouplist, xparams.pedit);
-				// Set the read only 
-				readOnly = true;
-				// Check if the user does have edit permissions
-				if ( (xparams.UseSecurity EQ 0) OR ( (xparams.UseSecurity EQ 1) AND (ListLen(commonGroups)) ) )
-					readOnly = false;
-			</cfscript>
+<!---
+	This version is using the wrapFieldHTML functionality, what this does is it takes
+	the HTML that you want to put into the TD of the right section of the display, you
+	can optionally disable this by adding the includeLabel = false (fourth parameter)
+	when false it simply creates a TD and puts your content inside it. This wrapper handles
+	everything from description to simple form field handling.
+--->
+
+	<cfsavecontent variable="inputHTML">
+		<cfoutput>
 			<div id="#fqFieldName#_renderCheckbox">
 				<!--- <input type='checkbox' name='#fqFieldName#_checkbox' id='#fqFieldName#_checkbox' value='yes' <cfif readOnly>readonly="true"</cfif>> --->
 				<input type='checkbox' name='#fqFieldName#_checkbox' id='#xparams.fldID#_checkbox'<cfif LEN(TRIM(xparams.fldClass))> class="#xparams.fldClass#"</cfif> value='yes' <cfif readOnly>readonly="true"</cfif>>
 			</div>
-		</td>
-	</tr>
-	<input type='hidden' name='#fqFieldName#' id='#xparams.fldID#' value='#currentValue#'>
-	<!--- // include hidden field for simple form processing --->
-	<cfif renderSimpleFormField>
-		<input type="hidden" name="#fqFieldName#_FIELDNAME" id="#fqFieldName#_FIELDNAME" value="#ReplaceNoCase(xParams.fieldName, 'fic_','')#">
-	</cfif>
+			<!--- hidden field to store the value --->
+			<input type='hidden' name='#fqFieldName#' id='#xparams.fldID#' value='#currentValue#'>
+		</cfoutput>
+	</cfsavecontent>
+	#application.ADF.forms.wrapFieldHTML(inputHTML,fieldQuery,attributes)#
 </cfoutput>
