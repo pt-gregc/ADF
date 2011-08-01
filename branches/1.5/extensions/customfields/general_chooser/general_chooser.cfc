@@ -403,6 +403,7 @@ History:
 	2011-01-14 - MFC - Updated for ADF V1.5 to build in edit/delete icons and actions.
 	2011-03-20 - MFC - Added flag for Edit/Delete links to the item row.
 	2011-03-27 - MFC - Updates for IE styling.
+	2011-08-01 - GAC - Added a closing DIV to the itemCell inside the LI tags in the retHTML
 --->
 <cffunction name="getSelections" access="public" returntype="string" hint="Returns the html code for the selections of the profile select custom element.">
 	<cfargument name="item" type="string" required="false" default="">
@@ -435,7 +436,7 @@ History:
 				    itemCls = itemCls & " itemEditDelete";
 				}
 				// Build the item, and add the Edit/Delete links
-				retHTML = retHTML & "<li id='#ceDataArray[i].Values[variables.CE_FIELD]#' class='#itemCls#'><div class='itemCell'>#LEFT(ceDataArray[i].Values[variables.ORDER_FIELD],26)##editDeleteLinks#</li>";
+				retHTML = retHTML & "<li id='#ceDataArray[i].Values[variables.CE_FIELD]#' class='#itemCls#'><div class='itemCell'>#LEFT(ceDataArray[i].Values[variables.ORDER_FIELD],26)##editDeleteLinks#</div></li>";
 			}
 		}
 	</cfscript>
