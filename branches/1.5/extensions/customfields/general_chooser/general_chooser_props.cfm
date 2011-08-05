@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
  
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2011.
+PaperThin, Inc. Copyright(C) 2010.
 All Rights Reserved.
  
 By downloading, modifying, distributing, using and/or accessing any files
@@ -19,7 +19,8 @@ end user license agreement.
 --->
 
 <!---
-/* *************************************************************** */
+/* ***************************************************************
+/*
 Author: 	
 	PaperThin, Inc.
 	Michael Carroll 
@@ -30,12 +31,10 @@ Name:
 Summary:
 	General Chooser field type.
 	Allows for selection of the custom element records.
-Version:
-	1.1.0
+ADF Requirements:
+	lib/scripts/SCRIPTS_1_0
 History:
 	2009-05-29 - MFC - Created
-	2011-03-20 - MFC - Updated component to simplify the customizations process and performance.
-						Removed Ajax loading process.
 --->
 <cfscript>
 	// initialize some of the attributes variables
