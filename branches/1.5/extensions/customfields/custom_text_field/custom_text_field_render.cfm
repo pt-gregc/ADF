@@ -36,6 +36,7 @@ ADF Requirements:
 History:
 	2009-10-15 - MFC - Created
 	2011-02-08 - MFC - Updated the "fldName" prop to "fldID" variable.
+	2011-06-30 - MFC - Changed ADF server object call to Data_1_0 to call "application.ADF.data".
 --->
 <cfscript>
 	// the fields current value
@@ -112,7 +113,7 @@ History:
 		<td class="cs_dlgLabelSmall">
 			<cfscript>
 				// Get the list permissions and compare
-				commonGroups = server.ADF.objectFactory.getBean("data_1_0").ListInCommon(request.user.grouplist, xparams.pedit);
+				commonGroups = application.ADF.data.ListInCommon(request.user.grouplist, xparams.pedit);
 				// Set the read only 
 				readOnly = true;
 				// Check if the user does have edit permissions
