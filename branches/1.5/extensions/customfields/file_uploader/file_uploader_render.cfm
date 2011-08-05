@@ -17,6 +17,19 @@ By downloading, modifying, distributing, using and/or accessing any files
 in this directory, you agree to the terms and conditions of the applicable 
 end user license agreement.
 --->
+<!---
+/* *********************************************************************** */
+Author:
+	PaperThin, Inc.
+	Ryan Kahn
+Name:
+	file_Upload_Render.cfm
+Summary:
+	Renders the file upload form
+History:
+	2011-08-05 - RAK - Created
+	2011-08-05 - RAK - Fixed issues related to PDF file uploads
+--->
 <cfscript>
 	application.ADF.scripts.loadJQuery();
 	application.ADF.scripts.loadADFLightbox();
@@ -50,6 +63,13 @@ end user license agreement.
 	fieldDefaultValues = application.ADF.ceData.getFieldParamsByID(fieldQuery.inputID);
 	filePath = fieldDefaultValues.filePath;
 	imageURL = "/ADF/extensions/customfields/file_uploader/handleFileDownload.cfm?subsiteURL=#request.subsite.url#&fieldID=#fieldQuery.inputID#&filename=";
+	concatenator = "";
+	if(Find('/',filePath)){
+		concatenator = '/';
+	}else{
+		concatenator = '\\';
+	}
+	filePath = Replace(filePath,"\","\\","ALL");
 </cfscript>
 <cfoutput>
 	<script>
@@ -66,14 +86,18 @@ end user license agreement.
 		});
 
 		function #fqFieldName#handleFileUploadComplete(fileName,fileValue){
+			console.log(fileName);
+			console.log(fileValue);
 <!---			<img src='#imageURL##fileValue#'>--->
-			jQuery.post("#application.ADF.ajaxProxy#",{
-				bean: "utils_1_1",
-				method: "getThumbnailOfResource",
-				filePath: '#filePath#/'+fileValue
-			},function(results){
-				jQuery("###fqFieldName#_thumbnail").html('<img src="#imageURL#'+encodeURI(results)+'">');
-			});
+			if( /[^.]+$/.exec(fileName) == "pdf"){
+				jQuery.post("#application.ADF.ajaxProxy#",{
+					bean: "utils_1_1",
+					method: "getThumbnailOfResource",
+					filePath: '#filePath##concatenator#'+fileValue
+				},function(results){
+					jQuery("###fqFieldName#_thumbnail").html('<img src="#imageURL#'+encodeURI(results)+'">');
+				});
+			}
 			jQuery("###fqFieldName#_currentSelection").html(fileName);
 			jQuery("###fqFieldName#").val(fileValue);
 //			jQuery("##errorMsg_#fqFieldName#").html("Upload Success!");
@@ -114,7 +138,7 @@ end user license agreement.
 	<tr>
 		<td class="#tdClass#" valign="top">#labelText#</td>
 		<td class="cs_dlgLabelSmall">
-			<div style="min-height:100px">
+			<div>
 				<div id="#fqFieldName#_currentSelection">#currentValue#</div>
 				<div id="#fqFieldName#_thumbnail"></div>
 				<div id="uploadHolder_#fqFieldName#" style="min-width:475px">
