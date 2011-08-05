@@ -28,7 +28,7 @@ Summary:
 	Renders the file upload form
 History:
 	2011-08-05 - RAK - Created
-	2011-08-05 - RAK - Fixed issues related to PDF file uploads
+	2011-08-05 - RAK - fixed issue where the file uploader would try to generate images for non-pdf files.
 --->
 <cfscript>
 	application.ADF.scripts.loadJQuery();
@@ -86,8 +86,6 @@ History:
 		});
 
 		function #fqFieldName#handleFileUploadComplete(fileName,fileValue){
-			console.log(fileName);
-			console.log(fileValue);
 <!---			<img src='#imageURL##fileValue#'>--->
 			if( /[^.]+$/.exec(fileName) == "pdf"){
 				jQuery.post("#application.ADF.ajaxProxy#",{
