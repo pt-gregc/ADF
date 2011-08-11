@@ -18,8 +18,7 @@ in this directory, you agree to the terms and conditions of the applicable
 end user license agreement.
 --->
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	
 	PaperThin, Inc.
 	Ron West 
@@ -29,6 +28,7 @@ Name:
 	app_config_page_props.cfm
 History:
 	RLW - Created
+	2011-08-11 - GAC - Updated - Set to use the application.ADF.scripts instead of the objectFactory.getBean
 --->
 <cfscript>
 	// initialize some of the attributes variables
@@ -36,9 +36,13 @@ History:
 	prefix = attributes.prefix;
 	formname = attributes.formname;
 	currentValues = attributes.currentValues;
-	scripts = server.ADF.objectFactory.getBean("scripts_1_0");
-	scripts.loadJQuery();
-	scripts.loadJQueryUI();
+	
+	//scripts = server.ADF.objectFactory.getBean("scripts_1_0");
+	//scripts.loadJQuery();
+	//scripts.loadJQueryUI();
+	
+	application.ADF.scripts.loadJQuery();
+	application.ADF.scripts.loadJQueryUI();
 </cfscript>
 <cfparam name="currentValues.scriptURL" default="">
 <cfparam name="currentValues.pagePart" default="pageURL">
