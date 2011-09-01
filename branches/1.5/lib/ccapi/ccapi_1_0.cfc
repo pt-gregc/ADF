@@ -318,7 +318,6 @@ History:
 			setSubsiteID(arguments.subsiteID);
 		}
 
-
 		loginResult = variables.ws.csLogin(
 			site = getSiteURL(),
 			csUserID = getCSUserID(),
