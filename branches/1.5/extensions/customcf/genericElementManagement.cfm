@@ -31,13 +31,11 @@ History:
 	2011-09-01 - RAK - Created
 --->
 <cfoutput>
-	<cfif structKeyExists(attributes,"elementName")>
+	<cfif structKeyExists(attributes,"elementName") and Len(attributes.elementName)>
 		<cfscript>
 			application.ADF.scripts.loadJQuery();
 			application.ADF.scripts.loadJQueryUI();
 			application.ADF.scripts.loadADFLightbox();
-			elementFormID = application.ADF.ceData.getFormIDByCEName(attributes.elementName);
-			customControlName = "customManagementFor#replace(attributes.elementName,' ','','ALL')#";
 		</cfscript>
 		<style>
 			input.ui-button:hover{
@@ -46,6 +44,7 @@ History:
 		</style>
 		<script type="text/javascript">
 			jQuery(document).ready(function(){
+				jQuery('##tabs').tabs();
 				// Hover states on the static widgets
 				jQuery("input.ui-button").hover(
 					function() {
@@ -57,15 +56,29 @@ History:
 				);
 			});
 		</script>
-		<input type="button"
-				rel="#application.ADF.ajaxProxy#?bean=Forms_1_1&method=renderAddEditForm&formID=#elementFormID#&lbAction=refreshparent&title=New #attributes.elementName#&datapageid=0"
-				class="ADFLightbox ui-button ui-state-default ui-corner-all"
-				value="New #attributes.elementName#" />
-		<br/>
-		<br/>
-		<CFMODULE TEMPLATE="/commonspot/utilities/ct-render-named-element.cfm"
-			elementtype="datasheet"
-			elementName="#customControlName#">
+		<div id="tabs">
+			<cfloop from="1" to="#listLen(attributes.elementName)#" index="i">
+				<ul>
+					<li><a href="##tabs-#i#" title="tabs-#i#">#ListGetAt(attributes.elementName,i)#</a></li>
+				</ul>
+			</cfloop>
+			<cfloop from="1" to="#listLen(attributes.elementName)#" index="i">
+				<cfscript>
+					elementName = ListGetAt(attributes.elementName,i);
+					elementFormID = application.ADF.ceData.getFormIDByCEName(elementName);
+					customControlName = "customManagementFor#replace(elementName,' ','','ALL')#";
+				</cfscript>
+				<input type="button"
+						rel="#application.ADF.ajaxProxy#?bean=Forms_1_1&method=renderAddEditForm&formID=#elementFormID#&lbAction=refreshparent&title=New #attributes.elementName#&datapageid=0"
+						class="ADFLightbox ui-button ui-state-default ui-corner-all"
+						value="New #elementName#" />
+				<br/>
+				<br/>
+				<CFMODULE TEMPLATE="/commonspot/utilities/ct-render-named-element.cfm"
+					elementtype="datasheet"
+					elementName="#customControlName#">
+			</cfloop>
+		</div>
 	<cfelse>
 		Please add the parameter of elementName=My Element Name so this administration page can function.
 	</cfif>
