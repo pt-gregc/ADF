@@ -41,7 +41,7 @@ end user license agreement.
 <cfsavecontent variable="tdHTML">
 	<cfoutput>
 		<td>
-			<cfif StructKeyExists(request.subsiteCache,subsiteID)>
+			<cfif  Len(subsiteID) and StructKeyExists(request.subsiteCache,subsiteID)>
 				<a href="#request.subsiteCache[subsiteID].url#">
 					#request.subsiteCache[subsiteID].url#
 				</a>
