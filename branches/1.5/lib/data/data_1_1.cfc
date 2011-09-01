@@ -504,17 +504,20 @@ Returns:
 	array
 Arguments:
 	array - aOfS - Array of structure data set.
-	string - orderByKeyList - Structure keys to sort the Array.  
+	string - orderByKeyList - Structure keys to sort the Array.
+	Boolean - forceColsToVarchar  
 History:
 	2011-04-04 - MFC - Created
+	2011-09-01 - GAC - Modified - Added a flag to force all query columns to be varchar datatype
 --->
 <cffunction name="arrayOfStructsSortMultiKeys" access="public" returntype="array" output="true" hint="Sorts an Array Of Structures based on the multiple structure keys.">
 	<cfargument name="aOfS" type="array" required="true">
 	<cfargument name="orderByKeyList" type="string" required="true">
-
+	<cfargument name="forceColsToVarchar" type="boolean" default="false" required="false">	
+	
 	<cfscript>
 		// Make the array an query
-		var aOfSQry = arrayOfStructuresToQuery(arguments.aOfS);
+		var aOfSQry = arrayOfStructuresToQuery(theArray=arguments.aOfS,forceColsToVarchar=arguments.forceColsToVarchar);
 		var sortedQry = "";
 	</cfscript>
 	<!--- Query the data set to ORDER BY --->

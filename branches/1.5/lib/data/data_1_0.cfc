@@ -123,12 +123,14 @@ Returns:
 	Query
 Arguments:
 	Array
+	Boolean - forceColsToVarchar
 History:
 	2009-01-20 - MFC - Created
+	2011-09-01 - GAC - Modified - Added a flag to force all query columns to be varchar datatype
 --->
 <cffunction name="arrayOfStructuresToQuery" access="public" returntype="query">
 	<cfargument name="theArray" type="array" required="true">
-
+	<cfargument name="forceColsToVarchar" type="boolean" default="false" required="false">	
 	<cfscript>
 		/**
 		* Converts an array of structures to a CF Query Object.
@@ -142,16 +144,31 @@ History:
 		* @version 2, March 19, 2003
 		*/
 	    var colNames = "";
-	    var theQuery = queryNew("");
+	    var theQuery = QueryNew("tmp");
 	    var i=0;
 	    var j=0;
+	    var c=0;
+	    var colNamesList = "";
+	    var colTypesList = "";
 	    //if there's nothing in the array, return the empty query
-	    if(NOT arrayLen(arguments.theArray))
+	    if ( NOT arrayLen(arguments.theArray) )
 	        return theQuery;
 	    //get the column names into an array =
 	    colNames = structKeyArray(arguments.theArray[1]);
+	    //convert the colNames Array to a list
+	    colNamesList = arrayToList(colNames);
 	    //build the query based on the colNames
-	    theQuery = queryNew(arrayToList(colNames));
+	    if ( arguments.forceColsToVarchar )
+	    {
+	  		// Create a dataTypes list of all VarChar to pass in to the QueryNew function 
+	  		for ( c=1; c LTE ListLen(colNamesList); c=c+1)
+	    		colTypesList = ListAppend(colTypesList,"VarChar");
+	    	theQuery = queryNew(colNamesList,colTypesList);    
+	    }
+	    else
+	    {
+	    	theQuery = queryNew(colNamesList);
+	    }
 	    //add the right number of rows to the query
 	    queryAddRow(theQuery, arrayLen(arguments.theArray));
 	    //for each element in the array, loop through the columns, populating the query
