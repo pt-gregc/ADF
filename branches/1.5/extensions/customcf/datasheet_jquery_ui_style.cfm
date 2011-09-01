@@ -40,6 +40,7 @@ History:
 						- This moves the call to getFormIDByCEName inside the buildAddEditLink method call
 						- This moves the lightbox URL variable "application.ADF.ajaxProxy" to inside the buildAddEditLink and updates it to application.ADF.lightboxProxy for ADF 1.5
 	2011-06-23 - MFC - Updated to allow for adding this custom script directly to the page using attributes.
+	2011-08-23 - MFC - Updated to allow JQuery UI theme as custom element attributes.
 --->
 
 <!--- STEPS TO IMPLEMENT
@@ -48,6 +49,8 @@ Option 1:
 		/ADF/extensions/customcf/datasheet_jquery_ui_style.cfm
 	2. Define the Custom Script parameters with the following variables:
 		ceName={NAME OF THE CUSTOM ELEMENT}
+	3. Optional - Define the JQuery UI Theme parameters with the following variables:
+		uiTheme={NAME OF THE JQuery UI Theme}
 Option 2:
 	1. Copy this script to your site "/customcf/" directory.
 	2. Rename the copied file to specify the custom element name
@@ -61,6 +64,8 @@ Option 2:
 	ceName = "";
 	// TODO - Add the text for the button to Add New.
 	request.params.addButtonTitle = "Add New Record";
+	// TODO - Set the jQuery UI Theme 
+	uiTheme = "ui-lightness";
 	
 	// Check if the "ceName" is defined in the attributes
 	if ( StructKeyExists(attributes,"ceName") ) {
@@ -68,8 +73,10 @@ Option 2:
 		request.params.addButtonTitle = "Add New #ceName#";
 	}
 	
-	// TODO - Set the jQuery UI Theme 
-	uiTheme = "ui-lightness";
+	// Check if the "ceName" is defined in the attributes
+	if ( StructKeyExists(attributes,"uiTheme") ) {
+		uiTheme = attributes.uiTheme;
+	}
 	
 	// Load the jQuery scripts 
 	application.ADF.scripts.loadJQuery();
