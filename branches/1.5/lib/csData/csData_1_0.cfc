@@ -1212,35 +1212,20 @@ History:
 	2010-03-08 - MFC - Added logic when checking for numeric characters to exit the loop when
 						find the first non-numeric character.
 	2011-06-24 - RLW - Added "imageID" into the structure returned
+	2011-09-06 - RAK - Removed the bulk of the logic to get the ID and replaced it with a single regular expression
 --->
 <cffunction name="decipherCPIMAGE" access="public" returntype="struct" hint="Returns the proper structure for an image based on the 'CPIMAGE:' text provided by CEData() calls">
 	<cfargument name="cpimage" type="string" required="true" hint="The 'CPIMAGE:' text that is returned from the CEData() call">
 	<cfscript>
 		var imageData = structNew();
-		var imageID = "";		
-		var strLen = "";
-		var loopCount = 1;
-		var str = "";
-		arguments.cpimage = xmlParse('<xml>' & listRest(arguments.cpimage, ":") & '</xml>').xmlRoot.xmlText;
-		strLen = len(arguments.cpimage);
-		imageData.resolvedURL = structNew();
-		imageData.resolvedURL.serverRelative = "";
-		// TODO
-		// should set other image detailed data like absoulte and alt text
-		// loop through the imageID until we get a non-numeric number
-		while( (loopCount lte strLen) )
-		{
-			str = mid(arguments.cpimage, loopCount, 1);
-			// Get the numeric value and keep the loop going
-			if( isNumeric(str) ) {
-				imageID = imageID & str;
-				loopCount = loopCount + 1;
-			}
-			else {
-				// First non-numeric value so get out of the loop
-				loopCount = strLen+1;
-			}
-		}	
+		var imageID = "";
+		//Search for a string that starts with CPIMAGE: and then in the second result set return all the numbers
+		var reResults = reFind("^CPIMAGE:([0-9]*)",arguments.cpimage ,0,true);
+		if(ArrayLen(reResults.LEN) gt 1){
+			//If we have more than 1 result we found the ID
+			//Get the ID out of the string by getting the mid to length of the second result in the RE find.
+			imageID = Mid(arguments.cpimage,reResults.pos[2],reResults.len[2]);
+		}
 		if( len(imageID) ){
 			imageData.resolvedURL.serverRelative = getImagePageURL(imageID);
 			imageData.imageID = imageID;
