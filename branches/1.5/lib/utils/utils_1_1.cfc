@@ -381,6 +381,7 @@ Arguments:
 
 History:
  	2011-07-25 - RAK - copied from http://www.cflib.org/index.cfm?event=page.udfbyid&udfid=40
+	2011-09-07 - GAC - Removed all of IsDefined() functions and replaced them with StructKeyExists()... sorry Ben F! ... no IsDefined's allowed!
 --->
 <cffunction name="numberAsString" access="public" returntype="string" hint="Returns a number converte dinto a string (i.e. 1 becomes 'one')">
 	<cfargument name="number" type="numeric" required="true" default="" hint="Number to convert into string">
@@ -402,7 +403,7 @@ History:
 		// Initialize strings
 		// Strings are "externalized" to simplify
 		// changing text or translating
-		if (NOT IsDefined("REQUEST.Strs"))
+		if ( NOT StructKeyExists(REQUEST,"Strs") )
 		{
 			REQUEST.Strs=StructNew();
 			REQUEST.Strs.space=" ";
@@ -443,7 +444,7 @@ History:
 		}
 
 		// Save strings to an array once to improve performance
-		if (NOT IsDefined("REQUEST.StrsA"))
+		if ( NOT StructKeyExists(REQUEST,"StrsA") )
 		{
 			// Arrays start at 1, to 1 contains 0
 			// 2 contains 1, and so on
