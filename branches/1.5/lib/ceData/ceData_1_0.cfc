@@ -1136,9 +1136,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	M. Carroll
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
 Name:
 	$getFormIDFromPageID
 Summary:
@@ -1147,11 +1148,14 @@ Returns:
 	Numeric - Form ID
 Arguments:
 	Numeric - PageID - Data Page ID
+	Numeric - ControlID - Control ID
 History:
 	2009-07-14 - MFC - Created
+	2011-08-30 - MFC - Added new control ID for local custom elements.
 --->
 <cffunction name="getFormIDFromPageID" access="public" returntype="numeric" hint="Returns the Form ID for the Page ID.">
 	<cfargument name="pageid" type="Numeric" required="true">
+	<cfargument name="controlid" type="Numeric" required="false" default="0">
 	
 	<cfset var getDataFieldValues = queryNew("temp")>
 	<!--- Query to get the data for the custom element by pageid --->
@@ -1159,6 +1163,9 @@ History:
 		SELECT    FormID
         FROM      Data_FieldValue 
 		WHERE     PageID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.pageid#">
+		<cfif arguments.controlid GT 0>
+			AND   ControlID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.controlid#">
+		</cfif>
 		AND 	  VersionState = 2
 	</cfquery>
 	<!--- Check that we have a query values --->
