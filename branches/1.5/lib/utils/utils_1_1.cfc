@@ -67,6 +67,7 @@ History:
 	2011-02-09 - GAC - Modified - renamed the 'local' variable to 'result' since local is a reserved word in CF9
 	2011-04-19 - RAK - Modified loading beans by bean name to not use evaluate and added fallback for application.ADF.beanName
 	2011-05-17 - RAK - Verified we were able to find the bean before we invoked commands upon it
+	2011-09-07 - GAC - Modified - added a TRY/CATCH around the CFINVOKE and an ELSE to the IsObject() check to help with error handling
 --->
 <cffunction name="runCommand" access="public" returntype="Any" hint="Runs the given command">
 	<cfargument name="beanName" type="string" required="true" default="" hint="Name of the bean you would like to call">
@@ -79,22 +80,36 @@ History:
 		// if there has been an app name passed through go directly to that
 		if( Len(arguments.appName)
 				and StructKeyExists(application, arguments.appName)
-				and StructKeyExists(StructFind(application,arguments.appName), arguments.beanName)){
+				and StructKeyExists(StructFind(application,arguments.appName), arguments.beanName) )
+		{
 			bean = StructFind( StructFind(application,arguments.appName),arguments.beanName);
 		// check in application scope
-		}else if( application.ADF.objectFactory.containsBean(arguments.beanName) ){
+		}
+		else if ( application.ADF.objectFactory.containsBean(arguments.beanName) )
+		{
 			bean = application.ADF.objectFactory.getBean(arguments.beanName);
-		}else if( server.ADF.objectFactory.containsBean(arguments.beanName) ){
+		}
+		else if ( server.ADF.objectFactory.containsBean(arguments.beanName) )
+		{
 			bean = server.ADF.objectFactory.getBean(arguments.beanName);
-		}else if(StructKeyExists(application.ADF,arguments.beanName)){
+		}
+		else if(StructKeyExists(application.ADF,arguments.beanName))
+		{
 			bean = StructFind(application.ADF,arguments.beanName);
 		}
 	</cfscript>
 	<cfif isObject(bean)>
-		<cfinvoke component = "#bean#"
-			  method = "#arguments.methodName#"
-			  returnVariable = "result.reData"
-			  argumentCollection = "#arguments.args#">
+		<cftry>
+			<cfinvoke component = "#bean#"
+				  method = "#arguments.methodName#"
+				  returnVariable = "result.reData"
+				  argumentCollection = "#arguments.args#">
+			<cfcatch>
+				<cfset result.reData = cfcatch>
+			</cfcatch>
+		</cftry>
+	<cfelse>
+		<cfset result.reData = "Error: The Bean is not an Object and could not be used as a component!">
 	</cfif>
 	<cfscript>
 		// Check to make sure the result.returnData was not destroyed by a method that returns void
