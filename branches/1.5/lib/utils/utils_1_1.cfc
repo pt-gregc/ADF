@@ -308,6 +308,7 @@ Arguments:
 
 History:
  	2011-05-13 - RAK - Created
+	2011-09-07 - MFC - Updated the line breaks for the var scoping.
 --->
 <cffunction name="xslTransform" access="public" returntype="string" output="No" hint="Transforms the xml file while still processing xsl:import tags.">
 	<cfargument name="xmlSource" type="string" required="yes">
@@ -315,9 +316,16 @@ History:
 	<cfargument name="stParameters" type="struct" default="#StructNew()#" required="No">
 
 	<cfscript>
-		var source = ""; var transformer = ""; var aParamKeys = ""; var pKey = "";
-		var xmlReader = ""; var xslReader = ""; var pLen = 0;
-		var xmlWriter = ""; var xmlResult = ""; var pCounter = 0;
+		var source = ""; 
+		var transformer = ""; 
+		var aParamKeys = ""; 
+		var pKey = "";
+		var xmlReader = ""; 
+		var xslReader = ""; 
+		var pLen = 0;
+		var xmlWriter = ""; 
+		var xmlResult = ""; 
+		var pCounter = 0;
 		var tFactory = createObject("java", "javax.xml.transform.TransformerFactory").newInstance();
 
 		//if xml use the StringReader - otherwise, just assume it is a file source.
