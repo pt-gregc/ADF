@@ -608,9 +608,11 @@ Arguments:
 
 History:
  	2011-08-02 - RAK - Created
+	2011-09-07 - MFC - Commented out function because: 
+						'The names of user-defined functions cannot be the same as built-in ColdFusion functions.'
 --->
-<cffunction name="createUUID" access="public" returntype="uuid" hint="Creates a UUID to return back via ajaxPRoxy">
+<!--- <cffunction name="createUUID" access="public" returntype="uuid" hint="Creates a UUID to return back via ajaxPRoxy">
 	<cfreturn createUUID()>
-</cffunction>
+</cffunction> --->
 
 </cfcomponent>
