@@ -396,7 +396,7 @@ Arguments:
 History:
   	2010-09-30 - RLW - Created
  	2010-10-18 - GAC - Modified - Added a RefreshParent parameter
-   	2010-10-18 - GAC - Modified - Added a urlParams parameter
+   2010-10-18 - GAC - Modified - Added a urlParams parameter
 	2010-12-15 - GAC - Modified - Added bean, method and lbTitle parameters
 	2010-12-21 - GAC - Modified - Added a linkClass parameter
 	2011-01-25 - MFC - Modified - Updated formBean param default value to "forms_1_1"
