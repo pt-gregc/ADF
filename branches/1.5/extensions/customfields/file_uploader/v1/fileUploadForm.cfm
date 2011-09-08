@@ -4,6 +4,7 @@
 		function uploadFile(){
 			var tempFileName = jQuery('[name="filedata"]').val();
 			tempFileName = tempFileName.replace(/\\/g, "/");
+			tempFileName = tempFileName.replace(/[ ]/g, "-");
 			tempFileName = tempFileName.split('/').pop();
 			jQuery('[name="filename"]').val(tempFileName);
 			jQuery("form").submit();
