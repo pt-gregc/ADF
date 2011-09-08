@@ -105,8 +105,8 @@ History:
 		<cfif NOT directoryExists(arguments.logdir)>
 			<cfdirectory action="create" directory="#arguments.logdir#">
 		</cfif>
-		<cfif !isSimpleValue(msg)>
-			<cfset msg = Application.ADF.utils.doDump(msg,"",0,1)>
+		<cfif NOT isSimpleValue(msg)>
+			<cfset msg = Application.ADF.utils.doDump(msg,"msg-#application.ADF.date.csDateFormat(now(),now())#",0,1)>
 		</cfif>
 		<cffile action="append" file="#arguments.logDir##logFileName#" output="#application.adf.date.csDateFormat(utcNow,utcNow)# (UTC) - #arguments.msg#" addnewline="true">
 		<cfcatch type="any">
