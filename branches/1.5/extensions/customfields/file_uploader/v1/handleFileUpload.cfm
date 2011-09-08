@@ -1,9 +1,9 @@
 <cfsetting requestTimeout = 240>
 <cftry>
 	<cfoutput>
-		<cfif !StructKeyExists(form,"filename") 
-				or !StructKeyExists(form,"folder")
-				or !StructKeyExists(form,"filedata")>
+		<cfif NOT StructKeyExists(form,"filename")
+				or NOT StructKeyExists(form,"folder")
+				or NOT StructKeyExists(form,"filedata")>
 			<cfthrow type="custom" detail="Missing form parameters." message="Invalid Arguments">
 		</cfif>
 		<cfscript>
@@ -20,7 +20,7 @@
 			<cfif ListFindNoCase(fieldDefaultValues.filetypes,fileExtension,",")>
 				<cfscript>
 					tempFileName = Replace(form.filename,"."&fileExtension,"");
-					filePath = form.folder&"\"&tempFileName&"--"&fileUUID&"."&fileExtension;
+					filePath = form.folder&"/"&tempFileName&"--"&fileUUID&"."&fileExtension;
 					FileMove(form.filedata,filePath);
 					application.ADF.utils.logAppend("File upload success: "&filepath,"fileUpload.txt");
 				</cfscript>
