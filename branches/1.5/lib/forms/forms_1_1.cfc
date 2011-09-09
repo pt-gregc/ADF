@@ -31,6 +31,7 @@ Version:
 History:
 	2009-09-28 - MFC - Created
 	2010-12-20 - MFC - Updated Forms_1_1 for dependency to Scripts_1_1.
+	2011-09-09 - GAC - Minor comment updates and formatting
 --->
 <cfcomponent displayname="forms_1_1" extends="ADF.lib.forms.forms_1_0" hint="Form functions for the ADF Library">
 
@@ -199,13 +200,13 @@ History:
 		</cfoutput>
 	</cfsavecontent>
 	<cfreturn rtnHTML>
-
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author:
+	PaperThin, Inc. 	
+	Ron West
 Name:
 	$renderDeleteForm
 Summary:
@@ -264,8 +265,7 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author:
 	PaperThin, Inc.
 	Ryan Kahn
@@ -295,8 +295,7 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author:
 	PaperThin, Inc.
 	Ryan Kahn
@@ -307,10 +306,14 @@ Summary:
 Returns:
 	String
 Arguments:
-
+	String - fieldInputHTML
+	Query - fieldQuery
+	Struct - attr
+	Boolean - includeLabel
 History:
  	Dec 6, 2010 - RAK - Created
 	2011-02-09 - RAK - Var'ing un-var'd variables
+	2011-09-09 - GAC - Added doHiddenFieldSecurity to convert field to a hidden field if "Use Explicit Security" and user is not part of an Edit or View group
 --->
 <cffunction name="wrapFieldHTML" access="public" returntype="String" hint="Wraps the given information with valid html for the current commonspot and configuration">
 	<cfargument name="fieldInputHTML" type="string" required="true" default="" hint="HTML for the field input, do a cfSaveContent on the input field and pass that in here">
@@ -324,46 +327,64 @@ History:
 		var description = arguments.fieldQuery.DESCRIPTION[row];
 		var fieldName = arguments.fieldQuery.fieldName[row];
 		var xparams = arguments.attr.parameters[arguments.fieldQuery.inputID[row]];
+		var currentValue = arguments.attr.currentValues[fqFieldName];
 		var labelStart = arguments.attr.itemBaselineParamStart;
 		var labelEnd = arguments.attr.itemBaseLineParamEnd;
 		var renderSimpleFormField = false;
-
+		var doHiddenFieldSecurity = false; // No Edit / No Readonly ... just a hidden field
+		// Get the list permissions and compare for security
+		var editGroups = application.ADF.data.ListInCommon(request.user.grouplist, xparams.pedit);
+		var viewGroups = application.ADF.data.ListInCommon(request.user.grouplist, xparams.pread);
+		
 		//If the fields are required change the label start and end
-		if(xparams.req eq "Yes"){
+		if ( xparams.req eq "Yes" )
+		{
 			labelStart = arguments.attr.reqItemBaselineParamStart;
 			labelEnd = arguments.attr.reqItemBaseLineParamEnd;
 		}
 
 		// determine if this is rendererd in a simple form or the standard custom element interface
-		if ( (StructKeyExists(request, "simpleformexists")) AND (request.simpleformexists EQ 1) ){
+		if ( (StructKeyExists(request, "simpleformexists")) AND (request.simpleformexists EQ 1) )
+		{
 			renderSimpleFormField = true;
+		}
+		
+		// determine if this field should be hidden due to "Use Explicit Security"
+		// - If user is part for the edit or view groups doHiddenSecurity should remain false
+		if ( xparams.UseSecurity AND ListLen(viewGroups) EQ 0 AND ListLen(editGroups) EQ 0 )
+		{
+			doHiddenFieldSecurity = true;
 		}
 	</cfscript>
 	<cfsavecontent variable="returnHTML">
 		<cfoutput>
-			<tr>
-				<cfif includeLabel>
-					<td valign="top">
-						#labelStart#
-						<label for="#fqFieldName#">#xParams.label#:</label>
-						#labelEnd#
-					</td>
-				</cfif>
-				<td>
-					#arguments.fieldInputHTML#
-				</td>
-			</tr>
-			<cfif Len(description)>
-				<!--- If there is a description print out a new row and the description --->
+			<cfif NOT doHiddenFieldSecurity>
 				<tr>
-					<td></td>
+					<cfif includeLabel>
+						<td valign="top">
+							#labelStart#
+							<label for="#fqFieldName#">#xParams.label#:</label>
+							#labelEnd#
+						</td>
+					</cfif>
 					<td>
-						#arguments.attr.descParamStart#
-						#description#
-						<br/><br/>
-						#arguments.attr.descParamEnd#
+						#arguments.fieldInputHTML#
 					</td>
 				</tr>
+				<cfif Len(description)>
+					<!--- // If there is a description print out a new row and the description --->
+					<tr>
+						<td></td>
+						<td>
+							#arguments.attr.descParamStart#
+							#description#
+							<br/><br/>
+							#arguments.attr.descParamEnd#
+						</td>
+					</tr>
+				</cfif>
+			<cfelse>
+				<input type="hidden" name="#fqFieldName#" id="#fqFieldName#" value="#currentValue#">
 			</cfif>
 			<cfif renderSimpleFormField>
 				<input type="hidden" name="#fqFieldName#_FIELDNAME" id="#fqFieldName#_FIELDNAME" value="#ReplaceNoCase(fieldName, 'fic_','')#">
@@ -374,8 +395,7 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author:
 	PaperThin, Inc.
 	Ryan Kahn
@@ -406,9 +426,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Dave Beckstrom
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Dave Beckstrom
 Name:
 	$loadCFFormProtect
 Summary:
@@ -429,7 +450,9 @@ History:
 
 <!---
 /* *************************************************************** */
-Author: 	Dave Beckstrom
+Author: 
+	PaperThin, Inc.	
+	Dave Beckstrom
 Name:
 	$verifyCFFormProtect
 Summary:
@@ -481,7 +504,6 @@ History:
 		</cfscript>
 	</cfif>
 	<cfreturn isValid>
-
 </cffunction>
 
 </cfcomponent>
