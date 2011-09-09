@@ -31,17 +31,18 @@ Name:
 Summary:
 	Custom checkbox field to set the field name value, default field value, and field visibility.
 ADF Requirements:
-	ceData_1_0
-	data_1_0
 	scripts_1_0
+	forms_1_0
 History:
 	2009-07-06 - MFC - Created
 	2011-05-26 - GAC - Modified - added a class parameter and updated the id attributes on the input field
-	2011-06-01 - GAC - Modified - added trim around the field name variable to remove extra spaces, updated the jquery checked logic and added additional logic to allow seeing other boolean values as checked
+	2011-06-01 - GAC - Modified - added trim around the field name variable to remove extra spaces, updated the jQuery checked logic and added additional logic to allow seeing other boolean values as checked
+	2011-09-09 - GAC - Modified - removed renderSimpleFormField check, added readOnly field security code and updated the jQuery script block 
 --->
 <cfscript>
 	// Load JQuery to the script
 	application.ADF.scripts.loadJQuery();
+	
 	// the fields current value
 	currentValue = attributes.currentValues[fqFieldName];
 	// the param structure which will hold all of the fields from the props dialog
@@ -73,11 +74,9 @@ History:
 		if ( xparams.defaultVal EQ "yes" )
 			currentValue = xparams.checkedVal; //'yes'
 	}
-	
-	// find if we need to render the simple form field
-	renderSimpleFormField = false;
-	if ( (StructKeyExists(request, "simpleformexists")) AND (request.simpleformexists EQ 1) )
-		renderSimpleFormField = true;
+		
+	//--Field Security--
+	readOnly = application.ADF.forms.isFieldReadOnly(xparams);
 </cfscript>
 <!--- <cfdump var="#xparams#"> --->
 
@@ -93,7 +92,7 @@ History:
 		// push on to validation array
 		//vobjects_#attributes.formname#.push(#fqFieldName#);
 	
-		jQuery(document).ready(function(){
+		jQuery(function(){
 			
 			// Check if we want to hide the field
 			// Check if we are rendering the field 
