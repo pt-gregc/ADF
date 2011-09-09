@@ -1525,11 +1525,14 @@ Arguments:
 History:
 	2011-06-01 - MTT - Created
 	2011-06-24 - GAC - Added CFOUTPUTS around the renderScriptOnce method call
+	2011-09-09 - RAK - Added cfoutput tags to the cfsavecontent
 --->
 <cffunction name="loadJQueryDump" access="public" output="true" returntype="void" hint="Loads the dump plugin for jquery">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
-		<script type="text/javascript" src="/ADF/thirdparty/jquery/dump/jquery.dump.js"></script>
+		<cfoutput>
+			<script type="text/javascript" src="/ADF/thirdparty/jquery/dump/jquery.dump.js"></script>
+		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
 		#variables.scriptsService.renderScriptOnce("jQueryDump",outputHTML)#
@@ -1553,11 +1556,14 @@ Arguments:
 History:
 	2011-06-22 - MTT - Created
 	2011-07-20 - RAK - Added cfOutput to the code so that it will actually print the results
+	2011-09-09 - RAK - Added cfoutput tags to the cfsavecontent
 --->
 <cffunction name="loadJQueryDoTimeout" access="public" output="true" returntype="void" hint="Loads the do timeout plugin for jquery">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
-		<script type="text/javascript" src="/ADF/thirdparty/jquery/dotimeout/jquery.dotimeout.plugin.js"></script>
+		<cfoutput>
+			<script type="text/javascript" src="/ADF/thirdparty/jquery/dotimeout/jquery.dotimeout.plugin.js"></script>
+		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
 		#variables.scriptsService.renderScriptOnce("jQueryDoTimeout",outputHTML)#
@@ -1581,11 +1587,14 @@ Arguments:
 History:
 	2011-06-22 - MTT - Created
 	2011-07-20 - RAK - Added cfOutput to the code so that it will actually print the results
+	2011-09-09 - RAK - Added cfoutput tags to the cfsavecontent
 --->
 <cffunction name="loadJQueryTextLimit" access="public" output="true" returntype="void" hint="Loads the text limit plugin for jquery">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
-		<script type="text/javascript" src="/ADF/thirdparty/jquery/textlimit/jquery.textlimit.plugin.js"></script>
+		<cfoutput>
+			<script type="text/javascript" src="/ADF/thirdparty/jquery/textlimit/jquery.textlimit.plugin.js"></script>
+		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
 		#variables.scriptsService.renderScriptOnce("jQueryTextLimit",outputHTML)#
@@ -1608,18 +1617,51 @@ Arguments:
 	None
 History:
 	2011-07-26 - MTT - Created
+	2011-09-09 - RAK - Added cfoutput tags to the cfsavecontent
 --->
 <cffunction name="loadJQueryFileUpload" access="public" output="true" returntype="void" hint="Loads the file upload plugin for jquery">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
-		<link rel="stylesheet" href="/ADF/thirdparty/jquery/fileupload/jquery.fileupload-ui.css">
-		<script type="text/javascript" src="/ADF/thirdparty/jquery/fileupload/jquery.iframe-transport.js"></script>
-		<script type="text/javascript" src="/ADF/thirdparty/jquery/fileupload/jquery.fileupload.js"></script>
-		<script type="text/javascript" src="/ADF/thirdparty/jquery/fileupload/jquery.fileupload-ui.js"></script>
+		<cfoutput>
+			<link rel="stylesheet" href="/ADF/thirdparty/jquery/fileupload/jquery.fileupload-ui.css">
+			<script type="text/javascript" src="/ADF/thirdparty/jquery/fileupload/jquery.iframe-transport.js"></script>
+			<script type="text/javascript" src="/ADF/thirdparty/jquery/fileupload/jquery.fileupload.js"></script>
+			<script type="text/javascript" src="/ADF/thirdparty/jquery/fileupload/jquery.fileupload-ui.js"></script>
+		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
 		#variables.scriptsService.renderScriptOnce("jQueryFileUpload",outputHTML)#
 	</cfoutput>
 </cffunction>
 
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+	Ryan Kahn
+Name:
+	$loadDynatree
+Summary:
+	Loads the Dynatree plugin
+Returns:
+	void
+Arguments:
+
+History:
+ 	2011-09-09 - RAK - Created
+--->
+<cffunction name="loadDynatree" access="public" returntype="void" hint="Loads the Dynatree plugin">
+	<cfset var outputHTML = "">
+	<cfsavecontent variable="outputHTML">
+		<cfoutput>
+			<script type='text/javascript' src='/ADF/thirdParty/jquery/dynatree/jquery-dynatree-1.1.1.js'></script>
+		</cfoutput>
+	</cfsavecontent>
+	<cfoutput>
+		#loadJQuery()#
+		#loadJQueryUI()#
+		#loadJQueryCookie()#
+		#variables.scriptsService.renderScriptOnce("dynatree",outputHTML)#
+	</cfoutput>
+</cffunction>
 </cfcomponent>
