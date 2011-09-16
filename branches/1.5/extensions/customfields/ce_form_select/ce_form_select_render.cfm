@@ -32,6 +32,7 @@ Version:
 	1.0.0
 History:
 	2011-04-08 - MFC - Created
+	2011-09-16 - MFC - Loaded JQuery for the validation.
 --->
 <cfscript>
 	// the fields current value
@@ -48,6 +49,9 @@ History:
 	
 	// Get all the custom elements for the site
 	customElementQry = application.ADF.ceData.getAllCustomElements();
+	
+	// Load JQuery
+	application.ADF.scripts.loadJQuery();
 </cfscript>
 <cfoutput>
 	<script>
