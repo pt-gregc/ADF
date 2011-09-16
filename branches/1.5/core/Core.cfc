@@ -158,6 +158,7 @@ History:
 	2011-05-03 - MFC - Commented out 'Application.ADF' cfdump from the debug log. CFDump was too large and
 						caused performance slowness loading debug html.
 	2011-06-29 - MT - Set a response header indicating if the ADF was reset or not.
+	2011-07-14 - MFC - Renamed cache variable to be under ADF struct, "application.ADF.cache".
 --->
 <cffunction name="reset" access="remote" returnType="Struct">
 	<cfargument name="type" type="string" required="false" default="all" hint="The type of the ADF to reset.  Options are 'Server', 'Site' or 'All'. Defaults to 'All'.">
@@ -209,7 +210,7 @@ History:
 							break;
 					}
 					if ( ADFReset ) //Reset the cache.
-						application.ADFCache = StructNew();
+						application.ADF.cache = StructNew();
 				</cfscript>
 				<!--- // If sever.ADF.buildError Array has any errors... throw an exception (used the cfthrow tag for CF8 compatibility) --->
 				<cfif StructKeyExists(server.ADF,"buildErrors") AND ArrayLen(server.ADF.buildErrors)>
