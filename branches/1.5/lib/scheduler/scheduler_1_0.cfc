@@ -66,12 +66,16 @@ Arguments:
 			commands.arg - Structure for the arguments to the method.
 	Struct - scheduleParams
 History:
-	Nov 30, 2010 - RAK - Created
+	2010-10-30 - RAK - Created
+	2011-09-16 - MFC - Added param to delay running the scheduled task immediately.
+						Default is set to TRUE.
 --->
 <cffunction name="scheduleProcess" access="public" returntype="void" hint="The main process for scheduling a bunch of commands to be processed. When a process is scheduled it begins immediately.">
 	<cfargument name="scheduleName" type="string" required="true" hint="Unique name for the schedule you want to run">
 	<cfargument name="commands" type="array" required="true" hint="Array of URL's to execute each step of your schedule">
 	<cfargument name="scheduleParams" type="struct" required="false" default="#StructNew()#" hint="optional settings as to the schedule timings">
+	<cfargument name="startProcessNow" type="boolean" required="false" default="true">
+	
 	<cfscript>
 		var defaultScheduleParams = StructNew();//Default Values
 		defaultScheduleParams.delay = 5; //minutes till next schedule item
@@ -102,8 +106,14 @@ History:
 		application.schedule[arguments.scheduleName].status = "active";
 		application.schedule[arguments.scheduleName].scheduleProgress = defaultScheduleParams.scheduleStart;
 		
-		//BEGIN!
-		processNextScheduleItem(arguments.scheduleName);
+		// Check if want to start the procecing now or set the schedule
+		if ( arguments.startProcessNow ) {
+			//BEGIN!
+			processNextScheduleItem(arguments.scheduleName);
+		}
+		else {
+			setSchedule(arguments.scheduleName);
+		}
 	</cfscript>
 </cffunction>
 
@@ -222,7 +232,6 @@ History:
 	</cfif>
 	<cfreturn false/>
 </cffunction>
-
 
 <!---
 /* ***************************************************************
@@ -484,5 +493,48 @@ History:
 		</cfscript>
 	    <cfreturn result>
 	</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
+Name:
+	$setSchedule
+Summary:
+	Sets the schedule task.
+Returns:
+	Boolean
+Arguments:
+	string
+History:
+	2011-08-29 - MFC - Created
+--->
+<cffunction name="setSchedule" access="private" returntype="boolean" output="true" hint="">
+	<cfargument name="scheduleName" type="string" required="true" hint="Unique name for the schedule you want to run">
+	
+	<cfscript>
+		var scheduleURL = "http://#cgi.server_name#:#cgi.server_port##application.ADF.ajaxProxy#?bean=scheduler_1_0&method=processNextScheduleItem&scheduleName=#arguments.scheduleName#";
+		var logFilePrefix = dateFormat(now(), "yyyymmdd") & "." & request.site.name & ".";
+		var schedLogFileName = logFilePrefix & "scheduledStatus-" & arguments.scheduleName & ".html";
+		var currentSchedule = "";
+	
+		try {	
+			// Check if the schedule exists
+			if ( StructKeyExists(application.schedule,arguments.scheduleName) ){
+				currentSchedule = application.schedule[arguments.scheduleName];
+			}
+			
+			// Schedule the task within CF
+			application.ADF.utils.setScheduledTask(scheduleURL,arguments.scheduleName,schedLogFileName,currentSchedule.scheduleParams.delay); //"ScheduledTaskError-#arguments.scheduleName#.html"
+			
+			return true;
+		}
+		catch ( Any e ){
+			//application.ADF.utils.dodump(e,"e", true);
+			return false;
+		}
+	</cfscript>
+</cffunction>
 
 </cfcomponent>
