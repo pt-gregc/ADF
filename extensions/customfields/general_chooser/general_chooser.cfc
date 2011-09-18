@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
  
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2010.
+PaperThin, Inc. Copyright(C) 2011.
 All Rights Reserved.
  
 By downloading, modifying, distributing, using and/or accessing any files
@@ -19,8 +19,7 @@ end user license agreement.
 --->
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	
 	PaperThin, Inc.
 	M Carroll 
@@ -30,13 +29,19 @@ Name:
 	general_chooser.cfc
 Summary:
 	General Chooser component.
+Version:
+	1.1.0
 History:
 	2009-10-16 - MFC - Created
 	2009-11-13 - MFC - Updated the Ajax calls to the CFC to call the controller 
 						function.  This allows only the "controller" function to 
 						listed in the proxy white list XML file.
+	2011-03-20 - MFC - Updated component to simplify the customizations process and performance.
+						Removed Ajax loading process.
 --->
 <cfcomponent name="general_chooser" extends="ADF.lib.ceData.ceData_1_0">
+
+<cfproperty name="version" value="1_1_0">
 
 <cfscript>
 	// CUSTOM ELEMENT INFO
@@ -44,11 +49,7 @@ History:
 	variables.CE_FIELD = "";
 	variables.SEARCH_FIELDS = "";
 	variables.ORDER_FIELD = "";
-	
-	// LAYOUT FLAGS
-	variables.SHOW_SECTION1 = true;  // Boolean
-	variables.SHOW_SECTION2 = true;  // Boolean
-	
+
 	// STYLES
 	variables.MAIN_WIDTH = 580;
 	variables.SECTION1_WIDTH = 270;
@@ -56,18 +57,16 @@ History:
 	variables.SECTION3_WIDTH = 580;
 	variables.SELECT_BOX_HEIGHT = 350;
 	variables.SELECT_BOX_WIDTH = 250;
-	variables.SELECT_ITEM_HEIGHT = 15;
+	variables.SELECT_ITEM_HEIGHT = 30;
 	variables.SELECT_ITEM_WIDTH = 210;
 	variables.SELECT_ITEM_CLASS = "ui-state-default";
 	variables.JQUERY_UI_THEME = "ui-lightness";
 	
-	// ADDITIONS
+	// NEW VARIABLES v1.1
+	variables.SHOW_SEARCH = true;  // Boolean
 	variables.SHOW_ALL_LINK = true;  // Boolean
-	variables.ADD_NEW_FLAG = false;	// Boolean
-	variables.ADD_NEW_URL = "";
-	variables.ADD_NEW_LB_WIDTH = 600;
-	variables.ADD_NEW_LB_HEIGHT = 420;
-
+	variables.SHOW_ADD_LINK = true;  // Boolean
+	variables.SHOW_EDIT_DELETE_LINKS = false;  // Boolean
 </cfscript>
 
 <!---
@@ -115,25 +114,30 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	M Carroll
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
 Name:
-	$initChooser
+	$loadStyles
 Summary:
-	General Chooser - Loads any global settings/styles for the chooser.
+	Loads the Chooser Styles with the variable sizes defined in the variables.
 Returns:
-	String html code
+	string
 Arguments:
-	Void
+	ARGS
 History:
-	2009-10-16 - MFC - Created
+	2011-01-14 - MFC - Created
+	2011-03-27 - MFC - Updates for IE styling.
+	2011-04-28 - GAC - Updates for styling the Show All Items link
 --->
-<cffunction name="initChooser" access="public" returntype="string" hint="General Chooser - Loads any global settings/styles for the chooser.">
+<cffunction name="loadStyles" access="public" returntype="string" output="true" hint="">
+	<cfargument name="fieldName" type="string" required="true">
 	
 	<cfset var retInitHTML = "">
 	<cfsavecontent variable="retInitHTML">
 		<cfoutput>
+			<!--- <cfdump var="#arguments#"> --->
 			<style>
 				div###arguments.fieldName#-gc-main-area {
 					width: #variables.MAIN_WIDTH#px;
@@ -159,298 +163,52 @@ History:
 				{
 					clear: both;
 				}
-			</style>
-		</cfoutput>
-	</cfsavecontent>
-	<cfreturn retInitHTML>
-</cffunction>
-
-<!---
-/* ***************************************************************
-/*
-Author: 	M Carroll
-Name:
-	$loadSection1
-Summary:
-	General Chooser section 1 HTML content.
-Returns:
-	String html code
-Arguments:
-	Void
-History:
-	2009-10-16 - MFC - Created
---->
-<cffunction name="loadSection1" access="public" returntype="string" hint="General Chooser section 1 HTML content.">
-		
-	<cfset var retSect1HTML = "">
-	<!--- Check the flag --->
-	<cfif variables.SHOW_SECTION1 eq true>
-		<cfsavecontent variable="retSect1HTML">
-			<cfoutput>
-				<style>
-					div###arguments.fieldName#-gc-top-area div###arguments.fieldName#-gc-section1 {
-						width: #variables.SECTION1_WIDTH#px;
-						float: left;
-					}	
-				</style>
-				#loadSearchBox(arguments.fieldName)#
-				#loadShowAllLink(arguments.fieldName)#
-			</cfoutput>
-		</cfsavecontent>
-	</cfif>
-	<cfreturn retSect1HTML>
-</cffunction>
-
-<!---
-/* ***************************************************************
-/*
-Author: 	M Carroll
-Name:
-	$loadSection2
-Summary:
-	General Chooser section 2 HTML content.
-Returns:
-	String html code
-Arguments:
-	Void
-History:
-	2009-10-16 - MFC - Created
---->
-<cffunction name="loadSection2" access="public" returntype="string" hint="General Chooser section 2 HTML content.">
-	
-	<cfset var retSect2HTML = "">
-	<!--- Check the flag --->
-	<cfif variables.SHOW_SECTION2 eq true>
-		<cfsavecontent variable="retSect2HTML">
-			<cfoutput>
-				<style>
-					div###arguments.fieldName#-gc-top-area div###arguments.fieldName#-gc-section2 {
-						width: #variables.SECTION2_WIDTH#px;
-						float: right;
-						text-align: right;
-						margin-right: 20px;
-					}
-				</style>
-				#loadAddNewLink(arguments.fieldName)#
-			</cfoutput>
-		</cfsavecontent>
-	</cfif>
-	<cfreturn retSect2HTML>
-</cffunction>
-
-<!---
-/* ***************************************************************
-/*
-Author: 	M Carroll
-Name:
-	$loadSection3
-Summary:
-	General Chooser section 3 HTML content.
-Returns:
-	String html code
-Arguments:
-	Void
-History:
-	2009-10-16 - MFC - Created
---->
-<cffunction name="loadSection3" access="public" returntype="string" hint="General Chooser section 3 HTML content.">
-	
-	<cfscript>
-		var retSect3HTML = "";
-		retSect3HTML = loadInstructions(arguments.fieldName);
-		retSect3HTML = retSect3HTML & loadSelectBoxes(arguments.fieldName);
-	</cfscript>
-	<cfreturn retSect3HTML>
-</cffunction>
-
-<!---
-/* ***************************************************************
-/*
-Author: 	M Carroll
-Name:
-	$loadSearchBox
-Summary:
-	General Chooser - Search box HTML content.
-	REQUIRED: 
-		- Search button must have the ID field of: id="#arguments.fieldName#-searchBtn"
-Returns:
-	String html code
-Arguments:
-	String - fieldName - custom element unique fqFieldName
-History:
-	2009-05-29 - MFC - Created
---->
-<cffunction name="loadSearchBox" access="private" returntype="string" hint="General Chooser - Search box HTML content.">
-	<cfargument name="fieldName" type="String" required="true">
-	
-	<cfset var retSearchBoxHTML = "">
-	
-	<!--- Render out the search box to the field type --->
-	<cfsavecontent variable="retSearchBoxHTML">
-		<cfoutput>
-		<style>
-			div###arguments.fieldName#-gc-top-area div##search-chooser {
-				margin-bottom: 10px;
-				border: none;
-				width: 250px;
-				height: 25px;
-			}
-			div###arguments.fieldName#-gc-main-area input {
-				border-color: ##fff;
-			}
-		</style>
-		<div id="search-chooser">
-			<input type="text" class="searchFld-chooser" id="#arguments.fieldName#-searchFld" name="search-box" tabindex="1" onblur="this.value = this.value || this.defaultValue;" onfocus="this.value='';" value="Search" />
-			<input type="button" id="#arguments.fieldName#-searchBtn" value="Search" style="width:60px;"> 
-		</div>
-		</cfoutput>
-	</cfsavecontent>
-	<cfreturn retSearchBoxHTML>
-</cffunction>
-
-<!---
-/* ***************************************************************
-/*
-Author: 	M Carroll
-Name:
-	$loadAddNewLink
-Summary:
-	General Chooser - Add New Link HTML content.
-Returns:
-	String html code
-Arguments:
-	None
-History:
-	2009-05-29 - MFC - Created
---->
-<cffunction name="loadAddNewLink" access="private" returntype="string" hint="General Chooser - Add New Link HTML content.">
-	
-	<cfset var retAddLinkHTML = "">
-	
-	<!--- Check if we want to display show all link --->
-	<cfif variables.ADD_NEW_FLAG EQ true>
-		<!--- Get the form ID for the custom element --->
-		<cfset ceFormID = getFormIDByCEName(variables.CUSTOM_ELEMENT)>
-		<!--- Render out the show all link to the field type --->
-		<cfsavecontent variable="retAddLinkHTML">
-			<cfoutput>
-				<div id="add-new-items">
-					<a href="#variables.ADD_NEW_URL#?formid=#ceFormID#&keepThis=true&TB_iframe=true&width=#variables.ADD_NEW_LB_WIDTH#&height=#variables.ADD_NEW_LB_HEIGHT#&title=Add New Item" title="Add New Item" class="ADFLightbox">Add New Item</a>
-				</div>
-			</cfoutput>
-		</cfsavecontent>
-	</cfif>
-	<cfreturn retAddLinkHTML>
-</cffunction>
-
-<!---
-/* ***************************************************************
-/*
-Author: 	M Carroll
-Name:
-	$loadShowAllLink
-Summary:
-	General Chooser - Show All Link HTML content.
-	REQUIRED: 
-		- Link must have the ID field of: id="#arguments.fieldName#-showAllItems"
-Returns:
-	String html code
-Arguments:
-	String - fieldName - custom element unique fqFieldName
-History:
-	2009-05-29 - MFC - Created
---->
-<cffunction name="loadShowAllLink" access="private" returntype="string" hint="General Chooser - Show All Link HTML content.">
-	<cfargument name="fieldName" type="String" required="true">
-	
-	<cfset var retShowAllHTML = "">
-	
-	<!--- Check if we want to display show all link --->
-	<cfif variables.SHOW_ALL_LINK EQ true>
-		<!--- Render out the show all link to the field type --->
-		<cfsavecontent variable="retShowAllHTML">
-			<cfoutput>
-			<div id="show-all-items">
-				<a id="#arguments.fieldName#-showAllItems" href="##">show all items</a>
-			</div>	
-			</cfoutput>
-		</cfsavecontent>
-	</cfif>
-	<cfreturn retShowAllHTML>
-</cffunction>
-
-<!---
-/* ***************************************************************
-/*
-Author: 	M Carroll
-Name:
-	$loadInstructions
-Summary:
-	General Chooser - Show Instructions HTML content.
-	REQUIRED: 
-		- Link must have the ID field of: id="#arguments.fieldName#-showAllItems"
-Returns:
-	String html code
-Arguments:
-	String - fieldName - custom element unique fqFieldName
-History:
-	2009-05-29 - MFC - Created
---->
-<cffunction name="loadInstructions" access="private" returntype="string" hint="General Chooser - Show Instructions HTML content.">
-	<cfargument name="fieldName" type="String" required="true">
-	
-	<cfset var retInstructHTML = "">
-	<!--- Render out the search box to the field type --->
-	<cfsavecontent variable="retInstructHTML">
-		<cfoutput>
-		<style>
-			div###arguments.fieldName#-gc-top-area-instructions {
-				clear: both;
-				margin-top: 10px;
-				margin-bottom: 10px;
-				text-align: center;
-			}
-		</style>
-		<div id="#arguments.fieldName#-gc-top-area-instructions">
-			To make selections, drag and drop boxes from left to right box.
-		</div>
-		</cfoutput>
-	</cfsavecontent>
-	<cfreturn retInstructHTML>
-</cffunction>
-
-<!---
-/* *************************************************************** */
-Author: 	
-	PaperThin, Inc.
-	M. Carroll
-Name:
-	$loadSelectBoxes
-Summary:
-	General Chooser - Select Boxes HTML content.
-	REQUIRED: 
-		- Left UL must have the id as: id="#arguments.fieldName#-sortable1"
-		- Right UL must have the id as: id="#arguments.fieldName#-sortable2"
-Returns:
-	String html code
-Arguments:
-	String - fieldName - custom element unique fqFieldName
-History:
-	2009-05-29 - MFC - Created
-	2010-09-07 - MFC - Commented out the load Jquery UI.  This is done in the render file already.
-						This load jquery UI call will throw error when updating JQuery UI versions.
---->
-<cffunction name="loadSelectBoxes" access="private" returntype="string" hint="General Chooser - Select Boxes HTML content.">
-	<cfargument name="fieldName" type="String" required="true">
-	
-	<cfset var retSelectBoxHTML = "">
-	<!--- Render out the search box to the field type --->
-	<cfsavecontent variable="retSelectBoxHTML">
-		<cfoutput>
-			<!--- <cfscript>
-				server.ADF.objectFactory.getBean("scripts_1_0").loadJQueryUI("1.7.2", variables.JQUERY_UI_THEME);
-			</cfscript> --->
-			<style>
+				
+				/* Top Area - Left Section */
+				div###arguments.fieldName#-gc-top-area div###arguments.fieldName#-gc-section1 {
+					width: #variables.SECTION1_WIDTH#px;
+					float: left;
+				}
+				
+				/* Top Area - Right Section */
+				div###arguments.fieldName#-gc-top-area div###arguments.fieldName#-gc-section2 {
+					width: #variables.SECTION2_WIDTH#px;
+					float: right;
+					text-align: right;
+					margin-right: 20px;
+				}
+				
+				/* Main Area Selection Section */
+				div###arguments.fieldName#-gc-main-area div###arguments.fieldName#-gc-section3 {
+					clear:  both;
+					padding-top: 10px;
+				}
+				
+				/* Search Box */
+				div###arguments.fieldName#-gc-top-area div##search-chooser {
+					/* margin-bottom: 10px; */
+					border: none;
+					width: 250px;
+					/* height: 25px; */ 
+				}
+				/* Show All Items Link Box */
+				div###arguments.fieldName#-gc-top-area div##search-chooser div##show-all-items {
+					margin-top: 4px;
+				}
+				
+				div###arguments.fieldName#-gc-main-area input {
+					border-color: ##fff;
+				}
+				
+				/* Select Boxes */
+				div###arguments.fieldName#-gc-main-area div###arguments.fieldName#-gc-select-left-box-label {
+					width: #variables.SELECT_BOX_WIDTH#px;
+					float: left;
+					height: 10px;
+					margin: 10px;
+					padding: 2px;
+					text-align: center;
+				}
 				div###arguments.fieldName#-gc-main-area div###arguments.fieldName#-gc-select-left-box {
 					width: #variables.SELECT_BOX_WIDTH#px;
 					float: left;
@@ -460,6 +218,14 @@ History:
 					margin: 10px;
 					padding: 2px;
 					overflow-y: auto;
+				}
+				div###arguments.fieldName#-gc-main-area div###arguments.fieldName#-gc-select-right-box-label {
+					width: #variables.SELECT_BOX_WIDTH#px;
+					float: right;
+					height: 10px;
+					margin: 10px;
+					padding: 2px;
+					text-align: center;
 				}
 				div###arguments.fieldName#-gc-main-area div###arguments.fieldName#-gc-select-right-box {
 					width: #variables.SELECT_BOX_WIDTH#px;
@@ -478,18 +244,203 @@ History:
 					width: #variables.SELECT_ITEM_WIDTH#px;
 					height: #variables.SELECT_ITEM_HEIGHT#px;
 				}
+				/* ITEM CLASS w/ EDIT/DELETE LINKS */
+				###arguments.fieldName#-sortable1 li.itemEditDelete,
+				###arguments.fieldName#-sortable2 li.itemEditDelete { 
+					height: #variables.SELECT_ITEM_HEIGHT+20#px;
+				}
+				
+				/* ADD LINK */
+				div###arguments.fieldName#-gc-section2 div##add-new-items a.#arguments.fieldName#-ui-buttons {
+					padding: 1px 10px;
+					text-decoration: none;
+					margin-left: 20px;
+					width: 120px;
+					height: 16px;
+				}
+				/* SEARCH BUTTON */
+				div###arguments.fieldName#-gc-section1 a.#arguments.fieldName#-ui-buttons {
+					padding: 1px 10px;
+					text-decoration: none;
+					margin-left: 5px;
+					/* width: 115px; */
+					height: 16px;
+				}
+				
 			</style>
-			<div id="#arguments.fieldName#-gc-select-left-box">
-				<ul id="#arguments.fieldName#-sortable1" class="connectedSortable">
-				</ul>
-			</div>
-			<div id="#arguments.fieldName#-gc-select-right-box">
-				<ul id="#arguments.fieldName#-sortable2" class="connectedSortable">
-				</ul>
-			</div>
 		</cfoutput>
 	</cfsavecontent>
-	<cfreturn retSelectBoxHTML>
+	<cfreturn retInitHTML>
+	
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+	M. Carroll
+Name:
+	$loadSearchBox
+Summary:
+	General Chooser - Search box HTML content.
+	REQUIRED: 
+		- Search button must have the ID field of: id="#arguments.fieldName#-searchBtn"
+Returns:
+	String html code
+Arguments:
+	String - fieldName - custom element unique fqFieldName
+History:
+	2009-05-29 - MFC - Created
+	2011-01-14 - MFC - Removed the styles to the loadStyles function. 
+						Merged in the code for the show all link.
+	2011-03-10 - SFS - The loadSearchBox function had an invalid field name of "search-box". 
+						ColdFusion considers variables with a "-" as invalid. Removed "-".
+	2011-04-28 - GAC - Added a check to see if the old "SHOW_SECTION1" variable was being used 
+						via site or app level override file. If so, then it will pass the value to the SHOW_SEARCH variable
+--->
+<cffunction name="loadSearchBox" access="public" returntype="string" hint="General Chooser - Search box HTML content.">
+	<cfargument name="fieldName" type="String" required="true">
+	
+	<cfscript>
+		var retSearchBoxHTML = "";
+		
+		// Backward compatibility to allow the variables from General Chooser v1.0 site and app override GC files to honored
+		if ( StructKeyExists(variables,"SHOW_SECTION1") )
+			variables.SHOW_SEARCH = variables.SHOW_SECTION1;
+	</cfscript>
+	
+	<!--- Check the variable flags for rendering --->
+	<cfif variables.SHOW_SEARCH EQ true>
+		<cfsavecontent variable="retSearchBoxHTML">
+			<!--- Render out the search box to the field type --->
+			<cfoutput>
+				<div id="search-chooser">
+					<input type="text" class="searchFld-chooser" id="#arguments.fieldName#-searchFld" name="searchbox" tabindex="1" onblur="this.value = this.value || this.defaultValue;" onfocus="this.value='';" value="Search" />
+					<a href="javascript:;" id="#arguments.fieldName#-searchBtn" class="ui-state-default ui-corner-all #arguments.fieldName#-ui-buttons">Search</a>
+					<cfif variables.SHOW_ALL_LINK EQ true>
+					<!--- Render out the show all link to the field type --->
+					<div id="show-all-items">
+						<a id="#arguments.fieldName#-showAllItems" href="javascript:;">Show All Items</a>
+					</div>	
+					</cfif>
+				</div>
+			</cfoutput>
+		</cfsavecontent>
+	</cfif>
+	<cfreturn retSearchBoxHTML>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M Carroll
+Name:
+	$loadAddNewLink
+Summary:
+	General Chooser - Add New Link HTML content.
+Returns:
+	String html code
+Arguments:
+	None
+History:
+	2009-05-29 - MFC - Created
+	2011-01-14 - MFC - Updated Add new link to utilize forms_1_1 by default.
+	2011-04-28 - GAC - Added a check to see if the old "ADD_NEW_FLAG" or "SHOW_SECTION2" variables were being used 
+						via site or app level override files. If so, then passed appropriate value to the SHOW_ADD_LINK variable
+--->
+<cffunction name="loadAddNewLink" access="public" returntype="string" hint="General Chooser - Add New Link HTML content.">
+	<cfargument name="fieldName" type="String" required="true">
+	
+	<cfscript>
+		var retAddLinkHTML = "";
+	
+		// Backward compatibility to allow the variables from General Chooser v1.0 site and app override GC files to honored
+		if ( StructKeyExists(variables,"SHOW_SECTION2") AND variables.SHOW_SECTION2 EQ false )
+			variables.SHOW_ADD_LINK = false;
+		if ( StructKeyExists(variables,"ADD_NEW_FLAG") AND variables.SHOW_ADD_LINK NEQ false )
+			variables.SHOW_ADD_LINK = variables.ADD_NEW_FLAG;
+	</cfscript>
+	
+	<!--- Check if we want to display show all link --->
+	<cfif variables.SHOW_ADD_LINK EQ true>
+		<!--- Get the form ID for the custom element --->
+		<cfset ceFormID = getFormIDByCEName(variables.CUSTOM_ELEMENT)>
+		<!--- Render out the show all link to the field type --->
+		<cfsavecontent variable="retAddLinkHTML">
+			<cfoutput>
+				<div id="add-new-items">
+					<a href="javascript:;" rel="#application.ADF.ajaxProxy#?bean=Forms_1_1&method=renderAddEditForm&formID=#ceFormID#&dataPageId=0&callback=#arguments.fieldName#_formCallback&title=Add New Record" class="ADFLightbox ui-state-default ui-corner-all #arguments.fieldName#-ui-buttons">Add New Item</a>
+				</div>
+			</cfoutput>
+		</cfsavecontent>
+	</cfif>
+	<cfreturn retAddLinkHTML>
+</cffunction>
+
+
+<!------------------------------------- DATA FUNCTION ------------------------------------->
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M Carroll
+Name:
+	$getSelections
+Summary:
+	Wrapper to get the CE Data returned in HTML DIV Format.
+	Returns the html code for the selections of the profile select custom element.
+Returns:
+	String html code
+Arguments:
+	String - item - Items values for the CE records
+	String - queryType - Query Type, options [selected,notSelected,search]
+	String - searchValues - Search value
+	Numeric - csPageID
+	String - fieldID
+History:
+	2009-10-16 - MFC - Created
+	2011-01-14 - MFC - Updated for ADF V1.5 to build in edit/delete icons and actions.
+	2011-03-20 - MFC - Added flag for Edit/Delete links to the item row.
+	2011-03-27 - MFC - Updates for IE styling.
+	2011-08-01 - GAC - Added a closing DIV to the itemCell inside the LI tags in the retHTML
+--->
+<cffunction name="getSelections" access="public" returntype="string" hint="Returns the html code for the selections of the profile select custom element.">
+	<cfargument name="item" type="string" required="false" default="">
+	<cfargument name="queryType" type="string" required="false" default="selected">
+	<cfargument name="searchValues" type="string" required="false" default="">
+	<cfargument name="csPageID" type="numeric" required="false" default="-1">
+	<cfargument name="fieldID" type="string" required="false" default="">
+	
+	<cfscript>
+		var retHTML = "";
+		var i = 1;
+		var editDeleteLinks = "";
+		var itemCls = "";
+		var ceDataArray = getChooserData(arguments.item, arguments.queryType, arguments.searchValues, arguments.csPageID);
+		// Loop over the data 	
+		for ( i=1; i LTE ArrayLen(ceDataArray); i=i+1) {
+			// Assemble the render HTML
+			if ( StructKeyExists(ceDataArray[i].Values, "#variables.ORDER_FIELD#") 
+					AND LEN(ceDataArray[i].Values[variables.ORDER_FIELD])
+					AND StructKeyExists(ceDataArray[i].Values, "#variables.CE_FIELD#") 
+					AND LEN(ceDataArray[i].Values[variables.CE_FIELD]) )
+			{
+				// Reset the item class on every loop iteration
+				itemCls = variables.SELECT_ITEM_CLASS;
+				// Build the Edit/Delete links
+				if ( variables.SHOW_EDIT_DELETE_LINKS ) {
+					editDeleteLinks = "<br /><table><tr><td><a href='javascript:;' rel='#application.ADF.ajaxProxy#?bean=Forms_1_1&method=renderAddEditForm&formID=#ceDataArray[i].formID#&datapageId=#ceDataArray[i].pageID#&callback=#arguments.fieldID#_formCallback&title=Edit Record' class='ADFLightbox ui-icon ui-icon-pencil'></a></td>";
+					editDeleteLinks = editDeleteLinks & "<td><a href='javascript:;' rel='#application.ADF.ajaxProxy#?bean=Forms_1_1&method=renderDeleteForm&formID=#ceDataArray[i].formID#&datapageId=#ceDataArray[i].pageID#&callback=#arguments.fieldID#_formCallback&title=Delete Record' class='ADFLightbox ui-icon ui-icon-trash'></a></td></tr></table>";
+				    // Set the item class to add the spacing for the edit/delete links
+				    itemCls = itemCls & " itemEditDelete";
+				}
+				// Build the item, and add the Edit/Delete links
+				retHTML = retHTML & "<li id='#ceDataArray[i].Values[variables.CE_FIELD]#' class='#itemCls#'><div class='itemCell'>#LEFT(ceDataArray[i].Values[variables.ORDER_FIELD],26)##editDeleteLinks#</div></li>";
+			}
+		}
+	</cfscript>
+	<cfreturn retHTML>
 </cffunction>
 
 <!---
@@ -514,7 +465,7 @@ History:
 	<cfargument name="item" type="string" required="false" default="">
 	<cfargument name="queryType" type="string" required="false" default="selected">
 	<cfargument name="searchValues" type="string" required="false" default="">
-	<cfargument name="csPageID" type="numeric" required="false" default="">
+	<cfargument name="csPageID" type="numeric" required="false" default="-1">
 		
 	<cfscript>
 		// Initialize the return variable
@@ -566,67 +517,6 @@ History:
 		return retText;
 	</cfscript>
 	
-</cffunction>
-
-<!---
-/* ***************************************************************
-/*
-Author: 	M. Carroll
-Name:
-	$getShowAllLinksFlag
-Summary:
-	Returns the Show All Link flag back to the field type.
-Returns:
-	String -  variables.SHOW_ALL_LINK
-Arguments:
-	None
-History:
-	2009-04-06 - MFC - Created
---->
-<cffunction name="getShowAllLinksFlag" access="public" returntype="string" hint="Returns the Show All Link flag back to the field type.">
-	<cfreturn variables.SHOW_ALL_LINK>
-</cffunction>
-
-<!---
-/* ***************************************************************
-/*
-Author: 	M Carroll
-Name:
-	$getSelections
-Summary:
-	Wrapper to get the CE Data returned in HTML DIV Format.
-	Returns the html code for the selections of the profile select custom element.
-Returns:
-	String html code
-Arguments:
-	String - item - Items values for the CE records
-	String - queryType - Query Type, options [selected,notSelected,search]
-	String - searchValues - Search value
-History:
-	2009-10-16 - MFC - Created
---->
-<cffunction name="getSelections" access="public" returntype="string" hint="Returns the html code for the selections of the profile select custom element.">
-	<cfargument name="item" type="string" required="false" default="">
-	<cfargument name="queryType" type="string" required="false" default="selected">
-	<cfargument name="searchValues" type="string" required="false" default="">
-	<cfargument name="csPageID" type="numeric" required="false" default="">
-	
-	<cfscript>
-		var retHTML = "";
-		var i = 1;
-		var ceDataArray = getChooserData(arguments.item, arguments.queryType, arguments.searchValues, arguments.csPageID);
-		// Loop over the data 	
-		for ( i=1; i LTE ArrayLen(ceDataArray); i=i+1) {
-			// Assemble the render HTML
-			if ( StructKeyExists(ceDataArray[i].Values, "#variables.ORDER_FIELD#") 
-					AND LEN(ceDataArray[i].Values[variables.ORDER_FIELD])
-					AND StructKeyExists(ceDataArray[i].Values, "#variables.CE_FIELD#") 
-					AND LEN(ceDataArray[i].Values[variables.CE_FIELD]) ) {
-				retHTML = retHTML & "<li id='#ceDataArray[i].Values[variables.CE_FIELD]#' class='#variables.SELECT_ITEM_CLASS#'><div class='itemCell'>#LEFT(ceDataArray[i].Values[variables.ORDER_FIELD],50)#</li>";
-			}
-		}
-	</cfscript>
-	<cfreturn retHTML>
 </cffunction>
 
 </cfcomponent>

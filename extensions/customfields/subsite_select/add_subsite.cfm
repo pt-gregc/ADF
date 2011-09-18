@@ -17,16 +17,32 @@ By downloading, modifying, distributing, using and/or accessing any files
 in this directory, you agree to the terms and conditions of the applicable
 end user license agreement.
 --->
-
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.	
+Custom Field Type:
+	Subsite Select
+Name:
+	add_subsite.cfm
+Summary:
+	Helper file for the Subsite Select custom field type, when the option is enabled this is the UI that
+	is used to make the call to create a new subsite 
+ADF Requirements:
+	script_1_0
+History:
+	2007-01-24 - RLW - Created
+	2011-02-08 - GAC - Modified - Removed references to ptBlog2
+--->
 <cfoutput><html>
 	<head>
 		<title>Add Subsite</title>
 	</head>
 	<body>
 		<cfscript>
-			application.ptBlog2.scripts.loadJQuery();
-			application.ptBlog2.scripts.loadJQueryTools();
-			application.ptBlog2.scripts.loadADFLightbox();
+			application.ADF.scripts.loadJQuery();
+			application.ADF.scripts.loadJQueryTools();
+			application.ADF.scripts.loadADFLightbox();
 		</cfscript>
 		<div id="#fqFieldName#_add" title="Create New Subsite">
 			<fieldSet>

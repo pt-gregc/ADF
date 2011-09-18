@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
  
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2010.
+PaperThin, Inc. Copyright(C) 2011.
 All Rights Reserved.
  
 By downloading, modifying, distributing, using and/or accessing any files
@@ -19,8 +19,7 @@ end user license agreement.
 --->
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	
 	PaperThin, Inc.
 	Michael Carroll 
@@ -31,14 +30,17 @@ Name:
 Summary:
 	General Chooser field type.
 	Allows for selection of the custom element records.
-ADF Requirements:
-	lib/scripts/ceData_1_0
-	lib/scripts/SCRIPTS_1_0
+Version:
+	1.1.0
 History:
 	2009-10-16 - MFC - Created
 	2009-11-13 - MFC - Updated the Ajax calls to the CFC to call the controller 
 						function.  This allows only the "controller" function to 
 						listed in the proxy white list XML file.
+	2010-11-09 - MFC - Updated the Scripts loading methods to dynamically load the latest 
+						script versions from the Scripts Object.
+	2011-03-20 - MFC - Updated component to simplify the customizations process and performance.
+						Removed Ajax loading process.
 --->
 <cfscript>
 	// the fields current value
@@ -60,20 +62,32 @@ History:
 	if ( (StructKeyExists(request, "simpleformexists")) AND (request.simpleformexists EQ 1) )
 		renderSimpleFormField = true;
 </cfscript>
-
 <cfoutput>
-	
 	<cfscript>
 		// Load the scripts
-		scriptsObj = server.ADF.objectFactory.getBean("scripts_1_0");
-		scriptsObj.loadJQuery("1.3.2", xParams.forceScripts);
-		scriptsObj.loadJQueryUI("1.7.2", "ui-lightness", xParams.forceScripts);
-		//scriptsObj.loadThickbox("3.1", xParams.forceScripts);
-		//scriptsObj.loadJQueryTools();
-		scriptsObj.loadADFLightbox();
+		application.ADF.scripts.loadJQuery(force=xParams.forceScripts);
+		application.ADF.scripts.loadJQueryUI(force=xParams.forceScripts);
+		application.ADF.scripts.loadADFLightbox();
+		application.ADF.scripts.loadCFJS();
+		
+		// init Arg struct
+		initArgs = StructNew();
+		initArgs.fieldName = fqFieldName;
+		
+		// Build the argument structure to pass into the Run Command
+		selectionsArg = StructNew();
+		selectionsArg.item = currentValue;
+		selectionsArg.queryType = "selected";
+		selectionsArg.csPageID = request.page.id;
+		selectionsArg.fieldID = xParams.fieldID;
 	</cfscript>
 	
 	<script type="text/javascript">
+		// javascript validation to make sure they have text to be converted
+		#fqFieldName#=new Object();
+		#fqFieldName#.id='#fqFieldName#';
+		#fqFieldName#.tid=#rendertabindex#;
+		
 		var #xParams.fieldID#_ajaxProxyURL = "#application.ADF.ajaxProxy#";
 		var #xParams.fieldID#currentValue = "#currentValue#";
 		var #xParams.fieldID#searchValues = "";
@@ -81,115 +95,29 @@ History:
 		
 		jQuery(document).ready(function() {
 			
-			// Load the form sections
-			#xParams.fieldID#_initChooser();
-			#xParams.fieldID#_loadSection1();
-		    #xParams.fieldID#_loadSection2();
-		    #xParams.fieldID#_loadSection3();
-		   	checkResizeWindow();
+			// Resize the window on the page load
+			checkResizeWindow();
 			
 			// JQuery use the LIVE event b/c we are adding links/content dynamically		    
 		    // click for show all not-selected items
 		    jQuery('###fqFieldName#-showAllItems').live("click", function(event){
-			  	//#xParams.fieldID#queryType = 'notselected';
-				#xParams.fieldID#_loadTopics('notselected');
+			  	// Load all the not-selected options
+			  	#xParams.fieldID#_loadTopics('notselected');
 			});
 		    
 		    // JQuery use the LIVE event b/c we are adding links/content dynamically
 		    jQuery('###fqFieldName#-searchBtn').live("click", function(event){
-			  	//#xParams.fieldID#queryType = "search";
-				//load the search field into currentItems
+		  	//load the search field into currentItems
 				#xParams.fieldID#searchValues = jQuery('input###fqFieldName#-searchFld').val();
 				#xParams.fieldID#currentValue = jQuery('input###fqFieldName#').val();
 				#xParams.fieldID#_loadTopics('search')
 			});
+			
+			// Load the effects and lightbox - this is b/c we are auto loading the selections
+			#xParams.fieldID#_loadEffects();
+			// Re-init the ADF Lightbox
+			initADFLB();
 		});
-		
-		function #xParams.fieldID#_initChooser() {
-			// load the initial list items based on the top terms from the chosen facet
-			jQuery.get( #xParams.fieldID#_ajaxProxyURL,
-			{ 	
-				bean: '#xParams.chooserCFCName#',
-				method: 'controller',
-				chooserMethod: 'initChooser',
-				fieldName: '#fqFieldName#',
-				item: #xParams.fieldID#currentValue,
-				queryType: #xParams.fieldID#queryType,
-				searchValues: #xParams.fieldID#searchValues
-			},
-			function(msg){
-				jQuery("###xParams.fieldID#-gc-init-styles").html(msg);
-				checkResizeWindow();
-			});
-		
-		}
-		
-		function #xParams.fieldID#_loadSection1(){
-			// load the initial list items based on the top terms from the chosen facet
-			jQuery.get( #xParams.fieldID#_ajaxProxyURL,
-			{ 	
-				bean: '#xParams.chooserCFCName#',
-				method: 'controller',
-				chooserMethod: 'loadSection1',
-				fieldName: '#fqFieldName#'
-			},
-			function(msg){
-				jQuery("###xParams.fieldID#-gc-section1").html(msg);
-				checkResizeWindow();
-			});
-		}
-		
-		function #xParams.fieldID#_loadSection2(){
-			// load the initial list items based on the top terms from the chosen facet
-			jQuery.get( #xParams.fieldID#_ajaxProxyURL,
-			{ 	
-				bean: '#xParams.chooserCFCName#',
-				method: 'controller',
-				chooserMethod: 'loadSection2',
-				fieldName: '#fqFieldName#'
-			},
-			function(msg){
-				jQuery("###xParams.fieldID#-gc-section2").html(msg);
-				checkResizeWindow();
-				// reinitialize the ADFLightbox				
-				initADFLB();
-			});
-		}
-		
-		function #xParams.fieldID#_loadSection3(){
-			// load the initial list items based on the top terms from the chosen facet
-			jQuery.get( #xParams.fieldID#_ajaxProxyURL,
-			{ 	
-				bean: '#xParams.chooserCFCName#',
-				method: 'controller',
-				chooserMethod: 'loadSection3',
-				fieldName: '#fqFieldName#'
-			},
-			function(msg){
-				jQuery("###xParams.fieldID#-gc-section3").html(msg);
-				checkResizeWindow();
-				if ( jQuery('input###fqFieldName#').val() != "")
-				{
-					// Load the selected terms on initial load
-					#xParams.fieldID#_loadTopics('selected');
-				}
-				
-				// Check the SHOW ALL LINKS flag status
-				jQuery.get( #xParams.fieldID#_ajaxProxyURL,
-				{ 	
-					bean: '#xParams.chooserCFCName#',
-					method: 'controller',
-					chooserMethod: 'getShowAllLinksFlag'
-				},
-				function(msg){
-					// SHOW ALL LINKS flag is not displayed so auto file the selections.
-					if ( jQuery.trim(msg) == 'false'){
-						//#xParams.fieldID#queryType = 'notselected';
-						#xParams.fieldID#_loadTopics('notselected');
-					}
-				});
-			});
-		}
 		
 		function #xParams.fieldID#_loadTopics(queryType) {
 			// Put up the loading message
@@ -207,7 +135,8 @@ History:
 				item: #xParams.fieldID#currentValue,
 				queryType: queryType,
 				searchValues: #xParams.fieldID#searchValues,
-				csPageID: '#request.page.id#'
+				csPageID: '#request.page.id#',
+				fieldID: '#xParams.fieldID#'
 			},
 			function(msg){
 				if (queryType == "selected")
@@ -218,10 +147,9 @@ History:
 				#xParams.fieldID#currentValue = "#currentValue#";
 				#xParams.fieldID#_loadEffects();
 				
-				//pass where to apply thickbox
-				//tb_init('a.thickbox, area.thickbox, input.thickbox');
+				// Re-init the ADF Lightbox
+				initADFLB();
 			});
-			
 		}
 		
 		function #xParams.fieldID#_loadEffects() {
@@ -235,10 +163,21 @@ History:
 		function #xParams.fieldID#_serialize() {
 			// get the serialized list
 			var serialList = jQuery('###xParams.fieldID#-sortable2').sortable( 'toArray' );
+			
+			console.log(serialList);
+			
+			// Check if the serialList is Array
+			if ( jQuery.isArray(serialList) ){
+				serialList = jQuery.ArrayToList(serialList);
+			}
+			
 			// load serial list into current values
 			#xParams.fieldID#currentValue = serialList;
 			// load current values into the form field
 			jQuery("input###fqFieldName#").val(#xParams.fieldID#currentValue);
+			
+			console.log(#xParams.fieldID#currentValue);
+			
 		}
 		
 		// Resize the window function
@@ -251,31 +190,79 @@ History:
 	</script>
 	<tr>
 		<td class="cs_dlgLabelSmall" colspan="2">
-			<br />
 			<div>
 				#xparams.label#:
 			</div>
-			<div id="#xParams.fieldID#-gc-init-styles"></div>
+			<div id="#xParams.fieldID#-gc-init-styles">
+				<!--- Load the General Chooser Styles --->
+				#application.ADF.utils.runCommand(beanName=xParams.chooserCFCName,
+													methodName="loadStyles",
+													args=initArgs)#
+			</div>
 			<div id="#xParams.fieldID#-gc-main-area">
 				<div id="#xParams.fieldID#-gc-top-area">
+					<!--- SECTION 1 - TOP LEFT --->
 					<div id="#xParams.fieldID#-gc-section1">
-					</div>
+						<!--- Load the Search Box --->
+						#application.ADF.utils.runCommand(beanName=xParams.chooserCFCName,
+															methodName="loadSearchBox",
+															args=initArgs)#
+					</div>									
+					<!--- SECTION 2 - TOP RIGHT --->
 					<div id="#xParams.fieldID#-gc-section2">
+						<!--- Load the Add New Link --->
+						#application.ADF.utils.runCommand(beanName=xParams.chooserCFCName,
+															methodName="loadAddNewLink",
+															args=initArgs)#
 					</div>
 				</div>
+				<!--- SECTION 3 --->
 				<div id="#xParams.fieldID#-gc-section3">
+					<!--- Instructions --->
+					<div id="#xParams.fieldID#-gc-top-area-instructions">
+						Select the records you want to include in the selections by dragging 
+							items into or out of the 'Available Items' list. Order the columns 
+							within the datasheet by dragging items within the 'Selected Items' field.
+					</div>
+					<!--- Select Boxes --->
+					<div id="#xParams.fieldID#-gc-select-left-box-label">
+						<strong>Available Items</strong>
+					</div>
+					<div id="#xParams.fieldID#-gc-select-right-box-label">
+						<strong>Selected Items</strong>
+					</div>
+					<div id="#xParams.fieldID#-gc-select-left-box">
+						<ul id="#xParams.fieldID#-sortable1" class="connectedSortable">
+							<!--- Auto load the available selections --->
+							<cfscript>
+								// Set the query type flag before running the command
+								selectionsArg.queryType = "notselected";
+							</cfscript>
+							#application.ADF.utils.runCommand(beanName=xParams.chooserCFCName,
+															methodName="getSelections",
+															args=selectionsArg)#
+						</ul>
+					</div>
+					
+					<div id="#xParams.fieldID#-gc-select-right-box">
+						<ul id="#xParams.fieldID#-sortable2" class="connectedSortable">
+							<!--- Check if we have current values and load the selected data --->
+							<cfif LEN(currentValue)>
+								<cfscript>
+									// Set the query type flag before running the command
+									selectionsArg.queryType = "selected";
+								</cfscript>
+								#application.ADF.utils.runCommand(beanName=xParams.chooserCFCName,
+																methodName="getSelections",
+																args=selectionsArg)#
+							</cfif>
+						</ul>
+					</div>
 				</div>
 			</div>	
 			<input type="hidden" id="#fqFieldName#" name="#fqFieldName#" value="#currentValue#">
 		</td>
 	</tr>
-	
-	<script type="text/javascript">
-		// javascript validation to make sure they have text to be converted
-		#fqFieldName#=new Object();
-		#fqFieldName#.id='#fqFieldName#';
-		#fqFieldName#.tid=#rendertabindex#;
-	</script>
 	
 	<!--- // include hidden field for simple form processing --->
 	<cfif renderSimpleFormField>

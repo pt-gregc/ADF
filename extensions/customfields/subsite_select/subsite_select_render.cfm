@@ -17,22 +17,23 @@ By downloading, modifying, distributing, using and/or accessing any files
 in this directory, you agree to the terms and conditions of the applicable
 end user license agreement.
 --->
-
 <!---
-	$Id: .cfm,v 0.1 2006/12/14 11:00:00 Exp $
-
-	Description:
-		
-	Parameters:
-		none
-	Usage:
-		none
-	Documentation:
-		none
-	Based on:
-		none
-	History:
-		
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.	
+Custom Field Type:
+	Subsite Select
+Name:
+	subsite_select_render.cfm
+Summary:
+	Custom field type, that allows a new subsite to be created
+ADF Requirements:
+	script_1_0
+	csData_1_0
+History:
+	2007-01-24 - RLW - Created
+	2011-02-08 - GAC - Modified - Removed old jQuery tools reference
+								- Replaced the getBean call with Application.ADF
 --->
 <cfscript>
 	// the fields current value
@@ -40,14 +41,16 @@ end user license agreement.
 	// the param structure which will hold all of the fields from the props dialog
 	xparams = parameters[fieldQuery.inputID];
 	// load the jQuery library
-	scripts = server.ADF.objectFactory.getBean("scripts_1_0");
-	scripts.loadJQuery();
-	scripts.loadJQueryUI("1.7.2", "smoothness");
-	scripts.loadJQuerySelectboxes();
-	scripts.loadJQueryTools();
-	scripts.loadADFLightbox();
+	Application.ADF.scripts.loadJQuery();
+	Application.ADF.scripts.loadJQueryUI(themeName="smoothness");
+	Application.ADF.scripts.loadJQuerySelectboxes();
+	Application.ADF.scripts.loadADFLightbox();
+	
+	// Added for future use
+	// TODO: Add options in Props for a Bean and a Method that return a custom Subsite Struct
+	subsiteStructBeanName = "csData_1_0";
+	subsiteStructMethodName = "getSubsiteStruct";
 </cfscript>
-
 
 <cfoutput>
 	<script type="text/javascript">
@@ -64,16 +67,16 @@ end user license agreement.
 				}
 			)
 			// load the list of subsites
-			loadSubsites();		
+			#fqFieldName#_loadSubsites();		
 		});
 		
 		// get the list of subsites and load them into the select list
-		function loadSubsites()
+		function #fqFieldName#_loadSubsites()
 		{
 			jQuery.get("#application.ADF.ajaxProxy#",
-				{ 	bean: "csData_1_0",
-					method: "getSubsiteStruct",
-					subsiteURL: "#request.subsite.url#",
+				{ 	bean: "#subsiteStructBeanName#",
+					method: "#subsiteStructMethodName#",
+					//subsiteURL: "#request.subsite.url#",
 					returnFormat: "json" },
 				function( subsiteStruct )
 				{
@@ -83,6 +86,7 @@ end user license agreement.
 					jQuery("###fqFieldName#").sortOptions();
 					// make the current subsite selected
 					jQuery("###fqFieldName#").selectOptions("#currentValue#");
+					ResizeWindow();
 				},
 				"json"
 			);
@@ -97,7 +101,7 @@ end user license agreement.
 			var parentSubsiteID = $("###fqFieldName#").selectedValues();
 			// make the call to add the subsite
 			$.post("#application.ADF.ajaxProxy#", { 
-				bean: "BlogService",
+				bean: "csData",
 				method: "addSubsite",
 				name: subsiteName,
 				displayName: displayName,
@@ -139,9 +143,28 @@ end user license agreement.
 				return true;	
 		}*/
 		;		
-	</script>	
+	</script>
+	<cfscript>
+		if ( structKeyExists(request, "element") )
+		{
+			labelText = '<span class="CS_Form_Label_Baseline"><label for="#fqFieldName#">#xParams.label#:</label></span>';
+			tdClass = 'CS_Form_Label_Baseline';
+		}
+		else
+		{
+			labelText = '<label for="#fqFieldName#">#xParams.label#:</label>';
+			tdClass = 'cs_dlgLabel';
+		}
+	</cfscript>	
 	<tr>
-		<td class="cs_dlgLabel" valign="top">Choose Main Subsite:</td>
+		<td class="#tdClass#" valign="top">
+			<font face="Verdana,Arial" color="##000000" size="2">
+				<cfif xparams.req eq "Yes"><strong></cfif>
+				#labelText#
+				<cfif xparams.req eq "Yes"></strong></cfif>
+			</font>
+		</td>
+		<!--- <td class="cs_dlgLabel" valign="top">Choose Main Subsite:</td> --->
 		<td class="cs_dlgLabel" id="#fqFieldName#_subsite">
 			<!--- <div id="#fqFieldName#_add_msg" style="display:none;">
 				Subsite Added

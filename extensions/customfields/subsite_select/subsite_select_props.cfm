@@ -17,22 +17,20 @@ By downloading, modifying, distributing, using and/or accessing any files
 in this directory, you agree to the terms and conditions of the applicable
 end user license agreement.
 --->
-
 <!---
-	$Id: subsite_select_props.cfm,v 0.1 2007/01/24 12:50:00 Exp $
-
-	Description:
-		
-	Parameters:
-		none
-	Usage:
-		none
-	Documentation:
-		none
-	Based on:
-		none
-	History:
-		
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.	
+Custom Field Type:
+	Subsite Select
+Name:
+	subsite_select_props.cfm
+Summary:
+	Custom field type, that allows a new subsite to be created
+ADF Requirements:
+	none
+History:
+	2007-01-24 - RLW - Created
 --->
 <cfscript>
 	// initialize some of the attributes variables

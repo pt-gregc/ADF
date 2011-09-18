@@ -1,3 +1,5 @@
+<cfsetting requesttimeout="2500" showdebugoutput="false">
+<cfsilent>
 <!--- 
 The contents of this file are subject to the Mozilla Public License Version 1.1
 (the "License"); you may not use this file except in compliance with the
@@ -17,12 +19,8 @@ By downloading, modifying, distributing, using and/or accessing any files
 in this directory, you agree to the terms and conditions of the applicable 
 end user license agreement.
 --->
-
-<cfsetting requesttimeout="2500" showdebugoutput="false">
-<cfsilent>
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author:
 	PaperThin, Inc.
 Name:
@@ -32,7 +30,7 @@ Summary:
 History:
 	2009-06-12 - GAC - Created
 	2009-07-21 - RLW - Made generic - requires method and current subsite everything else is packaged
-	and sent to cfc specified
+						and sent to cfc specified
 	2009-08-03 - MFC - Updated building argStr to use URLEncodedFormat for the arguments.
 					   Added isdefined check for rending the reHTML variable.
 	2009-09-15 - MFC - Updated params to take a serialized CS Simple Form string and pass
@@ -43,91 +41,50 @@ History:
 	2009-12-03 - MFC - Updated IF block to add an "else if", removed dump
 	2010-02-24 - GAC - Updated to allow AjaxProxy error messages to be displayed when returning results in an ADFLightbox 
 	2010-03-04 - MFC - Added cfheader to not cache the ajax call.
+	2011-01-06 - RAK - Changed up to use runCommand from utils to avoid the evaluate.
+	2011-01-19 - GAC - Updated the runCommand call reHTML variable to allow calls to methods that return void 
+						also replaced IsDefined with StructKeyExists
+	2011-01-19 - GAC - Added a debug parameter and debug dumps before and after the reHTML processing
+						also added a try/catch around runCommand call, if an error is caught then debugging is auto enabled
+	2011-01-24 - GAC - Added the Return type of XML
+	2011-01-30 - RLW - Added a new parameter that allows commands to be run from ADF applications
+	2011-02-01 - GAC - Removed the args loop and replaced it with a method call to convert the parameters that are passed in to the args struct before calling the runCommand method
+	2011-02-02 - GAC - Moved all of the parameter and data processing code into a method in the ajax_1_0 lib component
+	2011-02-02 - GAC - Added proxyFile check to see if the method is being called from inside the proxy file
+	2011-02-09 - GAC - Removed ADFlightbox specific code
+	2011-03-10 - MFC - Added check for subsiteURL param, then load the APPLICATION.CFC 
+						to load the lightbox within the specific subsites application scope.
+	2011-03-11 - MFC - Updated the APPLICATION.CFC to use the ADF Application file
+						and loading the sites Application space function directly.
 --->
-	
 	<cfheader name="Expires" value="#now()#">
   	<cfheader name="Pragma" value="no-cache">
 	
-	<cfparam name="request.params.method" default="" />
-	<cfparam name="request.params.bean" default="" />
+	<cfparam name="request.params.method" default="" type="string">
+	<cfparam name="request.params.bean" default="" type="string">
 	<cfparam name="request.params.returnformat" default="plain">
-	<cfparam name="request.params.addMainTable" default="0">
+	<!--- // When attempting to DEGUG a RETURNFORMAT of JSON or XML, 
+			you may need to set the ajax call dataType to 'text', 'html' or nothing (ie. best guess) --->
+	<cfparam name="request.params.debug" default="0" type="boolean">
+	<cfparam name="request.params.appName" default="" type="string">
+	<!--- Default the subsiteURL param --->
+	<cfparam name="request.params.subsiteURL" default="" type="string">
+	
 	<cfscript>
-		bean = structNew();
-		reHTML = "";
-		argStr = "";
-		// set the flag that controls whether additional code is added to the reHTML output
-		forceOutput = false;
-		// set the flag for if we have a serialized form to pass to the function as a structure 
-		containsSerializedForm = false;
-		// Verify if the bean and method combo are allowed to be accessed
-		//	through the ajax proxy
-		passedSecurity = server.ADF.objectFactory.getBean("csSecurity_1_0").validateProxy(request.params.bean, request.params.method);
-		if ( passedSecurity )
-		{
-			// load the bean that we will call - check in application scope first
-			if( application.ADF.objectFactory.containsBean(request.params.bean) )
-				bean = application.ADF.objectFactory.getBean(request.params.bean);
-			else if( server.ADF.objectFactory.containsBean(request.params.bean) )
-				bean = server.ADF.objectFactory.getBean(request.params.bean);
-			methodname = trim(request.params.method);
-			// loop through request.params parameters to get arguments
-			for( itm=1; itm lte listLen(structKeyList(request.params)); itm=itm+1 )
-			{
-				thisParam = listGetAt(structKeyList(request.params), itm);
-				if( thisParam neq "method" and thisParam neq "bean" )
-				{
-					// Check if the argument name is 'serializedForm'
-					if ( thisParam EQ 'serializedForm' )
-					{
-						// Set the flag, and get the serialized form string into a structure
-						containsSerializedForm = true;
-						serialFormStruct = server.ADF.objectFactory.getBean("csData_1_0").serializedFormStringToStruct(request.params[thisParam]);
-					}
-					else
-						argStr = listAppend(argStr, "#thisParam#='#request.params[thisParam]#'");
-				}
-			}
-			// Check if we have a structure to pass to the function
-			if ( containsSerializedForm )
-				reHTML = Evaluate("bean.#methodname#(#argStr#,serializedForm=serialFormStruct)");
-			else if ( len(argStr) )
-				reHTML = Evaluate("bean.#methodname#(#argStr#)");
-			else
-				reHTML = Evaluate("bean.#methodname#()");
-			
-			if ( request.params.returnFormat eq "json" )
-			{
-				json = server.ADF.objectFactory.getBean("json");
-				// when jsonp calls are made there will be a variable called "jsonpCallback" it will
-				// represent the method in the caller to be executed - wrap the content in that function call
-				if( structKeyExists(request.params, "jsonpCallback") )
-					reHTML = "#request.params.jsonpCallback#(" & json.encode(reHTML) & ");";
-				else
-					reHTML = json.encode(reHTML);
-			}
-			if ( isStruct(reHTML) or isArray(reHTML) or isObject(reHTML) ) 
-			{
-				// set forceOutput to true to allow error string to be displayed in the ADFLightbox
-				forceOutput = true;
-				reHTML = "Error converting return format into string";
-			}
-		}
-		else
-		{
-			// set forceOutput to true to allow error string to be displayed in the ADFLightbox
-			forceOutput = true;
-			reHTML = "The Bean: #request.params.bean# with method: #request.params.method# is not accessible remotely via Ajax Proxy.";	
-		}
+		/*	Check if the subsiteURL is defined.
+	     *	If defined, then load the APPLICATION.CFC to load the lightbox within 
+		 * 		the specific subsites application scope.
+		 */
+		if ( LEN(request.params.subsiteURL) )
+			CreateObject("component","ADF.Application").loadSiteAppSpace(request.params.subsiteURL);	
+	
+		// reAJAX = ""; //Don't initalize the reAJAX allows for a return: void
+		ajaxData = Application.ADF.ajax.buildAjaxProxyString();
+		if ( StructKeyExists(ajaxData,"reString") )
+			reAJAX = ajaxData.reString;
 	</cfscript>
 </cfsilent>
-<cfif IsDefined("reHTML")>
-	<cfscript>if ( forceOutput IS true ) { application.ADF.scripts.loadADFLightbox(force=1); }</cfscript>
-	<!--- // if this is a lighbox window then add in the main table --->
-	<cfif request.params.addMainTable><cfoutput><table id="MainTable"><tr><td></cfoutput></cfif>
-		<cfoutput>#TRIM(reHTML)#</cfoutput>
-	<cfif request.params.addMainTable><cfoutput></td></tr></table></cfoutput></cfif>
+<cfif StructKeyExists(variables,"reAJAX")>
+	<cfif request.params.returnFormat eq "xml"><cfcontent type="text/xml; charset=utf-8"></cfif>
+	<cfoutput>#TRIM(reAJAX)#</cfoutput>
 </cfif>
-
-
-

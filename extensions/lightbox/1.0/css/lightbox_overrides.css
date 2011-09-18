@@ -39,3 +39,9 @@ div.lightboxContainer img {
 		margin: 0;
 		padding: 0;
 }
+/* 2010-11-26 - RAK - Changed to fixed. Specified height variable.*/
+.lightboxOverlay {
+	position: fixed;
+	width: 100%;
+	height: 100%;
+}

@@ -26,13 +26,16 @@ Name:
 	csSubsite_1_0.cfc
 Summary:
 	CCAPI Subsite functions for the ADF Library
+Version:
+	1.0.1
 History:
 	2009-06-17 - RLW - Created
+	2011-03-20 - RLW - Updated to use the new ccapi_1_0 component (was the original ccapi.cfc file)
 ---> 
 <cfcomponent displayname="csSubsite_1_0" extends="ADF.core.Base" hint="Constructs a CCAPI object and then creates a subsite based on the argument data passed in">
-<cfproperty name="version" value="1_0_0">
+<cfproperty name="version" value="1_0_1">
 <cfproperty name="type" value="transient">
-<cfproperty name="ccapi" type="dependency" injectedBean="ccapi">	
+<cfproperty name="ccapi" type="dependency" injectedBean="ccapi_1_0">	
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_0">
 <cfproperty name="csData" type="dependency" injectedBean="csData_1_0">
 <cfproperty name="wikiTitle" value="CSSubsite_1_0">
@@ -51,10 +54,13 @@ Arguments:
 	Struct subsiteData - the data for the subsite
 		[name, displayName, description, language]
 	Numeric subsiteID (optional) - where should this be located
+	Numeric doLogin 
 History:
 	2008-10-16 - RLW - Created
 	2009-06-25 - MFC - Updated logging for success
 						Updated IF block for CCAPI login
+	2011-02-09 - RAK - Var'ing un-var'd variables
+	2011-04-27 - MFC - Added Parent SubsiteID to the success log.
 --->
 <cffunction name="createSubsite" access="public" returntype="struct" hint="Creates the subsite based on argument data">
 	<cfargument name="subsiteData" type="struct" required="true" hint="Subsite Data struct ex: subsiteData['name'], subsiteData['displayName'], subsiteData['description']">
@@ -68,6 +74,7 @@ History:
 		var ws = "";
 		var logStruct = structNew();
 		var logArray = arrayNew(1);
+		var createResponse = '';
 		result.subsiteCreated = false;
 		// Check if we are not logged in
 		//	OR force login with function argument
@@ -76,13 +83,14 @@ History:
 		{
 			// construct the CCAPI object
 			variables.ccapi.initCCAPI();
-			ws = variables.ccapi.getWS();
+			//ws = variables.ccapi.getWS();
 			if( arguments.parentSubsite neq 0 )
 				variables.ccapi.login(arguments.parentSubsite);
 			else
 				variables.ccapi.login();
 		}
 		// create the subsite
+		ws = variables.ccapi.getWS();
 		createResponse = ws.createSubsite(ssid=variables.ccapi.getSSID(), sparams=arguments.subsiteData);
 		// check to see if update wasn't successful
 		if( listFirst(createResponse, ":") neq "Success" )
@@ -111,7 +119,7 @@ History:
 			result.subsiteCreated = "true";
 			result.response = createResponse;
 			
-			logStruct.msg = "Subsite Created: #arguments.subsiteData.name# - #listRest(createResponse, ':')#";
+			logStruct.msg = "Subsite Created: #arguments.subsiteData.name# - #listRest(createResponse, ':')# - Parent Subsite [#variables.ccapi.getSubsiteID()#]";
 			logStruct.logFile = 'CCAPI_create_subsite.log';
 			arrayAppend(logArray, logStruct);
 		}
@@ -120,6 +128,7 @@ History:
 	</cfscript>
 	<cfreturn result>
 </cffunction>
+
 <!---
 /* ***************************************************************
 /*
@@ -135,6 +144,7 @@ Arguments:
 History:
 	2009-06-25 - MFC - Created
 	2009-07-29 - RLW - Migrated to CSSubsite and converted app calls to global
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="buildSubsitesFromPath" access="public" returntype="numeric" hint="Verifies the subsite path exists or creates the subsites. Returns the last subsites ID.">
 	<cfargument name="subsitePath" type="string" required="true">
@@ -142,6 +152,7 @@ History:
 		var retSubsiteID = 1;
 		var currPath = "/";
 		var currSubsiteID = 0;
+		var ss_i = '';
 		// Loop over the subsite names
 		for ( ss_i = 1; ss_i LTE ListLen(arguments.subsitePath,'/'); ss_i = ss_i + 1) {
 			currPath = currPath & ListGetAt(arguments.subsitePath, ss_i, '/') & "/";
@@ -176,8 +187,9 @@ Arguments:
 History:
 	2009-06-25 - MFC - Created
 	2009-07-29 - RLW - Migrated to CSSubsite and converted app calls to global
+	2011-01-19 - GAC - Made the access for this function public 
 --->
-<cffunction name="handleCreateSubsite" access="private" returntype="numeric" hint="">
+<cffunction name="handleCreateSubsite" access="public" returntype="numeric" hint="">
 	<cfargument name="subsitePath" type="string" required="true">	
 	<cfscript>
 		var retSubID = 0;
@@ -203,4 +215,5 @@ History:
 	</cfscript>
 	<cfreturn retSubID>
 </cffunction>
+
 </cfcomponent>

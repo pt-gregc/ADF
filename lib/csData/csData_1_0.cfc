@@ -26,14 +26,23 @@ Name:
 	csData_1_0.cfc
 Summary:
 	CommonSpot Data Utils functions for the ADF Library
+Version:
+	1.0.2
 History:
 	2009-06-22 - MFC - Created
+	2011-02-23 - GAC - Added a helper method getGlobalKeywords that is used by getStandardMetadata to handle 
+					   the retrieval of Global Keywords from either CommonSpot 5.x or 6.x
+	2011-03-10 - MFC/GAC - Moved getGlobalKeywords function to CSData v1.1, and moved the latest
+						getCustomMetadata and getStandardMetadata functions to CSData v1.1.
+						Reverted getCustomMetadata and getStandardMetadata functions to later revisions
+						to avoid dependencies on functions in CSData v1.1.
 --->
 <cfcomponent displayname="csData_1_0" extends="ADF.core.Base" hint="CommonSpot Data Utils functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_0">
+<cfproperty name="version" value="1_0_1">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_0">
+<cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_0">
 <cfproperty name="wikiTitle" value="CSData_1_0">
 
 <!---
@@ -56,12 +65,21 @@ History:
 --->
 <cffunction name="getCustomMetadata" access="public" returntype="struct">
 	<cfargument name="pageID" type="numeric" required="yes">
-    <cfargument name="categoryID" type="numeric" required="yes">
-    <cfargument name="subsiteID" type="numeric" required="yes">
+    <cfargument name="categoryID" type="numeric" required="no" default="-1">
+    <cfargument name="subsiteID" type="numeric" required="no" default="-1">
     <cfargument name="inheritedTemplateList" type="string" required="no" default="">
+    <cfset var stdMetadata = "">
+	<!--- IF we are missing categoryID, subsiteID OR inheritedTemplateList get them! --->
+    <cfif arguments.categoryID eq -1 or arguments.subsiteID eq -1 or Len(inheritedTemplateList) eq 0>
+    	<cfscript>
+    		stdMetadata = getStandardMetadata(arguments.pageID);
+    		arguments.categoryID = stdMetadata.categoryID;
+    		arguments.subsiteID = stdMetadata.subsiteID;
+    		arguments.inheritedTemplateList = stdMetadata.inheritedTemplateList;
+    	</cfscript>
+    </cfif>
     <!--- // call the standard build struct module with the argument collection --->
-    <cfmodule template="/commonspot/metadata/build-struct.cfm"
-    	attributecollection="#arguments#">
+    <cfmodule template="/commonspot/metadata/build-struct.cfm" attributecollection="#arguments#">
     <cfreturn request.metadata>
 </cffunction>
 
@@ -119,10 +137,14 @@ Arguments:
 	Numeric - pageid
 History:
 	2009-05-27 - MFC - Created
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="getImagePageURL" returntype="String" access="public">
 	<cfargument name="pageid" type="numeric" required="true">
-
+	<cfscript>
+		var retURL = '';
+		var sitePageMap = '';
+	</cfscript>
 	<cfquery name="sitePageMap" datasource="#request.site.datasource#">
 		SELECT	SitePages.SubSiteID, SitePages.FileName
 		FROM    SitePages INNER JOIN
@@ -244,51 +266,64 @@ History:
 </cffunction>
 
 <!---
-	/* ***************************************************************
-	/*
-	Author: 	M. Carroll
-	Name:
-		$getCommonSpotSites
-	Summary:
-		Returns the CommonSpot sites for the server.
-	Returns:
-		Query - CommonSpot sites on the server
-	Arguments:
-		Void
-	History:
-		2009-06-05 - MFC - Created
+/* *************************************************************** */
+Author: 	M. Carroll
+Name:
+	$getCommonSpotSites
+Summary:
+	Returns the CommonSpot sites for the server.
+Returns:
+	Query - CommonSpot sites on the server
+Arguments:
+	Void
+History:
+	2009-06-05 - MFC - Created
+	2011-04-08 - MFC - Updated query to return 'DataSourceName' and 'RootURL' fields.
+						Added parameter for the site ID.
 --->
 <cffunction name="getCommonSpotSites" access="public" returntype="query" output="false" hint="Returns the CommonSpot sites for the server.">
+	<cfargument name="siteID" type="numeric" required="false" default="0">
+	
 	<cfset var siteQuery = QueryNew("tmp")>
 	<cfquery name="siteQuery" datasource="#request.serverdatasource#">
-		SELECT 		SiteID, SiteName, RootPath
+		SELECT 		SiteID, SiteName, RootPath, DataSourceName, RootURL
 		FROM 		ServerSites
 		WHERE		SiteState = 1
+		<cfif arguments.siteID GT 0>
+			AND     SiteID = <cfqueryparam value="#arguments.siteID#" cfsqltype="cf_sql_numeric">
+		</cfif>
 		ORDER BY	SiteName
 	</cfquery>
 	<cfreturn siteQuery>
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	Ron West
 Name:
-	$getCSMetadata
+	$getStandardMetadata
 Summary:
 	Return the standard metadata for a page
 Returns:
 	Struct metadata
 Arguments:
-	Numeric pageID
+	Numeric csPageID
 History:
 	2008-06-05 - RLW - Created
 	2010-03-08 - RLW - Added approvalStatus to check for "Active" state
+	2010-11-08 - MFC - Added PublicReleaseDate to return data
+	2010-12-16 - GAC - Added Confidentiality and IncludeInIndex to return data
+	2010-12-16 - GAC - Added globalKeywords to return data
+	2011-02-09 - RAK - Var'ing un-var'd variables
+	2011-03-10 - MFC/GAC - Removed KEYWORDS from Standard metadata due to specific to CS6.
+							KEYWORDS have been fixed in CSData v1.1.
 --->
 <cffunction name="getStandardMetadata" access="public" returntype="struct">
 	<cfargument name="csPageID" required="true" type="numeric">
 	<cfscript>
+		var getData = '';
 		var stdMetadata = structNew();
+		// build Standard Metadata return structure
 		stdMetadata.name = "";
 		stdMetadata.title = "";
 		stdMetadata.caption = "";
@@ -302,6 +337,11 @@ History:
 		stdMetadata.languageID = "";
 		stdMetadata.language = "";
 		stdMetadata.approvalStatus = "";
+		stdMetadata.PublicReleaseDate = "";
+		// IncludeInIndex list: ie. 1,2,4,8 |  1-include Page Index, 8-include in full text search
+		stdMetadata.IncludeInIndex = "";  
+		// confidentiality: 0-Unknown, 4-Confidential, 3-Highly Confidential, 5-Internal, 2-Public
+		stdMetadata.confidentiality = "";
 	</cfscript>
 	<!--- // get the data from site pages record --->
 	<cfquery name="getData" datasource="#request.site.datasource#">
@@ -315,13 +355,13 @@ History:
 			name,
 			lang,
 			fileName,
-			approvalStatus
+			approvalStatus,
+			PublicReleaseDate,
+			IsPublic,
+			Confidentiality
 		from sitePages
 		where id = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.csPageID#">
 	</cfquery>
-	<!--- // get the keywords
-		TODO need to get keywords
-	--->
 	<!--- // get category name
 		TODO need to get the category name
 	--->
@@ -333,7 +373,6 @@ History:
 			stdMetadata.title = getData.title;
 			stdMetadata.caption = getData.caption;
 			stdMetadata.description = getData.description;
-			stdMetadata.globalKeywords = "";
 			stdMetadata.categoryName = "";
 			stdMetadata.subsiteID = getData.subsiteID;
 			stdMetadata.templateID = listFirst(getData.inheritedTemplateList);
@@ -347,6 +386,10 @@ History:
 			stdMetadata.fileName = getData.fileName;
 			stdMetadata.languageID = getData.lang;
 			stdMetadata.approvalStatus = getData.approvalStatus;
+			stdMetadata.PublicReleaseDate = getData.PublicReleaseDate;
+			stdMetadata.Confidentiality = getData.Confidentiality;
+			if ( IsNumeric(getData.IsPublic) AND getData.IsPublic gt 0 ) 
+				stdMetadata.IncludeInIndex = Application.CS.site.IsPublicGetOptions(getData.IsPublic);
 		}
 	</cfscript>
 	<cfreturn stdMetadata>
@@ -372,14 +415,13 @@ History:
 --->
 <cffunction name="getPageMetadata" access="public" returntype="Struct" hint="Return the standard and custom metadata for a page.">
 	<cfargument name="pageID" required="true" type="numeric">
-	<cfargument name="categoryID" type="numeric" required="yes">
-    <cfargument name="subsiteID" type="numeric" required="yes">
-    <cfargument name="inheritedTemplateList" type="string" required="no" default="">
-
+	<cfargument name="categoryID" type="numeric" required="no">
+   <cfargument name="subsiteID" type="numeric" required="no">
+   <cfargument name="inheritedTemplateList" type="string" required="no" default="">
 	<cfscript>
 		var pageMetadata = StructNew();
 		pageMetadata.standard = getStandardMetadata(arguments.pageID);
-		pageMetadata.custom = getCustomMetadata(arguments.pageID, arguments.categoryID, arguments.subsiteID, arguments.inheritedTemplateList);
+		pageMetadata.custom = getCustomMetadata(pageMetadata.standard.pageID, pageMetadata.standard.categoryID, pageMetadata.standard.subsiteID, pageMetadata.standard.inheritedTemplateList);
 	</cfscript>
 	<cfreturn pageMetadata>
 </cffunction>
@@ -456,9 +498,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
 Name:
 	$formatSubsiteURL
 Summary:	
@@ -469,18 +512,19 @@ Arguments:
 	String subsiteURL
 History:
 	2009-06-30 - RLW - Created
+	2011-06-09 - MFC - Moved the "replace" line to the start of the function.
 --->
 <cffunction name="formatSubsiteURL" access="public" returntype="String" hint="Allows the subsiteURL to have a proper format">
 	<cfargument name="subsiteURL" type="string" required="true" hint="The URL that needs to be formatted">
 	<cfscript>
 		var formattedSubsiteURL = trim(arguments.subsiteURL);
+		// make sure all the slashes are forward slashes
+		formattedSubsiteURL = replace(formattedSubsiteURL, "\", "/", "all");
 		// make sure there is a previous slash
 		if( not left(formattedSubsiteURL, 1) eq "/" )
 			formattedSubsiteURL = "/" & formattedSubsiteURL;
 		if( not right(formattedSubsiteURL, 1) eq "/" )
 			formattedSubsiteURL = formattedSubsiteURL & "/";
-		// make sure all the slashes are forward slashes
-		formattedSubsiteURL = replace(formattedSubsiteURL, "\", "/", "all");
 	</cfscript>
 	<cfreturn formattedSubsiteURL>
 </cffunction>
@@ -500,11 +544,13 @@ Arguments:
 	Numeric csSubsiteID
 History:
 	2008-07-10 - RLW - Created
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="getCSPageByName" access="public" returntype="numeric">
 	<cfargument name="csPageName" type="string" required="true">
 	<cfargument name="csSubsiteID" type="numeric" required="true">
 	<cfset var csPageID = 0>
+	<cfset var getPageData = ''>
 	<cfquery name="getPageData" datasource="#request.site.datasource#">
 		select ID, subsiteID
 		from sitePages
@@ -532,11 +578,15 @@ Arguments:
 	String - file name
 History:
 	2008-07-25 - MFC - Created
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="findUploadFileExistsInSubsite" returntype="string" hint="Function returns T/F is file exists in subsite upload folder">
 	<cfargument name="inSubSiteID" type="numeric" required="Yes">
 	<cfargument name="inFileName" type="string" required="Yes">
-
+	<cfscript>
+		var fileDLoadPath = '';
+		var getSubSiteDir = '';
+	</cfscript>
 	<!--- // get the subsite folder path --->
 	<cfquery name="getSubSiteDir" datasource="#request.site.datasource#">
 		SELECT SubSiteDir
@@ -569,12 +619,16 @@ Arguments:
 	String - FileName
 History:
 	2008-07-30 - MFC - Created
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="copyUploadFileToSubsite" returntype="void" hint="Copies the uploaded file from the _cs_uploads to the subsite upload folder.">
 	<cfargument name="inSubSiteID" type="numeric" required="Yes">
 	<cfargument name="inFilePageID" type="numeric" required="Yes">
 	<cfargument name="inFileName" type="string" required="Yes">
-
+	<cfscript>
+		var uploadedFileName = '';
+		var updateUploadedDocsFileName = '';
+	</cfscript> 
 	<!--- Get the name for the file in the _cs_uploads folder --->
 	<cfset uploadedFileName = inFilePageID & "_1" & right(inFileName,4)>
 	<!--- copy the file to the subsites upload folder --->
@@ -604,10 +658,13 @@ History:
 	2008-08-19 - MFC - Created
 	2010-02-04 - MFC - Updated the getDocPublicNames query to add condition "VersionState = 2"
 						to return the current document
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="getUploadedDocPublicName" returntype="string" hint="Returns the public file name for the uploaded document">
 	<cfargument name="inCSPageID" type="numeric" required="Yes">
-
+	<cfscript>
+		var getDocPublicNames = '';
+	</cfscript>
 	<!--- // get the subsite folder path --->
 	<cfquery name="getDocPublicNames" datasource="#request.site.datasource#">
 		SELECT 	PublicFileName
@@ -660,10 +717,14 @@ Arguments:
 	Numeric csSubsiteID
 History:
 	2009-05-22 - SFS - Created
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="getCSPageByIndexTitle" access="public" returntype="numeric">
 	<cfargument name="csPageTitle" type="string" required="true">
 	<cfset var csPageID = 0>
+	<cfscript>
+		var getPageData = '';
+	</cfscript>
 	<cfquery name="getPageData" datasource="#request.site.datasource#">
 		select ID, subsiteID
 		from sitePages
@@ -690,10 +751,13 @@ Arguments:
 	String csPageURL
 History:
 	2009-07-24 - SFS - Created
+	2010-12-22 - GAC - Modified - Added VAR scoped variables for both queries
 --->
 <cffunction name="getCSPageDataByURL" access="public" returntype="query" hint="Returns a query containing the page ID and page title of the page URL provided">
 	<cfargument name="csPageURL" type="string" required="true">
-	<cfset var csPageData = QueryNew("empty")>
+	<cfset var getSubsiteID = QueryNew("ID")>
+	<cfset var getPageData = QueryNew("ID,Title")>
+	<cfset var csPageData = QueryNew("ID,Title")>
 	<cfquery name="getSubsiteID" datasource="#request.site.datasource#">
 		select ID
 		from SubSites
@@ -728,11 +792,14 @@ Arguments:
 	String - file name
 History:
 	2008-07-31 - MFC - Created
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="getUploadedFilePageID" returntype="string" hint="Returns Page ID for the subsite id and uploaded filename.">
 	<cfargument name="inSubSiteID" type="numeric" required="Yes">
 	<cfargument name="inFileName" type="string" required="Yes">
-
+	<cfscript>
+		var getPageID = '';
+	</cfscript>
 	<!--- // get the page id for the subsite and filename --->
 	<cfquery name="getPageID" datasource="#request.site.datasource#">
 		SELECT  SitePages.ID, SitePages.SubSiteID, UploadedDocs.PublicFileName
@@ -758,9 +825,13 @@ Arguments:
 History:
 	2009-05-12 - SFS - Initial Version
 	2009-05-13 - GAC - Update - Added cfqueryparam
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="getContactData" access="public" returntype="query" hint="Retrieves CommonSpot user data when given a user ID.">
 	<cfargument name="userID" required="yes" type="numeric" default="" hint="the numeric ID for the user to get data for">
+	<cfscript>
+		var selectContactData = '';
+	</cfscript>
 	<cfquery name="selectContactData" datasource="#request.site.usersdatasource#" maxrows="1"><!--- USERS DATASOURCE --->
 		SELECT *
 		FROM contacts
@@ -888,6 +959,7 @@ History:
 	2009-08-12 - GAC - Created
 	2009-09-14 - MFC - Updated the SQL statement to work with Oracle DB.
 	2009-09-23 - GAC - Set the request.subsitecache to [1]
+	2011-02-09 - GAC - Removed self-closing CF tag slashes
 --->
 <cffunction name="getDefaultRenderHandlerPath" returntype="string" access="public" 
 			hint="Returns the Path for the Default Render Handler for an Element.">
@@ -902,8 +974,8 @@ History:
 		SELECT CustomElementModules.ModulePath
 		FROM   AvailableControls, CustomElementModules
 		WHERE AvailableControls.ID = CustomElementModules.ElementType
-		AND LTRIM(RTRIM(AvailableControls.ShortDesc)) = <cfqueryparam cfsqltype="cf_sql_varchar" value="#TRIM(arguments.elementName)#" />
-	  	AND CustomElementModules.IsDefault = <cfqueryparam cfsqltype="cf_sql_bit" value="1" />
+		AND LTRIM(RTRIM(AvailableControls.ShortDesc)) = <cfqueryparam cfsqltype="cf_sql_varchar" value="#TRIM(arguments.elementName)#">
+	  	AND CustomElementModules.IsDefault = <cfqueryparam cfsqltype="cf_sql_bit" value="1">
 	</cfquery>
 
 	<cfscript>
@@ -913,7 +985,7 @@ History:
 			rhpath = getRenderHandler.ModulePath[1];
 	</cfscript>
 	
-	<cfreturn rhpath />
+	<cfreturn rhpath>
 </cffunction>
 
 <!---
@@ -931,6 +1003,7 @@ Arguments:
 	String - beanName - Bean Name object to search
 History:
 	2009-08-21 - MFC - Created
+	2011-05-17 - RAK - Replaced evaluate with a more appropriate efficient method
 --->
 <cffunction name="validateADFBeanObject" access="public" returntype="struct" hint="Search the Application spaces on the site for the for the bean object.">
 	<cfargument name="beanName" type="String" required="true">
@@ -945,7 +1018,7 @@ History:
 		for ( i = 1; i LTE ListLen(appSpaceList); i = i + 1)
 		{
 			// Find the bean name in the application space
-			if ( StructKeyExists( Evaluate('application.#ListGetAt(appSpaceList,i)#'), arguments.beanName) )
+			if ( StructKeyExists(application,ListGetAt(appSpaceList,i)) && StructKeyExists( StructFind(application,ListGetAt(appSpaceList,i)), arguments.beanName) )
 			{
 				statusStruct.validated = true;
 				statusStruct.nameSpace = ListGetAt(appSpaceList,i);
@@ -972,11 +1045,14 @@ Arguments:
 	Numeric - pageID - Page ID to verify the active/inactive status
 History:
 	2009-09-01 - MFC - Created
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="isCSPageActive" access="public" returntype="boolean" hint="Returns T/F for the active status of the page id.">
 	<cfargument name="pageID" type="numeric" required="true" hint="Page ID to verify the active/inactive status">
-	
-	<cfset var retStatus = false>
+	<cfscript>
+		var csPageStatus = '';
+		var retStatus = false;
+	</cfscript>
 	<cfquery name="csPageStatus" datasource="#request.site.datasource#">
 		SELECT 	approvalStatus
 		FROM 	sitepages 
@@ -1004,6 +1080,7 @@ Arguments:
 	Numeric - subsiteID - Subsite ID to return the subsite info.
 History:
 	2009-09-01 - MFC - Created
+	2011-01-05 - GAC - Modified - Added additional fields to return query results
 --->
 <cffunction name="getSubsiteQueryByID" access="public" returntype="query" hint="Returns a Query for the subsite information">
 	<cfargument name="subsiteID" type="numeric" required="true" hint="Subsite ID to return the subsite info.">
@@ -1013,7 +1090,7 @@ History:
 	<!--- // retrieve the susbsite info--->
 	<cfquery name="getSubsites" datasource="#request.site.datasource#">
 		SELECT     	SubSites.SubSiteDir, SubSites.SubSiteURL, SubSites.ParentID, SitePages.Name, SitePages.Title, SitePages.Description, 
-                      SubSites.ID AS subsiteID
+                      SubSites.ID AS subsiteID, SubSites.Lang, SubSites.UploadDir, SubSites.UploadURL
 		FROM        SitePages INNER JOIN
                       SubSites ON SitePages.ID = SubSites.SecurityPageID
 		WHERE		SubSites.ID = <cfqueryparam value="#arguments.subsiteID#" cfsqltype="cf_sql_integer">
@@ -1038,6 +1115,7 @@ Arguments:
 	Array - dataArray - Render Handler data array
 History:
 	2009-09-11 - MFC - Created
+	2011-02-09 - GAC - Removed self-closing CF tag slashes
 --->
 <cffunction name="getDefaultRenderHandlerHTML" access="public" returntype="string" hint="Returns the HTML for the default render handler with the passed in element name.">
 	<cfargument name="elementName" type="string" required="true" hint="Custom element name">
@@ -1049,7 +1127,7 @@ History:
 	<cfif LEN(TRIM(renderHandlerPath))>
 		<cfsavecontent variable="retHTML">
 			<cfset RHDataArray = arguments.dataArray>
-			<cfinclude template="#renderHandlerPath#" />
+			<cfinclude template="#renderHandlerPath#">
 		</cfsavecontent>
 	<cfelse>
 		retHTML = "<em>Can not find the Default Render Handler for this Content Type!</em>";
@@ -1133,37 +1211,25 @@ History:
 	2009-11-20 - RLW - clearing HTML entities from the CPIMAGE string via trick (xmlParse())
 	2010-03-08 - MFC - Added logic when checking for numeric characters to exit the loop when
 						find the first non-numeric character.
+	2011-06-24 - RLW - Added "imageID" into the structure returned
+	2011-09-06 - RAK - Removed the bulk of the logic to get the ID and replaced it with a single regular expression
 --->
 <cffunction name="decipherCPIMAGE" access="public" returntype="struct" hint="Returns the proper structure for an image based on the 'CPIMAGE:' text provided by CEData() calls">
 	<cfargument name="cpimage" type="string" required="true" hint="The 'CPIMAGE:' text that is returned from the CEData() call">
 	<cfscript>
 		var imageData = structNew();
-		var imageID = "";		
-		var strLen = "";
-		var loopCount = 1;
-		var str = "";
-		arguments.cpimage = xmlParse('<xml>' & listRest(arguments.cpimage, ":") & '</xml>').xmlRoot.xmlText;
-		strLen = len(arguments.cpimage);
-		imageData.resolvedURL = structNew();
-		imageData.resolvedURL.serverRelative = "";
-		// TODO
-		// should set other image detailed data like absoulte and alt text
-		// loop through the imageID until we get a non-numeric number
-		while( (loopCount lte strLen) )
-		{
-			str = mid(arguments.cpimage, loopCount, 1);
-			// Get the numeric value and keep the loop going
-			if( isNumeric(str) ) {
-				imageID = imageID & str;
-				loopCount = loopCount + 1;
-			}
-			else {
-				// First non-numeric value so get out of the loop
-				loopCount = strLen+1;
-			}
-		}	
-		if( len(imageID) )
+		var imageID = "";
+		//Search for a string that starts with CPIMAGE: and then in the second result set return all the numbers
+		var reResults = reFind("^CPIMAGE:([0-9]*)",arguments.cpimage ,0,true);
+		if(ArrayLen(reResults.LEN) gt 1){
+			//If we have more than 1 result we found the ID
+			//Get the ID out of the string by getting the mid to length of the second result in the RE find.
+			imageID = Mid(arguments.cpimage,reResults.pos[2],reResults.len[2]);
+		}
+		if( len(imageID) ){
 			imageData.resolvedURL.serverRelative = getImagePageURL(imageID);
+			imageData.imageID = imageID;
+		}
 	</cfscript>
 	<cfreturn imageData>
 </cffunction>
@@ -1233,63 +1299,66 @@ Actions:
 History:
 	2009-09-30 - GAC - Created
 	2010-08-12 - GAC - Modified - Cleaned up old debug code
+	2011-02-09 - GAC - Removed self-closing CF tag slashes
 --->
 <cffunction name="CSFile" access="public" returntype="struct">
-	<cfargument name="action" type="string" required="yes" hint="MOVE,COPY,WRITE,APPEND,UPLOAD,COPY,MOVE,DELETE,RENAME" />
-	<cfargument name="output" type="string" required="no" default="" hint="Content of the file to be created." />
-	<cfargument name="mode" type="numeric" required="no" default="775" />
-	<cfargument name="source" type="string" required="no" default="" />
-	<cfargument name="destination" type="string" required="no" default="" />
-	<cfargument name="file" type="string" required="no" default="" />
-	<cfargument name="filefield" type="string" required="no" default="" />
-	<cfargument name="newfilename" type="string" required="no" default="" />
-	<cfargument name="nameconflict" type="string" required="no" default="Error" />>
-	<cfargument name="directory" type="string" required="no" default="" />
-	<cfargument name="filter" type="string" required="no" default="" />
-	<cfargument name="direxists" type="string" required="no" default="1" />
-	<cfargument name="addnewline" type="string" required="no" default="Yes" />
+	<cfargument name="action" type="string" required="yes" hint="MOVE,COPY,WRITE,APPEND,UPLOAD,COPY,MOVE,DELETE,RENAME">
+	<cfargument name="output" type="string" required="no" default="" hint="Content of the file to be created.">
+	<cfargument name="mode" type="numeric" required="no" default="775">
+	<cfargument name="source" type="string" required="no" default="">
+	<cfargument name="destination" type="string" required="no" default="">
+	<cfargument name="file" type="string" required="no" default="">
+	<cfargument name="filefield" type="string" required="no" default="">
+	<cfargument name="newfilename" type="string" required="no" default="">
+	<cfargument name="nameconflict" type="string" required="no" default="Error">
+	<cfargument name="directory" type="string" required="no" default="">
+	<cfargument name="filter" type="string" required="no" default="">
+	<cfargument name="direxists" type="string" required="no" default="1">
+	<cfargument name="addnewline" type="string" required="no" default="Yes">
    
-	<cfset var retStruct = StructNew() />
-	<cfset var CFfile = "" />
-	<cfset var CFDirectory = "" />
-	<cfset var deletedFiles = "" />
-	<cfset var failedDeletions = "" />
-	<cfset var filesFound = "" />
-	<cfset var ActionSuccess = false />
+	<cfset var retStruct = StructNew()>
+	<cfset var CFfile = "">
+	<cfset var CPfile = "">
+	<cfset var CFDirectory = "">
+	<cfset var deletedFiles = "">
+	<cfset var failedDeletions = "">
+	<cfset var filesFound = "">
+	<cfset var ActionSuccess = false>
 	
 	<cftry>
 		<cfif Arguments.Action IS "MOVE"> <!--- // No "Move" Action in CP-CFFILE --->
 			<!--- // copy file --->
-			<cfset Arguments.Action = "COPY" />
+			<cfset Arguments.Action = "COPY">
 			<cfmodule template="/commonspot/utilities/cp-cffile.cfm"
 	    			attributecollection="#arguments#">
 			<!--- // delete file --->
-			<cfset Arguments.Action = "DELETE" />
-			<cfset Arguments.file = Arguments.Source />
-			<cfset Arguments.Source = "" />
-			<cfset Arguments.destination = "" />
+			<cfset Arguments.Action = "DELETE">
+			<cfset Arguments.file = Arguments.Source>
+			<cfset Arguments.Source = "">
+			<cfset Arguments.destination = "">
 			<cfmodule template="/commonspot/utilities/cp-cffile.cfm"
 	    			attributecollection="#arguments#">
-	    	<cfset Arguments.Action = "MOVE" />
+	    	<cfset Arguments.Action = "MOVE">
 		<cfelse>
 			<!--- // call the standard build struct module with the argument collection --->
 			<cfmodule template="/commonspot/utilities/cp-cffile.cfm"
 	    		attributecollection="#arguments#">
 		</cfif>
-		<cfset ActionSuccess = true />
+		<cfset ActionSuccess = true>
 		<cfcatch>
-			<cfset ActionSuccess = false />
+			<cfset ActionSuccess = false>
 		</cfcatch>
 	</cftry>
 
 	<cfscript>
 		retStruct["Arguments"] = Arguments;
 		retStruct["CFfile"] = CFfile;
+		retStruct["CPfile"] = CPfile;
 		retStruct["CFDirectory"] = CFDirectory;
 		retStruct["Success"] = ActionSuccess;
 	</cfscript>
 
-    <cfreturn retStruct />
+    <cfreturn retStruct>
 </cffunction>
 
 <!---
@@ -1382,8 +1451,7 @@ History:
 	<cfreturn pageDataAry>
 </cffunction>
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	Ron West
 Name:
 	$pagesContainingRH
@@ -1397,32 +1465,39 @@ History:
  	2009-11-30 - RLW - Created
 	2010-02-24 - GAC - Modified - Updated to eliminate empty metadata arrays and duplicate pageids
 	2010-08-03 - GAC - Modified - Strip the provided path for comparison from RH files in the root RH directory
+	2011-02-09 - RAK - Var'ing un-var'd variables
+	2011-03-20 - SFS - Modified getModuleData to be database agnostic
+	2010-06-29 - GAC - Modified - Set the getModuleData query to return multiple module IDs instead of maxrow=1 from the CustomElementModule table. 
+									Then the returned Module IDs are converted to a List to be used in the WHERE statement using an IN to get all the PageIDs 
+									from the data_custom_render table. This will allow the correct pageData will be returned if multiple elements  use the same render handler.
 --->
 <cffunction name="pagesContainingRH" access="public" returntype="array" hint="">
 	<cfargument name="modulePath" type="string" required="true">
 	<cfscript>
+		var getModuleData = '';
 		var pageDataAry = arrayNew(1);
 		var getPages = queryNew('');
 		var itm = 1;
 		var pageMetadata = structNew();
 		var modPath = TRIM(arguments.modulePath);
+		var moduleIDlist = "";
 		
 		// If the passed in ModulePath is in the CS Default RH directory, strip the path info and just leave the file name
-		if ( Lcase(ListFirst(modPath,"/")) IS "renderhandlers" OR FindNoCase(request.site.renderhandlerURL,modPath) ) {
+		if ( Lcase(ListFirst(modPath,"/")) IS "renderhandlers" OR FindNoCase(request.site.renderhandlerURL,modPath) ) 
 			modPath = ListLast(modPath,"/");
-		}
 	</cfscript>
 	<!--- // retrieve the moduleID --->
 	<cfquery name="getModuleData" datasource="#request.site.datasource#">
-		select top 1 ID
+		select ID
 		from CustomElementModules
 		where modulePath = <cfqueryparam cfsqltype="cf_sql_varchar" value="#modPath#">
 	</cfquery>
 	<cfif getModuleData.recordCount>
+		<cfset moduleIDlist = ValueList(getModuleData.ID)>
 		<cfquery name="getPages" datasource="#request.site.datasource#">
 			select distinct pageID
 			from data_custom_render
-			where moduleID = <cfqueryparam cfsqltype="cf_sql_integer" value="#getModuleData.ID#">
+			where moduleID IN (<cfqueryparam cfsqltype="cf_sql_integer" value="#moduleIDlist#" list="true">)
 		</cfquery>
 		<cfscript>
 			if( getPages.recordCount )
@@ -1491,6 +1566,7 @@ History:
 <cffunction name="getLanguageName" access="public" returntype="String" hint="Given a languageID retrieve the language name">
 	<cfargument name="langID" type="numeric" required="true">
 	<cfscript>
+		var getData = '';
 		var langName = "";
 	</cfscript>
 	<cfquery name="getData" datasource="#request.site.datasource#">
@@ -1516,11 +1592,15 @@ Returns:
 Arguments:
 	String MIMEType
 History:
- 2010-01-16 - RLW - Created
+ 	2010-01-16 - RLW - Created
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="getDocIcon" access="public" returntype="string" hint="Returns the document Icon based on the MIME type">
 	<cfargument name="MIMEType" type="string" required="true" hint="The MIME type for the document">
-	<cfset var iconPath = "">
+	<cfscript>
+		var getDocInfo = '';
+		var iconPath = "";
+	</cfscript>
 	<cfquery name="getDocInfo" datasource="#request.site.datasource#">
 		select iconPath
 		from formats
@@ -1572,7 +1652,7 @@ History:
 		}
     </cfscript>
    	<cfquery name="pageQry" datasource="#request.site.datasource#">
-   		select ID, filename, title, subsiteID
+   		select ID, filename, title, subsiteID, uploaded, pageType, DocType
 		from sitePages
 		where subsiteID in (<cfqueryparam cfsqltype="cf_sql_numeric" value="#subsiteList#" list="true">)
 		and uploaded in (<cfqueryparam cfsqltype="cf_sql_numeric" value="#uploaded#" list="true">)
@@ -1647,7 +1727,6 @@ History:
 	<cfreturn isAPage>
 </cffunction>
 
-
 <!---
 /* ***************************************************************
 /*
@@ -1661,15 +1740,33 @@ Returns:
 Arguments:
 	Numeric templateID
 History:
- 2010-10-08 - RAK - Created
+ 	2010-10-08 - RAK - Created
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="getPageIdsUsingTemplateID" access="public" returntype="array" hint="Returns an array of page ids that DIRECTLY utilize the template">
 	<cfargument name="templateID" type="numeric" required="true">
+	<cfargument name="subsiteID" type="numeric" required="false" default="-1" hint="Gets only pages that reside within this subsite that directly utilize the template">
+	<cfargument name="includeSubsiteDescendants" type="boolean" required="false" default="false" hint="If true and subsiteID is selected will return pages that directly utilize the template within the subsite and its ancestors">
+	<cfscript>
+		var templatePages = '';
+		var subsiteList = "";
+		var decendants = "";
+		if(arguments.subsiteID neq -1){
+			subsiteList="#arguments.subsiteID#";
+			if(arguments.includeSubsiteDescendants and StructKeyExists(application.subsitecache,arguments.subsiteID)){
+				subsiteList = subsiteList&","&request.subsitecache[arguments.subsiteID].DESCENDANTLIST;
+			}
+		}
+	</cfscript>
 	<cfquery name="templatePages" datasource="#request.site.datasource#">
 		SELECT id
-		from sitePages
-		where InheritedTemplateList like <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.templateID#,%">
+		  FROM sitePages
+		 WHERE InheritedTemplateList like <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.templateID#,%">
+		<cfif Len(subsiteList)>
+			AND <cfmodule template="/commonspot/utilities/handle-in-list.cfm" field="SubSiteID" list="#subsiteList#">
+		</cfif>
 	</cfquery>
 	<cfreturn ListToArray(valueList(templatePages.ID))>
 </cffunction>
+
 </cfcomponent>

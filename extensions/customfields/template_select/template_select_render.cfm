@@ -50,6 +50,7 @@ end user license agreement.
 					
 					// Load the on change binding for the select field
 					#fqFieldName#_loadBinding();
+					ResizeWindow();
 				},
 				"json"
 			);

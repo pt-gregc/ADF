@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2010.
+PaperThin, Inc. Copyright(C) 2011.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -29,10 +29,11 @@ Summary:
 	Config component for Custom Application Common Framework
 History:
 	2009-05-11 - MFC - Created
+	2011-04-05 - MFC - Updated the version property.
 --->
 <cfcomponent name="Config" hint="Config component for Application Development Framework" extends="ADF.core.Base">
 
-<cfproperty name="version" value="1_0_0">
+<cfproperty name="version" value="1_5_0">
 <!--- 
 	TODO determine if a.) Config should be versioned and b.) if we should allow for injection
 <cfproperty type="dependency" name="ceData" injectedBean="ceData_1_0"> --->
@@ -52,6 +53,7 @@ History:
 	History:
 		2009-05-17 - RLW - Created
 		2009-11-19 - GAC - Modified to read a XML config values from an included .CFM file
+		2011-03-20 - RLW - Modified to use the new deserializeXML function loaded into Base
 	--->
 <cffunction name="getConfigViaXML" access="public" returntype="struct" output="true">
 	<cfargument name="filePath" type="string" required="true">
@@ -78,7 +80,7 @@ History:
 			<cffile action="read" file="#arguments.filePath#" variable="configXML">
 		</cfif>
 		<cftry>
-			<cfset configStruct = Server.CommonSpot.MapFactory.deserialize(configXML)>
+			<cfset configStruct = deserializeXML(configXML)>
 			<cfcatch>
 				<!--- // TODO: this needs some error catching --->
 				<!--- <cfdump var="#cfcatch#" lablel="cfcatch" expand="false"> --->
@@ -125,13 +127,12 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	M. Carroll
 Name:
 	$searchConfigurationCE
 Summary:
-	Returns the sites sustom elements that have the title ending in 'Configuration'
+	Returns the sites custom elements that have the title ending in 'Configuration'
 Returns:
 	Query
 Arguments:
@@ -140,21 +141,26 @@ History:
 	2009-08-06 - MFC - Created
 	2010-06-30 - MFC - Updated to search on lower case form name.
 						Resolved bug with Oracle DB.s
+	2011-02-14 - MFC - Code clean up: Removed the tabs in the SQL statement, 
+						removed QueryNew, cfscript block for variables.
 --->
 <cffunction name="getConfigurationCE" access="private" returntype="query">
 	<cfargument name="appName" type="string" required="true">
 	
 	<!--- Initialize the variables --->
-	<cfset var getCE = QueryNew("temp")>
-	<cfset var ceConfigNameSpace = LCAse(arguments.appName) & " configuration">
-	<cfset var ceConfigNameUnderscore = LCAse(arguments.appName) & "_configuration">
-
-	<!--- Query to get the data for the custom element by pageid --->
+	<cfscript>
+		var getCE = "";
+		var ceConfigNameSpace = LCase(arguments.appName) & " configuration";
+		var ceConfigNameUnderscore = LCase(arguments.appName) & "_configuration";
+	</cfscript>
+	
+	<!--- Query to get the data for the custom element by form name --->
 	<cfquery name="getCE" datasource="#request.site.datasource#">
-		SELECT 	ID, FormName
-		FROM 	FormControl
-		WHERE 	((LOWER(FormName) = <cfqueryparam cfsqltype="cf_sql_varchar" value="#ceConfigNameUnderscore#">) OR (LOWER(FormName) = <cfqueryparam cfsqltype="cf_sql_varchar" value="#ceConfigNameSpace#">))
-		AND 	(FormControl.action = '' OR FormControl.action is null)
+		SELECT ID, FormName
+		  FROM FormControl
+		 WHERE ((LOWER(FormName) = <cfqueryparam cfsqltype="cf_sql_varchar" value="#ceConfigNameUnderscore#">) 
+		       OR (LOWER(FormName) = <cfqueryparam cfsqltype="cf_sql_varchar" value="#ceConfigNameSpace#">))
+		   AND (FormControl.action = '' OR FormControl.action is null)
 	</cfquery>
 	<cfreturn getCE>
 </cffunction>

@@ -26,12 +26,14 @@ Name:
 	csSecurity_1_0.cfc
 Summary:
 	Custom Element Security functions for the ADF Library
+Version:
+	1.0.1
 History:
 	2009-07-08 - MFC - Created
 --->
 <cfcomponent displayname="csSecurity_1_0" extends="ADF.core.Base" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_0">
+<cfproperty name="version" value="1_0_1">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="CSSecurity_1_0">
 
@@ -49,13 +51,15 @@ Arguments:
 	Void
 History:
 	2009-07-08 - MFC - Created
+	2010-11-28 - MFC - Added new check for user in the request scope.
 --->
 <cffunction name="isValidContributor" access="public" returntype="boolean" hint="Returns T/F if the logged in user is a content contributor">
 	<cfscript>
 		var result = false;
 		// Verify if the logged in user id contributor
-		if ( (StructKeyExists(request.user, "licensedcontributor")) AND (request.user.licensedcontributor EQ 1) )
+		if ( StructKeyExists(request,"user") AND StructKeyExists(request.user, "licensedcontributor") AND request.user.licensedcontributor EQ 1){
 			result = true;
+		}
 	</cfscript>
 	<cfreturn result>
 </cffunction>
@@ -86,8 +90,7 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	M. Carroll
 Name:
 	$validateProxy
@@ -100,6 +103,8 @@ Arguments:
 	String - method - Method requesting permission
 History:
 	2009-11-05 - MFC - Created
+	2011-03-20 - MFC - Reconfigured Proxy White List to store in application space 
+						to avoid conflicts with multiple sites. 
 --->
 <cffunction name="validateProxy" access="public" returntype="boolean" hint="Returns T/F for if the component method is in the Proxy White List.">
 	<cfargument name="bean" type="string" required="true" hint="Component bean name">
@@ -107,9 +112,9 @@ History:
 	
 	<cfscript>
 		// Check if the bean exists in the proxy white list struct
-		if ( StructKeyExists(server.ADF.proxyWhiteList, arguments.bean) ){
+		if ( StructKeyExists(application.ADF.proxyWhiteList, arguments.bean) ){
 			// If we have a method list and we have a match to our argument
-			if ( (ListFindNoCase(server.ADF.proxyWhiteList[arguments.bean], arguments.method)) )
+			if ( (ListFindNoCase(application.ADF.proxyWhiteList[arguments.bean], arguments.method)) )
 				return true;
 			else
 				return false;

@@ -26,12 +26,14 @@ Name:
 	data_1_0.cfc
 Summary:
 	Data Utils component functions for the ADF Library
+Version:
+	1.0.1
 History:
 	2009-06-22 - PaperThin, Inc. - Created
 --->
 <cfcomponent displayname="data_1_0" extends="ADF.core.Base" hint="Data Utils component functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_0">
+<cfproperty name="version" value="1_0_2">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Data_1_0">
 
@@ -121,12 +123,14 @@ Returns:
 	Query
 Arguments:
 	Array
+	Boolean - forceColsToVarchar
 History:
 	2009-01-20 - MFC - Created
+	2011-09-01 - GAC - Modified - Added a flag to force all query columns to be varchar datatype
 --->
 <cffunction name="arrayOfStructuresToQuery" access="public" returntype="query">
 	<cfargument name="theArray" type="array" required="true">
-
+	<cfargument name="forceColsToVarchar" type="boolean" default="false" required="false">	
 	<cfscript>
 		/**
 		* Converts an array of structures to a CF Query Object.
@@ -140,16 +144,31 @@ History:
 		* @version 2, March 19, 2003
 		*/
 	    var colNames = "";
-	    var theQuery = queryNew("");
+	    var theQuery = QueryNew("tmp");
 	    var i=0;
 	    var j=0;
+	    var c=0;
+	    var colNamesList = "";
+	    var colTypesList = "";
 	    //if there's nothing in the array, return the empty query
-	    if(NOT arrayLen(arguments.theArray))
+	    if ( NOT arrayLen(arguments.theArray) )
 	        return theQuery;
 	    //get the column names into an array =
 	    colNames = structKeyArray(arguments.theArray[1]);
+	    //convert the colNames Array to a list
+	    colNamesList = arrayToList(colNames);
 	    //build the query based on the colNames
-	    theQuery = queryNew(arrayToList(colNames));
+	    if ( arguments.forceColsToVarchar )
+	    {
+	  		// Create a dataTypes list of all VarChar to pass in to the QueryNew function 
+	  		for ( c=1; c LTE ListLen(colNamesList); c=c+1)
+	    		colTypesList = ListAppend(colTypesList,"VarChar");
+	    	theQuery = queryNew(colNamesList,colTypesList);    
+	    }
+	    else
+	    {
+	    	theQuery = queryNew(colNamesList);
+	    }
 	    //add the right number of rows to the query
 	    queryAddRow(theQuery, arrayLen(arguments.theArray));
 	    //for each element in the array, loop through the columns, populating the query
@@ -218,13 +237,13 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	M. Carroll
 Name:
 	$CSVToArray
 Summary:
 	CSV format to Array
+	http://www.bennadel.com/blog/991-CSVToArray-ColdFusion-UDF-For-Parsing-CSV-Data-Files.htm
 Returns:
 	Array
 Arguments:
@@ -234,6 +253,8 @@ Arguments:
 	Boolean - Trim
 History:
 	2008-10-30 - MFC - Created
+	2011-02-09 - MFC - Renamed the "LOCAL" variable name.
+						Updated the comment header for the credits.
 --->
 <cffunction name="CSVToArray" access="public" returntype="array" output="false" hint="Takes a CSV file or CSV data value and converts it to an array of arrays based on the given field delimiter. Line delimiter is assumed to be new line / carriage return related.">
 	<!--- Define arguments. --->
@@ -243,7 +264,7 @@ History:
 	<cfargument name="Trim" type="boolean" required="false" default="true" hint="Flags whether or not to trim the END of the file for line breaks and carriage returns."/>
 
 	<!--- Define the local scope. --->
-	<cfset var LOCAL = StructNew() />
+	<cfset var _LOCAL = StructNew() />
 
 	<!---
 	Check to see if we are using a CSV File. If so,
@@ -284,7 +305,7 @@ History:
 	CSV tokens including the field values as well as any
 	delimiters along the way.
 	--->
-	<cfset LOCAL.Pattern = CreateObject(
+	<cfset _LOCAL.Pattern = CreateObject(
 	"java",
 	"java.util.regex.Pattern"
 	).Compile(
@@ -308,17 +329,17 @@ History:
 	CSV data). This will allows us to iterate over all the
 	tokens in the CSV data for individual evaluation.
 	--->
-	<cfset LOCAL.Matcher = LOCAL.Pattern.Matcher( JavaCast( "string", ARGUMENTS.CSV ) ) />
+	<cfset _LOCAL.Matcher = _LOCAL.Pattern.Matcher( JavaCast( "string", ARGUMENTS.CSV ) ) />
 
 	<!---
 	Create an array to hold the CSV data. We are going
 	to create an array of arrays in which each nested
 	array represents a row in the CSV data file.
 	--->
-	<cfset LOCAL.Data = ArrayNew( 1 ) />
+	<cfset _LOCAL.Data = ArrayNew( 1 ) />
 
 	<!--- Start off with a new array for the new data. --->
-	<cfset ArrayAppend( LOCAL.Data, ArrayNew( 1 ) ) />
+	<cfset ArrayAppend( _LOCAL.Data, ArrayNew( 1 ) ) />
 
 
 	<!---
@@ -330,13 +351,13 @@ History:
 	Each match will have at least the field value and
 	possibly an optional trailing delimiter.
 	--->
-	<cfloop condition="LOCAL.Matcher.Find()">
+	<cfloop condition="_LOCAL.Matcher.Find()">
 		<!---
 		Get the delimiter. We know that the delimiter will
 		always be matched, but in the case that it matched
 		the START expression, it will not have a length.
 		--->
-		<cfset LOCAL.Delimiter = LOCAL.Matcher.Group(	JavaCast( "int", 1 ) ) />
+		<cfset _LOCAL.Delimiter = _LOCAL.Matcher.Group(	JavaCast( "int", 1 ) ) />
 
 		<!---
 		Check for delimiter length and is not the field
@@ -345,16 +366,16 @@ History:
 		need to check the length because it might be the
 		START STRING match which is empty.
 		--->
-		<cfif (	Len( LOCAL.Delimiter ) AND (LOCAL.Delimiter NEQ ARGUMENTS.Delimiter) )>
+		<cfif (	Len( _LOCAL.Delimiter ) AND (_LOCAL.Delimiter NEQ ARGUMENTS.Delimiter) )>
 			<!--- Start new row data array. --->
-			<cfset ArrayAppend(	LOCAL.Data,	ArrayNew( 1 )	) />
+			<cfset ArrayAppend(	_LOCAL.Data,	ArrayNew( 1 )	) />
 		</cfif>
 
 		<!---
 		Get the field token value in group 2 (which may
 		not exist if the field value was not qualified.
 		--->
-		<cfset LOCAL.Value = LOCAL.Matcher.Group( JavaCast( "int", 2 ) ) />
+		<cfset _LOCAL.Value = _LOCAL.Matcher.Group( JavaCast( "int", 2 ) ) />
 
 		<!---
 		Check to see if the value exists. If it doesn't
@@ -362,30 +383,30 @@ History:
 		it does exist, then we want to replace any escaped
 		embedded quotes.
 		--->
-		<cfif StructKeyExists( LOCAL, "Value" )>
+		<cfif StructKeyExists( _LOCAL, "Value" )>
 		<!---
 		Replace escpaed quotes with an unescaped double
 		quote. No need to perform regex for this.
 		--->
-			<cfset LOCAL.Value = Replace(	LOCAL.Value,"""""","""","all"	) />
+			<cfset _LOCAL.Value = Replace(	_LOCAL.Value,"""""","""","all"	) />
 		<cfelse>
 
 		<!---
 		No qualified field value was found, so use group
 		3 - the non-qualified alternative.
 		--->
-			<cfset LOCAL.Value = LOCAL.Matcher.Group(	JavaCast( "int", 3 ) ) />
+			<cfset _LOCAL.Value = _LOCAL.Matcher.Group(	JavaCast( "int", 3 ) ) />
 		</cfif>
 
 		<!--- Add the field value to the row array. --->
-		<cfset ArrayAppend(	LOCAL.Data[ ArrayLen( LOCAL.Data ) ],	LOCAL.Value	) />
+		<cfset ArrayAppend(	_LOCAL.Data[ ArrayLen( _LOCAL.Data ) ],	_LOCAL.Value	) />
 	</cfloop>
 
 	<!---
 	At this point, our array should contain the parsed
 	contents of the CSV value. Return the array.
 	--->
-	<cfreturn LOCAL.Data />
+	<cfreturn _LOCAL.Data />
 </cffunction>
 
 <!---
@@ -674,9 +695,11 @@ History:
 		Query queryData
 	History:
 		2009-07-05 - RLW - Created
+		2011-02-07 - GAC - Added parameter to force all StructKeys to lowercase 
 	--->
 <cffunction name="queryToArrayOfStructures" access="public" returntype="Array" hint="Converts a query to an array of structures">
 	<cfargument name="queryData" type="query" required="true" hint="The query that will be converted into an array of structures">
+	<cfargument name="keysToLowercase" type="boolean" required="false" default="false" hint="Use to convert struct key to lowercase">
 	<!---
 	This library is part of the Common Function Library Project. An open source
 		collection of UDF libraries designed for ColdFusion 5.0 and higher. For more information,
@@ -714,10 +737,13 @@ History:
 		for(row = 1; row LTE arguments.queryData.recordcount; row = row + 1){
 			thisRow = structnew();
 			for(col = 1; col LTE arraylen(cols); col = col + 1){
-				thisRow[cols[col]] = arguments.queryData[cols[col]][row];
+				if ( arguments.keysToLowercase ) 
+					thisRow[lcase(cols[col])] = arguments.queryData[cols[col]][row];
+				else
+					thisRow[cols[col]] = arguments.queryData[cols[col]][row];	
 			}
 			arrayAppend(theArray,duplicate(thisRow));
-	}
+		}
 	</cfscript>
 	<cfreturn theArray>
 </cffunction>
@@ -963,10 +989,12 @@ Arguments:
 	Structure struct2      The second struct.
 History:
 	2009-08-26 - MFC - Created
+	2011-02-02 - RAK - Added the ability to merge lists together
 --->
 <cffunction name="structMerge" returntype="struct" access="public" hint="Merge two simple or complex structures in one.">
     <cfargument name="struct1" type="struct" required="true">
     <cfargument name="struct2" type="struct" required="true">
+    <cfargument name="mergeValues" type="boolean" required="false" default="false" hint="Merges values if they can be merged">
    
 	<cfscript>
 		var retStruct = Duplicate(arguments.struct1);  // Set struct1 as the base structure
@@ -990,12 +1018,12 @@ History:
 				// Check if have a sub-structure remaining
 				if ( isStruct(retStruct[currKey]) AND isStruct(arguments.struct2[currKey]) )
 					StructInsert(retStruct, currKey, structMerge(retStruct[currKey], arguments.struct2[currKey]), true);
-				
-				else
-				{
+				else if ( isStruct(arguments.struct2[currKey]) ){
 					// Check if we still have a struct in arguments.struct2[currKey]
-					if ( isStruct(arguments.struct2[currKey]) )
-						StructInsert(retStruct, currKey, arguments.struct2[currKey], true);
+					StructInsert(retStruct, currKey, arguments.struct2[currKey], true);
+				}else if(arguments.mergeValues and isSimpleValue(retStruct[currKey]) and isSimpleValue(struct2[currKey])){
+					//Check to see if we have simple values that can have a list merge
+					StructInsert(retStruct, currKey, listAppend(retStruct[currKey],struct2[currKey]), true);
 				}
 			}
 			else
@@ -1409,6 +1437,7 @@ Changes by Raymond Camden and Steven (v2 support amount)
 @return Returns a query.
 @author Jose Diaz-Salcedo (bleachedbug@gmail.com)
 @version 2, November 20, 2008
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="cfRssFeed" access="public" returntype="query" output=false>
     <cfargument name="feedUrl" type="string" required="true"/>
@@ -1420,6 +1449,9 @@ Changes by Raymond Camden and Steven (v2 support amount)
     <cfset var row = "">
     <cfset var title = "">
     <cfset var link = "">
+    <cfscript>
+		var description = '';
+	</cfscript>
     
     <cfhttp url="#news_file#" method="get" />
     
@@ -1500,6 +1532,5 @@ History:
 		return retUUID;
 	</cfscript>
 </cffunction>
-
 
 </cfcomponent>

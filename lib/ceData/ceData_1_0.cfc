@@ -26,12 +26,15 @@ Name:
 	ceData_1_0.cfc
 Summary:
 	Custom Element Data functions for the ADF Library
+Version
+	1.0.1
 History:
 	2009-06-22 - MFC - Created
+	2010-12-21 - MFC - v1.0.1 - Added buildRealTypeView and buildCEDataArrayFromQuery functions.
 --->
 <cfcomponent displayname="ceData_1_0" extends="ADF.core.Base" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_0">
+<cfproperty name="version" value="1_0_1">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_0">
 <cfproperty name="data" type="dependency" injectedBean="data_1_0">
@@ -273,6 +276,7 @@ History:
 	2009-10-22 - MFC - Updated: Changed Return Type Boolean
 	2010-02-04 - MFC - Updated: Changed function to remove the query and make call
 							to CS Module deletefieldvalue.
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="deleteCE" access="public" returntype="boolean">
 	<cfargument name="datapageidList" type="string" required="true">
@@ -282,6 +286,7 @@ History:
 	<cfset var currPageID = 1>
 	<cfset var formID = 0>
 	<cfset var elementFields = "">
+	<cfset var j = "">
 	<!--- Verify the security for the logged in user --->
 	<cfif variables.csSecurity.isValidContributor() OR variables.csSecurity.isValidCPAdmin()>
 		<!--- Loop over the page id list --->
@@ -426,8 +431,7 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	M. Carroll
 Name:
 	$getDataFieldValueByPageID
@@ -444,6 +448,7 @@ History:
 								Added VersionID field to query and added IF block
 	2009-07-22 - MFC - Updated: Updated SQL statement INNER JOIN.
 	2010-03-05 - SFS - Updated: Added DateAdded and DateApproved to selected fields
+	2010-12-22 - MFC - Updated: Added AuthorID and OwnerID fields to the Query.
 --->
 <cffunction name="getDataFieldValueByPageID" access="public" returntype="query">
 	<cfargument name="pageid" type="Numeric" required="true">
@@ -463,7 +468,9 @@ History:
 					Data_FieldValue.VersionID,
 					Data_FieldValue.listID,
 					Data_FieldValue.DateAdded,
-					Data_FieldValue.DateApproved
+					Data_FieldValue.DateApproved,
+					Data_FieldValue.AuthorID,
+					Data_FieldValue.OwnerID
 		FROM      	FormInputControl INNER JOIN FormInputControlMap ON FormInputControl.ID = FormInputControlMap.FieldID
 					INNER JOIN 	FormControl ON FormControl.ID = FormInputControlMap.FormID
 					INNER JOIN 	Data_FieldValue ON Data_FieldValue.FieldID = FormInputControlMap.FieldID 
@@ -570,9 +577,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	M. Carroll
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
 Name:
 	$getElementInfoByPageID
 Summary:
@@ -590,10 +598,12 @@ History:
 								Added formid argument and passed to getDataFieldValueByPageID function
 	2010-03-05 - SFS - Updated: If block added after the end of StructInsert loop to add DateAdded and
 								DateApproved fields to retStruct
+	2010-12-10 - RAK - Removed requirement of formID.
+	2010-12-14 - MFC - Updated argument to getFormIDFromPageID function.  Added comments.
 --->
 <cffunction name="getElementInfoByPageID" access="public" returntype="struct">
 	<cfargument name="pageid" type="Numeric" required="true">
-	<cfargument name="formid" type="Numeric" required="true">
+	<cfargument name="formid" type="Numeric" required="false" default="-1">
 	<cfargument name="separateValueStruct" type="boolean" required="false" default="true">
 
 	<cfscript>
@@ -606,7 +616,11 @@ History:
 		var elmt_j = 1;
 		var dataFldName = "";
 		var dataFldVal = "";
-		
+
+		// Get the Form ID by the page ID if not passed in
+		if(arguments.formID eq -1){
+			arguments.formID = getFormIDFromPageID(arguments.pageid);
+		}
 		// Query to get the data for the custom element by pageid
 		// [MFC 2/11/09] Added formid argument to function call
 		getElementInfo = getDataFieldValueByPageID(arguments.pageid, arguments.formid);
@@ -660,8 +674,7 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	M. Carroll
 Name:
 	$getElementInfoVersionsByPageID
@@ -681,6 +694,8 @@ History:
 								Added formid argument and passed to getDataFieldValueByPageID function
 	2010-03-05 - SFS - Updated: Additional StructInsert added after the end of StructInsert loop to add
 								DateAdded and DateApproved fields to retStruct
+	2010-12-22 - MFC - Updated: Added AuthorID and OwnerID fields to the return structure.
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="getElementInfoVersionsByPageID" access="public" returntype="array">
 	<cfargument name="pageid" type="Numeric" required="true">
@@ -699,7 +714,8 @@ History:
 		var versionStruct = StructNew();
 		var dataFldName = "";
 		var dataFldVal = "";
-		
+		var dataVersions = '';
+
 		// get the version query for the CE
 		dataVersions = getElementVersionsForPageID(arguments.pageid, arguments.formid);
 
@@ -738,6 +754,8 @@ History:
 				versionStruct.versionid = getElementInfo.versionid[ver_i];
 				versionStruct.dateadded = getElementInfo.dateadded[ver_i];
 				versionStruct.dateapproved = getElementInfo.dateapproved[ver_i];
+				versionStruct.authorid = getElementInfo.AuthorID[ver_i];
+				versionStruct.ownerid = getElementInfo.OwnerID[ver_i];
 				
 				versionStruct.values = StructNew();
 				// loop over the form fields
@@ -813,6 +831,7 @@ History:
 	2009-01-20 - MFC - Created
 	2009-05-06 - MFC - Updated: Return if block to return 0, if no records found
 	2009-10-16 - MFC - Updated: Add lookup for CE Name with spaces OR underscores
+	2011-03-07 - MFC - Updated: Replace the dash to underscore.
 --->
 <cffunction name="getFormIDByCEName" access="public" returntype="numeric">
 	<cfargument name="CEName" type="string" required="true">
@@ -821,6 +840,8 @@ History:
 	<cfset var getFormID = QueryNew("temp")>
 	<cfset var tmpCENameSpaces = Replace(arguments.CEName, "_", " ", "all")>
 	<cfset var tmpCENameUnders = Replace(arguments.CEName, " ", "_", "all")>
+	<!--- 2011-03-07 - MFC - Replace the dash to underscore  --->
+	<cfset tmpCENameUnders = Replace(tmpCENameUnders, "-", "_", "all")>
 	
 	<!--- Query to get the data for the custom element by pageid --->
 	<cfquery name="getFormID" datasource="#request.site.datasource#">
@@ -842,7 +863,7 @@ History:
 /* *************************************************************** */
 Author: 	M. Carroll, M. Mendelson ( THE AU Master)
 Name:
-	$getPageIDForFormID
+	$getPageIDForElement
 Summary:
 	Returns Page ID's in Data_FieldValue matching Form ID
 Returns:
@@ -865,6 +886,9 @@ History:
 								Find any of the items in a list that match a list item in a 
 									CE field that stores a list of values.
 								Removed if statements for condition " contains in 'list' ".
+	2011-04-18 - MFC - Updated: Fix data_listItems query for the strItemValue field with the 
+									'list' query type.
+	2011-05-03 - RAK - Added the ability to search the memo field also
 --->
 <cffunction name="getPageIDForElement" access="public" returntype="query" hint="Returns Page ID Query in Data_FieldValue matching Form ID">
 	<cfargument name="formid" type="numeric" required="true">
@@ -884,6 +908,7 @@ History:
 	</cfscript>
 
 	<!--- // queryType eq list get the listID's first that match the input --->
+	<!--- 2011-04-18 - Fix data_listItems query for the strItemValue WHERE statement field. --->
 	<cfif (arguments.queryType EQ "list") OR (arguments.queryType EQ "numericList")>
 		<cfquery name="getListItemIDs" datasource="#request.site.datasource#">
 			SELECT DISTINCT listID
@@ -891,8 +916,8 @@ History:
 			WHERE
 				<cfif arguments.queryType eq "numericList">
 					numItemValue in (<cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.item#" list="true">)
-				<!--- <cfelse>
-					strItemValue in (#preserveSingleQuotes(listQualify(arguments.item, "'"))#) --->
+				<cfelse>
+					strItemValue in (<cfqueryparam cfsqltype="cf_sql_varchar" value="#preserveSingleQuotes(arguments.item)#" list="true">)
 				</cfif>
 		</cfquery>
 	</cfif>
@@ -927,10 +952,16 @@ History:
 										FROM Data_FieldValue
 										WHERE ( fieldValue IN (<cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.item#" list="true">) )
 										AND ( FieldID IN (<cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.fieldid#" list="true">) )
+										AND VersionState = 2
 										)
 				</cfif>
 				AND		FieldID IN (<cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.searchFields#" list="true">)
-				AND		LOWER(fieldValue) LIKE '%' + <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.searchValues#"> + '%'
+				<!--- 2011-05-03 - RAK - Added the ability to search the memo field also --->
+				AND (
+					LOWER(fieldValue) LIKE '%' + <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.searchValues#"> + '%'
+					OR
+					[MemoValue] LIKE '%' + <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.searchValues#"> + '%'
+				)
 			<!--- Build the where clause for the MULTI --->
 			<cfelseif arguments.queryType EQ "multi">
 				<cfif ListLen(arguments.searchFields)>
@@ -940,6 +971,7 @@ History:
 								WHERE FormID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.formid#">
 								AND FieldID = <cfqueryparam cfsqltype="cf_sql_integer" value="#ListGetAt(arguments.searchFields,itm)#">
 								AND LOWER(fieldValue) = <cfqueryparam cfsqltype="cf_sql_varchar" value="#ListGetAt(arguments.searchValues,itm)#">
+								AND VersionState = 2
 							)
 					</cfloop>
 				</cfif>
@@ -1013,23 +1045,41 @@ Summary:
 Returns:
 	Query - Custom Elements
 Arguments:
+	stateList - Value or List of Values (any combination of these options: 0-active,1-inactive,2-deleted)
 History:
 	2009-05-21 - MFC - Created
 	2010-04-13 - MFC - Removed ownerid where clause.
+	2010-12-17 - GAC - Changed the query get the data from the AvailableControls table to get active Custom Elements
+	2010-12-17 - GAC - Added an argument to pass in a value or a list of values to get CEs with a specific or a combination of states
 --->
 <cffunction name="getAllCustomElements" access="public" returntype="query" hint="Returns all the Custom Elements for the site.">
-	
-	<!--- Initialize the variables --->
-	<cfset var customElements = QueryNew("temp")>
-	
-	<!--- query to get the Custom Element List --->
-	<cfquery name="customElements" datasource="#request.site.datasource#">
+	<cfargument name="stateList" type="string" required="false" default="0" hint="Use a value or a list of values to display Available custom elements. Options: 0-active,1-inactive,2-deleted">
+	<cfscript>
+		// Initialize the variables
+		var qCustomElements = QueryNew("id,formname,state");
+		var controlType = "custom";
+		// remove any non-numeric values from the passed in value
+		var stList = REReplace(arguments.stateList,"[^,0-9]","","ALL");
+		// If remaining value does not not have at least one value, set it back to the default to only return active records
+		if ( ListLen(stList) EQ 0 )
+			stList = 0;
+	</cfscript>
+	<!--- // query to get the Custom Element List from the "AvailableControls" table --->
+	<cfquery name="qCustomElements" datasource="#request.site.datasource#">
+		SELECT 		ID, ShortDesc AS FormName, ElementState AS state
+		FROM 		AvailableControls
+		WHERE 		Name = <cfqueryparam cfsqltype="cf_sql_varchar" value="#controlType#">
+		AND 		ElementState IN (<cfqueryparam cfsqltype="cf_sql_numeric" value="#stList#" list="true" separator=",">)
+		ORDER BY 	ShortDesc
+	</cfquery>
+	<!--- TODO: Remove before launch ... after the above query has be verified --->
+	<!--- <cfquery name="qCustomElements" datasource="#request.site.datasource#">
 		SELECT 		ID, FormName
 		FROM 		formcontrol
 		WHERE 		(FormControl.action = '' OR FormControl.action is null)
 		ORDER BY 	FormName
-	</cfquery>
-	<cfreturn customElements>
+	</cfquery> --->
+	<cfreturn qCustomElements>
 </cffunction>
 
 <!---
@@ -1086,9 +1136,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	M. Carroll
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
 Name:
 	$getFormIDFromPageID
 Summary:
@@ -1097,11 +1148,14 @@ Returns:
 	Numeric - Form ID
 Arguments:
 	Numeric - PageID - Data Page ID
+	Numeric - ControlID - Control ID
 History:
 	2009-07-14 - MFC - Created
+	2011-08-30 - MFC - Added new control ID for local custom elements.
 --->
 <cffunction name="getFormIDFromPageID" access="public" returntype="numeric" hint="Returns the Form ID for the Page ID.">
 	<cfargument name="pageid" type="Numeric" required="true">
+	<cfargument name="controlid" type="Numeric" required="false" default="0">
 	
 	<cfset var getDataFieldValues = queryNew("temp")>
 	<!--- Query to get the data for the custom element by pageid --->
@@ -1109,6 +1163,9 @@ History:
 		SELECT    FormID
         FROM      Data_FieldValue 
 		WHERE     PageID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.pageid#">
+		<cfif arguments.controlid GT 0>
+			AND   ControlID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.controlid#">
+		</cfif>
 		AND 	  VersionState = 2
 	</cfquery>
 	<!--- Check that we have a query values --->
@@ -1389,17 +1446,21 @@ Arguments:
 	String - fieldName - Custom element field for which you want to find all the values.
 History:
 	2009-10-25 - SFS - Created
+	2011-02-09 - RAK - Var'ing un-var'd variables
+	2011-05-17 - RAK - Replaced evaluate with a more direct efficient expression
 --->
 <cffunction name="getCEFieldValues" access="public" returntype="string" hint="Returns all values for a particular field in a particular custom element.">
 	<cfargument name="ceName" type="string" required="true" hint="Custom element name.">
 	<cfargument name="fieldName" type="string" required="true" hint="Custom element field name to return data.">
-
+	<cfscript>
+		var itm = '';
+	</cfscript>
 	<cfset var ceDataList = "">	
 	<cfset var ceData = application.adf.ceData.getCEData(arguments.ceName)>
 	<cfset ceData = application.ADF.ceData.arrayOfCEDataSort(ceData,arguments.fieldName,'asc','textnocase','^')>
 	
 	<cfloop from="1" to="#arrayLen(ceData)#" index="itm">
-		<cfset ceDataList = ListAppend(ceDataList,Evaluate("ceData[itm].values.#arguments.fieldname#"))>
+		<cfset ceDataList = ListAppend(ceDataList,StructFind(ceData[itm].values,arguments.fieldname))>
 	</cfloop>
 
 	<cfreturn ceDataList>
@@ -1603,6 +1664,7 @@ History:
 /* ***************************************************************
 /*
 Author: 	S. Smith
+			Mike Tangorre (mtangorre@figleaf.com)
 Name:
 	$arrayOfCEDataToQuery
 Summary:
@@ -1612,33 +1674,60 @@ Returns:
 Arguments:
 	Array
 History:
-	2010-07-27 - SFS - Created based upon the arrayOfStructuresToQuery function in data_1_0.cfc
+	2010-07-27 - SFS - 	Created based upon the arrayOfStructuresToQuery function in data_1_0.cfc
+	2011-06-28 - MT  - 	Modified the query returned to include the following fields: dateadded, 
+						dateapproved, formid, formname, and pageid fields from the CE data array that is 
+						passed in instead of just the values from the values structure.
 --->
-<cffunction name="arrayOfCEDataToQuery" access="public" returntype="query">
-	<cfargument name="theArray" type="array" required="true">
+<cffunction name="arrayOfCEDataToQuery" returntype="query" output="false" access="public" hint="">
 
+	<cfargument name="theArray" type="array" required="true" />
+	
 	<cfscript>
-		var colNames = "";
-		var theQuery = queryNew("");
-		var i=0;
-		var j=0;
-		//if there's nothing in the array, return the empty query
-		if(NOT arrayLen(arguments.theArray))
-			return theQuery;
-		//get the column names into an array =
-		colNames = structKeyArray(arguments.theArray[1]["values"]);
-		//build the query based on the colNames
-		theQuery = queryNew(arrayToList(colNames));
-		//add the right number of rows to the query
-		queryAddRow(theQuery, arrayLen(arguments.theArray));
-		//for each element in the array, loop through the columns, populating the query
-		for(i=1; i LTE arrayLen(arguments.theArray); i=i+1){
-			for(j=1; j LTE arrayLen(colNames); j=j+1){
-				querySetCell(theQuery, colNames[j], arguments.theArray[i]["values"][colNames[j]], i);
+	
+		var data = arguments.theArray;
+		var qColumns = arrayNew(1);
+		var qData = "";
+		var columns = "";
+		var i = 0;
+		var x = 0;
+		var y = 0;
+		
+		// store all the top level keys
+		qColumns[1] = structKeyArray(data[1]);
+		// store all the values sub structure keys
+		qColumns[2] = structKeyArray(data[1].values);
+		// add all the top level keys to the list
+		columns = arrayToList(qColumns[1]);
+		// remove the "values" list element, we don't need it
+		columns = listDeleteAt(columns,listFindNoCase(columns,"values"));
+		// add all the values sub structure keys to the list
+		columns = listAppend(columns,arrayToList(qColumns[2]));
+		// create new query object with our column list
+		qData = queryNew(columns);
+		// size the query based on the size of the data array passed in
+		queryAddRow(qData,arrayLen(data));
+		
+		// loop over the data array passed in
+		for( i=1; i lte arrayLen(data); i++) {
+			// loop over the keys
+			for( x=1; x lte arrayLen(qColumns[1]); x++ ) {
+				// if the key is "values"
+				if( qColumns[1][x] eq "values" ) {
+					// loop over the values sub-structure
+					for( y=1; y lte arrayLen(qColumns[2]); y++ ) {
+						querySetCell(qData,qColumns[2][y],data[i]["#qColumns[1][x]#"]["#qColumns[2][y]#"],i);
+					}
+				} else {
+					querySetCell(qData,qColumns[1][x],data[i]["#qColumns[1][x]#"],i);
+				}
 			}
 		}
-	    return theQuery;
+		
+		return qData;
+	
 	</cfscript>
+	
 </cffunction>
 
 </cfcomponent>

@@ -153,8 +153,6 @@ end user license agreement.
 					function(data){
 						if (data == 'true'){
 							// Call the call backk and Close the lightbox
-							getCallback("#request.params.cbFunct#");
-							closeLB();
 							
 							jQuery('div##loadingLB').hide();	
 							jQuery('div##completeLB').show();

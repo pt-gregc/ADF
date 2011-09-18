@@ -29,6 +29,7 @@ Summary:
 	A simple output page to test if the server and cf mappings for the '/ADF' are setup correctly
 History:
 	2009-06-11 - GAC - Created
+	2011-02-09 - GAC - Removed self-closing CF tag slashes
 Directions: 
 	Call this file directly from a browser using the following URL replacing {domainname} with your site's domain or IP:
 	http://{domainname}/ADF/extensions/customcf/debug/test_mappings.cfm 
@@ -37,12 +38,12 @@ Directions:
 <cfoutput><br /><strong>Success:</strong> The Web server mapping (or virutal directory) for '/adf' is working correctly!<br /></cfoutput>
 <cfflush>
 
-<cfset testVar = StructNew() />
+<cfset testVar = StructNew()>
 
 <cftry>
-	<cfset testVar.cfmapping = CreateObject("component","ADF.extensions.customcf.debug.test_mappings").verifyMapping() />
+	<cfset testVar.cfmapping = CreateObject("component","ADF.extensions.customcf.debug.test_mappings").verifyMapping()>
 	<cfcatch>
-		<cfset testVar.cfmapping = false />
+		<cfset testVar.cfmapping = false>
 	</cfcatch>
 </cftry>
 

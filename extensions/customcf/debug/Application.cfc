@@ -34,7 +34,7 @@ History:
 	
 	<cffunction name="onRequestStart" access="public" returntype="any">
 		
-		<cfset var ADFdebug = true />
+		<cfset var ADFdebug = true>
 		
 	</cffunction>
 	

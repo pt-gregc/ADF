@@ -43,7 +43,11 @@ if ((typeof top.commonspot != 'undefined') && (typeof top.commonspot.lightbox !=
 { 
 	checkDlg = function()
 	{
-		ResizeWindow();
+		/* 
+		 *	ADF Update
+		 */
+		//ResizeWindow();
+		lbResizeWindow();
 	}
 
 	CloseWindow = function()
@@ -65,7 +69,11 @@ if ((typeof top.commonspot != 'undefined') && (typeof top.commonspot.lightbox !=
 
 	handleLoad = function()
 	{
-		ResizeWindow();
+		/* 
+		 *	ADF Update
+		 */
+		//ResizeWindow();
+		lbResizeWindow();
 	}
 	
 	

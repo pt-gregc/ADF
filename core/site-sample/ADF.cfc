@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2010.
+PaperThin, Inc. Copyright(C) 2011.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -18,6 +18,19 @@ in this directory, you agree to the terms and conditions of the applicable
 end user license agreement.
 --->
 
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin Inc.
+Name:
+	ADF.cfc
+Summary:
+	ADF Component for loading the ADF, ADF apps, proxys, and Library into the site.
+Version:
+	1.5.0
+History:
+	2011-07-11 - MFC - Updated for ADF V1.5.
+--->
 <cfcomponent name="ADF" extends="ADF.core.SiteBase">
 
 <cffunction name="init" returntype="void" access="public">
@@ -28,11 +41,19 @@ end user license agreement.
 		 *  
 		 */
 		loadSite();
+		
 		/*
 		 *	Set the sites AjaxProxy URL
 		 *	By default this file will be located in your sites /_cs_apps/ directory
 		 */
 		setAjaxProxyURL("#request.site.csAppsWebURL#ajaxProxy.cfm");
+		
+		/*
+		 *	Set the sites lightboxProxy URL
+		 *	By default this file will be located in your sites /_cs_apps/ directory
+		 */
+		setLightboxProxyURL("#request.site.csAppsWebURL#lightboxProxy.cfm");	
+		
 		/*
 		 *	Load the ADF Application into application space
 		 *  
@@ -40,22 +61,19 @@ end user license agreement.
 		 *		loadApp("CustomAppBeanName"); 
 		 *	
 		 */
-		//loadApp("ptProfile");
+		//loadApp("ptProfile");		
 		
 		/*
 		 *	Define the ADF Lib components to load into the sites application space.
 		 *	Loading the most recent versions of the ADF Lib components
-		 *
-		 */
-		loadLibrary();
-		
-		/*
-		 *	Define specific ADF Lib component version to load into the sites application space.
 		 *	
-		 *	SAMPLE:
-		 *		resetLibrary("csdata_1_0", "csdata");
+		 *	Note: you can pass a previous ADF version number (e.g. 1.0) to this function to load that
+		 *	versions ADF Library Components
+		 *	
+		 *	See /ADF/lib/version.xml to see which ADF Library Components are loaded for that ADF Version
 		 *
 		 */
+		loadLibrary();	
 	</cfscript>
 </cffunction>
 

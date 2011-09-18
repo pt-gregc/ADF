@@ -1142,7 +1142,11 @@ commonspot.lightbox.dialogFactory.getInstance = function(url, hideClose, name, c
 	dialogObj.iframeDiv.style.zIndex = nextZindex+2;
 	dialogObj.divNode.appendChild(dialogObj.iframeDiv);
 	// iframe
-	var iframeHTML = '<iframe class="lightboxIframe" scrolling="no" frameborder="0" src="' + url + '" name="' + dialogObj.frameName + '">';
+	/*
+	 *  ADF Update - 2011-03-27 - MFC
+	 *      Changed scrolling attribute from "no" to "auto".
+	 */
+	var iframeHTML = '<iframe class="lightboxIframe" scrolling="auto" frameborder="0" src="' + url + '" name="' + dialogObj.frameName + '">';
 	// Here we use innerHTML instead of DOM to work around a weird IE's bug, where borders are displayed for <iframe> created with DOM methods
 	dialogObj.iframeDiv.innerHTML = iframeHTML;
 	// We need to store a pointer tothe <iframe> DOM node

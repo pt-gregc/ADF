@@ -26,13 +26,16 @@ Name:
 	csUpload_1_0.cfc
 Summary:
 	CCAPI Upload functions for the ADF Library
+Version:
+	1.0.0
 History:
 	2009-06-17 - MFC - Created
+	2011-03-20 - RLW - Updated to use the new ccapi_1_0 component (was the original ccapi.cfc file)
 ---> 
 <cfcomponent displayname="csUpload_1_0" hint="Constructs a CCAPI instance and then allows you to Upload Images" extends="ADF.core.Base">
 <cfproperty name="version" value="1_0_0">
 <cfproperty name="type" value="transient">
-<cfproperty name="ccapi" type="dependency" injectedBean="ccapi">
+<cfproperty name="ccapi" type="dependency" injectedBean="ccapi_1_0">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_0">
 <cfproperty name="wikiTitle" value="CSUpload_1_0">
 
@@ -124,13 +127,13 @@ Arguments:
 	Struct data - the data for the element
 History:
 	2010-01-15 - GAC - Created
+	2011-02-09 - GAC - Removed self-closing CF tag slashes
 --->
 <cffunction name="uploadDocument" access="public" returntype="struct" hint="Use this method to upload a document into the upload folder of an designated subsite">
-	<cfargument name="subsiteid" type="numeric" required="true" />
-	<cfargument name="data" type="struct" required="true" hint="Data for upload document." />
-	<cfargument name="docBinaryData" type="Binary" required="true" hint="Binary data of the document." />
-	<cfargument name="doLogin" type="numeric" required="false" default="0" hint="Force the login always" />
-		
+	<cfargument name="subsiteid" type="numeric" required="true">
+	<cfargument name="data" type="struct" required="true" hint="Data for upload document.">
+	<cfargument name="docBinaryData" type="Binary" required="true" hint="Binary data of the document.">
+	<cfargument name="doLogin" type="numeric" required="false" default="0" hint="Force the login always">	
 	<cfscript>
 		var result = structNew();
 		var uploadResponse = "";
@@ -180,9 +183,9 @@ History:
 			// TODO: plug the logging option into the CCAPI config settings
 			if( variables.ccapi.loggingEnabled() and arrayLen(logArray) )
 				variables.utils.bulkLogAppend(logArray);
+				
+		return result;
 	</cfscript>
-		
-	<cfreturn result>
 </cffunction>
 
 </cfcomponent>

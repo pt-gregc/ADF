@@ -17,16 +17,31 @@ By downloading, modifying, distributing, using and/or accessing any files
 in this directory, you agree to the terms and conditions of the applicable
 end user license agreement.
 --->
-
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West 
+Custom Field Type:
+	App Config Page
+Name:
+	app_config_page_props.cfm
+History:
+	RLW - Created
+	2011-08-11 - GAC - Updated - Set to use the application.ADF.scripts instead of the objectFactory.getBean
+	2011-08-15 - GAC - Updated - Fixed the UI button class that was being called directly from the scripts getBean function
+--->
 <cfscript>
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
 	prefix = attributes.prefix;
 	formname = attributes.formname;
 	currentValues = attributes.currentValues;
-	scripts = server.ADF.objectFactory.getBean("scripts_1_0");
-	scripts.loadJQuery();
-	scripts.loadJQueryUI();
+	
+	application.ADF.scripts.loadJQuery();
+	application.ADF.scripts.loadJQueryUI();
+	
+	btnClass = application.ADF.scripts.jQueryUIButtonClass();
 </cfscript>
 <cfparam name="currentValues.scriptURL" default="">
 <cfparam name="currentValues.pagePart" default="pageURL">
@@ -116,11 +131,11 @@ end user license agreement.
 			</td>
 		</tr>
 		<tr>
-			<td></td>
+			<td class="cs_dlgLabelSmall">&nbsp;</td>
 			<td class="cs_dlgLabelSmall">
 				<div id="#prefix#results">
 					<div id="#prefix#control">
-						<input type="button" name="#prefix#checkBtn" id="#prefix#checkBtn" value="Check" class="#scripts.jQueryUIButtonClass()#" />
+						<input type="button" name="#prefix#checkBtn" id="#prefix#checkBtn" value="Check" class="#btnClass#" />
 					</div>
 					<div id="#prefix#checkbox" style="display:none">
 						<img src="/ADF/extensions/customfields/app_config_page/icon_checkbox.png" width="18" height="18" />File exists
