@@ -26,13 +26,16 @@ Name:
 	csContent_1_0.cfc
 Summary:
 	CCAPI Content functions for the ADF Library
+Version:
+	1.0.1
 History:
 	2009-06-17 - RLW - Created
+	2011-03-20 - RLW - Updated to use the new ccapi_1_0 component (was the original ccapi.cfc file)
 --->
 <cfcomponent displayname="csContent_1_0" hint="Constructs a CCAPI instance and then allows you to populate Custom Elements and Textblocks" extends="ADF.core.Base">
-<cfproperty name="version" value="1_0_0">
+<cfproperty name="version" value="1_0_1">
 <cfproperty name="type" value="transient">
-<cfproperty name="ccapi" type="dependency" injectedBean="ccapi">
+<cfproperty name="ccapi" type="dependency" injectedBean="ccapi_1_0">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_0">
 <cfproperty name="wikiTitle" value="CSContent_1_0">
 
@@ -53,12 +56,18 @@ Returns:
 Arguments:
 	String elementName - the named element which content will be added for
 	Struct data - the data for the element
+	numeric - forceSubsiteID - If set this will override the subsiteID in the data.
+	numeric - forcePageID - If set this will override the pageID in the data.
 History:
 	2008-05-30 - RLW - Created
+	2010-12-09 - RAK - added forceSubsiteID and forcePageID functionality
+	2011-03-19 - RLW - added support for controlID in config
 --->
 <cffunction name="populateContent" access="public" returntype="struct" hint="Use this method to populate content for either a Textblock or Custom Element">
 	<cfargument name="elementName" type="string" required="true" hint="The name of the element from the CCAPI configuration">
 	<cfargument name="data" type="struct" required="true" hint="Data for either the Texblock element or the Custom Element">
+	<cfargument name="forceSubsiteID" type="numeric" required="false" default="-1" hint="If set this will override the subsiteID in the data.">
+	<cfargument name="forcePageID" type="numeric" required="false" default="-1" hint="If set this will override the pageID in the data.">
 	<cfscript>
 		var elements = "";
 		var thisElement = structNew();
@@ -77,7 +86,6 @@ History:
 		elements = variables.ccapi.getElements();
 		ws = variables.ccapi.getWS();
 		result.contentUpdated = false;
-		
 		// get the settings for this element
 		if ( isStruct(elements) and structKeyExists(elements, arguments.elementName) )
 		{
@@ -87,25 +95,38 @@ History:
 			if( not structKeyExists(thisElement, "subsiteID") )
 				thisElement["subsiteID"] = 1;
 
-			// check to see if subsiteID has been passed into data (signifying a local custom element)
-			if( structKeyExists(arguments.data, "subsiteID") )
+			//2010-12-09 - RAK - If they forced the pageID set it
+			if(arguments.forceSubsiteID neq -1){
+				thisElement["subsiteID"] = arguments.forceSubsiteID;
+			}else if( structKeyExists(arguments.data, "subsiteID")){
+				//Otherwise check to see if subsiteID has been passed into data (signifying a local custom element)
 				thisElement["subsiteID"] = arguments.data.subsiteID;
+			}
+
 			// assume global custom element and use default subsiteID
 
 			// login for the first time or to the subsite where the new page was created
 			if( variables.ccapi.loggedIn() eq 'false' or ( thisElement["subsiteID"] neq variables.ccapi.getSubsiteID() ) )
 				variables.ccapi.login(thisElement["subsiteID"]);
 
-			// check to see if the data passed in for this element contains "pageID"
-			if( structKeyExists(arguments.data, "pageID") )
+			//2010-12-09 - RAK - If they forced the pageID set it
+			if(arguments.forcePageID neq -1){
+				thisElement["pageID"] = arguments.forcePageID;
+			}else if( structKeyExists(arguments.data, "pageID") ){
+				//Otherwise check to see if the data passed in for this element contains "pageID"
 				thisElement["pageID"] = arguments.data.pageID;
+			}
 
 			// clear locks before starting
 			variables.ccapi.clearLock(thisElement["pageID"]);
 
 			// construct specific data for the content creation API
 			contentStruct.pageID = thisElement["pageID"];
-			contentStruct.controlName = thisElement["controlName"];				
+			if( structKeyExists(thisElement, "controlID") )
+				contentStruct.controlID = thisElement["controlID"];
+			else
+				contentStruct.controlName = thisElement["controlName"];	
+							
 			
 			// if we find the option to submit change in the data
 			if( structKeyExists(arguments.data, "submitChange") )

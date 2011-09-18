@@ -26,14 +26,19 @@ Name:
 	csPage_1_0.cfc
 Summary:
 	CCAPI Page functions for the ADF Library
+Version:
+	1.0.1
 History:
 	2009-06-17 - RLW - Created
+	2011-03-20 - RLW - Updated to use the new ccapi_1_0 component (was the original ccapi.cfc file)
 ---> 
 <cfcomponent displayname="csPage_1_0" extends="ADF.core.Base" hint="Constructs a CCAPI instance and then creates or deletes a page with the given information">
-<cfproperty name="version" value="1_0_0">
+<cfproperty name="version" value="1_0_1">
 <cfproperty name="type" value="transient">
-<cfproperty name="ccapi" type="dependency" injectedBean="ccapi">
+<cfproperty name="ccapi" type="dependency" injectedBean="ccapi_1_0">
 <cfproperty name="csData" type="dependency" injectedBean="csData_1_0">
+<cfproperty name="ceData" type="dependency" injectedBean="ceData_1_0">
+<cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_0">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_0">
 <cfproperty name="wikiTitle" value="CSPage_1_0">
 
@@ -75,11 +80,12 @@ History:
 	2008-10-07 - RLW - Created
 	2009-07-12 - RLW - added a check for "pageExists" prior to creating the page
 	2009-07-15 - RLW - changed the return format to structure and built consistent struct response
+	2011-06-21 - MFC - Added logout call at the end of the process.
 --->
 <cffunction name="createPage" access="public" output="true" returntype="struct" hint="Creates a page using the argument data passed in">
 	<cfargument name="stdMetadata" type="struct" required="true" hint="Standard Metadata would include 'Title, Description, TemplateId, SubsiteID etc...'">
 	<cfargument name="custMetadata" type="struct" required="true" hint="Custom Metadata would be any custom metadata for the new page ex. customMetadata['formName']['fieldname']">
-	<cfargument name="activatePage" type="numeric" required="false" default="1" hint="Falg to make the new page active or inactive"> 
+	<cfargument name="activatePage" type="numeric" required="false" default="1" hint="Flag to make the new page active or inactive"> 
 	<cfscript>
 		var pageData = structNew();
 		var ws = "";
@@ -148,6 +154,8 @@ History:
 			logStruct.logFile = 'CCAPI_create_pages_errors.log';
 			arrayAppend(logArray, logStruct);
 		}
+		// Logout
+		variables.ccapi.logout();
 		// clear locks before starting
 		variables.ccapi.clearLock(result.newPageID);
 		// handle logging
@@ -172,10 +180,13 @@ Arguments:
 	Numeric: PageID
 History:
 	2008-12-08 - MFC - Created
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="deletePage" access="public" output="true" returntype="struct" hint="Deletes the page based on the argument data">
 	<cfargument name="deletePageData" type="struct" required="true" hint="Standard Metadata like 'PageID, SubsiteID'">		
 	<cfscript>
+		var deletePageResult = '';
+		var logoutResult = '';
 		var pageData = structNew();
 		var ws = "";
 		var logStruct = structNew();

@@ -26,12 +26,14 @@ Name:
 	forms_1_0.cfc
 Summary:
 	Form functions for the ADF Library
+Version:
+	1.0.1
 History:
 	2009-06-22 - MFC - Created
 --->
 <cfcomponent displayname="forms_1_0" extends="ADF.core.Base" hint="Form functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_0">
+<cfproperty name="version" value="1_0_1">
 <cfproperty name="type" value="transient">
 <cfproperty name="ceData" injectedBean="ceData_1_0" type="dependency">
 <cfproperty name="scripts" injectedBean="scripts_1_0" type="dependency">
@@ -54,10 +56,14 @@ Arguments:
 	Struct fieldData
 History:
 	2009-03-13 - RLW - Created
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="addToSimpleForm" access="public" returntype="void">
 	<cfargument name="fieldData" type="struct" required="true">
 	<cfscript>
+		var tmpArray = '';
+		var labelFieldName = '';
+		var actualFieldName = '';
 		var itm = 1;
 		var fieldList = structKeyList(arguments.fieldData);
 		// loop through the form fields and find any that match the structure keys
@@ -102,11 +108,14 @@ History:
 	2009-07-07 - MFC - Updated:	Set the call to CEDATA defaultFieldStruct to set to rtnStruct variable,
 									this will default all the CE fields into the return struct.
 	2009-07-31 - MFC - Updated: Updated the 'Replace' to 'ReplaceNoCase'.
+	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="extractFromSimpleForm" access="public" returntype="Struct">
 	<cfargument name="formStruct" type="struct" required="true">
 	<cfargument name="fieldList" type="String" required="false" default="">
 	<cfscript>
+		var formKeyList = '';
+		var fieldValue = '';
 		var rtnStruct = structNew();
 		var itm = 1;
 		var thisField = "";
@@ -119,7 +128,7 @@ History:
 			// Call CEData to get the fields for the element
 			rtnStruct = variables.ceData.defaultFieldStruct(arguments.formStruct.formName);
 			// Load the fieldList to all the elements fields
-			fieldList = StructKeyList(rtnStruct);
+			arguments.fieldList = StructKeyList(rtnStruct);
 		}
 		formKeyList = StructKeyList(arguments.formStruct);
 	
@@ -135,7 +144,7 @@ History:
 				actualFieldName = ReplaceNoCase(thisField, "_FIELDNAME", "", "all");
 				fieldValue = arguments.formStruct[thisField];
 				// Check if the value that is the field name in the fieldlist
-				if ( ListFindNoCase(fieldList,fieldValue) )
+				if ( ListFindNoCase(arguments.fieldList,fieldValue) )
 				{
 					// Check if the field is in the form, else set to empty string
 					if ( StructKeyExists(arguments.formStruct, actualFieldName) )
@@ -315,7 +324,6 @@ History:
 	<cfargument name="formID" type="numeric" required="true" hint="The FormID for the Custom Element">
 	<cfargument name="dataPageID" type="numeric" required="true" hint="the DataPageID for the record being deleted">
 	<cfargument name="title" type="string" required="no" default="Delete Record" hint="The title of the dialog displayed while deleting">
-	
 	<cfset var deleteFormHTML = "">
 	<cfsavecontent variable="deleteFormHTML">
 		<cfscript>
@@ -346,40 +354,32 @@ Returns:
 Arguments:
 	Void
 History:
- 2009-10-25 - RLW - Created
+	2009-10-25 - RLW - Created
+	2010-12-21 - MFC - Updated to use the ADF Lightbox Framework functions
 --->
 <cffunction name="closeLBAndRefresh" access="public" returntype="void" hint="">
 	<cfoutput>
 		<cfscript>
-			variables.scripts.loadJquery('1.3.2', 1);
+			variables.scripts.loadJquery(force=1);
+			variables.scripts.loadADFLightbox(force=1);
 		</cfscript>
 		<script type='text/javascript'>
 			jQuery(document).ready(function(){
-				window.parent.location.href = window.parent.location.href;
-				closeLB();
+				closeLBReloadParent();
 			});
 		</script>
-		<!--- Close the lightbox on click --->
-		<!--- <script type='text/javascript'>
-			jQuery(document).ready(function(){
-				jQuery('a##closeLB').click(function () { 
-					window.parent.location.href = window.parent.location.href;
-					window.parent.closeLB();
-			    });
-			});
-		</script>
-		<div style='margin:10px;text-align:center;'>
-			<a href='javascript:;' id='closeLB'>Click Here</a> to close this window.
-		</div> --->
 	</cfoutput>
 </cffunction>
+
 <!---
 /* ***************************************************************
 /*
-Author: 	Ron West
+Author: 	
+	PaperThin, Inc.
+	Ron West
 Name:
 	$buildAddEditLink
-Summary:	
+Summary:
 	Returns a nice string to renderAddEditForm with lightbox enabled
 Returns:
 	String rtnStr
@@ -389,32 +389,43 @@ Arguments:
 	Numeric dataPageID
 	Boolean refreshparent
 	String urlParams - additional URL parameters to be passed to the form
+	String formBean 
+	String formMethod 
+	String lbTitle
+	String linkClass 
 History:
   	2010-09-30 - RLW - Created
  	2010-10-18 - GAC - Modified - Added a RefreshParent parameter
-   	2010-10-18 - GAC - Modified - Added a urlParams parameter
+   2010-10-18 - GAC - Modified - Added a urlParams parameter
+	2010-12-15 - GAC - Modified - Added bean, method and lbTitle parameters
+	2010-12-21 - GAC - Modified - Added a linkClass parameter
+	2011-01-25 - MFC - Modified - Updated formBean param default value to "forms_1_1"
 --->
 <cffunction name="buildAddEditLink" access="public" returntype="string" output="false">
 	<cfargument name="linkTitle" type="string" required="true">
 	<cfargument name="formName" type="string" required="true">
 	<cfargument name="dataPageID" type="numeric" required="false" default="0">
-	<cfargument name="refreshparent" type="boolean" required="false" default="false"> 
-	<cfargument name="urlParams" type="string" required="false" default=""> 
+	<cfargument name="refreshparent" type="boolean" required="false" default="false">
+	<cfargument name="urlParams" type="string" required="false" default="">
+	<cfargument name="formBean" type="string" required="false" default="forms_1_1">
+	<cfargument name="formMethod" type="string" required="false" default="renderAddEditForm">
+	<cfargument name="lbTitle" type="string" required="false" default="#arguments.linkTitle#">
+	<cfargument name="linkClass" type="string" required="false" default="">   
 	<cfscript>
 		var rtnStr = "";
 		var formID = variables.ceData.getFormIDByCEName(arguments.formName);
 		var lbAction = "norefresh";
 		var uParams = "";
-		if ( arguments.refreshparent IS true )
+		if ( arguments.refreshparent )
 			lbAction = "refreshparent";
 		if ( LEN(TRIM(arguments.urlParams)) ) {
 			uParams = TRIM(arguments.urlParams);
-			if ( Find("&",uParams,"1") NEQ 1 ) 
+			if ( Find("&",uParams,"1") NEQ 1 )
 				uParams = "&" & uParams;
 		}
 	</cfscript>
 	<cfsavecontent variable="rtnStr">
-		<cfoutput><a href="javascript:;" rel="#application.ADF.ajaxProxy#?bean=forms_1_0&method=renderAddEditForm&formID=#formID#&dataPageID=#arguments.dataPageID#&lbAction=#lbAction##uParams#" class="ADFLightbox">#arguments.linkTitle#</a></cfoutput>
+		<cfoutput>#application.ADF.scripts.loadJQuery()##application.ADF.scripts.loadADFLightbox()#<a href="javascript:;" rel="#application.ADF.ajaxProxy#?bean=#arguments.formBean#&method=#arguments.formMethod#&formID=#formID#&dataPageID=#arguments.dataPageID#&lbAction=#lbAction#&title=#arguments.lbTitle##uParams#" class="ADFLightbox<cfif LEN(TRIM(arguments.linkClass))> #arguments.linkClass#</cfif>" title="#arguments.linkTitle#">#arguments.linkTitle#</a></cfoutput>
 	</cfsavecontent>
 	<cfreturn rtnStr>
 </cffunction>

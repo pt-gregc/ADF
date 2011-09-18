@@ -35,6 +35,8 @@ ADF Requirements:
 	data_1_0
 History:
 	2009-07-06 - MFC - Created
+	2010-11-29 - MFC - Removed typo in the script tag.
+	2011-02-08 - MFC - Changed the field Name prop to have the title "Field ID".
 --->
 <cfscript>
 	// initialize some of the attributes variables
@@ -71,10 +73,10 @@ History:
 	</script>
 <table>
 	<tr>
-		<td class="cs_dlgLabelSmall">Field Name:</td>
+		<td class="cs_dlgLabelSmall">Field ID:</td>
 		<td class="cs_dlgLabelSmall">
 			<input type="text" name="#prefix#fldName" id="#prefix#fldName" class="cs_dlgControl" value="#currentValues.fldName#" size="40">
-			<br/><span>Please enter the field name to be used via JavaScript.  If blank, will use default name.</span>
+			<br/><span>Please enter the field ID to be used via JavaScript.  If blank, will use default field name.</span>
 		</td>
 	</tr>
 	<tr>

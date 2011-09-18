@@ -33,6 +33,7 @@ ADF Requirements:
 	scripts_1_0
 History:
 	2009-11-16 - MFC - Created
+	2011-02-02 - RAK - Updated to allow for customizing number of stars and half stars
 --->
 <cfscript>
 	// initialize some of the attributes variables
@@ -40,24 +41,29 @@ History:
 	prefix = attributes.prefix;
 	formname = attributes.formname;
 	currentValues = attributes.currentValues;
+	if( not structKeyExists(currentValues, "numberOfStars") )
+		currentValues.numberOfStars = 5;
+	if( not structKeyExists(currentValues, "halfStars") )
+		currentValues.halfStars = 0;
 </cfscript>
 <cfoutput>
 <script type="text/javascript">
-	fieldProperties['#typeid#'].paramFields = "";
-	// allows this field to support the orange icon (copy down to label from field name)
-	fieldProperties['#typeid#'].jsLabelUpdater = '#prefix#doLabel';
-	// allows this field to have a common onSubmit Validator
-	//fieldProperties['#typeid#'].jsValidator = '#prefix#doValidate';
-	// handling the copy label function
-	function #prefix#doLabel(str)
-	{
-		document.#formname#.#prefix#label.value = str;
-	}
-
+	fieldProperties['#typeid#'].paramFields = "#prefix#numberOfStars,#prefix#halfStars";
 </script>
 <table>
 	<tr>
-		<td class="cs_dlgLabelSmall" colspan="2">No Properties</td>
+		<td class="cs_dlgLabelSmall">Number of Stars</td>
+		<td class="cs_dlgLabelSmall">
+			<input type="text" name="#prefix#numberOfStars" id="#prefix#numberOfStars" value="#currentValues.numberOfStars#" size="5">
+		</td>
+	</tr>
+	<tr>
+		<td class="cs_dlgLabelSmall">Half Stars</td>
+		<td class="cs_dlgLabelSmall">
+
+			<input type="radio" name="#prefix#halfStars" value="1" id="#prefix#halfStars1" <cfif currentValues.halfStars>checked="checked"</cfif>><label for="#prefix#halfStars1">On</label> <br/>
+			<input type="radio" name="#prefix#halfStars" value="0" id="#prefix#halfStars0" <cfif !currentValues.halfStars>checked="checked"</cfif>><label for="#prefix#halfStars0">Off</label>
+		</td>
 	</tr>
 </table>
 </cfoutput>

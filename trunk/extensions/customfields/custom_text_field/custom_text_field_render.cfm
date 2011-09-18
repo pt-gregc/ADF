@@ -35,6 +35,8 @@ ADF Requirements:
 	data_1_0
 History:
 	2009-10-15 - MFC - Created
+	2011-02-08 - MFC - Updated the "fldName" prop to "fldID" variable.
+	2011-06-30 - MFC - Changed ADF server object call to Data_1_0 to call "application.ADF.data".
 --->
 <cfscript>
 	// the fields current value
@@ -44,6 +46,9 @@ History:
 	
 	if ( NOT StructKeyExists(xparams, "fldName") )
 		xparams.fldName = fqFieldName;
+	// Set the field ID from the field name
+	xparams.fldID = xparams.fldName;
+	
 	if ( NOT StructKeyExists(xparams, "fldClass") )
 		xparams.fldClass = "";
 	if ( not structKeyExists(xparams, "fldSize") )
@@ -108,7 +113,7 @@ History:
 		<td class="cs_dlgLabelSmall">
 			<cfscript>
 				// Get the list permissions and compare
-				commonGroups = server.ADF.objectFactory.getBean("data_1_0").ListInCommon(request.user.grouplist, xparams.pedit);
+				commonGroups = application.ADF.data.ListInCommon(request.user.grouplist, xparams.pedit);
 				// Set the read only 
 				readOnly = true;
 				// Check if the user does have edit permissions
@@ -119,7 +124,7 @@ History:
 					readOnly = true;
 			</cfscript>
 			<!--- Render the input field --->
-			<input type="text" name="#fqFieldName#" value="#currentValue#" id="#xparams.fldName#" size="#xparams.fldSize#"<cfif LEN(TRIM(xparams.fldClass))> class="#xparams.fldClass#"</cfif> tabindex="#rendertabindex#" <cfif readOnly>readonly="true"</cfif>>
+			<input type="text" name="#fqFieldName#" value="#currentValue#" id="#xparams.fldID#" size="#xparams.fldSize#"<cfif LEN(TRIM(xparams.fldClass))> class="#xparams.fldClass#"</cfif> tabindex="#rendertabindex#" <cfif readOnly>readonly="true"</cfif>>
 			<!--- // include hidden field for simple form processing --->
 			<cfif renderSimpleFormField>
 				<input type="hidden" name="#fqFieldName#_FIELDNAME" id="#fqFieldName#_FIELDNAME" value="#ReplaceNoCase(xParams.fieldName, 'FIC_', '')#">

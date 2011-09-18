@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2010.
+PaperThin, Inc. Copyright(C) 2011.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -30,16 +30,16 @@ History:
 	2009-08-14 - MFC - Created
 	2010-04-06 - MFC - Cleaned the loadApp code.  Removed verifyLocalAppBeanConfigExists function.
 	2010-04-08 - MFC - Updated loadSiteAppComponents function.
+	2011-04-05 - MFC - Modified - Updated the version property.
+	2011-07-11 - MFC - Updated INIT function for no IF statement for call to "super.init".
 --->
 <cfcomponent name="AppBase" extends="ADF.core.Base" hint="App Base component for the ADF">
 
-<cfproperty name="version" value="1_0_0">
+<cfproperty name="version" value="1_5_0">
 
 <cffunction name="init" output="true" returntype="any">
 	<cfscript>
-		if(StructKeyExists(super, 'init'))
-			super.init(argumentCollection=arguments);
-		StructAppend(variables, arguments, false);
+		super.init(argumentCollection=arguments);
 		// Load objects into THIS local scope
 		loadObjects();
 		return this;
@@ -383,8 +383,7 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	M. Carroll
 Name:
 	$loadAppProxyWhiteList
@@ -396,6 +395,9 @@ Arguments:
 	ARGS
 History:
 	2009-00-00 - MFC - Created
+	2011-02-02 - RAK - Updated structMerge to merge the lists also by adding true to the structMerge function
+	2011-03-20 - MFC - Reconfigured Proxy White List to store in application space 
+						to avoid conflicts with multiple sites. 
 --->
 <cffunction name="loadAppProxyWhiteList" access="private" returntype="void" hint="Loads the proxy white list XML for the application.">
 	<cfargument name="appName" type="string" required="true">
@@ -409,8 +411,8 @@ History:
 		if ( FileExists(proxyWhiteListXMLPath) )
 		{	
 			configStruct = server.ADF.objectFactory.getBean("CoreConfig").getConfigViaXML(proxyWhiteListXMLPath);
-			// Merge this config struct into the server proxy white list 
-			server.ADF.proxyWhiteList = server.ADF.objectFactory.getBean("Data_1_0").structMerge(server.ADF.proxyWhiteList, configStruct);
+			// Merge this config struct into the application proxy white list 
+			application.ADF.proxyWhiteList = server.ADF.objectFactory.getBean("Data_1_0").structMerge(application.ADF.proxyWhiteList, configStruct, true);
 		}
 	</cfscript>
 </cffunction>

@@ -26,13 +26,15 @@ Name:
 	date_1_0.cfc
 Summary:
 	Date Utils functions for the ADF Library
+Version:
+	1.0.1
 History:
 	2009-06-22 - MFC - Created
 	2010-09-21 - MFC - Added formatDateTimeISO8601 and getDateFields functions.
 --->
 <cfcomponent displayname="date_1_0" extends="ADF.core.Base" hint="Date Utils functions for ADF Library">
 
-<cfproperty name="version" value="1_0_0">
+<cfproperty name="version" value="1_0_2">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Date_1_0">
 
@@ -67,6 +69,7 @@ History:
  * @return Returns a date.
  * @author Pete Ruckelshaus (pruckelshaus@yahoo.com)
  * @version 1, September 12, 2007
+	2011-02-09 - RAK - Var'ing un-var'd variables
  */ --->
 <cffunction name="firstDayOfWeek" access="public" returntype="any" hint="Returns a date.">
 	<cfargument name="inDate" type="date" required="false" default="#now()#">
@@ -75,7 +78,7 @@ History:
 		var dowMod = "";
 		var dowMult = "";
 		var firstDayOfWeek = "";
-		date = trim(arguments.inDate);
+		var date = trim(arguments.inDate);
 		dow = dayOfWeek(date);
 		dowMod = decrementValue(dow);
 		dowMult = dowMod * -1;
@@ -83,30 +86,34 @@ History:
 	</cfscript>
 	<cfreturn firstDayOfWeek>
 </cffunction>
+
 <!---
-	/* ***************************************************************
-	/*
-	Author: 	Ron West
-	Name:
-		$lastDayOfWeek
-	Summary:	
-		Given the current date find out what the last day of the week is
-	Returns:
-		String lastDay
-	Arguments:
-		String inDate
-	History:
-		2009-09-23 - RLW - Created
-	--->
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
+Name:
+	$lastDayOfWeek
+Summary:	
+	Given the current date find out what the last day of the week is
+Returns:
+	String lastDay
+Arguments:
+	String inDate
+History:
+	2009-09-23 - RLW - Created
+	2011-07-13 - GAC - passed the inDate parameter through to the firstDayOfWeek function so this can be used on dates other than Now() 
+--->
 <cffunction name="lastDayOfWeek" access="public" returntype="String" hint="Given the current date find out what the last day of the week is">
 	<cfargument name="inDate" type="date" required="false" default="#now()#">
 	<cfscript>
-		var returnDate = firstDayOfWeek();
+		var returnDate = firstDayOfWeek(arguments.inDate);
 		if( isDate(returnDate) )
 			returnDate = dateAdd("d", 6, returnDate);
 	</cfscript>
 	<cfreturn returnDate>
 </cffunction>
+
 <!--- // returns date for first of month --->
 <cffunction name="firstOfMonth" access="public" output="false" returntype="any" hint="Returns date for first of month">
 	<cfargument name="inMonth" required="true" type="string">
@@ -229,31 +236,65 @@ Summary:
 Returns:
 	string
 Arguments:
-	string
-	string
+	string - date
+	string - time
+	string - hourOffset
+	string - minuteOffset
 History:
 	2010-09-20 - MFC - Created
+	2011-03-09 - GAC - Fixes for issues with timezone, modified how the +/- operators render for the timezones
+					 - Added hourOffset and minuteOffset parameters
 --->
 <cffunction name="formatDateTimeISO8601" access="public" returntype="string" output="true" hint="">
 	<cfargument name="date" type="string" required="false" default="#now()#" hint="">
 	<cfargument name="time" type="string" required="false" default="#now()#" hint="">
-	
+	<cfargument name="hourOffset" type="string" required="false" default="" hint="A value from -14 to 14 representing hour offset for a timezone">
+	<cfargument name="minuteOffset" type="string" required="false" default="" hint="A value from 1 to 59 representing minute offset for a timezone">
 	<cfscript>
-		var tzData = GetTimeZoneInfo();
 		var tzStamp = "";
-				
-		// Set the timezone 
-		if ( tzData.utcHourOffset GTE 0 ){
-			if ( LEN(tzData.utcHourOffset) EQ 1 )
-				tzStamp = "+0" & tzData.utcHourOffset & ":00";
+		var tzData = GetTimeZoneInfo();
+		var tzHrOffset = 0;
+		var tzMinOffset = 0;
+		var tzHrLeadingZero = 0;
+		var tzMinLeadingZero = 0;
+		var tzOperator = "+";
+		// Use the hourOffset value, if one is passed in
+		if ( LEN(TRIM(arguments.hourOffset)) AND IsNumeric(arguments.hourOffset) 
+				AND (arguments.hourOffset LTE 14 AND arguments.hourOffset GTE -(12)) ) {
+			tzHrOffset = arguments.hourOffset;	
+		} else {
+			// If hourOffset is not provided, use the GetTimeZoneInfo() values to ues Server's TimeZone information
+			// - the CF utcHourOffset value is reverse from standard offset (utcHourOffset: 5 for -05:00)
+			// - GetTimeZoneInfo() adjusts utcHourOffset for DST 
+			if ( StructKeyExists(tzData,"utcHourOffset") AND tzData.utcHourOffset GTE 0 )
+				tzHrOffset = -(tzData.utcHourOffset);
 			else
-				tzStamp = "+" & tzData.utcHourOffset & ":00";
+				tzHrOffset = tzData.utcHourOffset;
 		}
-		else
-			tzStamp = "-" & tzData.utcHourOffset & ":00";
-		
+		// Use the minuteOffset value, if one is passed in
+		if ( LEN(TRIM(arguments.minuteOffset)) AND IsNumeric(arguments.minuteOffset) 
+				AND (arguments.minuteOffset LTE 59 AND arguments.minuteOffset GTE 1) ) {
+			tzMinOffset = arguments.minuteOffset;	
+		} else {
+			// If minuteOffset is not provided, use the GetTimeZoneInfo() values to use Server's TimeZone information	
+			if ( StructKeyExists(tzData,"utcMinuteOffset") )
+				tzMinOffset = tzData.utcMinuteOffset;	
+		}
+		// Count the tzHrOffest digits, do not use leading zero if there is more than 1 digit
+		if ( LEN(ABS(tzHrOffset)) GT 1 )
+			tzHrLeadingZero = "";
+		// Count the tzMinOffset digits, do not use leading zero if there is more than 1 digit
+		if ( LEN(tzMinOffset) GT 1 )	
+			tzMinLeadingZero = "";
+		// Set the timezone operator use (Proper ISO8601 format): 
+		// - (-) for timezones west of UTC (such as a zone in North America) 
+		// - (+) for timezones east of UTC (such as a zone in Germany)   
+		if ( tzHrOffset LTE 0 )
+			tzOperator = "-";
+		// Build the timezone stamp
+		tzStamp = tzOperator & tzHrLeadingZero & ABS(tzHrOffset) & ":" & tzMinLeadingZero & tzMinOffset;
 		// Build the string
-		return DateFormat(arguments.date, "YYYY-MM-DD") & "T" & TimeFormat(arguments.time, "HH:MM:SS") & tzStamp;
+		return DateFormat(arguments.date,"yyyy-mm-dd") & "T" & TimeFormat(arguments.time,"HH:mm:ss") & tzStamp;
 	</cfscript>
 </cffunction>
 <!---

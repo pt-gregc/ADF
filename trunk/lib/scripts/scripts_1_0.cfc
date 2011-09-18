@@ -23,15 +23,17 @@ end user license agreement.
 Author: 	
 	PaperThin, Inc. 
 Name:
- scripts_1_0.cfc
+ 	scripts_1_0.cfc
 Summary:
 	Scripts functions for the ADF Library
+Version:
+	1.0.1
 History:
 	2009-06-22 - MFC - Created
 --->
 <cfcomponent displayname="scripts_1_0" extends="ADF.core.Base" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" default="1_0_0">
+<cfproperty name="version" default="1_0_1">
 <cfproperty name="type" value="singleton">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_0" type="dependency">
 <cfproperty name="wikiTitle" value="Scripts_1_0">
@@ -54,12 +56,18 @@ History:
 	2009-07-20 - MFC - Created
 	2009-11-11 - MFC - Update to force flag to not log the script loaded when forced.
 	2010-08-26 - MFC - Updated to load 1.4 by default
+	2011-07-21 - MFC - Force jQuery no conflict when in CS 6.2 or above.
 --->
 <cffunction name="loadJQuery" access="public" output="true" returntype="void" hint="Loads the JQuery Headers if not loaded.">
 	<cfargument name="version" type="string" required="false" default="1.4" hint="JQuery version to load.">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfargument name="noConflict" type="boolean" required="false" default="0" hint="JQuery no conflict flag.">
 
+	<cfscript>
+		// 2011-07-21 - MFC - Force jQuery no conflict when in CS 6.2 or above.
+		if ( StructKeyExists(application.ADF, "csVersion") AND (application.ADF.csVersion GTE 6.2) )
+			arguments.noConflict = true;
+	</cfscript>
 	<!--- Check if the header is out yet, or we want to force rendering --->
 	<cfif (not variables.scriptsService.isScriptLoaded("jQuery")) OR (arguments.force)>
 		<cfoutput>
@@ -175,7 +183,7 @@ History:
 <cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery UI script header to load.">
 <cfif (not variables.scriptsService.isScriptLoaded("jqueryui")) OR (arguments.force)>
 	<cfoutput>
-		<script type='text/javascript' src='/ADF/thirdParty/jquery/ui/jquery-ui-#arguments.version#/js/jquery-ui-#arguments.version#.custom.min.js'></script>
+		<script type='text/javascript' src='/ADF/thirdParty/jquery/ui/jquery-ui-#arguments.version#/js/jquery-ui-#arguments.version#.custom.js'></script>
 	</cfoutput>
 	<!--- Verify that the theme directory exists --->
 	<cfif DirectoryExists(expandPath("/ADF/thirdParty/jquery/ui/jquery-ui-#arguments.version#/css/#arguments.themeName#"))>
@@ -474,7 +482,6 @@ History:
 </cfif>
 </cffunction>
 
-
 <!---
 /* ***************************************************************
 /*
@@ -688,6 +695,10 @@ History:
 	2010-02-19 - MFC - Updated the CS 6.0 lightbox framework
 	2010-03-01 - MFC - Added IF block to load the browse-all.js in CS 6.0 if not in a CS page.
 	2010-04-30 - MFC - Updated the Lightbox framework to resolve issues.
+	2010-12-07 - MFC - Updated the LB Properties to verify the request.params variables 
+						outside the scriptservice check. This runs the verify for every 
+						call to the load ADF LB.
+	2011-07-21 - MFC - Run check for if commonspot.lightbox is defined yet.
 --->
 <cffunction name="loadADFLightbox" access="public" output="true" returntype="void" hint="ADF Lightbox Framework for the ADF Library">
 	<cfargument name="version" type="string" required="false" default="1.0" hint="ADF Lightbox version to load">
@@ -702,6 +713,25 @@ History:
 		</cfoutput>
 	</cfif>
 	
+	<!--- Check if we have LB properties --->
+	<cfscript>
+		// Default Width
+		if ( NOT StructKeyExists(request.params, "width") )
+			request.params.width = 500;
+		
+		// Default Height
+		if ( NOT StructKeyExists(request.params, "height") )
+			request.params.height = 500;
+		
+		// Default Title
+		if ( NOT StructKeyExists(request.params, "title") )
+			request.params.title = "";
+		
+		// Default Subtitle
+		if ( NOT StructKeyExists(request.params, "subtitle") )
+			request.params.subtitle = "";
+	</cfscript>
+	
 	<cfif (NOT variables.scriptsService.isScriptLoaded("ADFLightbox")) OR (arguments.force)>
 		<!--- Load the ADF Lightbox Framework script --->
 		<cfoutput>
@@ -710,26 +740,7 @@ History:
 		<!--- Load lightbox override styles --->
 		<link href="/ADF/extensions/lightbox/#arguments.version#/css/lightbox_overrides.css" rel="stylesheet" type="text/css">
 		</cfoutput>
-		
-		<!--- Check if we have LB properties --->
-		<cfscript>
-			// Default Width
-			if ( NOT StructKeyExists(request.params, "width") )
-				request.params.width = 500;
-			
-			// Default Height
-			if ( NOT StructKeyExists(request.params, "height") )
-				request.params.height = 500;
-			
-			// Default Title
-			if ( NOT StructKeyExists(request.params, "title") )
-				request.params.title = "";
-			
-			// Default Subtitle
-			if ( NOT StructKeyExists(request.params, "subtitle") )
-				request.params.subtitle = "";
-		</cfscript>
-		
+				
 		<!--- Load the CommonSpot Lightbox when not in version 6.0 --->
 		<cfif productVersion LT 6 >
 			<cfoutput>
@@ -835,7 +846,9 @@ History:
 				// get local references to objects we need in parent frame
 				// commonspot object has state, so we need that instance; others are static, but why load them again
 				//var commonspot = parent.commonspot;
-				commonspot.lightbox.initCurrent(#request.params.width#, #request.params.height#, { title: '#request.params.title#', subtitle: '#request.params.subtitle#', close: 'true', reload: 'true' });
+				if ( (typeof commonspot != 'undefined') && (typeof commonspot.lightbox != 'undefined') ) {
+					commonspot.lightbox.initCurrent(#request.params.width#, #request.params.height#, { title: '#request.params.title#', subtitle: '#request.params.subtitle#', close: 'true', reload: 'true' });
+				}
 			});
 		</script>
 		</cfoutput>
@@ -904,6 +917,7 @@ History:
 		<cfset variables.scriptsService.loadedScript("jqueryuistars")>
 	</cfif>
 </cffunction>
+
 <!---
 /* ***************************************************************
 /*
@@ -1027,6 +1041,7 @@ History:
 	</cfif>
 </cfif>
 </cffunction>
+
 <!---
 /* ***************************************************************
 /*
@@ -1052,6 +1067,7 @@ History:
 		<cfset variables.scriptsService.loadedScript("jqueryAutocomplete")>
 	</cfif>
 </cffunction>
+
 <!---
 /* ***************************************************************
 /*
@@ -1162,6 +1178,34 @@ History:
 	</cfoutput>
 	<cfset variables.scriptsService.loadedScript("jQueryBlockUI")>
 </cfif>
+</cffunction>
+
+<!---
+/* ***************************************************************
+/*
+Author: 	
+	PaperThin, Inc.
+	Ryan kahn
+Name:
+	$loadJQueryDatePick
+Summary:	
+	Loads the DatePick plugin for jQuery
+Returns:
+	Void
+Arguments:
+	Version
+History:
+ 	2010-09-27 - RAK - Created
+--->
+<cffunction name="loadJQueryDatePick" access="public" output="true" returntype="void" hint="Loads the DatePick plugin for jQuery"> 
+	#loadJQuery()#
+	<cfif not variables.scriptsService.isScriptLoaded("datePick")>
+		<cfoutput>
+			<style type='text/css'>@import '/ADF/thirdParty/jquery/datepick/jquery.datepick.css';</style>
+			<script type='text/javascript' src='/ADF/thirdParty/jquery/datepick/jquery.datepick.pack.js'></script>
+		</cfoutput>
+		<cfset variables.scriptsService.loadedScript("datePick")>
+	</cfif>
 </cffunction>
 
 <!---
