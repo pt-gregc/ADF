@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- // RLW 2011-03-19 - created -->
 <!-- // RLW 2011-06-24 - added csUpload to version 1.0 and version 1.5 -->
+<!-- // MFC 2011-09-19 - Removed CCAPI_1_1 updates. -->
 <settings>
 	<v_1.0>
 		<!-- // ajax -->
@@ -37,12 +38,6 @@
 		<ajax_1_0/>
 		<!-- // CCAPI -->
 		<ccapiConfig_1_0/>
-		<ccapi_1_1/>
-		<csContent_1_1/>
-		<csPage_1_1/>
-		<csSubsite_1_1/>
-		<csSubsite_1_1/>
-		<csUpload_1_1/>
 		<!-- // csapi -->
 		<csapi_1_0/>
 		<!-- // cedata -->
