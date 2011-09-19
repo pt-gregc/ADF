@@ -195,32 +195,11 @@ History:
 
 		</cfscript>
 		<!---Check to see if coldfusion can read this file--->
-		<cfif listFindNoCase(GetReadableImageFormats(),listLast(filePath,"."))>
-			<cfimage action="info" structname="imageInfo" source="#filePath#">
+		<cfif IsImageFile(filePath) and listFindNoCase(GetReadableImageFormats(),listLast(filePath,"."))>
+			<cfimage name="rtnStruct.image" source="#filePath#">
 			<cfscript>
-				resizeDimension = "";
-				//Figure out what we need to do to maintain the aspect ratio.
-				if(imageInfo.width gt variables.thumbnailMaxWidth
-						and imageInfo.height gt variables.thumbnailMaxHeight){
-					if(imageInfo.width gt imageInfo.height){
-						resizeDimension = "width";
-					}else{
-						resizeDimension = "height";
-					}
-				}else if(imageInfo.width gt variables.thumbnailMaxWidth){
-						resizeDimension = "width";
-				}else if(imageInfo.height gt variables.thumbnailMaxHeight){
-						resizeDimension = "height";
-				}
-			</cfscript>
-			<cfif resizeDimension eq "width">
-				<cfimage action="resize" source="#filePath#" width="#variables.thumbnailMaxWidth#" height="" name="rtnStruct.image">
-			<cfelseif resizeDimension eq "height">
-				<cfimage action="resize" source="#filePath#" height="#variables.thumbnailMaxHeight#" width="" name="rtnStruct.image">
-			<cfelse>
-				<cfimage action="read" source="#filePath#" name="rtnStruct.image">
-			</cfif>
-			<cfscript>
+				ImageSetAntialiasing(rtnStruct.image,"on");
+				ImageScaleToFit(rtnStruct.image,variables.thumbnailMaxWidth,variables.thumbnailMaxHeight);
 				rtnStruct.handledImage = true;
 			</cfscript>
 		</cfif>

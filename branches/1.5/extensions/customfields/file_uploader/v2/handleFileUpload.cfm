@@ -24,6 +24,9 @@
 			fileDetails = StructNew();
 			fileDetails.filePath = form.filedata;
 			fileDetails.fileName = form.filename;
+			
+			//Passing this so the CFC can look up any possible variables it may need from the props file if its custom.
+			fileDetails.fieldID = fieldID;
 
 			validationResults = application.ADF.utils.runCommand(fieldDefaultValues.beanName,"_validateFile",fileDetails);
 			
