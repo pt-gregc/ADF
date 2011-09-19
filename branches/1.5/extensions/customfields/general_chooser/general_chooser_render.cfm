@@ -41,6 +41,7 @@ History:
 						script versions from the Scripts Object.
 	2011-03-20 - MFC - Updated component to simplify the customizations process and performance.
 						Removed Ajax loading process.
+	2011-03-27 - MFC - Updated for Add/Edit/Delete callback.
 --->
 <cfscript>
 	// the fields current value
@@ -163,9 +164,6 @@ History:
 		function #xParams.fieldID#_serialize() {
 			// get the serialized list
 			var serialList = jQuery('###xParams.fieldID#-sortable2').sortable( 'toArray' );
-			
-			console.log(serialList);
-			
 			// Check if the serialList is Array
 			if ( jQuery.isArray(serialList) ){
 				serialList = jQuery.ArrayToList(serialList);
@@ -175,9 +173,6 @@ History:
 			#xParams.fieldID#currentValue = serialList;
 			// load current values into the form field
 			jQuery("input###fqFieldName#").val(#xParams.fieldID#currentValue);
-			
-			console.log(#xParams.fieldID#currentValue);
-			
 		}
 		
 		// Resize the window function
@@ -186,6 +181,13 @@ History:
 			if ( '#ListLast(cgi.SCRIPT_NAME,"/")#' == 'loader.cfm' ) {
 				ResizeWindow();
 			}
+		}
+		
+		function #xParams.fieldID#_formCallback(formData){
+			// Reload the available selections
+			#xParams.fieldID#_loadTopics("notselected");
+			// Close the lightbox
+			closeLB();
 		}
 	</script>
 	<tr>

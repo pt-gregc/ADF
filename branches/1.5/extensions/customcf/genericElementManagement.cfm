@@ -29,6 +29,7 @@ Summary:
 	Remember to specify the parameter of elementName=My Element Name
 History:
 	2011-09-01 - RAK - Created
+	2011-09-01 - RAK - Added multiple element support
 --->
 <cfoutput>
 	<cfif structKeyExists(attributes,"elementName") and Len(attributes.elementName)>

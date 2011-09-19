@@ -57,11 +57,11 @@ History:
 	2010-11-17 - RAK - Brought in Dave Merril's queryRowToStruct for use in ADF
 --->
 <cffunction name="queryRowToStruct" hint="Returns a struct w requested data from a requested query row." output="no" returntype="struct" access="public">
-	<cfargument name="query" type="query" required="yes">
-	<cfargument name="rowNum" type="numeric" default="1" required="no">
-	<cfargument name="colsList" type="string" default="#arguments.query.ColumnList#" required="no">
-	<cfargument name="LCaseNames" type="boolean" default="yes" required="no">
-	<cfargument name="targetStruct" type="struct" default="#StructNew()#" required="no">
+	<cfargument name="query" type="query" required="yes" hint="Source Query">
+	<cfargument name="rowNum" type="numeric" default="1" required="no" hint="Row to convert">
+	<cfargument name="colsList" type="string" default="#arguments.query.ColumnList#" required="no" hint="List of columns">
+	<cfargument name="LCaseNames" type="boolean" default="yes" required="no" hint="Lowercase all the names?">
+	<cfargument name="targetStruct" type="struct" default="#StructNew()#" required="no" hint="Ability to append the results to a passed in target structure">
 	<cfscript>
 		var s = arguments.targetStruct;
 		var aCols = '';
@@ -128,7 +128,7 @@ History:
 	History:
 		2011-02-09 - GAC - Added
 --->
-<cffunction name="activateURL" access="public" returntype="string" hint="">
+<cffunction name="activateURL" access="public" returntype="string" hint="Takes urls in a text string and turns them into links">
 	<cfargument name="strText" type="string" required="false" default="" hint="A text string to search through for URLs">
 	<cfargument name="target" type="string" required="false" default="" hint="A valid A HREF target: _blank, _self">
 	<cfargument name="paragraph" type="string" required="false" default="false" hint="If true, add paragraphFormat to returned string">
@@ -206,16 +206,8 @@ History:
 	2011-05-11 - RAK - Added improved error handling and reporting.
 	2011-05-17 - RAK - Removed extra evaluate
 --->
-<cffunction name="feedToQuery" returntype="struct" output="false" access="public">
-	/**
-	 * Converts an RSS 0.9+, ATOM or RDF feed into a query.
-	 *
-	 * @param path 	 		RSS feed url or file path, must be valid RSS, ATOM or RDF. (Required)
-	 * @return 				Returns a structure with meta data and a query.
-	 * @author 				Joe Nicora (joe@seemecreate.com)
-	 * @version 1, 			July 16, 2006
-	 */
-	<cfargument name="path" type="string" required="yes" />
+<cffunction name="feedToQuery" returntype="struct" output="false" access="public" hint="Converts an rss feed to a query">
+	<cfargument name="path" type="string" required="yes" hint="RSS Path" />
 
 	<cfset var parsed = "" />
 	<cfset var index = 0 />
@@ -393,9 +385,9 @@ History:
 --->
 <cffunction name="queryAppend" access="public" returntype="query" output="false" hint="This takes two queries and appends the second one to the first one. Returns the resultant third query.">
      <!--- Define arguments. --->
-     <cfargument name="QueryOne" type="query" required="true" />
-     <cfargument name="QueryTwo" type="query" required="true" />
-     <cfargument name="UnionAll" type="boolean" required="false" default="true" />
+     <cfargument name="QueryOne" type="query" required="true" hint="The first query to have query 2 appended to"/>
+     <cfargument name="QueryTwo" type="query" required="true" hint="The second query to be appended to query 1" />
+     <cfargument name="UnionAll" type="boolean" required="false" default="true" hint="Care about diplicates or not, if we expect duplicates we union all" />
      <cfset var NewQuery = "" />
 
      <!--- Append the second to the first. Do this by unioning the two queries. --->
@@ -465,7 +457,7 @@ History:
 	2011-03-31 - GAC - Added
 --->
 <cffunction name="EscapeExtendedChars" returntype="string" access="public" output="false" hint="Escapes extended chararacters from a string">
-	<cfargument name="str" type="string" required="true">
+	<cfargument name="str" type="string" required="true" hint="String to escape extended characters on">
 	<cfset var buf = CreateObject("java", "java.lang.StringBuffer")>
 	<cfset var len = Len(arguments.str)>
 	<cfset var char = "">
@@ -509,9 +501,9 @@ History:
 	2011-09-01 - GAC - Modified - Added a flag to force all query columns to be varchar datatype
 --->
 <cffunction name="arrayOfStructsSortMultiKeys" access="public" returntype="array" output="true" hint="Sorts an Array Of Structures based on the multiple structure keys.">
-	<cfargument name="aOfS" type="array" required="true">
-	<cfargument name="orderByKeyList" type="string" required="true">
-	<cfargument name="forceColsToVarchar" type="boolean" default="false" required="false">	
+	<cfargument name="aOfS" type="array" required="true" hint="Array of structures">
+	<cfargument name="orderByKeyList" type="string" required="true" hint="List of keys to order by">
+	<cfargument name="forceColsToVarchar" type="boolean" default="false" required="false" hint="Force the columnts to evaluate via varchar">
 	
 	<cfscript>
 		// Make the array an query

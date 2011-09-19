@@ -57,7 +57,7 @@ History:
 				access="public" 
 				returntype="array" 
 				description="From form ID this function, when recurse is set to true returns the form's tabs in order, with the tab's fields in order, with each field's default information.">
-	<cfargument name="formID" type="numeric" required="true">
+	<cfargument name="formID" type="numeric" required="true" hint="FormID to get the tabs from">
 	<cfargument name="recurse" type="boolean" required="false" default="false" hint="If true, this function will return a structure containing every tabs fields and the fields default values.">
 	<cfscript>
 		var returnArray = ArrayNew(1);
@@ -103,7 +103,7 @@ History:
 				access="public" 
 				returntype="array"
 				description="From tab id this can return either a simple listing of fields/fieldid in order. With recursive flag to true this function will return the fields/fieldid as normal but each field will have its default settings also.">
-	<cfargument name="tabIDList" type="string" required="true">
+	<cfargument name="tabIDList" type="string" required="true" hint="list of tab IDs to get fields from">
 	<cfargument name="recurse" type="boolean" required="false" default="false" hint="If true, this function will return a structure containing every fields and the fields default values.">
 	<cfscript>
 		var returnArray = ArrayNew(1);
@@ -149,7 +149,7 @@ History:
 				access="public" 
 				returntype="struct"
 				description="Attempts to get all relevant default form field information from field id.">
-	<cfargument name="fieldID" type="numeric" required="true">
+	<cfargument name="fieldID" type="numeric" required="true" hint="Field ID to get the default values from">
 	<cfscript>
 		var rtnStruct = StructNew();
 		var params = "";
@@ -252,7 +252,7 @@ History:
 	2011-05-04 - RAK - Added check for CS 5 to decode the HTML escaped param WDDX.
 --->
 <cffunction name="getFieldParamsByID" hint="Returns struct containing form field parameters (e.g. ID, Label, Required etc...)" access="public" returntype="struct">
-	<cfargument name="fieldID" type="numeric" required="true">
+	<cfargument name="fieldID" type="numeric" required="true" hint="Field ID to get params from">
 	<cfscript>
 		var multipleFieldQuery = '';
 		var formFieldQuery = '';
@@ -597,7 +597,7 @@ Author: 	Ron West
 Name:
 	$buildRealTypeView
 Summary:	
-	Builds an element view for the posts2 element
+	Builds an element view for the passed in element
 Returns:
 	Boolean viewCreated
 Arguments:
@@ -617,9 +617,9 @@ History:
 						Changed memoValue field size to "max".
 	2011-05-03 - RAK - Modified code to default to try the memo field if the data is null or ''
 --->
-<cffunction name="buildRealTypeView" access="public" returntype="boolean">
-	<cfargument name="elementName" type="string" required="true">
-	<cfargument name="viewName" type="string" required="false" default="ce_#arguments.elementName#View">
+<cffunction name="buildRealTypeView" access="public" returntype="boolean" hint="Builds ane lement view for the passed in element name">
+	<cfargument name="elementName" type="string" required="true" hint="element name to build the view table off of">
+	<cfargument name="viewName" type="string" required="false" default="ce_#arguments.elementName#View" hint="Override the view name that gets generated">
 	<cfscript>
 		var deleteView = '';
 		var viewCreated = false;
@@ -734,8 +734,8 @@ History:
 	2010-12-23 - MFC - Created
 --->
 <cffunction name="getDataPageIDFromControlIDandPageID" access="public" returntype="numeric" hint="Returns the CE Data Page ID based on the Control ID and CommonSpot Page ID.">
-	<cfargument name="controlID" type="numeric" required="true">
-	<cfargument name="pageID" type="numeric" required="true">
+	<cfargument name="controlID" type="numeric" required="true" hint="ControlID to get datapageID from">
+	<cfargument name="pageID" type="numeric" required="true" hint="pageID to get datapageID from">
 
 	<cfset var retDataPageID = -1>
 	<cfset var getDataWDDX = QueryNew("null")>

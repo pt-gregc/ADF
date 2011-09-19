@@ -83,7 +83,7 @@ History:
 	2010-03-05 - GAC - Removed the loggingEnabled() function call from the try/catch
 	2011-03-19 - RLW - Added support for the Custom Element configuration
 --->
-<cffunction name="loadCCAPIConfig" access="public" returntype="void">
+<cffunction name="loadCCAPIConfig" access="public" returntype="void" hint="Load CCAPI Config">
 	<cfscript>
 		var CCAPIConfig = StructNew();
 		var configAppXMLPath = ExpandPath("#request.site.csAppsWebURL#config/ccapi.xml");
@@ -229,9 +229,8 @@ Author: 	Ron West
 Name:
 	$loadElements
 Summary:	
-	Based on the data returned from the configuration
-	this utility will set all of the elements which are
-	configured to handle API calls
+	Based on the data returned from the configuration this utility will
+	set all of the elements which are configured to handle API calls
 Returns:
 	Void
 Arguments:
@@ -239,7 +238,7 @@ Arguments:
 History:
 	2009-05-13 - RLW - Created
 --->
-<cffunction name="loadElements" access="private" returntype="void">
+<cffunction name="loadElements" access="private" returntype="void" hint="Based on the data returned from the configuration this utility will set all of the elements which are configured to handle API calls">
 	<cfscript>
 		var CCAPIConfig = getCCAPIConfig();
 		var elementsList = "";
@@ -269,7 +268,7 @@ Arguments:
 History:
 	2009-05-13 - RLW - Created
 --->
-<cffunction name="loadWSVars" access="private" returntype="void">
+<cffunction name="loadWSVars" access="private" returntype="void" hint="Builds the WebService variables required like: Username,Password,URL etc..">
 	<cfscript>
 		var CCAPIConfig = getCCAPIConfig();
 		var wsVars = structNew();
@@ -354,89 +353,89 @@ History:
 </cffunction>
 
 <!--- // Public GETTERS/SETTERS --->
-<cffunction name="setSubsiteID" access="public" returntype="void">
-	<cfargument name="subsiteID" type="numeric" required="true">
+<cffunction name="setSubsiteID" access="public" returntype="void" hint="Setter for subsiteID">
+	<cfargument name="subsiteID" type="numeric" required="true" hint="subsiteID">
 	<cfset variables.subsiteID = arguments.subsiteID>
 </cffunction>
 
-<cffunction name="getSubsiteID" access="public" returntype="numeric">
+<cffunction name="getSubsiteID" access="public" returntype="numeric" hint="Getter for subsiteID">
 	<cfreturn variables.subsiteID>
 </cffunction>
 
-<cffunction name="getWS" access="public" returntype="any">
+<cffunction name="getWS" access="public" returntype="any"  hint="getter for WS">
 	<cfreturn variables.ws>
 </cffunction>
 
-<cffunction name="getSSID" access="public" returntype="string">
+<cffunction name="getSSID" access="public" returntype="string"  hint="getter for SSID">
 	<cfreturn variables.SSID>
 </cffunction>
 
 <!--- // Private GETTERS/SETTERS --->
-<cffunction name="setCSPassword" access="private" returntype="void">
-	<cfargument name="CSPassword" type="string" required="true">
+<cffunction name="setCSPassword" access="private" returntype="void" hint="set the CSPassword">
+	<cfargument name="CSPassword" type="string" required="true" hint="CSPassword to set">
 	<cfset variables.CSPassword = arguments.CSPassword>
 </cffunction>
 
-<cffunction name="getCSPassword" access="private" returntype="string">
+<cffunction name="getCSPassword" access="private" returntype="string" hint="Getter for csPassword">
 	<cfreturn variables.CSPassword>
 </cffunction>
 
-<cffunction name="getCSUserID" access="private" returntype="string">
+<cffunction name="getCSUserID" access="private" returntype="string" hint="Getter for csUserID">
 	<cfreturn variables.CSUserID>
 </cffunction>
 
-<cffunction name="setCSUserID" access="private" returntype="void">
-	<cfargument name="CSUserID" type="string" required="true">
+<cffunction name="setCSUserID" access="private" returntype="void" hint="Setter For CSUserID">
+	<cfargument name="CSUserID" type="string" required="true" hint="userID">
 	<cfset variables.CSUserID = arguments.CSUserID>
 </cffunction>
 
-<cffunction name="setSiteURL" access="private" returntype="void">
-	<cfargument name="siteURL" type="string" required="true">
+<cffunction name="setSiteURL" access="private" returntype="void" hint="setter for site URL">
+	<cfargument name="siteURL" type="string" required="true" hint="Site URL to set">
 	<cfset variables.siteURL = arguments.siteURL>	
 </cffunction>
 
-<cffunction name="getSiteURL" access="private" returntype="string">
+<cffunction name="getSiteURL" access="private" returntype="string" hint="Getter for site URL">
 	<cfreturn variables.siteURL>
 </cffunction>
 
-<cffunction name="getCCAPIConfig" access="public" returntype="struct">
+<cffunction name="getCCAPIConfig" access="public" returntype="struct"  hint="get the ccapi config">
 	<cfreturn variables.CCAPIConfig>
 </cffunction>
 
-<cffunction name="setCCAPIConfig" access="private" returntype="void">
-	<cfargument name="CCAPIConfig" type="any" required="true">
+<cffunction name="setCCAPIConfig" access="private" returntype="void" hint="set the ccapi config">
+	<cfargument name="CCAPIConfig" type="any" required="true" hint="ccapiConfig tos et">
 	<cfset variables.CCAPIConfig = arguments.CCAPIConfig>
 </cffunction>
 
-<cffunction name="getElements" access="public" returntype="struct">
+<cffunction name="getElements" access="public" returntype="struct" hint="getter for elements bound in the ccapi">
 	<cfreturn variables.elements>
 </cffunction>
 
-<cffunction name="setElements" access="private" returntype="void">
-	<cfargument name="elements" type="struct" required="true">
+<cffunction name="setElements" access="private" returntype="void" hint="setter for the elemnts">
+	<cfargument name="elements" type="struct" required="true" hint="elements struct">
 	<cfset variables.elements = elements>
 </cffunction>
 
-<cffunction name="getTemplates" access="private" returntype="struct">
+<cffunction name="getTemplates" access="private" returntype="struct" hint="getter for templates">
 	<cfreturn variables.templates>
 </cffunction>
 
-<cffunction name="setTemplates" access="private" returntype="void">
-	<cfargument name="templates" type="struct" required="true">
+<cffunction name="setTemplates" access="private" returntype="void" hint="setter for templates">
+	<cfargument name="templates" type="struct" required="true" hint="templates to set">
 	<cfset variables.templates = arguments.templates>
 </cffunction>
 
-<cffunction name="setWebServiceURL" access="private" returntype="void">
-	<cfargument name="webServiceURL" type="string" required="true">
+<cffunction name="setWebServiceURL" access="private" returntype="void" hint="setter for web service URL">
+	<cfargument name="webServiceURL" type="string" required="true" hint="web service URL to set">
 	<cfset variables.webServiceURL = arguments.webServiceURL>
 </cffunction>
 
-<cffunction name="getWebServiceURL" access="private" returntype="string">
+<cffunction name="getWebServiceURL" access="private" returntype="string" hint="getter for web service URL">
 	<cfreturn variables.webServiceURL>
 </cffunction>
 
-<cffunction name="setSSID" access="private" returntype="void">
-	<cfargument name="ssid" type="string" required="true">
+<cffunction name="setSSID" access="private" returntype="void" hint="setter for SSID">
+	<cfargument name="ssid" type="string" required="true" hint="ssid to set">
 	<cfset variables.SSID = arguments.SSID>	
 </cffunction>
 

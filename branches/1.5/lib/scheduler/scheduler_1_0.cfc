@@ -74,7 +74,7 @@ History:
 	<cfargument name="scheduleName" type="string" required="true" hint="Unique name for the schedule you want to run">
 	<cfargument name="commands" type="array" required="true" hint="Array of URL's to execute each step of your schedule">
 	<cfargument name="scheduleParams" type="struct" required="false" default="#StructNew()#" hint="optional settings as to the schedule timings">
-	<cfargument name="startProcessNow" type="boolean" required="false" default="true">
+	<cfargument name="startProcessNow" type="boolean" required="false" default="true" hint="If true the process will run its first step automatically.">
 	
 	<cfscript>
 		var defaultScheduleParams = StructNew();//Default Values
@@ -250,7 +250,7 @@ Arguments:
 History:
 	Nov 30, 2010 - RAK - Created
 --->
-<cffunction name="getScheduleStatus" access="public" returntype="struct" description="Returns a structure representative of the current status of a given schedule.">
+<cffunction name="getScheduleStatus" access="public" returntype="struct" hint="Returns a structure representative of the current status of a given schedule.">
 	<cfargument name="scheduleName" type="string" required="true" hint="Unique name for the schedule you want to run">
 	<cfscript>
 		var rtnStruct = StructNew();
@@ -469,7 +469,7 @@ History:
 		2010-12-21 - GAC - Added
 		2010-12-21 - GAC - Modified - Added task name filter
 --->
-<cffunction name="getScheduledTasks" returntype="array" output="no" access="public">
+<cffunction name="getScheduledTasks" returntype="array" output="no" access="public" hint="Obtain an Array of CF scheduled tasks ">
 		<cfargument name="taskNameFilter" type="string" required="false" default="" hint="Used to only display Scheduled Task Names that contain this filter value">	
 		<cfscript>
 			var result = ArrayNew(1);
@@ -510,7 +510,7 @@ Arguments:
 History:
 	2011-08-29 - MFC - Created
 --->
-<cffunction name="setSchedule" access="private" returntype="boolean" output="true" hint="">
+<cffunction name="setSchedule" access="private" returntype="boolean" output="true" hint="Sets the scheduled task">
 	<cfargument name="scheduleName" type="string" required="true" hint="Unique name for the schedule you want to run">
 	
 	<cfscript>
