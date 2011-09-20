@@ -37,7 +37,13 @@
 		<!-- // ajax -->
 		<ajax_1_0/>
 		<!-- // CCAPI -->
+		<ccapi_1_0/>
 		<ccapiConfig_1_0/>
+		<csContent_1_0/>
+		<csPage_1_1/>
+		<csSubsite_1_0/>
+		<csSubsite_1_0/>
+		<csUpload_1_0/>
 		<!-- // csapi -->
 		<csapi_1_0/>
 		<!-- // cedata -->
