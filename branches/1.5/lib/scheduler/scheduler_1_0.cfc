@@ -41,7 +41,7 @@ History:
 
 <cfscript>
 	// Verify the schedule structure exists
-	if(!StructKeyExists(application,"schedule"))
+	if ( !StructKeyExists(application,"schedule") )
 		application.schedule = StructNew();
 </cfscript>
 
