@@ -31,6 +31,7 @@ Version:
 	1.0.0
 History:
 	2010-11-30 - RAK - Created
+	2011-09-17 - GAC - Added checks to each method to verify that the application.schedule variable exists
 --->
 <cfcomponent displayname="scheduler_1_0" extends="ADF.core.Base" hint="Scheduler base for the ADF">
 	
@@ -40,9 +41,8 @@ History:
 
 <cfscript>
 	// Verify the schedule structure exists
-	if(!StructKeyExists(application,"schedule")){
+	if(!StructKeyExists(application,"schedule"))
 		application.schedule = StructNew();
-	}
 </cfscript>
 
 <!---
@@ -69,6 +69,7 @@ History:
 	2010-10-30 - RAK - Created
 	2011-09-16 - MFC - Added param to delay running the scheduled task immediately.
 						Default is set to TRUE.
+	2011-09-17 - GAC - Added a check to verify that application.schedule variable exists
 --->
 <cffunction name="scheduleProcess" access="public" returntype="void" hint="The main process for scheduling a bunch of commands to be processed. When a process is scheduled it begins immediately.">
 	<cfargument name="scheduleName" type="string" required="true" hint="Unique name for the schedule you want to run">
@@ -93,10 +94,17 @@ History:
 			}
 		}
 		
+		// Verify the schedule structure exists
+		if ( !StructKeyExists(application,"schedule") )
+			application.schedule = StructNew();	
+		
 		//Verify the schedule exists, if it does wipe it out
-		if(!StructKeyExists(application.schedule,arguments.scheduleName)){
-			StructInsert(application.schedule,arguments.scheduleName,StructNew());
-		}else{
+		if ( !StructKeyExists(application.schedule,arguments.scheduleName))
+		{
+			StructInsert(application.schedule,arguments.scheduleName,StructNew() );
+		}
+		else
+		{
 			application.schedule[arguments.scheduleName] = StructNew();
 		}
 		
@@ -107,11 +115,13 @@ History:
 		application.schedule[arguments.scheduleName].scheduleProgress = defaultScheduleParams.scheduleStart;
 		
 		// Check if want to start the procecing now or set the schedule
-		if ( arguments.startProcessNow ) {
+		if ( arguments.startProcessNow ) 
+		{
 			//BEGIN!
 			processNextScheduleItem(arguments.scheduleName);
 		}
-		else {
+		else 
+		{
 			setSchedule(arguments.scheduleName);
 		}
 	</cfscript>
@@ -135,6 +145,7 @@ History:
 	Nov 30, 2010 - RAK - Created
 	2011-01-13 - GAC - Modified - Updated to add the date string and the site name to the schedule task output log file
 	2011-02-09 - RAK - Var'ing un-var'd variables
+	2011-09-17 - GAC - Added a check to verify that application.schedule variable exists
 --->
 <cffunction name="processNextScheduleItem" access="public" returntype="boolean" hint="Executes the next item in the schedule. If there are no more it marks the schedule as ran.">
 	<cfargument name="scheduleName" type="string" required="true" hint="Unique name for the schedule you want to run">
@@ -147,6 +158,10 @@ History:
 		var siteName = request.site.name;
 		var logFilePrefix = dateFormat(now(), "yyyymmdd") & "." & siteName & ".";
 		var schedLogFileName = logFilePrefix & "scheduledStatus-" & arguments.scheduleName & ".html";
+		
+		// Verify the schedule structure exists
+		if ( !StructKeyExists(application,"schedule") )
+			application.schedule = StructNew();
 	</cfscript>
 	
 	<cfif StructKeyExists(application.schedule,arguments.scheduleName)>
@@ -230,7 +245,7 @@ History:
 			</cfscript>
 		</cfif>
 	</cfif>
-	<cfreturn false/>
+	<cfreturn false>
 </cffunction>
 
 <!---
@@ -248,7 +263,8 @@ Returns:
 Arguments:
 	String - scheduleName
 History:
-	Nov 30, 2010 - RAK - Created
+	2010-11-30 - RAK - Created
+	2011-07-06 - GAC - Added a check to verify that application.schedule variable exists
 --->
 <cffunction name="getScheduleStatus" access="public" returntype="struct" hint="Returns a structure representative of the current status of a given schedule.">
 	<cfargument name="scheduleName" type="string" required="true" hint="Unique name for the schedule you want to run">
@@ -259,9 +275,14 @@ History:
 		rtnStruct.currentTask = -1;
 		rtnStruct.totalTasks = -1;
 		rtnStruct.status = "nonexistant";
+		
+		// Verify the schedule structure exists
+		if(!StructKeyExists(application,"schedule"))
+			application.schedule = StructNew();
 
 		//if there is an existing schedule get its current status information and return it!
-		if(StructKeyExists(application.schedule,arguments.scheduleName)){
+		if ( StructKeyExists(application.schedule,arguments.scheduleName) )
+		{
 			currentSchedule = application.schedule[arguments.scheduleName];
 			rtnStruct.currentTask = currentSchedule.scheduleProgress-1;
 			rtnStruct.totalTasks = ArrayLen(currentSchedule.commands);
@@ -287,13 +308,19 @@ Returns:
 Arguments:
 	String - ScheduleName
 History:
-	Nov 30, 2010 - RAK - Created
+	2010-11-30 - RAK - Created
+	2011-09-17 - GAC - Added a check to verify that application.schedule variable exists
 --->
 <cffunction name="pauseSchedule" access="public" returntype="boolean" hint="Pauses passed in schedule name.">
 	<cfargument name="scheduleName" type="string" required="true" hint="Unique name for the schedule you want to run">
 	<cfscript>
-		if(StructKeyExists(application.schedule,arguments.scheduleName) and
-			application.schedule[arguments.scheduleName].status == "active"){
+		// Verify the schedule structure exists
+		if ( !StructKeyExists(application,"schedule") )
+			application.schedule = StructNew();
+		
+		if ( StructKeyExists(application.schedule,arguments.scheduleName) and
+			application.schedule[arguments.scheduleName].status == "active" ) 
+		{
 			application.schedule[arguments.scheduleName].status = "paused";
 			return true;
 		}
@@ -302,8 +329,7 @@ History:
 </cffunction>	
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author:
 	PaperThin, Inc.
 	Ryan Kahn
@@ -316,15 +342,21 @@ Returns:
 Arguments:
 	String - ScheduleName
 History:
-	Nov 30, 2010 - RAK - Created
+	2010-11-30 - RAK - Created
+	2011-09-17 - GAC - Added a check to verify that application.schedule variable exists
 --->
 <cffunction name="resumeSchedule" access="public" returntype="boolean" hint="Resumes a previously paused schedule.">
 	<cfargument name="scheduleName" type="string" required="true" hint="Unique name for the schedule you want to run">
 	<cfscript>
+		// Verify the schedule structure exists
+		if ( !StructKeyExists(application,"schedule") )
+			application.schedule = StructNew();
+		
 		//If the schedule exists, is paused and has remaining arguments resume it.
-		if(StructKeyExists(application.schedule,arguments.scheduleName) and
+		if ( StructKeyExists(application.schedule,arguments.scheduleName) and
 			application.schedule[arguments.scheduleName].status == "paused" and
-			ArrayLen(application.schedule[arguments.scheduleName].commands) gte application.schedule[arguments.scheduleName].scheduleProgress){
+			ArrayLen(application.schedule[arguments.scheduleName].commands) gte application.schedule[arguments.scheduleName].scheduleProgress ) 
+		{
 			application.schedule[arguments.scheduleName].status = "active";
 			processNextScheduleItem(arguments.scheduleName);
 			return true;
@@ -348,8 +380,9 @@ Returns:
 Arguments:
 	String - ScheduleName
 History:
-	Nov 30, 2010 - RAK - Created
+	2010-11-30 - RAK - Created
 	2011-02-09 - RAK - Var'ing un-var'd variables
+	2011-09-17 - GAC - Added a check to verify that application.schedule variable exists
 --->
 <cffunction name="getScheduleHTML" access="public" returntype="string" hint="Returns the management HTML for the specified schedule name.">
 	<cfargument name="scheduleName" type="string" required="true" hint="Unique name for the schedule you want to run">
@@ -357,6 +390,10 @@ History:
 		var currentSchedule = '';
 		var scheduleID = '';
 		var rtnHTML = '';
+		
+		// Verify the schedule structure exists
+		if ( !StructKeyExists(application,"schedule") )
+			application.schedule = StructNew();
 	</cfscript> 
 	<cfsavecontent variable="rtnHTML">
 		<cfoutput>
@@ -453,46 +490,47 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-	Posted By: Rahul Narula  | 8/29/06 2:20 PM  
-		http://forta.com/blog/index.cfm/2006/8/28/GetScheduledTasks-Function-Returns-Scheduled-Task-List#c5B2902E2-3048-80A9-EF04942A953D2ED7
-	Name:
-		$getScheduledTasks
-	Summary:
-		Obtain an Array of CF scheduled tasks 
-	Returns:
-		Array
-	Arguments:
-		None
-	History:
-		2010-12-21 - GAC - Added
-		2010-12-21 - GAC - Modified - Added task name filter
+/* *************************************************************** */
+Posted By: Rahul Narula  | 8/29/06 2:20 PM  
+	http://forta.com/blog/index.cfm/2006/8/28/GetScheduledTasks-Function-Returns-Scheduled-Task-List#c5B2902E2-3048-80A9-EF04942A953D2ED7
+Name:
+	$getScheduledTasks
+Summary:
+	Obtains an Array of CF scheduled tasks 
+Returns:
+	Array
+Arguments:
+	None
+History:
+	2010-12-21 - GAC - Added
+	2010-12-21 - GAC - Modified - Added task name filter
 --->
 <cffunction name="getScheduledTasks" returntype="array" output="no" access="public" hint="Obtain an Array of CF scheduled tasks ">
-		<cfargument name="taskNameFilter" type="string" required="false" default="" hint="Used to only display Scheduled Task Names that contain this filter value">	
-		<cfscript>
-			var result = ArrayNew(1);
-			var newResult = ArrayNew(1);
-			var taskService = createobject('java','coldfusion.server.ServiceFactory').getCronService();
-			var itm = 1;
-			var taskName = "";
-			// Get Array of Scheduled tasks from the task service
-			result = taskservice.listall();
-			// If filter value is passed in loop over the Array of task and build a new array
-			if ( LEN(TRIM(arguments.taskNameFilter)) ) { 
-				for ( itm; itm LTE ArrayLen(result); itm=itm+1 ) {
-					taskName = result[itm].task;
-					// Only Add Tasks to the Result Array if they contain the filter value
-					if ( FindNoCase(arguments.taskNameFilter,taskName,1) NEQ 0 ) {
-						arrayAppend(newResult,result[itm]);
-					}
+	<cfargument name="taskNameFilter" type="string" required="false" default="" hint="Used to only display Scheduled Task Names that contain this filter value">	
+	<cfscript>
+		var result = ArrayNew(1);
+		var newResult = ArrayNew(1);
+		var taskService = createobject('java','coldfusion.server.ServiceFactory').getCronService();
+		var itm = 1;
+		var taskName = "";
+		// Get Array of Scheduled tasks from the task service
+		result = taskservice.listall();
+		// If filter value is passed in loop over the Array of task and build a new array
+		if ( LEN(TRIM(arguments.taskNameFilter)) ) 
+		{ 
+			for ( itm; itm LTE ArrayLen(result); itm=itm+1 ) {
+				taskName = result[itm].task;
+				// Only Add Tasks to the Result Array if they contain the filter value
+				if ( FindNoCase(arguments.taskNameFilter,taskName,1) NEQ 0 ) 
+				{
+					arrayAppend(newResult,result[itm]);
 				}
-				result = newResult;
 			}
-		</cfscript>
-	    <cfreturn result>
-	</cffunction>
+			result = newResult;
+		}
+		return result;
+	</cfscript>
+</cffunction>
 
 <!---
 /* *************************************************************** */
@@ -509,6 +547,7 @@ Arguments:
 	string
 History:
 	2011-08-29 - MFC - Created
+	2011-09-17 - GAC - Added a check to verify that application.schedule variable exists
 --->
 <cffunction name="setSchedule" access="private" returntype="boolean" output="true" hint="Sets the scheduled task">
 	<cfargument name="scheduleName" type="string" required="true" hint="Unique name for the schedule you want to run">
@@ -519,6 +558,10 @@ History:
 		var schedLogFileName = logFilePrefix & "scheduledStatus-" & arguments.scheduleName & ".html";
 		var currentSchedule = "";
 	
+		// Verify the schedule structure exists
+		if ( !StructKeyExists(application,"schedule") )
+			application.schedule = StructNew();
+
 		try {	
 			// Check if the schedule exists
 			if ( StructKeyExists(application.schedule,arguments.scheduleName) ){
