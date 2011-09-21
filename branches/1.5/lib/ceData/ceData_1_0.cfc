@@ -600,6 +600,7 @@ History:
 								DateApproved fields to retStruct
 	2010-12-10 - RAK - Removed requirement of formID.
 	2010-12-14 - MFC - Updated argument to getFormIDFromPageID function.  Added comments.
+	2011-09-21 - RAK - Added authorID, ownerID, memoValue to return struct
 --->
 <cffunction name="getElementInfoByPageID" access="public" returntype="struct">
 	<cfargument name="pageid" type="Numeric" required="true">
@@ -648,6 +649,9 @@ History:
 		retStruct.formname = getElementInfo.FormName[1];
 		retStruct.dateadded = getElementInfo.dateadded[1];
 		retStruct.dateapproved = getElementInfo.dateapproved[1];
+		retStruct.authorID = getElementInfo.AuthorID[1];
+		retStruct.ownerID = getElementInfo.OwnerID[1];
+		retStruct.memovalue = getElementInfo.MemoValue[1];
 		
 		// check if we want the values struct separated
 		if (arguments.separateValueStruct)

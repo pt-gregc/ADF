@@ -88,6 +88,8 @@ History:
 		#fqFieldName#=new Object();
 		#fqFieldName#.id='#fqFieldName#';
 		#fqFieldName#.tid=#rendertabindex#;
+		#fqFieldName#.validator = "#xParams.fieldID#_validate()";
+		vobjects_#attributes.formname#.push(#fqFieldName#);
 		
 		var #xParams.fieldID#_ajaxProxyURL = "#application.ADF.ajaxProxy#";
 		var #xParams.fieldID#currentValue = "#currentValue#";
@@ -188,6 +190,31 @@ History:
 			#xParams.fieldID#_loadTopics("notselected");
 			// Close the lightbox
 			closeLB();
+		}
+
+		//Validation function to validate max/min selections
+		function #xParams.fieldID#_validate(){
+			//Get the list of selected items
+			var selections = jQuery("###fqFieldName#").val();
+			var lengthOfSelections = 0;
+			//.split will return an array with 1 item if there is an empty string. Get around that.
+			if(selections.length){
+				var arraySelections = selections.split(",");
+				lengthOfSelections = arraySelections.length;
+			}
+			<cfif isNumeric(xParams.minSelections) and xParams.minSelections gt 0>
+				if(lengthOfSelections < #xParams.minSelections#){
+					alert("Minimum number of selections is #xParams.minSelections# you have only selected "+lengthOfSelections+" items");
+					return false;
+				}
+			</cfif>
+			<cfif isNumeric(xParams.maxSelections) and xParams.maxSelections gt 0>
+				if(lengthOfSelections > #xParams.maxSelections#){
+					alert("Maximum number of selections is #xParams.maxSelections# you have selected "+lengthOfSelections+" items");
+					return false;
+				}
+			</cfif>
+			return true;
 		}
 	</script>
 	<tr>
