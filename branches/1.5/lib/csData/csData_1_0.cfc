@@ -62,25 +62,29 @@ Arguments:
 	Numeric templateHierarchy
 History:
 	2008-09-15 - RLW - Created
+	2011-09-21 - RAK - Added the ability for this to detect and validate that we got valid standard metadata
 --->
 <cffunction name="getCustomMetadata" access="public" returntype="struct">
 	<cfargument name="pageID" type="numeric" required="yes">
-    <cfargument name="categoryID" type="numeric" required="no" default="-1">
-    <cfargument name="subsiteID" type="numeric" required="no" default="-1">
-    <cfargument name="inheritedTemplateList" type="string" required="no" default="">
-    <cfset var stdMetadata = "">
+	<cfargument name="categoryID" type="numeric" required="no" default="-1">
+	<cfargument name="subsiteID" type="numeric" required="no" default="-1">
+	<cfargument name="inheritedTemplateList" type="string" required="no" default="">
+	<cfset var stdMetadata = "">
 	<!--- IF we are missing categoryID, subsiteID OR inheritedTemplateList get them! --->
-    <cfif arguments.categoryID eq -1 or arguments.subsiteID eq -1 or Len(inheritedTemplateList) eq 0>
-    	<cfscript>
-    		stdMetadata = getStandardMetadata(arguments.pageID);
-    		arguments.categoryID = stdMetadata.categoryID;
-    		arguments.subsiteID = stdMetadata.subsiteID;
-    		arguments.inheritedTemplateList = stdMetadata.inheritedTemplateList;
-    	</cfscript>
-    </cfif>
-    <!--- // call the standard build struct module with the argument collection --->
-    <cfmodule template="/commonspot/metadata/build-struct.cfm" attributecollection="#arguments#">
-    <cfreturn request.metadata>
+	<cfif arguments.categoryID eq -1 or arguments.subsiteID eq -1 or Len(inheritedTemplateList) eq 0>
+		<cfscript>
+			stdMetadata = getStandardMetadata(arguments.pageID);
+			if(structIsEmpty(stdMetadata) || !StructKeyExistS(stdMetadata,"categoryID")){
+				return StructNew();
+			}
+			arguments.categoryID = stdMetadata.categoryID;
+			arguments.subsiteID = stdMetadata.subsiteID;
+			arguments.inheritedTemplateList = stdMetadata.inheritedTemplateList;
+		</cfscript>
+	</cfif>
+	<!--- // call the standard build struct module with the argument collection --->
+	<cfmodule template="/commonspot/metadata/build-struct.cfm" attributecollection="#arguments#">
+	<cfreturn request.metadata>
 </cffunction>
 
 <!---
@@ -412,6 +416,7 @@ Arguments:
 	Numeric templateHierarchy
 History:
 	2009-06-22 - MFC - Created
+	2011-09-21 - RAK - Added validation for when the getStandardMetadata returns bad data.
 --->
 <cffunction name="getPageMetadata" access="public" returntype="Struct" hint="Return the standard and custom metadata for a page.">
 	<cfargument name="pageID" required="true" type="numeric">
@@ -421,7 +426,11 @@ History:
 	<cfscript>
 		var pageMetadata = StructNew();
 		pageMetadata.standard = getStandardMetadata(arguments.pageID);
-		pageMetadata.custom = getCustomMetadata(pageMetadata.standard.pageID, pageMetadata.standard.categoryID, pageMetadata.standard.subsiteID, pageMetadata.standard.inheritedTemplateList);
+		if(StructIsEmpty(pageMetadata.standard) || !StructKeyExists(pageMetadata.standard,"categoryID")){
+			pageMetadata.custom = StructNew();
+		}else{
+			pageMetadata.custom = getCustomMetadata(pageMetadata.standard.pageID, pageMetadata.standard.categoryID, pageMetadata.standard.subsiteID, pageMetadata.standard.inheritedTemplateList);
+		}
 	</cfscript>
 	<cfreturn pageMetadata>
 </cffunction>
