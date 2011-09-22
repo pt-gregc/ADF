@@ -2,16 +2,18 @@
 <!-- // RLW 2011-03-19 - created -->
 <!-- // RLW 2011-06-24 - added csUpload to version 1.0 and version 1.5 -->
 <!-- // MFC 2011-09-19 - Removed CCAPI_1_1 updates. -->
+<!-- // RAK 2011-09-22 - Added CCAPI_1_0 stuff back in -->
 <settings>
 	<v_1.0>
 		<!-- // ajax -->
 		<ajax_1_0/>
 		<!-- // CCAPI -->
 		<ccapi_1_0/>
-		<csContent_1_0/>
+		<!-- // csPage -->
 		<csPage_1_0/>
+		<!-- // csSubsite -->
 		<csSubsite_1_0/>
-		<csSubsite_1_0/>
+		<!-- // csUpload -->
 		<csUpload_1_0/>
 		<!-- // cedata -->
 		<ceData_1_0/>
@@ -39,15 +41,18 @@
 		<!-- // CCAPI -->
 		<ccapi_1_0/>
 		<ccapiConfig_1_0/>
-		<csContent_1_0/>
-		<csPage_1_1/>
-		<csSubsite_1_0/>
-		<csSubsite_1_0/>
-		<csUpload_1_0/>
 		<!-- // csapi -->
 		<csapi_1_0/>
 		<!-- // cedata -->
 		<ceData_1_1/>
+		<!-- // csupload -->
+		<csUpload_1_0/>
+		<!-- // cscontent -->
+		<csContent_1_0/>
+		<!-- // csSubsite -->
+		<csSubsite_1_0/>
+		<!-- // csPage -->
+		<csPage_1_0/>
 		<!-- // csData -->
 		<csData_1_1/>
 		<!-- // csSecurity -->
