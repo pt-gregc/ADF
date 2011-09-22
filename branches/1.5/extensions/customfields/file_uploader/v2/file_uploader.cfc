@@ -192,8 +192,8 @@ History:
 			var thumbnailHeight = 0;
 			rtnStruct.handledImage = false;
 			rtnStruct.image = "";
-
 		</cfscript>
+
 		<!---Check to see if coldfusion can read this file--->
 		<cfif IsImageFile(filePath) and listFindNoCase(GetReadableImageFormats(),listLast(filePath,"."))>
 			<cfimage name="rtnStruct.image" source="#filePath#">
@@ -291,6 +291,7 @@ History:
 	<cffunction name="_validateFile" access="public" returntype="struct" hint="Magic validation function, it takes the array of validation functions and executes them. On error it returns the results">
 		<cfargument name="filePath" type="string" required="true" default="" hint="Fully qualified filepath">
 		<cfargument name="fileName" type="string" required="true" default="" hint="Filename for the destination file">
+		<cfargument name="fieldID" type="string" required="false" default="" hint="Field ID of the field we are uploading to">
 		<cfscript>
 			var returnStruct = StructNew();
 			var argumentCollection = StructNew();
@@ -337,6 +338,7 @@ History:
 	<cffunction name="_preformFileMove" access="public" returntype="struct" hint="Preforms the file move from temporary to permanent storage">
 		<cfargument name="filePath" type="string" required="true" default="" hint="Fully qualified filepath">
 		<cfargument name="fileName" type="string" required="true" default="" hint="Filename for the destination file">
+		<cfargument name="fieldID" type="string" required="false" default="" hint="Field ID of the field we are uploading to">
 		<cfscript>
 			var source = arguments.filePath;
 			var rtnStruct = StructNew();
@@ -397,9 +399,11 @@ History:
 
 	History:
 	 	2011-09-02 - RAK - Created
+	 	2011-09-21 - RAK - Added fieldID to overrides can use it to get more details
 	--->
 	<cffunction name="_getThumbnail" access="public" returntype="string" hint="Returns a thumbnail to the browser">
 		<cfargument name="fileName" type="string" required="true" default="" hint="Filename to get the thumbnail of">
+		<cfargument name="fieldID" type="string" required="false" default="" hint="Field ID of the field we are uploading to">
 		<cfscript>
 			var i = "";
 			var rtnHTML = "";
