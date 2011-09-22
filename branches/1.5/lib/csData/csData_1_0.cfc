@@ -36,6 +36,7 @@ History:
 						getCustomMetadata and getStandardMetadata functions to CSData v1.1.
 						Reverted getCustomMetadata and getStandardMetadata functions to later revisions
 						to avoid dependencies on functions in CSData v1.1.
+	2011-09-22 - GAC - Updated and cleaned up comments 
 --->
 <cfcomponent displayname="csData_1_0" extends="ADF.core.Base" hint="CommonSpot Data Utils functions for the ADF Library">
 	
@@ -46,9 +47,10 @@ History:
 <cfproperty name="wikiTitle" value="CSData_1_0">
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
 Name:
 	$getPageMetadata
 Summary:
@@ -59,7 +61,8 @@ Returns:
 Arguments:
 	Numeric pageID
 	Numeric categoryID
-	Numeric templateHierarchy
+	Numeric subsiteID
+	String inheritedTemplateList
 History:
 	2008-09-15 - RLW - Created
 	2011-09-21 - RAK - Added the ability for this to detect and validate that we got valid standard metadata
@@ -88,9 +91,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
 Name:
 	$getCSPageURL
 Summary:
@@ -128,9 +132,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Michael Carroll
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
 Name:
 	getPhotoPageURL
 Summary:
@@ -138,7 +143,7 @@ Summary:
 Returns:
 	String
 Arguments:
-	Numeric - pageid
+	Numeric pageid
 History:
 	2009-05-27 - MFC - Created
 	2011-02-09 - RAK - Var'ing un-var'd variables
@@ -156,7 +161,8 @@ History:
 		WHERE	SitePages.ID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.pageid#">
 	</cfquery>
 	<cfscript>
-		if ( sitePageMap.RecordCount ) {
+		if ( sitePageMap.RecordCount ) 
+		{
 			retURL = request.subsitecache[sitePageMap.SubSiteID].imagesUrl & sitePageMap.FileName;
 			return retURL;
 		}
@@ -166,17 +172,18 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	M. Carroll
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
 Name:
 	$getSubsiteID
 Summary:
 	Returns the subsite id for subsite URL passed in
 Returns:
-	Numeric - Subsite ID
+	Numeric Subsite ID
 Arguments:
-	String - Subsite URL
+	String Subsite URL
 History:
 	2008-12-22 - MFC - Created
 	2010-06-03 - MFC - Updated to correct bugs
@@ -190,28 +197,27 @@ History:
 		FROM 	subsites
 		WHERE  	SubSiteURL = <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.subsiteURL#">
 	</cfquery>
-
 	<cfscript>
 		if (getSubsiteIDQry.RecordCount)
 			return getSubsiteIDQry.ID;
 		else
 			return 0;
 	</cfscript>
-
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Michael Carroll
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Michael Carroll
 Name:
 	getSubsiteIDByPageID
 Summary:
 	Returns the Subsite ID for the Page ID.
 Returns:
-	Numeric - Subsite ID
+	Numeric Subsite ID
 Arguments:
-	Numeric - pageid
+	Numeric pageid
 History:
 	2009-06-12 - MFC - Created
 	2010-06-08 - MFC - Updated to correct bugs
@@ -235,19 +241,19 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
 Name:
 	$getSubsiteStruct
 Summary:	
 	Returns a structure with subsiteID and subsiteURL
-	
 	Can return JSON object
 Returns:
 	Struct subsiteStruct
 Arguments:
-	Void
+	NA
 History:
 	2009-05-14 - RLW - Created
 --->
@@ -271,15 +277,17 @@ History:
 
 <!---
 /* *************************************************************** */
-Author: 	M. Carroll
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
 Name:
 	$getCommonSpotSites
 Summary:
 	Returns the CommonSpot sites for the server.
 Returns:
-	Query - CommonSpot sites on the server
+	Query CommonSpot sites on the server
 Arguments:
-	Void
+	Numeric siteID
 History:
 	2009-06-05 - MFC - Created
 	2011-04-08 - MFC - Updated query to return 'DataSourceName' and 'RootURL' fields.
@@ -400,9 +408,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	M Carroll
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M Carroll
 Name:
 	$getPageMetadata
 Summary:
@@ -436,9 +445,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
 Name:
 	$buildPageName
 Summary:
@@ -479,7 +489,7 @@ Returns:
 	String fixedString
 Arguments:
 	String stringToFix
-	Boolean makeLowerCase [Option - false]
+	Boolean makeLowerCase [Default - false]
 History:
 	2009-07-01 - RLW - Created
 	2010-07-29 - MFC - Implemented the makeLowerCase argument
@@ -539,9 +549,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
 Name:
 	$getCSPageByName
 Summary:
@@ -573,18 +584,19 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Michael Carroll
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
 Name:
 	$findUploadFileExistsInSubsite
 Summary:
 	Returns T/F for if the file exists in the subsite directory
 Returns:
-	String - T/F
+	String T/F
 Arguments:
-	Numeric - subsite ID
-	String - file name
+	Numeric subsiteID
+	String  file name
 History:
 	2008-07-25 - MFC - Created
 	2011-02-09 - RAK - Var'ing un-var'd variables
@@ -615,7 +627,9 @@ History:
 <!---
 /* ***************************************************************
 /*
-Author: 	Michael Carroll
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
 Name:
 	$copyUploadFileToSubsite
 Summary:
@@ -623,9 +637,9 @@ Summary:
 Returns:
 	Void
 Arguments:
-	Numeric - Subsite ID
-	Numeric - File Page ID
-	String - FileName
+	Numeric Subsite ID
+	Numeric File Page ID
+	String FileName
 History:
 	2008-07-30 - MFC - Created
 	2011-02-09 - RAK - Var'ing un-var'd variables
@@ -652,17 +666,18 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Michael Carroll
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
 Name:
 	$getUploadedDocPublicName
 Summary:
 	Returns the public file name for the uploaded document
 Returns:
-	String - public file name
+	String public file name
 Arguments:
-	Numeric - inCSPageID - CommonSpot Page ID
+	Numeric inCSPageID - CommonSpot Page ID
 History:
 	2008-08-19 - MFC - Created
 	2010-02-04 - MFC - Updated the getDocPublicNames query to add condition "VersionState = 2"
@@ -689,9 +704,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Michael Carroll
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
 Name:
 	$getFullCurrentPageURL
 Summary:
@@ -699,7 +715,7 @@ Summary:
 Returns:
 	String - Full url
 Arguments:
-	Void
+	NA
 History:
 	2009-06-11 - MFC - Created
 --->
@@ -712,9 +728,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Sam Smith
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Sam Smith
 Name:
 	$getCSPageByIndexTitle
 Summary:
@@ -723,7 +740,6 @@ Returns:
 	Numeric csPageID
 Arguments:
 	String csPageTitle
-	Numeric csSubsiteID
 History:
 	2009-05-22 - SFS - Created
 	2011-02-09 - RAK - Var'ing un-var'd variables
@@ -747,9 +763,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Sam Smith
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Sam Smith
 Name:
 	$getCSPageDataByURL
 Summary:
@@ -787,18 +804,19 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Michael Carroll
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
 Name:
 	$getUploadedFilePageID
 Summary:
 	Returns Page ID for the subsite id and uploaded filename.
 Returns:
-	Numeric - Page ID
+	Numeric PageID
 Arguments:
-	Numeric - subsite ID
-	String - file name
+	Numeric subsiteID
+	String file name
 History:
 	2008-07-31 - MFC - Created
 	2011-02-09 - RAK - Var'ing un-var'd variables
@@ -820,9 +838,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Sam Smith
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Sam Smith
 Name:
 	$getContactData
 Summary:
@@ -830,7 +849,7 @@ Summary:
 Returns:
 	Query
 Arguments:
-	userID - the numeric ID for the user to get data for
+	userID the numeric ID for the user to get data for
 History:
 	2009-05-12 - SFS - Initial Version
 	2009-05-13 - GAC - Update - Added cfqueryparam
@@ -850,9 +869,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
 Name:
 	$getParentSubsiteFromURL
 Summary:	
@@ -891,9 +911,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
 Name:
 	$getSiteTemplates
 Summary:	
@@ -901,7 +922,7 @@ Summary:
 Returns:
 	Struct templates
 Arguments:
-	Void
+	NA
 History:
 	2009-07-30 - RLW - Created
 --->
@@ -924,23 +945,23 @@ History:
 </cffunction>
 		
 <!---
-/* ***************************************************************
-/*
-Author: 	M. Carroll
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
 Name:
 	$getTemplateByID
 Summary:	
 	Returns the query of the sites templates
 Returns:
-	Query - Site Templates
+	Query Site Templates
 Arguments:
-	Numeric - templateID
+	Numeric templateID
 History:
 	2009-08-05 - MFC - Created
 --->
 <cffunction name="getTemplateByID" access="public" returntype="query" hint="">
 	<cfargument name="templateID" type="numeric" required="true">
-	
 	<cfset var templateQry = QueryNew("tmp")>
 	<cfquery name="templateQry" datasource="#request.site.datasource#">
 		SELECT 	Name, Title
@@ -952,18 +973,18 @@ History:
 </cffunction>
 	
 <!---
-/* ***************************************************************
-/*
-Author: 	Greg Cronkright
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Greg Cronkright
 Name:
 	getDefaultRenderHandler
 Summary:
 	Returns the Path for the Default Render Handler for an Element
 Returns:
-	String - Default Render Handler - String
+	String Default Render Handler - String
 Arguments:
-	String - Element Name
-	
+	String Element Name
 History:
 	2009-08-12 - GAC - Created
 	2009-09-14 - MFC - Updated the SQL statement to work with Oracle DB.
@@ -973,12 +994,10 @@ History:
 <cffunction name="getDefaultRenderHandlerPath" returntype="string" access="public" 
 			hint="Returns the Path for the Default Render Handler for an Element.">
 	<cfargument name="elementName" type="string" required="true">
-	
 	<cfscript>
 		var getRenderHandler = QueryNew("temp");
 		var rhpath = "";
 	</cfscript>
-	
 	<cfquery name="getRenderHandler" datasource="#request.site.datasource#">
 		SELECT CustomElementModules.ModulePath
 		FROM   AvailableControls, CustomElementModules
@@ -986,37 +1005,35 @@ History:
 		AND LTRIM(RTRIM(AvailableControls.ShortDesc)) = <cfqueryparam cfsqltype="cf_sql_varchar" value="#TRIM(arguments.elementName)#">
 	  	AND CustomElementModules.IsDefault = <cfqueryparam cfsqltype="cf_sql_bit" value="1">
 	</cfquery>
-
 	<cfscript>
 		if ( ListLen(getRenderHandler.ModulePath,"/") LTE 1 ) 
 			rhpath = request.subsitecache[1].url & 'renderhandlers/' & getRenderHandler.ModulePath[1];
 		else
 			rhpath = getRenderHandler.ModulePath[1];
 	</cfscript>
-	
 	<cfreturn rhpath>
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	M. Carroll
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
 Name:
 	$validateADFBeanObject
 Summary:
 	Search the Application spaces on the site for the for the bean object.
 	Search application.ADF and all loads apps space.
 Returns:
-	Struct - Status - Stores validated and application name space.
+	Struct Status - Stores validated and application name space.
 Arguments:
-	String - beanName - Bean Name object to search
+	String beanName - Bean Name object to search
 History:
 	2009-08-21 - MFC - Created
 	2011-05-17 - RAK - Replaced evaluate with a more appropriate efficient method
 --->
 <cffunction name="validateADFBeanObject" access="public" returntype="struct" hint="Search the Application spaces on the site for the for the bean object.">
 	<cfargument name="beanName" type="String" required="true">
-	
 	<cfscript>
 		var statusStruct = StructNew();
 		var appSpaceList = ListInsertAt(application.ADF.siteAppList, 1, "ADF");
@@ -1039,8 +1056,7 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	
 	PaperThin, Inc.
 	M. Carroll
@@ -1049,9 +1065,9 @@ Name:
 Summary:
 	Returns T/F for the active status of the page id.
 Returns:
-	Boolean - T/F
+	Boolean 
 Arguments:
-	Numeric - pageID - Page ID to verify the active/inactive status
+	Numeric pageID - Page ID to verify the active/inactive status
 History:
 	2009-09-01 - MFC - Created
 	2011-02-09 - RAK - Var'ing un-var'd variables
@@ -1076,17 +1092,18 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	M. Carroll
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.	
+	M. Carroll
 Name:
 	$getSubsiteQueryByID
 Summary:	
 	Returns a Query for the subsite information
 Returns:
-	Query - Subsite Data
+	Query Subsite Data
 Arguments:
-	Numeric - subsiteID - Subsite ID to return the subsite info.
+	Numeric subsiteID - Subsite ID to return the subsite info.
 History:
 	2009-09-01 - MFC - Created
 	2011-01-05 - GAC - Modified - Added additional fields to return query results
@@ -1108,9 +1125,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	M. Carroll
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
 Name:
 	$getDefaultRenderHandlerHTML
 Summary:
@@ -1118,10 +1136,10 @@ Summary:
 	
 	Updates need to be added to the RH file to make this work correctly!!
 Returns:
-	String - HTML
+	String HTML
 Arguments:
-	String - elementName - Custom element name
-	Array - dataArray - Render Handler data array
+	String elementName - Custom element name
+	Array dataArray - Render Handler data array
 History:
 	2009-09-11 - MFC - Created
 	2011-02-09 - GAC - Removed self-closing CF tag slashes
@@ -1129,7 +1147,6 @@ History:
 <cffunction name="getDefaultRenderHandlerHTML" access="public" returntype="string" hint="Returns the HTML for the default render handler with the passed in element name.">
 	<cfargument name="elementName" type="string" required="true" hint="Custom element name">
 	<cfargument name="dataArray" type="Array" required="true" hint="Render Handler data array">
-	
 	<cfset var retHTML = "">
 	<cfset var renderHandlerPath = getDefaultRenderHandlerPath(arguments.elementName)>
 	<cfset var RHDataArray = StructNew()>
@@ -1156,7 +1173,7 @@ Summary:
 Returns:
 	Struct
 Arguments:
-	String - serializedString
+	String serializedString
 History:
 	2009-09-15 - MFC - Created
 	2009-12-06 - MFC - Updated: Check the element field is in the struct
@@ -1164,7 +1181,6 @@ History:
 --->
 <cffunction name="serializedFormStringToStruct" access="public" returntype="struct" hint="Returns a structure of the element fields containing the serialized form data.">
 	<cfargument name="serializedString" type="string" required="true" hint="">
-	
 	<cfscript>
 		var retStruct = StructNew();
 		var i = 1;
@@ -1174,7 +1190,6 @@ History:
 		// Get the element fields that match the simple form
 		var elementFormFields = server.ADF.objectFactory.getBean("forms_1_0").getCEFieldNameData(dataStruct.formName);
 		var elementFldList = StructKeyList(elementFormFields);
-		
 		// Loop over the element fields
 		for ( i = 1; i LTE ListLen(elementFldList); i = i + 1 )
 		{
@@ -1202,11 +1217,11 @@ History:
 	<cfreturn retStruct>
 </cffunction>
 
-
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 
+	PaperThin, Inc.	
+	Ron West
 Name:
 	$decipherCPIMAGE
 Summary:	
@@ -1244,23 +1259,23 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Greg Cronkright
+/* *************************************************************** */
+Author: 
+	PaperThin, Inc.	
+	Greg Cronkright
 Name:
 	getTopLevelParentSubsiteID
 Summary:
 	Returns the top level parent Subsite ID from child subsiteid.
 Returns:
-	Numeric - Subsite ID
+	Numeric SubsiteID
 Arguments:
-	Numeric - childsubsiteid id
+	Numeric childsubsiteid 
 History:
 	2009-09-11 - GAC - Created
 --->
 <cffunction name="getTopLevelParentSubsiteID" returntype="numeric" access="public" hint="Returns the Subsite ID for the Page ID.">
 	<cfargument name="childsubsiteid" type="numeric" required="true">
-
 	<cfscript>
 		var subsiteparentlist = request.subsitecache[arguments.childsubsiteid].SUBSITEINHERITANCE;
 		var rootpos = ListFind(subsiteparentlist,1);
@@ -1276,9 +1291,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Greg Cronkright
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.	
+	Greg Cronkright
 Name:
 	$CSFile
 Summary:
@@ -1309,6 +1325,7 @@ History:
 	2009-09-30 - GAC - Created
 	2010-08-12 - GAC - Modified - Cleaned up old debug code
 	2011-02-09 - GAC - Removed self-closing CF tag slashes
+	2011-09-22 - GAC - Moved VAR variables to to a cfscript block
 --->
 <cffunction name="CSFile" access="public" returntype="struct">
 	<cfargument name="action" type="string" required="yes" hint="MOVE,COPY,WRITE,APPEND,UPLOAD,COPY,MOVE,DELETE,RENAME">
@@ -1324,16 +1341,16 @@ History:
 	<cfargument name="filter" type="string" required="no" default="">
 	<cfargument name="direxists" type="string" required="no" default="1">
 	<cfargument name="addnewline" type="string" required="no" default="Yes">
-   
-	<cfset var retStruct = StructNew()>
-	<cfset var CFfile = "">
-	<cfset var CPfile = "">
-	<cfset var CFDirectory = "">
-	<cfset var deletedFiles = "">
-	<cfset var failedDeletions = "">
-	<cfset var filesFound = "">
-	<cfset var ActionSuccess = false>
-	
+   	<cfscript>
+		var retStruct = StructNew();
+		var CFfile = "";
+		var CPfile = "";
+		var CFDirectory = "";
+		var deletedFiles = "";
+		var failedDeletions = "";
+		var filesFound = "";
+		var ActionSuccess = false;
+	</cfscript>
 	<cftry>
 		<cfif Arguments.Action IS "MOVE"> <!--- // No "Move" Action in CP-CFFILE --->
 			<!--- // copy file --->
@@ -1358,7 +1375,6 @@ History:
 			<cfset ActionSuccess = false>
 		</cfcatch>
 	</cftry>
-
 	<cfscript>
 		retStruct["Arguments"] = Arguments;
 		retStruct["CFfile"] = CFfile;
@@ -1366,13 +1382,11 @@ History:
 		retStruct["CFDirectory"] = CFDirectory;
 		retStruct["Success"] = ActionSuccess;
 	</cfscript>
-
     <cfreturn retStruct>
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	
 	PaperThin, Inc.
 	M. Carroll
@@ -1383,8 +1397,8 @@ Summary:
 Returns:
 	String
 Arguments:
-	Numeric - pageID - CommonSpot Page ID
-	Numeric - subsiteID - CommonSpot subsite ID for the document.
+	Numeric pageID - CommonSpot Page ID
+	Numeric subsiteID - CommonSpot subsite ID for the document.
 History:
 	2009-10-22 - MFC - Created
 	2010-02-04 - MFC - Updated to use the getUploadedDocPublicName to get the document public name
@@ -1401,10 +1415,12 @@ History:
 	</cfif>
 	<cfreturn pageURL>
 </cffunction>
+
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 
+	PaperThin, Inc.	
+	Ron West
 Name:
 	$updateUser
 Summary:	
@@ -1416,10 +1432,12 @@ Arguments:
 History:
  2009-11-16 - RLW - Created
 --->
+
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.	
+	Ron West
 Name:
 	$pagesContainingScript
 Summary:	
@@ -1459,9 +1477,12 @@ History:
 	</cfscript>
 	<cfreturn pageDataAry>
 </cffunction>
+
 <!---
 /* *************************************************************** */
-Author: 	Ron West
+Author: 	
+	PaperThin, Inc.
+	Ron West
 Name:
 	$pagesContainingRH
 Summary:	
@@ -1523,10 +1544,12 @@ History:
 	</cfif>
 	<cfreturn pageDataAry>
 </cffunction>
+
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
 Name:
 	$getLanguageCounterPart
 Summary:	
@@ -1557,10 +1580,12 @@ History:
 	</cfif>
 	<cfreturn metadata>
 </cffunction>
+
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
 Name:
 	$getLanguageName
 Summary:	
@@ -1588,10 +1613,12 @@ History:
 	</cfif>
 	<cfreturn langName>
 </cffunction>
+
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
 Name:
 	$getDocIcon
 Summary:	
@@ -1622,9 +1649,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
 Name:
 	$getPagesBySubsiteID
 Summary:
@@ -1669,10 +1697,12 @@ History:
    	</cfquery>
     <cfreturn variables.data.queryToArrayOfStructures(pageQry)>
 </cffunction>
+
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
 Name:
 	$getPageDataArray
 Summary:	
@@ -1700,10 +1730,12 @@ History:
 	</cfscript>
 	<cfreturn pageData>
 </cffunction>
+
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
 Name:
 	$pageExists
 Summary:	
@@ -1737,9 +1769,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Ryan Kahn
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ryan Kahn
 Name:
 	$getPageIdsUsingTemplateID
 Summary:	
@@ -1748,6 +1781,8 @@ Returns:
 	Array pageID's
 Arguments:
 	Numeric templateID
+	Numeric subsiteID
+	Boolean includeSubsiteDescendants
 History:
  	2010-10-08 - RAK - Created
 	2011-02-09 - RAK - Var'ing un-var'd variables
