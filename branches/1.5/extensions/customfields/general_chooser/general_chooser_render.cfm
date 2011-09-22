@@ -42,6 +42,7 @@ History:
 	2011-03-20 - MFC - Updated component to simplify the customizations process and performance.
 						Removed Ajax loading process.
 	2011-03-27 - MFC - Updated for Add/Edit/Delete callback.
+	2011-09-21 - RAK - Added max/min selections
 --->
 <cfscript>
 	// the fields current value
