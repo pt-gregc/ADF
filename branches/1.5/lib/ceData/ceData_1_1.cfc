@@ -593,7 +593,9 @@ History:
 
 <!---
 /* *************************************************************** */
-Author: 	Ron West
+Author: 	
+	PaperThin, Inc.
+	Ron West
 Name:
 	$buildRealTypeView
 Summary:	
@@ -616,6 +618,7 @@ History:
 						Updated the "large_textarea,formatted_text_block" CASE for the IF condition when 'SQLServer'.
 						Changed memoValue field size to "max".
 	2011-05-03 - RAK - Modified code to default to try the memo field if the data is null or ''
+	2010-09-24 - GAC - Added an optional FIX for use with SQL2000. The FIX is commented out since SQL 2000 is not widely used.
 --->
 <cffunction name="buildRealTypeView" access="public" returntype="boolean" hint="Builds ane lement view for the passed in element name">
 	<cfargument name="elementName" type="string" required="true" hint="element name to build the view table off of">
@@ -693,6 +696,10 @@ History:
 										<!--- ELSE CAST([memovalue] AS nvarchar2(2000)) --->
 									<cfelseif dbtype is 'SQLServer'>
 										ELSE CAST([memovalue] AS nvarchar(max))
+										<!--- // TODO: conditional logic could be added to determine SQLServer version --->
+										<!--- // Or this function could be added to the site level override and the ELSE line below can replace the ELSE line above --->
+										<!--- // FIX FOR MSSQL 2000 --->
+										<!--- ELSE CAST([memovalue] AS nvarchar(4000)) --->
 									<cfelse>
 										<!--- Don't CAST if using MySQL --->
 									</cfif>
