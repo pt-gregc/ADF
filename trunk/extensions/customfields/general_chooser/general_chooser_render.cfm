@@ -41,6 +41,8 @@ History:
 						script versions from the Scripts Object.
 	2011-03-20 - MFC - Updated component to simplify the customizations process and performance.
 						Removed Ajax loading process.
+	2011-03-27 - MFC - Updated for Add/Edit/Delete callback.
+	2011-09-21 - RAK - Added max/min selections
 --->
 <cfscript>
 	// the fields current value
@@ -87,6 +89,8 @@ History:
 		#fqFieldName#=new Object();
 		#fqFieldName#.id='#fqFieldName#';
 		#fqFieldName#.tid=#rendertabindex#;
+		#fqFieldName#.validator = "#xParams.fieldID#_validate()";
+		vobjects_#attributes.formname#.push(#fqFieldName#);
 		
 		var #xParams.fieldID#_ajaxProxyURL = "#application.ADF.ajaxProxy#";
 		var #xParams.fieldID#currentValue = "#currentValue#";
@@ -163,9 +167,6 @@ History:
 		function #xParams.fieldID#_serialize() {
 			// get the serialized list
 			var serialList = jQuery('###xParams.fieldID#-sortable2').sortable( 'toArray' );
-			
-			console.log(serialList);
-			
 			// Check if the serialList is Array
 			if ( jQuery.isArray(serialList) ){
 				serialList = jQuery.ArrayToList(serialList);
@@ -175,9 +176,6 @@ History:
 			#xParams.fieldID#currentValue = serialList;
 			// load current values into the form field
 			jQuery("input###fqFieldName#").val(#xParams.fieldID#currentValue);
-			
-			console.log(#xParams.fieldID#currentValue);
-			
 		}
 		
 		// Resize the window function
@@ -186,6 +184,38 @@ History:
 			if ( '#ListLast(cgi.SCRIPT_NAME,"/")#' == 'loader.cfm' ) {
 				ResizeWindow();
 			}
+		}
+		
+		function #xParams.fieldID#_formCallback(formData){
+			// Reload the available selections
+			#xParams.fieldID#_loadTopics("notselected");
+			// Close the lightbox
+			closeLB();
+		}
+
+		//Validation function to validate max/min selections
+		function #xParams.fieldID#_validate(){
+			//Get the list of selected items
+			var selections = jQuery("###fqFieldName#").val();
+			var lengthOfSelections = 0;
+			//.split will return an array with 1 item if there is an empty string. Get around that.
+			if(selections.length){
+				var arraySelections = selections.split(",");
+				lengthOfSelections = arraySelections.length;
+			}
+			<cfif isNumeric(xParams.minSelections) and xParams.minSelections gt 0>
+				if(lengthOfSelections < #xParams.minSelections#){
+					alert("Minimum number of selections is #xParams.minSelections# you have only selected "+lengthOfSelections+" items");
+					return false;
+				}
+			</cfif>
+			<cfif isNumeric(xParams.maxSelections) and xParams.maxSelections gt 0>
+				if(lengthOfSelections > #xParams.maxSelections#){
+					alert("Maximum number of selections is #xParams.maxSelections# you have selected "+lengthOfSelections+" items");
+					return false;
+				}
+			</cfif>
+			return true;
 		}
 	</script>
 	<tr>

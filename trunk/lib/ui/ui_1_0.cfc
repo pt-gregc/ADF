@@ -81,19 +81,19 @@ History:
 	2011-06-11 - GAC - Modified - Added the linkText parameter to allow linkTitle, lbTitle and linkText to each be defined individually
 									while still maintaining backwards compatiblity with the primary linkTitle (required) parameter
 --->
-<cffunction name="buildAddEditLink" access="public" returntype="string" output="false">
-	<cfargument name="linkTitle" type="string" required="true">
-	<cfargument name="formName" type="string" required="true">
-	<cfargument name="dataPageID" type="numeric" required="false" default="0">
-	<cfargument name="refreshparent" type="boolean" required="false" default="false">
-	<cfargument name="urlParams" type="string" required="false" default="">
-	<cfargument name="formBean" type="string" required="false" default="forms_1_1">
-	<cfargument name="formMethod" type="string" required="false" default="renderAddEditForm">
-	<cfargument name="lbTitle" type="string" required="false" default="#arguments.linkTitle#">
-	<cfargument name="linkClass" type="string" required="false" default="">
-	<cfargument name="appName" type="string" required="false" default=""> 
-	<cfargument name="uiTheme" type="string" required="false" default="ui-lightness">
-	<cfargument name="linkText" type="string" required="false" default="#arguments.linkTitle#">   
+<cffunction name="buildAddEditLink" access="public" returntype="string" output="false" hint="Returns a nice string to renderAddEditForm with lightbox enabled">
+	<cfargument name="linkTitle" type="string" required="true" hint="Link Title">
+	<cfargument name="formName" type="string" required="true" hint="Name of the form">
+	<cfargument name="dataPageID" type="numeric" required="false" default="0" hint="Data pageID of the element, 0 is new">
+	<cfargument name="refreshparent" type="boolean" required="false" default="false" hint="refresh the page or not?">
+	<cfargument name="urlParams" type="string" required="false" default="" hint="additional URL parameters to be passed to the form">
+	<cfargument name="formBean" type="string" required="false" default="forms_1_1" hint="bean for the form">
+	<cfargument name="formMethod" type="string" required="false" default="renderAddEditForm" hint="method for the form">
+	<cfargument name="lbTitle" type="string" required="false" default="#arguments.linkTitle#" hint="lightbox title">
+	<cfargument name="linkClass" type="string" required="false" default="" hint="link class">
+	<cfargument name="appName" type="string" required="false" default="" hint="app name">
+	<cfargument name="uiTheme" type="string" required="false" default="ui-lightness" hint="JQueryUI Theme to load">
+	<cfargument name="linkText" type="string" required="false" default="#arguments.linkTitle#" hint="Link text">
 	<cfscript>
 		var rtnStr = "";
 		var formID = variables.ceData.getFormIDByCEName(arguments.formName);
@@ -148,16 +148,16 @@ History:
 	2011-06-11 - GAC - Modified - Added the linkText parameter to allow linkTitle, lbTitle and linkText to each be defined individually
 									while still maintaining backwards compatiblity with the primary linkTitle (required) parameter  
 --->
-<cffunction name="buildLBAjaxProxyLink" access="public" returntype="string" output="false">
-	<cfargument name="linkTitle" type="string" required="true">
-	<cfargument name="bean" type="string" required="false" default="forms_1_1">
-	<cfargument name="method" type="string" required="false" default="renderAddEditForm">
-	<cfargument name="urlParams" type="string" required="false" default=""> 
-	<cfargument name="lbTitle" type="string" required="false" default="#arguments.linkTitle#">
-	<cfargument name="linkClass" type="string" required="false" default="">
-	<cfargument name="appName" type="string" required="false" default="">
-	<cfargument name="uiTheme" type="string" required="false" default="ui-lightness">
-	<cfargument name="linkText" type="string" required="false" default="#arguments.linkTitle#">   
+<cffunction name="buildLBAjaxProxyLink" access="public" returntype="string" output="false" hint="Returns a nice HTML string from a provided bean and method with lightbox enabled">
+	<cfargument name="linkTitle" type="string" required="true" hint="Link Title">
+	<cfargument name="bean" type="string" required="false" default="forms_1_1" hint="bean">
+	<cfargument name="method" type="string" required="false" default="renderAddEditForm" hint="method">
+	<cfargument name="urlParams" type="string" required="false" default="" hint="URL Parameters">
+	<cfargument name="lbTitle" type="string" required="false" default="#arguments.linkTitle#" hint="Lightbox Title">
+	<cfargument name="linkClass" type="string" required="false" default="" hint="Link Class">
+	<cfargument name="appName" type="string" required="false" default="" hint="Application name">
+	<cfargument name="uiTheme" type="string" required="false" default="ui-lightness" hint="JQueryUI Library to load">
+	<cfargument name="linkText" type="string" required="false" default="#arguments.linkTitle#" hint="link text">
 	<cfscript>
 		var rtnStr = "";
 	</cfscript>
@@ -195,16 +195,16 @@ History:
 	2011-06-11 - GAC - Modified - Added the linkText parameter to allow linkTitle, lbTitle and linkText to each be defined individually
 									while still maintaining backwards compatiblity with the primary linkTitle (required) parameter
 --->
-<cffunction name="buildLightboxProxyLink" access="public" returntype="string" output="false">
-	<cfargument name="linkTitle" type="string" required="true">
-	<cfargument name="bean" type="string" required="false" default="forms_1_1">
-	<cfargument name="method" type="string" required="false" default="renderAddEditForm">
-	<cfargument name="urlParams" type="string" required="false" default=""> 
-	<cfargument name="lbTitle" type="string" required="false" default="#arguments.linkTitle#">
-	<cfargument name="linkClass" type="string" required="false" default="">
-	<cfargument name="appName" type="string" required="false" default="">
-	<cfargument name="uiTheme" type="string" required="false" default="ui-lightness">
-	<cfargument name="linkText" type="string" required="false" default="#arguments.linkTitle#">    
+<cffunction name="buildLightboxProxyLink" access="public" returntype="string" output="false" hint="Returns a nice HTML string from a provided bean and method to call ADFlightbox using lightboxProxy.cfm">
+	<cfargument name="linkTitle" type="string" required="true" hint="Link Title">
+	<cfargument name="bean" type="string" required="false" default="forms_1_1"  hint="Bean name">
+	<cfargument name="method" type="string" required="false" default="renderAddEditForm" hint="method name">
+	<cfargument name="urlParams" type="string" required="false" default="" hint="URL Parameters">
+	<cfargument name="lbTitle" type="string" required="false" default="#arguments.linkTitle#" hint="Lightbox Title">
+	<cfargument name="linkClass" type="string" required="false" default="" hint="Link Class">
+	<cfargument name="appName" type="string" required="false" default="" hint="Application name">
+	<cfargument name="uiTheme" type="string" required="false" default="ui-lightness" hint="JQuery UI Theme to load">
+	<cfargument name="linkText" type="string" required="false" default="#arguments.linkTitle#" hint="Link Text">
 	<cfscript>
 		var rtnStr = "";
 		var uParams = "";
@@ -251,14 +251,14 @@ History:
 	2011-06-11 - GAC - Modified - Added the linkText parameter to allow linkTitle, lbTitle and linkText to each be defined individually
 									while still maintaining backwards compatiblity with the primary linkTitle (required) parameter
 --->
-<cffunction name="buildLBcsPageLink" access="public" returntype="string" output="false">
-	<cfargument name="linkTitle" type="string" required="true">
+<cffunction name="buildLBcsPageLink" access="public" returntype="string" output="false" hint="Returns a nice string to a provided PageID with lightbox enabled">
+	<cfargument name="linkTitle" type="string" required="true" hint="Link Title">
 	<cfargument name="csPage" type="string" required="false" default="" hint="csPageID or csPageURL">
-	<cfargument name="urlParams" type="string" required="false" default=""> 
-	<cfargument name="lbTitle" type="string" required="false" default="#arguments.linkTitle#">
-	<cfargument name="linkClass" type="string" required="false" default=""> 
-	<cfargument name="uiTheme" type="string" required="false" default="ui-lightness"> 
-	<cfargument name="linkText" type="string" required="false" default="#arguments.linkTitle#"> 
+	<cfargument name="urlParams" type="string" required="false" default="" hint="URL Parameters as a string">
+	<cfargument name="lbTitle" type="string" required="false" default="#arguments.linkTitle#" hint="Title of the ligthbox">
+	<cfargument name="linkClass" type="string" required="false" default="" hint="Class of the lightbox">
+	<cfargument name="uiTheme" type="string" required="false" default="ui-lightness" hint="UI Theme to load">
+	<cfargument name="linkText" type="string" required="false" default="#arguments.linkTitle#" hint="Text of the link">
 	<cfscript>
 		var rtnStr = "";
 		var csPgURL = "";
@@ -311,9 +311,9 @@ History:
 --->
 <cffunction name="wrapHTMLwithLBHeaderFooter" access="public" returntype="string" output="false" hint="Given html returns html that is wrapped properly with the CS 6.x lightbox header and footer code.">
 	<cfargument name="html" type="string" default="" hint="HTML to wrap">
-	<cfargument name="lbTitle" type="string" default="">
+	<cfargument name="lbTitle" type="string" default="" hint="Lightbox Title">
 	<cfargument name="tdClass" type="string" default="" hint="Used to add CSS classes to the outer TD wrapper like 'formResultContainer' for the addEditRenderForm results">
-	<cfargument name="lbCheckLogin" type="boolean" default="1" required="false">
+	<cfargument name="lbCheckLogin" type="boolean" default="1" required="false" hint="Have the lightbox validate login, by default this is on">
 	<cfscript>
 		var retHTML = "";
 	</cfscript>
@@ -358,9 +358,9 @@ History:
 	2011-05-24 - RLW - Changed the "lbCheckLogin" arg to default to false.
 --->
 <cffunction name="lightboxHeader" access="public" returntype="string" output="false" hint="Returns HTML for the CS 6.x lightbox header (use with the lightboxFooter)">
-	<cfargument name="lbTitle" type="string" default="">
+	<cfargument name="lbTitle" type="string" default="" hint="Lightbox Title">
 	<cfargument name="tdClass" type="string" default="" hint="Used to add CSS classes to the outer TD wrapper like 'formResultContainer' for the addEditRenderForm results">
-	<cfargument name="lbCheckLogin" type="boolean" default="0" required="false">
+	<cfargument name="lbCheckLogin" type="boolean" default="0" required="false" hint="Validate the user is logged in">
 	<cfscript>
 		var retHTML = "";
 		var productVersion = ListFirst(ListLast(request.cp.productversion," "),".");

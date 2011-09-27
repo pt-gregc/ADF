@@ -3,6 +3,7 @@
 	<ceData_1_0>deleteCE,getFormIDByCEName,getCEData</ceData_1_0>
 	<ceData_1_1>getFormIDByCEName,getTabsFromFormID</ceData_1_1>
 	<csData_1_0>getSubsiteID,getSiteTemplates,getSubsiteStruct,getPagesBySubsiteID,getPageDataArray</csData_1_0>
+	<data_1_1>makeUUID</data_1_1>
 	<ajaxService_1_0>addSubsite,loadGeneralChooser</ajaxService_1_0>
 	<forms_1_0>renderAddEditForm,renderDeleteForm</forms_1_0>
 	<forms_1_1>renderAddEditForm,renderDeleteForm,loadCFFormProtect,verifyCFFormProtect</forms_1_1>

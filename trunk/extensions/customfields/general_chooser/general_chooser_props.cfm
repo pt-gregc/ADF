@@ -36,6 +36,8 @@ History:
 	2009-05-29 - MFC - Created
 	2011-03-20 - MFC - Updated component to simplify the customizations process and performance.
 						Removed Ajax loading process.
+	2011-09-21 - RAK - Added max/min selections
+	2011-09-21 - RAK - Updated default values to load in an easier to configure manner
 --->
 <cfscript>
 	// initialize some of the attributes variables
@@ -43,18 +45,27 @@ History:
 	prefix = attributes.prefix;
 	formname = attributes.formname;
 	currentValues = attributes.currentValues;
-	
-	// check the values for defaults
-	if( not structKeyExists(currentValues, "chooserCFCName") )
-		currentValues.chooserCFCName = "";
-	if( not structKeyExists(currentValues, "forceScripts") )
-		currentValues.forceScripts = "0";
+
+	//Setup the default values
+	defaultValues = StructNew();
+	defaultValues.chooserCFCName = "";
+   defaultValues.forceScripts = "0";
+   defaultValues.minSelections = "0";
+   defaultValues.maxSelections = "0";
+
+   //This will override the default values with the current values.
+   currentValueArray = StructKeyArray(currentValues);
+   for(i=1;i<=ArrayLen(currentValueArray);i++){
+      if(StructKeyExists(defaultValues,currentValueArray[i])){
+         defaultValues[currentValueArray[i]] = currentValues[currentValueArray[i]];
+      }
+   }
 </cfscript>
 <cfoutput>
 	
 	<script language="JavaScript" type="text/javascript">
 		// register the fields with global props object
-		fieldProperties['#typeid#'].paramFields = '#prefix#chooserCFCName,#prefix#forceScripts';
+		fieldProperties['#typeid#'].paramFields = '#prefix#chooserCFCName,#prefix#forceScripts,#prefix#minSelections,#prefix#maxSelections';
 		// allows this field to support the orange icon (copy down to label from field name)
 		fieldProperties['#typeid#'].jsLabelUpdater = '#prefix#doLabel';
 		// allows this field to have a common onSubmit Validator
@@ -79,16 +90,30 @@ History:
 		<tr valign="top">
 			<td class="cs_dlgLabelSmall">Chooser Bean Name:</td>
 			<td class="cs_dlgLabelSmall">
-				<input type="text" id="#prefix#chooserCFCName" name="#prefix#chooserCFCName" value="#currentValues.chooserCFCName#" size="50"><br />
+				<input type="text" id="#prefix#chooserCFCName" name="#prefix#chooserCFCName" value="#defaultValues.chooserCFCName#" size="50"><br />
 				Name of the Object Factory Bean that will be rendering and populating the chooser data. (i.e. profileGC). Note: Do NOT include ".cfc" in the name.
 			</td>
 		</tr>
 		<tr valign="top">
 			<td class="cs_dlgLabelSmall">Force Loading Scripts:</td>
 			<td class="cs_dlgLabelSmall">
-				Yes <input type="radio" id="#prefix#forceScripts" name="#prefix#forceScripts" value="1" <cfif currentValues.forceScripts EQ "1">checked</cfif>>&nbsp;&nbsp;&nbsp;
-				No <input type="radio" id="#prefix#forceScripts" name="#prefix#forceScripts" value="0" <cfif currentValues.forceScripts EQ "0">checked</cfif>><br />
+				Yes <input type="radio" id="#prefix#forceScripts" name="#prefix#forceScripts" value="1" <cfif defaultValues.forceScripts EQ "1">checked</cfif>>&nbsp;&nbsp;&nbsp;
+				No <input type="radio" id="#prefix#forceScripts" name="#prefix#forceScripts" value="0" <cfif defaultValues.forceScripts EQ "0">checked</cfif>><br />
 				Force the JQuery, JQuery UI, and Thickbox scripts to load on the chooser loading.
+			</td>
+		</tr>
+		<tr valign="top">
+			<td class="cs_dlgLabelSmall">Minimum Number of Selections:</td>
+			<td class="cs_dlgLabelSmall">
+				<input type="text" id="#prefix#minSelections" name="#prefix#minSelections" value="#defaultValues.minSelections#" size="50"><br />
+				0 means selections are optional
+			</td>
+		</tr>
+		<tr valign="top">
+			<td class="cs_dlgLabelSmall">Maximum Number of Selections:</td>
+			<td class="cs_dlgLabelSmall">
+				<input type="text" id="#prefix#maxSelections" name="#prefix#maxSelections" value="#defaultValues.maxSelections#" size="50"><br />
+				0 is infinite
 			</td>
 		</tr>
 	</table>

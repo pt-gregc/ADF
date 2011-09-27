@@ -56,8 +56,8 @@ History:
 	2011-01-11 - MFC - Modified - Updated the ValueList to use the "termID" column from the query.
 --->
 <cffunction name="getTopTermIDArrayForFacet" access="public" returntype="array" output="no" hint="Taxonomy function to return top term IDs for the facet ID">
-	<cfargument name="facetID" type="numeric" required="yes">
-	<cfargument name="taxonomyID" type="numeric" required="yes">
+	<cfargument name="facetID" type="numeric" required="yes" hint="Facet ID">
+	<cfargument name="taxonomyID" type="numeric" required="yes" hint="Taxonomy ID">
 	<cfargument name="orderby" type="string" default="" required="no" hint="Order By 'ID' (the term id) or 'NAME' (the term name)">
 	
 	<cfscript>
@@ -86,8 +86,8 @@ History:
 	2010-12-06 - SFS - Rewritten for ADF 1.5 release to eliminate need for taxonomy calls and uses taxonomy DB views instead
 --->
 <cffunction name="getTopTermsQueryForFacet" access="public" returntype="query" output="no" hint="Taxonomy function to return top terms as a query for the facet ID">
-	<cfargument name="facetID" type="numeric" required="yes">
-	<cfargument name="taxonomyID" type="numeric" required="yes">
+	<cfargument name="facetID" type="numeric" required="yes" hint="Facet ID">
+	<cfargument name="taxonomyID" type="numeric" required="yes" hint="Taxonomy ID">
 	<cfargument name="orderby" type="string" default="" required="no" hint="Order By 'ID' (the term id) or 'NAME' (the term name)">
 	
 	<cfscript>
@@ -127,10 +127,10 @@ Arguments:
 History:
 	2011-01-04 - MFC - Created
 --->
-<cffunction name="getTermQryByFacet" access="public" returntype="query" output="true" hint="">
-	<cfargument name="taxonomyName" type="string" required="true">
-	<cfargument name="facetName" type="string" required="false" default="">
-	<cfargument name="facetID" type="numeric" required="false" default="0">
+<cffunction name="getTermQryByFacet" access="public" returntype="query" output="true" hint="Returns a Query of the taxonomy terms for the taxonomy and facet arguments.">
+	<cfargument name="taxonomyName" type="string" required="true" hint="Taxonomy Name">
+	<cfargument name="facetName" type="string" required="false" default="" hint="Facet Name">
+	<cfargument name="facetID" type="numeric" required="false" default="0" hint="Facet ID">
 	
 	<cfset var termQry = QueryNew("null")>
 	<!--- Check if either the facet name or ID has a value for the query --->
@@ -173,11 +173,11 @@ History:
 	2011-03-02 - RAK - Added sorting on target term as a secondary sort.
 	2011-05-10 - RAK - Added the ability to specify the sourceTermIDList and made targettermIDList optional
 --->
-<cffunction name="getTermByRelationships" access="public" returntype="query" output="true" hint="">
-	<cfargument name="taxonomyID" type="numeric" required="true">
-	<cfargument name="targetTermIDList" type="string" required="false" default="">
-	<cfargument name="targetFacetID" type="numeric" required="false" default="0">
-	<cfargument name="relationshipName" type="string" required="false" default="">
+<cffunction name="getTermByRelationships" access="public" returntype="query" output="true" hint="Returns a query of the taxonomy terms that have a reltionship to the target term ID argument.">
+	<cfargument name="taxonomyID" type="numeric" required="true" hint="Taxonomy ID to search in">
+	<cfargument name="targetTermIDList" type="string" required="false" default="" hint="Target termID list">
+	<cfargument name="targetFacetID" type="numeric" required="false" default="0" hint="Target facet ID">
+	<cfargument name="relationshipName" type="string" required="false" default="" hint="Relationship name">
 	<cfargument name="sourceTermIDList" type="string" required="false"  default="" hint="Source term ID's">
 	
 	<cfset var termQry = QueryNew("null")>
@@ -259,7 +259,7 @@ History:
 	2011-01-07 - MFC - Created
 --->
 <cffunction name="getFacetStructForTaxonomy" access="public" returntype="struct" output="true" hint="Returns a Struct for the facet terms and IDs for the taxonomy.">
-	<cfargument name="taxonomyID" type="numeric" required="true">
+	<cfargument name="taxonomyID" type="numeric" required="true" hint="Taxonomy ID to get facet struct for">
 	
 	<cfset var taxQry = QueryNew("null")>
 	<cfset var facetStruct = StructNew()>
@@ -294,8 +294,8 @@ History:
 	2011-01-11 - MFC - Created
 --->
 <cffunction name="getTopTermStructForFacet" access="public" returntype="struct" output="true" hint="Returns a Struct for the Top Terms for the Facet.">
-	<cfargument name="facetID" type="numeric" required="true">
-	<cfargument name="taxonomyID" type="numeric" required="true">
+	<cfargument name="facetID" type="numeric" required="true" hint="Facet ID to get top term struct">
+	<cfargument name="taxonomyID" type="numeric" required="true" hint="Taxonomy ID to get top term struct">
 	<cfargument name="orderby" type="string" default="" required="no" hint="Order By 'ID' (the term id) or 'NAME' (the term name)">
 	
 	<cfscript>

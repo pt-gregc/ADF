@@ -68,7 +68,7 @@ History:
 		Do not call is method directly. Call from inside the LightboxProxy.cfm file  (method properties are subject to change)
 --->
 <cffunction name="buildLightboxProxyHTML" access="public" returntype="string" hint="Returns a HTML string for content that displays inside an ADF lightbox">
-	<cfargument name="proxyFile" required="false" default="#CGI.SCRIPT_NAME#"><!--- // Must NOT be required so the Lightbox will display the error --->
+	<cfargument name="proxyFile" required="false" default="#CGI.SCRIPT_NAME#" hint="Proxyfile to load lightbox proxy from"><!--- // Must NOT be required so the Lightbox will display the error --->
 	<cfscript>
 		var hasError = 0;
 		var callingFileName = "lightboxProxy.cfm";
