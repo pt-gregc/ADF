@@ -31,6 +31,7 @@ History:
 	2011-01-21 - GAC - Added a version variable to Application.ADF
 	2011-01-26 - GAC - Added a method for setLightboxProxyURL
 	2011-04-05 - MFC - Updated the version property.
+	2011-09-27 - GAC - Updated most of the comment blocks to follow the ADF standard
 --->
 <cfcomponent displayname="SiteBase" extends="ADF.core.AppBase">
 
@@ -38,7 +39,9 @@ History:
 
 <!---
 /* *************************************************************** */
-Author: 	M. Carroll
+Author: 
+	PaperThin, Inc.	
+	M. Carroll
 Name:
 	$initSite
 Summary:
@@ -71,7 +74,9 @@ History:
 
 <!---
 /* *************************************************************** */
-Author: 	M. Carroll
+Author: 
+	PaperThin, Inc.	
+	M. Carroll
 Name:
 	$loadSite
 Summary:
@@ -86,7 +91,6 @@ History:
 	2011-04-05 - MFC - Added 'application.ADF.csVersion' variable.
 --->
 <cffunction name="loadSite" access="private" returntype="void" hint="Stores the ADF Lib Components into application.ADF space.">
-	
 	<cfscript>
 		initSite();
 		
@@ -111,7 +115,9 @@ History:
 
 <!---
 /* *************************************************************** */
-Author: 	M. Carroll
+Author: 
+	PaperThin, Inc.	
+	M. Carroll
 Name:
 	$configEnvironment
 Summary:
@@ -124,7 +130,6 @@ History:
 	2009-08-10 - MFC - Created
 --->
 <cffunction name="configSiteEnvironment" access="private" returntype="void" hint="Initializes the server.ADF.environment space for the site.">
-	
 	<cfscript>
 		// Clear the server.ADF.environment structure
 		server.ADF.environment[request.site.id] = StructNew();
@@ -135,7 +140,9 @@ History:
 
 <!---
 /* *************************************************************** */
-Author: 	M. Carroll
+Author: 
+	PaperThin, Inc.	
+	M. Carroll
 Name:
 	$loadSiteComponents
 Summary:
@@ -148,7 +155,6 @@ History:
 	2009-08-07 - MFC - Created
 --->
 <cffunction name="loadSiteComponents" access="private" returntype="void" hint="Stores the site specific components in '/_cs_apps/components' into application.ADF space."> 
-	
 	<cfscript>
 		var i = 1;
 		var bean = "";
@@ -166,7 +172,9 @@ History:
 
 <!---
 /* *************************************************************** */
-Author: 	M. Carroll
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
 Name:
 	$loadLibrary
 Summary:
@@ -180,9 +188,11 @@ History:
 	2011-03-20 - RLW - Added support to load a "version" of library components
 	2011-04-06 - MFC - Uncommented the 'localLibKeys' variable to load for the site
 						LIB component overrides.
+	2011-09-27 - GAC - Replaced the getADFversion calls with getADFminorVersion so it will read the XML file even if extra version digits
+						are added to the ADFvesrion variable
 --->
 <cffunction name="loadLibrary" access="private" returntype="void" hint="Loads the latest ADF library components into the application space">
-	<cfargument name="loadVersion" type="string" required="false" default="#getADFVersion()#" hint="Pass in the specific ADF version you would like to load">
+	<cfargument name="loadVersion" type="string" required="false" default="#getADFminorVersion()#" hint="Pass in the specific ADF version you would like to load">
 	<cfscript>
 		var libKeys = "";
 		var localLibKeys = "";
@@ -190,6 +200,7 @@ History:
 		var libVersions = structNew();
 		var thisComponent = "";
 		var thisComponentEasyName = "";
+		var ADFversion = getADFminorVersion();
 
 		// Load the ADF Lib components
 		application.ADF.beanConfig.loadADFLibComponents("#request.site.csAppsURL#lib/", "", "application");
@@ -203,7 +214,7 @@ History:
 		if( structKeyExists(libVersions, "v_" & arguments.loadVersion) )
 			libKeys = structKeyList(libVersions["v_" & arguments.loadVersion] );
 		else
-			libKeys = structKeyList(libVersions["v_" & getADFVersion()] );
+			libKeys = structKeyList(libVersions["v_" & ADFversion] );
 			
 		// loop over the keys that are the lib component names
 		for ( i = 1; i LTE ListLen(libKeys); i = i + 1)
@@ -224,13 +235,14 @@ History:
 			// Load the bean into application space
 			application.ADF[ListGetAt(localLibKeys,i)] = application.ADF.objectFactory.getBean(application.ADF.library[ListGetAt(localLibKeys,i)]);
 		}
-
 	</cfscript>
 </cffunction>
 
 <!---
 /* *************************************************************** */
-Author: 	R. West
+Author: 	
+	PaperThin, Inc.
+	R. West
 Name:
 	$loadLibVersions
 Summary:
@@ -256,7 +268,9 @@ History:
 
 <!---
 /* *************************************************************** */
-Author: 	M. Carroll
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
 Name:
 	$resetLibrary
 Summary:
@@ -272,7 +286,6 @@ History:
 <cffunction name="resetLibrary" access="private" returntype="void" hint="Loads the arguments ADF library component into the application space.">
 	<cfargument name="beanName" type="string" required="true" hint="Server ADF object factory bean name.">
 	<cfargument name="varName" type="string" required="false" default="" hint="Application scope variable name.">
-	
 	<cfscript>
 		var appVarName = arguments.varName;
 		// Check if the variable name was not defined in the arguments
@@ -286,7 +299,9 @@ History:
 
 <!---
 /* *************************************************************** */
-Author: 	M. Carroll
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
 Name:
 	$loadSiteAjaxProxyWhiteList
 Summary:
@@ -303,7 +318,6 @@ History:
 					to avoid conflicts with multiple sites. 
 --->
 <cffunction name="loadSiteAjaxProxyWhiteList" access="private" returntype="void" hint="">
-	
 	<cfscript>
 		var configPath = "#request.site.csAppsDir#config/proxyWhiteList.xml";
 		var configStruct = StructNew();
@@ -314,12 +328,13 @@ History:
 			application.ADF.proxyWhiteList = server.ADF.objectFactory.getBean("Data_1_0").structMerge(application.ADF.proxyWhiteList, configStruct, true);
 		}
 	</cfscript>
-	
 </cffunction>
 
 <!---
 /* *************************************************************** */
-Author: 	Ron West
+Author: 	
+	PaperThin, Inc.
+	Ron West
 Name:
 	$setAjaxProxyURL
 Summary:	
@@ -339,7 +354,9 @@ History:
 
 <!---
 /* *************************************************************** */
-Author: 	Greg Cronkright
+Author: 	
+	PaperThin, Inc.
+	Greg Cronkright
 Name:
 	$setLightboxProxyURL
 Summary:	
@@ -381,9 +398,12 @@ History:
 	<cfargument name="adfBeanName" type="string" required="true" default="" hint="Destination bean name to set the adf bean to (ceData)">
 	<cfscript>
 		var bean = "false";
-		if(server.ADF.objectFactory.containsBean(beanName)){
+		if(server.ADF.objectFactory.containsBean(beanName))
+		{
 			StructInsert(application.ADF,adfBeanName,server.ADF.objectFactory.getSingleton(beanName),true);
-		}else{
+		}
+		else
+		{
 			// TODO: Need to check this... not sure the cfscript version of cfthrow is CF8 compatible
 			throw("Could not find bean name: '#beanName#' while calling loadLibraryComponent");
 		}

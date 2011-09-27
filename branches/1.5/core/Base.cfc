@@ -32,6 +32,7 @@ History:
 	2011-04-05 - MFC - Updated the version property.
 					   Added a getCSVersion function.
 	2011-07-11 - MFC - Updated INIT function to remove call to "super.init".
+	2011-09-27 - GAC - Added a getADFminorVersion to only return first two version digits
 --->
 <cfcomponent name="Base" hint="Base component for Custom Application Common Framework">
 
@@ -46,7 +47,9 @@ History:
 
 <!---
 /* *************************************************************** */
-Author: 	G. Cronkright
+Author: 
+	PaperThin, Inc. 	
+	G. Cronkright
 Name:
 	getADFversion
 Summary:
@@ -60,10 +63,36 @@ History:
 --->
 <cffunction name="getADFversion" access="public" returntype="string">
 	<cfscript>
-		var ADFversion = "1.0";
+		var ADFversion = "1.0.0";
 		if ( StructKeyExists(server.ADF,"version") )
 			ADFversion = server.ADF.version;
 	 	return ADFversion;
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.	
+	G. Cronkright
+Name:
+	getADFminorVersion
+Summary:
+	Returns the the major and minor digits of the ADF Version
+Returns:
+	String - ADF Minor Version 
+Arguments:
+	Void
+History:
+	2011-09-27 - GAC - Created
+--->
+<cffunction name="getADFminorVersion" access="public" returntype="string">
+	<cfscript>
+		var ADFversion = getADFversion();
+		var ADFmajor = ListGetAt(ADFversion,1,".");
+		var ADFminor = ListGetAt(ADFversion,2,".");
+		// TODO: Maybe a slick regex way to get the first two version digits
+		return ADFmajor & "." & ADFminor;
 	</cfscript>
 </cffunction>
 
@@ -93,10 +122,8 @@ History:
 	</cfscript>
 </cffunction>
 
-
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author:
 	PaperThin, Inc.
 	Ron West
