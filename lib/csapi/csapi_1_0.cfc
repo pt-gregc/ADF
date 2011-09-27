@@ -49,18 +49,18 @@ Author:
 	PaperThin, Inc.
 	M. Carroll
 Name:
-	$FUNCTIONNAME
+	$initCSAPI
 Summary:
-	SUMMARY
+	Init the CSAPI
 Returns:
-	ARGS
+	void
 Arguments:
-	ARGS
+
 History:
 	2010-00-00 - MFC - Created
 --->
-<cffunction name="initCSAPI" access="public" returntype="void" output="true" hint="">
-	<cfargument name="subsiteID" required="false" type="numeric" default="1">
+<cffunction name="initCSAPI" access="public" returntype="void" output="true" hint="Init the CSAPI">
+	<cfargument name="subsiteID" required="false" type="numeric" default="1" hint="SubsiteID to init on">
 	<cfscript>
 		setSubsiteID(arguments.subsiteID);
 		loadCCAPI();
@@ -83,8 +83,8 @@ Arguments:
 History:
 	2010-08-26 - MFC - Created
 --->
-<cffunction name="loadCCAPI" access="private" returntype="void" output="true" hint="">
-	<cfargument name="subsiteID" required="false" type="numeric" default="1">
+<cffunction name="loadCCAPI" access="private" returntype="void" output="true" hint="Load the ccapi">
+	<cfargument name="subsiteID" required="false" type="numeric" default="1" hint="Subsite ID to load the ccapi from">
 	<cfscript>
 		variables.ccapiObj = server.ADF.objectFactory.getBean("ccapi_1_0");
 		variables.ccapiObj.initCCAPI();
@@ -109,8 +109,8 @@ History:
 	2010-08-26 - MFC - Created
 	2010-10-25 - MFC - Added the deserialize for the return XML.
 --->
-<cffunction name="run" access="public" returntype="any" output="true" hint="">
-	<cfargument name="commandXML" type="string" required="true" hint="">
+<cffunction name="run" access="public" returntype="any" output="true" hint="run a command">
+	<cfargument name="commandXML" type="string" required="true" hint="XML to run">
 	
 	<cfscript>
 		var csapiToken = getCCAPIToken();
@@ -165,8 +165,8 @@ Arguments:
 History:
 	2011-04-29 - MFC - Created
 --->
-<cffunction name="login" access="public" returntype="void">
-	<cfargument name="subsiteID" required="false" type="numeric" default="1">
+<cffunction name="login" access="public" returntype="void" hint="log into the csapi">
+	<cfargument name="subsiteID" required="false" type="numeric" default="1" hint="SubsiteID to log into">
 	<!--- // call the CS API login --->
 	<cfscript>
 		var loginResult = "";
@@ -194,7 +194,7 @@ Arguments:
 History:
 	2011-04-29 - MFC - Created
 --->
-<cffunction name="logout" access="public" returntype="void">
+<cffunction name="logout" access="public" returntype="void" hint="Logout of the CSAPI">
 	<cfscript>
 		// Logout of CCAPI
 		variables.ccapiObj.logout();
@@ -206,20 +206,20 @@ History:
 
 
 <!--- // Private GETTERS/SETTERS --->
-<cffunction name="setSubsiteID" access="private" returntype="void">
-	<cfargument name="subsiteID" type="numeric" required="true">
+<cffunction name="setSubsiteID" access="private" returntype="void" hint="Set the subsiteID">
+	<cfargument name="subsiteID" type="numeric" required="true" hint="subsiteID to set">
 	<cfset variables.subsiteID = arguments.subsiteID>
 </cffunction>
 
-<cffunction name="getSubsiteID" access="private" returntype="numeric">
+<cffunction name="getSubsiteID" access="private" returntype="numeric" hint="Get the subsiteID">
 	<cfreturn variables.subsiteID>
 </cffunction>
 
-<cffunction name="setCCAPIToken" access="private" returntype="void">
+<cffunction name="setCCAPIToken" access="private" returntype="void" hint="set the ccapi token">
 	<cfset variables.token = variables.ccapiObj.getSSID()>
 </cffunction>
 
-<cffunction name="getCCAPIToken" access="private" returntype="string">
+<cffunction name="getCCAPIToken" access="private" returntype="string" hint="get the ccapi token">
 	<cfreturn variables.token>
 </cffunction>
 
@@ -241,8 +241,8 @@ History:
 	2010-10-25 - MFC - Updated the command to build the httpSubsiteURL variable.
 	2011-03-10 - SFS - The getSubsiteQueryByID call assumed the profile app was installed. Changed the call to call the ADF version instead.
 --->
-<cffunction name="buildSubsiteFullURL" access="private" returntype="string" output="true" hint="">
-	<cfargument name="subsiteID" type="numeric" required="true" hint="">
+<cffunction name="buildSubsiteFullURL" access="private" returntype="string" output="true" hint="Returns the Full URL for the subsite (http://...)">
+	<cfargument name="subsiteID" type="numeric" required="true" hint="subsiteID to build the full URL from">
 	
 	<cfscript>
 		var subsiteData = application.ADF.csData.getSubsiteQueryByID(subsiteID=arguments.subsiteID);

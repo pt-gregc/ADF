@@ -87,11 +87,11 @@ History:
 						Removed the loadADFLightbox force argument when loading the form.
 --->
 <cffunction name="renderAddEditForm" access="public" returntype="String" hint="Returns the HTML for an Add/Edit Custom element record">
-	<cfargument name="formID" type="numeric" required="true">
-	<cfargument name="dataPageId" type="numeric" required="true">
-	<cfargument name="lbAction" type="string" required="false" default="norefresh">
-	<cfargument name="customizedFinalHtml" type="string" required="false" default="">
-	<cfargument name="callback" type="string" required="false" default="">
+	<cfargument name="formID" type="numeric" required="true" hint="Form ID to render">
+	<cfargument name="dataPageId" type="numeric" required="true" hint="DatapageID to render the edit for">
+	<cfargument name="lbAction" type="string" required="false" default="norefresh" hint="The action, either norefresh or refreshparent">
+	<cfargument name="customizedFinalHtml" type="string" required="false" default="" hint="Allows you to pass in custom HTML that will display after submit">
+	<cfargument name="callback" type="string" required="false" default="" hint="Optional callback code that will get called on submit">
 
 	<cfscript>
 		var udfResults = '';

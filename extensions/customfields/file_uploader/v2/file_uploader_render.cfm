@@ -78,7 +78,8 @@ History:
 				jQuery.post("#application.ADF.ajaxProxy#",{
 					bean: "#fieldDefaultValues.beanName#",
 					method:"_getThumbnail",
-					fileName:fileName
+					fileName:fileName,
+					fieldID: "#fieldQuery.inputID#"
 				},function(results){
 					jQuery("###fqFieldName#_thumbnail").html(results);
 				});

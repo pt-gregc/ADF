@@ -104,20 +104,18 @@ Arguments:
 History:
 	2009-11-05 - MFC - Created
 	2011-03-20 - MFC - Reconfigured Proxy White List to store in application space 
-						to avoid conflicts with multiple sites. 
+						to avoid conflicts with multiple sites.
+	2011-09-22 - RAK - Removed else statement becuase it was not needed and combined if statements
 --->
 <cffunction name="validateProxy" access="public" returntype="boolean" hint="Returns T/F for if the component method is in the Proxy White List.">
 	<cfargument name="bean" type="string" required="true" hint="Component bean name">
 	<cfargument name="method" type="string" required="true" hint="Method requesting permission">
-	
 	<cfscript>
 		// Check if the bean exists in the proxy white list struct
-		if ( StructKeyExists(application.ADF.proxyWhiteList, arguments.bean) ){
-			// If we have a method list and we have a match to our argument
-			if ( (ListFindNoCase(application.ADF.proxyWhiteList[arguments.bean], arguments.method)) )
-				return true;
-			else
-				return false;
+		// If we have a method list and we have a match to our argument
+		if ( StructKeyExists(application.ADF.proxyWhiteList, arguments.bean)
+		      and ListFindNoCase(application.ADF.proxyWhiteList[arguments.bean], arguments.method) ){
+			return true;
 		}
 		return false;
 	</cfscript>

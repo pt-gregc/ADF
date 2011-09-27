@@ -67,13 +67,13 @@ History:
 	2011-02-23 - DMB - Modified - Added logic to pass doctype automatically for all non-pages.
 	2011-03-10 - MFC/GAC - Moved method into v1.1 for new functionality.
 --->
-<cffunction name="getCustomMetadata" access="public" returntype="struct">
-	<cfargument name="pageID" type="numeric" required="yes">
-    <cfargument name="categoryID" type="numeric" required="no" default="-1">
-    <cfargument name="subsiteID" type="numeric" required="no" default="-1">
-    <cfargument name="inheritedTemplateList" type="string" required="no" default="">
-	<cfargument name="convertTaxonomyTermsToIDs" type="boolean" required="no" default="false">
-	<cfargument name="docType" type="string" required="no" default="">
+<cffunction name="getCustomMetadata" access="public" returntype="struct" hint="Returns custom metadata for a page">
+	<cfargument name="pageID" type="numeric" required="yes" hint="PageID to get custom metadata from">
+    <cfargument name="categoryID" type="numeric" required="no" default="-1" hint="Optional Category">
+    <cfargument name="subsiteID" type="numeric" required="no" default="-1" hint="Optional Subsite ID">
+    <cfargument name="inheritedTemplateList" type="string" required="no" default="" hint="Optional inherited template list">
+	<cfargument name="convertTaxonomyTermsToIDs" type="boolean" required="no" default="false" hint="optional boolean option to convert taxonomy terms to IDS">
+	<cfargument name="docType" type="string" required="no" default="" hint="optional doctype">
 	<cfscript>
 		var stdMetadata = "";
 		var custMetadata = StructNew();
@@ -213,8 +213,8 @@ History:
 	2011-02-09 - RAK - Var'ing un-var'd variables
 	2011-02-09 - GAC - Removed self-closing CF tag slashes
 --->
-<cffunction name="getCustomMetadataFieldsByCSPageID" access="public" returntype="struct">
-	<cfargument name="cspageid" type="numeric" required="true">
+<cffunction name="getCustomMetadataFieldsByCSPageID" access="public" returntype="struct" hint="Returns a structure of custom metadata forms and fields from a CSPageID">
+	<cfargument name="cspageid" type="numeric" required="true" hint="commonspot pageID">
 	<cfargument name="fieldtype" type="string" default="" hint="Optional - taxonomy, text, select, etc. or a CFT name">
 	<cfscript>
 		var itm = '';
@@ -270,21 +270,22 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Ryan Kahn
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+	Ryan Kahn
 Name:
 	$getRSSFeedURLFromElementID
 Summary:
 	Given an elementID get the RSS feed url
 Returns:
-	String rssFeedURL
+	string
 Arguments:
 	Numeric elementID
 History:
 	2010-10-15 - RAK - Created
 --->
-<cffunction name="getRSSFeedURLFromElementID">
+<cffunction name="getRSSFeedURLFromElementID" access="public" returntype="string" hint="Given an elementID get the RSS feed url">
 	<cfargument name="elementID" required="true" type="numeric" hint="attributes.elementinfo.id">
 	<cfscript>
 		var rssData = "";
@@ -332,7 +333,7 @@ History:
 --->
 <cffunction name="findReplaceStandardMetadata" access="public" returntype="struct" 
 	hint="From a pageID get the Standard Metadata for the page and then does a find/replace on values in the Standard Metadata structure. Uses a Array of structs that contains findText and replaceText to go through the designated fields.">
-	<cfargument name="csPageID" type="numeric" required="true">
+	<cfargument name="csPageID" type="numeric" required="true" hint="CSPageID to find standard metadata for">
 	<cfargument name="findReplaceTextArray" type="array" required="false" default="#ArrayNew(1)#" hint="An array of structs with the source text to find and destination text to replace when creating the destination page.">
 	<cfargument name="fieldList" type="string" required="false" default="Name,Title,Caption,Description,FileName" hint="List of standardMetadata fields to process. If blank, it will check them all.">
 	<cfscript>
@@ -414,8 +415,8 @@ History:
 					   to a helper method getGlobalKeywords which has CS version detection
 	2011-03-10 - MFC/GAC - Moved method into v1.1 for new KEYWORD functionality.
 --->
-<cffunction name="getStandardMetadata" access="public" returntype="struct">
-	<cfargument name="csPageID" required="true" type="numeric">
+<cffunction name="getStandardMetadata" access="public" returntype="struct" hint="Return standard metadata for a page">
+	<cfargument name="csPageID" required="true" type="numeric" hint="Page to get standard metadata for">
 	<cfscript>
 		var getData = '';
 		var stdMetadata = structNew();
@@ -615,8 +616,8 @@ History:
  	2011-07-15 - RAK - Created
 --->
 <cffunction name="getCSPageByTitle" access="public" returntype="numeric" hint="Returns CSPage from a specified subsite with a specified title">
-	<cfargument name="csPagetitle" type="string" required="true">
-	<cfargument name="csSubsiteID" type="numeric" required="true">
+	<cfargument name="csPagetitle" type="string" required="true" hint="Page Title to search for">
+	<cfargument name="csSubsiteID" type="numeric" required="true" hint="SubsiteID to search within">
 	<cfargument name="includeRegisteredURLS" type="boolean" required="false" default="true" hint="If set to false it will not search for registered URLS">
 	<cfset var csPageID = 0>
 	<cfset var getPageData = ''>

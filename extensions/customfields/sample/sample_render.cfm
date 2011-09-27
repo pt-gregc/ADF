@@ -17,12 +17,27 @@ By downloading, modifying, distributing, using and/or accessing any files
 in this directory, you agree to the terms and conditions of the applicable 
 end user license agreement.
 --->
-
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+	Ryan Kahn
+Name:
+	$sample_render.cfm
+Summary:
+	Sample render file, this will output a simple text element for the user to enter data in
+History:
+ 	2011-09-26 - RAK - Created
+--->
 <cfscript>
 	// the fields current value
 	currentValue = attributes.currentValues[fqFieldName];
 	// the param structure which will hold all of the fields from the props dialog
 	xparams = parameters[fieldQuery.inputID];
+
+	if(!Len(currentvalue)){
+		currentValue = xparams.defaultText;
+	}
 
 	//--Field Security--
 	readOnly = application.ADF.forms.isFieldReadOnly(xparams);
@@ -46,22 +61,22 @@ end user license agreement.
 		function validate_#fqFieldName#(){
 			if (jQuery("input[name=#fqFieldName#]").val() != ''){
 				return true;
-			}else{
-				return false;
 			}
+			return false;
 		}
 	</script>
-<!---
-	This version is using the wrapFieldHTML functionality, what this does is it takes
-	the HTML that you want to put into the TD of the right section of the display, you
-	can optionally disable this by adding the includeLabel = false (fourth parameter)
-	when false it simply creates a TD and puts your content inside it. This wrapper handles
-	everything from description to simple form field handling.
---->
 	<cfsavecontent variable="inputHTML">
 		<cfoutput>
 			<input name="#fqFieldName#" id='#fqFieldName#' value="#currentValue#" <cfif readOnly>disabled="disabled"</cfif>>
 		</cfoutput>
 	</cfsavecontent>
+
+	<!---
+		This version is using the wrapFieldHTML functionality, what this does is it takes
+		the HTML that you want to put into the TD of the right section of the display, you
+		can optionally disable this by adding the includeLabel = false (fourth parameter)
+		when false it simply creates a TD and puts your content inside it. This wrapper handles
+		everything from description to simple form field handling.
+	--->
 	#application.ADF.forms.wrapFieldHTML(inputHTML,fieldQuery,attributes)#
 </cfoutput>

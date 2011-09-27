@@ -233,4 +233,76 @@ History:
 	<cfreturn retDataStruct>
 </cffunction>
 
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+	Ryan Kahn
+Name:
+	$getFacetTermNestingArray
+Summary:
+	Returns an array of structs containing a full tree of the facets terms
+Returns:
+	array
+Arguments:
+
+History:
+ 	2011-09-08 - RAK - Created
+--->
+<cffunction name="getFacetTermNestingArray" access="public" returntype="array" hint="Returns an array of structs containing a full tree of the facets terms">
+	<cfargument name="taxName" type="string" required="true" default="" hint="Taxonomy Name">
+	<cfargument name="facetName" type="string" required="true" default="" hint="Facet Name">
+	<cfscript>
+		var taxObj = getCSTaxObj(arguments.taxName);
+		var rtnArray = ArrayNew(1);
+		var facetID = taxObj.getFacetID(arguments.facetName);
+		var topTermArray = getTopTermIDArrayForFacet(facetID,taxObj.getID());
+		var i = 1;
+		for(i=1;i<=ArrayLen(topTermArray);i++){
+			rtnArray[i] = StructNew();
+			rtnArray[i].termID = topTermArray[i];
+			rtnArray[i].children = getNarrowerTermArrayOfStructs(taxObj.getID(),facetID,topTermArray[i]);
+		}
+		return rtnArray;
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+	Ryan Kahn
+Name:
+	$getNarrowerTermArrayOfStructs
+Summary:
+	Returns an array of narrower term ids with their values in an array
+Returns:
+	array
+Arguments:
+
+History:
+ 	2011-09-08 - RAK - Created
+--->
+<cffunction name="getNarrowerTermArrayOfStructs" access="public" returntype="array" hint="Returns an array of narrower term ids with their values in an array">
+	<cfargument name="taxID" type="string" required="true" default="" hint="Taxonomy ID">
+	<cfargument name="facetID" type="string" required="true" default="" hint="Facet ID">
+	<cfargument name="termID" type="string" required="true" default="" hint="TermID to start the recursion from">
+	<cfscript>
+		var i = 1;
+		var csTaxObj = createObject("component", "commonspot.components.taxonomy.taxonomy");
+		var rtnArray = ArrayNew(1);
+		var termIDS = "";
+		csTaxObj.init(taxID, "false");
+		termIDS = csTaxObj.getNarrowerTermArray(facetID,termID,false);
+		for(i=1;i<=ArrayLen(termIDS);i++){
+			rtnArray[i] = StructNew();
+			rtnArray[i].termID = termIDS[i];
+			rtnArray[i].children = getNarrowerTermArrayOfStructs(taxID,facetID,termIDS[i]);
+		}
+		return rtnArray;
+	</cfscript>
+</cffunction>
+
+
+
 </cfcomponent>

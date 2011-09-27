@@ -326,9 +326,9 @@ History:
 	2011-09-07 - MFC - Updated the line breaks for the var scoping.
 --->
 <cffunction name="xslTransform" access="public" returntype="string" output="No" hint="Transforms the xml file while still processing xsl:import tags.">
-	<cfargument name="xmlSource" type="string" required="yes">
-	<cfargument name="xslSource" type="string" required="yes">
-	<cfargument name="stParameters" type="struct" default="#StructNew()#" required="No">
+	<cfargument name="xmlSource" type="string" required="yes" hint="Source of the XML file, this can be either a file path or text">
+	<cfargument name="xslSource" type="string" required="yes" hint="Transformation source, this can be either a file path or text">
+	<cfargument name="stParameters" type="struct" default="#StructNew()#" required="No" hint="Optional parameters to pass into the XSL transform">
 
 	<cfscript>
 		var source = ""; 

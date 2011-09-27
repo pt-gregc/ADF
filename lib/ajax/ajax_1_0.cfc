@@ -46,7 +46,7 @@ Author:
 	PaperThin, Inc.
 	G. Cronkright
 Name:
-	$buildAjaxProxyData
+	$buildAjaxProxyString
 Summary:	
 	Returns a struct which has a reString key whose value is string built from a method call
 Returns:
@@ -67,7 +67,7 @@ History:
 		Do not call is method directly. Call from inside the AjaxProxy.cfm file (method properties are subject to change) 
 --->
 <cffunction name="buildAjaxProxyString" access="public" returntype="struct" hint="Returns a struct which has a reString key whose value is string built from a method call">
-	<cfargument name="proxyFile" required="false" default="#CGI.SCRIPT_NAME#"><!--- // Must NOT be required so the Lightbox will display the error --->
+	<cfargument name="proxyFile" required="false" default="#CGI.SCRIPT_NAME#" hint="Proxyfile to build the proxy string from"><!--- // Must NOT be required so the Lightbox will display the error --->
 	<cfscript>
 		var result = StructNew();
 		var hasCommandError = 0;

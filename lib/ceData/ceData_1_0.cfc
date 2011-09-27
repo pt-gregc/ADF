@@ -277,6 +277,7 @@ History:
 	2010-02-04 - MFC - Updated: Changed function to remove the query and make call
 							to CS Module deletefieldvalue.
 	2011-02-09 - RAK - Var'ing un-var'd variables
+	2011-09-26 - MFC - Updated logic to return false if user is not validated.
 --->
 <cffunction name="deleteCE" access="public" returntype="boolean">
 	<cfargument name="datapageidList" type="string" required="true">
@@ -305,13 +306,16 @@ History:
 								pageID="#currPageID#">
 				</cfloop>
 			</cfloop>
+			<!--- No problems, Return TRUE --->
+			<cfreturn true>
 		<cfcatch>
 			<!--- <cfdump var="#cfcatch#" label="cfcatch" expand="false"> --->
 			<cfreturn false>
 		</cfcatch>
 		</cftry>
 	</cfif>
-	<cfreturn true>
+	<!--- User didn't validate, return FALSE --->
+	<cfreturn false>
 </cffunction>
 
 <!---
@@ -600,6 +604,7 @@ History:
 								DateApproved fields to retStruct
 	2010-12-10 - RAK - Removed requirement of formID.
 	2010-12-14 - MFC - Updated argument to getFormIDFromPageID function.  Added comments.
+	2011-09-21 - RAK - Added authorID, ownerID to return struct
 --->
 <cffunction name="getElementInfoByPageID" access="public" returntype="struct">
 	<cfargument name="pageid" type="Numeric" required="true">
@@ -648,6 +653,8 @@ History:
 		retStruct.formname = getElementInfo.FormName[1];
 		retStruct.dateadded = getElementInfo.dateadded[1];
 		retStruct.dateapproved = getElementInfo.dateapproved[1];
+		retStruct.authorID = getElementInfo.AuthorID[1];
+		retStruct.ownerID = getElementInfo.OwnerID[1];
 		
 		// check if we want the values struct separated
 		if (arguments.separateValueStruct)

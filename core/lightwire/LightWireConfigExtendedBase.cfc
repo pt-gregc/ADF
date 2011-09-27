@@ -668,9 +668,9 @@ History:
 	History:
 		2011-01-21 - GAC - Created
 --->
-<cffunction name="doConfigBuildErrorLogging" access="public" returntype="void">
-	<cfargument name="methodName" type="string" required="false" default="GenericBuild">
-	<cfargument name="errorDetailsStruct" type="struct" required="false" default="#StructNew()#">
+<cffunction name="doConfigBuildErrorLogging" access="public" returntype="void" hint="Create a Log file for the given error and add the error struct to the Application.ADF.buildErrors Array">
+	<cfargument name="methodName" type="string" required="false" default="GenericBuild" hint="methodName to log">
+	<cfargument name="errorDetailsStruct" type="struct" required="false" default="#StructNew()#" hint="Error details to log">
 	<cfscript>
 		var dump = "";
 		var logFileName = dateFormat(now(), "yyyymmdd") & "." & request.site.name & ".ADF_" & arguments.methodName & "_Errors.htm";
