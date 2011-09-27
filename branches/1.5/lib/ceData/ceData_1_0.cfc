@@ -277,6 +277,7 @@ History:
 	2010-02-04 - MFC - Updated: Changed function to remove the query and make call
 							to CS Module deletefieldvalue.
 	2011-02-09 - RAK - Var'ing un-var'd variables
+	2011-09-26 - MFC - Updated logic to return false if user is not validated.
 --->
 <cffunction name="deleteCE" access="public" returntype="boolean">
 	<cfargument name="datapageidList" type="string" required="true">
@@ -305,13 +306,16 @@ History:
 								pageID="#currPageID#">
 				</cfloop>
 			</cfloop>
+			<!--- No problems, Return TRUE --->
+			<cfreturn true>
 		<cfcatch>
 			<!--- <cfdump var="#cfcatch#" label="cfcatch" expand="false"> --->
 			<cfreturn false>
 		</cfcatch>
 		</cftry>
 	</cfif>
-	<cfreturn true>
+	<!--- User didn't validate, return FALSE --->
+	<cfreturn false>
 </cffunction>
 
 <!---
