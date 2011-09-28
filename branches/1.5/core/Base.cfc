@@ -76,17 +76,18 @@ Author:
 	PaperThin, Inc.	
 	G. Cronkright
 Name:
-	getADFminorVersion
+	getDecimalADFVersion
 Summary:
-	Returns the the major and minor digits of the ADF Version
+	Returns the the major and minor digits of the ADF Version in decimal format
+		for comparing.
 Returns:
-	String - ADF Minor Version 
+	Numeric - ADF Decimal Version 
 Arguments:
 	Void
 History:
-	2011-09-27 - GAC - Created
+	2011-09-27 - GAC/MFC - Created
 --->
-<cffunction name="getADFminorVersion" access="public" returntype="string">
+<cffunction name="getDecimalADFVersion" access="public" returntype="numeric">
 	<cfscript>
 		var ADFversion = getADFversion();
 		var ADFmajor = ListGetAt(ADFversion,1,".");

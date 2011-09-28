@@ -109,6 +109,7 @@ History:
 		
 		// Adds the ADF version to the Application.ADF stuct
 		application.ADF.version = getADFversion();
+		application.ADF.decimalVersion = getDecimalADFVersion();
 		application.ADF.csVersion = getCSVersion();
 	</cfscript>
 </cffunction>
@@ -188,11 +189,11 @@ History:
 	2011-03-20 - RLW - Added support to load a "version" of library components
 	2011-04-06 - MFC - Uncommented the 'localLibKeys' variable to load for the site
 						LIB component overrides.
-	2011-09-27 - GAC - Replaced the getADFversion calls with getADFminorVersion so it will read the XML file even if extra version digits
+	2011-09-27 - GAC - Replaced the getADFversion calls with getDecimalADFVersion so it will read the XML file even if extra version digits
 						are added to the ADFvesrion variable
 --->
 <cffunction name="loadLibrary" access="private" returntype="void" hint="Loads the latest ADF library components into the application space">
-	<cfargument name="loadVersion" type="string" required="false" default="#getADFminorVersion()#" hint="Pass in the specific ADF version you would like to load">
+	<cfargument name="loadVersion" type="string" required="false" default="#getDecimalADFVersion()#" hint="Pass in the specific ADF version you would like to load">
 	<cfscript>
 		var libKeys = "";
 		var localLibKeys = "";
@@ -200,7 +201,7 @@ History:
 		var libVersions = structNew();
 		var thisComponent = "";
 		var thisComponentEasyName = "";
-		var ADFversion = getADFminorVersion();
+		var ADFversion = getDecimalADFVersion();
 
 		// Load the ADF Lib components
 		application.ADF.beanConfig.loadADFLibComponents("#request.site.csAppsURL#lib/", "", "application");
