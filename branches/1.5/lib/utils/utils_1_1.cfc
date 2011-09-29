@@ -639,4 +639,75 @@ History:
 	<cfreturn createUUID()>
 </cffunction> --->
 
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+	G. Cronkright
+Name:
+	$versionCompare
+Summary:
+	Compares two version strings and returns a comparison value (1,0, or -1)
+	Currently ONLY handles versions that contain Numbers and Dots (.) 
+	Will need some modifications to handle text (ie. beta) or dashes (-)
+	
+	Based on a code example from:
+	http://stackoverflow.com/questions/2365893/parsing-version-numbers-to-real-numbers
+Returns:
+	numeric
+Arguments:
+	String - versionA
+	String - versionB
+History:
+ 	2011-08-02 - GAC - Created
+--->
+ <cffunction name="versionCompare" access="public" returntype="numeric" hint="Compares two version strings and returns a comparison value (1,0, or -1)">
+	<cfargument name="versionA" type="string" required="true" default="" hint="First version string to compare">
+	<cfargument name="versionB" type="string" required="true" default="" hint="Second version string to compare">
+	<cfscript>
+		var arrayA = ListToArray(arguments.versionA,'.');
+	    var arrayB = ListToArray(arguments.versionB,'.');
+	    var lenA = ArrayLen(arrayA);
+	    var lenB = ArrayLen(arrayB);
+	    var a = 0;
+	    var i = 0;
+	    var itmA = '';
+	    var itmB = '';
+		// We need to make both Arrays equal length
+	    if ( lenA GT lenB )
+	    {
+	        // if A is greater add to B
+	        for ( a=lenB; a LT lenA; a=a+1 ) {
+	        	ArrayAppend(arrayB,0);
+	        }
+	    }
+	    else if ( lenB GT lenA )
+	    {
+	       	// if B is greater add to A
+	        for ( a=lenA; a LT lenB; a=a+1 ) {
+	        	ArrayAppend(arrayA,0);
+	        }
+	    }
+		// Loop over the versionA Array and compare each pair of A and B  
+	    for ( i=1; i LTE ArrayLen(arrayA); i=i+1 ) {
+	    	itmA = Val(arrayA[i]);
+	    	itmB = Val(arrayB[i]);
+	    	// if equal Move on the next item pair
+	        if (itmA NEQ itmB)
+	        {
+	            // Compare the item pair
+	            if (itmA GT itmB)
+	            {
+	                return 1;
+	            }
+	            else
+	            {
+	                return -1;
+	            }
+	        } 
+	    }
+    	return 0;
+	</cfscript>
+</cffunction>
+
 </cfcomponent>
