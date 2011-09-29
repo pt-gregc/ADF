@@ -86,14 +86,12 @@ Arguments:
 	Void
 History:
 	2011-09-27 - GAC/MFC - Created
+	2011-09-28 - GAC - Updated to use the VAL function to remove the version numbers after the minor version
 --->
 <cffunction name="getDecimalADFVersion" access="public" returntype="numeric">
 	<cfscript>
 		var ADFversion = getADFversion();
-		var ADFmajor = ListGetAt(ADFversion,1,".");
-		var ADFminor = ListGetAt(ADFversion,2,".");
-		// TODO: Maybe a slick regex way to get the first two version digits
-		return ADFmajor & "." & ADFminor;
+		return Val(ADFversion);
 	</cfscript>
 </cffunction>
 
