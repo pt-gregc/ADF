@@ -30,6 +30,7 @@ Version:
 	1.0.1
 History:
 	2009-07-08 - MFC - Created
+	2011-10-04 - GAC - Updated comment block headers
 --->
 <cfcomponent displayname="csSecurity_1_0" extends="ADF.core.Base" hint="Custom Element Data functions for the ADF Library">
 
@@ -38,9 +39,10 @@ History:
 <cfproperty name="wikiTitle" value="CSSecurity_1_0">
 
 <!---
-/* ***************************************************************
-/*
-Author: 	M. Carroll
+/* *************************************************************** */
+Author: 
+	PaperThin, Inc.	
+	M. Carroll
 Name:
 	$isValidContributor
 Summary:	
@@ -65,9 +67,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	M. Carroll
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.	
+	M. Carroll
 Name:
 	$isValidCPAdmin
 Summary:	
@@ -91,7 +94,9 @@ History:
 
 <!---
 /* *************************************************************** */
-Author: 	M. Carroll
+Author: 	
+	PaperThin, Inc.	
+	M. Carroll
 Name:
 	$validateProxy
 Summary:

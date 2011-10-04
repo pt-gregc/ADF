@@ -3,6 +3,7 @@
 <!-- // RLW 2011-06-24 - added csUpload to version 1.0 and version 1.5 -->
 <!-- // MFC 2011-09-19 - Removed CCAPI_1_1 updates. -->
 <!-- // RAK 2011-09-22 - Added CCAPI_1_0 stuff back in -->
+<!-- // GAC 2011-10-04 - Updated v1.5 csSecurity node to be set to csSecurity_1_1 -->
 <settings>
 	<v_1.0>
 		<!-- // ajax -->
@@ -56,7 +57,7 @@
 		<!-- // csData -->
 		<csData_1_1/>
 		<!-- // csSecurity -->
-		<csSecurity_1_0/>
+		<csSecurity_1_1/>
 		<!-- // data -->
 		<data_1_1/>
 		<!-- // date -->

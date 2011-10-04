@@ -34,6 +34,7 @@ History:
 	2011-03-11 - MFC - Added If condition to check if subsiteURL is defined in request.params and has a value.
 						Changed loadSiteAppSpace function to 'public' access.
 	2011-03-19 - RLW - Moved the conditional logic of url scope check up because left panels don't have request.params until after Application.cfm executes
+	2011-10-04 - GAC - Updated getBean csSecurity call to reference csSecurity_1_1
 --->
 <cfcomponent>
 	
@@ -51,7 +52,7 @@ History:
 			else if( structKeyExists(request.params, "subsiteURL") AND LEN(request.params.subsiteURL) ) // Check if subsiteURL is defined in request.params and has a value.
 				loadSiteAppSpace(request.params.subsiteURL);
 			// Verify the security for the logged in user
-			if ( NOT server.ADF.objectFactory.getBean("csSecurity_1_0").isValidContributor() )
+			if ( NOT server.ADF.objectFactory.getBean("csSecurity_1_1").isValidContributor() )
 				server.ADF.objectFactory.getBean("utils_1_0").abort();
 		</cfscript>
 		
