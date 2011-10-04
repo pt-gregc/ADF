@@ -98,7 +98,7 @@ Arguments:
 	NA
 History:
 	2011-10-04 - GAC - Created
-	2011-10-04 - GAC - Used the ListUnion function to merge method lists from multiple versions of a lib component
+	2011-10-04 - GAC - Replace a list loop with the ListUnion function to merge method lists from multiple versions of a lib component
 ---> 
 <cffunction name="buildProxyWithoutBeanVersions" access="public" returntype="struct" output="true" hint="Returns a Proxy White List structure with the versions suffixes striped from the bean names.">
 	<cfscript>
@@ -107,7 +107,6 @@ History:
 		var key = "";
 		var newKey = "";
 		var newMethodList = "";
-		//var combinedMethodList = "";
 		var i = 0;
 		var newItem = "";
 		// Loop over proxyWhiteList Structure
