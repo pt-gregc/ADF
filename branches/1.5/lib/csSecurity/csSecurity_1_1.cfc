@@ -35,6 +35,7 @@ History:
 
 <cfproperty name="version" value="1_1_0">
 <cfproperty name="type" value="singleton">
+<cfproperty name="data" type="dependency" injectedBean="data_1_1">
 <cfproperty name="wikiTitle" value="CSSecurity_1_1">
 
 <!---
@@ -97,6 +98,7 @@ Arguments:
 	NA
 History:
 	2011-10-04 - GAC - Created
+	2011-10-04 - GAC - Used the ListUnion function to merge method lists from multiple versions of a lib component
 ---> 
 <cffunction name="buildProxyWithoutBeanVersions" access="public" returntype="struct" output="true" hint="Returns a Proxy White List structure with the versions suffixes striped from the bean names.">
 	<cfscript>
@@ -105,7 +107,7 @@ History:
 		var key = "";
 		var newKey = "";
 		var newMethodList = "";
-		var combinedMethodList = "";
+		//var combinedMethodList = "";
 		var i = 0;
 		var newItem = "";
 		// Loop over proxyWhiteList Structure
@@ -117,14 +119,8 @@ History:
 			// If a pruned struct key already exists in the new proxy struct add the unique methods to the existing methods list
 			if ( StructKeyExists(retStruct,newKey) )
 			{
-				combinedMethodList = retStruct[newKey];
-				// Loop over the new methods list that may need to added to the combined methods list
-				for ( i=1; i LTE ListLen(newMethodList); i=i+1 ){
-					newItem = ListGetAt(newMethodList,i);
-					if ( ListFindNoCase(combinedMethodList,newItem) EQ 0 )
-						combinedMethodList = ListAppend(combinedMethodList,newItem);						
-				}			
-				retStruct[newKey] = combinedMethodList;	
+				// Combine the new methods list with the current methods list for the new struct key			
+				retStruct[newKey] = variables.data.listUnion(retStruct[newKey],newMethodList);	
 			}
 			else
 			{
