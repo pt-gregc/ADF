@@ -106,24 +106,21 @@ History:
 		var retStruct = StructNew();
 		var key = "";
 		var newKey = "";
-		var newMethodList = "";
 		var i = 0;
 		var newItem = "";
 		// Loop over proxyWhiteList Structure
 		for ( key IN proxyStruct ){
 			// Create the new StuctKey without the version suffix
 			newKey = ListFirst(key,"_");
-			// Get the list of methods that belong to that original Stuct Key
-			newMethodList = proxyStruct[key];
 			// If a pruned struct key already exists in the new proxy struct add the unique methods to the existing methods list
 			if ( StructKeyExists(retStruct,newKey) )
 			{
 				// Combine the new methods list with the current methods list for the new struct key			
-				retStruct[newKey] = variables.data.listUnion(retStruct[newKey],newMethodList);	
+				retStruct[newKey] = variables.data.listUnion(retStruct[newKey],proxyStruct[key]);	
 			}
 			else
 			{
-				retStruct[newKey] = newMethodList;
+				retStruct[newKey] = proxyStruct[key];
 			}	
 		}
 		return retStruct;
