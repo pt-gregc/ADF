@@ -32,18 +32,47 @@ Version:
 History:
 	2010-11-30 - RAK - Created
 	2011-09-17 - GAC - Added checks to each method to verify that the application.schedule variable exists
+	2011-09-26 - GAC - Updated application.schedule to be application.ADFscheduler 
+	2011-09-27 - GAC - Added the UTILS and SCRIPTS LIBs as a dependencies and converted all application.ADF references to the local 'variables.'. 
 --->
 <cfcomponent displayname="scheduler_1_0" extends="ADF.core.Base" hint="Scheduler base for the ADF">
 	
 <cfproperty name="version" value="1_0_0">
 <cfproperty name="type" value="singleton">
+<cfproperty name="scripts" injectedBean="scripts_1_1" type="dependency">
+<cfproperty name="utils" type="dependency" injectedBean="utils_1_1">
 <cfproperty name="wikiTitle" value="Scheduler_1_0">
 
 <cfscript>
-	// Verify the schedule structure exists
-	if ( !StructKeyExists(application,"schedule") )
-		application.schedule = StructNew();
+	// Verify the application.ADFscheduler structure exists
+	if ( !StructKeyExists(application,"ADFscheduler") )
+		application.ADFscheduler = StructNew();
 </cfscript>
+
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+	G. Cronkright
+Name:
+	$getSchedulerVars
+Summary:
+	Returns the schedule data structure that is stored in the application.ADFscheduler variable
+Returns:
+	struct
+Arguments:
+	NA
+History:
+	2011-09-26 - GAC - Created
+--->
+<cffunction name="getSchedulerVars" access="public" returntype="struct" hint="Returns the schedule data that is stored in the application.ADFscheduler variable">
+	<cfscript>
+		// Verify the schedule structure exists
+		if ( !StructKeyExists(application,"ADFscheduler") )
+			application.ADFscheduler = StructNew();
+		return application.ADFscheduler;
+	</cfscript>
+</cffunction>
 
 <!---
 /* *************************************************************** */
@@ -70,6 +99,7 @@ History:
 	2011-09-16 - MFC - Added param to delay running the scheduled task immediately.
 						Default is set to TRUE.
 	2011-09-17 - GAC - Added a check to verify that application.schedule variable exists
+	2011-09-26 - GAC - Updated application.schedule to be application.ADFscheduler 
 --->
 <cffunction name="scheduleProcess" access="public" returntype="void" hint="The main process for scheduling a bunch of commands to be processed. When a process is scheduled it begins immediately.">
 	<cfargument name="scheduleName" type="string" required="true" hint="Unique name for the schedule you want to run">
@@ -84,35 +114,39 @@ History:
 		defaultScheduleParams.scheduleStart = 1; //Where in the command list to start processing
 		defaultScheduleParams.scheduleStop = ArrayLen(commands); //When to stop processing (say stop at position 11)
 		//Override defaults with passed in values
-		if(!StructIsEmpty(arguments.scheduleParams)){
+		if( !StructIsEmpty(arguments.scheduleParams) )
+		{
 			for(key in arguments.scheduleParams){
-				if(StructKeyExists(defaultScheduleParams,key)){
+				if(StructKeyExists(defaultScheduleParams,key))
+				{
 					defaultScheduleParams[key] = arguments.scheduleParams[key];
-				}else{
+				}
+				else
+				{
 					//Invalid parameters passed in... throw error in the future?
 				}
 			}
 		}
 		
 		// Verify the schedule structure exists
-		if ( !StructKeyExists(application,"schedule") )
-			application.schedule = StructNew();	
+		if( !StructKeyExists(application,"ADFscheduler") )
+			application.ADFscheduler = StructNew();	
 		
 		//Verify the schedule exists, if it does wipe it out
-		if ( !StructKeyExists(application.schedule,arguments.scheduleName))
+		if( !StructKeyExists(application.ADFscheduler,arguments.scheduleName) )
 		{
-			StructInsert(application.schedule,arguments.scheduleName,StructNew() );
+			StructInsert(application.ADFscheduler,arguments.scheduleName,StructNew() );
 		}
 		else
 		{
-			application.schedule[arguments.scheduleName] = StructNew();
+			application.ADFscheduler[arguments.scheduleName] = StructNew();
 		}
 		
 		//Set schedule
-		application.schedule[arguments.scheduleName].commands = arguments.commands;
-		application.schedule[arguments.scheduleName].scheduleParams = defaultScheduleParams;
-		application.schedule[arguments.scheduleName].status = "active";
-		application.schedule[arguments.scheduleName].scheduleProgress = defaultScheduleParams.scheduleStart;
+		application.ADFscheduler[arguments.scheduleName].commands = arguments.commands;
+		application.ADFscheduler[arguments.scheduleName].scheduleParams = defaultScheduleParams;
+		application.ADFscheduler[arguments.scheduleName].status = "active";
+		application.ADFscheduler[arguments.scheduleName].scheduleProgress = defaultScheduleParams.scheduleStart;
 		
 		// Check if want to start the procecing now or set the schedule
 		if ( arguments.startProcessNow ) 
@@ -128,8 +162,7 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author:
 	PaperThin, Inc.
 	Ryan Kahn
@@ -146,6 +179,9 @@ History:
 	2011-01-13 - GAC - Modified - Updated to add the date string and the site name to the schedule task output log file
 	2011-02-09 - RAK - Var'ing un-var'd variables
 	2011-09-17 - GAC - Added a check to verify that application.schedule variable exists
+	2011-09-26 - GAC - Updated application.schedule to be application.ADFscheduler 
+	2011-09-27 - GAC - Added a call to delete the CF Scheduled Task after process is marked as 'complete'
+					   Converted application.ADF references to the local 'variables.'. 
 --->
 <cffunction name="processNextScheduleItem" access="public" returntype="boolean" hint="Executes the next item in the schedule. If there are no more it marks the schedule as ran.">
 	<cfargument name="scheduleName" type="string" required="true" hint="Unique name for the schedule you want to run">
@@ -160,12 +196,12 @@ History:
 		var schedLogFileName = logFilePrefix & "scheduledStatus-" & arguments.scheduleName & ".html";
 		
 		// Verify the schedule structure exists
-		if ( !StructKeyExists(application,"schedule") )
-			application.schedule = StructNew();
+		if ( !StructKeyExists(application,"ADFscheduler") )
+			application.ADFscheduler = StructNew();
 	</cfscript>
 	
-	<cfif StructKeyExists(application.schedule,arguments.scheduleName)>
-		<cfset currentSchedule = application.schedule[arguments.scheduleName]>
+	<cfif StructKeyExists(application.ADFscheduler,arguments.scheduleName)>
+		<cfset currentSchedule = application.ADFscheduler[arguments.scheduleName]>
 		<!---
 			If the schedule is active, there are further things to do. And we have not hit the stop point yet.
 			Continue with the schedule
@@ -175,7 +211,7 @@ History:
 				and currentSchedule.status eq "active">
 			<cfscript>
 				//Log the scheduled process start
-				application.ADF.utils.logAppend("Scheduled process started '#arguments.scheduleName#' Progress: #currentSchedule.scheduleProgress#/#ArrayLen(currentSchedule.commands)#","scheduledProcess-#arguments.scheduleName#.txt");
+				variables.utils.logAppend("Scheduled process started '#arguments.scheduleName#' Progress: #currentSchedule.scheduleProgress#/#ArrayLen(currentSchedule.commands)#","scheduledProcess-#arguments.scheduleName#.txt");
 			</cfscript>
 
 <!---				Execute the next scheduled item. AKA execute the next cfhttp or bean call--->
@@ -188,14 +224,18 @@ History:
 					<cfscript>
 						if(isStruct(currentCommand)
 								and StructKeyExists(currentCommand,"bean")
-								and StructKeyExists(currentCommand,"method")){
-							if(!StructKeyExists(currentCommand,"args")){
+								and StructKeyExists(currentCommand,"method"))
+						{
+							if(!StructKeyExists(currentCommand,"args"))
+							{
 								currentCommand.args = "";
 							}
-							application.ADF.utils.runCommand(currentCommand.bean,currentCommand.method,currentCommand.args);
-						}else{
-                   			errorScheduleItem = Application.ADF.utils.doDump(currentCommand,"Failed Schedule Item","false",true);
-							application.ADF.utils.logAppend("Scheduled process error '#arguments.scheduleName#'. Schedule item missing struct key 'bean' or 'method' while processing Schedule Item:<br/> '#errorScheduleItem#'<br/><br/>","scheduledProcess-#arguments.scheduleName#.html");
+							variables.utils.runCommand(currentCommand.bean,currentCommand.method,currentCommand.args);
+						}
+						else
+						{
+                   			errorScheduleItem = variables.utils.doDump(currentCommand,"Failed Schedule Item","false",true);
+							variables.utils.logAppend("Scheduled process error '#arguments.scheduleName#'. Schedule item missing struct key 'bean' or 'method' while processing Schedule Item:<br/> '#errorScheduleItem#'<br/><br/>","scheduledProcess-#arguments.scheduleName#.html");
                    		}
 					</cfscript>
 				</cfif>
@@ -206,10 +246,10 @@ History:
 					<cfdump var="#cfcatch#" expand="false">
 				</cfsavecontent>
 				<cfscript>
-					errorScheduleItem = Application.ADF.utils.doDump(currentSchedule.commands[currentSchedule.scheduleProgress],"Failed Schedule Item","false",true);
-					application.ADF.utils.logAppend("Scheduled process error '#arguments.scheduleName#' while processing Schedule Item:<br/> '#errorScheduleItem#'<br/><br/>","scheduledProcess-#arguments.scheduleName#.html");
-					application.schedule[arguments.scheduleName].status = "failure";
-					application.ADF.utils.logAppend("#cfcatchDump#","scheduledProcessFailure-#arguments.scheduleName#.html");
+					errorScheduleItem = variables.utils.doDump(currentSchedule.commands[currentSchedule.scheduleProgress],"Failed Schedule Item","false",true);
+					variables.utils.logAppend("Scheduled process error '#arguments.scheduleName#' while processing Schedule Item:<br/> '#errorScheduleItem#'<br/><br/>","scheduledProcess-#arguments.scheduleName#.html");
+					application.ADFscheduler[arguments.scheduleName].status = "failure";
+					variables.utils.logAppend("#cfcatchDump#","scheduledProcessFailure-#arguments.scheduleName#.html");
 					return false;
 				</cfscript>
 			</cfcatch>
@@ -217,29 +257,37 @@ History:
 
 			<cfscript>
 				//Horray! The scheduled process finished. Log it, increment the progress.
-				application.ADF.utils.logAppend("Scheduled process complete. '#arguments.scheduleName#' Progress: #currentSchedule.scheduleProgress#/#ArrayLen(currentSchedule.commands)#","scheduledProcess-#arguments.scheduleName#.txt");
+				variables.utils.logAppend("Scheduled process complete. '#arguments.scheduleName#' Progress: #currentSchedule.scheduleProgress#/#ArrayLen(currentSchedule.commands)#","scheduledProcess-#arguments.scheduleName#.txt");
 				currentSchedule.scheduleProgress = currentSchedule.scheduleProgress + 1;
 				if(currentSchedule.scheduleProgress gt ArrayLen(currentSchedule.commands)){
-					application.ADF.utils.logAppend("Scheduled complete '#arguments.scheduleName#'","scheduledProcess-#arguments.scheduleName#.txt");
+					variables.utils.logAppend("Scheduled complete '#arguments.scheduleName#'","scheduledProcess-#arguments.scheduleName#.txt");
 					currentSchedule.status = "complete";
+					// Delete CF Scheduled Task to Clean up when the Process has completed
+					variables.utils.deleteScheduledTask(taskName=arguments.scheduleName);
+					variables.utils.logAppend("CF Scheduled Task '#arguments.scheduleName#' has been removed!","scheduledProcess-#arguments.scheduleName#.txt");
 					return true;
 				}
 				//If this is a batch process do batchyness.
 				if( currentSchedule.scheduleParams.tasksPerBatch gt 1 and
-					currentSchedule.scheduleProgress mod currentSchedule.scheduleParams.tasksPerBatch - 1 neq 0 ) {
+					currentSchedule.scheduleProgress mod currentSchedule.scheduleParams.tasksPerBatch - 1 neq 0 ) 
+				{
 					processNextScheduleItem(arguments.scheduleName);
-				}else{
+				}
+				else
+				{
 					scheduleURL = "http://#cgi.server_name#:#cgi.server_port##application.ADF.ajaxProxy#?bean=scheduler_1_0&method=processNextScheduleItem&scheduleName=#arguments.scheduleName#";
 					//Schedule the next task
-					application.ADF.utils.setScheduledTask(scheduleURL,arguments.scheduleName,schedLogFileName,currentSchedule.scheduleParams.delay); //"ScheduledTaskError-#arguments.scheduleName#.html"
+					variables.utils.setScheduledTask(scheduleURL,arguments.scheduleName,schedLogFileName,currentSchedule.scheduleParams.delay); //"ScheduledTaskError-#arguments.scheduleName#.html"
 				}
 			</cfscript>
 		<cfelse>
 <!---				The schedule is complete! Make it so... --->
 			<cfscript>
-				if(currentSchedule.scheduleProgress gt currentSchedule.scheduleParams.scheduleStop){
-					application.ADF.utils.logAppend("Scheduled complete '#arguments.scheduleName#' stopping at position: #currentSchedule.scheduleProgress-1#/#ArrayLen(currentSchedule.commands)#","scheduledProcess-#arguments.scheduleName#.txt");
+				if(currentSchedule.scheduleProgress gt currentSchedule.scheduleParams.scheduleStop)
+				{
+					variables.utils.logAppend("Scheduled complete '#arguments.scheduleName#' stopping at position: #currentSchedule.scheduleProgress-1#/#ArrayLen(currentSchedule.commands)#","scheduledProcess-#arguments.scheduleName#.txt");
 					currentSchedule.status = "complete";
+					
 					return true;
 				}
 			</cfscript>
@@ -249,8 +297,7 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author:
 	PaperThin, Inc.
 	Ryan Kahn
@@ -264,7 +311,8 @@ Arguments:
 	String - scheduleName
 History:
 	2010-11-30 - RAK - Created
-	2011-07-06 - GAC - Added a check to verify that application.schedule variable exists
+	2011-09-17 - GAC - Added a check to verify that application.schedule variable exists
+	2011-09-26 - GAC - Updated application.schedule to be application.ADFscheduler 
 --->
 <cffunction name="getScheduleStatus" access="public" returntype="struct" hint="Returns a structure representative of the current status of a given schedule.">
 	<cfargument name="scheduleName" type="string" required="true" hint="Unique name for the schedule you want to run">
@@ -276,14 +324,14 @@ History:
 		rtnStruct.totalTasks = -1;
 		rtnStruct.status = "nonexistant";
 		
-		// Verify the schedule structure exists
-		if(!StructKeyExists(application,"schedule"))
-			application.schedule = StructNew();
+		// Verify the scheduler structure exists
+		if( !StructKeyExists(application,"ADFscheduler") )
+			application.ADFscheduler = StructNew();
 
 		//if there is an existing schedule get its current status information and return it!
-		if ( StructKeyExists(application.schedule,arguments.scheduleName) )
+		if ( StructKeyExists(application.ADFscheduler,arguments.scheduleName) )
 		{
-			currentSchedule = application.schedule[arguments.scheduleName];
+			currentSchedule = application.ADFscheduler[arguments.scheduleName];
 			rtnStruct.currentTask = currentSchedule.scheduleProgress-1;
 			rtnStruct.totalTasks = ArrayLen(currentSchedule.commands);
 			rtnStruct.status = currentSchedule.status;
@@ -294,8 +342,7 @@ History:
 </cffunction>	
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author:
 	PaperThin, Inc.
 	Ryan Kahn
@@ -310,18 +357,19 @@ Arguments:
 History:
 	2010-11-30 - RAK - Created
 	2011-09-17 - GAC - Added a check to verify that application.schedule variable exists
+	2011-09-26 - GAC - Updated application.schedule to be application.ADFscheduler 
 --->
 <cffunction name="pauseSchedule" access="public" returntype="boolean" hint="Pauses passed in schedule name.">
 	<cfargument name="scheduleName" type="string" required="true" hint="Unique name for the schedule you want to run">
 	<cfscript>
 		// Verify the schedule structure exists
-		if ( !StructKeyExists(application,"schedule") )
-			application.schedule = StructNew();
+		if ( !StructKeyExists(application,"ADFscheduler") )
+			application.ADFscheduler = StructNew();
 		
-		if ( StructKeyExists(application.schedule,arguments.scheduleName) and
-			application.schedule[arguments.scheduleName].status == "active" ) 
+		if ( StructKeyExists(application.ADFscheduler,arguments.scheduleName) and
+			application.ADFscheduler[arguments.scheduleName].status == "active" ) 
 		{
-			application.schedule[arguments.scheduleName].status = "paused";
+			application.ADFscheduler[arguments.scheduleName].status = "paused";
 			return true;
 		}
 	</cfscript>
@@ -344,20 +392,21 @@ Arguments:
 History:
 	2010-11-30 - RAK - Created
 	2011-09-17 - GAC - Added a check to verify that application.schedule variable exists
+	2011-09-26 - GAC - Updated application.schedule to be application.ADFscheduler 
 --->
 <cffunction name="resumeSchedule" access="public" returntype="boolean" hint="Resumes a previously paused schedule.">
 	<cfargument name="scheduleName" type="string" required="true" hint="Unique name for the schedule you want to run">
 	<cfscript>
 		// Verify the schedule structure exists
-		if ( !StructKeyExists(application,"schedule") )
-			application.schedule = StructNew();
+		if ( !StructKeyExists(application,"ADFscheduler") )
+			application.ADFscheduler = StructNew();
 		
 		//If the schedule exists, is paused and has remaining arguments resume it.
-		if ( StructKeyExists(application.schedule,arguments.scheduleName) and
-			application.schedule[arguments.scheduleName].status == "paused" and
-			ArrayLen(application.schedule[arguments.scheduleName].commands) gte application.schedule[arguments.scheduleName].scheduleProgress ) 
+		if ( StructKeyExists(application.ADFscheduler,arguments.scheduleName) and
+			application.ADFscheduler[arguments.scheduleName].status == "paused" and
+			ArrayLen(application.ADFscheduler[arguments.scheduleName].commands) GTE application.ADFscheduler[arguments.scheduleName].scheduleProgress ) 
 		{
-			application.schedule[arguments.scheduleName].status = "active";
+			application.ADFscheduler[arguments.scheduleName].status = "active";
 			processNextScheduleItem(arguments.scheduleName);
 			return true;
 		}
@@ -366,8 +415,7 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author:
 	PaperThin, Inc.
 	Ryan Kahn
@@ -383,6 +431,8 @@ History:
 	2010-11-30 - RAK - Created
 	2011-02-09 - RAK - Var'ing un-var'd variables
 	2011-09-17 - GAC - Added a check to verify that application.schedule variable exists
+	2011-09-26 - GAC - Updated application.schedule to be application.ADFscheduler 
+	2011-09-27 - GAC - Converted application.ADF references to the local 'variables.'. 
 --->
 <cffunction name="getScheduleHTML" access="public" returntype="string" hint="Returns the management HTML for the specified schedule name.">
 	<cfargument name="scheduleName" type="string" required="true" hint="Unique name for the schedule you want to run">
@@ -392,20 +442,20 @@ History:
 		var rtnHTML = '';
 		
 		// Verify the schedule structure exists
-		if ( !StructKeyExists(application,"schedule") )
-			application.schedule = StructNew();
+		if ( !StructKeyExists(application,"ADFscheduler") )
+			application.ADFscheduler = StructNew();
 	</cfscript> 
 	<cfsavecontent variable="rtnHTML">
 		<cfoutput>
-			<cfif !StructKeyExists(application.schedule,arguments.scheduleName)>
+			<cfif !StructKeyExists(application.ADFscheduler,arguments.scheduleName)>
 				Schedule does not exist.
 			<cfelse>
-				<cfset currentSchedule = application.schedule[arguments.scheduleName]>
+				<cfset currentSchedule = application.ADFscheduler[arguments.scheduleName]>
 				<cfset scheduleID = "schedule"&Replace(scheduleName," ","","all")>
-				#application.ADF.scripts.loadJQuery()#
-				#application.ADF.scripts.loadJQueryUI()#
+				#variables.scripts.loadJQuery()#
+				#variables.scripts.loadJQueryUI()#
 				<script type="text/javascript">
-					jQuery(document).ready(function (){
+					jQuery(function (){
 						jQuery("###scheduleID# .progressBar").progressbar({ value: #currentSchedule.scheduleProgress/ArrayLen(currentSchedule.commands)*100# });
 						updateSchedule('#scheduleID#');
 					});
@@ -500,7 +550,7 @@ Summary:
 Returns:
 	Array
 Arguments:
-	None
+	String - taskNameFilter
 History:
 	2010-12-21 - GAC - Added
 	2010-12-21 - GAC - Modified - Added task name filter
@@ -544,14 +594,15 @@ Summary:
 Returns:
 	Boolean
 Arguments:
-	string
+	string scheduleName
 History:
 	2011-08-29 - MFC - Created
 	2011-09-17 - GAC - Added a check to verify that application.schedule variable exists
+	2011-09-26 - GAC - Updated application.schedule to be application.ADFscheduler 
+	2011-09-27 - GAC - Converted application.ADF references to the local 'variables.'. 
 --->
 <cffunction name="setSchedule" access="private" returntype="boolean" output="true" hint="Sets the scheduled task">
 	<cfargument name="scheduleName" type="string" required="true" hint="Unique name for the schedule you want to run">
-	
 	<cfscript>
 		var scheduleURL = "http://#cgi.server_name#:#cgi.server_port##application.ADF.ajaxProxy#?bean=scheduler_1_0&method=processNextScheduleItem&scheduleName=#arguments.scheduleName#";
 		var logFilePrefix = dateFormat(now(), "yyyymmdd") & "." & request.site.name & ".";
@@ -559,23 +610,60 @@ History:
 		var currentSchedule = "";
 	
 		// Verify the schedule structure exists
-		if ( !StructKeyExists(application,"schedule") )
-			application.schedule = StructNew();
+		if ( !StructKeyExists(application,"ADFscheduler") )
+			application.ADFscheduler = StructNew();
 
-		try {	
+		try 
+		{	
 			// Check if the schedule exists
-			if ( StructKeyExists(application.schedule,arguments.scheduleName) ){
-				currentSchedule = application.schedule[arguments.scheduleName];
+			if ( StructKeyExists(application.ADFscheduler,arguments.scheduleName) )
+			{
+				currentSchedule = application.ADFscheduler[arguments.scheduleName];
 			}
 			
 			// Schedule the task within CF
-			application.ADF.utils.setScheduledTask(scheduleURL,arguments.scheduleName,schedLogFileName,currentSchedule.scheduleParams.delay); //"ScheduledTaskError-#arguments.scheduleName#.html"
+			variables.utils.setScheduledTask(scheduleURL,arguments.scheduleName,schedLogFileName,currentSchedule.scheduleParams.delay); //"ScheduledTaskError-#arguments.scheduleName#.html"
 			
 			return true;
 		}
-		catch ( Any e ){
-			//application.ADF.utils.dodump(e,"e", true);
+		catch ( Any e )
+		{
+			//variables.utils.dodump(e,"e", true);
 			return false;
+		}
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+	Greg Cronkright
+Name:
+	$deleteSchedulerVar
+Summary:
+	Deletes a specific schedule struct key in the scheduler Application variable
+Returns:
+	Boolean
+Arguments:
+	String scheduleName - Key of the Scheduler Struct Application Variable 
+History:
+	2011-09-27 - GAC - Created
+--->
+<cffunction name="deleteSchedulerVar" returntype="boolean" output="no" access="public" hint="Deletes a specific schedule struct key in the scheduler Application variable">
+	<cfargument name="scheduleName" type="string" required="true" hint="Name of the Schedule variable to be deleted">
+	<cfscript>
+		// Verify the schedule structure exists
+		if ( !StructKeyExists(application,"ADFscheduler") )
+			application.ADFscheduler = StructNew();
+		try 
+		{
+    		StructDelete(application.ADFscheduler, arguments.scheduleName, false);
+    		return true;
+		}
+		catch(Any e) 
+		{
+    		return false;
 		}
 	</cfscript>
 </cffunction>

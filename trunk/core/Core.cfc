@@ -38,10 +38,10 @@ History:
 <cfcomponent name="Core" hint="Core component for Application Development Framework">
 
 <cfproperty name="version" value="1_5_0">
-<cfproperty name="svnRevision" value="618">
+<cfproperty name="svnRevision" value="630">
 
 <cfscript>
-	variables.ADFversion = "1.5"; // use a dot delimited version number
+	variables.ADFversion = "1.5.0"; // use a dot delimited version number
 	// CS product version, get the decimal value
 	variables.csVersion = Val(ListLast(request.cp.productversion, " "));
 </cfscript>
@@ -72,40 +72,42 @@ History:
 </cffunction>
 
 <!---
-	/* *************************************************************** */
-	Author: 	M. Carroll
-	Name:
-		getADFMapping
-	Summary:
-		Returns the hard-coded ADF mapping for the server
-		
-		Used primarily for importing custom element, metadata forms, and 
-			custom field types.
-	Returns:
-		String - ADF Mapping
-	Arguments:
-		Void
-	History:
-		2009-07-23 - MFC - Created
+/* *************************************************************** */
+Author: 	M. Carroll
+Name:
+	getADFMapping
+Summary:
+	Returns the hard-coded ADF mapping for the server
+	
+	Used primarily for importing custom element, metadata forms, and 
+		custom field types.
+Returns:
+	String - ADF Mapping
+Arguments:
+	Void
+History:
+	2009-07-23 - MFC - Created
 --->
 <cffunction name="getADFMapping" access="public" returntype="string">
 	<cfreturn "/ADF/">
 </cffunction>
 
 <!---
-	/* *************************************************************** */
-	Author: 	G. Cronkright
-	Name:
-		getADFversion
-	Summary:
-		Returns the ADF Version
-	Returns:
-		String - ADF Version
-	Arguments:
-		Void
-	History:
-		2011-01-20 - GAC - Created
-		2011-02-09 - GAC - Removed self-closing cfreturn slash
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	G. Cronkright
+Name:
+	getADFversion
+Summary:
+	Returns the ADF Version
+Returns:
+	String - ADF Version
+Arguments:
+	Void
+History:
+	2011-01-20 - GAC - Created
+	2011-02-09 - GAC - Removed self-closing cfreturn slash
 --->
 <cffunction name="getADFversion" access="public" returntype="string">
 	<cfreturn variables.ADFversion>
