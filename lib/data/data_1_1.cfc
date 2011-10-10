@@ -38,13 +38,14 @@ History:
 <cfproperty name="wikiTitle" value="Data_1_1">
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Dave Merril
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Dave Merril
 Name:
 	$queryRowToStruct
 Summary:
-	Returns a struct w requested data from a requested query row.
+	Returns a struct with requested data from a requested query row.
 Returns:
 	Struct
 Arguments:
@@ -79,8 +80,7 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author:
 	PaperThin, Inc.
 	Ryan Kahn
@@ -93,7 +93,7 @@ Returns:
 Arguments:
 
 History:
- 	Dec 1, 2010 - RAK - Created
+ 	2010-12-01 - RAK - Created
 --->
 <cffunction name="arrayOfStructToXML" access="public" returntype="xml" hint="Given an array of structures return an xml version">
 	<cfargument name="arrayOfStruct" type="array" required="true" default="" hint="Array of structures to be converted to XML data">
@@ -112,21 +112,24 @@ History:
 
 <!---
 /* *************************************************************** */
-	From CFLib on 2/18/2011 [GAC]
+From CFLib on 2/18/2011 [GAC]
 
-	This function takes URLs in a text string and turns them into links.
-	Version 2 by Lucas Sherwood, lucas@thebitbucket.net.
-	Version 3 Updated to allow for ;
-	
-	@param strText      	Text to parse. (Required)
-	@param target      		Optional target for links. Defaults to "". (Optional)
-	@param paragraph      	Optionally add paragraphFormat to returned string. (Optional)
-	@return Returns a string.
-	@author Joel Mueller (lucas@thebitbucket.netjmueller@swiftk.com)
-	@version 3, August 11, 2004
-	
-	History:
-		2011-02-09 - GAC - Added
+Name:
+	$activateURL
+
+This function takes URLs in a text string and turns them into links.
+Version 2 by Lucas Sherwood, lucas@thebitbucket.net.
+Version 3 Updated to allow for ;
+
+@param strText      	Text to parse. (Required)
+@param target      		Optional target for links. Defaults to "". (Optional)
+@param paragraph      	Optionally add paragraphFormat to returned string. (Optional)
+@return Returns a string.
+@author Joel Mueller (lucas@thebitbucket.netjmueller@swiftk.com)
+@version 3, August 11, 2004
+
+History:
+	2011-02-09 - GAC - Added
 --->
 <cffunction name="activateURL" access="public" returntype="string" hint="Takes urls in a text string and turns them into links">
 	<cfargument name="strText" type="string" required="false" default="" hint="A text string to search through for URLs">
@@ -188,7 +191,11 @@ History:
 </cffunction>
 
 <!---
+/* *************************************************************** */
 From CFLib on 2011-03-10 [RAK]
+
+Name:
+	$feedToQuery
 
 Converts an RSS 0.9+, ATOM or RDF feed into a query.
 
@@ -367,7 +374,8 @@ History:
 
 <!---
 /* *************************************************************** */
-Author: 	Ben Nadel
+Author: 	
+	Ben Nadel
 Name:
 	$queryAppend
 Summary:
@@ -779,6 +787,56 @@ History:
 --->
 <cffunction name="makeUUID" access="public" returntype="uuid" hint="Creates a UUID to return back via ajaxPRoxy">
 	<cfreturn createUUID()>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+From CFLib on 10/04/2011 [GAC]
+
+Name:
+	$listUnion
+
+This function combines two lists, automatically removing duplicate values. 
+Allows for optional delimiters for all lists. Also allows for optional sort type and sort order
+
+@param List1      First list of delimited values. 
+	@param List2      Second list of delimited values. 
+	@param Delim1      Delimiter used for List1.  Default is the comma. 
+	@param Delim2      Delimiter used for List2.  Default is the comma. 
+	@param Delim3      Delimiter to use for the list returned by the function.  Default is the comma. 
+	@param SortType      Type of sort:  Text or Numeric.  The default is Text. 
+	@param SortOrder      Asc for ascending, DESC for descending.  Default is Asc 
+	@return Returns a string. 
+
+@author Rob Brooks-Bilson (rbils@amkor.com) 
+	@version 1, November 14, 2001 
+
+History:
+	2011-10-04 - GAC - Added
+--->
+<cffunction name="listUnion" access="public" returntype="string" hint="This function combines two lists, automatically removing duplicate values. Allows for optional delimiters for all lists. Also allows for optional sort type and sort order">
+	<cfargument name="list1" type="string" required="false" default="" hint="First list of delimited values.">
+	<cfargument name="list2" type="string" required="false" default="" hint="Second list of delimited values.">
+	<cfargument name="delim1" type="string" required="false" default="," hint="Delimiter used for List1. Default is the comma.">
+	<cfargument name="delim2" type="string" required="false" default="," hint="Delimiter used for List2. Default is the comma.">
+	<cfargument name="delim3" type="string" required="false" default="," hint="Delimiter to use for the list returned by the function. Default is the comma.">
+	<cfargument name="sortType" type="string" required="false" default="text" hint="Type of sort:  text or numeric. Default is text.">
+	<cfargument name="sortOrder" type="string" required="false" default="ASC" hint="ASC for ascending, DESC for descending. Default is ASC.">
+	<cfscript>
+	 	var TempList = "";
+		var CombinedList = "";  
+		var i = 0;
+		// Combine list 1 and list 2 with the proper delimiter
+		CombinedList = ListChangeDelims(arguments.List1, arguments.Delim3, arguments.Delim1) & arguments.Delim3 &  ListChangeDelims(arguments.List2, arguments.Delim3, arguments.Delim2);
+		// Strip duplicates if indicated
+		for (i=1; i LTE ListLen(CombinedList, arguments.Delim3); i=i+1) {
+		    if (NOT ListFindNoCase(TempList, ListGetAt(CombinedList, i, arguments.Delim3), arguments.Delim3))
+		    {
+		    	TempList = ListAppend(TempList, ListGetAt(CombinedList, i, arguments.Delim3), arguments.Delim3);
+			}
+		}
+		return ListSort(TempList, arguments.SortType, arguments.SortOrder, arguments.Delim3);
+	</cfscript>
 </cffunction>
 
 </cfcomponent>

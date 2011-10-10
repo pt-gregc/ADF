@@ -30,12 +30,13 @@ Version
 	1.0.0
 History:
 	2011-01-26 - GAC - Created
+	2011-10-04 - GAC - Updated csSecurity dependency to csSecurity_1_1
 --->
 <cfcomponent displayname="lightbox" extends="ADF.core.Base" hint="Lightbox functions for the ADF Library">
 	
 <cfproperty name="version" value="1_0_0">
 <cfproperty name="type" value="singleton">
-<cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_0">
+<cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_1">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_1">
 <cfproperty name="data" type="dependency" injectedBean="data_1_1">
 <cfproperty name="wikiTitle" value="ajax_1_0">
@@ -63,6 +64,7 @@ History:
 								- Updated the proxyWhiteList error to include the appName
 	2011-02-02 - GAC - Modified - Added proxyFile check to see if the method is being called from inside the proxy file
 	2011-02-09 - GAC - Modified - renamed the 'local' variable to 'result' since local is a reserved word in CF9
+	2011-10-03 - MFC - Modified - Added check to return the CFCATCH error message.
 --->
 <!--- // ATTENTION: 
 		Do not call is method directly. Call from inside the LightboxProxy.cfm file  (method properties are subject to change)
@@ -122,10 +124,19 @@ History:
 					if ( !StructKeyExists(result,"reHTML") ){reDebugRaw="void";}else{reDebugRaw=result.reHTML;}
 					reDebugRaw = variables.utils.doDump(reDebugRaw,"DEBUG OUTPUT",1,1);
 				}
+				
 				// Check to see if reHTML was destroyed by a method that returns void before attempting to process the return
 				if ( StructKeyExists(result,"reHTML") ) 
 				{
-					if ( isStruct(result.reHTML) or isArray(result.reHTML) or isObject(result.reHTML) ) 
+					// 2011-10-03 - MFC - Determine if the result has a CF Error Structure, return CFCATCH error message
+					if ( isObject(result.reHTML) 
+							AND structKeyExists(result.reHTML,"message") 
+							AND structKeyExists(result.reHTML,"ErrNumber") 
+							AND structKeyExists(result.reHTML,"StackTrace") ) {
+						hasError = 1;
+						result.reHTML = "Error: " & result.reHTML.message;
+					}
+					else if ( isStruct(result.reHTML) or isArray(result.reHTML) or isObject(result.reHTML) ) 
 					{
 						hasError = 1;
 						result.reHTML = "Error: unable to convert the return value into string";
