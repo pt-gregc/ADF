@@ -106,15 +106,15 @@ History:
 		<tr valign="top">
 			<td class="cs_dlgLabelSmall">Minimum Number of Selections:</td>
 			<td class="cs_dlgLabelSmall">
-				<input type="text" id="#prefix#minSelections" name="#prefix#minSelections" value="#defaultValues.minSelections#" size="50"><br />
-				0 means selections are optional
+				<input type="text" id="#prefix#minSelections" name="#prefix#minSelections" value="#defaultValues.minSelections#" size="10"><br />
+				<span>Default: 0 (Use 0 if making a selection is optional)</span>
 			</td>
 		</tr>
 		<tr valign="top">
 			<td class="cs_dlgLabelSmall">Maximum Number of Selections:</td>
 			<td class="cs_dlgLabelSmall">
-				<input type="text" id="#prefix#maxSelections" name="#prefix#maxSelections" value="#defaultValues.maxSelections#" size="50"><br />
-				0 means infinite selections are possible
+				<input type="text" id="#prefix#maxSelections" name="#prefix#maxSelections" value="#defaultValues.maxSelections#" size="10"><br />
+				<span>Default: 0 (Use 0 for unlimited selections)</span>
 			</td>
 		</tr>
 	</table>
