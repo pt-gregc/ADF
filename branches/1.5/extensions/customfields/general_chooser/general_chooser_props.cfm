@@ -38,6 +38,7 @@ History:
 						Removed Ajax loading process.
 	2011-09-21 - RAK - Added max/min selections
 	2011-09-21 - RAK - Updated default values to load in an easier to configure manner
+	2011-10-20 - GAC - Updated the descriptions for the minSelections and maxSelections fields
 --->
 <cfscript>
 	// initialize some of the attributes variables
@@ -113,7 +114,7 @@ History:
 			<td class="cs_dlgLabelSmall">Maximum Number of Selections:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" id="#prefix#maxSelections" name="#prefix#maxSelections" value="#defaultValues.maxSelections#" size="50"><br />
-				0 is infinite
+				0 means infinite selections are possible
 			</td>
 		</tr>
 	</table>

@@ -43,6 +43,7 @@ History:
 						Removed Ajax loading process.
 	2011-03-27 - MFC - Updated for Add/Edit/Delete callback.
 	2011-09-21 - RAK - Added max/min selections
+	2011-10-20 - GAC - Added defualt value check for the minSelections and maxSelections xParams varaibles
 --->
 <cfscript>
 	// the fields current value
@@ -58,6 +59,11 @@ History:
 		xParams.forceScripts = true;
 	else
 		xParams.forceScripts = false;
+		
+	if( NOT StructKeyExists(xParams, "minSelections") )
+		xParams.minSelections = "0"; //	0 = selections are optional
+	if( NOT StructKeyExists(xParams, "maxSelections") )
+		xParams.maxSelections = "0"; //	0 = infinite selections are possible
 	
 	// find if we need to render the simple form field
 	renderSimpleFormField = false;
