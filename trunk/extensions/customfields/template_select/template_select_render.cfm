@@ -17,7 +17,23 @@ By downloading, modifying, distributing, using and/or accessing any files
 in this directory, you agree to the terms and conditions of the applicable
 end user license agreement.
 --->
-
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.	
+Custom Field Type:
+	Template Select
+Name:
+	template_select_render.cfm
+Summary:
+	Custom field type to select from the CS templates
+ADF Requirements:
+	scripts_1_0
+	csData_1_0
+History:
+	2007-01-24 - RLW - Created
+	2011-10-22 - MFC - Set the default selected value to be stored when loading the CFT.
+--->
 <cfscript>
 	// the fields current value
 	currentValue = attributes.currentValues[fqFieldName];
@@ -62,6 +78,9 @@ end user license agreement.
 				// put the selected value into the fqFieldName
 				jQuery("input[name=#fqFieldName#]").val(jQuery(this).val());
 			});
+			
+			// 2011-10-22 - MFC - Load the current selection into the saved field
+			jQuery("input[name=#fqFieldName#]").val(jQuery("###fqFieldName#_select option:selected").val());
 		}
 		
 		jQuery(document).ready( function($){
