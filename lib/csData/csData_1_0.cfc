@@ -1418,23 +1418,6 @@ History:
 
 <!---
 /* *************************************************************** */
-Author: 
-	PaperThin, Inc.	
-	Ron West
-Name:
-	$updateUser
-Summary:	
-	
-Returns:
-	
-Arguments:
-	
-History:
- 2009-11-16 - RLW - Created
---->
-
-<!---
-/* *************************************************************** */
 Author: 	
 	PaperThin, Inc.	
 	Ron West

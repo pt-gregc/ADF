@@ -38,7 +38,7 @@ History:
 <cfcomponent name="Core" hint="Core component for Application Development Framework">
 
 <cfproperty name="version" value="1_5_0">
-<cfproperty name="svnRevision" value="630">
+<cfproperty name="svnRevision" value="637">
 
 <cfscript>
 	variables.ADFversion = "1.5.0"; // use a dot delimited version number

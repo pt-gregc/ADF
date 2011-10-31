@@ -17,7 +17,22 @@ By downloading, modifying, distributing, using and/or accessing any files
 in this directory, you agree to the terms and conditions of the applicable
 end user license agreement.
 --->
-
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.	
+Custom Field Type:
+	Template Select
+Name:
+	template_select_props.cfm
+Summary:
+	Custom field type to select from the CS templates
+ADF Requirements:
+	scripts_1_0
+History:
+	2007-01-24 - RLW - Created
+	2011-10-22 - MFC - Set the default selected value to be stored when loading the CFT.
+--->
 <cfscript>
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;

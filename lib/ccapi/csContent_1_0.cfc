@@ -62,6 +62,8 @@ History:
 	2008-05-30 - RLW - Created
 	2010-12-09 - RAK - added forceSubsiteID and forcePageID functionality
 	2011-03-19 - RLW - added support for controlID in config
+	2011-10-12 - MFC - Added LOCK to prevent multiple CCAPI calls from throwing the 
+						"security-exception -- conflict" error message.
 --->
 <cffunction name="populateContent" access="public" returntype="struct" hint="Use this method to populate content for either a Textblock or Custom Element">
 	<cfargument name="elementName" type="string" required="true" hint="The name of the element from the CCAPI configuration">
@@ -80,135 +82,143 @@ History:
 		var ws = "";
 		var logStruct = structNew();
 		var logArray = arrayNew(1);
-
-		// construct the CCAPI object
-		variables.ccapi.initCCAPI();
-		elements = variables.ccapi.getElements();
-		ws = variables.ccapi.getWS();
-		result.contentUpdated = false;
-		// get the settings for this element
-		if ( isStruct(elements) and structKeyExists(elements, arguments.elementName) )
-		{
-			// set up local variable for the element
-			thisElement = elements[arguments.elementName];
-			// if there is no subsite default to 1
-			if( not structKeyExists(thisElement, "subsiteID") )
-				thisElement["subsiteID"] = 1;
-
-			//2010-12-09 - RAK - If they forced the pageID set it
-			if(arguments.forceSubsiteID neq -1){
-				thisElement["subsiteID"] = arguments.forceSubsiteID;
-			}else if( structKeyExists(arguments.data, "subsiteID")){
-				//Otherwise check to see if subsiteID has been passed into data (signifying a local custom element)
-				thisElement["subsiteID"] = arguments.data.subsiteID;
-			}
-
-			// assume global custom element and use default subsiteID
-
-			// login for the first time or to the subsite where the new page was created
-			if( variables.ccapi.loggedIn() eq 'false' or ( thisElement["subsiteID"] neq variables.ccapi.getSubsiteID() ) )
-				variables.ccapi.login(thisElement["subsiteID"]);
-
-			//2010-12-09 - RAK - If they forced the pageID set it
-			if(arguments.forcePageID neq -1){
-				thisElement["pageID"] = arguments.forcePageID;
-			}else if( structKeyExists(arguments.data, "pageID") ){
-				//Otherwise check to see if the data passed in for this element contains "pageID"
-				thisElement["pageID"] = arguments.data.pageID;
-			}
-
-			// clear locks before starting
-			variables.ccapi.clearLock(thisElement["pageID"]);
-
-			// construct specific data for the content creation API
-			contentStruct.pageID = thisElement["pageID"];
-			if( structKeyExists(thisElement, "controlID") )
-				contentStruct.controlID = thisElement["controlID"];
-			else
-				contentStruct.controlName = thisElement["controlName"];	
-							
-			
-			// if we find the option to submit change in the data
-			if( structKeyExists(arguments.data, "submitChange") )
-				contentStruct.submitChange = arguments.data.submitChange;
-			else
-				contentStruct.submitChange = "1";
-			// if we find the comment for the submission in the data struct
-			if( structKeyExists(arguments.data, "submitChangeComment") )
-				contentStruct.submitChange_comment = arguments.data.submitChangeComment;
-			else
-				contentStruct.submitChange_comment = "Submit data for Custom element through API";
-			
-			// Following structure contains the data.  The structure keys are the 'field names'
-			contentStruct.data = arguments.data;
-			// Call CCAPI to add/update textblock
-			if( thisElement["elementType"] eq "textblock")
+	</cfscript>
+	
+	<!--- 2011-10-12 - MFC - Added LOCK to prevent multiple CCAPI calls to update 
+								custom elements through a single CCAPI page.
+								Prevents the "security-exception -- conflict" error message.
+	 --->
+	<cflock type="exclusive" name="CCAPIPopulateContent" timeout="30">
+		<cfscript>
+			// construct the CCAPI object
+			variables.ccapi.initCCAPI();
+			elements = variables.ccapi.getElements();
+			ws = variables.ccapi.getWS();
+			result.contentUpdated = false;
+			// get the settings for this element
+			if ( isStruct(elements) and structKeyExists(elements, arguments.elementName) )
 			{
-				// update textblock
-				contentUpdateResponse = ws.populateTextblock(ssid=variables.ccapi.getSSID(), sParams=contentStruct);
-			}
-			if( thisElement["elementType"] eq "custom" )
-			{
-				// update custom element
-				contentUpdateResponse = ws.populateCustomElement(ssid=variables.ccapi.getSSID(), sParams=contentStruct);
-				// check to see if update wasn't successful
-				if( listFirst(contentUpdateResponse, ":") neq "Success" )
+				// set up local variable for the element
+				thisElement = elements[arguments.elementName];
+				// if there is no subsite default to 1
+				if( not structKeyExists(thisElement, "subsiteID") )
+					thisElement["subsiteID"] = 1;
+	
+				//2010-12-09 - RAK - If they forced the pageID set it
+				if(arguments.forceSubsiteID neq -1){
+					thisElement["subsiteID"] = arguments.forceSubsiteID;
+				}else if( structKeyExists(arguments.data, "subsiteID")){
+					//Otherwise check to see if subsiteID has been passed into data (signifying a local custom element)
+					thisElement["subsiteID"] = arguments.data.subsiteID;
+				}
+	
+				// assume global custom element and use default subsiteID
+	
+				// login for the first time or to the subsite where the new page was created
+				if( variables.ccapi.loggedIn() eq 'false' or ( thisElement["subsiteID"] neq variables.ccapi.getSubsiteID() ) )
+					variables.ccapi.login(thisElement["subsiteID"]);
+	
+				//2010-12-09 - RAK - If they forced the pageID set it
+				if(arguments.forcePageID neq -1){
+					thisElement["pageID"] = arguments.forcePageID;
+				}else if( structKeyExists(arguments.data, "pageID") ){
+					//Otherwise check to see if the data passed in for this element contains "pageID"
+					thisElement["pageID"] = arguments.data.pageID;
+				}
+	
+				// clear locks before starting
+				variables.ccapi.clearLock(thisElement["pageID"]);
+	
+				// construct specific data for the content creation API
+				contentStruct.pageID = thisElement["pageID"];
+				if( structKeyExists(thisElement, "controlID") )
+					contentStruct.controlID = thisElement["controlID"];
+				else
+					contentStruct.controlName = thisElement["controlName"];	
+								
+				
+				// if we find the option to submit change in the data
+				if( structKeyExists(arguments.data, "submitChange") )
+					contentStruct.submitChange = arguments.data.submitChange;
+				else
+					contentStruct.submitChange = "1";
+				// if we find the comment for the submission in the data struct
+				if( structKeyExists(arguments.data, "submitChangeComment") )
+					contentStruct.submitChange_comment = arguments.data.submitChangeComment;
+				else
+					contentStruct.submitChange_comment = "Submit data for Custom element through API";
+				
+				// Following structure contains the data.  The structure keys are the 'field names'
+				contentStruct.data = arguments.data;
+				// Call CCAPI to add/update textblock
+				if( thisElement["elementType"] eq "textblock")
 				{
-					// clear locks after completing update
-					variables.ccapi.clearLock(thisElement["pageID"]);
-
-					// If update wasn't successful then login again to the default subsite specified in the config xml file
-					if( thisElement["subsiteID"] neq variables.ccapi.getSubsiteID() )
+					// update textblock
+					contentUpdateResponse = ws.populateTextblock(ssid=variables.ccapi.getSSID(), sParams=contentStruct);
+				}
+				if( thisElement["elementType"] eq "custom" )
+				{
+					// update custom element
+					contentUpdateResponse = ws.populateCustomElement(ssid=variables.ccapi.getSSID(), sParams=contentStruct);
+					// check to see if update wasn't successful
+					if( listFirst(contentUpdateResponse, ":") neq "Success" )
 					{
-						variables.ccapi.login(thisElement["subsiteID"]);
+						// clear locks after completing update
+						variables.ccapi.clearLock(thisElement["pageID"]);
+	
+						// If update wasn't successful then login again to the default subsite specified in the config xml file
+						if( thisElement["subsiteID"] neq variables.ccapi.getSubsiteID() )
+						{
+							variables.ccapi.login(thisElement["subsiteID"]);
+							// TODO: do we need this logging?
+							//logStruct.msg = "#request.formattedTimestamp# - Relogging into #thisElement['subsiteID']#";
+							//logStruct.logFile = 'populate_content.log';
+							//arrayAppend(logArray, logStruct);
+						}
+						else
+							variables.ccapi.login();
+						// Now try it again after logging in
+						contentUpdateResponse = ws.populateCustomElement(ssid=variables.ccapi.getSSID(), sParams=contentStruct);
+						
 						// TODO: do we need this logging?
-						//logStruct.msg = "#request.formattedTimestamp# - Relogging into #thisElement['subsiteID']#";
+						//logStruct.msg = "#request.formattedTimestamp# - 2ND ATTEMPT: contentUpdateResponse: #contentUpdateResponse#";
 						//logStruct.logFile = 'populate_content.log';
 						//arrayAppend(logArray, logStruct);
 					}
-					else
-						variables.ccapi.login();
-					// Now try it again after logging in
-					contentUpdateResponse = ws.populateCustomElement(ssid=variables.ccapi.getSSID(), sParams=contentStruct);
-					
-					// TODO: do we need this logging?
-					//logStruct.msg = "#request.formattedTimestamp# - 2ND ATTEMPT: contentUpdateResponse: #contentUpdateResponse#";
-					//logStruct.logFile = 'populate_content.log';
-					//arrayAppend(logArray, logStruct);
 				}
+				// TODO handle debugging for texblock update call
+				if( listFirst(contentUpdateResponse, ":") eq "Success" )
+				{
+					result.contentUpdated = true;
+					result.msg = contentUpdateResponse;
+					logStruct.msg = "#request.formattedTimestamp# - Elemented Updated/Created: #thisElement['elementType']# [#arguments.elementName#]. ContentUpdateResponse: #contentUpdateResponse#";
+					logStruct.logFile = 'CCAPI_populate_content.log';
+					arrayAppend(logArray, logStruct);
+				}
+				else
+				{
+					result.msg = contentUpdateResponse;
+					// comma separated for parsing
+					// 'date','pageID','contentID','subsiteID','title','error'
+					error = listRest(contentUpdateResponse, ":");
+					logStruct.msg = "#request.formattedTimestamp# - Error updating element: #thisElement['elementType']# [#arguments.elementName#]. Error recorded: #error#";
+					logStruct.logFile = 'CCAPI_populate_content_error.log';
+					arrayAppend(logArray, logStruct);
+				}
+				// clear locks after completing update
+				variables.ccapi.clearLock(thisElement["pageID"]);
 			}
-			// TODO handle debugging for texblock update call
-			if( listFirst(contentUpdateResponse, ":") eq "Success" )
+			else // logging for the element name not existing
 			{
-				result.contentUpdated = true;
-				result.msg = contentUpdateResponse;
-				logStruct.msg = "#request.formattedTimestamp# - Elemented Updated/Created: #thisElement['elementType']# [#arguments.elementName#]. ContentUpdateResponse: #contentUpdateResponse#";
-				logStruct.logFile = 'CCAPI_populate_content.log';
+				logStruct.msg = "#request.formattedTimestamp# - Element name does not exist in configuration: #arguments.elementName#";
+				logStruct.logFile = "CCAPI_populate_content_error.log";
 				arrayAppend(logArray, logStruct);
 			}
-			else
-			{
-				result.msg = contentUpdateResponse;
-				// comma separated for parsing
-				// 'date','pageID','contentID','subsiteID','title','error'
-				error = listRest(contentUpdateResponse, ":");
-				logStruct.msg = "#request.formattedTimestamp# - Error updating element: #thisElement['elementType']# [#arguments.elementName#]. Error recorded: #error#";
-				logStruct.logFile = 'CCAPI_populate_content_error.log';
-				arrayAppend(logArray, logStruct);
-			}
-			// clear locks after completing update
-			variables.ccapi.clearLock(thisElement["pageID"]);
-		}
-		else // logging for the element name not existing
-		{
-			logStruct.msg = "#request.formattedTimestamp# - Element name does not exist in configuration: #arguments.elementName#";
-			logStruct.logFile = "CCAPI_populate_content_error.log";
-			arrayAppend(logArray, logStruct);
-		}
-		if( variables.ccapi.loggingEnabled() and arrayLen(logArray) )
-			variables.utils.bulkLogAppend(logArray);
-		variables.ccapi.logout();
-	</cfscript>
+			if( variables.ccapi.loggingEnabled() and arrayLen(logArray) )
+				variables.utils.bulkLogAppend(logArray);
+			variables.ccapi.logout();
+		</cfscript>
+	</cflock>
 	<cfreturn result>
 </cffunction>
 </cfcomponent>
