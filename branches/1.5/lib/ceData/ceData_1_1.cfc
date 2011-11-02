@@ -322,7 +322,7 @@ History:
 	</cfscript>
 	<!---	Force the directory to exist--->
 	<cfif NOT DirectoryExists(folder)>
-		<cfmodule template="/commonspot/utilities/cp-cffile.cfm" action="MKDIR"directory="#folder#" replicate="false">
+		<cfmodule template="/commonspot/utilities/cp-cffile.cfm" action="MKDIR" directory="#folder#" replicate="false">
 	</cfif>
 	<!---	save the file--->
     <cffile action = "write"  file ="#folder##fileName#" output="#Server.Commonspot.UDF.util.serializeBean(ceData)#">
