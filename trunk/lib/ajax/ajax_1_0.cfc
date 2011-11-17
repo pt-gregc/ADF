@@ -169,7 +169,7 @@ History:
 						else if ( returnFormat eq "xml" )
 						{
 							// convert return data to XML using CS internal serialize function
-							result.reString = Server.CommonSpot.MapFactory.serialize(result.reString,"data",0); //Server.CommonSpot.MapFactory.serialize(Arguments.bean,Arguments.tagName,JavaCast("boolean",Arguments.forceLCase));
+							result.reString = Server.CommonSpot.UDF.util.serializeBean(result.reString,"data",0); //Server.CommonSpot.UDF.util.serializeBean(Arguments.bean,Arguments.tagName,JavaCast("boolean",Arguments.forceLCase));
 							// make return is an XML string
 							if ( IsXML(result.reString) ) 
 								result.reString = XmlParse(result.reString);
