@@ -33,6 +33,7 @@ end user license agreement.
 		2010-01-12 - GAC - Modified - Added URL text Sorting
 		2011-02-07 - RAK - Renamed file
 		2011-04-28 - RAK - Fixed so that it wont throw an error if they try to translate a bad subsite.
+		2011-12-06 - SFS - Added the other bad subsite fix that was missed about the currentSortValue as well.
 --->
 <cfscript>
 	subsiteID = request.datasheet.currentColumnValue;
@@ -41,17 +42,18 @@ end user license agreement.
 <cfsavecontent variable="tdHTML">
 	<cfoutput>
 		<td>
-			<cfif  Len(subsiteID) and StructKeyExists(request.subsiteCache,subsiteID)>
+			<cfif len(subsiteID) and StructKeyExists(request.subsiteCache,subsiteID)>
 				<a href="#request.subsiteCache[subsiteID].url#">
 					#request.subsiteCache[subsiteID].url#
 				</a>
 			<cfelse>
 				Subsite does not exist.
 			</cfif>
-
 		</td>
 	</cfoutput>
 </cfsavecontent>
 
-<cfset Request.datasheet.currentSortValue = request.subsiteCache[subsiteID].url />
+<cfif StructKeyExists(request.subsiteCache,subsiteID)>
+	<cfset Request.datasheet.currentSortValue = request.subsiteCache[subsiteID].url>
+</cfif>
 <cfset request.datasheet.currentFormattedValue = tdHTML>
