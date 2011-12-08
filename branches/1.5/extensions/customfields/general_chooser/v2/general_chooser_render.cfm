@@ -78,7 +78,27 @@ History:
 		#fqFieldName#=new Object();
 		#fqFieldName#.id='#fqFieldName#';
 		#fqFieldName#.tid=#rendertabindex#;
-		
+		#fqFieldName#.validator = "validate_#fqFieldName#()";
+		#fqFieldName#.msg = "Please make a selection from the available items list.";
+		// Check if the field is required
+		if ( '#xparams.req#' == 'Yes' ){
+			// push on to validation array
+			vobjects_#attributes.formname#.push(#fqFieldName#);
+		}
+		function validate_#fqFieldName#()
+		{
+			//alert(fieldLen);
+			if (jQuery("input[name=#fqFieldName#]").val() != '')
+			{
+				return true;
+			}
+			else
+			{
+				alert(#fqFieldName#.msg);
+				return false;
+			}
+		}
+
 		// Move the selected object to the selected
 		function moveObjectToSelected(selObj){
 			// Modify the arrow icon to the close
