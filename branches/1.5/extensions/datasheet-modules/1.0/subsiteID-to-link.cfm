@@ -19,21 +19,22 @@ end user license agreement.
 --->
 
 <!---
-	/* ***************************************************************
-	/*
-	Author: 	Ron West
-	Name:
-		subsiteID-to-link.cfm
-	Summary:	
-		Used as a column Render Handler for the Datasheet element
-		This module will take a subsite ID and render the URL
-		for the subsite
-	History:
-		2009-07-30 - RLW - Created
-		2010-01-12 - GAC - Modified - Added URL text Sorting
-		2011-02-07 - RAK - Renamed file
-		2011-04-28 - RAK - Fixed so that it wont throw an error if they try to translate a bad subsite.
-		2011-12-06 - SFS - Added the other bad subsite fix that was missed about the currentSortValue as well.
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
+Name:
+	subsiteID-to-link.cfm
+Summary:	
+	Used as a column Render Handler for the Datasheet element
+	This module will take a subsite ID and render the URL
+	for the subsite
+History:
+	2009-07-30 - RLW - Created
+	2010-01-12 - GAC - Modified - Added URL text Sorting
+	2011-02-07 - RAK - Renamed file
+	2011-04-28 - RAK - Fixed so that it wont throw an error if they try to translate a bad subsite.
+	2011-12-06 - SFS - Added the other bad subsite fix that was missed about the currentSortValue as well.
 --->
 <cfscript>
 	subsiteID = request.datasheet.currentColumnValue;
