@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
  
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2010.
+PaperThin, Inc. Copyright(C) 2011.
 All Rights Reserved.
  
 By downloading, modifying, distributing, using and/or accessing any files
@@ -28,6 +28,7 @@ Summary:
 	Sample properties file for the sample custom field type.
 History:
  	2011-09-26 - RAK - Created
+	2011-12-19 - MFC - Updated to load the current values with the default values.
 --->
 <cfscript>
 	// initialize some of the attributes variables
@@ -36,23 +37,29 @@ History:
 	formname = attributes.formname;
 	currentValues = attributes.currentValues;
 
-	//Setup the default values
+	// Setup the default values
 	defaultValues = StructNew();
 	defaultValues.defaultText = "This is the defaulted text";
 
-   //This will override the default values with the current values.
-   //In normal use this should not need to be modified.
-   currentValueArray = StructKeyArray(currentValues);
-   for(i=1;i<=ArrayLen(currentValueArray);i++){
-      //If there is a default value set AND there is a current value set update the default value with the current value
-      if(StructKeyExists(defaultValues,currentValueArray[i])){
-         defaultValues[currentValueArray[i]] = currentValues[currentValueArray[i]];
-      }
-   }
+	// This will override the current values with the default values.
+	// In normal use this should not need to be modified.
+	defaultValueArray = StructKeyArray(defaultValues);
+	for(i=1;i<=ArrayLen(defaultValueArray);i++){
+		// If there is a default value to exists in the current values
+		//	AND the current value is an empty string
+		//	OR the default value does not exist in the current values
+		if( ( StructKeyExists(currentValues, defaultValueArray[i]) 
+				AND (NOT LEN(currentValues[defaultValueArray[i]])) )
+				OR (NOT StructKeyExists(currentValues, defaultValueArray[i])) ){
+			currentValues[defaultValueArray[i]] = defaultValues[defaultValueArray[i]];
+		}
+	}
+	
+	// Load JQuery
+	application.ADF.scripts.loadJQuery();
 </cfscript>
 
 <cfoutput>
-	#application.ADF.scripts.loadJQuery()#
 	<script language="JavaScript" type="text/javascript">
 		// register the fields with global props object, this uses the name of the field
 		fieldProperties['#typeid#'].paramFields = '#prefix#defaultText';
@@ -86,7 +93,7 @@ History:
 				value is updated in the defaultValues structure
 			--->
 			<td class="cs_dlgLabelSmall">
-				<input type="text" id="#prefix#defaultText" name="#prefix#defaultText" value="#defaultValues.defaultText#">
+				<input type="text" id="#prefix#defaultText" name="#prefix#defaultText" value="#currentValues.defaultText#">
 			</td>
 		</tr>
 	</table>
