@@ -35,7 +35,7 @@ History:
 --->
 <cfcomponent displayname="forms_1_1" extends="ADF.lib.forms.forms_1_0" hint="Form functions for the ADF Library">
 
-<cfproperty name="version" value="1_1_0">
+<cfproperty name="version" value="1_1_1">
 <cfproperty name="type" value="transient">
 <cfproperty name="ceData" injectedBean="ceData_1_1" type="dependency">
 <cfproperty name="scripts" injectedBean="scripts_1_1" type="dependency">
