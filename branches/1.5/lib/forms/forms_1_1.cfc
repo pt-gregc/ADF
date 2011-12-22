@@ -276,20 +276,37 @@ Summary:
 Returns:
 	boolean
 Arguments:
-
+	Struct - xparams
+	String - fieldPermission
 History:
- 	Dec 6, 2010 - RAK - Created
+	2010-12-06 - RAK - Created
+	2011-11-22 - GAC - Added a fieldPermission argument and logic to handle 6.x field security
 --->
 <cffunction name="isFieldReadOnly" access="public" returntype="boolean" hint="Given xparams determines if the field is readOnly">
 	<cfargument name="xparams" type="struct" required="true" default="" hint="XParams struct">
+	<cfargument name="fieldPermission" type="string" required="false" default="" hint="fieldPermission attribute for CS 6.x and above: 0 (no rights), 1 (read only), 2 (edit)">
 	<cfscript>
-		// Get the list permissions and compare
-		var commonGroups = application.ADF.data.ListInCommon(request.user.grouplist, arguments.xparams.pedit);
-		// Set the read only
 		var readOnly = true;
-		// Check if the user does have edit permissions
-		if ( (arguments.xparams.UseSecurity EQ 0) OR ( (arguments.xparams.UseSecurity EQ 1) AND (ListLen(commonGroups)) ) )
-			readOnly = false;
+		var productVersion = ListFirst(ListLast(request.cp.productversion," "),".");
+		var commonGroups = "";
+		// Determine if this field should be read only due to "Use Explicit Security"
+		// Check the CS version
+		if ( productVersion GTE 6 )
+		{
+			// For CS 6.x and above
+			// - If the user has ready only rights (fieldPermission = 1) readOnly will be true
+			if ( LEN(TRIM(arguments.fieldPermission)) OR arguments.fieldPermission NEQ 1 ) 
+				readOnly = false;				
+		}
+		else
+		{
+			// For CS 5.x 
+			// Get the list permissions and compare
+			commonGroups = application.ADF.data.ListInCommon(request.user.grouplist, arguments.xparams.pedit);
+			// Check if the user does have edit permissions
+			if ( (arguments.xparams.UseSecurity EQ 0) OR ( (arguments.xparams.UseSecurity EQ 1) AND (ListLen(commonGroups)) ) )
+				readOnly = false;	
+		}
 		return readOnly;
 	</cfscript>
 </cffunction>
@@ -309,19 +326,27 @@ Arguments:
 	String - fieldInputHTML
 	Query - fieldQuery
 	Struct - attr
+	String - fieldPermission
 	Boolean - includeLabel
+	Boolean - includeDescription
 History:
- 	Dec 6, 2010 - RAK - Created
+ 	2010-12-06 - RAK - Created
 	2011-02-09 - RAK - Var'ing un-var'd variables
 	2011-09-09 - GAC - Added doHiddenFieldSecurity to convert field to a hidden field if "Use Explicit Security" and user is not part of an Edit or View group
+	2011-11-07 - GAC - Addressed table formatting issues with the includeLabel argument 
+					 - Added an includeDescription argument to allow the description to be turned off
+	2011-11-22 - GAC - Added a fieldPermission argument and logic to handle 6.x field security
 --->
 <cffunction name="wrapFieldHTML" access="public" returntype="String" hint="Wraps the given information with valid html for the current commonspot and configuration">
 	<cfargument name="fieldInputHTML" type="string" required="true" default="" hint="HTML for the field input, do a cfSaveContent on the input field and pass that in here">
 	<cfargument name="fieldQuery" type="query" required="true" default="" hint="fieldQuery value">
 	<cfargument name="attr" type="struct" required="true" default="" hint="Attributes value">
+	<cfargument name="fieldPermission" type="string" required="false" default="" hint="fieldPermission attribute for CS 6.x and above: 0 (no rights), 1 (read only), 2 (edit)">
 	<cfargument name="includeLabel" type="boolean" required="false" default="true" hint="Set to false to remove the label on the left">
+	<cfargument name="includeDescription" type="boolean" required="false" default="true" hint="Set to false to remove the description under the field">
 	<cfscript>
 		var returnHTML = '';
+		var productVersion = ListFirst(ListLast(request.cp.productversion," "),".");
 		var row = arguments.fieldQuery.currentRow;
 		var fqFieldName = "fic_#arguments.fieldQuery.ID[row]#_#arguments.fieldQuery.INPUTID[row]#";
 		var description = arguments.fieldQuery.DESCRIPTION[row];
@@ -330,11 +355,11 @@ History:
 		var currentValue = arguments.attr.currentValues[fqFieldName];
 		var labelStart = arguments.attr.itemBaselineParamStart;
 		var labelEnd = arguments.attr.itemBaseLineParamEnd;
+		var renderMode =  arguments.attr.rendermode;
 		var renderSimpleFormField = false;
 		var doHiddenFieldSecurity = false; // No Edit / No Readonly ... just a hidden field
-		// Get the list permissions and compare for security
-		var editGroups = application.ADF.data.ListInCommon(request.user.grouplist, xparams.pedit);
-		var viewGroups = application.ADF.data.ListInCommon(request.user.grouplist, xparams.pread);
+		var editGroups = "";
+		var viewGroups = "";
 		
 		//If the fields are required change the label start and end
 		if ( xparams.req eq "Yes" )
@@ -343,39 +368,62 @@ History:
 			labelEnd = arguments.attr.reqItemBaseLineParamEnd;
 		}
 
-		// determine if this is rendererd in a simple form or the standard custom element interface
+		// Determine if this is rendererd in a simple form or the standard custom element interface
 		if ( (StructKeyExists(request, "simpleformexists")) AND (request.simpleformexists EQ 1) )
 		{
 			renderSimpleFormField = true;
 		}
 		
-		// determine if this field should be hidden due to "Use Explicit Security"
-		// - If user is part for the edit or view groups doHiddenSecurity should remain false
-		if ( xparams.UseSecurity AND ListLen(viewGroups) EQ 0 AND ListLen(editGroups) EQ 0 )
+		// Determine if this field should be hidden due to "Use Explicit Security"
+		// - Check the CS version
+		if ( productVersion GTE 6 )
 		{
-			doHiddenFieldSecurity = true;
+			// For CS 6.x and above
+			// - If the user has no rights (fieldSecurity = 0) to the field then doHiddenSecurity should be true
+			if ( LEN(TRIM(arguments.fieldPermission)) AND arguments.fieldPermission LTE 0 ) 
+			{
+				doHiddenFieldSecurity = true;		
+			}	
+			
+			// TODO: determine if this conditional logic is needed to display the description or not (fieldPermission is new to CS6.x)
+			//if ( renderMode NEQ 'standard' OR fieldpermission LTE 0 )
+				//arguments.includeDescription = false;
+		}
+		else
+		{
+			// For CS 5.x 
+			// Get the list permissions and compare for security
+			editGroups = application.ADF.data.ListInCommon(request.user.grouplist, xparams.pedit);
+			viewGroups = application.ADF.data.ListInCommon(request.user.grouplist, xparams.pread);
+			// - If user is part for the edit or view groups doHiddenSecurity should remain false
+			if ( xparams.UseSecurity AND ListLen(viewGroups) EQ 0 AND ListLen(editGroups) EQ 0 )
+			{
+				doHiddenFieldSecurity = true;
+			}
 		}
 	</cfscript>
 	<cfsavecontent variable="returnHTML">
 		<cfoutput>
 			<cfif NOT doHiddenFieldSecurity>
-				<tr>
-					<cfif includeLabel>
+				<tr id="#fqFieldName#_FIELD_ROW">
+					<cfif arguments.includeLabel>
 						<td valign="top">
 							#labelStart#
-							<label for="#fqFieldName#">#xParams.label#:</label>
+							<label for="#fqFieldName#" id="#fqFieldName#_LABEL">#xParams.label#:</label>
 							#labelEnd#
 						</td>
 					</cfif>
-					<td>
+					<td<cfif NOT arguments.includeLabel> colspan="2"</cfif>>
 						#arguments.fieldInputHTML#
 					</td>
 				</tr>
-				<cfif Len(description)>
+				<cfif Len(description) AND arguments.includeDescription>
 					<!--- // If there is a description print out a new row and the description --->
-					<tr>
+					<tr id="#fqFieldName#_DESCRIPTION_ROW">
+						<cfif arguments.includeLabel>
 						<td></td>
-						<td>
+						</cfif>
+						<td<cfif NOT arguments.includeLabel> colspan="2"</cfif>>
 							#arguments.attr.descParamStart#
 							#description#
 							<br/><br/>
