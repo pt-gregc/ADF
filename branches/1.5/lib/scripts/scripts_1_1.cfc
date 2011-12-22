@@ -1664,4 +1664,98 @@ History:
 		#variables.scriptsService.renderScriptOnce("dynatree",outputHTML)#
 	</cfoutput>
 </cffunction>
+
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+	G. Cronkright
+Name:
+	$loadjQueryEasing
+Summary:
+	Loads the Easing plugin for jQuery
+Returns:
+	Void
+Arguments:
+	String - Version
+History:
+ 	2011-10-20 - GAC - Created
+--->
+<cffunction name="loadjQueryEasing" access="public" output="true" returntype="void" hint="Loads the Easing plugin for jQuery">
+	<cfargument name="version" type="string" required="false" default="1.3" hint="Script version to load.">
+	<cfset var outputHTML = "">
+	<cfset var thirdPartyLibPath = "/ADF/thirdParty/jquery/easing/">
+	<cfsavecontent variable="outputHTML">
+		<cfoutput>
+			<script type="text/javascript" src="#thirdPartyLibPath#jquery.easing-#arguments.version#.pack.js"></script>	
+		</cfoutput>
+	</cfsavecontent>
+	<cfoutput>
+	#variables.scriptsService.renderScriptOnce("jqueryeasing",outputHTML)#
+	</cfoutput>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+	G. Cronkright
+Name:
+	$loadjQueryMouseWheel
+Summary:
+	Loads the Mouse Wheel plugin for jQuery
+Returns:
+	Void
+Arguments:
+	String - Version
+History:
+ 	2011-10-20 - GAC - Created
+--->
+<cffunction name="loadjQueryMouseWheel" access="public" output="true" returntype="void" hint="Loads the Mouse Wheel plugin for jQuery">
+	<cfargument name="version" type="string" required="false" default="3.0.4" hint="Script version to load.">
+	<cfset var outputHTML = "">
+	<cfset var thirdPartyLibPath = "/ADF/thirdParty/jquery/mousewheel/">
+	<cfsavecontent variable="outputHTML">
+		<cfoutput>
+			<script type="text/javascript" src="#thirdPartyLibPath#jquery.mousewheel-#arguments.version#.pack.js"></script>	
+		</cfoutput>
+	</cfsavecontent>
+	<cfoutput>
+	#variables.scriptsService.renderScriptOnce("jquerymousewheel",outputHTML)#
+	</cfoutput>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+	G. Cronkright
+Name:
+	$loadjQueryFancyBox
+Summary:
+	Loads the fancyBox plugin for jQuery
+Returns:
+	Void
+Arguments:
+	String - Version
+History:
+ 	2011-10-20 - GAC - Created
+--->
+<cffunction name="loadjQueryFancyBox" access="public" output="true" returntype="void" hint="Loads the fancyBox plugin for jQuery">
+	<cfargument name="version" type="string" required="false" default="1.3.4" hint="Script version to load.">
+	<cfset var outputHTML = "">
+	<cfset var thirdPartyLibPath = "/ADF/thirdParty/jquery/fancybox/">
+	<cfsavecontent variable="outputHTML">
+		<cfoutput>
+			<script type="text/javascript" src="#thirdPartyLibPath#jquery.fancybox-#arguments.version#.pack.js"></script>
+			#loadjQueryEasing#
+			#loadjQueryMouseWheel#
+			<link rel="stylesheet" href="#thirdPartyLibPath#jquery.fancybox-#arguments.version#.css" type="text/css" media="screen" />
+		</cfoutput>
+	</cfsavecontent>
+	<cfoutput>
+	#variables.scriptsService.renderScriptOnce("fancybox",outputHTML)#
+	</cfoutput>
+</cffunction>
+
 </cfcomponent>
