@@ -34,6 +34,7 @@ Version:
 	2.0.0
 History:
 	2011-03-20 - MFC - Created new version 2 chooser based on the v1 props/render files.
+	2011-12-08 - SS - The field now honors the "required" setting in Standard Options and forces the user to make a choice.
 --->
 <cfscript>
 	// the fields current value
