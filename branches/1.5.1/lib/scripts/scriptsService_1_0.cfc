@@ -32,7 +32,7 @@ History:
 	2009-06-17 - RLW - Created
 --->
 <cfcomponent displayname="scriptsService_1_0" extends="ADF.core.Base" hint="Scripts Service functions for the ADF Library">
-<cfproperty name="version" default="1_0_1">
+<cfproperty name="version" default="1_0_2">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="ScriptsService_1_0">
 
@@ -95,6 +95,37 @@ History:
 			request.scriptsExecuted = "";
 		}
 		request.scriptsExecuted = listAppend(request.scriptsExecuted, arguments.scriptName);
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
+Name:
+	$getMajorMinorVersion
+Summary:
+	Returns the Major and Minor version to remove the build number.
+	Ex. 1.3.2 = 1.3
+Returns:
+	String
+Arguments:
+	String
+History:
+	2011-12-28 - MFC - Created
+--->
+<cffunction name="getMajorMinorVersion" access="public" returntype="string" output="true">
+	<cfargument name="currVersion" type="string" required="true">
+
+	<cfscript>
+		var newVersion = arguments.currVersion;
+		// Check the format of the argument contains minor versions
+		if ( ListLen(arguments.currVersion, ".") GTE 3 ) {
+			// Trim down to only major.minor versions
+			newVersion = ListFirst(arguments.currVersion, '.') & "." & ListGetAt(arguments.currVersion, 2, '.');
+		}
+		return newVersion;
 	</cfscript>
 </cffunction>
 

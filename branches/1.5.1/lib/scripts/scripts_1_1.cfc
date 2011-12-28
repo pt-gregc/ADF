@@ -36,7 +36,7 @@ History:
 --->
 <cfcomponent displayname="scripts_1_1" extends="ADF.lib.scripts.scripts_1_0" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" default="1_1_0">
+<cfproperty name="version" default="1_1_1">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_1" type="dependency">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Scripts_1_1">
@@ -82,6 +82,9 @@ History:
 	2010-08-26 - MFC - Updated to load 1.4 by default
 	2011-01-19 - RAK - Updated to use findScript in scriptsService
 	2011-06-29 - MFC - Force jQuery no conflict when in CS 6.2 or above.
+	2011-12-28 - MFC - Make the version backwards compatiable to remove minor build numbers.
+					   Removed "Force jQuery no conflict" b/c not backwards compatiable with
+							custom script code referencing "$".  
 --->
 <cffunction name="loadJQuery" access="public" returntype="void" hint="Loads the JQuery Headers if not loaded.">
 	<cfargument name="version" type="string" required="false" default="1.4" hint="JQuery version to load.">
@@ -91,9 +94,8 @@ History:
 		var outputHTML = "";
 		var findScript = variables.scriptsService.findScript(arguments.version,"jquery","jquery-",".js");
 		
-		// 2011-06-29 - MFC - Force jQuery no conflict when in CS 6.2 or above.
-		if ( application.ADF.csVersion GTE 6.2 )
-			arguments.noConflict = true;
+		// 2011-12-28 - MFC - Make the version backwards compatiable to remove minor build numbers.
+		arguments.version = variables.scriptsService.getMajorMinorVersion(arguments.version);
 	</cfscript>
 	<cfif findScript.success>
 		<cfsavecontent variable="outputHTML">
@@ -196,9 +198,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	M. Carroll
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
 Name:
 	$loadJQueryUI
 Summary:
@@ -214,12 +217,17 @@ History:
 	2009-09-16 - MFC - Added force argument.
 	2010-08-26 - MFC - Updated to load 1.8 by default
 	2010-12-21 - MFC - Removed the "min" from the script loading.
+	2011-12-28 - MFC - Make the version backwards compatiable to remove minor build numbers.
 --->
 <cffunction name="loadJQueryUI" access="public" output="true" returntype="void" hint="Loads the JQuery UI Headers if not loaded."> 
 	<cfargument name="version" type="string" required="false" default="1.8" hint="JQuery version to load.">
 	<cfargument name="themeName" type="string" required="false" default="ui-lightness" hint="UI Theme Name (directory name)">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery UI script header to load.">
-	<cfset var outputHTML = "">
+	<cfscript>
+		var outputHTML = "";
+		// 2011-12-28 - MFC - Make the version backwards compatiable to remove minor build numbers.
+		arguments.version = variables.scriptsService.getMajorMinorVersion(arguments.version);
+	</cfscript>
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
 			<script type='text/javascript' src='/ADF/thirdParty/jquery/ui/jquery-ui-#arguments.version#/js/jquery-ui-#arguments.version#.custom.js'></script>
