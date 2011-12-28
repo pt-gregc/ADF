@@ -28,6 +28,7 @@ Summary:
 	File uploader configuration and validation defaults
 History:
  	2011-09-01 - RAK - Created
+	2011-09-22 - RAK - Updated file uploader to be able to get more detailed information if they choose to override the props.
 --->
 <cfcomponent name="file_uploader" extends="ADF.core.Base">
 	<cfproperty name="version" value="1_0_0">
