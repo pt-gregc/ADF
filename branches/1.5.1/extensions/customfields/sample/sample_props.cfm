@@ -29,6 +29,7 @@ Summary:
 History:
  	2011-09-26 - RAK - Created
 	2011-12-19 - MFC - Updated to load the current values with the default values.
+	2011-12-28 - MFC - Force JQuery to "noconflict" mode to resolve issues with CS 6.2.
 --->
 <cfscript>
 	// initialize some of the attributes variables
@@ -56,7 +57,7 @@ History:
 	}
 	
 	// Load JQuery
-	application.ADF.scripts.loadJQuery();
+	application.ADF.scripts.loadJQuery(noConflict=true);
 </cfscript>
 
 <cfoutput>

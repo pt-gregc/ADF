@@ -33,6 +33,7 @@ Summary:
 ADF Requirements:
 History:
 	2010-10-26 - RAK - Created
+	2011-12-28 - MFC - Force JQuery to "noconflict" mode to resolve issues with CS 6.2.
 --->
 <cfscript>
 	// initialize some of the attributes variables
@@ -45,8 +46,7 @@ History:
 	if( not structKeyExists(currentValues, "filetypes") )
 		currentValues.filetypes = "txt,pdf";
 		
-	
-	application.ADF.scripts.loadJQuery();
+	application.ADF.scripts.loadJQuery(noConflict=true);
 </cfscript>
 <cfoutput>
 <script type="text/javascript">
