@@ -28,7 +28,8 @@ Summary:
 	Renders the file upload form
 History:
 	2011-08-05 - RAK - Created
-	2011-08-05 - RAK - fixed issue where the file uploader would try to generate images for non-pdf files.
+	2011-08-05 - RAK - Fixed issue where the file uploader would try to generate images for non-pdf files.
+	2012-01-03 - GAC - Moved the the hidden field code inside the TD tag
 --->
 <cfscript>
 	application.ADF.scripts.loadJQuery();
@@ -145,12 +146,13 @@ History:
 				<div id="errorMsg_#fqFieldName#"></div>
 				<input type="button" value="Clear" name="clear_btn_#fqFieldName#" id="clear_btn_#fqFieldName#" onclick="#fqFieldName#clearButtonClick()">
 			</div>
+		
+			<!--- hidden field to store the value --->
+			<input type='hidden' name='#fqFieldName#' id='#fqFieldName#' value='#currentValue#'>
+			<!--- // include hidden field for simple form processing --->
+			<cfif renderSimpleFormField>
+				<input type="hidden" name="#fqFieldName#_FIELDNAME" id="#fqFieldName#_FIELDNAME" value="#ReplaceNoCase(xParams.fieldName, 'fic_','')#">
+			</cfif>
 		</td>
 	</tr>
-	<!--- hidden field to store the value --->
-	<input type='hidden' name='#fqFieldName#' id='#fqFieldName#' value='#currentValue#'>
-	<!--- // include hidden field for simple form processing --->
-	<cfif renderSimpleFormField>
-		<input type="hidden" name="#fqFieldName#_FIELDNAME" id="#fqFieldName#_FIELDNAME" value="#ReplaceNoCase(xParams.fieldName, 'fic_','')#">
-	</cfif>
 </cfoutput>
