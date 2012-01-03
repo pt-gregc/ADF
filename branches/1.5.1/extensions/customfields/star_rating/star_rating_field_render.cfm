@@ -35,6 +35,7 @@ ADF Requirements:
 History:
 	2009-11-16 - MFC - Created
 	2011-02-02 - RAK - Updated to allow for customizing number of stars and half stars
+	2012-01-03 - MFC - Commented out JS code to prevent JS error in the form.
 --->
 
 <cfscript>
@@ -97,7 +98,7 @@ History:
 				</cfif>
 				callback: function(ui, type, value){
 					// Callback for the selection, get the object value
-					selectObj = $("###fqFieldName#_renderStars").stars("select", value);
+					selectObj = jQuery("###fqFieldName#_renderStars").stars("select", value);
 					// put the selected value into the field
 					jQuery("input###fqFieldName#").val(value);
 				}
@@ -133,7 +134,7 @@ History:
 					readOnly = false;
 			</cfscript>
 			<div id="#fqFieldName#_renderStars">
-				<select name='#fqFieldName#_select' id='#fqFieldName#_select' onchange='#fqFieldName#_loadSelection()' <cfif readOnly>disabled='disabled'</cfif>>
+				<select name='#fqFieldName#_select' id='#fqFieldName#_select' <!--- onchange='#fqFieldName#_loadSelection()' ---> <cfif readOnly>disabled='disabled'</cfif>>
 					<cfloop from="1" to="#numberOfStars#" index="i">
 						<cfset currentVal = i>
 						<cfif halfStars>
