@@ -85,6 +85,7 @@ History:
 	2011-02-09 - RAK - Var'ing un-var'd variables
 	2011-03-26 - MFC - Commented out force JQuery, the loadADFLightbox with force will load JQuery.
 						Removed the loadADFLightbox force argument when loading the form.
+	2012-01-03 - MFC - Added check that the field has the name attribute.
 --->
 <cffunction name="renderAddEditForm" access="public" returntype="String" hint="Returns the HTML for an Add/Edit Custom element record">
 	<cfargument name="formID" type="numeric" required="true" hint="Form ID to render">
@@ -180,7 +181,9 @@ History:
 						var formFields = jQuery("input");
 						formFields = formFields.filter(
 							function(){
-								return jQuery(this).attr("name").toLowerCase().indexOf("fieldname") != -1;
+								// Need to check that the field has a name attribute
+								if ( jQuery(this).attr("name") )
+									return jQuery(this).attr("name").toLowerCase().indexOf("fieldname") != -1;
 							}
 						);
 						formFields.each(function (){
