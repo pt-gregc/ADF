@@ -28,88 +28,72 @@ Name:
 	custom_text_area_field_render.cfm
 Summary:
 	Allows for an text area field to have a specific class name. 
-	
 ADF Requirements:
-
+	forms_1_1
+Version:
+	2.0.0
 History:
 	2009-07-06 - MFC - Created
 	2009-08-14 - GAC - Modified - Converted to Custom Text Area With Class
 	2009-08-20 - GAC - Modified - Added code for the required field option
 	2010-07-08 - DMB - Modified - Added support for custom field name
 	2010-08-02 - DMB - Modified - Modified to display the label using Commonspot CSS for a required field.
+	2011-12-06 - GAC - Modified - Updated to use the wrapFieldHTML from ADF lib forms_1_1
 --->
 <cfscript>
 	// the fields current value
 	currentValue = attributes.currentValues[fqFieldName];
 	// the param structure which will hold all of the fields from the props dialog
 	xparams = parameters[fieldQuery.inputID];
-	//if ( structKeyExists(xparams, "wrap") EQ 0 )
-		//xparams.wrap = virtual;
 		
 	// set the Max Length Default
 	maxLen = 0;
 	// set the default for the validationJS variable
 	validationJS = "";
 	
+	// Set defaults for the label and description 
+	includeLabel = true;
+	includeDescription = false; // set to false to all conditional logic below to determine when it should be true
+	
 	//if ( structKeyExists(xparams, "maxLength") EQ 0 )
 		//maxLen = xparams.maxLength;
 		
-	if ( structKeyExists(xparams, "wrap") EQ 0 )
+	if ( NOT structKeyExists(xparams, "wrap") )
 		xparams.wrap = 'virtual';
 	
 	if ( NOT StructKeyExists(xparams, "fldName") )
 		xparams.fldName = fqFieldName;
 		
-	// find if we need to render the simple form field
-	renderSimpleFormField = false;
-	if ( (StructKeyExists(request, "simpleformexists")) AND (request.simpleformexists EQ 1) )
-		renderSimpleFormField = true;
-</cfscript>
-
-<cfscript>
-	if ( structKeyExists(request, "element") )
-	{
-			if (xparams.req is "Yes") {
-				thisVal="Required";
-			}
-			else
-			{
-				thisVal="Label";
-			}
-		labelText = '<span class="CS_Form_#thisVal#_Baseline"><label for="#fqFieldName#">#xParams.label#:</label></span>';
-		tdClass = 'CS_Form_Label_Baseline';
-	}
-	else
-	{
-		labelText = '<label for="#fqFieldName#">#xParams.label#:</label>';
-		tdClass = 'cs_dlgLabel';
-	}
+	//-- Update for CS 6.x / backwards compatible for CS 5.x --
+	//   If it does not exist set the Field Security variable to a default value
+	if ( NOT StructKeyExists(variables,"fieldPermission") )
+		variables.fieldPermission = "";
+	//-- Read Only Check w/ cs6 fieldPermission parameter --
+	readOnly = application.ADF.forms.isFieldReadOnly(xparams,variables.fieldPermission);
+	
+	// TODO: determine if this conditional logic is needed to display the description or not (fieldPermission is new to CS6.x)
+	// conditional logic for field description from the original custom_text_area_field_render
+	if ( attributes.renderMode EQ 'standard' AND variables.fieldpermission GT 0 )
+		includeDescription = true;
 </cfscript>
 
 <cfoutput>
+	<!---
+		This version is using the wrapFieldHTML functionality, what this does is it takes
+		the HTML that you want to put into the TD of the right section of the display, you
+		can optionally disable this by adding the includeLabel = false (fourth parameter)
+		when false it simply creates a TD and puts your content inside it. This wrapper handles
+		everything from description to simple form field handling.
+	--->
+
+	<cfsavecontent variable="inputHTML">
+	<!--- <cfdump var="#attributes.renderMode#" expand="false"><br>	
+	<cfdump var="#variables.fieldpermission#" expand="false"><br> --->
 	
-	<tr>
-		<td class="#tdClass#" valign="top">
-				<cfif xparams.req eq "Yes"><strong></cfif>
-				#labelText#
-				<cfif xparams.req eq "Yes"><strong></cfif>
-		</td>
-		<td class="cs_dlgLabelSmall">
-			<textarea name="#fqFieldName#" id="#xparams.fldName#" cols="#xparams.columns#" rows="#xparams.rows#"<cfif LEN(TRIM(xparams.fldClass))> class="#xparams.fldClass#"</cfif> wrap="#xparams.wrap#">#currentValue#</textarea><!--- wrap="#xparams.wrap#" --->
-			<CFIF attributes.rendermode EQ 'standard'>
-				<CFIF fieldpermission gt 0>
-					<CFOUTPUT>#description_row#</CFOUTPUT>
-				</CFIF>
-			</CFIF>
-		</td>
-	</tr>
-	<cfset xparams.fieldname = right(xparams.fieldname,len(xparams.fieldname)-4)>
-	<input type="hidden" value="#xparams.fieldName#" name="#fqFieldName#_fieldName" class="ref_core_71"/>
-	
-	<!--- // include hidden field for simple form processing --->
-	<cfif renderSimpleFormField>
-		<input type="hidden" name="#fqFieldName#_FIELDNAME" id="#fqFieldName#_FIELDNAME" value="#ReplaceNoCase(xParams.fieldName, 'fic_','')#">
-	</cfif>
+	<cfoutput>
+	<textarea name="#fqFieldName#" id="#xparams.fldName#" cols="#xparams.columns#" rows="#xparams.rows#"<cfif LEN(TRIM(xparams.fldClass))> class="#xparams.fldClass#"</cfif> wrap="#xparams.wrap#"<cfif readOnly> readonly="readonly"</cfif>>#currentValue#</textarea>
+	</cfoutput>
+	</cfsavecontent>
 	
 	<!--- JavaScript validation --->
 	<script type="text/javascript">
@@ -140,4 +124,7 @@ History:
 			}
 		} */ --->
 	</script>
+
+	<!--- // Added the CS6 fieldPermission parameter  --->
+	#application.ADF.forms.wrapFieldHTML(inputHTML,fieldQuery,attributes,variables.fieldPermission,includeLabel,includeDescription)#
 </cfoutput>

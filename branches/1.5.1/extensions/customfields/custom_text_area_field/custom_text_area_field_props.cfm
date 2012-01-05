@@ -35,7 +35,8 @@ History:
 	2009-07-06 - MFC - Created
 	2009-08-14 - GAC - Modified - Converted to Custom Text Area With Class
 	2009-08-19 - GAC - Modified - Added Default Value Property
-	2010-07-08 - DMB - Modified -- Added support for custom field name
+	2010-07-08 - DMB - Modified - Added support for custom field name
+	2011-12-06 - GAC - Modified - Updated to use the wrapFieldHTML from ADF lib forms_1_1
 --->
 <cfscript>
 	// initialize some of the attributes variables
