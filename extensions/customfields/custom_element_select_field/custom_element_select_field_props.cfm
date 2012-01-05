@@ -47,6 +47,7 @@ History:
 	2011-06-23 - RAK - Added sortField option
 	2011-06-23 - GAC - Added the addtional field descriptions to the display field and sort field options
 					- Modified the "Other" option  from the displayFieldBuilder to be "--Other--" to make more visible and to avoid CE field name conflicts 
+	2011-12-28 - MFC - Force JQuery to "noconflict" mode to resolve issues with CS 6.2.
 --->
 <cfscript>
 	// initialize some of the attributes variables
@@ -87,7 +88,7 @@ History:
 </cfscript>
 <cfoutput>
 	<cfscript>
-		application.ADF.scripts.loadJQuery();
+		application.ADF.scripts.loadJQuery(noConflict=true);
 		application.ADF.scripts.loadJQuerySelectboxes();
 	</cfscript>
 <script type="text/javascript">

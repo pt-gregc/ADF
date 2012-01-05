@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
  
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2010.
+PaperThin, Inc. Copyright(C) 2011.
 All Rights Reserved.
  
 By downloading, modifying, distributing, using and/or accessing any files
@@ -35,7 +35,9 @@ History:
 	2009-07-06 - MFC - Created
 	2009-08-14 - GAC - Modified - Converted to Custom Text Area With Class
 	2009-08-19 - GAC - Modified - Added Default Value Property
-	2010-07-08 - DMB - Modified -- Added support for custom field name
+	2010-07-08 - DMB - Modified - Added support for custom field name
+	2011-12-06 - GAC - Modified - Updated to use the wrapFieldHTML from ADF lib forms_1_1
+	2012-01-05 - GAC - Modified - Created a default 'wrap' variable and added '#prefix#wrap' to JS paramFields
 --->
 <cfscript>
 	// initialize some of the attributes variables
@@ -53,6 +55,8 @@ History:
 		currentValues.columns = "40";
 	if( not structKeyExists(currentValues, "rows") )
 		currentValues.rows = "4";
+	if ( not StructKeyExists(currentValues, 'wrap') )
+		currentValues.wrap = "virtual";
 	if ( not StructKeyExists(currentValues, 'defaultValue') )
 		currentValues.defaultValue = '';
 	if ( not StructKeyExists(currentValues, 'useUdef') )
@@ -62,7 +66,7 @@ History:
 <cfoutput>
 	<script language="JavaScript" type="text/javascript">
 		// register the fields with global props object
-		fieldProperties['#typeid#'].paramFields = '#prefix#fldClass,#prefix#fldName,#prefix#columns,#prefix#rows,#prefix#useUdef'; //,#prefix#maxLength
+		fieldProperties['#typeid#'].paramFields = '#prefix#fldClass,#prefix#fldName,#prefix#columns,#prefix#rows,#prefix#wrap,#prefix#useUdef'; //,#prefix#maxLength
 		fieldProperties['#typeid#'].defaultValueField = '#prefix#defaultValue';
 		// allows this field to support the orange icon (copy down to label from field name)
 		fieldProperties['#typeid#'].jsLabelUpdater = '#prefix#doLabel';
@@ -120,7 +124,7 @@ History:
 			<td class="cs_dlgLabelSmall">Rows:</td>
 			<td class="cs_dlgLabelSmall"><input type="text" name="#prefix#rows" id="#prefix#rows" value="#currentValues.rows#" size="5"></td>
 		</tr>
-		<input type="hidden" name="#prefix#wrap" value="virtual" />
+		<input type="hidden" name="#prefix#wrap" value="#currentValues.wrap#" />
 </cfoutput>
 <cfset useTextArea = 1>
 <cfinclude template="/commonspot/metadata/form_control/input_control/default_value.cfm">

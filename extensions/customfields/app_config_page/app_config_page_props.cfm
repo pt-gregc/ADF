@@ -30,6 +30,7 @@ History:
 	RLW - Created
 	2011-08-11 - GAC - Updated - Set to use the application.ADF.scripts instead of the objectFactory.getBean
 	2011-08-15 - GAC - Updated - Fixed the UI button class that was being called directly from the scripts getBean function
+	2011-12-28 - MFC - Force JQuery to "noconflict" mode to resolve issues with CS 6.2.
 --->
 <cfscript>
 	// initialize some of the attributes variables
@@ -38,7 +39,7 @@ History:
 	formname = attributes.formname;
 	currentValues = attributes.currentValues;
 	
-	application.ADF.scripts.loadJQuery();
+	application.ADF.scripts.loadJQuery(noConflict=true);
 	application.ADF.scripts.loadJQueryUI();
 	
 	btnClass = application.ADF.scripts.jQueryUIButtonClass();

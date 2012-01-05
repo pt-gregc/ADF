@@ -37,11 +37,11 @@ History:
 --->
 <cfcomponent name="Core" hint="Core component for Application Development Framework">
 
-<cfproperty name="version" value="1_5_0">
-<cfproperty name="svnRevision" value="640">
+<cfproperty name="version" value="1_5_1">
+<cfproperty name="svnRevision" value="674">
 
 <cfscript>
-	variables.ADFversion = "1.5.0"; // use a dot delimited version number
+	variables.ADFversion = "1.5.1"; // use a dot delimited version number
 	// CS product version, get the decimal value
 	variables.csVersion = Val(ListLast(request.cp.productversion, " "));
 </cfscript>

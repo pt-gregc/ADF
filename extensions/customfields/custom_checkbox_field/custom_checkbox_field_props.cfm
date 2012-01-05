@@ -19,8 +19,7 @@ end user license agreement.
 --->
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	
 	PaperThin, Inc.
 	Michael Carroll 
@@ -38,8 +37,13 @@ History:
 	2009-07-06 - MFC - Created
 	2011-05-26 - GAC - Modified - added a class parameter and updated the id attributes on the input field
 	2011-07-19 - GAC - Modified - added a parameter to assign the stored value (ie. 1, Yes or True )
+	2011-12-22 - GAC - Modified - added a call to the loadJQuery method in the scripts lib
+	2011-12-28 - MFC - Force JQuery to "noconflict" mode to resolve issues with CS 6.2.
 --->
 <cfscript>
+	// Load JQuery to the script
+	application.ADF.scripts.loadJQuery(noConflict=true);
+	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
 	prefix = attributes.prefix;

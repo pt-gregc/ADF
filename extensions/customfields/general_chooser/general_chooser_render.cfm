@@ -44,6 +44,7 @@ History:
 	2011-03-27 - MFC - Updated for Add/Edit/Delete callback.
 	2011-09-21 - RAK - Added max/min selections
 	2011-10-20 - GAC - Added defualt value check for the minSelections and maxSelections xParams varaibles
+	2012-01-04 - SS - The field now honors the "required" setting in Standard Options.
 --->
 <cfscript>
 	// the fields current value
@@ -199,7 +200,7 @@ History:
 			closeLB();
 		}
 
-		//Validation function to validate max/min selections
+		// Validation function to validate required field and max/min selections
 		function #xParams.fieldID#_validate(){
 			//Get the list of selected items
 			var selections = jQuery("###fqFieldName#").val();
@@ -209,6 +210,13 @@ History:
 				var arraySelections = selections.split(",");
 				lengthOfSelections = arraySelections.length;
 			}
+			<cfif xparams.req EQ 'Yes'>
+				// If the field is required, check that a select has been made.
+				if (lengthOfSelections <= 0) {
+					alert("Please make a selection from the available items list.");
+					return false;
+				}
+			</cfif>
 			<cfif isNumeric(xParams.minSelections) and xParams.minSelections gt 0>
 				if(lengthOfSelections < #xParams.minSelections#){
 					alert("Minimum number of selections is #xParams.minSelections# you have only selected "+lengthOfSelections+" items");

@@ -20,7 +20,9 @@ end user license agreement.
 
 <!--- // RLW - 2011-01-30 - this field type is designed to allow you to easily get the value/params from another
 	field in the same custom element.  Currently only the csPageURL (CommonSpot Page URL) field type has 
-	been implemented --->
+	been implemented
+		2011-12-28 - MFC - Force JQuery to "noconflict" mode to resolve issues with CS 6.2.
+	 --->
 
 <cfscript>
 	// initialize some of the attributes variables
@@ -31,7 +33,7 @@ end user license agreement.
 	otherFields = arrayNew(1);
 	tabIDList = "";
 		
-	application.ADF.scripts.loadJQuery();
+	application.ADF.scripts.loadJQuery(noConflict=true);
 	// get the list of tabs for this element
 	tabAry = application.ADF.ceData.getTabsFromFormID(request.params.formID);
 	// convert to list
