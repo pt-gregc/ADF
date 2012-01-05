@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
  
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2010.
+PaperThin, Inc. Copyright(C) 2011.
 All Rights Reserved.
  
 By downloading, modifying, distributing, using and/or accessing any files
@@ -39,6 +39,7 @@ History:
 	2010-07-08 - DMB - Modified - Added support for custom field name
 	2010-08-02 - DMB - Modified - Modified to display the label using Commonspot CSS for a required field.
 	2011-12-06 - GAC - Modified - Updated to use the wrapFieldHTML from ADF lib forms_1_1
+	2012-01-05 - GAC - Modified - Added a default variables for the props parameters
 --->
 <cfscript>
 	// the fields current value
@@ -55,19 +56,26 @@ History:
 	includeLabel = true;
 	includeDescription = false; // set to false to all conditional logic below to determine when it should be true
 	
-	//if ( structKeyExists(xparams, "maxLength") EQ 0 )
-		//maxLen = xparams.maxLength;
-		
-	if ( NOT structKeyExists(xparams, "wrap") )
-		xparams.wrap = 'virtual';
-	
 	if ( NOT StructKeyExists(xparams, "fldName") )
 		xparams.fldName = fqFieldName;
+	//if ( StructKeyExists(xparams, "maxLength") EQ 0 )
+		//maxLen = xparams.maxLength;
+	if ( NOT StructKeyExists(xparams, "columns") )
+		xparams.columns = "40";
+	if ( NOT StructKeyExists(xparams, "rows") )
+		xparams.rows = "4";
+	if ( NOT StructKeyExists(xparams, "wrap") )
+		xparams.wrap = 'virtual';
+	if ( NOT StructKeyExists(xparams, "fldClass") )
+		xparams.fldClass = "";
+	if ( NOT LEN(currentvalue) AND StructKeyExists(xparams,"defaultValue") )
+		currentValue = xparams.defaultValue;
 		
 	//-- Update for CS 6.x / backwards compatible for CS 5.x --
 	//   If it does not exist set the Field Security variable to a default value
 	if ( NOT StructKeyExists(variables,"fieldPermission") )
 		variables.fieldPermission = "";
+		
 	//-- Read Only Check w/ cs6 fieldPermission parameter --
 	readOnly = application.ADF.forms.isFieldReadOnly(xparams,variables.fieldPermission);
 	
@@ -120,8 +128,7 @@ History:
 			else
 			{
 				alert(#fqFieldName#.msg);
-				return false;
-			}
+				return false;			}
 		} */ --->
 	</script>
 
