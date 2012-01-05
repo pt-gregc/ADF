@@ -7,10 +7,10 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 the specific language governing rights and limitations under the License.
 
-The Original Code is comprised of the Starter App directory
+The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2010.
+PaperThin, Inc. Copyright(C) 2011.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files
@@ -28,6 +28,7 @@ Summary:
 	Sample render file, this will output a simple text element for the user to enter data in
 History:
  	2011-09-26 - RAK - Created
+	2011-12-19 - MFC - Updated the validation for the property fields.
 --->
 <cfscript>
 	// the fields current value
@@ -35,12 +36,16 @@ History:
 	// the param structure which will hold all of the fields from the props dialog
 	xparams = parameters[fieldQuery.inputID];
 
-	if(!Len(currentvalue)){
+	// Validate the property fields are defined
+	if(!Len(currentvalue) AND StructKeyExists(xparams, "defaultText")){
 		currentValue = xparams.defaultText;
 	}
 
 	//--Field Security--
 	readOnly = application.ADF.forms.isFieldReadOnly(xparams);
+	
+	// Load JQuery
+	application.ADF.scripts.loadJQuery();
 </cfscript>
 <cfoutput>
 	<script>

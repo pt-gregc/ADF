@@ -30,12 +30,18 @@ Summary:
 History:
 	2011-09-01 - RAK - Created
 	2011-09-01 - RAK - Added multiple element support
+	2011-12-08 - GAC - Added attribute for themeName that can be passed via the customcf parameters dialog 
 --->
 <cfoutput>
 	<cfif structKeyExists(attributes,"elementName") and Len(attributes.elementName)>
 		<cfscript>
 			application.ADF.scripts.loadJQuery();
-			application.ADF.scripts.loadJQueryUI();
+			
+			if ( StructKeyExists(attributes,"themeName") AND LEN(TRIM(attributes.themeName)) )
+				application.ADF.scripts.loadJQueryUI(themeName=attributes.themeName);
+			else
+				application.ADF.scripts.loadJQueryUI();
+				
 			application.ADF.scripts.loadADFLightbox();
 		</cfscript>
 		<style>
