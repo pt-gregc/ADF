@@ -31,6 +31,7 @@ History:
 	2011-09-01 - RAK - Created
 	2011-09-01 - RAK - Added multiple element support
 	2011-12-08 - GAC - Added attribute for themeName that can be passed via the customcf parameters dialog 
+	2012-01-05 - GAC - Added attributes for hiding the 'add new' button and for securing the add new button
 --->
 <cfoutput>
 	<cfif structKeyExists(attributes,"elementName") and Len(attributes.elementName)>
@@ -43,6 +44,24 @@ History:
 				application.ADF.scripts.loadJQueryUI();
 				
 			application.ADF.scripts.loadADFLightbox();
+			
+			// Bean Name
+			beanName = "Forms_1_1";
+			
+			// Set the Add New Button defaults
+			displayAddNewButton = true; // Display the add new button
+			secureAddNewButton = true;
+			lockAddNewButton = false;  
+			
+			if ( StructKeyExists(attributes,"showAddNewButton") AND IsBoolean(attributes.showAddNewButton) )
+				displayAddNewButton = attributes.showAddNewButton; 
+					
+			if ( StructKeyExists(attributes,"useAddNewSecurity") AND IsBoolean(attributes.useAddNewSecurity) )
+				secureAddNewButton = attributes.useAddNewSecurity;
+			
+			// Security Check for Add New Button	
+			if ( secureAddNewButton AND LEN(request.user.userid) EQ 0 )	
+				lockAddNewButton = true;	
 		</cfscript>
 		<style>
 			input.ui-button:hover{
@@ -55,10 +74,10 @@ History:
 				// Hover states on the static widgets
 				jQuery("input.ui-button").hover(
 					function() {
-						$(this).addClass('ui-state-hover');
+						jQuery(this).addClass('ui-state-hover');
 					},
 					function() {
-						$(this).removeClass('ui-state-hover');
+						jQuery(this).removeClass('ui-state-hover');
 					}
 				);
 			});
@@ -75,12 +94,24 @@ History:
 					elementFormID = application.ADF.ceData.getFormIDByCEName(elementName);
 					customControlName = "customManagementFor#replace(elementName,' ','','ALL')#";
 				</cfscript>
-				<input type="button"
-						rel="#application.ADF.ajaxProxy#?bean=Forms_1_1&method=renderAddEditForm&formID=#elementFormID#&lbAction=refreshparent&title=New #attributes.elementName#&datapageid=0"
-						class="ADFLightbox ui-button ui-state-default ui-corner-all"
-						value="New #elementName#" />
 				<br/>
 				<br/>
+				<cfif lockAddNewButton>
+					<cfif displayAddNewButton>
+						<input type="button"
+							rel="#application.ADF.ajaxProxy#?bean=#beanName#&method=renderAddEditForm&formID=#elementFormID#&lbAction=refreshparent&title=New #attributes.elementName#&datapageid=0"
+							class="ADFLightbox ui-button ui-state-default ui-corner-all"
+							value="New #elementName#" />
+						<br/>
+						<br/>
+					</cfif>
+				<cfelse>
+					<cfif displayAddNewButton>
+						Please <a href="#request.subsitecache[1].url#login.cfm">LOGIN</a> to add new records.
+						<br/>
+						<br/>
+					</cfif>
+				</cfif>
 				<CFMODULE TEMPLATE="/commonspot/utilities/ct-render-named-element.cfm"
 					elementtype="datasheet"
 					elementName="#customControlName#">
