@@ -339,6 +339,7 @@ History:
 	2011-11-07 - GAC - Addressed table formatting issues with the includeLabel argument 
 					 - Added an includeDescription argument to allow the description to be turned off
 	2011-11-22 - GAC - Added a fieldPermission argument and logic to handle 6.x field security
+	2012-01-10 - GAC - Removed obsolete show/hide field description logic
 --->
 <cffunction name="wrapFieldHTML" access="public" returntype="String" hint="Wraps the given information with valid html for the current commonspot and configuration">
 	<cfargument name="fieldInputHTML" type="string" required="true" default="" hint="HTML for the field input, do a cfSaveContent on the input field and pass that in here">
@@ -387,10 +388,6 @@ History:
 			{
 				doHiddenFieldSecurity = true;		
 			}	
-			
-			// TODO: determine if this conditional logic is needed to display the description or not (fieldPermission is new to CS6.x)
-			//if ( renderMode NEQ 'standard' OR fieldpermission LTE 0 )
-				//arguments.includeDescription = false;
 		}
 		else
 		{
