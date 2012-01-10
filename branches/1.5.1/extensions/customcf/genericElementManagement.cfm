@@ -31,7 +31,7 @@ History:
 	2011-09-01 - RAK - Created
 	2011-09-01 - RAK - Added multiple element support
 	2011-12-08 - GAC - Added attribute for themeName that can be passed via the customcf parameters dialog 
-	2012-01-05 - GAC - Added attributes for hiding the 'add new' button and for securing the add new button
+	2012-01-05 - GAC - Added attributes for hiding the 'add new' button and for securing the 'add new' button
 --->
 <cfoutput>
 	<cfif structKeyExists(attributes,"elementName") and Len(attributes.elementName)>
