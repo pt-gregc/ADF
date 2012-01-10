@@ -40,6 +40,7 @@ History:
 	2010-08-02 - DMB - Modified - Modified to display the label using Commonspot CSS for a required field.
 	2011-12-06 - GAC - Modified - Updated to use the wrapFieldHTML from ADF lib forms_1_1
 	2012-01-05 - GAC - Modified - Added a default variables for the props parameters
+	2012-01-10 - GAC - Modified - Removed obsolete show/hide field description logic
 --->
 <cfscript>
 	// the fields current value
@@ -78,11 +79,6 @@ History:
 		
 	//-- Read Only Check w/ cs6 fieldPermission parameter --
 	readOnly = application.ADF.forms.isFieldReadOnly(xparams,variables.fieldPermission);
-	
-	// TODO: determine if this conditional logic is needed to display the description or not (fieldPermission is new to CS6.x)
-	// conditional logic for field description from the original custom_text_area_field_render
-	if ( attributes.renderMode EQ 'standard' AND variables.fieldpermission GT 0 )
-		includeDescription = true;
 </cfscript>
 
 <cfoutput>
