@@ -31,12 +31,12 @@ Summary:
 Attributes:
 	elementName - a comma-delimited list of Custom Element Names (required: at least one elementName is needed)
 	themeName - the name of a jQueryUI theme (default: the ADF standard theme for jQueryUI - ui-lightness)
-	showAddButton -  true/false to show the 'Add Button' or not (default: true)
+	showAddButtons -  a comma-delimited list of true/false for each element name to show the 'Add Button' or not  on each tab (default: true)
 	useAddButtonSecurity - true/false to enable or disable security for the 'Add Button' (default: true)
-Attributes Examples:
+Custom Script Parameters Tab Examples:
 	elementName=My Element One,My Element Two,My Element Three
 	themeName=redmond
-	showAddButton=true
+	showAddButtons=true,false,true 
 	useAddButtonSecurity=true
 History:
 	2011-09-01 - RAK - Created
@@ -45,12 +45,13 @@ History:
 	2012-01-05 - GAC - Added attribute for hiding the 'Add Button' 
 					 - Added attrubutes for securing the 'Add Button' 
 	2012-01-10 - MFC - Updated HTML to make the tabs work. 
-						Added condition to not render tabs when only 1 element.
-						Added JQuery Cookie to remember the last tab visited. 
+					 - Added condition to not render tabs when only 1 element.
+					 - Added JQuery Cookie to remember the last tab visited. 
 	2012-01-10 - GAC - Fixed the logic for the show/hide of the 'Add Button'
 					 - Fixed the logic for securing 'Add Button' 
 					 - Fixed the 'Add Button' Lightbox Title so it doesn't pass the full list of the elementNames
 					 - Added additional comments for the attributes that can be passed in via the custom script parameters tab
+					 - Added logic to handle a display option to show or hide the 'Add Button' on each tab using a a comma-delimited list of true/false values 
 --->
 <cfoutput>
 	<cfif structKeyExists(attributes,"elementName") and Len(attributes.elementName)>
@@ -70,24 +71,45 @@ History:
 			beanName = "Forms_1_1";
 			
 			// Set the 'Add Button' display defaults
-			displayAddButton = true; // Display the 'Add Button'
-			secureAddButton = true;  // Only show 'Add Button' if user is logged in 
+			displayAddButtonDefault = true; // Display the 'Add Button'
+			secureAddButtons = true;  // Only show 'Add Button' if user is logged in 
 			
 			// Set the flag for the locking a secured 'Add Button'
-			enableAddButton = true; 			 
+			enableAddButton = true; 	
+			// Create the struct for the 'Add Button' status  
+			displayAddBtnOptions = StructNew();
 			
-			// Check to see if the attribute 'showAddButton' was passed in
-			// - attributes.showAddButton=false takes presidence over enableAddButton=true
-			if ( StructKeyExists(attributes,"showAddButton") AND IsBoolean(attributes.showAddButton) )				
-				displayAddButton = attributes.showAddButton; 
+			// Check to see if the attribute 'showAddButtons' was passed in with a a list of display option values
+			// - attributes.showAddButtons=false takes presidence over enableAddButton=true
+			if ( StructKeyExists(attributes,"showAddButtons") AND LEN(TRIM(attributes.showAddButtons)) )
+			{				
+				// Set the default if only one showAddButton option is passed in use it as the default for all
+				if ( ListLen(attributes.showAddButtons) EQ 1 AND IsBoolean(attributes.showAddButtons) )
+					displayAddButtonDefault = attributes.showAddButtons;
+					
+				// Build structure with elementName as the key and the 'Add Button' display option as the value
+				for ( a=1;a LTE ListLen(attributes.elementName);a=a+1 ){
+					elmt = ListGetAt(attributes.elementName,a);
+					abtn = displayAddButtonDefault;
+					// set the display value for each 'Add Button' for each element tab
+					if ( a LTE ListLen(attributes.showAddButtons) )
+						abtn = ListGetAt(attributes.showAddButtons,a);	
+					// Set the elementName key of the struct with the status value
+					if ( IsBoolean(abtn) )
+						displayAddBtnOptions[elmt] = abtn;
+					else
+						displayAddBtnOptions[elmt] = displayAddButtonDefault;		
+				}
+			}
+//application.ADF.utils.doDUMP(displayAddBtnOptions,"displayAddBtnOptions",1);
 
 			// Check to see if the attribute 'useAddButtonSecurity' was passed in
 			if ( StructKeyExists(attributes,"useAddButtonSecurity") AND IsBoolean(attributes.useAddButtonSecurity) )
-				secureAddButton = attributes.useAddButtonSecurity;
+				secureAddButtons = attributes.useAddButtonSecurity;
 			
 			// Security Check for 'Add Button'
-			// - enableAddButton=false takes presidence over attributes.showAddButton=true	
-			if ( secureAddButton AND (LEN(request.user.userid) EQ 0 OR request.user.userid EQ "anonymous") )
+			// - enableAddButton=false takes presidence over attributes.showAddButtons=true	
+			if ( secureAddButtons AND (LEN(request.user.userid) EQ 0 OR request.user.userid EQ "anonymous") )
 				enableAddButton = false;	
 
 			// Check the list of elements to see if need the tabs.
@@ -142,7 +164,7 @@ History:
 					<br/>
 					<br/>
 					<cfif enableAddButton>
-						<cfif displayAddButton>
+						<cfif displayAddBtnOptions[ceName]>
 							<input type="button"
 								rel="#application.ADF.ajaxProxy#?bean=#beanName#&method=renderAddEditForm&formID=#ceFormID#&lbAction=refreshparent&title=New #ceName#&datapageid=0"
 								class="ADFLightbox ui-button ui-state-default ui-corner-all"
@@ -151,7 +173,7 @@ History:
 							<br/>
 						</cfif>
 					<cfelse>
-						<cfif displayAddButton>
+						<cfif displayAddBtnOptions[ceName]>
 							Please <a href="#request.subsitecache[1].url#login.cfm">LOGIN</a> to add new records.
 							<br/>
 							<br/>
