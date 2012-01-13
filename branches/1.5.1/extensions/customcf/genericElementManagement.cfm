@@ -52,6 +52,7 @@ History:
 					 - Fixed the 'Add Button' Lightbox Title so it doesn't pass the full list of the elementNames
 					 - Added additional comments for the attributes that can be passed in via the custom script parameters tab
 					 - Added logic to handle a display option to show or hide the 'Add Button' on each tab using a a comma-delimited list of true/false values 
+	2012-01-13 - GAC - Fixed logic for checking the comma-delimited list of boolean values passed in with the 'showAddButtons' attribute
 --->
 <cfoutput>
 	<cfif structKeyExists(attributes,"elementName") and Len(attributes.elementName)>
@@ -78,6 +79,7 @@ History:
 			enableAddButton = true; 	
 			// Create the struct for the 'Add Button' status  
 			displayAddBtnOptions = StructNew();
+			diplayAddButtonList = "";
 			
 			// Check to see if the attribute 'showAddButtons' was passed in with a a list of display option values
 			// - attributes.showAddButtons=false takes presidence over enableAddButton=true
@@ -86,22 +88,25 @@ History:
 				// Set the default if only one showAddButton option is passed in use it as the default for all
 				if ( ListLen(attributes.showAddButtons) EQ 1 AND IsBoolean(attributes.showAddButtons) )
 					displayAddButtonDefault = attributes.showAddButtons;
-					
-				// Build structure with elementName as the key and the 'Add Button' display option as the value
-				for ( a=1;a LTE ListLen(attributes.elementName);a=a+1 ){
-					elmt = ListGetAt(attributes.elementName,a);
-					abtn = displayAddButtonDefault;
-					// set the display value for each 'Add Button' for each element tab
-					if ( a LTE ListLen(attributes.showAddButtons) )
-						abtn = ListGetAt(attributes.showAddButtons,a);	
-					// Set the elementName key of the struct with the status value
-					if ( IsBoolean(abtn) )
-						displayAddBtnOptions[elmt] = abtn;
-					else
-						displayAddBtnOptions[elmt] = displayAddButtonDefault;		
-				}
+				else
+					diplayAddButtonList = attributes.showAddButtons;
 			}
-//application.ADF.utils.doDUMP(displayAddBtnOptions,"displayAddBtnOptions",1);
+					
+			// Build structure with elementName as the key and the 'Add Button' display option as the value
+			for ( a=1;a LTE ListLen(attributes.elementName);a=a+1 ){
+				ce = ListGetAt(attributes.elementName,a);
+				elmt = REREPLACE(ce,"[\s]","","all");
+				abtn = displayAddButtonDefault;
+
+				// set the display value for each 'Add Button' for each element tab
+				if ( a LTE ListLen(diplayAddButtonList) )
+					abtn = ListGetAt(diplayAddButtonList,a);	
+				// Set the elementName key of the struct with the status value
+				if ( IsBoolean(abtn) )
+					displayAddBtnOptions[elmt] = abtn;
+				else
+					displayAddBtnOptions[elmt] = displayAddButtonDefault;		
+			}		
 
 			// Check to see if the attribute 'useAddButtonSecurity' was passed in
 			if ( StructKeyExists(attributes,"useAddButtonSecurity") AND IsBoolean(attributes.useAddButtonSecurity) )
@@ -158,13 +163,14 @@ History:
 				<div id="tabs-#i#">
 					<cfscript>
 						ceName = ListGetAt(attributes.elementName,i);
+						custel = REREPLACE(ceName,"[\s]","","all");
 						ceFormID = application.ADF.ceData.getFormIDByCEName(ceName);
-						customControlName = "customManagementFor#replace(ceName,' ','','ALL')#";
+						customControlName = "customManagementFor#custel#";
 					</cfscript>
 					<br/>
 					<br/>
 					<cfif enableAddButton>
-						<cfif displayAddBtnOptions[ceName]>
+						<cfif StructKeyExists(displayAddBtnOptions,custel) AND displayAddBtnOptions[custel]>
 							<input type="button"
 								rel="#application.ADF.ajaxProxy#?bean=#beanName#&method=renderAddEditForm&formID=#ceFormID#&lbAction=refreshparent&title=New #ceName#&datapageid=0"
 								class="ADFLightbox ui-button ui-state-default ui-corner-all"
@@ -173,7 +179,7 @@ History:
 							<br/>
 						</cfif>
 					<cfelse>
-						<cfif displayAddBtnOptions[ceName]>
+						<cfif StructKeyExists(displayAddBtnOptions,custel) AND displayAddBtnOptions[custel]>
 							Please <a href="#request.subsitecache[1].url#login.cfm">LOGIN</a> to add new records.
 							<br/>
 							<br/>
