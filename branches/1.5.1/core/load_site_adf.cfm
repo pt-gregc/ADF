@@ -28,6 +28,7 @@ end user license agreement.
 							Removed IF to only run all the reset code when a user is logged in.
 		2011-31-01 - RAK - Updating so force reset doesnt notify the user.
 		2011-06-02 - RAK - Added * to end of regular expression so it would validate input on the entire string not just the first character
+		2012-01-10 - MFC - Added span tag with ID around the reset message.
  --->
 <cfscript>
 	// Initialize the RESET TYPE variable
@@ -71,7 +72,8 @@ end user license agreement.
 	</cfscript>
 	<cfoutput>
 		<cfif !force>
-			<b>#resetResults.message#</b>
+			<!--- 2012-01-10 - MFC - Added span tag with ID around the reset message. --->
+			<span id='ADF-Reset-Message'><b>#resetResults.message#</b></span>
 		</cfif>
 	</cfoutput>
 </cfif>
@@ -90,7 +92,8 @@ end user license agreement.
 			if ( LEN(url.ADFDumpVar) GT 0 and !ReFindNoCase(regularExpression,url.ADFDumpVar)){
 				CreateObject("component","ADF.lib.utils.Utils_1_0").dodump(evaluate(url.ADFDumpVar), #url.ADFDumpVar#, false);
 			}else{
-				WriteOutput("<strong>ADFDumpVar Failed</strong> : Variable '#url.ADFDumpVar#' does not exist.");
+				// 2012-01-10 - MFC - Added span tag with ID around the reset message.
+				WriteOutput("<span id='ADF-Reset-Message'><strong>ADFDumpVar Failed</strong> : Variable '#url.ADFDumpVar#' does not exist.</span>");
 			}
 		}
 	</cfscript>
