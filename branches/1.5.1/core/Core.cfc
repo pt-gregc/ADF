@@ -136,7 +136,8 @@ History:
 
 <!---
 /* *************************************************************** */
-Author: 	jrybacek
+Author: 	
+	jrybacek
 Name:
 	reset
 Summary:
@@ -162,6 +163,7 @@ History:
 						caused performance slowness loading debug html.
 	2011-06-29 - MT - Set a response header indicating if the ADF was reset or not.
 	2011-07-14 - MFC - Renamed cache variable to be under ADF struct, "application.ADF.cache".
+	2012-01-12 - MFC - Updated the ADF reset message text.
 --->
 <cffunction name="reset" access="remote" returnType="Struct">
 	<cfargument name="type" type="string" required="false" default="all" hint="The type of the ADF to reset.  Options are 'Server', 'Site' or 'All'. Defaults to 'All'.">
@@ -193,13 +195,13 @@ History:
 							createObject("component", "ADF.core.Core").init();
 							// 2010-06-23 jrybacek Reload ADF site
 							createObject("component", "#request.site.name#._cs_apps.ADF").init();
-							rtnMsg = "ADF #ADFversion# framework  has been reset successfully!";
+							rtnMsg = "ADF #ADFversion# has been reset successfully!";
 							ADFReset = true;
 							break;
 						case "SERVER":
 							// 2010-06-23 jrybacek Reload ADF server
 							createObject("component", "ADF.core.Core").init();
-							rtnMsg = "ADF #ADFversion# server framework has been reset successfully!";
+							rtnMsg = "ADF #ADFversion# server has been reset successfully!";
 							ADFReset = true;
 							break;
 						case "SITE":
