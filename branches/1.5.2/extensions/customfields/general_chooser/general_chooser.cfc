@@ -404,6 +404,7 @@ History:
 	2011-03-20 - MFC - Added flag for Edit/Delete links to the item row.
 	2011-03-27 - MFC - Updates for IE styling.
 	2011-08-01 - GAC - Added a closing DIV to the itemCell inside the LI tags in the retHTML
+	2012-01-20 - GAC - Added the title attribute to the DIV wrapper around Item info since the display is truncated
 --->
 <cffunction name="getSelections" access="public" returntype="string" hint="Returns the html code for the selections of the profile select custom element.">
 	<cfargument name="item" type="string" required="false" default="">
@@ -436,7 +437,7 @@ History:
 				    itemCls = itemCls & " itemEditDelete";
 				}
 				// Build the item, and add the Edit/Delete links
-				retHTML = retHTML & "<li id='#ceDataArray[i].Values[variables.CE_FIELD]#' class='#itemCls#'><div class='itemCell'>#LEFT(ceDataArray[i].Values[variables.ORDER_FIELD],26)##editDeleteLinks#</div></li>";
+				retHTML = retHTML & "<li id='#ceDataArray[i].Values[variables.CE_FIELD]#' class='#itemCls#'><div class='itemCell' title='#ceDataArray[i].Values[variables.ORDER_FIELD]#'>#LEFT(ceDataArray[i].Values[variables.ORDER_FIELD],26)##editDeleteLinks#</div></li>";
 			}
 		}
 	</cfscript>
