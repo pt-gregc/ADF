@@ -348,6 +348,7 @@ History:
 	2011-01-14 - MFC - Updated Add new link to utilize forms_1_1 by default.
 	2011-04-28 - GAC - Added a check to see if the old "ADD_NEW_FLAG" or "SHOW_SECTION2" variables were being used 
 						via site or app level override files. If so, then passed appropriate value to the SHOW_ADD_LINK variable
+	2012-01-20 - GAC - Updating the Comments for the Backward Compatibility  fixes
 --->
 <cffunction name="loadAddNewLink" access="public" returntype="string" hint="General Chooser - Add New Link HTML content.">
 	<cfargument name="fieldName" type="String" required="true">
@@ -355,9 +356,12 @@ History:
 	<cfscript>
 		var retAddLinkHTML = "";
 	
-		// Backward compatibility to allow the variables from General Chooser v1.0 site and app override GC files to honored
+		// Backward Compatibility to allow the variables from General Chooser v1.0 site and app override GC files to be honored
+		// - if the section2 variable is used and set to false... not ADD button should be displayed
 		if ( StructKeyExists(variables,"SHOW_SECTION2") AND variables.SHOW_SECTION2 EQ false )
 			variables.SHOW_ADD_LINK = false;
+		
+		// - if SHOW_ADD_LINK is still true (and SHOW_SECTION2 is true) then check for the ADD_NEW_FLAG variable	
 		if ( StructKeyExists(variables,"ADD_NEW_FLAG") AND variables.SHOW_ADD_LINK NEQ false )
 			variables.SHOW_ADD_LINK = variables.ADD_NEW_FLAG;
 	</cfscript>
