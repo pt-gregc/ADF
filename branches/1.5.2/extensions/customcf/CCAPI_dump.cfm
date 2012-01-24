@@ -29,6 +29,7 @@ Summary:
 History:
 	2009-06-09 - MFC - Created
 	2012-01-06 - MFC - Updated to logout when complete and added ADF login test
+	2012-01-24 - MFC - Updated to remove "ADFdemo" reference.
 --->
 
 <!--- // Use this file to test to see if the CommonSpot is allowing a user to login to the CCAPI web service --->
@@ -86,7 +87,7 @@ History:
 <cftry>
 	<!--- Create the CCAPI from the ADF and Login --->
 	<cfscript>
-		ccapiObj = application.ADFdemo.objectFactory.getBean("ccapi_1_0");
+		ccapiObj = server.ADF.objectFactory.getBean("ccapi_1_0");
 		ccapiObj.initCCAPI();
 		ccapitLoginRet = ccapiObj.login(1);
 		ccapiSSID = ccapiObj.getSSID();
