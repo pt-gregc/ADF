@@ -35,7 +35,7 @@ History:
 --->
 <cfcomponent displayname="ccapi" extends="ADF.core.Base" hint="CCAPI functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_1">
+<cfproperty name="version" value="1_0_2">
 <cfproperty name="CoreConfig" type="dependency" injectedBean="CoreConfig">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_1">
 <cfproperty name="wikiTitle" value="CCAPI">
@@ -98,7 +98,8 @@ Arguments:
 History:
 	2009-05-13 - RLW - Created
 	2009-11-19 - GAC - Modified to load a XML CCAPI config values from a ccapi.CFM file (if available)
-	2010-03-05 - GAC - Removed the loggingEnabled() function call from the try/catch 
+	2010-03-05 - GAC - Removed the loggingEnabled() function call from the try/catch
+	2012-01-26 - MFC - Updated the config error message.
 --->
 <cffunction name="loadCCAPIConfig" access="public" returntype="void">
 	<cfset var CCAPIConfig = StructNew()>
@@ -121,7 +122,7 @@ History:
 		</cfscript>
 		<cfcatch>
 			<cfscript>
-				variables.utils.logAppend("Config XML file is not setup for this site [#request.site.name# - #request.site.id#].", "CCAPI_Errors.log");
+				variables.utils.logAppend("CCAPI Configuration CFM (or XML) file is not setup for this site [#request.site.name# - #request.site.id#].", "CCAPI_Errors.log");
 			</cfscript>
 		</cfcatch>
 	</cftry>
