@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="scripts_1_0" extends="ADF.core.Base" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" default="1_0_2">
+<cfproperty name="version" default="1_0_3">
 <cfproperty name="type" value="singleton">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_0" type="dependency">
 <cfproperty name="wikiTitle" value="Scripts_1_0">
@@ -1188,8 +1188,7 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	
 	PaperThin, Inc.
 	Ryan kahn
@@ -1203,13 +1202,14 @@ Arguments:
 	Version
 History:
  	2010-09-27 - RAK - Created
+	2012-01-24 - MFC - Replaced "@import" with "link" tag to load the CSS.
 --->
 <cffunction name="loadJQueryDatePick" access="public" output="true" returntype="void" hint="Loads the DatePick plugin for jQuery"> 
 	#loadJQuery()#
 	<cfif not variables.scriptsService.isScriptLoaded("datePick")>
 		<cfoutput>
-			<style type='text/css'>@import '/ADF/thirdParty/jquery/datepick/jquery.datepick.css';</style>
-			<script type='text/javascript' src='/ADF/thirdParty/jquery/datepick/jquery.datepick.pack.js'></script>
+			<link rel='stylesheet' href='/ADF/thirdParty/jquery/datepick/jquery.datepick.css' type='text/css' />
+			<script type='text/javascript' src='/ADF/thirdParty/jquery/datepick/jquery.datepick.js'></script>
 		</cfoutput>
 		<cfset variables.scriptsService.loadedScript("datePick")>
 	</cfif>
