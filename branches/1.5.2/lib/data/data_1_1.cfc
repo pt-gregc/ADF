@@ -27,13 +27,13 @@ Name:
 Summary:
 	Data Utils component functions for the ADF Library
 Version:
-	1.1.0
+	1.1.1
 History:
 	2011-01-25 - MFC - Created - New v1.1
 --->
 <cfcomponent displayname="data_1_1" extends="ADF.lib.data.data_1_0" hint="Data Utils component functions for the ADF Library">
 
-<cfproperty name="version" value="1_1_0">
+<cfproperty name="version" value="1_1_1">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Data_1_1">
 
@@ -124,17 +124,20 @@ Version 3 Updated to allow for ;
 @param strText      	Text to parse. (Required)
 @param target      		Optional target for links. Defaults to "". (Optional)
 @param paragraph      	Optionally add paragraphFormat to returned string. (Optional)
+@param linkClass      	Optionally add a class to the generated a tag. (Optional)
 @return Returns a string.
 @author Joel Mueller (lucas@thebitbucket.netjmueller@swiftk.com)
 @version 3, August 11, 2004
 
 History:
 	2011-02-09 - GAC - Added
+	2012-01-12 - GAC - Added a linkClass parameter
 --->
 <cffunction name="activateURL" access="public" returntype="string" hint="Takes urls in a text string and turns them into links">
 	<cfargument name="strText" type="string" required="false" default="" hint="A text string to search through for URLs">
 	<cfargument name="target" type="string" required="false" default="" hint="A valid A HREF target: _blank, _self">
 	<cfargument name="paragraph" type="string" required="false" default="false" hint="If true, add paragraphFormat to returned string">
+	<cfargument name="linkClass" type="string" required="false" default="" hint="Link Class">
 	<cfscript>
 	    var nextMatch = 1;
 	    var objMatch = "";
@@ -169,6 +172,10 @@ History:
 	                thisLink = thisLink & thisURL & """";
 	                if (Len(Target) GT 0) {
 	                    thisLink = thisLink & " target=""" & arguments.target & """";
+	                }
+	                if ( LEN(TRIM(arguments.linkClass)) GT 0 ) 
+	                {
+	                    thisLink = thisLink & " class=""" & arguments.linkClass & """";
 	                }
 	                thisLink = thisLink & ">" & thisURL & "</a>";
 	                outString = outString & thisLink;
