@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="lightbox" extends="ADF.lib.lightbox.lightbox_1_0" hint="Lightbox functions for the ADF Library">
 	
-<cfproperty name="version" value="1_1_0">
+<cfproperty name="version" value="1_1_1">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_1">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_1">
@@ -55,6 +55,8 @@ Arguments:
 	Void
 History:
 	2012-01-30 - MFC - Created
+	2012-02-01 - MFC - Replaced all single quotes in script tags with double quotes.
+						Added cfouput around the loading script for 2.0.
 --->
 <cffunction name="loadADFLightbox" access="public" returntype="string" output="true" hint="Loads the ADF Lightbox Framework into the page.">
 	
@@ -88,7 +90,9 @@ History:
 				#loadLighboxCS5()#
 			</cfoutput>
 		<cfelse>
-			<script type='text/javascript' src='/ADF/extensions/lightbox/2.0/js/framework.js'></script>	
+			<cfoutput>
+				<script type="text/javascript" src="/ADF/extensions/lightbox/2.0/js/framework.js"></script>	
+			</cfoutput>
 		</cfif>
 		<cfoutput>
 			<script type="text/javascript">
@@ -119,6 +123,7 @@ Arguments:
 	Void
 History:
 	2012-01-30 - MFC - Created
+	2012-02-01 - MFC - Replaced all single quotes in script tags with double quotes.
 --->
 <cffunction name="loadLighboxCS5" access="private" returntype="string" output="true">
 
@@ -139,8 +144,8 @@ History:
 		
 		<!--- Load the CommonSpot 6.0 Lightbox Framework --->
 		<cfoutput>
-			<script type='text/javascript' src='/ADF/extensions/lightbox/1.0/js/framework.js'></script>					
-			<script type='text/javascript' src='/ADF/extensions/lightbox/1.0/js/browser-all.js'></script>
+			<script type="text/javascript" src="/ADF/extensions/lightbox/1.0/js/framework.js"></script>					
+			<script type="text/javascript" src="/ADF/extensions/lightbox/1.0/js/browser-all.js"></script>
 			
 			<!--- Setup the CommonSpot 6.0 Lightbox framework --->
 			<script type="text/javascript">	
@@ -166,7 +171,7 @@ History:
 	   		</script>
 			
 			<!--- Load the CS5 Resize override functions --->
-			<script type='text/javascript' src='/ADF/extensions/lightbox/1.0/js/cs5-overrides.js'></script>
+			<script type="text/javascript" src="/ADF/extensions/lightbox/1.0/js/cs5-overrides.js"></script>
 		</cfoutput>
 		
 	</cfsavecontent>
