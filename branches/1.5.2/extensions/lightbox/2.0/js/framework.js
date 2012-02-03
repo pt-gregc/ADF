@@ -52,8 +52,22 @@ function initADFLB() {
 // Open the lightbox dialog
 function openLB(lbUrl) {
 	var newLBUrl = processRel(lbUrl);
+	//var newLBUrl = lbUrl;
 	// Call the function to open the LB
-	newWindow(name="", url=newLBUrl);
+	
+	//newWindow(name="", url=newLBUrl);
+	
+	// TODO - Add in the URL params for the fields for title, width, & height
+	commonspot.lightbox.openURL(
+		{	url: newLBUrl,
+			title:'', 
+			subtitle: '', 
+			hasCloseIcon: true, 
+			hasMaximizeIcon: true, 
+			width: 500, 
+			height: 500
+		}
+	);
 }
 
 /*
@@ -66,6 +80,7 @@ function processRel(relParam) {
 	newURL = newURL.replace(/ajaxProxy.cfm/i, "lightboxProxy.cfm");
 	// Split the full url to see if there are parameters
 	var urlArray = newURL.split("?");
+	
 	// create array of new parameters to be added
 	var addParam = [ ];
 	
@@ -74,6 +89,7 @@ function processRel(relParam) {
 	if( urlArray.length > 1 )
 		initDelim = "&";
 	for( var i=0; i < addParam.length; i++ ){
+		
 		if(i == 0)
 			newURL = newURL + initDelim + addParam[i];
 		else
@@ -106,12 +122,8 @@ function parentReplaceLB(url){
 
 // Calls a JS function loaded from the parent window
 function getCallback(cbFunct, inArgsArray) {
-	// Check if window.parent is defined,
-	//	then call the load callback function
-	//if ( typeof(window.parent) != 'undefined' )
-	//	window.parent.loadCallback(cbFunct, inArgsArray);
-	//else
-		loadCallback(cbFunct, inArgsArray);	
+	//alert("getCallback");
+	loadCallback(cbFunct, inArgsArray);	
 }
 
 // Loads the JS call back function defined in the params
@@ -124,11 +136,11 @@ function loadCallback(cbFunct, inArgsArray){
 	
 	// Check that we have a callback function defined
 	if ( cbFunct.length > 0 ){
-	
+		
 		// Loop over all the Lightbox levels to find the CB function
-		for (i=commonspot.lightbox.stack.length-1; i >= -1; i--) {
-			
+		for (i=commonspot.lightbox.stack.length-1; i >= -1; i--) {	
 			callBackLevel = i;
+			//alert("callBackLevel = " + callBackLevel);
 			
 			if ( callBackLevel >= 0 ) {
 		
@@ -164,7 +176,7 @@ function loadCallback(cbFunct, inArgsArray){
 				// Evaluate the iframe by Name and run the callback function
 				eval(functPath + "(inArgsArray)");
 				// Get out of the loop
-				i = -2;
+				//i = -2;
 			}
 		}
 	}	
@@ -172,11 +184,8 @@ function loadCallback(cbFunct, inArgsArray){
 
 // Close the current lightbox and refresh its parent lightbox
 function closeLBReloadParent(){
-	// Check if the commonspot OR lightbox space has been built
-	if ( (typeof commonspot == 'undefined') || (typeof commonspot.lightbox == 'undefined') )
-		parent.commonspot.lightbox.closeCurrentWithReload();
-	else
-		commonspot.lightbox.closeCurrentWithReload();
+	//alert("closeLBReloadParent");
+	commonspot.lightbox.closeCurrentWithReload();	
 }
 
 // Custom ResizeWindow function to resolve problems with the

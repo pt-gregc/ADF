@@ -35,7 +35,7 @@ History:
 --->
 <cfcomponent displayname="forms_1_1" extends="ADF.lib.forms.forms_1_0" hint="Form functions for the ADF Library">
 
-<cfproperty name="version" value="1_1_1">
+<cfproperty name="version" value="1_1_2">
 <cfproperty name="type" value="transient">
 <cfproperty name="ceData" injectedBean="ceData_1_1" type="dependency">
 <cfproperty name="scripts" injectedBean="scripts_1_1" type="dependency">
@@ -86,6 +86,7 @@ History:
 	2011-03-26 - MFC - Commented out force JQuery, the loadADFLightbox with force will load JQuery.
 						Removed the loadADFLightbox force argument when loading the form.
 	2012-01-03 - MFC - Added check that the field has the name attribute.
+	2012-02-03 - MFC - Updates to the lightbox callback to store the form in "top.commonspot".
 --->
 <cffunction name="renderAddEditForm" access="public" returntype="String" hint="Returns the HTML for an Add/Edit Custom element record">
 	<cfargument name="formID" type="numeric" required="true" hint="Form ID to render">
@@ -100,7 +101,7 @@ History:
 		var rtnHTML = "";
 		var formResultHTML = "";
 		// Find out if the CE contains an RTE field
-		var formContainRTE = application.ADF.ceData.containsFieldType(arguments.formID, "formatted_text_block");
+		//var formContainRTE = application.ADF.ceData.containsFieldType(arguments.formID, "formatted_text_block");
 	</cfscript>
 	<!--- Result from the Form Submit --->
 	<cfsavecontent variable="formResultHTML">
@@ -118,11 +119,14 @@ History:
 				jQuery(document).ready(function(){
 					lbResizeWindow();
 					<cfif Len(arguments.callback)>
+						//alert("Callback - FORMS!");
 						// Get the PageWindow and the form value
-						var pageWindow = commonspot.lightbox.getPageWindow();
+						var pageWindow = top.commonspot.lightbox.getPageWindow();
 						var value = pageWindow.ADFFormData.formValueStore;
+						//console.log(value);
 						//Call the callback with the form value
 						getCallback('#arguments.callback#', value);
+						//alert("Finish Callback");
 					</cfif>
 				});
 			</script>
@@ -154,7 +158,7 @@ History:
 			<cfscript>
 				// ADF Lightbox needs to be forced to load the browser-all.js into
 				//	the lightbox window for CE's with RTE fields
-				variables.scripts.loadADFLightbox();
+				//variables.scripts.loadADFLightbox(force=1);
 			</cfscript>
 			<!--- Call the UDF function --->
 			#udfResults#
@@ -166,13 +170,15 @@ History:
 						handleFormChange();
 						jQuery("##proxyButton1").live('click',handleFormChange);
 					});
+					
 					function handleFormChange(){
 						// Get the PageWindow and store the form value
-						var pageWindow = commonspot.lightbox.getPageWindow();
+						var pageWindow = top.commonspot.lightbox.getPageWindow();
 						pageWindow.ADFFormData = {
 							formValueStore: getForm()
 						};
 					}
+					
 
 					//returns the form values as an object
 					// Obj[fieldName] = fieldValue;

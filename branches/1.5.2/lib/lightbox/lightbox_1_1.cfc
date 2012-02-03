@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="lightbox" extends="ADF.lib.lightbox.lightbox_1_0" hint="Lightbox functions for the ADF Library">
 	
-<cfproperty name="version" value="1_1_1">
+<cfproperty name="version" value="1_1_2">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_1">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_1">
@@ -57,6 +57,7 @@ History:
 	2012-01-30 - MFC - Created
 	2012-02-01 - MFC - Replaced all single quotes in script tags with double quotes.
 						Added cfouput around the loading script for 2.0.
+	2012-02-03 - MFC - Rearchitected commonspot.lightbox loading process for CS 7.0.
 --->
 <cffunction name="loadADFLightbox" access="public" returntype="string" output="true" hint="Loads the ADF Lightbox Framework into the page.">
 	
@@ -71,6 +72,14 @@ History:
 		// Default Subtitle
 		if ( NOT StructKeyExists(request.params, "subtitle") )
 			request.params.subtitle = "";
+		
+		// Default Width
+		if ( NOT StructKeyExists(request.params, "width") )
+			request.params.width = 500;
+
+		// Default Height
+		if ( NOT StructKeyExists(request.params, "height") )
+			request.params.height = 500;
 	</cfscript>
 
 	<cfsavecontent variable="outputHTML">
@@ -95,6 +104,42 @@ History:
 			</cfoutput>
 		</cfif>
 		<cfoutput>
+			
+			<!--- 
+			<!--- NEW SOLUTION 2 --->
+			<script type="text/javascript">
+				
+				if (top.commonspot && top.commonspot.lightbox) 
+					var commonspot = top.commonspot;
+				else if (parent.commonspot && parent.commonspot.lightbox)
+					var commonspot = parent.commonspot;
+				else
+					loadNonDashboardFiles();
+				
+				
+				jQuery(document).ready(function(){
+					/*
+						Set the Jquery to initialize the ADF Lightbox
+					*/
+					initADFLB();
+					
+					//commonspot.lightbox.initCurrent(#request.params.width#, #request.params.height#, { title: '#request.params.title#', subtitle: '#request.params.subtitle#', close: 'true', reload: 'true' });
+				});
+			</script>
+			 --->
+			
+			<!--- 
+			<!--- SOLUTION 1 --->
+			<!--- Creates the "commonspot" JS variable space --->
+			<script type="text/javascript" src="/commonspot/javascript/lightbox/lightbox.js"></script>
+			<!--- Need this for when NOT in CS Mode --->
+			<script type="text/javascript" src="/commonspot/javascript/browser-all.js"></script>
+			<script type="text/javascript" src="/commonspot/javascript/util.js"></script>
+			<link rel="stylesheet" type="text/css" href="/commonspot/dashboard/css/buttons.css"></link>
+			<link rel="stylesheet" type="text/css" href="/commonspot/javascript/lightbox/lightbox.css"></link>
+			<script type="text/javascript" src="/commonspot/javascript/lightbox/lightbox.js"></script>
+			<script type="text/javascript" src="/commonspot/javascript/lightbox/overrides.js"></script>
+			<script type="text/javascript" src="/commonspot/javascript/lightbox/window_ref.js"></script>
 			<script type="text/javascript">
 				jQuery(document).ready(function(){
 					/*
@@ -103,6 +148,160 @@ History:
 					initADFLB();
 				});
 			</script>
+			 --->
+			
+			<!--- SOLUTION 3 --->
+			<script type="text/javascript">
+				 
+				if (top.commonspot && top.commonspot.lightbox) 
+					var commonspot = top.commonspot;
+				else if (parent.commonspot && parent.commonspot.lightbox)
+					var commonspot = parent.commonspot;
+				
+				jQuery(document).ready(function(){
+					/*
+						Set the Jquery to initialize the ADF Lightbox
+					*/
+					initADFLB();
+				});
+			</script>
+			<!--- Need this for when NOT in CS Mode --->
+			<script type="text/javascript" src="/commonspot/javascript/browser-all.js"></script>
+			
+			
+			
+			
+			<!--- Need this for when NOT in CS Mode --->
+			<!--- <script type="text/javascript" src="/commonspot/javascript/browser-all.js"></script>
+			<script>
+				console.log(top.commonspot.lightbox);
+				console.log(parent.commonspot.lightbox);
+			</script>
+			
+			<script type="text/javascript">
+				/* if (top.commonspot && top.commonspot.lightbox) 
+					var commonspot = top.commonspot;
+				else if (parent.commonspot && parent.commonspot.lightbox)
+					var commonspot = parent.commonspot;
+				else  */
+				//	loadNonDashboardFiles();
+			</script> --->
+			
+			
+			
+			<!--- 
+			<script>
+			//console.log(commonspot.lightbox);
+			</script>
+			<!--- Creates the "commonspot" JS variable space --->
+			<script type="text/javascript" src="/commonspot/javascript/lightbox/lightbox.js"></script>
+			
+			<!--- Need this for when NOT in CS Mode --->
+			<script type="text/javascript" src="/commonspot/javascript/browser-all.js"></script>
+			
+			<script type="text/javascript" src="/commonspot/javascript/util.js"></script>
+			<link rel="stylesheet" type="text/css" href="/commonspot/dashboard/css/buttons.css"></link>
+			<link rel="stylesheet" type="text/css" href="/commonspot/javascript/lightbox/lightbox.css"></link>
+			<script type="text/javascript" src="/commonspot/javascript/lightbox/lightbox.js"></script>
+			<script type="text/javascript" src="/commonspot/javascript/lightbox/overrides.js"></script>
+			<script type="text/javascript" src="/commonspot/javascript/lightbox/window_ref.js"></script>
+			
+			<script>
+			//console.log(commonspot.lightbox);
+			</script>
+				 --->
+			<!--- <script type="text/javascript">
+				// make sure we're in the dashboard frame
+				/* if(!parent || !parent.commonspot)
+				{
+					alert('This page is part of the CommonSpot dashboard.\n\nTaking you there now...');
+					document.location.href = '/commonspot/dashboard/index.html' + document.location.hash;
+				}
+	
+				// get local references to objects we need in parent frame
+				// commonspot object has state, so we need that instance; others are static, but why load them again
+				var commonspot = parent.commonspot;
+				 */
+				
+				/* if(parent && parent.commonspot){
+					// get local references to objects we need in parent frame
+					// commonspot object has state, so we need that instance; others are static, but why load them again
+					var commonspot = parent.commonspot;
+				} */
+				
+			</script>
+			<script type="text/javascript">
+				
+											
+				// get local references to objects we need in parent frame
+				// commonspot object has state, so we need that instance; others are static, but why load them again
+				/* if ( (typeof commonspot != 'undefined') && (typeof commonspot.lightbox != 'undefined') ) {
+					if(parent && parent.commonspot) {
+						var commonspot = parent.commonspot;
+					}
+				} */
+				
+				/* if(parent && parent.commonspot) {
+					var commonspot = parent.commonspot;
+				} */
+				
+				
+				/* if (typeof commonspot == 'undefined' || !commonspot.lightbox){	
+					if ( typeof parent.commonspot != 'undefined' ){
+						var commonspot = parent.commonspot;
+					}
+					else if ( typeof top.commonspot != 'undefined' ){
+						var commonspot = top.commonspot;
+					}
+					else {
+						loadNonDashboardFiles();
+					}
+				} */
+				
+				//var commonspot = top.commonspot;
+				
+				//console.log(top.commonspot);
+				//console.log(parent.commonspot);
+				//var commonspot = top.commonspot;
+				
+				// Run check for if commonspot.lightbox is defined yet
+				//if ( (typeof commonspot != 'undefined') && (typeof commonspot.lightbox != 'undefined') ) {
+					
+					/* var defaultOptions =
+					{
+						title: "#request.params.title#",
+						subtitle: "#request.params.subtitle#",
+						helpId: "",
+						width: 100,
+						name: 'customDlg',
+						height: 50,
+						hasMaximizeIcon: true,
+						hasCloseIcon: true,
+						hasHelpIcon: false,
+						hasReloadIcon: true,
+						url: "/commonspot/dashboard/dialogs/blank-dialog.html",
+						dialogType: "dialog"
+					};	
+					commonspot.lightbox.openURL(defaultOptions); */			
+					
+					//commonspot.lightbox.initCurrent(#request.params.width#, #request.params.height#, { title: '#request.params.title#', subtitle: '#request.params.subtitle#', close: 'true', reload: 'true' });
+					//commonspot.lightbox.initCurrent(defaultOptions.width, defaultOptions.height, {title: options.title, subtitle: options.subtitle, reload: options.hasReloadIcon, helpId: options.helpId, maximize: options.hasMaximizeIcon}); 
+				
+				//}
+				
+				//var commonspot = top.commonspot;
+				
+				jQuery(document).ready(function(){
+					/*
+						Set the Jquery to initialize the ADF Lightbox
+					*/
+					initADFLB();
+					
+					/* if ( (typeof commonspot != 'undefined') && (typeof commonspot.lightbox != 'undefined') ) {
+						commonspot.lightbox.initCurrent(#request.params.width#, #request.params.height#, { title: '#request.params.title#', subtitle: '#request.params.subtitle#', close: 'true', reload: 'true' });
+					}  */
+				});
+			</script> --->
 		</cfoutput>
 	</cfsavecontent>
 	<cfreturn outputHTML>
