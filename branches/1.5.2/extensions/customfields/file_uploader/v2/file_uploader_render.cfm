@@ -30,6 +30,7 @@ History:
 	2011-08-05 - RAK - Created
 	2011-08-05 - RAK - fixed issue where the file uploader would try to generate images for non-pdf files.
 	2011-09-22 - RAK - Updated file uploader to be able to get more detailed information if they choose to override the props.
+	2012-01-03 - GAC - Moved the the hidden field code inside the TD tag
 	2012-02-14 - GAC - Moved the CFT hidden fields back inside of the <td> wrapper for the field
 --->
 <cfscript>
