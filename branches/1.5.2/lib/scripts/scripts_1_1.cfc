@@ -1339,6 +1339,35 @@ History:
 <!---
 /* ***************************************************************
 /*
+Author:
+	Fig Leaf Software
+	Mike Tangorre (mtangorre@figleaf.com)
+Name:
+	$loadMathUUID
+Summary:
+	Loads the math.uuid.js library
+Returns:
+	None
+Arguments:
+	None
+History:
+	2012-02-15 - MTT - Created
+--->
+<cffunction name="loadMathUUID" access="public" output="true" returntype="void" hint="Loads the math.uuid.js library.">
+	<cfset var outputHTML = "">
+	<cfsavecontent variable="outputHTML">
+		<cfoutput>
+			<script type="text/javascript" src="/ADF/thirdParty/js/math.uuid.js"></script>
+		</cfoutput>
+	</cfsavecontent>
+	<cfoutput>
+		#variables.scriptsService.renderScriptOnce("mathuuid",outputHTML)#
+	</cfoutput>
+</cffunction>
+
+<!---
+/* ***************************************************************
+/*
 Author: 	S. Smith
 Name:
 	$loadMouseMovement
