@@ -317,6 +317,36 @@ History:
 <!---
 /* ***************************************************************
 /*
+Author:
+	Fig Leaf Software
+	Mike Tangorre (mtangorre@figleaf.com)
+Name:
+	$loadFileUploader
+Summary:
+	Loads the file upload javascript
+Returns:
+	None
+Arguments:
+	None
+History:
+	2011-11-21 - MTT - Created
+--->
+<cffunction name="loadFileUploader" access="public" output="true" returntype="void" hint="Loads the file uploader code.">
+	<cfset var outputHTML = "">
+	<cfsavecontent variable="outputHTML">
+		<cfoutput>
+			<link rel="stylesheet" href="/ADF/thirdparty/jquery/fileuploader/client/fileuploader.css">
+			<script type="text/javascript" src="/ADF/thirdparty/jquery/fileuploader/client/fileuploader.js"></script>
+		</cfoutput>
+	</cfsavecontent>
+	<cfoutput>
+		#variables.scriptsService.renderScriptOnce("fileUploader",outputHTML)#
+	</cfoutput>
+</cffunction>
+
+<!---
+/* ***************************************************************
+/*
 Author: 	M. Carroll
 Name:
 	$loadGalleryView
