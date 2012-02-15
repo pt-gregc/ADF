@@ -46,59 +46,6 @@ History:
 <!---
 /* ***************************************************************
 /*
-Author:
-	Fig Leaf Software
-	Mike Tangorre (mtangorre@figleaf.com)
-Name:
-	$getLatestJQueryVersion
-Summary:
-	Returns the version number for the latest (newest) version of JQuery 
-	that exists in the /ADF/thirdparty/jquery directory.
-Returns:
-	None
-Arguments:
-	None
-History:
-	2011-09-28 - MTT - Created
---->
-<cffunction name="getLatestJQueryVersion" access="public" output="true" returntype="any" 
-	hint="Returns the latest version number available for jquery.">
-
-	<cfscript>
-	
-		var dir = expandPath("/ADF/thirdparty/jquery/"); 
-		var qDirs = "";
-		var versions = arrayNew(1);
-		var version = "";
-		var latestVersion = "";
-	
-	</cfscript>
-
-	<cfdirectory 
-		action="list" 
-		directory="#dir#" 
-		filter="*.js" 
-		listinfo="name" 
-		sort="name asc" 
-		type="file" 
-		recurse="false" 
-		name="qDirs" />
-
-	<cfloop query="qDirs">
-		<cfset version = replaceNoCase( qDirs.name , ".js" , "" , "all" ) />
-		<cfset version = reReplaceNoCase( version , "[^0-9\.]" , "" , "all" ) />
-		<cfset arrayAppend( versions , version ) />
-	</cfloop>
-
-	<cfset arraySort( versions , "textnocase" , "asc" ) />
-
-	<cfreturn versions[ arrayLen( versions ) ] />
-	
-</cffunction>
-
-<!---
-/* ***************************************************************
-/*
 Author: 	Ron West
 Name:
 	$jQueryUIButtonClass
@@ -500,7 +447,7 @@ History:
 	2011-12-28 - MFC - Updated to load 1.7 by default.
 --->
 <cffunction name="loadJQuery" access="public" returntype="void" hint="Loads the JQuery Headers if not loaded.">
-	<cfargument name="version" type="string" required="false" default="#getLatestJQueryVersion()#" hint="JQuery version to load.">
+	<cfargument name="version" type="string" required="false" default="1.7" hint="JQuery version to load.">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfargument name="noConflict" type="boolean" required="false" default="0" hint="JQuery no conflict flag.">
 	<cfscript>
