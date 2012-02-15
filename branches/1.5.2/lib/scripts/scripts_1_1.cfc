@@ -46,6 +46,59 @@ History:
 <!---
 /* ***************************************************************
 /*
+Author:
+	Fig Leaf Software
+	Mike Tangorre (mtangorre@figleaf.com)
+Name:
+	$getLatestJQueryVersion
+Summary:
+	Returns the version number for the latest (newest) version of JQuery 
+	that exists in the /ADF/thirdparty/jquery directory.
+Returns:
+	None
+Arguments:
+	None
+History:
+	2011-09-28 - MTT - Created
+--->
+<cffunction name="getLatestJQueryVersion" access="public" output="true" returntype="any" 
+	hint="Returns the latest version number available for jquery.">
+
+	<cfscript>
+	
+		var dir = expandPath("/ADF/thirdparty/jquery/"); 
+		var qDirs = "";
+		var versions = arrayNew(1);
+		var version = "";
+		var latestVersion = "";
+	
+	</cfscript>
+
+	<cfdirectory 
+		action="list" 
+		directory="#dir#" 
+		filter="*.js" 
+		listinfo="name" 
+		sort="name asc" 
+		type="file" 
+		recurse="false" 
+		name="qDirs" />
+
+	<cfloop query="qDirs">
+		<cfset version = replaceNoCase( qDirs.name , ".js" , "" , "all" ) />
+		<cfset version = reReplaceNoCase( version , "[^0-9\.]" , "" , "all" ) />
+		<cfset arrayAppend( versions , version ) />
+	</cfloop>
+
+	<cfset arraySort( versions , "textnocase" , "asc" ) />
+
+	<cfreturn versions[ arrayLen( versions ) ] />
+	
+</cffunction>
+
+<!---
+/* ***************************************************************
+/*
 Author: 	Ron West
 Name:
 	$jQueryUIButtonClass
