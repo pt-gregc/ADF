@@ -500,7 +500,7 @@ History:
 	2011-12-28 - MFC - Updated to load 1.7 by default.
 --->
 <cffunction name="loadJQuery" access="public" returntype="void" hint="Loads the JQuery Headers if not loaded.">
-	<cfargument name="version" type="string" required="false" default="1.7" hint="JQuery version to load.">
+	<cfargument name="version" type="string" required="false" default="#getLatestJQueryVersion()#" hint="JQuery version to load.">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfargument name="noConflict" type="boolean" required="false" default="0" hint="JQuery no conflict flag.">
 	<cfscript>
