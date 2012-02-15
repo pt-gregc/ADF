@@ -572,6 +572,36 @@ History:
 <!---
 /* ***************************************************************
 /*
+Author:
+	Fig Leaf Software
+	Mike Tangorre (mtangorre@figleaf.com)
+Name:
+	$loadCapty
+Summary:
+	Loads the capty plugin
+Returns:
+	None
+Arguments:
+	None
+History:
+	2012-01-20 - MTT - Created
+--->
+<cffunction name="loadJQueryCapty" access="public" output="true" returntype="void" hint="Loads the JQuery Capty plugin code.">
+	<cfset var outputHTML = "">
+	<cfsavecontent variable="outputHTML">
+		<cfoutput>
+			<link rel="stylesheet" href="/ADF/thirdparty/jquery/capty/css/jquery.capty.css">
+			<script type="text/javascript" src="/ADF/thirdparty/jquery/capty/js/jquery.capty.min.js"></script>
+		</cfoutput>
+	</cfsavecontent>
+	<cfoutput>
+		#variables.scriptsService.renderScriptOnce("jQueryCapty",outputHTML)#
+	</cfoutput>
+</cffunction>
+
+<!---
+/* ***************************************************************
+/*
 Author: 	
 	G. Cronkright
 Name:
@@ -902,6 +932,65 @@ History:
 <!---
 /* ***************************************************************
 /*
+Author:
+	Fig Leaf Software
+	Mike Tangorre (mtangorre@figleaf.com)
+Name:
+	$loadJQueryMultiselect
+Summary:
+	Loads the file multiselect jQuery plugin
+Returns:
+	None
+Arguments:
+	None
+History:
+	2011-09-27 - MTT - Created
+--->
+<cffunction name="loadJQueryMultiselect" access="public" output="true" returntype="void" hint="Loads the multiselect plugin for jquery">
+	<cfset var outputHTML = "">
+	<cfsavecontent variable="outputHTML">
+		<link rel="stylesheet" href="/ADF/thirdParty/jquery/multiselect/jquery.multiselect.css">
+		<link rel="stylesheet" href="/ADF/thirdParty/jquery/multiselect/jquery.multiselect.filter.css">
+		<script type="text/javascript" src="/ADF/thirdParty/jquery/multiselect/jquery.multiselect.min.js"></script>
+		<script type="text/javascript" src="/ADF/thirdParty/jquery/multiselect/jquery.multiselect.filter.min.js"></script>
+	</cfsavecontent>
+	<cfoutput>
+		#variables.scriptsService.renderScriptOnce("jQueryMultiselect",outputHTML)#
+	</cfoutput>
+</cffunction>
+
+<!---
+/* ***************************************************************
+/*
+Author:
+	Fig Leaf Software
+	Mike Tangorre (mtangorre@figleaf.com)
+Name:
+	$loadJQueryPlupload
+Summary:
+	Loads the plupload JQuery plugin
+Returns:
+	None
+Arguments:
+	None
+History:
+	2011-07-27 - MTT - Created
+--->
+<cffunction name="loadJQueryPlupload" access="public" output="true" returntype="void" hint="Loads the plupload plugin for jquery">
+	<cfset var outputHTML = "">
+	<cfsavecontent variable="outputHTML">
+		<cfoutput>
+			<script type="text/javascript" src="/ADF/thirdParty/jquery/plupload/js/plupload.full.js"></script>
+		</cfoutput>
+	</cfsavecontent>
+	<cfoutput>
+		#variables.scriptsService.renderScriptOnce("jQueryPlupload",outputHTML)#
+	</cfoutput>
+</cffunction>
+
+<!---
+/* ***************************************************************
+/*
 Author: 	Ron West
 Name:
 	$loadJQuerySelectboxes
@@ -957,6 +1046,67 @@ History:
 	</cfsavecontent>
 	<cfoutput>
 	#variables.scriptsService.renderScriptOnce("jquerySuperfish",outputHTML)#
+	</cfoutput>
+</cffunction>
+
+<!---
+/* ***************************************************************
+/*
+Author:
+	Fig Leaf Software
+	Mike Tangorre (mtangorre@figleaf.com)
+Name:
+	$loadJQuerySWFUpload
+Summary:
+	Loads the swfupload JQuery plugin
+Returns:
+	None
+Arguments:
+	None
+History:
+	2011-07-31 - MTT - Created
+--->
+--->
+<cffunction name="loadJQuerySWFUpload" access="public" output="true" returntype="void" hint="Loads the SWF upload plugin for jquery">
+	<cfargument name="version" type="string" required="false" default="2.2.0.1" hint="Script version to load.">
+	<cfset var outputHTML = "">
+	<cfsavecontent variable="outputHTML">
+		<cfoutput>
+		<script type="text/javascript" src="/ADF/thirdParty/jquery/swfupload/swfupload-#arguments.version#/swfupload.js"></script>
+		</cfoutput>
+		<!---
+		<script type="text/javascript" src="/ADF/thirdParty/jquery/swfupload/swfupload-#arguments.version#/swfupload.queue.js"></script>
+		--->
+	</cfsavecontent>
+	<cfoutput>
+		#variables.scriptsService.renderScriptOnce("jQuerySWFUpload",outputHTML)#
+	</cfoutput>
+</cffunction>
+
+<!---
+/* ***************************************************************
+/*
+Author:
+	Fig Leaf Software
+	Mike Tangorre (mtangorre@figleaf.com)
+Name:
+	$loadJQueryTemplates
+Summary:
+	Loads the templates (tmpl) plugin
+Returns:
+	None
+Arguments:
+	None
+History:
+	2011-07-27 - MTT - Created
+--->
+<cffunction name="loadJQueryTemplates" access="public" output="true" returntype="void" hint="Loads the templates (tmpl) plugin for jquery">
+	<cfset var outputHTML = "">
+	<cfsavecontent variable="outputHTML">
+		<script type="text/javascript" src="/ADF/thirdParty/jquery/templates/jquery.tmpl.min.js"></script>
+	</cfsavecontent>
+	<cfoutput>
+		#variables.scriptsService.renderScriptOnce("jQueryTemplates",outputHTML)#
 	</cfoutput>
 </cffunction>
 
@@ -1080,6 +1230,33 @@ History:
 		<cfelse>
 			#variables.scriptsService.renderScriptOnce("jQueryUI",outputHTML)#
 		</cfif>
+	</cfoutput>
+</cffunction>
+
+<!---
+/* ***************************************************************
+/*
+Author:
+	Fig Leaf Software
+	Mike Tangorre (mtangorre@figleaf.com)
+Name:
+	$loadJQueryUIForm
+Summary:
+	Loads the file multiselect jQuery plugin
+Returns:
+	None
+Arguments:
+	None
+History:
+	2011-09-27 - MTT - Created
+--->
+<cffunction name="loadJQueryUIForm" access="public" output="true" returntype="void" hint="Loads the form plugin for jquery ui">
+	<cfset var outputHTML = "">
+	<cfsavecontent variable="outputHTML">
+		<script type="text/javascript" src="/ADF/thirdParty/jquery/ui/form/jquery.ui.form.js"></script>
+	</cfsavecontent>
+	<cfoutput>
+		#variables.scriptsService.renderScriptOnce("jQueryUIForm",outputHTML)#
 	</cfoutput>
 </cffunction>
 
@@ -1456,6 +1633,42 @@ History:
 <!---
 /* ***************************************************************
 /*
+Author: 	Andy Reid
+Name:
+	$loadTipsy
+Summary:
+	Loads the tipsy Headers if not loaded.
+Returns:
+	None
+Arguments:
+	String - version - tipsy version to load.
+	Boolean - force - Forces tipsy script header to load.
+History:
+	2011-11-22 - AAR - Created
+	2012-02-15 - MTT - Modified the key used with the renderScriptOnce call. It was set to qtip which is already used byt the 
+						load loadQTip function call. I changed it to tipsy.
+--->
+<cffunction name="loadTipsy" access="public" output="true" returntype="void" hint="Loads the JQuery Headers if not loaded.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
+	<cfset var outputHTML = "">
+	<cfsavecontent variable="outputHTML">
+		<cfoutput>
+			<script type="text/javascript" src="/ADF/thirdParty/jquery/tipsy/javascripts/jquery.tipsy.js"></script>
+			<link rel="stylesheet" type="text/css" href="/ADF/thirdParty/jquery/tipsy/stylesheets/tipsy.css" />
+		</cfoutput>
+	</cfsavecontent>
+	<cfoutput>
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("tipsy",outputHTML)#
+		</cfif>
+	</cfoutput>
+</cffunction>
+
+<!---
+/* ***************************************************************
+/*
 Author: 	
 	PaperThin, Inc.
 	Ryan kahn
@@ -1532,7 +1745,7 @@ Arguments:
 History:
  	2011-10-20 - GAC - Created
 --->
-<cffunction name="loadjQueryEasing" access="public" output="true" returntype="void" hint="Loads the Easing plugin for jQuery">
+<cffunction name="loadJQueryEasing" access="public" output="true" returntype="void" hint="Loads the Easing plugin for jQuery">
 	<cfargument name="version" type="string" required="false" default="1.3" hint="Script version to load.">
 	<cfset var outputHTML = "">
 	<cfset var thirdPartyLibPath = "/ADF/thirdParty/jquery/easing/">
@@ -1562,7 +1775,7 @@ Arguments:
 History:
  	2011-10-20 - GAC - Created
 --->
-<cffunction name="loadjQueryFancyBox" access="public" output="true" returntype="void" hint="Loads the fancyBox plugin for jQuery">
+<cffunction name="loadJQueryFancyBox" access="public" output="true" returntype="void" hint="Loads the fancyBox plugin for jQuery">
 	<cfargument name="version" type="string" required="false" default="1.3.4" hint="Script version to load.">
 	<cfset var outputHTML = "">
 	<cfset var thirdPartyLibPath = "/ADF/thirdParty/jquery/fancybox/">
@@ -1595,7 +1808,7 @@ Arguments:
 History:
  	2011-10-20 - GAC - Created
 --->
-<cffunction name="loadjQueryMouseWheel" access="public" output="true" returntype="void" hint="Loads the Mouse Wheel plugin for jQuery">
+<cffunction name="loadJQueryMouseWheel" access="public" output="true" returntype="void" hint="Loads the Mouse Wheel plugin for jQuery">
 	<cfargument name="version" type="string" required="false" default="3.0.4" hint="Script version to load.">
 	<cfset var outputHTML = "">
 	<cfset var thirdPartyLibPath = "/ADF/thirdParty/jquery/mousewheel/">
@@ -1625,7 +1838,7 @@ History:
 	2009-09-04 - GAC - Created
 	2010-02-25 - GAC - Updated and renamed the function
 --->
-<cffunction name="loadjQuerySWFObject" access="public" output="true" returntype="void" hint="Loads the SWFObject jQuery Plug-in Flash Embed Headers if not loaded.">
+<cffunction name="loadJQuerySWFObject" access="public" output="true" returntype="void" hint="Loads the SWFObject jQuery Plug-in Flash Embed Headers if not loaded.">
 	<cfargument name="version" type="string" required="false" default="1.0.9" hint="jQuery SWFObject version to load.">
 	<cfset var outputHTML = "">
 	<cfoutput>
@@ -1659,7 +1872,7 @@ History:
  	2011-03-08 - GAC - Created
 	2011-06-24 - GAC - Added CFOUTPUTS around the renderScriptOnce method call
 --->
-<cffunction name="loadjQueryTimeAgo" access="public" output="true" returntype="void" hint="Loads the TimeAgo (automatically updating fuzzy timestamps) plugin for jQuery">
+<cffunction name="loadJQueryTimeAgo" access="public" output="true" returntype="void" hint="Loads the TimeAgo (automatically updating fuzzy timestamps) plugin for jQuery">
 	<cfargument name="version" type="string" required="false" default="0.9.3" hint="Script version to load.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
