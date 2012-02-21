@@ -48,12 +48,12 @@ History:
 	jQueryUIurl = "/ADF/thirdParty/jquery/ui";
 	jQueryUIpath = Replace(ExpandPath(jQueryUIurl),"\","/","all");
 
-application.ADF.utils.doDump(jQueryUIpath);	
+//application.ADF.utils.doDump(jQueryUIpath);	
 	
 	if( not structKeyExists(currentValues, "uiVersionPath") )
-		currentValues.uiVersionPath = Replace(jQueryUIpath & "/" & defaultVersion),"\","/","all");
+		currentValues.uiVersionPath = Replace(jQueryUIpath & '/' & defaultVersion,"\","/","all");
 
-application.ADF.utils.doDump(currentValues,"currentValues",0);				 
+//application.ADF.utils.doDump(currentValues,"currentValues",0);				 
 </cfscript>
 
 <!--- // Get a list of jQuery UI versions --->
@@ -94,7 +94,7 @@ application.ADF.utils.doDump(currentValues,"currentValues",0);
 				<select name="#prefix#uiVersionPath" id="#prefix#uiVersionPath" class="cs_dlgControl">
 		           	<cfloop query="qVersions">
 			           	<cfif FindNoCase(uiFilterStr,name)>
-				            <cfset uiThemePath = Replace(qVersions.directory & "/" & qVersions.name,"\","/","all")>
+				            <cfset uiThemePath = Replace(qVersions.directory & '/' & qVersions.name,"\","/","all")>
 				           	<option value="#uiThemePath#"<cfif currentValues.uiVersionPath EQ uiThemePath> selected="selected"</cfif>>#qVersions.name#</option>
 		            	</cfif>
 					</cfloop>
