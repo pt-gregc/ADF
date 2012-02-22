@@ -38,6 +38,7 @@ History:
 						listed in the proxy white list XML file.
 	2011-03-20 - MFC - Updated component to simplify the customizations process and performance.
 						Removed Ajax loading process.
+	2012-01-30 - GAC - Added a Display_Feild varaible to the General Chooser init variables.
 --->
 <cfcomponent name="general_chooser" extends="ADF.lib.ceData.ceData_1_0">
 
@@ -49,6 +50,8 @@ History:
 	variables.CE_FIELD = "";
 	variables.SEARCH_FIELDS = "";
 	variables.ORDER_FIELD = "";
+	// Display Text for the Chooser Items ( Defaults to the ORDER_FIELD )
+	variables.DISPLAY_FIELD = "";
 
 	// STYLES
 	variables.MAIN_WIDTH = 580;
@@ -409,6 +412,8 @@ History:
 	2011-03-27 - MFC - Updates for IE styling.
 	2011-08-01 - GAC - Added a closing DIV to the itemCell inside the LI tags in the retHTML
 	2012-01-20 - GAC - Added the title attribute to the DIV wrapper around Item info since the display is truncated
+					 - Added logic to display an ellipsis if the the Display text for an Item get truncated
+	2012-01-23 - GAC - Added a DISPLAY_TEXT variable to allow different item Display Text from what is used for the ORDER_FIELD
 --->
 <cffunction name="getSelections" access="public" returntype="string" hint="Returns the html code for the selections of the profile select custom element.">
 	<cfargument name="item" type="string" required="false" default="">
@@ -423,11 +428,16 @@ History:
 		var editDeleteLinks = "";
 		var itemCls = "";
 		var ceDataArray = getChooserData(arguments.item, arguments.queryType, arguments.searchValues, arguments.csPageID);
+		
+		// Backward Compatibility - if a DISPLAY_TEXT variable not given or is not defined the ORDER_FIELD will still be used for the Item display text
+		if ( NOT StructKeyExists(variables,"DISPLAY_FIELD") OR LEN(TRIM(variables.DISPLAY_FIELD)) EQ 0 )
+			variables.DISPLAY_FIELD = variables.ORDER_FIELD;
+		
 		// Loop over the data 	
 		for ( i=1; i LTE ArrayLen(ceDataArray); i=i+1) {
 			// Assemble the render HTML
-			if ( StructKeyExists(ceDataArray[i].Values, "#variables.ORDER_FIELD#") 
-					AND LEN(ceDataArray[i].Values[variables.ORDER_FIELD])
+			if ( StructKeyExists(ceDataArray[i].Values, "#variables.DISPLAY_FIELD#") 
+					AND LEN(ceDataArray[i].Values[variables.DISPLAY_FIELD])
 					AND StructKeyExists(ceDataArray[i].Values, "#variables.CE_FIELD#") 
 					AND LEN(ceDataArray[i].Values[variables.CE_FIELD]) )
 			{
@@ -441,7 +451,7 @@ History:
 				    itemCls = itemCls & " itemEditDelete";
 				}
 				// Build the item, and add the Edit/Delete links
-				retHTML = retHTML & "<li id='#ceDataArray[i].Values[variables.CE_FIELD]#' class='#itemCls#'><div class='itemCell' title='#ceDataArray[i].Values[variables.ORDER_FIELD]#'>#LEFT(ceDataArray[i].Values[variables.ORDER_FIELD],26)##editDeleteLinks#</div></li>";
+				retHTML = retHTML & "<li id='#ceDataArray[i].Values[variables.CE_FIELD]#' class='#itemCls#'><div class='itemCell' title='#ceDataArray[i].Values[variables.DISPLAY_FIELD]#'>#LEFT(ceDataArray[i].Values[variables.DISPLAY_FIELD],26)#<cfif LEN(ceDataArray[i].Values[variables.DISPLAY_FIELD])) GT 26>...</cfif>#editDeleteLinks#</div></li>";
 			}
 		}
 	</cfscript>
