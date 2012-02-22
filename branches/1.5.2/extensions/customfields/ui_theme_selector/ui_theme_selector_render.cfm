@@ -32,6 +32,12 @@ Version:
 History:
 	2011-06-14 - GAC - Created
 	2011-06-16 - GAC - Fixed the default jqueryUIurl and slashes for non Windows OS's
+	2012-01-11 - GAC - set jqueryUIurl to match the case of the directory stucture
+					 - cleaned up some unused jquery code
+					 - added text input if no records are returned by the theme directory query
+	2012-02-21 - GAC - added additional fixes for slashes 
+					 - combined forked versions
+					 - file cleanup
 --->
 <cfscript>
 	// the fields current value
@@ -42,33 +48,34 @@ History:
 	//--Field Security--
 	readOnly = application.ADF.forms.isFieldReadOnly(xparams);
 
-	uiFilterOutList = ".svn,base"; // Add DIRs that need to be filtered from the theme drop down
-	defaultTheme = "ui-lightness";
+	uiFilterOutList = ".svn,base"; 		// Add DIRs that need to be filtered from the theme drop down	
 	defaultVersion = "jquery-ui-1.8";
+	defaultTheme = ""; 					//ui-lightness
 	
-	jQueryUIurl = "/ADF/thirdParty/jquery/ui";
-	jQueryUIpath = ExpandPath(jQueryUIurl);
+	jQueryUIurl = "/ADF/thirdParty/jquery/ui/";
+	jQueryUIpath = ExpandPath(jQueryUIurl); 
 
-	defaultVersionURL = "#jQueryUIurl#/#defaultVersion#";
-	defaultVersionPath = ExpandPath(defaultVersionURL);
-
-	// Validate if the property field has been defined
-	if ( NOT StructKeyExists(xparams,"fldID") )
-		xparams.fldID = fqFieldName;
-	else if ( LEN(TRIM(xparams.fldID)) LTE 0 )
-		xparams.fldID = ReplaceNoCase(xParams.fieldName,'fic_','');
+	defaultVersionURL = jQueryUIurl & defaultVersion & "/";
+	defaultVersionPath = ExpandPath(defaultVersionURL);	
 
 	if ( NOT StructKeyExists(xparams,"uiVersionPath") )
-		xparams.uiVersionPath = defaultVersionPath & "/css"; 
+		xparams.uiVersionPath = defaultVersionPath & "/css/"; 
 	else
-		xparams.uiVersionPath = xparams.uiVersionPath & "/css";	
+		xparams.uiVersionPath = xparams.uiVersionPath & "/css/";
 
-	// Load the JQuery Plugin Headers
-	//application.ADF.scripts.loadjQuery();
+	// Convert slashes
+	xparams.uiVersionPath = Replace(xparams.uiVersionPath,"\","/","all");  // D:/data/web/ADF/thirdParty/jquery/ui/jquery-ui-1.8/css/
+		
+	if ( LEN(TRIM(currentValue)) EQ 0 )
+		currentValue = defaultTheme; 
+
+//application.ADF.utils.doDump(xparams.uiVersionPath,"xparams.uiVersionPath",1);
+//application.ADF.utils.doDump(currentValue,"currentValue",0);		
 </cfscript>
 
 <!--- // Get a list of jQuery UI themes for the version of jQuery --->
 <cfdirectory action="list" directory="#xparams.uiVersionPath#" name="qThemes" type="dir">
+<!--- <cfdump var ="#qThemes#" expand="false"> --->
 
 <cfoutput>
 	<script>
@@ -80,23 +87,20 @@ History:
 		#fqFieldName#.validator = "validate_#fqFieldName#()";
 
 		//If the field is required
-		if ( '#xparams.req#' == 'Yes' ){
+		if ( '#xparams.req#' == 'Yes' )
+		{
 			// push on to validation array
 			vobjects_#attributes.formname#.push(#fqFieldName#);
 		}
 
 		//Validation function
 		function validate_#fqFieldName#(){
-			if (jQuery("input[name=#fqFieldName#]").val() != ''){
+			if ( jQuery("select[name=#fqFieldName#]").val() != '' )
+			{
 				return true;
-			}else{
-				return false;
 			}
+			return false;
 		}
-
-		/*jQuery( function() {
-			
-		}); */	
 	</script>
 	
 <!---
@@ -109,19 +113,33 @@ History:
 
 	<cfsavecontent variable="inputHTML">
 		<cfoutput>
-	        <!--- <select id="#xparams.fldID#_select" name="#fqFieldName#_select"> --->
-		    <select name="#fqFieldName#" id='#xparams.fldID#' <cfif readOnly>disabled="disabled"</cfif>>
-		        <option value=""<cfif LEN(currentValue) EQ 0> selected="selected"</cfif>> - Select - </option>
-	            <cfloop query="qThemes">
-		           	<cfif ListFindNoCase(uiFilterOutList,qThemes.name) EQ 0>
-		           	<option value="#qThemes.name#"<cfif currentValue EQ qThemes.name> selected="selected"</cfif>>#qThemes.name#</option>
-	            	</cfif>
-				</cfloop>
-	        </select> 
-			<!--- // hidden field to store the value --->
-			<!--- <input type='hidden' name='#fqFieldName#' id='#xparams.fldID#' value='#currentValue#'> --->
+			<cfif qThemes.RecordCount>
+			    <select name='#fqFieldName#' id='#fqFieldName#'<cfif readOnly> disabled="disabled"</cfif>>
+			        <option value=''<cfif LEN(currentValue) EQ 0> selected="selected"</cfif>> - Select - </option>
+		            <cfloop query="qThemes">
+			           	<cfif ListFindNoCase(uiFilterOutList,qThemes.name) EQ 0>
+			           	<option value='#qThemes.name#'<cfif currentValue EQ qThemes.name> selected='selected'</cfif>>#qThemes.name#</option>
+		            	</cfif>
+					</cfloop>
+		        </select> 
+	        <cfelse>
+	        	<div class="cs_dlgLabelSmall">
+		        	There seems to be an issue with the path to the UI Theme directories for this field.<br/>
+		        	A theme list drop down could not be generated.
+		        	<ul>
+		        		<li>To fix the Custom Field Type issue:
+							<ol>
+								<li>Open the UI Selector field properties and select the correct jQueryUI version</li> 
+								<li>Re-save the field</li>
+								<li>Reload this form</li>
+							</ol>
+						</li> 
+		        		<li>Or type in a valid UI theme name below:</li>
+		        	</ul>
+				</div>
+	        	<input type='text' name='#fqFieldName#' id='#fqFieldName#' value='#currentValue#'>
+	        </cfif>
 		</cfoutput>
 	</cfsavecontent>
 	#application.ADF.forms.wrapFieldHTML(inputHTML,fieldQuery,attributes)#
-	
 </cfoutput>
