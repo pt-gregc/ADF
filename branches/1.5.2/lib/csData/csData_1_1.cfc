@@ -215,7 +215,7 @@ History:
 	2011-01-14 - GAC - Created
 	2011-02-09 - RAK - Var'ing un-var'd variables
 	2011-02-09 - GAC - Removed self-closing CF tag slashes
-	2012-02-17 - GAC - Added an option to add struct of the field params as the value of the field struct
+	2012-02-17 - GAC - Added an option to add a struct of the 'field params' as the value of each 'field' 
 --->
 <cffunction name="getCustomMetadataFieldsByCSPageID" access="public" returntype="struct" hint="Returns a structure of custom metadata forms and fields from a CSPageID">
 	<cfargument name="cspageid" type="numeric" required="true" hint="commonspot pageID">
@@ -732,6 +732,7 @@ Arguments:
 	String fieldparam - Custom Metadata param name
 History:
 	2012-02-17 - GAC - Created
+	2012-02-22 - GAC - Added comments
 --->
 <cffunction name="getCustomMetadataFieldParamValue" access="public" returntype="String" hint="Returns the value of a field parameter based on the Custom Metadata form name and field name">
 	<cfargument name="cspageid" type="numeric" required="true" hint="commonspot pageID">
@@ -740,13 +741,18 @@ History:
 	<cfargument name="fieldparam" type="string" required="false" default="label" hint="Custom Metadata field param">
 	<cfscript>
 		var rtnValue = "";
+		// Get the Custom Metadata field struct with params as values
 		var cmDataStruct = application.adf.csData.getCustomMetadataFieldsByCSPageID(cspageid=arguments.cspageid,fieldtype="",addFieldParams=true);
+		// Does the provided formname exist in the Custom Metadata field struct
 		if ( StructKeyExists(cmDataStruct,arguments.formname) )
 		{
+			// Does the provided fieldname exist in the Custom Metadata field struct in formname struct
 			if  ( StructKeyExists(cmDataStruct[arguments.formname],arguments.fieldname) )
 			{
+				// Does the provided field aram (default: label) exist in the Custom Metadata field struct in the form[field] struct
 				if  ( StructKeyExists(cmDataStruct[arguments.formname][arguments.fieldname],arguments.fieldparam) )
 				{
+					// if the form[field][param] exists get the value of the param and set it as the return value
 					rtnValue = cmDataStruct[arguments.formname][arguments.fieldname][arguments.fieldparam];
 				}			
 			}
