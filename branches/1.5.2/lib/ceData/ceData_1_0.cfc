@@ -838,7 +838,7 @@ History:
 	2009-01-20 - MFC - Created
 	2009-05-06 - MFC - Updated: Return if block to return 0, if no records found
 	2009-10-16 - MFC - Updated: Add lookup for CE Name with spaces OR underscores
-	2011-03-07 - MFC - Updated: Replace the dash to underscore.
+	2012-03-01 - DMB - Updated: Updated query to include simpleform formIDs in the results.
 --->
 <cffunction name="getFormIDByCEName" access="public" returntype="numeric">
 	<cfargument name="CEName" type="string" required="true">
@@ -855,7 +855,7 @@ History:
 		SELECT 	ID
 		FROM 	FormControl
 		WHERE 	(FormName = <cfqueryparam cfsqltype="cf_sql_varchar" value="#tmpCENameSpaces#"> OR FormName = <cfqueryparam cfsqltype="cf_sql_varchar" value="#tmpCENameUnders#">)
-		AND 	(FormControl.action = '' OR FormControl.action is null)
+		AND 	(FormControl.action = '' OR FormControl.action = 'custom_form_element' OR FormControl.action is null)
 	</cfquery>
 
 	<cfif getFormID.RecordCount>
