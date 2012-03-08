@@ -22,6 +22,7 @@ end user license agreement.
  *				
  *	History:
  *		2012-02-23 - MFC - Moved into lightbox v2.0.
+ *		2012-03-08 - MFC - Added "border: none;" for the img tags.
  */
 
 .lightboxContainer .lightboxIframe {
@@ -50,6 +51,7 @@ div.lightboxContainer img {
 	margin: 0;
 	padding: 0;
 	display: inline;
+	border: none;
 }
 /* 2010-11-26 - RAK - Changed to fixed. Specified height variable.*/
 .lightboxOverlay {
