@@ -424,6 +424,35 @@ History:
 
 <!---
 /* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
+Name:
+	$loadJSONJS
+Summary:
+	Loads the JSON-JS scripts.
+Returns:
+	struct
+Arguments:
+	Void
+History:
+	2012-02-23 - MFC - Created
+--->
+<cffunction name="loadJSONJS" access="public" returntype="void" output="true">
+
+	<cfset var outputHTML = "">
+	<cfsavecontent variable="outputHTML">
+		<cfoutput>
+			<script type='text/javascript' src='/ADF/thirdParty/js/json-js/json2.js'></script>
+		</cfoutput>
+	</cfsavecontent>
+	<cfoutput>
+		#variables.scriptsService.renderScriptOnce("json-js",outputHTML)#
+	</cfoutput>
+</cffunction>
+
+<!---
+/* *************************************************************** */
 Author: 	M. Carroll
 Name:
 	$loadJQuery
@@ -1066,7 +1095,6 @@ Arguments:
 History:
 	2011-07-31 - MTT - Created
 --->
---->
 <cffunction name="loadJQuerySWFUpload" access="public" output="true" returntype="void" hint="Loads the SWF upload plugin for jquery">
 	<cfargument name="version" type="string" required="false" default="2.2.0.1" hint="Script version to load.">
 	<cfset var outputHTML = "">
@@ -1352,12 +1380,13 @@ Arguments:
 	None
 History:
 	2012-02-15 - MTT - Created
+	2012-02-23 - MFC - Moved the JS file into a "math-uuid" folder.
 --->
 <cffunction name="loadMathUUID" access="public" output="true" returntype="void" hint="Loads the math.uuid.js library.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
-			<script type="text/javascript" src="/ADF/thirdParty/js/math.uuid.js"></script>
+			<script type="text/javascript" src="/ADF/thirdParty/js/math-uuid/math.uuid.js"></script>
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
