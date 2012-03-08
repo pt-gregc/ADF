@@ -34,14 +34,18 @@ History:
 	2011-04-05 - MFC - Modified - Updated the version property.
 								  Added a shared variable for CS version
 								  Added a function that returns the CS version
+	2012-03-08 - MFC - Modified - Removed the cfproperty for the "svnRevision".
+								  Added "variables.buildRev" to be manually updated before releases.
+								  Added "server.ADF.buildRev" to have available in the ADF space.
 --->
 <cfcomponent name="Core" hint="Core component for Application Development Framework">
 
 <cfproperty name="version" value="1_5_2">
-<cfproperty name="svnRevision" value="707">
 
 <cfscript>
 	variables.ADFversion = "1.5.2"; // use a dot delimited version number
+	// ADF Build Revision Number
+	variables.buildRev = "736"; 
 	// CS product version, get the decimal value
 	variables.csVersion = Val(ListLast(request.cp.productversion, " "));
 </cfscript>
@@ -61,6 +65,7 @@ History:
 		server.ADF.buildErrors = ArrayNew(1); // Place to store errors that occur while building the ADF
 		server.ADF.version = getADFversion(); // Get the ADF version
 		server.ADF.csVersion = getCSVersion(); // Get the ADF version
+		server.ADF.buildRev = variables.buildRev;
 		
 		// Build object factory 
 		server.ADF.beanConfig = createObject("component","ADF.core.lightwire.BeanConfig").init();
