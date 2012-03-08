@@ -32,10 +32,11 @@ History:
 	2011-01-26 - GAC - Created
 	2011-10-04 - GAC - Updated csSecurity dependency to csSecurity_1_1
 	2012-01-30 - MFC - Updated the wikiTitle cfproperty.
+	2012-01-30 - MFC - Added loadADFLightbox and loadLighboxCS5.
 --->
 <cfcomponent displayname="lightbox" extends="ADF.core.Base" hint="Lightbox functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_1">
+<cfproperty name="version" value="1_0_2">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_1">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_1">
@@ -43,8 +44,7 @@ History:
 <cfproperty name="wikiTitle" value="lightbox_1_0">
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	
 	PaperThin, Inc.
 	G. Cronkright
@@ -66,6 +66,7 @@ History:
 	2011-02-02 - GAC - Modified - Added proxyFile check to see if the method is being called from inside the proxy file
 	2011-02-09 - GAC - Modified - renamed the 'local' variable to 'result' since local is a reserved word in CF9
 	2011-10-03 - MFC - Modified - Added check to return the CFCATCH error message.
+	2012-03-08 - MFC - Added the cfcatch error message to the default error message display.
 --->
 <!--- // ATTENTION: 
 		Do not call is method directly. Call from inside the LightboxProxy.cfm file  (method properties are subject to change)
@@ -140,7 +141,7 @@ History:
 					else if ( isStruct(result.reHTML) or isArray(result.reHTML) or isObject(result.reHTML) ) 
 					{
 						hasError = 1;
-						result.reHTML = "Error: unable to convert the return value into string";
+						result.reHTML = "Error: Unable to convert the return value into string [" & result.reHTML.message & "]";
 					}
 				}
 				else
