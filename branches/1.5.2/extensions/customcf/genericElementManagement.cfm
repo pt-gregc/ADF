@@ -53,6 +53,10 @@ History:
 					 - Added additional comments for the attributes that can be passed in via the custom script parameters tab
 					 - Added logic to handle a display option to show or hide the 'Add Button' on each tab using a a comma-delimited list of true/false values 
 	2012-01-13 - GAC - Fixed logic for checking the comma-delimited list of boolean values passed in with the 'showAddButtons' attribute
+	2012-03-08 - MFC - Call Forms buildAddEditLink for the Add New button.
+
+TODO - Add trim for the elementName parameter for each value.
+
 --->
 <cfoutput>
 	<cfif structKeyExists(attributes,"elementName") and Len(attributes.elementName)>
@@ -95,6 +99,7 @@ History:
 			// Build structure with elementName as the key and the 'Add Button' display option as the value
 			for ( a=1;a LTE ListLen(attributes.elementName);a=a+1 ){
 				ce = ListGetAt(attributes.elementName,a);
+				// ? What is this doing ?
 				elmt = REREPLACE(ce,"[\s]","","all");
 				abtn = displayAddButtonDefault;
 
@@ -131,8 +136,11 @@ History:
 			}	
 		</cfscript>
 		<style>
-			input.ui-button:hover{
+			a.ui-button:hover{
 				cursor:pointer;
+			}
+			a.ui-button {
+				padding: 10px;
 			}
 		</style>
 		<script type="text/javascript">
@@ -140,7 +148,7 @@ History:
 				// Load jquery cookie to remember the last tab visited
 				jQuery('##tabs').tabs( { cookie: { expires: 30 } } );
 				// Hover states on the static widgets
-				jQuery("input.ui-button").hover(
+				jQuery("a.ui-button").hover(
 					function() {
 						jQuery(this).addClass('ui-state-hover');
 					},
@@ -163,18 +171,23 @@ History:
 				<div id="tabs-#i#">
 					<cfscript>
 						ceName = ListGetAt(attributes.elementName,i);
+						// ? What is this doing ?
 						custel = REREPLACE(ceName,"[\s]","","all");
-						ceFormID = application.ADF.ceData.getFormIDByCEName(ceName);
 						customControlName = "customManagementFor#custel#";
 					</cfscript>
 					<br/>
 					<br/>
 					<cfif enableAddButton>
 						<cfif StructKeyExists(displayAddBtnOptions,custel) AND displayAddBtnOptions[custel]>
-							<input type="button"
-								rel="#application.ADF.ajaxProxy#?bean=#beanName#&method=renderAddEditForm&formID=#ceFormID#&lbAction=refreshparent&title=New #ceName#&datapageid=0"
-								class="ADFLightbox ui-button ui-state-default ui-corner-all"
-								value="New #ceName#" />
+							<!--- Call Forms buildAddEditLink for the Add New button --->
+							#application.ADF.forms.buildAddEditLink(linkTitle="New #ceName#",
+																	formName=ceName,
+																	dataPageID=0,
+																	refreshparent=true,
+																	formBean=beanName,
+																	formMethod="renderAddEditForm",
+																	lbTitle="New #ceName#",
+																	linkClass="ui-button ui-state-default ui-corner-all")#
 							<br/>
 							<br/>
 						</cfif>
