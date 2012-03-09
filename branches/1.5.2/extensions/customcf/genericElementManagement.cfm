@@ -54,9 +54,9 @@ History:
 					 - Added logic to handle a display option to show or hide the 'Add Button' on each tab using a a comma-delimited list of true/false values 
 	2012-01-13 - GAC - Fixed logic for checking the comma-delimited list of boolean values passed in with the 'showAddButtons' attribute
 	2012-03-08 - MFC - Call Forms buildAddEditLink for the Add New button.
-
-TODO - Add trim for the elementName parameter for each value.
-
+	2012-03-09 - GAC - Updated the form.buildAddEditLink to use the buildAddEditLink in the UI lib (buildAddEditLink in form_1_0 is deprecated)
+					 - Added a trim to the ceName value generated from the items passed in via the elementName parameter
+					 - Updated comments for the code that builds structure key names and datasheet element names based on ceName values
 --->
 <cfoutput>
 	<cfif structKeyExists(attributes,"elementName") and Len(attributes.elementName)>
@@ -96,10 +96,12 @@ TODO - Add trim for the elementName parameter for each value.
 					diplayAddButtonList = attributes.showAddButtons;
 			}
 					
-			// Build structure with elementName as the key and the 'Add Button' display option as the value
+			// Build structure with CEName as the key and the 'Add Button' display option as the value
 			for ( a=1;a LTE ListLen(attributes.elementName);a=a+1 ){
-				ce = ListGetAt(attributes.elementName,a);
-				// ? What is this doing ?
+				ce = TRIM(ListGetAt(attributes.elementName,a));
+				
+				// Build a structure Key (without spaces) based on the CEName
+				// to be used to store the Add Button display options for each element passed in
 				elmt = REREPLACE(ce,"[\s]","","all");
 				abtn = displayAddButtonDefault;
 
@@ -163,15 +165,16 @@ TODO - Add trim for the elementName parameter for each value.
 			<cfif renderTabFormat>
 				<ul>
 					<cfloop from="1" to="#listLen(attributes.elementName)#" index="i">
-						<li><a href="##tabs-#i#" title="tabs-#i#">#ListGetAt(attributes.elementName,i)#</a></li>
+						<li><a href="##tabs-#i#" title="tabs-#i#">#TRIM(ListGetAt(attributes.elementName,i))#</a></li>
 					</cfloop>
 				</ul>
 			</cfif>
 			<cfloop from="1" to="#listLen(attributes.elementName)#" index="i">
 				<div id="tabs-#i#">
 					<cfscript>
-						ceName = ListGetAt(attributes.elementName,i);
-						// ? What is this doing ?
+						ceName = TRIM(ListGetAt(attributes.elementName,i));
+						// Build an 'elementName' based on the CEName without spaces 
+						// for the datasheet  "ct-render-named-element.cfm" call 
 						custel = REREPLACE(ceName,"[\s]","","all");
 						customControlName = "customManagementFor#custel#";
 					</cfscript>
@@ -179,8 +182,8 @@ TODO - Add trim for the elementName parameter for each value.
 					<br/>
 					<cfif enableAddButton>
 						<cfif StructKeyExists(displayAddBtnOptions,custel) AND displayAddBtnOptions[custel]>
-							<!--- Call Forms buildAddEditLink for the Add New button --->
-							#application.ADF.forms.buildAddEditLink(linkTitle="New #ceName#",
+							<!--- // Call UI buildAddEditLink for the Add New button --->
+							#application.ADF.UI.buildAddEditLink(linkTitle="New #ceName#",
 																	formName=ceName,
 																	dataPageID=0,
 																	refreshparent=true,
