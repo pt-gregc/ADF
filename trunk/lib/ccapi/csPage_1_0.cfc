@@ -33,7 +33,8 @@ History:
 	2011-03-20 - RLW - Updated to use the new ccapi_1_0 component (was the original ccapi.cfc file)
 ---> 
 <cfcomponent displayname="csPage_1_0" extends="ADF.core.Base" hint="Constructs a CCAPI instance and then creates or deletes a page with the given information">
-<cfproperty name="version" value="1_0_1">
+
+<cfproperty name="version" value="1_0_2">
 <cfproperty name="type" value="transient">
 <cfproperty name="ccapi" type="dependency" injectedBean="ccapi_1_0">
 <cfproperty name="csData" type="dependency" injectedBean="csData_1_0">
@@ -61,9 +62,10 @@ History:
 </cfscript>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
 Name:
 	$createPage
 Summary:
@@ -81,6 +83,8 @@ History:
 	2009-07-12 - RLW - added a check for "pageExists" prior to creating the page
 	2009-07-15 - RLW - changed the return format to structure and built consistent struct response
 	2011-06-21 - MFC - Added logout call at the end of the process.
+	2012-02-24 - MFC - Added TRY-CATCH around processing 
+						to logout the CCAPI if any errors.
 --->
 <cffunction name="createPage" access="public" output="true" returntype="struct" hint="Creates a page using the argument data passed in">
 	<cfargument name="stdMetadata" type="struct" required="true" hint="Standard Metadata would include 'Title, Description, TemplateId, SubsiteID etc...'">
@@ -98,78 +102,95 @@ History:
 		result.pageCreated = false;
 		result.newPageID = 0;
 		result.msg = "";
+		
 		// construct the CCAPI object
 		variables.ccapi.initCCAPI();
-		// NOTE: always logging in to make sure that we create page in correct subsite
-		variables.ccapi.login(arguments.stdMetadata.subsiteID);
-		ws = variables.ccapi.getWS();
-		// build page data structure
-		pageData.type = "page";
-		pageData.activate = arguments.activatePage;
-
-		// Page create parameters
-		pageData.cParams = arguments.stdMetadata;
-		pageData.mData = arguments.custMetadata;
 		
-		// check to see if this page exists yet
-		pageExists = variables.csData.getCSPageByName(pageData.cParams.name, pageData.cParams.subsiteID);
-		if( not pageExists )
-		{	
-			// invoke createPage API call
-			createPageResult = ws.createPage(
-				ssid = variables.ccapi.getSSID(),
-				sParams = pageData);
-
-			// if the call was successful then send back the new pageID
-			if( listFirst( createPageResult, ":") eq "success" )
-			{
-				// set the new pageID
-				result.newPageID = listRest( createPageResult, ":");
-				result.pageCreated = true;
-
-				//Log success
-				logStruct.msg = "#request.formattedTimestamp# - Page (#result.newPageID# - #arguments.stdMetadata.title#) created on #request.formattedTimeStamp#";
-				logStruct.logFile = 'CCAPI_create_pages.log';
-				arrayAppend(logArray, logStruct);
+		try {
+			// NOTE: always logging in to make sure that we create page in correct subsite
+			variables.ccapi.login(arguments.stdMetadata.subsiteID);
+			ws = variables.ccapi.getWS();
+			// build page data structure
+			pageData.type = "page";
+			pageData.activate = arguments.activatePage;
+	
+			// Page create parameters
+			pageData.cParams = arguments.stdMetadata;
+			pageData.mData = arguments.custMetadata;
+			
+			// check to see if this page exists yet
+			pageExists = variables.csData.getCSPageByName(pageData.cParams.name, pageData.cParams.subsiteID);
+			if( not pageExists )
+			{	
+				// invoke createPage API call
+				createPageResult = ws.createPage(
+					ssid = variables.ccapi.getSSID(),
+					sParams = pageData);
+	
+				// if the call was successful then send back the new pageID
+				if( listFirst( createPageResult, ":") eq "success" )
+				{
+					// set the new pageID
+					result.newPageID = listRest( createPageResult, ":");
+					result.pageCreated = true;
+	
+					//Log success
+					logStruct.msg = "#request.formattedTimestamp# - Page (#result.newPageID# - #arguments.stdMetadata.title#) created on #request.formattedTimeStamp#";
+					logStruct.logFile = 'CCAPI_create_pages.log';
+					arrayAppend(logArray, logStruct);
+				}
+				else
+				{
+					result.msg = createPageResult;
+					/* need debugging on why this failed
+					1. No subsite
+					2. Page Exists
+					3. No metadata
+					*/
+					//Log error
+					logStruct.msg = "#request.formattedTimestamp# - Page Was Not Created (#arguments.stdMetadata.title#). Error: #createPageResult#";
+					logStruct.logFile = 'CCAPI_create_pages_errors.log';
+					arrayAppend(logArray, logStruct);
+				}
 			}
 			else
 			{
-				result.msg = createPageResult;
-				/* need debugging on why this failed
-				1. No subsite
-				2. Page Exists
-				3. No metadata
-				*/
-				//Log error
-				logStruct.msg = "#request.formattedTimestamp# - Page Was Not Created (#arguments.stdMetadata.title#). Error: #createPageResult#";
+				result.newPageID = pageExists;
+				result.pageCreated = false;
+				logStruct.msg = "#request.formattedTimeStamp# - Page with title #arguments.stdMetadata.title# in subsite #request.subsiteCache[arguments.stdMetadata.subsiteID].url# already exists";
 				logStruct.logFile = 'CCAPI_create_pages_errors.log';
 				arrayAppend(logArray, logStruct);
 			}
+			
+			// handle logging
+			// TODO: plug the logging option into the CCAPI config settings
+			if( variables.ccapi.loggingEnabled() and arrayLen(logArray) )
+				variables.utils.bulkLogAppend(logArray);
 		}
-		else
-		{
-			result.newPageID = pageExists;
+		catch (e ANY){
+			// Error caught, send back the error message
 			result.pageCreated = false;
-			logStruct.msg = "#request.formattedTimeStamp# - Page with title #arguments.stdMetadata.title# in subsite #request.subsiteCache[arguments.stdMetadata.subsiteID].url# already exists";
-			logStruct.logFile = 'CCAPI_create_pages_errors.log';
-			arrayAppend(logArray, logStruct);
+			result.msg = e.message;
+			
+			// Log the error message also
+			logStruct.msg = "#request.formattedTimestamp# - Error [Message: #e.message#] [Details: #e.Details#]";
+			logStruct.logFile = "CCAPI_create_pages_errors.log";
+			variables.utils.bulkLogAppend(logArray);
 		}
+			
 		// Logout
 		variables.ccapi.logout();
 		// clear locks before starting
 		variables.ccapi.clearLock(result.newPageID);
-		// handle logging
-		// TODO: plug the logging option into the CCAPI config settings
-		if( variables.ccapi.loggingEnabled() and arrayLen(logArray) )
-			variables.utils.bulkLogAppend(logArray);
 	</cfscript>
 	<cfreturn result>
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	M. Carroll
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
 Name:
 	$deletePage
 Summary:
@@ -181,6 +202,8 @@ Arguments:
 History:
 	2008-12-08 - MFC - Created
 	2011-02-09 - RAK - Var'ing un-var'd variables
+	2012-02-24 - MFC - Added TRY-CATCH around processing 
+					to logout the CCAPI if any errors.
 --->
 <cffunction name="deletePage" access="public" output="true" returntype="struct" hint="Deletes the page based on the argument data">
 	<cfargument name="deletePageData" type="struct" required="true" hint="Standard Metadata like 'PageID, SubsiteID'">		
@@ -196,41 +219,54 @@ History:
 		result.msg = "";
 		// construct the CCAPI object
 		variables.ccapi.initCCAPI();
-		ws = variables.ccapi.getWS();
-		// NOTE: always logging in to make sure that we create page in correct subsite
-		variables.ccapi.login(arguments.deletePageData.subsiteID);
-
-		// Page create parameters
-		pageData = arguments.deletePageData;
-
-		// invoke createPage API call
-		deletePageResult = ws.deletePage(
-			ssid = variables.ccapi.getSSID(),
-			sParams = pageData);
-
-		// if the call was successful then send back the new pageID
-		if( listFirst( deletePageResult, ":") eq "success" )
-		{
-			//Log success
-			logStruct.msg = "Delete Page Success: #request.formattedTimestamp# - Page (#pageData.pageID#) deleted on #request.formattedTimeStamp#";
-			logStruct.logFile = 'CCAPI_delete_pages.log';
-			arrayAppend(logArray, logStruct);
-			result.pageDeleted = true;
+		
+		try {
+			ws = variables.ccapi.getWS();
+			// NOTE: always logging in to make sure that we create page in correct subsite
+			variables.ccapi.login(arguments.deletePageData.subsiteID);
+	
+			// Page create parameters
+			pageData = arguments.deletePageData;
+	
+			// invoke createPage API call
+			deletePageResult = ws.deletePage(
+				ssid = variables.ccapi.getSSID(),
+				sParams = pageData);
+	
+			// if the call was successful then send back the new pageID
+			if( listFirst( deletePageResult, ":") eq "success" )
+			{
+				//Log success
+				logStruct.msg = "Delete Page Success: #request.formattedTimestamp# - Page (#pageData.pageID#) deleted on #request.formattedTimeStamp#";
+				logStruct.logFile = 'CCAPI_delete_pages.log';
+				arrayAppend(logArray, logStruct);
+				result.pageDeleted = true;
+			}
+			else
+			{
+				//Log success
+				logStruct.msg = "Error Delete Page: #request.formattedTimestamp# - Page Could Not Be deleted (#pageData.pageID#). Error: #deletePageResult#";
+				logStruct.logFile = 'CCAPI_delete_pages.log';
+				arrayAppend(logArray, logStruct);
+				result.msg = deletePageResult;
+			}
+			if( variables.ccapi.loggingEnabled() )
+				variables.utils.bulkLogAppend(logArray);
 		}
-		else
-		{
-			//Log success
-			logStruct.msg = "Error Delete Page: #request.formattedTimestamp# - Page Could Not Be deleted (#pageData.pageID#). Error: #deletePageResult#";
-			logStruct.logFile = 'CCAPI_delete_pages.log';
-			arrayAppend(logArray, logStruct);
-			result.msg = deletePageResult;
-		}
-		if( variables.ccapi.loggingEnabled() )
+		catch (e ANY){
+			// Error caught, send back the error message
+			result.pageDeleted = false;
+			result.msg = e.message;
+			
+			// Log the error message also
+			logStruct.msg = "#request.formattedTimestamp# - Error [Message: #e.message#] [Details: #e.Details#]";
+			logStruct.logFile = "CCAPI_delete_pages_errors.log";
 			variables.utils.bulkLogAppend(logArray);
+		}
+		// Logout
+		variables.ccapi.logout();
 		// clear locks before starting
 		variables.ccapi.clearLock(pageData.pageID);
-		// Logout
-		logoutResult = variables.ccapi.logout();
 	</cfscript>
 	<cfreturn result>
 </cffunction>

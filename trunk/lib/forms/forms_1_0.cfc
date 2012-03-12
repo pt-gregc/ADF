@@ -372,8 +372,7 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	
 	PaperThin, Inc.
 	Ron West
@@ -396,11 +395,14 @@ Arguments:
 History:
   	2010-09-30 - RLW - Created
  	2010-10-18 - GAC - Modified - Added a RefreshParent parameter
-   2010-10-18 - GAC - Modified - Added a urlParams parameter
+   	2010-10-18 - GAC - Modified - Added a urlParams parameter
 	2010-12-15 - GAC - Modified - Added bean, method and lbTitle parameters
 	2010-12-21 - GAC - Modified - Added a linkClass parameter
 	2011-01-25 - MFC - Modified - Updated formBean param default value to "forms_1_1"
+	2012-03-08 - GAC - Modified - Added a comment to encourage the use of the current function in the UI lib
 --->
+<!--- // This function is depricated! // ---> 
+<!--- // - To use the buildAddEditLink to call the default formBean of forms_1_1 please use the buildAddEditLink in the UI lib --->
 <cffunction name="buildAddEditLink" access="public" returntype="string" output="false">
 	<cfargument name="linkTitle" type="string" required="true">
 	<cfargument name="formName" type="string" required="true">

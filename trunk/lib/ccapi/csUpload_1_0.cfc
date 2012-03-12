@@ -33,16 +33,18 @@ History:
 	2011-03-20 - RLW - Updated to use the new ccapi_1_0 component (was the original ccapi.cfc file)
 ---> 
 <cfcomponent displayname="csUpload_1_0" hint="Constructs a CCAPI instance and then allows you to Upload Images" extends="ADF.core.Base">
-<cfproperty name="version" value="1_0_0">
+
+<cfproperty name="version" value="1_0_1">
 <cfproperty name="type" value="transient">
 <cfproperty name="ccapi" type="dependency" injectedBean="ccapi_1_0">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_0">
 <cfproperty name="wikiTitle" value="CSUpload_1_0">
 
 <!---
-/* ***************************************************************
-/*
-Author: 	M. Carroll
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
 Name:
 	$uploadImage
 Summary:
@@ -54,6 +56,8 @@ Arguments:
 	Struct data - the data for the element
 History:
 	2009-06-12 - MFC - Created
+	2012-02-24 - MFC - Added TRY-CATCH around processing 
+						to logout the CCAPI if any errors.
 --->
 <cffunction name="uploadImage" access="public" returntype="struct" hint="Use this method to upload images into the Image Gallery">
 		<cfargument name="subsiteid" type="numeric" required="true">
@@ -69,53 +73,69 @@ History:
 			
 			// construct the CCAPI object
 			variables.ccapi.initCCAPI();
-			ws = variables.ccapi.getWS();
 			result.uploadCompleted = false;
-
-			if( variables.ccapi.loggedIn() EQ 'false' or arguments.doLogin gt 0 )	// login to the subsite where the new subsite will be created
-			{
-				if( arguments.subsiteid neq 0 )
-					variables.ccapi.login(arguments.subsiteid);
-				else
-					variables.ccapi.login();
+			
+			try {
+				ws = variables.ccapi.getWS();
+				
+				if( variables.ccapi.loggedIn() EQ 'false' or arguments.doLogin gt 0 )	// login to the subsite where the new subsite will be created
+				{
+					if( arguments.subsiteid neq 0 )
+						variables.ccapi.login(arguments.subsiteid);
+					else
+						variables.ccapi.login();
+				}
+				
+				// create the subsite
+				uploadResponse = ws.uploadImage(ssid=variables.ccapi.getSSID(), sparams=arguments.data, image=toBase64(arguments.imgBinaryData));
+				// check to see if update wasn't successful
+				if( listFirst(uploadResponse, ":") neq "Success" )
+				{
+					// check to see if there was an error logging in
+					if( findNoCase(listRest(uploadResponse, ":"), "login") and not arguments.doLogin )
+					{
+						// resend this through the login
+						uploadImage(arguments.subsiteid, arguments.data,arguments.imgBinaryData, 1);
+					}
+					logStruct.msg = "#request.formattedTimestamp# - Error upload image: #arguments.data.localfilename# - #listRest(uploadResponse, ':')#";
+					logStruct.logFile = 'CCAPI_upload_image.log';
+					arrayAppend(logArray, logStruct);
+				}
+				else {
+					result.uploadCompleted = "true";
+					logStruct.msg = "#request.formattedTimestamp# - Upload Image Success: #arguments.data.localfilename# - #uploadResponse#";
+					logStruct.logFile = 'CCAPI_upload_image.log';
+					arrayAppend(logArray, logStruct);
+				}	
+				result.uploadResponse = uploadResponse;
+				
+				// handle logging
+				// TODO: plug the logging option into the CCAPI config settings
+				if( variables.ccapi.loggingEnabled() and arrayLen(logArray) )
+					variables.utils.bulkLogAppend(logArray);
+			}
+			catch (e ANY){
+				// Error caught, send back the error message
+				result.uploadCompleted = false;
+				result.uploadResponse = e.message;
+				
+				// Log the error message also
+				logStruct.msg = "#request.formattedTimestamp# - Error [Message: #e.message#] [Details: #e.Details#]";
+				logStruct.logFile = "CCAPI_upload_image_errors.log";
+				variables.utils.bulkLogAppend(logArray);
 			}
 			
-			// create the subsite
-			uploadResponse = ws.uploadImage(ssid=variables.ccapi.getSSID(), sparams=arguments.data, image=toBase64(arguments.imgBinaryData));
-			// check to see if update wasn't successful
-			if( listFirst(uploadResponse, ":") neq "Success" )
-			{
-				// check to see if there was an error logging in
-				if( findNoCase(listRest(uploadResponse, ":"), "login") and not arguments.doLogin )
-				{
-					// resend this through the login
-					uploadImage(arguments.subsiteid, arguments.data,arguments.imgBinaryData, 1);
-				}
-				logStruct.msg = "#request.formattedTimestamp# - Error upload image: #arguments.data.localfilename# - #listRest(uploadResponse, ':')#";
-				logStruct.logFile = 'CCAPI_upload_image.log';
-				arrayAppend(logArray, logStruct);
-			}
-			else {
-				result.uploadCompleted = "true";
-				logStruct.msg = "#request.formattedTimestamp# - Upload Image Success: #arguments.data.localfilename# - #uploadResponse#";
-				logStruct.logFile = 'CCAPI_upload_image.log';
-				arrayAppend(logArray, logStruct);
-			}	
-			result.uploadResponse = uploadResponse;
 			// Logout
-			variables.ccapi.logoutResult = variables.ccapi.logout();
-			// handle logging
-			// TODO: plug the logging option into the CCAPI config settings
-			if( variables.ccapi.loggingEnabled() and arrayLen(logArray) )
-				variables.utils.bulkLogAppend(logArray);
+			variables.ccapi.logout();
 		</cfscript>
 		<cfreturn result>
 	</cffunction>
 	
 <!---
-/* ***************************************************************
-/*
-Author: 	G. Cronkright
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	G. Cronkright
 Name:
 	$uploadDocument
 Summary:
@@ -128,6 +148,8 @@ Arguments:
 History:
 	2010-01-15 - GAC - Created
 	2011-02-09 - GAC - Removed self-closing CF tag slashes
+	2012-02-24 - MFC - Added TRY-CATCH around processing 
+						to logout the CCAPI if any errors.
 --->
 <cffunction name="uploadDocument" access="public" returntype="struct" hint="Use this method to upload a document into the upload folder of an designated subsite">
 	<cfargument name="subsiteid" type="numeric" required="true">
@@ -143,10 +165,12 @@ History:
 			
 		// construct the CCAPI object
 		variables.ccapi.initCCAPI();
-		ws = variables.ccapi.getWS();
 		result.uploadCompleted = false;
-
-		if( variables.ccapi.loggedIn() EQ 'false' or arguments.doLogin gt 0 )	// login to the subsite where the new subsite will be created
+		
+		try {
+			ws = variables.ccapi.getWS();
+	
+			if( variables.ccapi.loggedIn() EQ 'false' or arguments.doLogin gt 0 )	// login to the subsite where the new subsite will be created
 			{
 				if( arguments.subsiteid neq 0 )
 					variables.ccapi.login(arguments.subsiteid);
@@ -183,7 +207,21 @@ History:
 			// TODO: plug the logging option into the CCAPI config settings
 			if( variables.ccapi.loggingEnabled() and arrayLen(logArray) )
 				variables.utils.bulkLogAppend(logArray);
-				
+		}
+		catch (e ANY){
+			// Error caught, send back the error message
+			result.uploadCompleted = false;
+			result.uploadResponse = e.message;
+			
+			// Log the error message also
+			logStruct.msg = "#request.formattedTimestamp# - Error [Message: #e.message#] [Details: #e.Details#]";
+			logStruct.logFile = "CCAPI_upload_document_errors.log";
+			variables.utils.bulkLogAppend(logArray);
+		}
+
+		// Logout
+		variables.ccapi.logout();
+		
 		return result;
 	</cfscript>
 </cffunction>

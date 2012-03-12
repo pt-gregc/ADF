@@ -34,10 +34,12 @@ History:
 						getCustomMetadata and getStandardMetadata functions to CSData v1.1.
 						Reverted getCustomMetadata and getStandardMetadata functions to later revisions
 						to avoid dependencies on functions in CSData v1.1.
+	2012-02-17 - GAC - Enhancement to the getCustomMetadataFieldsByCSPageID function add field params to the values Custom MetaData form/field structure
+					 - Added two additional function getCustomMetadataFieldParamValue and getCustomMetadatawithFieldLabelsKeys 
 --->
 <cfcomponent displayname="csData_1_1" extends="ADF.lib.csData.csData_1_0" hint="CommonSpot Data Utils functions for the ADF Library">
 	
-<cfproperty name="version" value="1_1_0">
+<cfproperty name="version" value="1_1_1">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_1">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">
@@ -196,9 +198,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	G. Cronkright
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	G. Cronkright
 Name:
 	$getCustomMetadataFieldsByCSPageID
 Summary:
@@ -212,10 +215,12 @@ History:
 	2011-01-14 - GAC - Created
 	2011-02-09 - RAK - Var'ing un-var'd variables
 	2011-02-09 - GAC - Removed self-closing CF tag slashes
+	2012-02-17 - GAC - Added an option to add a struct of the 'field params' as the value of each 'field' 
 --->
 <cffunction name="getCustomMetadataFieldsByCSPageID" access="public" returntype="struct" hint="Returns a structure of custom metadata forms and fields from a CSPageID">
 	<cfargument name="cspageid" type="numeric" required="true" hint="commonspot pageID">
 	<cfargument name="fieldtype" type="string" default="" hint="Optional - taxonomy, text, select, etc. or a CFT name">
+	<cfargument name="addFieldParams" type="boolean" default="false" hint="Optional - adds a struct of the field params as the value of the field struct">
 	<cfscript>
 		var itm = '';
 		var inheritedPageIDList = "";
@@ -223,6 +228,8 @@ History:
 		var getFormFields = queryNew("temp");
 		var thisForm = StructNew(); 
 		var thisField = "";
+		var thisFieldValue = "";
+		var paramsoutput = StructNew();
 		var rtnStruct = StructNew();
 		
 		// Get the inheritedTemplateList from the stdMetadata
@@ -231,7 +238,6 @@ History:
 		else 
 			inheritedPageIDList = arguments.cspageid;
 	</cfscript>
-
 	<!--- // Query to get the data for the element by pageid --->
 	<cfquery name="getFormFields" datasource="#request.site.datasource#">
 		SELECT     FormInputControl.FieldName,FormInputControlMap.FieldID,FormInputControl.Params,FormInputControl.Type,FormControl.FormName,FormControl.ID AS FormID
@@ -250,23 +256,31 @@ History:
        	</cfif>  	
 		ORDER BY   FormControl.FormName,FormInputControl.FieldName
 	</cfquery>
-
-	<cfscript>
-		// Convert the Query into a Struct of Structs [formName][FieldName]
-		for( itm=1; itm lte getFormFields.recordCount; itm=itm+1 ) {
-			 thisForm = getFormFields.FormName[itm];
-			 // add the Form Name to the Struct
-			 if ( NOT StructKeyExists(rtnStruct,thisForm ) ) {
-			 	rtnStruct[thisForm] = StructNew();			  
-			 }
-			 // replace the FIC_ from the beginning
-			 thisField = ReplaceNoCase(getFormFields.FieldName[itm], "FIC_", "", "all");
-			 // add this field to the form
-			 if( NOT StructKeyExists(rtnStruct[thisForm], thisField) )
-			    rtnStruct[thisForm][thisField] = "";				
-		}
-		return rtnStruct;
-	</cfscript>
+	<!--- // Convert the Query into a Struct of Structs [formName][FieldName] --->
+	<cfloop query="getFormFields">
+	 	<cfset thisForm = getFormFields.FormName>
+		<!--- // add the Form Name to the Struct --->
+		<cfif NOT StructKeyExists(rtnStruct,thisForm)>
+			<cfset rtnStruct[thisForm] = StructNew()>			  
+		</cfif>
+		<!--- // replace the FIC_ from the beginning --->
+		<cfset thisField = ReplaceNoCase(getFormFields.FieldName, "FIC_", "", "all")>
+		<!--- // if needed get the field params for each field (convert the WDDX packet to a Struct) --->
+		<cfif arguments.addFieldParams>
+			<cfset thisFieldValue = StructNew()>	
+			<cfif StructKeyExists(getFormFields,"params") AND IsWDDX(getFormFields.Params)>
+				<cfwddx action="wddx2cfml" input="#getFormFields.Params#" output="paramsoutput">
+				<cfset thisFieldValue = paramsoutput>
+			</cfif>
+		<cfelse>
+			<cfset thisFieldValue = "">
+		</cfif>	
+		<!--- // add this field to the form --->
+		<cfif NOT StructKeyExists(rtnStruct[thisForm], thisField)>
+			<cfset rtnStruct[thisForm][thisField] = thisFieldValue>			
+		</cfif>
+	</cfloop>
+	<cfreturn rtnStruct>
 </cffunction>
 
 <!---
@@ -668,6 +682,133 @@ History:
 		// Build the doc path for the subsite security for get file
 		var docGetFilePath = request.subsiteCache[docSubisteID].DLGLOADER & "?csModule=security/getfile&PageID=" & arguments.pageID;
 		return docGetFilePath;
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	G. Cronkright
+Name:
+	$getUserNameFromUserID
+Summary:
+	Returns CommonSpot username when given a numeric userID.
+Returns:
+	String
+Arguments:
+	userID the numeric ID for the user to get data for
+History:
+	2012-02-03 - GAC - Created
+--->
+<cffunction name="getUserNameFromUserID" access="public" returntype="String" hint="Returns CommonSpot username when given a numeric userID.">
+	<cfargument name="userID" required="yes" type="numeric" default="" hint="the numeric ID for the user to get data for">
+	<cfscript>
+		var qryData = QueryNew("temp");
+	</cfscript>
+	<cfquery name="qryData" datasource="#request.site.usersdatasource#" maxrows="1"><!--- USERS DATASOURCE --->
+		SELECT UserID AS UserName
+		FROM users
+		WHERE ID = <cfqueryparam value="#arguments.userID#" cfsqltype="cf_sql_integer">
+	</cfquery>
+	<cfreturn TRIM(qryData.UserName)>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	G. Cronkright
+Name:
+	$getCustomMetadataFieldParamValue
+Summary:
+	Returns the value of a field parameter based on the Custom Metadata form name and field name
+Returns:
+	String 
+Arguments:
+	Numeric cspageid
+	String fromname - Custom Metadata form name
+	String fieldname - Custom Metadata field name
+	String fieldparam - Custom Metadata param name
+History:
+	2012-02-17 - GAC - Created
+	2012-02-22 - GAC - Added comments
+--->
+<cffunction name="getCustomMetadataFieldParamValue" access="public" returntype="String" hint="Returns the value of a field parameter based on the Custom Metadata form name and field name">
+	<cfargument name="cspageid" type="numeric" required="true" hint="commonspot pageID">
+	<cfargument name="formname" type="string" required="true" hint="Custom Metadata form name">
+	<cfargument name="fieldname" type="string" required="true" hint="Custom Metadata field name">
+	<cfargument name="fieldparam" type="string" required="false" default="label" hint="Custom Metadata field param">
+	<cfscript>
+		var rtnValue = "";
+		// Get the Custom Metadata field struct with params as values
+		var cmDataStruct = application.adf.csData.getCustomMetadataFieldsByCSPageID(cspageid=arguments.cspageid,fieldtype="",addFieldParams=true);
+		// Does the provided formname exist in the Custom Metadata field struct
+		if ( StructKeyExists(cmDataStruct,arguments.formname) )
+		{
+			// Does the provided fieldname exist in the Custom Metadata field struct in formname struct
+			if  ( StructKeyExists(cmDataStruct[arguments.formname],arguments.fieldname) )
+			{
+				// Does the provided field aram (default: label) exist in the Custom Metadata field struct in the form[field] struct
+				if  ( StructKeyExists(cmDataStruct[arguments.formname][arguments.fieldname],arguments.fieldparam) )
+				{
+					// if the form[field][param] exists get the value of the param and set it as the return value
+					rtnValue = cmDataStruct[arguments.formname][arguments.fieldname][arguments.fieldparam];
+				}			
+			}
+		}
+		return rtnValue;
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	G. Cronkright
+Name:
+	$getCustomMetadatawithFieldLabelsKeys
+Summary:
+	Returns a custom metadata structure with the field name keys converted to field labels (keeping the values for each)
+Returns:
+	Struct 
+Arguments:
+	Numeric cspageid
+History:
+	2012-02-17 - GAC - Created
+--->
+<cffunction name="getCustomMetadatawithFieldLabelsKeys" access="public" returntype="Struct" hint="Returns a custom metadata structure with the field name keys converted to field labels (keeping the values for each)">
+	<cfargument name="cspageid" type="numeric" required="true" hint="commonspot pageID">
+	<!--- <cfargument name="customMetadata" type="struct" required="true" hint="commonspot custom meta data stucture"> --->
+	<cfscript>
+		var rtnStruct = StructNew();
+		var cmDataStuct = getCustomMetadata(pageid=arguments.cspageid,convertTaxonomyTermsToIDs=1);
+		//var cmDataStuct = arguments.customMetadata;
+		var thisForm = "";
+		var thisField = "";
+		var paramType = "label";
+		var custMetadataLabel = "";
+		// Loop over the custom metadata structure that was passed in
+		for ( key in cmDataStuct ) {
+			// set the Key to the thisForm variable
+			thisForm = key;
+			// check to see if the thisForm contains stucture
+			if ( IsStruct(cmDataStuct[thisForm]) )
+			{
+				// Create the new return struct for this form
+				rtnStruct[thisForm] = StructNew();
+				// loop over the field in the current form
+				for (key in cmDataStuct[thisForm]) {
+					// Set the Key to the thisField variable
+					thisField = key;
+					// Get the LABEL value for this field
+					custMetadataLabel = getCustomMetadataFieldParamValue(cspageid=arguments.cspageid,formname=thisForm,fieldname=thisField,fieldparam=paramType);
+					// Set the new LABEL key for the return struct for this form
+					rtnStruct[thisForm][custMetadataLabel] = cmDataStuct[thisForm][thisField];
+				}
+			}
+		}	
+		return rtnStruct;
 	</cfscript>
 </cffunction>
 

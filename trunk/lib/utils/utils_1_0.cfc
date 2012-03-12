@@ -722,14 +722,22 @@ Summary:
 Returns:
 	Struct rtn (itemStart & itemEnd for output loop)
 Arguments:
-	Integer page
-	Integer itemCount
-	Integer pageSize
-	Boolean showCount (results count)
-	String URLparams (addl URL params for page links)
+	Numeric - page
+	Numeric - itemCount
+	Numeric -  pageSize
+	Boolean - showCount (results count)
+	String - URLparams (addl URL params for page links)
+	Numeric - listLimit
+	String - linkSeparator
+	String - gapSeparator
 History:
 	2008-12-05 - SFS - Created
 	2011-02-09 - RAK - Var'ing un-var'd variables
+	2012-03-08 - GAC - added a parameter for the listLimit to allow defined quantity of links to be built 
+					 - added a parameter for the linkSeparator to allow the character(s) between consecutive links to be defined
+					 - added a parameter for the gapSeparator to allow the character(s) for the gap of skipped links to be defined
+					 - moved the Results Count string into the rtn Struct
+					 - added the hints to the parameters
 --->
 <cffunction name="buildPagination" access="public" returntype="struct">
 	<cfargument name="page" type="numeric" required="true" default="1">
@@ -737,17 +745,18 @@ History:
 	<cfargument name="pageSize" type="numeric" required="true" default="1">
 	<cfargument name="showCount" type="boolean" required="false" default="true">
 	<cfargument name="URLparams" type="string" required="false" default="">
+	<cfargument name="listLimit" type="numeric" required="false" default="6" hint="the number of link structs that get built">
+	<cfargument name="linkSeparator" type="string" required="false" default="|" hint="character(s) separator for between consecutive page links">
+	<cfargument name="gapSeparator" type="string" required="false" default="..." hint="character(s) separator for the gab between skipped page links">
 
 	<cfscript>
-		var rtn = '';
+		var rtn = StructNew();
 		var listStart = '';
 		var listEnd = '';
 		var pg = '';
 		var maxPage = Ceiling(arguments.itemCount / arguments.pageSize);
-		var listLimit = 6;
 		var itemStart = 0;
 		var itemEnd = 0;
-		rtn = StructNew();
 	</cfscript>
 
 	<cfif arguments.page LT 1>
@@ -774,8 +783,10 @@ History:
 	</cfscript>
 
 	<cfoutput>
-	<!---<div>--->
-		<cfif arguments.showCount>Results #itemStart# - #itemEnd# of #arguments.itemCount#</cfif>
+		<!--- // Moved the Results Count string into the rtn Struct ---> 
+		<cfset rtn.resultsCount = "Results #itemStart# - #itemEnd# of #arguments.itemCount#">
+		<cfif arguments.showCount>#rtn.resultsCount#</cfif>
+		
 		<cfif arguments.page GT 1>
 			<cfset rtn.prevlink = "?page=#arguments.page-1##arguments.URLparams#">
 			<!---&laquo; <a href="?page=#arguments.page-1##arguments.URLparams#">Prev</a>--->
@@ -784,17 +795,17 @@ History:
 		</cfif>
 
 		<!--- Complicated code to help determine which page numbers to show in pagination --->
-		<cfif arguments.page LTE listLimit>
+		<cfif arguments.page LTE arguments.listLimit>
 			<cfset listStart = 2>
-		<cfelseif arguments.page GTE maxPage - (listLimit - 1)>
-			<cfset listStart = maxPage - listLimit>
+		<cfelseif arguments.page GTE maxPage - (arguments.listLimit - 1)>
+			<cfset listStart = maxPage - arguments.listLimit>
 		<cfelse>
 			<cfset listStart = arguments.page - 2>
 		</cfif>
 
-		<cfif arguments.page LTE listLimit>
-			<cfset listEnd = listLimit + 1>
-		<cfelseif arguments.page GTE maxPage - (listLimit - 1)>
+		<cfif arguments.page LTE arguments.listLimit>
+			<cfset listEnd = arguments.listLimit + 1>
+		<cfelseif arguments.page GTE maxPage - (arguments.listLimit - 1)>
 			<cfset listEnd = maxPage - 1>
 		<cfelse>
 			<cfset listEnd = arguments.page + 2>
@@ -805,11 +816,13 @@ History:
 			<cfset rtn.pageLinks[pg] = StructNew()>
 			<cfif (pg EQ 1 OR pg EQ maxPage) OR (pg GTE listStart AND pg LTE listEnd)>
 				<cfif (pg EQ listStart AND listStart GT 2) OR (pg EQ maxPage AND listEnd LT maxPage - 1)>
-				<cfset rtn.pageLinks[pg].Separator = "...">
-				<!---...--->
+					<!--- // Add the Separator to the struct for the 'gab' between skipped links --->
+					<cfset rtn.pageLinks[pg].Separator = arguments.gapSeparator>
+					<!---...--->
 				<cfelse>
-				<cfset rtn.pageLinks[pg].Separator = "|">
-				<!---|--->
+					<!--- // Add the Separator to the struct for between consecutive links --->
+					<cfset rtn.pageLinks[pg].Separator = arguments.linkSeparator>
+					<!---|--->
 				</cfif>
 				<cfif arguments.page NEQ pg>
 					<cfset rtn.pageLinks[pg].link = "?page=#pg##arguments.URLparams#">
@@ -818,6 +831,8 @@ History:
 					<cfset rtn.pageLinks[pg].link = "">
 					<!---#pg#--->
 				</cfif>
+			<cfelse>
+				<!--- // Builds an empty struct for pagelinks outside of the LIST limit --->
 			</cfif>
 		</cfloop>
 		<cfif arguments.page LT maxPage>
@@ -826,9 +841,6 @@ History:
 		<cfelse>
 			<cfset rtn.nextLink = "">
 		</cfif>
-		<!---<div class="clear"><!-- --></div>
-	</div>
-	<div class="clear"><!-- --></div>--->
 	</cfoutput>
 	<cfreturn rtn>
 </cffunction>

@@ -33,7 +33,8 @@ History:
 	2011-03-20 - RLW - Updated to use the new ccapi_1_0 component (was the original ccapi.cfc file)
 ---> 
 <cfcomponent displayname="csSubsite_1_0" extends="ADF.core.Base" hint="Constructs a CCAPI object and then creates a subsite based on the argument data passed in">
-<cfproperty name="version" value="1_0_1">
+
+<cfproperty name="version" value="1_0_2">
 <cfproperty name="type" value="transient">
 <cfproperty name="ccapi" type="dependency" injectedBean="ccapi_1_0">	
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_0">
@@ -41,9 +42,10 @@ History:
 <cfproperty name="wikiTitle" value="CSSubsite_1_0">
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
 Name:
 	$createSubsite
 Summary:
@@ -61,6 +63,8 @@ History:
 						Updated IF block for CCAPI login
 	2011-02-09 - RAK - Var'ing un-var'd variables
 	2011-04-27 - MFC - Added Parent SubsiteID to the success log.
+	2012-02-24 - MFC - Added TRY-CATCH around processing 
+					to logout the CCAPI if any errors.
 --->
 <cffunction name="createSubsite" access="public" returntype="struct" hint="Creates the subsite based on argument data">
 	<cfargument name="subsiteData" type="struct" required="true" hint="Subsite Data struct ex: subsiteData['name'], subsiteData['displayName'], subsiteData['description']">
@@ -76,55 +80,71 @@ History:
 		var logArray = arrayNew(1);
 		var createResponse = '';
 		result.subsiteCreated = false;
-		// Check if we are not logged in
-		//	OR force login with function argument
-		//	OR we are logged into a subsite other than our parent argument subsite
-		if( (variables.ccapi.loggedIn() EQ 'false') OR (arguments.doLogin GT 0) OR ( (arguments.parentSubsite NEQ 0) AND (variables.ccapi.getSubsiteID() NEQ arguments.parentSubsite) ) )	// login to the subsite where the new subsite will be created
-		{
-			// construct the CCAPI object
-			variables.ccapi.initCCAPI();
-			//ws = variables.ccapi.getWS();
-			if( arguments.parentSubsite neq 0 )
-				variables.ccapi.login(arguments.parentSubsite);
-			else
-				variables.ccapi.login();
-		}
-		// create the subsite
-		ws = variables.ccapi.getWS();
-		createResponse = ws.createSubsite(ssid=variables.ccapi.getSSID(), sparams=arguments.subsiteData);
-		// check to see if update wasn't successful
-		if( listFirst(createResponse, ":") neq "Success" )
-		{
-			// check to see if there was an error logging in
-			if( findNoCase(listRest(createResponse, ":"), "login") and not arguments.doLogin )
+		
+		try {
+		
+			// Check if we are not logged in
+			//	OR force login with function argument
+			//	OR we are logged into a subsite other than our parent argument subsite
+			if( (variables.ccapi.loggedIn() EQ 'false') OR (arguments.doLogin GT 0) OR ( (arguments.parentSubsite NEQ 0) AND (variables.ccapi.getSubsiteID() NEQ arguments.parentSubsite) ) )	// login to the subsite where the new subsite will be created
 			{
-				// resend this through the login
-				createResponse = variables.ccapi.createSubsite(arguments.subsiteData, arguments.parentSubsite, 1);
+				// construct the CCAPI object
+				variables.ccapi.initCCAPI();
+				//ws = variables.ccapi.getWS();
+				if( arguments.parentSubsite neq 0 )
+					variables.ccapi.login(arguments.parentSubsite);
+				else
+					variables.ccapi.login();
 			}
+			// create the subsite
+			ws = variables.ccapi.getWS();
+			createResponse = ws.createSubsite(ssid=variables.ccapi.getSSID(), sparams=arguments.subsiteData);
+			// check to see if update wasn't successful
 			if( listFirst(createResponse, ":") neq "Success" )
 			{
-				logStruct.msg = "Error creating subsite: #arguments.subsiteData.name# - #listRest(createResponse, ':')#";
-				logStruct.logFile = 'CCAPI_create_subsite.log';
-				arrayAppend(logArray, logStruct);
-				result.response = createResponse;
+				// check to see if there was an error logging in
+				if( findNoCase(listRest(createResponse, ":"), "login") and not arguments.doLogin )
+				{
+					// resend this through the login
+					createResponse = variables.ccapi.createSubsite(arguments.subsiteData, arguments.parentSubsite, 1);
+				}
+				if( listFirst(createResponse, ":") neq "Success" )
+				{
+					logStruct.msg = "Error creating subsite: #arguments.subsiteData.name# - #listRest(createResponse, ':')#";
+					logStruct.logFile = 'CCAPI_create_subsite.log';
+					arrayAppend(logArray, logStruct);
+					result.response = createResponse;
+				}
+				else
+				{
+					result.subsiteCreated = "true";
+					result.response = createResponse;
+				}
 			}
-			else
-			{
+			else {
 				result.subsiteCreated = "true";
 				result.response = createResponse;
-			}
 				
+				logStruct.msg = "Subsite Created: #arguments.subsiteData.name# - #listRest(createResponse, ':')# - Parent Subsite [#variables.ccapi.getSubsiteID()#]";
+				logStruct.logFile = 'CCAPI_create_subsite.log';
+				arrayAppend(logArray, logStruct);
+			}
+			if( variables.ccapi.loggingEnabled() )
+				variables.utils.bulkLogAppend(logArray);
 		}
-		else {
-			result.subsiteCreated = "true";
-			result.response = createResponse;
+		catch (e ANY){
+			// Error caught, send back the error message
+			result.subsiteCreated = false;
+			result.response = e.message;
 			
-			logStruct.msg = "Subsite Created: #arguments.subsiteData.name# - #listRest(createResponse, ':')# - Parent Subsite [#variables.ccapi.getSubsiteID()#]";
-			logStruct.logFile = 'CCAPI_create_subsite.log';
-			arrayAppend(logArray, logStruct);
-		}
-		if( variables.ccapi.loggingEnabled() )
+			// Log the error message also
+			logStruct.msg = "#request.formattedTimestamp# - Error [Message: #e.message#] [Details: #e.Details#]";
+			logStruct.logFile = "CCAPI_create_subsite_errors.log";
 			variables.utils.bulkLogAppend(logArray);
+		}
+		
+		// Logout
+		variables.ccapi.logout();
 	</cfscript>
 	<cfreturn result>
 </cffunction>

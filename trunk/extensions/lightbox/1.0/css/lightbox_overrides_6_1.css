@@ -19,13 +19,17 @@ end user license agreement.
 */
 /*
  * 	ADF UPDATES - MFC [2010-02-23]
+ *
+ *	History:
+ *		2012-02-24 - MFC - Added styles for the loading image, 
+ *							lightbox border images, 
+ *							and H1 title spacing.
  */
 
 .lightboxContainer .lightboxIframe {
 	overflow-y: hidden;
 	overflow-x: hidden;
 }
-
 .lightboxContainer .lightboxTopCorner {
 	margin-bottom: 0px;
 }
@@ -34,14 +38,24 @@ div#loading_container div#loading_content{
 	background:none repeat scroll 0 0 #FFFFFF;
 	border:1px solid #7E96AD;
 }
+/* Set the loading message Image arrows */
+div#loading_container img {
+	display: inline;
+	margin: 0px;
+}
 /* Borders images for lightbox */
 div.lightboxContainer img {
-		margin: 0;
-		padding: 0;
+	margin: 0;
+	padding: 0;
+	display: inline;
 }
 /* 2010-11-26 - RAK - Changed to fixed. Specified height variable.*/
 .lightboxOverlay {
 	position: fixed;
 	width: 100%;
 	height: 100%;
+}
+/* Set the spacing for the H1 tag */
+.lightboxContainer .lightboxHeader h1 {
+	line-height: 1 !important;
 }

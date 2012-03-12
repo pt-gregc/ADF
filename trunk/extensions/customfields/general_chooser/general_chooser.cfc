@@ -38,6 +38,7 @@ History:
 						listed in the proxy white list XML file.
 	2011-03-20 - MFC - Updated component to simplify the customizations process and performance.
 						Removed Ajax loading process.
+	2012-01-30 - GAC - Added a Display_Feild varaible to the General Chooser init variables.
 --->
 <cfcomponent name="general_chooser" extends="ADF.lib.ceData.ceData_1_0">
 
@@ -49,6 +50,8 @@ History:
 	variables.CE_FIELD = "";
 	variables.SEARCH_FIELDS = "";
 	variables.ORDER_FIELD = "";
+	// Display Text for the Chooser Items ( Defaults to the ORDER_FIELD )
+	variables.DISPLAY_FIELD = "";
 
 	// STYLES
 	variables.MAIN_WIDTH = 580;
@@ -348,6 +351,7 @@ History:
 	2011-01-14 - MFC - Updated Add new link to utilize forms_1_1 by default.
 	2011-04-28 - GAC - Added a check to see if the old "ADD_NEW_FLAG" or "SHOW_SECTION2" variables were being used 
 						via site or app level override files. If so, then passed appropriate value to the SHOW_ADD_LINK variable
+	2012-01-20 - GAC - Updating the Comments for the Backward Compatibility  fixes
 --->
 <cffunction name="loadAddNewLink" access="public" returntype="string" hint="General Chooser - Add New Link HTML content.">
 	<cfargument name="fieldName" type="String" required="true">
@@ -355,9 +359,12 @@ History:
 	<cfscript>
 		var retAddLinkHTML = "";
 	
-		// Backward compatibility to allow the variables from General Chooser v1.0 site and app override GC files to honored
+		// Backward Compatibility to allow the variables from General Chooser v1.0 site and app override GC files to be honored
+		// - if the section2 variable is used and set to false... not ADD button should be displayed
 		if ( StructKeyExists(variables,"SHOW_SECTION2") AND variables.SHOW_SECTION2 EQ false )
 			variables.SHOW_ADD_LINK = false;
+		
+		// - if SHOW_ADD_LINK is still true (and SHOW_SECTION2 is true) then check for the ADD_NEW_FLAG variable	
 		if ( StructKeyExists(variables,"ADD_NEW_FLAG") AND variables.SHOW_ADD_LINK NEQ false )
 			variables.SHOW_ADD_LINK = variables.ADD_NEW_FLAG;
 	</cfscript>
@@ -404,6 +411,9 @@ History:
 	2011-03-20 - MFC - Added flag for Edit/Delete links to the item row.
 	2011-03-27 - MFC - Updates for IE styling.
 	2011-08-01 - GAC - Added a closing DIV to the itemCell inside the LI tags in the retHTML
+	2012-01-20 - GAC - Added the title attribute to the DIV wrapper around Item info since the display is truncated
+					 - Added logic to display an ellipsis if the the Display text for an Item get truncated
+	2012-01-23 - GAC - Added a DISPLAY_TEXT variable to allow different item Display Text from what is used for the ORDER_FIELD
 --->
 <cffunction name="getSelections" access="public" returntype="string" hint="Returns the html code for the selections of the profile select custom element.">
 	<cfargument name="item" type="string" required="false" default="">
@@ -418,11 +428,16 @@ History:
 		var editDeleteLinks = "";
 		var itemCls = "";
 		var ceDataArray = getChooserData(arguments.item, arguments.queryType, arguments.searchValues, arguments.csPageID);
+		
+		// Backward Compatibility - if a DISPLAY_TEXT variable not given or is not defined the ORDER_FIELD will still be used for the Item display text
+		if ( NOT StructKeyExists(variables,"DISPLAY_FIELD") OR LEN(TRIM(variables.DISPLAY_FIELD)) EQ 0 )
+			variables.DISPLAY_FIELD = variables.ORDER_FIELD;
+		
 		// Loop over the data 	
 		for ( i=1; i LTE ArrayLen(ceDataArray); i=i+1) {
 			// Assemble the render HTML
-			if ( StructKeyExists(ceDataArray[i].Values, "#variables.ORDER_FIELD#") 
-					AND LEN(ceDataArray[i].Values[variables.ORDER_FIELD])
+			if ( StructKeyExists(ceDataArray[i].Values, "#variables.DISPLAY_FIELD#") 
+					AND LEN(ceDataArray[i].Values[variables.DISPLAY_FIELD])
 					AND StructKeyExists(ceDataArray[i].Values, "#variables.CE_FIELD#") 
 					AND LEN(ceDataArray[i].Values[variables.CE_FIELD]) )
 			{
@@ -436,7 +451,7 @@ History:
 				    itemCls = itemCls & " itemEditDelete";
 				}
 				// Build the item, and add the Edit/Delete links
-				retHTML = retHTML & "<li id='#ceDataArray[i].Values[variables.CE_FIELD]#' class='#itemCls#'><div class='itemCell'>#LEFT(ceDataArray[i].Values[variables.ORDER_FIELD],26)##editDeleteLinks#</div></li>";
+				retHTML = retHTML & "<li id='#ceDataArray[i].Values[variables.CE_FIELD]#' class='#itemCls#'><div class='itemCell' title='#ceDataArray[i].Values[variables.DISPLAY_FIELD]#'>#LEFT(ceDataArray[i].Values[variables.DISPLAY_FIELD],26)#<cfif LEN(ceDataArray[i].Values[variables.DISPLAY_FIELD])) GT 26>...</cfif>#editDeleteLinks#</div></li>";
 			}
 		}
 	</cfscript>

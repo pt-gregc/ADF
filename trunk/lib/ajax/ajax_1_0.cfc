@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="ajax" extends="ADF.core.Base" hint="AJAX functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_0">
+<cfproperty name="version" value="1_0_1">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_1">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_1">
@@ -63,6 +63,8 @@ History:
 	2011-02-09 - RAK - Var'ing un-var'd variables
 	2011-02-09 - GAC - Modified - renamed the 'local' variable to 'result' since local is a reserved word in CF9
 	2011-02-09 - GAC - Removed ADFlightbox specific forceOutput variable
+	2012-03-08 - MFC - Added the cfcatch error message to the default error message display.
+	2012-03-12 - GAC - Added logic to the reString error struct to check if a message key was returned
 --->
 <!--- // ATTENTION: 
 		Do not call is method directly. Call from inside the AjaxProxy.cfm file (method properties are subject to change) 
@@ -182,7 +184,11 @@ History:
 						if ( isStruct(result.reString) or isArray(result.reString) or isObject(result.reString) ) 
 						{
 							hasProcessingError = 1; 
-							result.reString = "Error: unable to convert the return value to a string";
+							// 2012-03-10 - GAC - we need to check if we have a 'message' before we can output it
+							if ( StructKeyExists(result.reString,"message") )
+								result.reString = "Error: Unable to convert the return value into string. [" & result.reString.message & "]";
+							else
+								result.reString = "Error: Unable to convert the return value into string.";
 						}
 					}
 					else
