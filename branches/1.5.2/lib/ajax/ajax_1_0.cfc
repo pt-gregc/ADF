@@ -64,6 +64,7 @@ History:
 	2011-02-09 - GAC - Modified - renamed the 'local' variable to 'result' since local is a reserved word in CF9
 	2011-02-09 - GAC - Removed ADFlightbox specific forceOutput variable
 	2012-03-08 - MFC - Added the cfcatch error message to the default error message display.
+	2012-03-12 - GAC - Added logic to the reString error struct to check if a message key was returned
 --->
 <!--- // ATTENTION: 
 		Do not call is method directly. Call from inside the AjaxProxy.cfm file (method properties are subject to change) 
@@ -183,7 +184,11 @@ History:
 						if ( isStruct(result.reString) or isArray(result.reString) or isObject(result.reString) ) 
 						{
 							hasProcessingError = 1; 
-							result.reString = "Error: Unable to convert the return value into string [" & result.reString.message & "]";
+							// 2012-03-10 - GAC - we need to check if we have a 'message' before we can output it
+							if ( StructKeyExists(result.reString,"message") )
+								result.reString = "Error: Unable to convert the return value into string. [" & result.reString.message & "]";
+							else
+								result.reString = "Error: Unable to convert the return value into string.";
 						}
 					}
 					else
