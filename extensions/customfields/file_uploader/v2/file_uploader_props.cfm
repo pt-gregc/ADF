@@ -33,6 +33,7 @@ Summary:
 ADF Requirements:
 History:
 	2010-10-26 - RAK - Created
+	2012-03-08 - GAC - Added jQuery the noConflict option
 --->
 <cfscript>
 	// initialize some of the attributes variables
@@ -43,7 +44,7 @@ History:
 	if( not structKeyExists(currentValues, "beanName") )
 		currentValues.beanName = "file_uploader";
 		
-	application.ADF.scripts.loadJQuery();
+	application.ADF.scripts.loadJQuery(noConflict=true);
 </cfscript>
 <cfoutput>
 <script type="text/javascript">

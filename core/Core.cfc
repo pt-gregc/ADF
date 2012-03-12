@@ -34,14 +34,18 @@ History:
 	2011-04-05 - MFC - Modified - Updated the version property.
 								  Added a shared variable for CS version
 								  Added a function that returns the CS version
+	2012-03-08 - MFC - Modified - Removed the cfproperty for the "svnRevision".
+								  Added "variables.buildRev" to be manually updated before releases.
+								  Added "server.ADF.buildRev" to have available in the ADF space.
 --->
 <cfcomponent name="Core" hint="Core component for Application Development Framework">
 
-<cfproperty name="version" value="1_5_1">
-<cfproperty name="svnRevision" value="674">
+<cfproperty name="version" value="1_5_2">
 
 <cfscript>
-	variables.ADFversion = "1.5.1"; // use a dot delimited version number
+	variables.ADFversion = "1.5.2"; // use a dot delimited version number
+	// ADF Build Revision Number
+	variables.buildRev = "744"; 
 	// CS product version, get the decimal value
 	variables.csVersion = Val(ListLast(request.cp.productversion, " "));
 </cfscript>
@@ -61,6 +65,7 @@ History:
 		server.ADF.buildErrors = ArrayNew(1); // Place to store errors that occur while building the ADF
 		server.ADF.version = getADFversion(); // Get the ADF version
 		server.ADF.csVersion = getCSVersion(); // Get the ADF version
+		server.ADF.buildRev = variables.buildRev;
 		
 		// Build object factory 
 		server.ADF.beanConfig = createObject("component","ADF.core.lightwire.BeanConfig").init();
@@ -136,7 +141,8 @@ History:
 
 <!---
 /* *************************************************************** */
-Author: 	jrybacek
+Author: 	
+	jrybacek
 Name:
 	reset
 Summary:
@@ -162,6 +168,7 @@ History:
 						caused performance slowness loading debug html.
 	2011-06-29 - MT - Set a response header indicating if the ADF was reset or not.
 	2011-07-14 - MFC - Renamed cache variable to be under ADF struct, "application.ADF.cache".
+	2012-01-12 - MFC - Updated the ADF reset message text.
 --->
 <cffunction name="reset" access="remote" returnType="Struct">
 	<cfargument name="type" type="string" required="false" default="all" hint="The type of the ADF to reset.  Options are 'Server', 'Site' or 'All'. Defaults to 'All'.">
@@ -193,13 +200,13 @@ History:
 							createObject("component", "ADF.core.Core").init();
 							// 2010-06-23 jrybacek Reload ADF site
 							createObject("component", "#request.site.name#._cs_apps.ADF").init();
-							rtnMsg = "ADF #ADFversion# framework  has been reset successfully!";
+							rtnMsg = "ADF #ADFversion# has been reset successfully!";
 							ADFReset = true;
 							break;
 						case "SERVER":
 							// 2010-06-23 jrybacek Reload ADF server
 							createObject("component", "ADF.core.Core").init();
-							rtnMsg = "ADF #ADFversion# server framework has been reset successfully!";
+							rtnMsg = "ADF #ADFversion# server has been reset successfully!";
 							ADFReset = true;
 							break;
 						case "SITE":

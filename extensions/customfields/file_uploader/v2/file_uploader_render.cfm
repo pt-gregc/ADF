@@ -30,6 +30,8 @@ History:
 	2011-08-05 - RAK - Created
 	2011-08-05 - RAK - fixed issue where the file uploader would try to generate images for non-pdf files.
 	2011-09-22 - RAK - Updated file uploader to be able to get more detailed information if they choose to override the props.
+	2012-01-03 - GAC - Moved the the hidden field code inside the TD tag
+	2012-02-14 - GAC - Moved the CFT hidden fields back inside of the <td> wrapper for the field
 --->
 <cfscript>
 	application.ADF.scripts.loadJQuery();
@@ -44,6 +46,7 @@ History:
 
 	// the param structure which will hold all of the fields from the props dialog
 	xparams = parameters[fieldQuery.inputID];
+	
 	// find if we need to render the simple form field
 	renderSimpleFormField = false;
 	if ( (StructKeyExists(request, "simpleformexists")) AND (request.simpleformexists EQ 1) )
@@ -55,9 +58,10 @@ History:
 	valueRenderParams.currentValue = currentValue;
 	currentValueRenderData = application.ADF.utils.runCommand(fieldDefaultValues.beanName,"getCurrentValueRenderData",valueRenderParams);
 
-
 	imageURL = "/ADF/extensions/customfields/file_uploader/v2/handleFileDownload.cfm?subsiteURL=#request.subsite.url#&fieldID=#fieldQuery.inputID#&filename=";
 	concatenator = "";
+	
+	//application.ADF.utils.dodump(currentValue,"currentValue",1);	
 </cfscript>
 <cfoutput>
 	<script>
@@ -87,7 +91,7 @@ History:
 			</cfif>
 
 			jQuery("###fqFieldName#_currentSelection").html(fileName);
-			jQuery("###fqFieldName#").val(fileName);
+			jQuery("###fqFieldName#").val(fileName);  //.trigger("change"); // TODO: MAY NEED TO ADD THE .TRIGGER TO NOTIFY FORM OF CHANGE 
 			#fqFieldName#setView(true);
 			jQuery("###fqFieldName#_currentSelection").show();
 		}
@@ -139,12 +143,13 @@ History:
 				<div id="errorMsg_#fqFieldName#"></div>
 				<input type="button" value="Clear" name="clear_btn_#fqFieldName#" id="clear_btn_#fqFieldName#" onclick="#fqFieldName#clearButtonClick()">
 			</div>
+		
+			<!--- hidden field to store the value --->
+			<input type='hidden' name='#fqFieldName#' id='#fqFieldName#' value='#currentValue#'>
+			<!--- // include hidden field for simple form processing --->
+			<cfif renderSimpleFormField>
+				<input type="hidden" name="#fqFieldName#_FIELDNAME" id="#fqFieldName#_FIELDNAME" value="#ReplaceNoCase(xParams.fieldName, 'fic_','')#">
+			</cfif>
 		</td>
 	</tr>
-	<!--- hidden field to store the value --->
-	<input type='hidden' name='#fqFieldName#' id='#fqFieldName#' value='#currentValue#'>
-	<!--- // include hidden field for simple form processing --->
-	<cfif renderSimpleFormField>
-		<input type="hidden" name="#fqFieldName#_FIELDNAME" id="#fqFieldName#_FIELDNAME" value="#ReplaceNoCase(xParams.fieldName, 'fic_','')#">
-	</cfif>
 </cfoutput>

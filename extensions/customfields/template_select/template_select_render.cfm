@@ -33,15 +33,16 @@ ADF Requirements:
 History:
 	2007-01-24 - RLW - Created
 	2011-10-22 - MFC - Set the default selected value to be stored when loading the CFT.
+	2012-02-06 - MFC - Updated scripts to load with the site ADF
 --->
 <cfscript>
 	// the fields current value
 	currentValue = attributes.currentValues[fqFieldName];
 	// the param structure which will hold all of the fields from the props dialog
 	xparams = parameters[fieldQuery.inputID];
-	scripts = server.ADF.objectFactory.getBean("scripts_1_0");
-	scripts.loadJQuery();
-	scripts.loadJQuerySelectboxes();
+	// Updated scripts to load with the site ADF
+	application.ADF.scripts.loadJQuery();
+	application.ADF.scripts.loadJQuerySelectboxes();
 </cfscript>
 <cfoutput>
 	<script type="text/javascript">

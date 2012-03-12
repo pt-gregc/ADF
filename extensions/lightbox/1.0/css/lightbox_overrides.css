@@ -19,13 +19,16 @@ end user license agreement.
 */
 /*
  * 	ADF UPDATES - MFC [2010-02-23]
+ *
+ *	History:
+ *		2012-02-24 - MFC - Added styles for the lightbox border images.
+ *		2012-03-08 - MFC - Added "border: none;" for the img tags.
  */
 
 .lightboxContainer .lightboxIframe {
 	overflow-y: auto;
 	overflow-x: hidden;
 }
-
 .lightboxContainer .lightboxTopCorner {
 	margin-bottom: 0px;
 }
@@ -36,8 +39,10 @@ div#loading_container div#loading_content{
 }
 /* Borders images for lightbox */
 div.lightboxContainer img {
-		margin: 0;
-		padding: 0;
+	margin: 0;
+	padding: 0;
+	display: inline;
+	border: none;
 }
 /* 2010-11-26 - RAK - Changed to fixed. Specified height variable.*/
 .lightboxOverlay {

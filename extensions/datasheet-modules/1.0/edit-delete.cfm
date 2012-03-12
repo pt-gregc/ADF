@@ -30,6 +30,7 @@ History:
 	2011-02-07 - RAK - Created
 	2011-02-15 - RAK - Updated to handle client side sorting in a better way.
 	2011-03-11 - MFC - Updated to add class "ADF-Edit-Delete" to TD for custom styling.
+	2012-03-08 - MFC - Updated the styles for the buttons to align left and be a fixed width.
 --->
 <cfscript>
 	//Path to open the ligthbox to
@@ -69,7 +70,7 @@ History:
 <cfsavecontent variable="tdHTML">
 	<cfoutput>
 		<!---	If client side sorting is disabled put the load JQuery information in the better location--->
-		<td align="center" valign="middle" class="ADF-Edit-Delete">
+		<td align="left" valign="middle" class="ADF-Edit-Delete" style="width:150px;">
 			<cfif not eparam.permitClientSideSort>
 				#headerData#
 			</cfif>

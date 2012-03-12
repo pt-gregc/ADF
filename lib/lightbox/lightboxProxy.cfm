@@ -47,6 +47,7 @@ History:
 	2011-03-11 - MFC - Updated the APPLICATION.CFC to use the ADF Application file
 						and loading the sites Application space function directly.
 	2011-03-26 - MFC - Moved the loadADFLightbox call to the top of the loading process.
+	2012-02-03 - MFC - Commented out loadJquery scripts.
 --->
 	<cfheader name="Expires" value="#now()#">
   	<cfheader name="Pragma" value="no-cache">
@@ -72,8 +73,8 @@ History:
 			CreateObject("component","ADF.Application").loadSiteAppSpace(request.params.subsiteURL);	
 	</cfscript>
 </cfsilent>
-<!--- // Add ADF lightbox Scripts Header  --->
-<cfscript>application.ADF.scripts.loadADFLightbox(force=request.params.forceScripts);</cfscript>
+<!--- // Add ADF lightbox Scripts Header --->
+<!--- <cfscript>application.ADF.scripts.loadADFLightbox(force=request.params.forceScripts);</cfscript> --->
 <!--- // Add CS 6.x lightbox Header  --->
 <cfif request.params.addLBHeaderFooter><cfoutput>#application.ADF.ui.lightboxHeader()#</cfoutput></cfif>
 <!--- // 2011-02-16 - Call the Lightbox Proxy to build the HTML, then Output the HTML string --->
