@@ -67,6 +67,7 @@ History:
 	2011-02-09 - GAC - Modified - renamed the 'local' variable to 'result' since local is a reserved word in CF9
 	2011-10-03 - MFC - Modified - Added check to return the CFCATCH error message.
 	2012-03-08 - MFC - Added the cfcatch error message to the default error message display.
+	2012-03-12 - GAC - Added logic to the reHTML error struct to check if a message key was returned
 --->
 <!--- // ATTENTION: 
 		Do not call is method directly. Call from inside the LightboxProxy.cfm file  (method properties are subject to change)
@@ -141,7 +142,11 @@ History:
 					else if ( isStruct(result.reHTML) or isArray(result.reHTML) or isObject(result.reHTML) ) 
 					{
 						hasError = 1;
-						result.reHTML = "Error: Unable to convert the return value into string [" & result.reHTML.message & "]";
+						// 2012-03-10 - GAC - we need to check if we have a 'message' before we can output it
+						if ( StructKeyExists(result.reHTML,"message") )
+							result.reHTML = "Error: Unable to convert the return value into string [" & result.reHTML.message & "]";
+						else
+							result.reHTML = "Error: Unable to convert the return value into string";
 					}
 				}
 				else
