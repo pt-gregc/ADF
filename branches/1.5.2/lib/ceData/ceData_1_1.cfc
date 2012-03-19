@@ -31,6 +31,7 @@ Version
 History:
 	2011-01-25 - MFC - Created - New v1.1
 	2011-10-04 - GAC - Updated csSecurity dependency to csSecurity_1_1
+	2012-03-19 - GAC - Updated and fixed comment headers
 --->
 <cfcomponent displayname="ceData_1_1" extends="ADF.lib.ceData.ceData_1_0" hint="Custom Element Data functions for the ADF Library">
 
@@ -42,7 +43,9 @@ History:
 
 <!---
 /* *************************************************************** */
-Author: 	Ryan Kahn
+Author: 	
+	PaperThin, Inc.
+	Ryan Kahn
 Name:
 	$getTabsFromFormID
 Summary:
@@ -87,7 +90,9 @@ History:
 
 <!---
 /* *************************************************************** */
-Author: 	Ryan Kahn
+Author:
+	PaperThin, Inc.	
+	Ryan Kahn
 Name:
 	$getFieldsFromTabID
 Summary:
@@ -133,7 +138,9 @@ History:
 
 <!---
 /* *************************************************************** */
-Author: 	Ryan Kahn
+Author: 	
+	PaperThin, Inc.
+	Ryan Kahn
 Name:
 	$getFieldDefaultValueFromID
 Summary:
@@ -238,7 +245,9 @@ History:
 
 <!---
 /* *************************************************************** */
-Author: 	Ryan Kahn
+Author: 	
+	PaperThin, Inc.
+	Ryan Kahn
 Name:
 	$getFieldParamsByID
 Summary:
@@ -513,9 +522,11 @@ History:
 
 <!---
 /* ************************************************************** */
-Author: 	Ron West
+Author: 	
+	PaperThin, Inc.
+	Ron West
 Name:
-	$buildCEDataArryFromQuery
+	$buildCEDataArrayFromQuery
 Summary:	
 	Returns a standard CEData Array to be used in Render Handlers from a ceDataView query
 Returns:
@@ -1035,7 +1046,7 @@ Author:
 	PaperThin, Inc.
 	Ryan Kahn
 Name:
-	$_getStructKey
+	$__generateStructKey
 Summary:	
 	Helper function for getting the structures unique identifier as a string
 Returns:
@@ -1077,8 +1088,7 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author:
 	PaperThin, Inc.
 	Ryan Kahn
@@ -1173,9 +1183,9 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author:
+	PaperThin, Inc.
 	Ryan Kahn
 Name:
 	$getCEData
@@ -1262,6 +1272,5 @@ History:
 		return rtnArray;
 	</cfscript>
 </cffunction>
-
 
 </cfcomponent>
