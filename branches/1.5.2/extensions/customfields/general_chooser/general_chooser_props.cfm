@@ -22,7 +22,7 @@ end user license agreement.
 /* *************************************************************** */
 Author: 	
 	PaperThin, Inc.
-	Michael Carroll 
+	M Carroll 
 Custom Field Type:
 	general_chooser_props.cfm
 Name:
@@ -31,7 +31,7 @@ Summary:
 	General Chooser field type.
 	Allows for selection of the custom element records.
 Version:
-	1.1.0
+	1.1
 History:
 	2009-05-29 - MFC - Created
 	2011-03-20 - MFC - Updated component to simplify the customizations process and performance.
@@ -39,6 +39,8 @@ History:
 	2011-09-21 - RAK - Added max/min selections
 	2011-09-21 - RAK - Updated default values to load in an easier to configure manner
 	2011-10-20 - GAC - Updated the descriptions for the minSelections and maxSelections fields
+	2012-03-19 - MFC - Added "loadAvailable" option to set if the available selections load
+						when the form loads.
 --->
 <cfscript>
 	// initialize some of the attributes variables
@@ -50,9 +52,10 @@ History:
 	//Setup the default values
 	defaultValues = StructNew();
 	defaultValues.chooserCFCName = "";
-   defaultValues.forceScripts = "0";
-   defaultValues.minSelections = "0";
-   defaultValues.maxSelections = "0";
+    defaultValues.forceScripts = "0";
+    defaultValues.minSelections = "0";
+    defaultValues.maxSelections = "0";
+    defaultValues.loadAvailable = "0";
 
    //This will override the default values with the current values.
    currentValueArray = StructKeyArray(currentValues);
@@ -66,7 +69,7 @@ History:
 	
 	<script language="JavaScript" type="text/javascript">
 		// register the fields with global props object
-		fieldProperties['#typeid#'].paramFields = '#prefix#chooserCFCName,#prefix#forceScripts,#prefix#minSelections,#prefix#maxSelections';
+		fieldProperties['#typeid#'].paramFields = '#prefix#chooserCFCName,#prefix#forceScripts,#prefix#minSelections,#prefix#maxSelections,#prefix#loadAvailable';
 		// allows this field to support the orange icon (copy down to label from field name)
 		fieldProperties['#typeid#'].jsLabelUpdater = '#prefix#doLabel';
 		// allows this field to have a common onSubmit Validator
@@ -115,6 +118,14 @@ History:
 			<td class="cs_dlgLabelSmall">
 				<input type="text" id="#prefix#maxSelections" name="#prefix#maxSelections" value="#defaultValues.maxSelections#" size="10"><br />
 				<span>Default: 0 (Use 0 for unlimited selections)</span>
+			</td>
+		</tr>
+		<tr valign="top">
+			<td class="cs_dlgLabelSmall">Load All Available Selections:</td>
+			<td class="cs_dlgLabelSmall">
+				Yes <input type="radio" id="#prefix#loadAvailable" name="#prefix#loadAvailable" value="1" <cfif defaultValues.loadAvailable EQ "1">checked</cfif>>&nbsp;&nbsp;&nbsp;
+				No <input type="radio" id="#prefix#loadAvailable" name="#prefix#loadAvailable" value="0" <cfif defaultValues.loadAvailable EQ "0">checked</cfif>><br />
+				Select the option to load all the avialable selections on the form load.
 			</td>
 		</tr>
 	</table>

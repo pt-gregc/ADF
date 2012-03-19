@@ -22,7 +22,7 @@ end user license agreement.
 /* *************************************************************** */
 Author: 	
 	PaperThin, Inc.
-	Michael Carroll 
+	M Carroll 
 Custom Field Type:
 	general_chooser_props.cfm
 Name:
@@ -31,7 +31,7 @@ Summary:
 	General Chooser field type.
 	Allows for selection of the custom element records.
 Version:
-	1.1.0
+	1.1
 History:
 	2009-10-16 - MFC - Created
 	2009-11-13 - MFC - Updated the Ajax calls to the CFC to call the controller 
@@ -45,6 +45,9 @@ History:
 	2011-09-21 - RAK - Added max/min selections
 	2011-10-20 - GAC - Added defualt value check for the minSelections and maxSelections xParams varaibles
 	2012-01-04 - SS - The field now honors the "required" setting in Standard Options.
+	2012-03-19 - MFC - Added "loadAvailable" option to set if the available selections load
+						when the form loads.
+					   Added the new records will load into the "selected" area when saved.
 --->
 <cfscript>
 	// the fields current value
@@ -65,12 +68,15 @@ History:
 		xParams.minSelections = "0"; //	0 = selections are optional
 	if( NOT StructKeyExists(xParams, "maxSelections") )
 		xParams.maxSelections = "0"; //	0 = infinite selections are possible
+	if( NOT StructKeyExists(xParams, "loadAvailable") )
+		xParams.loadAvailable = "0"; //	0 = infinite selections are possible
 	
 	// find if we need to render the simple form field
 	renderSimpleFormField = false;
 	if ( (StructKeyExists(request, "simpleformexists")) AND (request.simpleformexists EQ 1) )
 		renderSimpleFormField = true;
 </cfscript>
+
 <cfoutput>
 	<cfscript>
 		// Load the scripts
@@ -155,7 +161,6 @@ History:
 				else
 					jQuery("###xParams.fieldID#-sortable1").html(jQuery.trim(msg));
 					
-				#xParams.fieldID#currentValue = "#currentValue#";
 				#xParams.fieldID#_loadEffects();
 				
 				// Re-init the ADF Lightbox
@@ -194,8 +199,23 @@ History:
 		}
 		
 		function #xParams.fieldID#_formCallback(formData){
-			// Reload the available selections
-			#xParams.fieldID#_loadTopics("notselected");
+			
+			// Load the newest item onto the selected values
+			if ( jQuery.ListLen(#xParams.fieldID#currentValue) > 0 ){
+				// Check that the record does not exist in the list already
+				if ( jQuery.ListFindNoCase(#xParams.fieldID#currentValue, formData[js_#xParams.fieldID#_CE_FIELD]) <= 0 )	
+					#xParams.fieldID#currentValue = jQuery.ListAppend(formData[js_#xParams.fieldID#_CE_FIELD], #xParams.fieldID#currentValue);
+			}
+			else 
+				#xParams.fieldID#currentValue = formData[js_#xParams.fieldID#_CE_FIELD];
+				
+			//alert(#xParams.fieldID#currentValue);
+			// load current values into the form field
+			jQuery("input###fqFieldName#").val(#xParams.fieldID#currentValue);
+			
+			// Reload the selected Values
+			#xParams.fieldID#_loadTopics("selected");
+			
 			// Close the lightbox
 			closeLB();
 		}
@@ -282,9 +302,11 @@ History:
 								// Set the query type flag before running the command
 								selectionsArg.queryType = "notselected";
 							</cfscript>
-							#application.ADF.utils.runCommand(beanName=xParams.chooserCFCName,
-															methodName="getSelections",
-															args=selectionsArg)#
+							<cfif xParams.loadAvailable>
+								#application.ADF.utils.runCommand(beanName=xParams.chooserCFCName,
+																methodName="getSelections",
+																args=selectionsArg)#
+							</cfif>
 						</ul>
 					</div>
 					
