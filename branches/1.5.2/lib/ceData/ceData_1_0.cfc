@@ -36,7 +36,7 @@ History:
 --->
 <cfcomponent displayname="ceData_1_0" extends="ADF.core.Base" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_2">
+<cfproperty name="version" value="1_0_3">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_0">
 <cfproperty name="data" type="dependency" injectedBean="data_1_0">

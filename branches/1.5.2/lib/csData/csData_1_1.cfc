@@ -39,7 +39,7 @@ History:
 --->
 <cfcomponent displayname="csData_1_1" extends="ADF.lib.csData.csData_1_0" hint="CommonSpot Data Utils functions for the ADF Library">
 	
-<cfproperty name="version" value="1_1_1">
+<cfproperty name="version" value="1_1_3">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_1">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">
