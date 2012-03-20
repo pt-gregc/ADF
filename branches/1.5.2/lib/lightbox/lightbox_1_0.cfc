@@ -36,7 +36,7 @@ History:
 --->
 <cfcomponent displayname="lightbox" extends="ADF.core.Base" hint="Lightbox functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_3">
+<cfproperty name="version" value="1_0_4">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_1">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_1">
@@ -182,7 +182,6 @@ History:
 	</cfscript>
 </cffunction>
 
-
 <!---
 /* *************************************************************** */
 Author: 	
@@ -303,11 +302,28 @@ History:
 				
 				<!--- SOLUTION 3 --->
 				<script type="text/javascript">
-					 
+					
+					// Check if in CS LVIEW
 					if (top.commonspot && top.commonspot.lightbox) 
 						var commonspot = top.commonspot;
 					else if (parent.commonspot && parent.commonspot.lightbox)
 						var commonspot = parent.commonspot;
+					else
+					{
+						// Load the files for the CS LVIEW
+						if (typeof parent.commonspot == 'undefined' || typeof parent.commonspot.lview == 'undefined')
+							loadNonDashboardFiles();
+						else if (parent.commonspot && typeof newWindow == 'undefined')
+						{
+							var arrFiles = 
+									[
+										{fileName: '/commonspot/javascript/lightbox/overrides.js', fileType: 'script', fileID: 'cs_overrides'},
+										{fileName: '/commonspot/javascript/lightbox/window_ref.js', fileType: 'script', fileID: 'cs_windowref'}
+									];
+							
+							loadDashboardFiles(arrFiles);
+						}
+					}
 					
 					jQuery(document).ready(function(){
 						/*
@@ -317,8 +333,16 @@ History:
 					});
 				</script>
 				<!--- Need this for when NOT in CS Mode --->
-				<script type="text/javascript" src="/commonspot/javascript/browser-all.js"></script>
-				
+				<!--- <script type="text/javascript" src="/commonspot/javascript/browser-all.js"></script>
+				 --->
+				 
+				<!--- LOADING --->
+				<!--- <div id="loading_container" style="display:none;">
+					<div id="loading_content" title="Loading, please wait">
+						<img id="loading_img" src="/commonspot/dashboard/images/dialog/loading.gif" title="Loading, please wait" />
+						<div id="loading_text">Loading...</div>
+					</div>
+				</div> --->
 				
 				
 				
@@ -529,6 +553,5 @@ History:
 	</cfsavecontent>
 	<cfreturn retHTML>
 </cffunction>
-
 
 </cfcomponent>

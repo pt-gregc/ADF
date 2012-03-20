@@ -55,9 +55,16 @@ function openLB(lbUrl) {
 	//var newLBUrl = lbUrl;
 	// Call the function to open the LB
 	
-	//newWindow(name="", url=newLBUrl);
+	/*
+	newWindow(name="", 
+					url=newLBUrl, 
+					customOverlayMsg="", 
+					openInWindow=false,
+					windowProps="maximize=1,hideHelp=1");
+	*/
 	
 	// TODO - Add in the URL params for the fields for title, width, & height
+	/*
 	commonspot.lightbox.openURL(
 		{	url: newLBUrl,
 			title:'', 
@@ -68,6 +75,19 @@ function openLB(lbUrl) {
 			height: 500
 		}
 	);
+	*/
+	
+	commonspot.lightbox.openDialog(
+			url=newLBUrl, 
+			hideClose=0, 
+			name='test', 
+			customOverlayMsg='', 
+			dialogType='', 
+			opener='', 
+			hideHelp=1, 
+			hideReload=0);
+	
+	
 }
 
 /*
