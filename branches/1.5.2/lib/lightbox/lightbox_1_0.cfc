@@ -36,7 +36,7 @@ History:
 --->
 <cfcomponent displayname="lightbox" extends="ADF.core.Base" hint="Lightbox functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_4">
+<cfproperty name="version" value="1_0_5">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_1">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_1">
@@ -332,9 +332,14 @@ History:
 						initADFLB();
 					});
 				</script>
+							
 				<!--- Need this for when NOT in CS Mode --->
-				<!--- <script type="text/javascript" src="/commonspot/javascript/browser-all.js"></script>
-				 --->
+				<!--- <script type="text/javascript" src="/commonspot/javascript/browser-all.js"></script> --->
+				
+				<!--- Load this CSS for when in CS 7 and IE mode --->
+				<cfif application.ADF.csVersion GTE 7>
+					<link rel="stylesheet" type="text/css" href="/commonspot/javascript/lightbox/lightbox.css"></link>
+				</cfif>
 				 
 				<!--- LOADING --->
 				<!--- <div id="loading_container" style="display:none;">
