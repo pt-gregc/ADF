@@ -45,7 +45,9 @@ History:
 <cfscript>
 	variables.ADFversion = "1.5.2"; // use a dot delimited version number
 	// ADF Build Revision Number
-	variables.buildRev = "755"; 
+	variables.buildRev = "759";
+	// ADF Codename
+	variables.buildName = "Battlezone";
 	// CS product version, get the decimal value
 	variables.csVersion = Val(ListLast(request.cp.productversion, " "));
 </cfscript>
@@ -66,6 +68,7 @@ History:
 		server.ADF.version = getADFversion(); // Get the ADF version
 		server.ADF.csVersion = getCSVersion(); // Get the ADF version
 		server.ADF.buildRev = variables.buildRev;
+		server.ADF.buildName = variables.buildName;
 		
 		// Build object factory 
 		server.ADF.beanConfig = createObject("component","ADF.core.lightwire.BeanConfig").init();
