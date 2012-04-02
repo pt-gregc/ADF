@@ -31,13 +31,15 @@ Version:
 History:
 	2011-01-25 - MFC - Created
 	2011-02-01 - GAC - Added dependency to csData_1_1
+	2011-03-31 - GAC - Added dependency to data_1_1
 --->
 <cfcomponent displayname="utils_1_1" extends="ADF.lib.utils.utils_1_0" hint="Util functions for the ADF Library">
 
-<cfproperty name="version" value="1_1_0">
+<cfproperty name="version" value="1_1_1">
 <cfproperty name="type" value="singleton">
 <cfproperty name="ceData" type="dependency" injectedBean="ceData_1_1">
 <cfproperty name="csData" type="dependency" injectedBean="csData_1_1">
+<cfproperty name="data" type="dependency" injectedBean="data_1_1">
 <cfproperty name="wikiTitle" value="Utils_1_1">
 
 <!---
@@ -385,235 +387,26 @@ History:
 <!---
 /* *************************************************************** */
 Author:
-	Ben Forta (ben@forta.com
+	Ben Forta (ben@forta.com)
 Name:
 	$numberAsString
 Summary:
-	Returns a number converte dinto a string (i.e. 1 becomes 'one')
+	Returns a number converted into a string (i.e. 1 becomes 'one')
 Returns:
 	string
 Arguments:
-
+	Numeric - number
 History:
  	2011-07-25 - RAK - copied from http://www.cflib.org/index.cfm?event=page.udfbyid&udfid=40
 	2011-09-07 - GAC - Removed all of IsDefined() functions and replaced them with StructKeyExists()... sorry Ben F! ... no IsDefined's allowed!
+	2011-09-09 - GAC - Moved to DATA_1_1
+	2012-03-31 - GAC - Converted to a forwarding function 
 --->
-<cffunction name="numberAsString" access="public" returntype="string" hint="Returns a number converte dinto a string (i.e. 1 becomes 'one')">
+<!--- // This function was moved to Data_1_1 LIB and will most likely be removed from Utils_1_1 in a future version --->
+<cffunction name="numberAsString" access="public" returntype="string" hint="Returns a number convertedin to a string (i.e. 1 becomes 'one')">
 	<cfargument name="number" type="numeric" required="true" default="" hint="Number to convert into string">
 	<cfscript>
-		VAR Result="";          // Generated result
-		VAR Str1="";            // Temp string
-		VAR Str2="";            // Temp string
-		VAR n=number;           // Working copy
-		VAR Billions=0;
-		VAR Millions=0;
-		VAR Thousands=0;
-		VAR Hundreds=0;
-		VAR Tens=0;
-		VAR Ones=0;
-		VAR Point=0;
-		VAR HaveValue=0;        // Flag needed to know if to process "0"
-		var strHolder = StructNew();
-
-		// Initialize strings
-		// Strings are "externalized" to simplify
-		// changing text or translating
-		if ( NOT StructKeyExists(REQUEST,"Strs") )
-		{
-			REQUEST.Strs=StructNew();
-			REQUEST.Strs.space=" ";
-			REQUEST.Strs.and="and";
-			REQUEST.Strs.point="Point";
-			REQUEST.Strs.n0="Zero";
-			REQUEST.Strs.n1="One";
-			REQUEST.Strs.n2="Two";
-			REQUEST.Strs.n3="Three";
-			REQUEST.Strs.n4="Four";
-			REQUEST.Strs.n5="Five";
-			REQUEST.Strs.n6="Six";
-			REQUEST.Strs.n7="Seven";
-			REQUEST.Strs.n8="Eight";
-			REQUEST.Strs.n9="Nine";
-			REQUEST.Strs.n10="Ten";
-			REQUEST.Strs.n11="Eleven";
-			REQUEST.Strs.n12="Twelve";
-			REQUEST.Strs.n13="Thirteen";
-			REQUEST.Strs.n14="Fourteen";
-			REQUEST.Strs.n15="Fifteen";
-			REQUEST.Strs.n16="Sixteen";
-			REQUEST.Strs.n17="Seventeen";
-			REQUEST.Strs.n18="Eighteen";
-			REQUEST.Strs.n19="Nineteen";
-			REQUEST.Strs.n20="Twenty";
-			REQUEST.Strs.n30="Thirty";
-			REQUEST.Strs.n40="Forty";
-			REQUEST.Strs.n50="Fifty";
-			REQUEST.Strs.n60="Sixty";
-			REQUEST.Strs.n70="Seventy";
-			REQUEST.Strs.n80="Eighty";
-			REQUEST.Strs.n90="Ninety";
-			REQUEST.Strs.n100="Hundred";
-			REQUEST.Strs.nK="Thousand";
-			REQUEST.Strs.nM="Million";
-			REQUEST.Strs.nB="Billion";
-		}
-
-		// Save strings to an array once to improve performance
-		if ( NOT StructKeyExists(REQUEST,"StrsA") )
-		{
-			// Arrays start at 1, to 1 contains 0
-			// 2 contains 1, and so on
-			REQUEST.StrsA=ArrayNew(1);
-			ArrayResize(REQUEST.StrsA, 91);
-			REQUEST.StrsA[1]=REQUEST.Strs.n0;
-			REQUEST.StrsA[2]=REQUEST.Strs.n1;
-			REQUEST.StrsA[3]=REQUEST.Strs.n2;
-			REQUEST.StrsA[4]=REQUEST.Strs.n3;
-			REQUEST.StrsA[5]=REQUEST.Strs.n4;
-			REQUEST.StrsA[6]=REQUEST.Strs.n5;
-			REQUEST.StrsA[7]=REQUEST.Strs.n6;
-			REQUEST.StrsA[8]=REQUEST.Strs.n7;
-			REQUEST.StrsA[9]=REQUEST.Strs.n8;
-			REQUEST.StrsA[10]=REQUEST.Strs.n9;
-			REQUEST.StrsA[11]=REQUEST.Strs.n10;
-			REQUEST.StrsA[12]=REQUEST.Strs.n11;
-			REQUEST.StrsA[13]=REQUEST.Strs.n12;
-			REQUEST.StrsA[14]=REQUEST.Strs.n13;
-			REQUEST.StrsA[15]=REQUEST.Strs.n14;
-			REQUEST.StrsA[16]=REQUEST.Strs.n15;
-			REQUEST.StrsA[17]=REQUEST.Strs.n16;
-			REQUEST.StrsA[18]=REQUEST.Strs.n17;
-			REQUEST.StrsA[19]=REQUEST.Strs.n18;
-			REQUEST.StrsA[20]=REQUEST.Strs.n19;
-			REQUEST.StrsA[21]=REQUEST.Strs.n20;
-			REQUEST.StrsA[31]=REQUEST.Strs.n30;
-			REQUEST.StrsA[41]=REQUEST.Strs.n40;
-			REQUEST.StrsA[51]=REQUEST.Strs.n50;
-			REQUEST.StrsA[61]=REQUEST.Strs.n60;
-			REQUEST.StrsA[71]=REQUEST.Strs.n70;
-			REQUEST.StrsA[81]=REQUEST.Strs.n80;
-			REQUEST.StrsA[91]=REQUEST.Strs.n90;
-		}
-
-		//zero shortcut
-		if(number is 0) return "Zero";
-
-		// How many billions?
-		// Note: This is US billion (10^9) and not
-		// UK billion (10^12), the latter is greater
-		// than the maximum value of a CF integer and
-		// cannot be supported.
-		Billions=n\1000000000;
-		if (Billions)
-		{
-			n=n-(1000000000*Billions);
-			Str1=NumberAsString(Billions)&REQUEST.Strs.space&REQUEST.Strs.nB;
-			if (Len(Result))
-				Result=Result&REQUEST.Strs.space;
-			Result=Result&Str1;
-			Str1="";
-			HaveValue=1;
-		}
-
-		// How many millions?
-		Millions=n\1000000;
-		if (Millions)
-		{
-			n=n-(1000000*Millions);
-			Str1=NumberAsString(Millions)&REQUEST.Strs.space&REQUEST.Strs.nM;
-			if (Len(Result))
-				Result=Result&REQUEST.Strs.space;
-			Result=Result&Str1;
-			Str1="";
-			HaveValue=1;
-		}
-
-		// How many thousands?
-		Thousands=n\1000;
-		if (Thousands)
-		{
-			n=n-(1000*Thousands);
-			Str1=NumberAsString(Thousands)&REQUEST.Strs.space&REQUEST.Strs.nK;
-			if (Len(Result))
-				Result=Result&REQUEST.Strs.space;
-			Result=Result&Str1;
-			Str1="";
-			HaveValue=1;
-		}
-
-		// How many hundreds?
-		Hundreds=n\100;
-		if (Hundreds)
-		{
-			n=n-(100*Hundreds);
-			Str1=NumberAsString(Hundreds)&REQUEST.Strs.space&REQUEST.Strs.n100;
-			if (Len(Result))
-				Result=Result&REQUEST.Strs.space;
-			Result=Result&Str1;
-			Str1="";
-			HaveValue=1;
-		}
-
-		// How many tens?
-		Tens=n\10;
-		if (Tens)
-			n=n-(10*Tens);
-
-		// How many ones?
-		Ones=n\1;
-		if (Ones)
-			n=n-(Ones);
-
-		// Anything after the decimal point?
-		if (Find(".", number))
-			Point=Val(ListLast(number, "."));
-
-		// If 1-9
-		Str1="";
-		if (Tens IS 0)
-		{
-			if (Ones IS 0)
-			{
-				if (NOT HaveValue)
-					Str1=REQUEST.StrsA[0];
-			}
-			else
-				// 1 is in 2, 2 is in 3, etc
-				Str1=REQUEST.StrsA[Ones+1];
-		}
-		else if (Tens IS 1)
-		// If 10-19
-		{
-			// 10 is in 11, 11 is in 12, etc
-			Str1=REQUEST.StrsA[Ones+11];
-		}
-		else
-		{
-			// 20 is in 21, 30 is in 31, etc
-			Str1=REQUEST.StrsA[(Tens*10)+1];
-
-			// Get "ones" portion
-			if (Ones)
-				Str2=NumberAsString(Ones);
-			Str1=Str1&REQUEST.Strs.space&Str2;
-		}
-
-		// Build result
-		if (Len(Str1))
-		{
-			if (Len(Result))
-				Result=Result&REQUEST.Strs.space&REQUEST.Strs.and&REQUEST.Strs.space;
-			Result=Result&Str1;
-		}
-
-		// Is there a decimal point to get?
-		if (Point)
-		{
-			Str2=NumberAsString(Point);
-			Result=Result&REQUEST.Strs.space&REQUEST.Strs.point&REQUEST.Strs.space&Str2;
-		}
-
-		return Result;
+		return variables.data.numberAsString(number=arguments.number);
 	</cfscript>
 </cffunction>
 
@@ -708,6 +501,145 @@ History:
 	    }
     	return 0;
 	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Sam Smith
+Name:
+	$buildPaginationStruct
+Summary:
+	Returns pagination widget
+Returns:
+	Struct rtn (itemStart & itemEnd for output loop)
+Arguments:
+	Numeric - page
+	Numeric - itemCount
+	Numeric - pageSize
+	Boolean - showCount (results count)
+	String - URLparams (addl URL params for page links)
+	Numeric - listLimit
+	String - linkSeparator
+	String - gapSeparator
+History:
+	2008-12-05 - SFS - Created
+	2011-02-09 - RAK - Var'ing un-var'd variables
+	2012-03-08 - GAC - added a parameter for the listLimit to allow defined quantity of links to be built 
+					 - added a parameter for the linkSeparator to allow the character(s) between consecutive links to be defined
+					 - added a parameter for the gapSeparator to allow the character(s) for the gap of skipped links to be defined
+					 - removed the CFOUTPUTS and move all generated string values into the returned structure
+					 - added the hints to the parameters
+					 - moved to utils_1_1 since removing the CFOUTPUTS may change backwards compatiblity
+--->
+<cffunction name="buildPaginationStruct" access="public" returntype="struct">
+	<cfargument name="page" type="numeric" required="true" default="1" hint="the value of the current page">
+	<cfargument name="itemCount" type="numeric" required="true" default="0" hint="the total number of items">
+	<cfargument name="pageSize" type="numeric" required="true" default="1" hint="the number of items per page">
+	<cfargument name="showCount" type="boolean" required="false" default="true" hint="build the record results count string">
+	<cfargument name="URLparams" type="string" required="false" default="additional URL params for page links">
+	<cfargument name="listLimit" type="numeric" required="false" default="6" hint="the number of link structs that get built">
+	<cfargument name="linkSeparator" type="string" required="false" default="|" hint="a character(s) separator for between consecutive links">
+	<cfargument name="gapSeparator" type="string" required="false" default="..." hint="a character(s) separator for the gab between skipped links">
+	
+	<cfscript>
+		var rtn = StructNew();
+		var listStart = '';
+		var listEnd = '';
+		var pg = '';
+		var maxPage = Ceiling(arguments.itemCount / arguments.pageSize);
+		var itemStart = 0;
+		var itemEnd = 0;
+
+		// Make sure the value passed in for listLimit is at least 4
+		if (arguments.listLimit LT 4 )
+			arguments.listLimit = 4;
+
+		if ( arguments.page LT 1 )
+			arguments.page = 1;
+		else if ( arguments.page GT maxPage )
+			arguments.page = maxPage;
+
+		if ( arguments.page EQ 1 )
+		{
+			itemStart = 1;
+			itemEnd = arguments.pageSize;
+		}
+		else
+		{
+			itemStart = ((arguments.page - 1) * arguments.pageSize) + 1;
+			itemEnd = arguments.page * arguments.pageSize;
+		}
+
+		if ( itemEnd GT arguments.itemCount )
+			itemEnd = arguments.itemCount;
+
+		rtn.itemStart = itemStart;
+		rtn.itemEnd = itemEnd;
+	</cfscript>
+
+	<!--- // Moved the Record Count string into the rtn Struct --->
+	<cfif arguments.showCount>
+		<cfset rtn.resultsCount = "Results #itemStart# - #itemEnd# of #arguments.itemCount#">
+	</cfif>
+	
+	<cfif arguments.page GT 1>
+		<cfset rtn.prevlink = "?page=#arguments.page-1##arguments.URLparams#">
+		<!---&laquo; <a href="?page=#arguments.page-1##arguments.URLparams#">Prev</a>--->
+	<cfelse>
+		<cfset rtn.prevlink = "">
+	</cfif>
+
+	<!--- // Complicated code to help determine which page numbers to show in pagination --->
+	<cfif arguments.page LTE arguments.listLimit>
+		<cfset listStart = 2>
+	<cfelseif arguments.page GTE maxPage - (arguments.listLimit - 1)>
+		<cfset listStart = maxPage - arguments.listLimit>
+	<cfelse>
+		<cfset listStart = arguments.page - 2>
+	</cfif>
+
+	<cfif arguments.page LTE arguments.listLimit>
+		<cfset listEnd = arguments.listLimit + 1>
+	<cfelseif arguments.page GTE maxPage - (arguments.listLimit - 1)>
+		<cfset listEnd = maxPage - 1>
+	<cfelse>
+		<cfset listEnd = arguments.page + 2>
+	</cfif>
+
+	<cfset rtn.pagelinks = ArrayNew(1)>
+	<cfloop from="1" to="#maxPage#" index="pg">
+		<cfset rtn.pageLinks[pg] = StructNew()>
+		<cfif (pg EQ 1 OR pg EQ maxPage) OR (pg GTE listStart AND pg LTE listEnd)>
+			<cfif (pg EQ listStart AND listStart GT 2) OR (pg EQ maxPage AND listEnd LT maxPage - 1)>
+				<!--- // Add the Separator to the struct for the 'gab' between skipped links --->
+				<cfset rtn.pageLinks[pg].Separator = arguments.gapSeparator>
+				<!---...--->
+			<cfelse>
+				<!--- // Add the Separator to the struct for between consecutive links --->
+				<cfset rtn.pageLinks[pg].Separator = arguments.linkSeparator>
+				<!---|--->
+			</cfif>
+			<cfif arguments.page NEQ pg>
+				<cfset rtn.pageLinks[pg].link = "?page=#pg##arguments.URLparams#">
+				<!---<a href="?page=#pg##arguments.URLparams#">#pg#</a>--->
+			<cfelse>
+				<cfset rtn.pageLinks[pg].link = "">
+				<!---#pg#--->
+			</cfif>
+		<cfelse>
+			<!--- // Builds an empty struct for pagelinks outside of the LIST limit --->
+		</cfif>
+	</cfloop>
+	<cfif arguments.page LT maxPage>
+		<cfset rtn.nextLink = "?page=#arguments.page+1##arguments.URLparams#">
+		<!---| <a href="?page=#arguments.page+1##arguments.URLparams#">Next</a> &raquo;--->
+	<cfelse>
+		<cfset rtn.nextLink = "">
+	</cfif>
+
+	<cfreturn rtn>
 </cffunction>
 
 </cfcomponent>
