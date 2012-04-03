@@ -38,7 +38,7 @@ History:
 --->
 <cfcomponent displayname="scripts_1_1" extends="ADF.lib.scripts.scripts_1_0" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" default="1_1_5">
+<cfproperty name="version" default="1_1_6">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_1" type="dependency">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Scripts_1_1">
@@ -87,7 +87,7 @@ History:
 	2011-07-14 - MFC - Run check for if commonspot.lightbox is defined yet
 	2012-01-30 - MFC - Moved the lightbox load functions to the Lightbox 1.1 component.
 	2012-02-03 - MFC - Forced the lightbox code to write out to the page.
-						TODO - Look into if this is needed
+	2012-04-03 - MFC - Added back in script service code.
 --->
 <cffunction name="loadADFLightbox" access="public" output="true" returntype="void" hint="ADF Lightbox Framework for the ADF Library">
 	<cfargument name="version" type="string" required="false" default="1.0" hint="ADF Lightbox version to load">
@@ -103,13 +103,12 @@ History:
 		outputHTML = application.ADF.lightbox.loadADFLightbox();
 	</cfscript>
 	
-	<!--- TODO - Look into if this is needed to require the force. --->
 	<cfoutput>
-		<!--- <cfif arguments.force> --->
+		<cfif arguments.force>
 			#outputHTML#
-		<!--- <cfelse>
+		<cfelse>
 			#variables.scriptsService.renderScriptOnce("ADFLightbox",outputHTML)#
-		</cfif> --->
+		</cfif>
 	</cfoutput>
 </cffunction>
 
