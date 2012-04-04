@@ -29,6 +29,7 @@ Summary:
 History:
  	2011-09-26 - RAK - Created
 	2011-12-19 - MFC - Updated the validation for the property fields.
+	2012-03-19 - GAC - Added the fieldPermission parameter to the wrapFieldHTML function call
 --->
 <cfscript>
 	// the fields current value
@@ -41,7 +42,12 @@ History:
 		currentValue = xparams.defaultText;
 	}
 
-	//--Field Security--
+	//-- Update for CS 6.x / backwards compatible for CS 5.x --
+	//   If it does not exist set the Field Permission variable to a default value
+	if ( NOT StructKeyExists(variables,"fieldPermission") )
+		variables.fieldPermission = "";
+
+	//--Read Only Field Security--
 	readOnly = application.ADF.forms.isFieldReadOnly(xparams);
 	
 	// Load JQuery
@@ -83,5 +89,5 @@ History:
 		when false it simply creates a TD and puts your content inside it. This wrapper handles
 		everything from description to simple form field handling.
 	--->
-	#application.ADF.forms.wrapFieldHTML(inputHTML,fieldQuery,attributes)#
+	#application.ADF.forms.wrapFieldHTML(inputHTML,fieldQuery,attributes,variables.fieldPermission)#
 </cfoutput>

@@ -39,7 +39,7 @@ History:
 --->
 <cfcomponent displayname="csData_1_1" extends="ADF.lib.csData.csData_1_0" hint="CommonSpot Data Utils functions for the ADF Library">
 	
-<cfproperty name="version" value="1_1_1">
+<cfproperty name="version" value="1_1_3">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_1">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">
@@ -733,6 +733,7 @@ Arguments:
 History:
 	2012-02-17 - GAC - Created
 	2012-02-22 - GAC - Added comments
+	2012-03-19 - GAC - Removed the call to application.ADF.ceData
 --->
 <cffunction name="getCustomMetadataFieldParamValue" access="public" returntype="String" hint="Returns the value of a field parameter based on the Custom Metadata form name and field name">
 	<cfargument name="cspageid" type="numeric" required="true" hint="commonspot pageID">
@@ -742,7 +743,7 @@ History:
 	<cfscript>
 		var rtnValue = "";
 		// Get the Custom Metadata field struct with params as values
-		var cmDataStruct = application.adf.csData.getCustomMetadataFieldsByCSPageID(cspageid=arguments.cspageid,fieldtype="",addFieldParams=true);
+		var cmDataStruct = getCustomMetadataFieldsByCSPageID(cspageid=arguments.cspageid,fieldtype="",addFieldParams=true);
 		// Does the provided formname exist in the Custom Metadata field struct
 		if ( StructKeyExists(cmDataStruct,arguments.formname) )
 		{

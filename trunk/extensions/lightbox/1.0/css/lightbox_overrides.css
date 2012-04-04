@@ -23,6 +23,7 @@ end user license agreement.
  *	History:
  *		2012-02-24 - MFC - Added styles for the lightbox border images.
  *		2012-03-08 - MFC - Added "border: none;" for the img tags.
+ *		2012-03-12 - MFC - Added no background for the h1.
  */
 
 .lightboxContainer .lightboxIframe {
@@ -43,6 +44,11 @@ div.lightboxContainer img {
 	padding: 0;
 	display: inline;
 	border: none;
+}
+/* Remove any styles with the H1 in the lightbox header. */
+div.lightboxContainer .lightboxHeader h1 {
+	background: none;
+	background: none;
 }
 /* 2010-11-26 - RAK - Changed to fixed. Specified height variable.*/
 .lightboxOverlay {
