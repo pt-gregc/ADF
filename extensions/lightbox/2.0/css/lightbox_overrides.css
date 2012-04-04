@@ -23,6 +23,8 @@ end user license agreement.
  *	History:
  *		2012-02-23 - MFC - Moved into lightbox v2.0.
  *		2012-03-08 - MFC - Added "border: none;" for the img tags.
+ *		2012-03-12 - MFC - Added no background for the h1.
+ *		2012-03-20 - MFC - Added no border for the loading dialog img.
  */
 
 .lightboxContainer .lightboxIframe {
@@ -40,6 +42,10 @@ end user license agreement.
 div#loading_container div#loading_content{
 	background:none repeat scroll 0 0 #FFFFFF;
 	border:1px solid #7E96AD;
+}
+/* Loading Image in the dialog */
+div#loading_container img#loading_img{
+	border:none;
 }
 /* Set the loading message Image arrows */
 div#loading_container img {
@@ -62,4 +68,5 @@ div.lightboxContainer img {
 /* Set the spacing for the H1 tag */
 .lightboxContainer .lightboxHeader h1 {
 	line-height: 1 !important;
+	background: none !important;
 }

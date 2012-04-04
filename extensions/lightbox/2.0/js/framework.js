@@ -28,9 +28,10 @@ Name:
 Summary:
 	ADF Lightbox Framework JavaScript
 Version:
-	2.0.1
+	2.0.2
 History:
 	2012-01-30 - MFC - Created new version 2.0.1 based on LB v1
+	2012-04-03 - MFC - Removed old commented code.
 */
 
 function initADFLB() {
@@ -54,20 +55,15 @@ function openLB(lbUrl) {
 	var newLBUrl = processRel(lbUrl);
 	//var newLBUrl = lbUrl;
 	// Call the function to open the LB
-	
-	//newWindow(name="", url=newLBUrl);
-	
-	// TODO - Add in the URL params for the fields for title, width, & height
-	commonspot.lightbox.openURL(
-		{	url: newLBUrl,
-			title:'', 
-			subtitle: '', 
-			hasCloseIcon: true, 
-			hasMaximizeIcon: true, 
-			width: 500, 
-			height: 500
-		}
-	);
+	commonspot.lightbox.openDialog(
+			url=newLBUrl, 
+			hideClose=0, 
+			name='', 
+			customOverlayMsg='', 
+			dialogType='', 
+			opener='', 
+			hideHelp=1, 
+			hideReload=0);
 }
 
 /*

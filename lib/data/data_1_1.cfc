@@ -30,10 +30,11 @@ Version:
 	1.1.1
 History:
 	2011-01-25 - MFC - Created - New v1.1
+	2012-03-31 - GAC - Fixed function comments in the numberAsString and the makeUUID functions
 --->
 <cfcomponent displayname="data_1_1" extends="ADF.lib.data.data_1_0" hint="Data Utils component functions for the ADF Library">
 
-<cfproperty name="version" value="1_1_1">
+<cfproperty name="version" value="1_1_2">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Data_1_1">
 
@@ -544,7 +545,7 @@ Author:
 Name:
 	$numberAsString
 Summary:
-	Returns a number converte dinto a string (i.e. 1 becomes 'one')
+	Returns a number converted into a string (i.e. 1 becomes 'one')
 Returns:
 	string
 Arguments:
@@ -554,7 +555,7 @@ History:
 	2011-09-07 - GAC - Removed all of IsDefined() functions and replaced them with StructKeyExists()... sorry Ben F! ... no IsDefined's allowed!
 	2011-09-09 - GAC - Moved from UTILS_1_1 
 --->
-<cffunction name="numberAsString" access="public" returntype="string" hint="Returns a number converte dinto a string (i.e. 1 becomes 'one')">
+<cffunction name="numberAsString" access="public" returntype="string" hint="Returns a number converted into a string (i.e. 1 becomes 'one')">
 	<cfargument name="number" type="numeric" required="true" default="" hint="Number to convert into string">
 	<cfscript>
 		VAR Result="";          // Generated result
@@ -792,7 +793,7 @@ History:
 						'The names of user-defined functions cannot be the same as built-in ColdFusion functions.'
 	2011-09-09 - GAC - Moved from UTILS_1_1 and renamed
 --->
-<cffunction name="makeUUID" access="public" returntype="uuid" hint="Creates a UUID to return back via ajaxPRoxy">
+<cffunction name="makeUUID" access="public" returntype="uuid" hint="Creates a UUID to return back via ajaxProxy">
 	<cfreturn createUUID()>
 </cffunction>
 

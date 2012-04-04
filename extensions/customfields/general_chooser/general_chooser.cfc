@@ -30,7 +30,7 @@ Name:
 Summary:
 	General Chooser component.
 Version:
-	1.1.0
+	1.1
 History:
 	2009-10-16 - MFC - Created
 	2009-11-13 - MFC - Updated the Ajax calls to the CFC to call the controller 
@@ -42,12 +42,12 @@ History:
 --->
 <cfcomponent name="general_chooser" extends="ADF.lib.ceData.ceData_1_0">
 
-<cfproperty name="version" value="1_1_0">
+<cfproperty name="version" value="1_1_2">
 
 <cfscript>
 	// CUSTOM ELEMENT INFO
 	variables.CUSTOM_ELEMENT = "";
-	variables.CE_FIELD = "";
+	variables.CE_FIELD = ""; // Must have the matching case as the field name in the element.
 	variables.SEARCH_FIELDS = "";
 	variables.ORDER_FIELD = "";
 	// Display Text for the Chooser Items ( Defaults to the ORDER_FIELD )
@@ -352,6 +352,7 @@ History:
 	2011-04-28 - GAC - Added a check to see if the old "ADD_NEW_FLAG" or "SHOW_SECTION2" variables were being used 
 						via site or app level override files. If so, then passed appropriate value to the SHOW_ADD_LINK variable
 	2012-01-20 - GAC - Updating the Comments for the Backward Compatibility  fixes
+	2012-03-19 - MFC - Added - Load CE Field name into JS for adding new records to the "selected" side.
 --->
 <cffunction name="loadAddNewLink" access="public" returntype="string" hint="General Chooser - Add New Link HTML content.">
 	<cfargument name="fieldName" type="String" required="true">
@@ -376,6 +377,10 @@ History:
 		<!--- Render out the show all link to the field type --->
 		<cfsavecontent variable="retAddLinkHTML">
 			<cfoutput>
+				<!--- Load CE Field name into JS for adding new records to the "selected" side. --->
+				<script type="text/javascript">
+					js_#arguments.fieldName#_CE_FIELD = '#variables.CE_FIELD#';
+				</script>
 				<div id="add-new-items">
 					<a href="javascript:;" rel="#application.ADF.ajaxProxy#?bean=Forms_1_1&method=renderAddEditForm&formID=#ceFormID#&dataPageId=0&callback=#arguments.fieldName#_formCallback&title=Add New Record" class="ADFLightbox ui-state-default ui-corner-all #arguments.fieldName#-ui-buttons">Add New Item</a>
 				</div>

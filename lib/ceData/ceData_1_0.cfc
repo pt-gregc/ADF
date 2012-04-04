@@ -32,10 +32,11 @@ History:
 	2009-06-22 - MFC - Created
 	2010-12-21 - MFC - v1.0.1 - Added buildRealTypeView and buildCEDataArrayFromQuery functions.
 	2012-03-01 - DMB - v1.0.2 - Fixed getFormIDByCEName to work for simpleforms not based on a Custom Element.
+	2012-03-19 - GAC - Updated and fixed comment headers
 --->
 <cfcomponent displayname="ceData_1_0" extends="ADF.core.Base" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_2">
+<cfproperty name="version" value="1_0_3">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_0">
 <cfproperty name="data" type="dependency" injectedBean="data_1_0">
@@ -125,9 +126,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
 Name:
 	$defaultFieldStruct
 Summary:
@@ -171,9 +173,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	M Carroll
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M Carroll
 Name:
 	$deleteCacheInstances
 Summary:
@@ -224,9 +227,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
 Name:
 	$deleteByElementName
 Summary:
@@ -259,9 +263,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	M. Carroll
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
 Name:
 	$deleteCE
 Summary:
@@ -320,9 +325,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	M. Carroll
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
 Name:
 	$getCEData
 Summary:
@@ -437,7 +443,9 @@ History:
 
 <!---
 /* *************************************************************** */
-Author: 	M. Carroll
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
 Name:
 	$getDataFieldValueByPageID
 Summary:
@@ -488,14 +496,14 @@ History:
 			AND 	  (Data_FieldValue.VersionID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.versionID#">)
 		</cfif>
 	</cfquery>
-
 	<cfreturn getDataFieldValues>
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	M. Carroll
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
 Name:
 	$getElementFieldID
 Summary:
@@ -547,9 +555,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	M. Carroll
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
 Name:
 	$getElementFieldsByFormID
 Summary:
@@ -683,7 +692,9 @@ History:
 
 <!---
 /* *************************************************************** */
-Author: 	M. Carroll
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
 Name:
 	$getElementInfoVersionsByPageID
 Summary:
@@ -792,9 +803,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	M. Carroll
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
 Name:
 	$getElementVersionsForPageID
 Summary:
@@ -824,9 +836,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	M. Carroll
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
 Name:
 	$getFormIDByCEName
 Summary:
@@ -869,7 +882,9 @@ History:
 
 <!---
 /* *************************************************************** */
-Author: 	M. Carroll, M. Mendelson ( THE AU Master)
+Author: 	
+	PaperThin, Inc., 	American University
+	M. Carroll, 		M. Mendelson ( THE AU Master)
 Name:
 	$getPageIDForElement
 Summary:
@@ -1016,9 +1031,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	M Carroll
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M Carroll
 Name:
 	$invalidateElementCache
 Summary:
@@ -1091,9 +1107,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	M. Carroll
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
 Name:
 	$sortArrayByIDList
 Summary:
@@ -1186,9 +1203,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	M. Carroll
+/* *************************************************************** */
+Author:
+	PaperThin, Inc. 	
+	M. Carroll
 Name:
 	$getCENameByFormID
 Summary:
@@ -1223,7 +1241,9 @@ History:
 
 <!---
 /* *************************************************************** */
-Author: 	M. Carroll
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
 Name:
 	$compareCEDataArray
 Summary:
@@ -1289,9 +1309,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	M. Carroll
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
 Name:
 	$diffCEDataArray
 Summary:
@@ -1334,9 +1355,9 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	
+	PaperThin, Inc.
 	M. Carroll
 Name:
 	$containsFieldType
@@ -1368,13 +1389,13 @@ History:
 		}
 		return false;
 	</cfscript>
-
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	M. Carroll
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
 Name:
 	$getCEForCategory
 Summary:
@@ -1402,8 +1423,7 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	
 	PaperThin, Inc.
 	M. Carroll
@@ -1438,8 +1458,7 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	
 	PaperThin, Inc.
 	S. Smith
@@ -1475,8 +1494,7 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	
 	PaperThin, Inc.
 	M. Carroll
@@ -1517,10 +1535,12 @@ History:
 	</cfif>
 	<cfreturn fldVal>
 </cffunction>
+
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
 Name:
 	$pageMapElementExists
 Summary:	
@@ -1541,10 +1561,12 @@ History:
 	</cfscript>
 	<cfreturn elementExists>
 </cffunction>
+
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
 Name:
 	$getCEDataByFieldID
 Summary:	
@@ -1572,10 +1594,12 @@ History:
 	</cfquery>
 	<cfreturn getPageIDValues>
 </cffunction>
+
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
 Name:
 	$getFieldIDsByType
 Summary:	
@@ -1643,10 +1667,12 @@ History:
 	</cfquery>
 	<cfreturn countQry.RecordCount>
 </cffunction>
+
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
 Name:
 	$buildElementInfoStruct
 Summary:	
@@ -1669,10 +1695,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	S. Smith
-			Mike Tangorre (mtangorre@figleaf.com)
+/* *************************************************************** */
+Author:
+	PaperThin, Inc., 	FigLeaf
+	S. Smith,			Mike Tangorre (mtangorre@figleaf.com)
 Name:
 	$arrayOfCEDataToQuery
 Summary:
@@ -1688,11 +1714,8 @@ History:
 						passed in instead of just the values from the values structure.
 --->
 <cffunction name="arrayOfCEDataToQuery" returntype="query" output="false" access="public" hint="">
-
 	<cfargument name="theArray" type="array" required="true" />
-	
 	<cfscript>
-	
 		var data = arguments.theArray;
 		var qColumns = arrayNew(1);
 		var qData = "";
@@ -1731,11 +1754,8 @@ History:
 				}
 			}
 		}
-		
 		return qData;
-	
 	</cfscript>
-	
 </cffunction>
 
 </cfcomponent>
