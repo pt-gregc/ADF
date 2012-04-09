@@ -27,16 +27,16 @@ Name:
 Summary:
 	Lightbox functions for the ADF Library
 Version
-	1.0.0
+	1.0
 History:
 	2011-01-26 - GAC - Created
 	2011-10-04 - GAC - Updated csSecurity dependency to csSecurity_1_1
 	2012-01-30 - MFC - Updated the wikiTitle cfproperty.
-	2012-03-08 - MFC - Added loadADFLightbox and loadLighboxCS5.
+	2012-04-09 - MFC - Rolled back updates for Lightbox with CS 7 and 6.2.
 --->
 <cfcomponent displayname="lightbox" extends="ADF.core.Base" hint="Lightbox functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_6">
+<cfproperty name="version" value="1_0_7">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_1">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_1">
@@ -180,188 +180,6 @@ History:
 		}
 		return result.reHTML;
 	</cfscript>
-</cffunction>
-
-<!---
-/* *************************************************************** */
-Author: 	
-	PaperThin, Inc.
-	M. Carroll
-Name:
-	$loadADFLightbox
-Summary:
-	Loads the ADF lightbox framework to the page.
-Returns:
-	string
-Arguments:
-	Void
-History:
-	2012-01-30 - MFC - Created
-	2012-02-01 - MFC - Replaced all single quotes in script tags with double quotes.
-						Added cfouput around the loading script for 2.0.
-	2012-02-03 - MFC - Rearchitected commonspot.lightbox loading process for CS 7.0.
-	2012-02-24 - MFC - Updated to loading process for CS 5.x and 6.x.  Setup lightbox v2.0 override CSS.
-	2012-04-03 - MFC - Cleaned code, removed old commented code.
---->
-<cffunction name="loadADFLightbox" access="public" returntype="string" output="true" hint="Loads the ADF Lightbox Framework into the page.">
-	
-	<cfscript>
-		var outputHTML = "";
-		
-		// Check if we have LB properties
-		// Default Title
-		if ( NOT StructKeyExists(request.params, "title") )
-			request.params.title = "";
-
-		// Default Subtitle
-		if ( NOT StructKeyExists(request.params, "subtitle") )
-			request.params.subtitle = "";
-		
-		// Default Width
-		if ( NOT StructKeyExists(request.params, "width") )
-			request.params.width = 500;
-
-		// Default Height
-		if ( NOT StructKeyExists(request.params, "height") )
-			request.params.height = 500;
-	</cfscript>
-
-	<cfsavecontent variable="outputHTML">
-		<!--- Load the CommonSpot Lightbox when not in version 6.0 --->
-		<cfif application.ADF.csVersion LT 6>
-			<cfoutput>
-				<!-- ADF Lightbox Framework Loaded @ #now()# -->
-				<!--- Load lightbox override styles --->
-				<link href="/ADF/extensions/lightbox/1.0/css/lightbox_overrides.css" rel="stylesheet" type="text/css">
-				<!--- Load the Lightbox Framework for CS 5.x --->
-				#loadLighboxCS5()#
-				<script type="text/javascript">
-					jQuery(document).ready(function(){
-						/*
-							Set the Jquery to initialize the ADF Lightbox
-						*/
-						initADFLB();
-						
-						if ( (typeof commonspot != 'undefined') && (typeof commonspot.lightbox != 'undefined') ) {
-							commonspot.lightbox.initCurrent(#request.params.width#, #request.params.height#, { title: '#request.params.title#', subtitle: '#request.params.subtitle#', close: 'true', reload: 'true' });
-						}
-					});
-				</script>
-			</cfoutput>
-		<cfelse>
-			<cfoutput>
-				<script type="text/javascript" src="/ADF/extensions/lightbox/2.0/js/framework.js"></script>	
-				<!--- Load lightbox override styles --->
-				<link href="/ADF/extensions/lightbox/2.0/css/lightbox_overrides.css" rel="stylesheet" type="text/css">
-				
-				<script type="text/javascript">
-					// Check if in CS LVIEW
-					if (top.commonspot && top.commonspot.lightbox) 
-						var commonspot = top.commonspot;
-					else if (parent.commonspot && parent.commonspot.lightbox)
-						var commonspot = parent.commonspot;
-					else
-					{
-						// Load the files for the CS LVIEW
-						if (typeof parent.commonspot == 'undefined' || typeof parent.commonspot.lview == 'undefined')
-							loadNonDashboardFiles();
-						else if (parent.commonspot && typeof newWindow == 'undefined')
-						{
-							var arrFiles = 
-									[
-										{fileName: '/commonspot/javascript/lightbox/overrides.js', fileType: 'script', fileID: 'cs_overrides'},
-										{fileName: '/commonspot/javascript/lightbox/window_ref.js', fileType: 'script', fileID: 'cs_windowref'}
-									];
-							
-							loadDashboardFiles(arrFiles);
-						}
-					}
-					
-					jQuery(document).ready(function(){
-						/*
-							Set the Jquery to initialize the ADF Lightbox
-						*/
-						initADFLB();
-					});
-				</script>
-				<!--- Load this CSS for when in CS 7 and IE mode --->
-				<cfif application.ADF.csVersion GTE 7>
-					<link rel="stylesheet" type="text/css" href="/commonspot/javascript/lightbox/lightbox.css"></link>
-				</cfif>
-			</cfoutput>
-		</cfif>
-	</cfsavecontent>
-	<cfreturn outputHTML>
-</cffunction>
-
-<!---
-/* *************************************************************** */
-Author: 	
-	PaperThin, Inc.
-	M. Carroll
-Name:
-	$loadLighboxCS5
-Summary:
-	Loads the lightbox framework for CommonSpot v5.x
-Returns:
-	string
-Arguments:
-	Void
-History:
-	2012-01-30 - MFC - Created
-	2012-02-01 - MFC - Replaced all single quotes in script tags with double quotes.
---->
-<cffunction name="loadLighboxCS5" access="private" returntype="string" output="true">
-
-	<cfscript>
-		// Initialize the variables
-		var retHTML = "";
-	</cfscript>
-	<cfsavecontent variable="retHTML">
-		<cfscript>
-			// Default Width
-			if ( NOT StructKeyExists(request.params, "width") )
-				request.params.width = 500;
-	
-			// Default Height
-			if ( NOT StructKeyExists(request.params, "height") )
-				request.params.height = 500;
-		</cfscript>
-		
-		<!--- Load the CommonSpot 6.0 Lightbox Framework --->
-		<cfoutput>
-			<script type="text/javascript" src="/ADF/extensions/lightbox/1.0/js/framework.js"></script>					
-			<script type="text/javascript" src="/ADF/extensions/lightbox/1.0/js/browser-all.js"></script>
-			
-			<!--- Setup the CommonSpot 6.0 Lightbox framework --->
-			<script type="text/javascript">	
-				if ((typeof commonspot == 'undefined' || !commonspot.lightbox) && (!top.commonspot || !top.commonspot.lightbox))
-					loadNonDashboardFiles();
-				else if ( typeof parent.commonspot != 'undefined' ){
-					var commonspot = parent.commonspot;
-				}
-				else if ( typeof top.commonspot != 'undefined' ){
-					var commonspot = top.commonspot;
-				}
-				
-				/*
-				 Loads in the Commonspot.util space for CS 5. This exists already in CS 6.
-				 
-	   			 Check if the commonspot.util.dom space exists,
-					If none, then build this from the Lightbox Util.js
-				*/
-				if ( (typeof commonspot.util == 'undefined') || (typeof commonspot.util.dom == 'undefined') )
-				{
-					IncludeJs('/ADF/extensions/lightbox/1.0/js/util.js', 'script');
-				}
-			</script>
-			
-			<!--- Load the CS5 Resize override functions --->
-			<script type="text/javascript" src="/ADF/extensions/lightbox/1.0/js/cs5-overrides.js"></script>
-		</cfoutput>
-		
-	</cfsavecontent>
-	<cfreturn retHTML>
 </cffunction>
 
 </cfcomponent>
