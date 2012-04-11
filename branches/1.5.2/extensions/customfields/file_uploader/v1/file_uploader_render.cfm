@@ -28,7 +28,7 @@ Summary:
 	Renders the file upload form
 History:
 	2011-08-05 - RAK - Created
-	2011-08-05 - RAK - fixed issue where the file uploader would try to generate images for non-pdf files.
+	2011-08-05 - RAK - Fixed issue where the file uploader would try to generate images for non-pdf files.
 	2012-01-03 - GAC - Moved the the hidden field code inside the TD tag
 --->
 <cfscript>
