@@ -48,6 +48,7 @@ History:
 						and loading the sites Application space function directly.
 	2011-03-26 - MFC - Moved the loadADFLightbox call to the top of the loading process.
 	2012-02-03 - MFC - Commented out loadJquery scripts.
+	2012-04-10 - MFC - Added back the "loadADFLightbox" back to the lightboxProxy.
 --->
 	<cfheader name="Expires" value="#now()#">
   	<cfheader name="Pragma" value="no-cache">
@@ -74,7 +75,7 @@ History:
 	</cfscript>
 </cfsilent>
 <!--- // Add ADF lightbox Scripts Header --->
-<!--- <cfscript>application.ADF.scripts.loadADFLightbox(force=request.params.forceScripts);</cfscript> --->
+<cfscript>application.ADF.scripts.loadADFLightbox(force=request.params.forceScripts);</cfscript>
 <!--- // Add CS 6.x lightbox Header  --->
 <cfif request.params.addLBHeaderFooter><cfoutput>#application.ADF.ui.lightboxHeader()#</cfoutput></cfif>
 <!--- // 2011-02-16 - Call the Lightbox Proxy to build the HTML, then Output the HTML string --->

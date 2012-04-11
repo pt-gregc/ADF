@@ -28,7 +28,7 @@ Name:
 Summary:
 	ADF Lightbox Framework JavaScript
 Version:
-	1.0.1
+	1.0.2
 History:
 	2010-02-19 - MFC - Created
 	2010-08-26 - MFC - Updated processRel function to not force the "addMainTable" parameter.
@@ -36,6 +36,8 @@ History:
 						for the callback function.
 	2010-12-23 - MFC - Updated loadCallback function to loop over the level of lightbox windows
 						to locate the callback function.
+	2012-04-10 - MFC - Updated "loadCallback" function to set the commonspot.lightbox variable
+						from the "commonspot" or "top.commonspot" variables.
 */
 
 // Set default variables
@@ -141,16 +143,21 @@ function loadCallback(cbFunct, inArgsArray){
 	
 	// Check that we have a callback function defined
 	if ( cbFunct.length > 0 ){
+		
+		// Check if the JS commonspot lightbox exists
+		if ( typeof commonspot != 'undefined' && typeof commonspot.lightbox != 'undefined' )
+			csLbObj = commonspot.lightbox;
+		else
+			csLbObj = top.commonspot.lightbox;
 	
-		// Loop over all the Lightbox levels to find the CB function
-		for (i=commonspot.lightbox.stack.length-1; i >= -1; i--) {
+		for (i=csLbObj.stack.length-1; i >= -1; i--) {
 			
 			callBackLevel = i;
 			
 			if ( callBackLevel >= 0 ) {
 		
 				// Get the current level LB frame
-				lbFrame = commonspot.lightbox.stack[callBackLevel].frameName;
+				lbFrame = csLbObj.stack[callBackLevel].frameName;
 				//alert("lbFrame = " + lbFrame);
 			
 				// Build the function document JS path
