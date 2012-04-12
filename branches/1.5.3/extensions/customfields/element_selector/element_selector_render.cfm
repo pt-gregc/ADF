@@ -10,22 +10,45 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the Starter App directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2010.
+PaperThin, Inc. Copyright(C) 2011.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files
 in this directory, you agree to the terms and conditions of the applicable 
 end user license agreement.
 --->
-
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin Inc.
+Name:
+	element_selector_render.cfm
+Summary:
+	
+Version:
+	1.0.0
+History:
+	2012-04-11 - GAC - Added the fieldPermission parameter to the wrapFieldHTML function call
+					 - Added the includeLabel and includeDescription parameters to the wrapFieldHTML function call
+					 - Added readOnly field security code with the cs6 fieldPermission parameter
+--->
 <cfscript>
 	// the fields current value
 	currentValue = attributes.currentValues[fqFieldName];
 	// the param structure which will hold all of the fields from the props dialog
 	xparams = parameters[fieldQuery.inputID];
 
-	//--Field Security--
-	readOnly = application.ADF.forms.isFieldReadOnly(xparams);
+	// Set defaults for the label and description 
+	includeLabel = true;
+	includeDescription = true; 
+
+	//-- Update for CS 6.x / backwards compatible for CS 5.x --
+	//   If it does not exist set the Field Permission variable to a default value
+	if ( NOT StructKeyExists(variables,"fieldPermission") )
+		variables.fieldPermission = "";
+
+	//-- Read Only Check w/ cs6 fieldPermission parameter --
+	readOnly = application.ADF.forms.isFieldReadOnly(xparams,variables.fieldPermission);
 	
 	application.ADF.scripts.loadJQuery();
 	application.ADF.scripts.loadJQuerySelectboxes();
@@ -128,7 +151,7 @@ end user license agreement.
 <!---
 	This version is using the wrapFieldHTML functionality, what this does is it takes
 	the HTML that you want to put into the TD of the right section of the display, you
-	can optionally disable this by adding the includeLabel = false (fourth parameter)
+	can optionally disable this by adding the includeLabel = false (fifth parameter)
 	when false it simply creates a TD and puts your content inside it. This wrapper handles
 	everything from description to simple form field handling.
 --->
@@ -139,5 +162,6 @@ end user license agreement.
 			<br /><span class="CS_Form_Description">Select the element from the list - this will be the element that is targeted for the CCAPI call.</span>
 		</cfoutput>
 	</cfsavecontent>
-	#application.ADF.forms.wrapFieldHTML(inputHTML,fieldQuery,attributes)#
+	
+	#application.ADF.forms.wrapFieldHTML(inputHTML,fieldQuery,attributes,variables.fieldPermission,includeLabel,includeDescription)#
 </cfoutput>
