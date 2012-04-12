@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
  
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2010.
+PaperThin, Inc. Copyright(C) 2012.
 All Rights Reserved.
  
 By downloading, modifying, distributing, using and/or accessing any files
@@ -19,8 +19,7 @@ end user license agreement.
 --->
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	
 	PaperThin, Inc.
 	Michael Carroll 
@@ -35,9 +34,13 @@ ADF Requirements:
 	forms_1_0
 History:
 	2009-07-06 - MFC - Created
-	2011-05-26 - GAC - Modified - added a class parameter and updated the id attributes on the input field
-	2011-06-01 - GAC - Modified - added trim around the field name variable to remove extra spaces, updated the jQuery checked logic and added additional logic to allow seeing other boolean values as checked
-	2011-09-09 - GAC - Modified - removed renderSimpleFormField check, added readOnly field security code and updated the jQuery script block 
+	2011-05-26 - GAC - Added a class parameter and updated the id attributes on the input field
+	2011-06-01 - GAC - Added trim around the field name variable to remove extra spaces, updated the jQuery checked logic and added additional logic to allow seeing other boolean values as checked
+	2011-09-09 - GAC - Removed renderSimpleFormField check, added readOnly field security code and updated the jQuery script block 
+	2012-04-11 - GAC - Added the fieldPermission parameter to the wrapFieldHTML function call
+					 - Added the includeLabel and includeDescription parameters to the wrapFieldHTML function call
+					 - Updated the readOnly check to use the cs6 fieldPermission parameter
+					 - Updated the wrapFieldHTML explanation comment block
 --->
 <cfscript>
 	// Load JQuery to the script
@@ -75,10 +78,18 @@ History:
 			currentValue = xparams.checkedVal; //'yes'
 	}
 		
-	//--Field Security--
-	readOnly = application.ADF.forms.isFieldReadOnly(xparams);
+	// Set defaults for the label and description 
+	includeLabel = true;
+	includeDescription = true; 
+
+	//-- Update for CS 6.x / backwards compatible for CS 5.x --
+	//   If it does not exist set the Field Permission variable to a default value
+	if ( NOT StructKeyExists(variables,"fieldPermission") )
+		variables.fieldPermission = "";
+
+	//-- Read Only Check w/ cs6 fieldPermission parameter --
+	readOnly = application.ADF.forms.isFieldReadOnly(xparams,variables.fieldPermission);
 </cfscript>
-<!--- <cfdump var="#xparams#"> --->
 
 <cfoutput>
 	<script>
@@ -124,14 +135,6 @@ History:
 			}
 		});
 	</script>
-	
-<!---
-	This version is using the wrapFieldHTML functionality, what this does is it takes
-	the HTML that you want to put into the TD of the right section of the display, you
-	can optionally disable this by adding the includeLabel = false (fourth parameter)
-	when false it simply creates a TD and puts your content inside it. This wrapper handles
-	everything from description to simple form field handling.
---->
 
 	<cfsavecontent variable="inputHTML">
 		<cfoutput>
@@ -143,5 +146,14 @@ History:
 			<input type='hidden' name='#fqFieldName#' id='#xparams.fldID#' value='#currentValue#'>
 		</cfoutput>
 	</cfsavecontent>
-	#application.ADF.forms.wrapFieldHTML(inputHTML,fieldQuery,attributes)#
+	
+	<!---
+		This CFT is using the forms lib wrapFieldHTML functionality. The wrapFieldHTML takes
+		the Form Field HTML that you want to put into the TD of the right section of the CFT 
+		table row and helps with display formatting, adds the hidden simple form fields (if needed) 
+		and handles field permissions (other than read-only).
+		Optionally you can disable the field label and the field discription by setting 
+		the includeLabel and/or the includeDescription variables (found above) to false.  
+	--->
+	#application.ADF.forms.wrapFieldHTML(inputHTML,fieldQuery,attributes,variables.fieldPermission,includeLabel,includeDescription)#
 </cfoutput>
