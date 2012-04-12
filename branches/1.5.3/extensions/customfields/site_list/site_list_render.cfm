@@ -18,18 +18,45 @@ in this directory, you agree to the terms and conditions of the applicable
 end user license agreement.
 --->
 
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin Inc.
+Name:
+	site_list_render.cfm
+Summary:
+	
+Version:
+	1.0.0
+History:
+	2012-04-11 - GAC - Added the fieldPermission parameter to the wrapFieldHTML function call
+					 - Added the includeLabel and includeDescription parameters to the wrapFieldHTML function call
+					 - Added readOnly field security code with the cs6 fieldPermission parameter
+					 - Updated the wrapFieldHTML explanation comment block
+					 - Fixed an issue in the query loop by changing the output variable from ID to siteID
+--->
 <cfscript>
 	// the fields current value
 	currentValue = attributes.currentValues[fqFieldName];
 	// the param structure which will hold all of the fields from the props dialog
 	xparams = parameters[fieldQuery.inputID];
 
-	//--Field Security--
-	readOnly = application.ADF.forms.isFieldReadOnly(xparams);
+	// Set defaults for the label and description 
+	includeLabel = true;
+	includeDescription = true; 
+
+	//-- Update for CS 6.x / backwards compatible for CS 5.x --
+	//   If it does not exist set the Field Permission variable to a default value
+	if ( NOT StructKeyExists(variables,"fieldPermission") )
+		variables.fieldPermission = "";
+
+	//-- Read Only Check w/ cs6 fieldPermission parameter --
+	readOnly = application.ADF.forms.isFieldReadOnly(xparams,variables.fieldPermission);
 	
 	// retrieve the sites on this server
 	sitesQry = application.ADF.csData.getCommonSpotSites();
 </cfscript>
+
 <cfoutput>
 	<script>
 		// javascript validation to make sure they have text to be converted
@@ -54,22 +81,25 @@ end user license agreement.
 			}
 		}
 	</script>
-<!---
-	This version is using the wrapFieldHTML functionality, what this does is it takes
-	the HTML that you want to put into the TD of the right section of the display, you
-	can optionally disable this by adding the includeLabel = false (fourth parameter)
-	when false it simply creates a TD and puts your content inside it. This wrapper handles
-	everything from description to simple form field handling.
---->
+	
 	<cfsavecontent variable="inputHTML">
 		<cfoutput>
 			<select name="#fqFieldName#" id='#fqFieldName#' <cfif readOnly>disabled="disabled"</cfif>>
 				<option value="">--Select--</option>
 				<cfloop query="sitesQry">
-					<option value="#sitesQry.siteID#">#sitesQry.siteName# (siteID: #sitesQry.ID#)</option>
+					<option value="#sitesQry.siteID#">#sitesQry.siteName# (siteID: #sitesQry.siteID#)</option>
 				</cfloop>
 			</select>
 		</cfoutput>
 	</cfsavecontent>
-	#application.ADF.forms.wrapFieldHTML(inputHTML,fieldQuery,attributes)#
+	
+	<!---
+		This CFT is using the forms lib wrapFieldHTML functionality. The wrapFieldHTML takes
+		the Form Field HTML that you want to put into the TD of the right section of the CFT 
+		table row and helps with display formatting, adds the hidden simple form fields (if needed) 
+		and handles field permissions (other than read-only).
+		Optionally you can disable the field label and the field discription by setting 
+		the includeLabel and/or the includeDescription variables (found above) to false.  
+	--->
+	#application.ADF.forms.wrapFieldHTML(inputHTML,fieldQuery,attributes,variables.fieldPermission,includeLabel,includeDescription)#
 </cfoutput>
