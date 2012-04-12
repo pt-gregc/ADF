@@ -36,7 +36,7 @@ History:
 --->
 <cfcomponent displayname="ceData_1_0" extends="ADF.core.Base" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_3">
+<cfproperty name="version" value="1_0_4">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_0">
 <cfproperty name="data" type="dependency" injectedBean="data_1_0">
@@ -912,6 +912,8 @@ History:
 	2011-04-18 - MFC - Updated: Fix data_listItems query for the strItemValue field with the 
 									'list' query type.
 	2011-05-03 - RAK - Added the ability to search the memo field also
+	2012-04-11 - GAC - Removed the MSSQL specific concatenation (+) in the LIKE statements in the SEARCH queryType for MySQL compatibility 
+					 - Removed the brackets around the MemoValue field name both updates for MySQL compatibility 
 --->
 <cffunction name="getPageIDForElement" access="public" returntype="query" hint="Returns Page ID Query in Data_FieldValue matching Form ID">
 	<cfargument name="formid" type="numeric" required="true">
@@ -980,10 +982,12 @@ History:
 				</cfif>
 				AND		FieldID IN (<cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.searchFields#" list="true">)
 				<!--- 2011-05-03 - RAK - Added the ability to search the memo field also --->
+				<!--- 2012-04-11 - GAC - Removed the MSSQL specific concatenation (+) in the LIKE statements 
+										and removed the brackets around the MemoValue field name both updates for MySQL compatibility --->
 				AND (
-					LOWER(fieldValue) LIKE '%' + <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.searchValues#"> + '%'
+					LOWER(fieldValue) LIKE <cfqueryparam cfsqltype="cf_sql_varchar" value="%#arguments.searchValues#%">
 					OR
-					[MemoValue] LIKE '%' + <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.searchValues#"> + '%'
+					MemoValue LIKE <cfqueryparam cfsqltype="cf_sql_varchar" value="%#arguments.searchValues#%">
 				)
 			<!--- Build the where clause for the MULTI --->
 			<cfelseif arguments.queryType EQ "multi">
