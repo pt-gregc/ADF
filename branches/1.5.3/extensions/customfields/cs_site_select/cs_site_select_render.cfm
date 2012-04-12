@@ -95,7 +95,7 @@ History:
 				<option value=""> - Select -
 				<!--- Loop over the query --->
 				<cfloop query="csSiteQry">
-					<option value="#SiteID#" <cfif currentValue EQ SiteID>selected</cfif>>#SiteName# (siteID: #sitesQry.siteID#)</option>
+					<option value="#csSiteQry.SiteID#" <cfif currentValue EQ csSiteQry.SiteID>selected</cfif>>#csSiteQry.SiteName# (siteID: #csSiteQry.siteID#)</option>
 				</cfloop>
 			</select>
 		</cfoutput>
