@@ -1,3 +1,6 @@
+<!--
+	DEPRICATED DO NOT USE
+--->
 <!---
 The contents of this file are subject to the Mozilla Public License Version 1.1
 (the "License"); you may not use this file except in compliance with the
@@ -25,7 +28,9 @@ Author:
 Name:
 	site_list_render.cfm
 Summary:
-	
+
+	DEPRICATED DO NOT USE
+
 Version:
 	1.0.0
 History:
@@ -34,72 +39,6 @@ History:
 					 - Added readOnly field security code with the cs6 fieldPermission parameter
 					 - Updated the wrapFieldHTML explanation comment block
 					 - Fixed an issue in the query loop by changing the output variable from ID to siteID
+	2012-04-12 - GAC - Added redirect CFINCLUDE to point to /cs_site_select/cs_site_select_render.cfm
 --->
-<cfscript>
-	// the fields current value
-	currentValue = attributes.currentValues[fqFieldName];
-	// the param structure which will hold all of the fields from the props dialog
-	xparams = parameters[fieldQuery.inputID];
-
-	// Set defaults for the label and description 
-	includeLabel = true;
-	includeDescription = true; 
-
-	//-- Update for CS 6.x / backwards compatible for CS 5.x --
-	//   If it does not exist set the Field Permission variable to a default value
-	if ( NOT StructKeyExists(variables,"fieldPermission") )
-		variables.fieldPermission = "";
-
-	//-- Read Only Check w/ cs6 fieldPermission parameter --
-	readOnly = application.ADF.forms.isFieldReadOnly(xparams,variables.fieldPermission);
-	
-	// retrieve the sites on this server
-	sitesQry = application.ADF.csData.getCommonSpotSites();
-</cfscript>
-
-<cfoutput>
-	<script>
-		// javascript validation to make sure they have text to be converted
-		#fqFieldName#=new Object();
-		#fqFieldName#.id='#fqFieldName#';
-		#fqFieldName#.tid=#rendertabindex#;
-		#fqFieldName#.msg="Please select a value for the #xparams.label# field.";
-		#fqFieldName#.validator = "validate_#fqFieldName#()";
-
-		//If the field is required
-		if ( '#xparams.req#' == 'Yes' ){
-			// push on to validation array
-			vobjects_#attributes.formname#.push(#fqFieldName#);
-		}
-
-		//Validation function
-		function validate_#fqFieldName#(){
-			if (jQuery("input[name=#fqFieldName#]").val() != ''){
-				return true;
-			}else{
-				return false;
-			}
-		}
-	</script>
-	
-	<cfsavecontent variable="inputHTML">
-		<cfoutput>
-			<select name="#fqFieldName#" id='#fqFieldName#' <cfif readOnly>disabled="disabled"</cfif>>
-				<option value="">--Select--</option>
-				<cfloop query="sitesQry">
-					<option value="#sitesQry.siteID#">#sitesQry.siteName# (siteID: #sitesQry.siteID#)</option>
-				</cfloop>
-			</select>
-		</cfoutput>
-	</cfsavecontent>
-	
-	<!---
-		This CFT is using the forms lib wrapFieldHTML functionality. The wrapFieldHTML takes
-		the Form Field HTML that you want to put into the TD of the right section of the CFT 
-		table row and helps with display formatting, adds the hidden simple form fields (if needed) 
-		and handles field permissions (other than read-only).
-		Optionally you can disable the field label and the field discription by setting 
-		the includeLabel and/or the includeDescription variables (found above) to false.  
-	--->
-	#application.ADF.forms.wrapFieldHTML(inputHTML,fieldQuery,attributes,variables.fieldPermission,includeLabel,includeDescription)#
-</cfoutput>
+<cfinclude template="/ADF/extensions/customfields/cs_site_select/cs_site_select_render.cfm">
