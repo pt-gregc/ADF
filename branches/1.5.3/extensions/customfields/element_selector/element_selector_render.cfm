@@ -31,6 +31,7 @@ History:
 	2012-04-11 - GAC - Added the fieldPermission parameter to the wrapFieldHTML function call
 					 - Added the includeLabel and includeDescription parameters to the wrapFieldHTML function call
 					 - Added readOnly field security code with the cs6 fieldPermission parameter
+					 - Updated the wrapFieldHTML explanation comment block
 --->
 <cfscript>
 	// the fields current value
@@ -148,13 +149,7 @@ History:
 			}
 		}
 	</script>
-<!---
-	This version is using the wrapFieldHTML functionality, what this does is it takes
-	the HTML that you want to put into the TD of the right section of the display, you
-	can optionally disable this by adding the includeLabel = false (fifth parameter)
-	when false it simply creates a TD and puts your content inside it. This wrapper handles
-	everything from description to simple form field handling.
---->
+
 	<cfsavecontent variable="inputHTML">
 		<cfoutput>
 			<a href="javascript:;" id="#fqFieldName#getValueBtn">Get elements from selected page</a><br />
@@ -162,6 +157,14 @@ History:
 			<br /><span class="CS_Form_Description">Select the element from the list - this will be the element that is targeted for the CCAPI call.</span>
 		</cfoutput>
 	</cfsavecontent>
-	
+
+	<!---
+		This CFT is using the forms lib wrapFieldHTML functionality. The wrapFieldHTML takes
+		the Form Field HTML that you want to put into the TD of the right section of the CFT 
+		table row and helps with display formatting, adds the hidden simple form fields (if needed) 
+		and handles field permissions (other than read-only).
+		Optionally you can disable the field label and the field discription by setting 
+		the includeLabel and/or the includeDescription variables (found above) to false.  
+	--->	
 	#application.ADF.forms.wrapFieldHTML(inputHTML,fieldQuery,attributes,variables.fieldPermission,includeLabel,includeDescription)#
 </cfoutput>
