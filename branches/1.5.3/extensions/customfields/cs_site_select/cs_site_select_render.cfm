@@ -36,6 +36,7 @@ History:
 					 - Added the includeLabel and includeDescription parameters to the wrapFieldHTML function call
 					 - Added readOnly field security code with the cs6 fieldPermission parameter
 					 - Updated the wrapFieldHTML explanation comment block
+	2012-04-12 - GAC - Added the SiteID to the site option list
 --->
 <cfscript>
 	// the fields current value
@@ -94,7 +95,7 @@ History:
 				<option value=""> - Select -
 				<!--- Loop over the query --->
 				<cfloop query="csSiteQry">
-					<option value="#SiteID#" <cfif currentValue EQ SiteID>selected</cfif>>#SiteName#
+					<option value="#SiteID#" <cfif currentValue EQ SiteID>selected</cfif>>#SiteName# (siteID: #sitesQry.siteID#)</option>
 				</cfloop>
 			</select>
 		</cfoutput>
