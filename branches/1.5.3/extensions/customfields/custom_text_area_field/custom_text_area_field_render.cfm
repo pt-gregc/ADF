@@ -44,6 +44,8 @@ History:
 	2012-04-11 - GAC - Changed the includeDescription option to be true by default
 					 - Updated the readOnly check to use the cs6 fieldPermission parameter
 					 - Updated the wrapFieldHTML explanation comment block
+	2012-04-13 - GAC - Fixed an issue with the Textarea Field ID not getting a value if a xparams.fldName was not entered in the props 
+					 - Added an optional parameter to assign a CSS property to the textarea field resizing handle
 --->
 <cfscript>
 	// the fields current value
@@ -56,7 +58,7 @@ History:
 	// set the default for the validationJS variable
 	validationJS = "";
 
-	if ( NOT StructKeyExists(xparams, "fldName") )
+	if ( NOT StructKeyExists(xparams, "fldName") OR LEN(TRIM(xparams.fldName)) EQ 0 )
 		xparams.fldName = fqFieldName;
 	//if ( StructKeyExists(xparams, "maxLength") EQ 0 )
 		//maxLen = xparams.maxLength;
@@ -68,9 +70,14 @@ History:
 		xparams.wrap = 'virtual';
 	if ( NOT StructKeyExists(xparams, "fldClass") )
 		xparams.fldClass = "";
+	if ( NOT StructKeyExists(xparams,"resizeHandleOption" ) )
+		xparams.resizeHandleOption = "default";
 	if ( NOT LEN(currentvalue) AND StructKeyExists(xparams,"defaultValue") )
 		currentValue = xparams.defaultValue;
-		
+	
+	// Valid Textarea resize handle options
+	resizeOptions = "none,both,horizontal,vertical"; 
+	
 	// Set defaults for the label and description 
 	includeLabel = true;
 	includeDescription = true;	
@@ -85,6 +92,20 @@ History:
 </cfscript>
 
 <cfoutput>
+	<!--- // If the browser supports a textarea resizing handle apply the option --->
+	<cfif LEN(TRIM(xparams.resizeHandleOption)) AND ListFindNoCase(resizeOptions,xparams.resizeHandleOption)>
+	<style>
+		textarea###xparams.fldName# {
+			<cfif xparams.resizeHandleOption EQ "none">
+			resize: #xparams.resizeHandleOption#;
+			<cfelse>
+			overflow: auto; /* overflow is needed */  
+    		resize: #xparams.resizeHandleOption#; 
+			</cfif> 
+		}
+	</style>
+	</cfif>
+	
 	<cfsavecontent variable="inputHTML">
 		<cfoutput>
 		<textarea name="#fqFieldName#" id="#xparams.fldName#" cols="#xparams.columns#" rows="#xparams.rows#"<cfif LEN(TRIM(xparams.fldClass))> class="#xparams.fldClass#"</cfif> wrap="#xparams.wrap#"<cfif readOnly> readonly="readonly"</cfif>>#currentValue#</textarea>
@@ -109,7 +130,7 @@ History:
 			//fieldLen = document.getElementById('#fqFieldName#').value.length;
 			fieldLen = document.#attributes.formname#.#fqFieldName#.value.length;
 			//alert(fieldLen);
-			if (fieldLen <= #xparams.maxLength#)
+			if ( fieldLen <= #xparams.maxLength# )
 			{
 				return true;
 			}
