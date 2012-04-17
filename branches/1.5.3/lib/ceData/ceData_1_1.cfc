@@ -152,6 +152,7 @@ Arguments:
 History:
 	2011-02-09 - RAK - Var'ing un-var'd variables
 	2011-05-04 - MFC - Added check for CS 5 to decode the HTML escaped param WDDX.
+	2012-04-16 - GAC - Removed the circular references to application.ADF.cedata
 --->
 <cffunction name="getFieldDefaultValueFromID" hint="Returns struct containing form field default values"
 				access="public" 
@@ -173,7 +174,7 @@ History:
   			where FieldID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.fieldID#">
 	</cfquery>
 	<cfloop query="formFieldQuery">
-		<cfset multipleFieldQuery = application.ADF.cedata.getElementFieldsByFormID(formID)>
+		<cfset multipleFieldQuery = getElementFieldsByFormID(formID)>
 		<!---
 			getElementFieldsByFormID returns a resultset that contains EVERY field in the form, we just want the ONE field we need info from...
 		--->
@@ -181,7 +182,7 @@ History:
 			select * from multipleFieldQuery where fieldID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.fieldID#">
 		</cfquery>
 		<cfscript>
-			fieldDefaultValues = application.ADF.cedata.getElementInfoByPageID(pageid=0,formid=formID);
+			fieldDefaultValues = getElementInfoByPageID(pageid=0,formid=formID);
 			rtnStruct = StructNew();
 			
 			// 2011-05-04 - MFC - Added check for CS 5 to decode the HTML escaped param WDDX.
