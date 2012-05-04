@@ -47,7 +47,7 @@ History:
 	// ADF Build Revision Number
 	variables.buildRev = "788";
 	// ADF Codename
-	variables.buildName = "??";
+	variables.buildName = "Tetris";
 	// CS product version, get the decimal value
 	variables.csVersion = Val(ListLast(request.cp.productversion, " "));
 </cfscript>
