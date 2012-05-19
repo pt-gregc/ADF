@@ -33,11 +33,13 @@ Attributes:
 	themeName - the name of a jQueryUI theme (default: the ADF standard theme for jQueryUI - ui-lightness)
 	showAddButtons -  a comma-delimited list of true/false for each element name to show the 'Add Button' or not  on each tab (default: true)
 	useAddButtonSecurity - true/false to enable or disable security for the 'Add Button' (default: true)
+	customAddButtonText - a comm-delimited list of custom "Add Button" names (default: Add New {{elementName}})
 Custom Script Parameters Tab Examples:
 	elementName=My Element One,My Element Two,My Element Three
 	themeName=redmond
 	showAddButtons=true,false,true 
 	useAddButtonSecurity=true
+	customAddButtonText=Add New Item 1, Add New Item 2, Add New Three
 History:
 	2011-09-01 - RAK - Created
 	2011-09-01 - RAK - Added multiple element support
@@ -57,6 +59,8 @@ History:
 	2012-03-09 - GAC - Updated the form.buildAddEditLink to use the buildAddEditLink in the UI lib (buildAddEditLink in form_1_0 is deprecated)
 					 - Added a trim to the ceName value generated from the items passed in via the elementName parameter
 					 - Updated comments for the code that builds structure key names and datasheet element names based on ceName values
+	2012-05-08 - GAC - Fixed an issue with the displayAddButtonList variable name
+					 - Added a option for custom "Add New" button text
 --->
 <cfoutput>
 	<cfif structKeyExists(attributes,"elementName") and Len(attributes.elementName)>
@@ -83,9 +87,13 @@ History:
 			enableAddButton = true; 	
 			// Create the struct for the 'Add Button' status  
 			displayAddBtnOptions = StructNew();
-			diplayAddButtonList = "";
+			displayAddButtonList = "";
 			
-			// Check to see if the attribute 'showAddButtons' was passed in with a a list of display option values
+			// Set the Add Button Defualt Text
+			addButtonTextDefault = "Add New {{elementName}}";
+			customAddButtonTextList = "";
+			
+			// Check to see if the attribute 'showAddButtons' was passed in with a list of display option values
 			// - attributes.showAddButtons=false takes presidence over enableAddButton=true
 			if ( StructKeyExists(attributes,"showAddButtons") AND LEN(TRIM(attributes.showAddButtons)) )
 			{				
@@ -93,7 +101,7 @@ History:
 				if ( ListLen(attributes.showAddButtons) EQ 1 AND IsBoolean(attributes.showAddButtons) )
 					displayAddButtonDefault = attributes.showAddButtons;
 				else
-					diplayAddButtonList = attributes.showAddButtons;
+					displayAddButtonList = attributes.showAddButtons;
 			}
 					
 			// Build structure with CEName as the key and the 'Add Button' display option as the value
@@ -106,8 +114,8 @@ History:
 				abtn = displayAddButtonDefault;
 
 				// set the display value for each 'Add Button' for each element tab
-				if ( a LTE ListLen(diplayAddButtonList) )
-					abtn = ListGetAt(diplayAddButtonList,a);	
+				if ( a LTE ListLen(displayAddButtonList) )
+					abtn = ListGetAt(displayAddButtonList,a);	
 				// Set the elementName key of the struct with the status value
 				if ( IsBoolean(abtn) )
 					displayAddBtnOptions[elmt] = abtn;
@@ -124,6 +132,10 @@ History:
 			if ( secureAddButtons AND (LEN(request.user.userid) EQ 0 OR request.user.userid EQ "anonymous") )
 				enableAddButton = false;	
 
+			// Check to see if the attribute 'customAddButtonText' was passed in with a list of display values
+			if ( StructKeyExists(attributes,"customAddButtonText") AND LEN(TRIM(attributes.showAddButtons)) )
+				customAddButtonTextList = attributes.customAddButtonText;
+			
 			// Check the list of elements to see if need the tabs.
 			//	Set flag to render tabs or not
 			//  Set the class name for the surrounding div based on if
@@ -182,14 +194,20 @@ History:
 					<br/>
 					<cfif enableAddButton>
 						<cfif StructKeyExists(displayAddBtnOptions,custel) AND displayAddBtnOptions[custel]>
+							<!--- // Get the Custom Add Button Text if it was provided --->
+							<cfif ListLen(customAddButtonTextList) GTE i>
+								<cfset addBtnText = TRIM(ListGetAt(customAddButtonTextList,i))> 
+							<cfelse>
+								<cfset addBtnText = REPLACE(addButtonTextDefault,"{{elementName}}","#ceName#","one")><!--- // "New #ceName#" --->
+							</cfif>
 							<!--- // Call UI buildAddEditLink for the Add New button --->
-							#application.ADF.UI.buildAddEditLink(linkTitle="New #ceName#",
+							#application.ADF.UI.buildAddEditLink(linkTitle=addBtnText,
 																	formName=ceName,
 																	dataPageID=0,
 																	refreshparent=true,
 																	formBean=beanName,
 																	formMethod="renderAddEditForm",
-																	lbTitle="New #ceName#",
+																	lbTitle=addBtnText,
 																	linkClass="ui-button ui-state-default ui-corner-all")#
 							<br/>
 							<br/>
