@@ -1946,6 +1946,7 @@ Arguments:
 	String - Version
 History:
  	2011-10-20 - GAC - Created
+	2012-06-01 - MFC - Fixed function calls to loadjQueryEasing and loadjQueryMouseWheel.
 --->
 <cffunction name="loadJQueryFancyBox" access="public" output="true" returntype="void" hint="Loads the fancyBox plugin for jQuery">
 	<cfargument name="version" type="string" required="false" default="1.3.4" hint="Script version to load.">
@@ -1954,8 +1955,8 @@ History:
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
 			<script type="text/javascript" src="#thirdPartyLibPath#jquery.fancybox-#arguments.version#.pack.js"></script>
-			#loadjQueryEasing#
-			#loadjQueryMouseWheel#
+			#loadjQueryEasing()#
+			#loadjQueryMouseWheel()#
 			<link rel="stylesheet" href="#thirdPartyLibPath#jquery.fancybox-#arguments.version#.css" type="text/css" media="screen" />
 		</cfoutput>
 	</cfsavecontent>
