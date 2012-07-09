@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2011.
+PaperThin, Inc. Copyright(C) 2012.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -32,7 +32,7 @@ History:
 --->
 <cfcomponent name="LightWireConfigBase" extends="ADF.thirdParty.lightwire.BaseConfigObject" output="false">
 
-<cfproperty name="version" value="1_5_0">
+<cfproperty name="version" value="1_5_1">
 
 <cffunction name="init" returntype="any" hint="I initialize default LightWire config properties." output=false access="public">
 	<cfscript>
@@ -310,20 +310,21 @@ History:
 </cffunction>
 
 <!---
-	/* *************************************************************** */
-	Author: 	M. Carroll
-	Name:
-		$processMetadata
-	Summary:
-		Process the component metadata property tags to create the beans and dependencies.
-	Returns:
-		Void
-	Arguments:
-		Struct - beanData - Bean data structure
-	History:
-		2009-06-05 - MFC - Created
-		2010-04-06 - MFC - Code cleanup.
-		2011-02-09 - RAK - Var'ing un-var'd items
+/* *************************************************************** */
+Author: 	M. Carroll
+Name:
+	$processMetadata
+Summary:
+	Process the component metadata property tags to create the beans and dependencies.
+Returns:
+	Void
+Arguments:
+	Struct - beanData - Bean data structure
+History:
+	2009-06-05 - MFC - Created
+	2010-04-06 - MFC - Code cleanup.
+	2011-02-09 - RAK - Var'ing un-var'd items
+	2012-07-09 - MFC - Added TRY-CATCH error handling for if processing the metadata form fails.
 --->
 <cffunction name="processMetadata" access="private" returntype="void">
 	<cfargument name="beanData" type="struct" required="true">
@@ -331,50 +332,60 @@ History:
 	<cfscript>
 		var tmpStruct = "";
 		var injected = 0;
-		var metadata = getMetaData(CreateObject("component", arguments.beanData.cfcPath));
+		var metadata = "";
 		var i = 1;
 		var keys = "";
 		var properties = arrayNew(1);
-		if( structKeyExists(metadata, "properties") )
-			properties = metadata.properties;
-
-		// Loop over the properties
-		for (i=1; i LTE ArrayLen(properties); i=i+1){
-			keys = StructKeyList(properties[i]);
-			// Check that the record has a name key
-			if ( ListFindNoCase(keys,"name") and listFindNoCase(keys, "value") ){
-				if (properties[i]["name"] EQ "type"){
-					if ( properties[i]["value"] EQ "singleton" ) {
-						addSingleton(arguments.beanData.cfcPath, arguments.beanData.beanName);					
-						injected = 1;
+	</cfscript>
+	<cfdump var="#arguments#" label="processMetadata - arguments" expand="false">
+	<cfscript>
+		try {
+			metadata = getMetaData(CreateObject("component", arguments.beanData.cfcPath));
+			
+			if( structKeyExists(metadata, "properties") )
+				properties = metadata.properties;
+	
+			// Loop over the properties
+			for (i=1; i LTE ArrayLen(properties); i=i+1){
+				keys = StructKeyList(properties[i]);
+				// Check that the record has a name key
+				if ( ListFindNoCase(keys,"name") and listFindNoCase(keys, "value") ){
+					if (properties[i]["name"] EQ "type"){
+						if ( properties[i]["value"] EQ "singleton" ) {
+							addSingleton(arguments.beanData.cfcPath, arguments.beanData.beanName);					
+							injected = 1;
+						}
+						else if ( properties[i]["value"] EQ "transient" ) {
+							addTransient(arguments.beanData.cfcPath, arguments.beanData.beanName);					
+							injected = 1;
+						}
 					}
-					else if ( properties[i]["value"] EQ "transient" ) {
-						addTransient(arguments.beanData.cfcPath, arguments.beanData.beanName);					
-						injected = 1;
-					}
+					
+					// Update the lib component struct
+					if ( arguments.objFactoryType EQ "server" )
+						StructInsert(server.ADF.library, ListFirst(beanData.cfcname,"_"), arguments.beanData.beanName, true);
+					else
+						StructInsert(application.ADF.library, ListFirst(beanData.cfcname,"_"), arguments.beanData.beanName, true);
 				}
-				
-				// Update the lib component struct
-				if ( arguments.objFactoryType EQ "server" )
-					StructInsert(server.ADF.library, ListFirst(beanData.cfcname,"_"), arguments.beanData.beanName, true);
-				else
-					StructInsert(application.ADF.library, ListFirst(beanData.cfcname,"_"), arguments.beanData.beanName, true);
+				// Check that the record has a name key
+				if ( ListFindNoCase(keys,"type") AND (properties[i]["type"] EQ "dependency") ){				
+					tmpStruct = StructNew();
+					tmpStruct.BeanName = arguments.beanData.beanName;
+					tmpStruct.InjectedBeanName = properties[i]["injectedBean"];
+					tmpStruct.PropertyName = properties[i]["name"];
+					if ( arguments.objFactoryType EQ "server" )
+						StructInsert(server.ADF.dependencyStruct, "#arguments.beanData.beanName#:#properties[i]['name']#", tmpStruct, true);
+					else
+						StructInsert(application.ADF.dependencyStruct, "#arguments.beanData.beanName#:#properties[i]['name']#", tmpStruct, true);
+				}
 			}
-			// Check that the record has a name key
-			if ( ListFindNoCase(keys,"type") AND (properties[i]["type"] EQ "dependency") ){				
-				tmpStruct = StructNew();
-				tmpStruct.BeanName = arguments.beanData.beanName;
-				tmpStruct.InjectedBeanName = properties[i]["injectedBean"];
-				tmpStruct.PropertyName = properties[i]["name"];
-				if ( arguments.objFactoryType EQ "server" )
-					StructInsert(server.ADF.dependencyStruct, "#arguments.beanData.beanName#:#properties[i]['name']#", tmpStruct, true);
-				else
-					StructInsert(application.ADF.dependencyStruct, "#arguments.beanData.beanName#:#properties[i]['name']#", tmpStruct, true);
-			}
+			// if it was not injected then assume it is a transient
+			if( not injected )
+				addTransient(arguments.beanData.cfcPath, arguments.beanData.beanName);
 		}
-		// if it was not injected then assume it is a transient
-		if( not injected )
-			addTransient(arguments.beanData.cfcPath, arguments.beanData.beanName);
+		catch (any exception){
+			throw(type="Custom", message="Error processing the metadata for the component [#arguments.beandata.CFCPath#].", detail="Error processing the metadata for the component [#arguments.beandata.CFCPath#].");
+		}	
 	</cfscript>
 </cffunction>
 
