@@ -336,9 +336,7 @@ History:
 		var i = 1;
 		var keys = "";
 		var properties = arrayNew(1);
-	</cfscript>
-	<cfdump var="#arguments#" label="processMetadata - arguments" expand="false">
-	<cfscript>
+		
 		try {
 			metadata = getMetaData(CreateObject("component", arguments.beanData.cfcPath));
 			
