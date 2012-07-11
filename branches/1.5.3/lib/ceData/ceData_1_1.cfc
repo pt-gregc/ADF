@@ -35,7 +35,7 @@ History:
 --->
 <cfcomponent displayname="ceData_1_1" extends="ADF.lib.ceData.ceData_1_0" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="1_1_2">
+<cfproperty name="version" value="1_1_3">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_1">
 <cfproperty name="data" type="dependency" injectedBean="data_1_1">
@@ -634,10 +634,11 @@ History:
 	2010-09-24 - GAC - Added an optional FIX for use with SQL2000. The FIX is commented out since SQL 2000 is not widely used.
 	2012-06-20 - GAC - Updated the SQL to allow CE Field names with underscores (_). Changed the 'AS {FIELDNAME}' to strip the "FIC_" instead of using a ListGetAt with an underscore delimiter.
 					 - Also added brackets [] around the {FIELDNAME} to allow for field names that might be reserved or non-standard SQL field names.
+	2012-07-11 - MFC - Updated the default view name to end in "_view".
 --->
 <cffunction name="buildRealTypeView" access="public" returntype="boolean" hint="Builds ane lement view for the passed in element name">
 	<cfargument name="elementName" type="string" required="true" hint="element name to build the view table off of">
-	<cfargument name="viewName" type="string" required="false" default="ce_#arguments.elementName#View" hint="Override the view name that gets generated">
+	<cfargument name="viewName" type="string" required="false" default="ce_#arguments.elementName#_view" hint="Override the view name that gets generated">
 	<cfscript>
 		var deleteView = '';
 		var viewCreated = false;
@@ -1275,6 +1276,135 @@ History:
 			ArrayAppend(rtnArray,StructFind(dataStruct,key));
 		}
 		return rtnArray;
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
+Name:
+	$sortCEDataArrayByIDList
+Summary:
+	Returns a sorted Array of Structures by the field and id list arguments
+Returns:
+	Array
+Arguments:
+	Array - Array of Structs
+	String - Element Field Name
+	String - List of Field Values
+History:
+	2012-05-25 - MFC - Performance Enhancement
+						Rebuild function based on 'sortArrayByIDList' function.
+--->
+<!--- <cffunction name="sortCEDataArrayByIDList" access="public" returntype="array">
+	<cfargument name="arrayOfStructs" type="array" required="true">
+	<cfargument name="idFieldName" type="string" required="true">
+	<cfargument name="idList" type="string" required="true">
+
+	<cfscript>
+		// Change the CE Data Array to Query
+		var ceDataQry = arrayOfCEDataToQuery(arguments.arrayOfStructs);
+		var allSortedCEDataQry = sortCEDataQueryByIDList(ceDataQry, arguments.idFieldName, arguments.idList);
+		var retArray = buildCEDataArrayFromQuery(allSortedCEDataQry);
+		return retArray;
+	</cfscript>
+</cffunction> --->
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
+Name:
+	$sortCEDataQueryByIDList
+Summary:
+	Returns a sorted CE Data format Query by the field and id list arguments
+Returns:
+	query
+Arguments:
+	query - CE Data View Table Query
+	String - Element Field Name
+	String - List of Field Values
+History:
+	2012-05-25 - MFC - Performance Enhancement
+--->
+<cffunction name="sortCEDataQueryByIDList" access="public" returntype="query">
+	<cfargument name="ceDataQry" type="query" required="true">
+	<cfargument name="idFieldName" type="string" required="true">
+	<cfargument name="idList" type="string" required="true">
+
+	<cfscript>
+		var currID = 0;
+		var allSortedCEDataQry = QueryNew('null');
+	</cfscript>
+	<!--- Loop over the ID List Qry --->
+	<cfloop list="#arguments.idList#" index="currID">
+		<!--- Get the record from the query --->
+		<cfquery name="sortedCEDataQry" dbtype="query">
+			SELECT 	*
+			FROM 	arguments.ceDataQry
+			WHERE 	#idFieldName# = <cfqueryparam cfsqltype="cf_sql_varchar" value="#currID#">
+		</cfquery>
+		<cfif allSortedCEDataQry.recordCount>
+			<!--- TODO - UNION does not work here.  Need to add the SQL column with the sort order. --->
+			<cfquery name="allSortedCEDataQry" dbtype="query">
+				SELECT * FROM allSortedCEDataQry
+				UNION
+				SELECT * FROM sortedCEDataQry
+			</cfquery>
+		<cfelse>
+			<cfset allSortedCEDataQry = sortedCEDataQry>
+		</cfif>
+	</cfloop>
+	<cfreturn allSortedCEDataQry>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
+Name:
+	$getCEDataView
+Summary:
+	Returns CE Data Array format by querying the CE Data View table.
+Returns:
+	query
+Arguments:
+	String - Custom Element Name
+	String - Element Field Name
+	String - Item Values to Search
+History:
+	2012-05-25 - MFC - Created - Performance Enhancement
+--->
+<cffunction name="getCEDataView" access="public" returntype="array">
+	<cfargument name="customElementName" type="string" required="true">
+	<cfargument name="customElementFieldName" type="string" required="false" default="">
+	<cfargument name="item" type="any" required="false" default="">
+	
+	<cfscript>
+		var viewTableName = Replace("ce_#arguments.customElementName#_view", " ", "_", "all");
+		var ceDataQry = "";
+		var retCEDataArray = "";
+	</cfscript>
+	<!--- TODO - Needs to be updated for the query types --->
+	<cfquery name="ceDataQry" datasource="#request.site.datasource#">
+		SELECT *
+		FROM   #viewTableName#
+		<cfif ListLen(arguments.item) GT 1>
+			WHERE #arguments.customElementFieldName# IN (<cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.item#" list="true">)
+		<cfelseif ListLen(arguments.item) EQ 1>
+			WHERE #arguments.customElementFieldName# = <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.item#">
+		</cfif>
+	</cfquery>
+	<cfscript>
+		// Transition the query back to the CE Data Array format
+		retCEDataArray = sortCEDataQueryByIDList(ceDataQry=ceDataQry,
+										 idFieldName=arguments.customElementFieldName,
+										 idList=arguments.item);
+		return buildCEDataArrayFromQuery(retCEDataArray);
 	</cfscript>
 </cffunction>
 
