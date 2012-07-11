@@ -58,6 +58,7 @@
  * @author Klaus Hartl/klaus.hartl@stilbuero.de
  *
  * 2010-12-09 - RAK - Updated to handle lightboxing
+ * 2012-07-06 - MFC - Updated IF condition to check 'undefined' with quotes.
  */
 jQuery.cookie = function (key, value, options) {
 
@@ -88,9 +89,10 @@ jQuery.cookie = function (key, value, options) {
 	options = value || {};
 	var result, decode = options.raw ? function (s) { return s; } : decodeURIComponent;
 
-	//2010-12-09 - RAK - Updated to handle lightboxing
+	// 2010-12-09 - RAK - Updated to handle lightboxing
+	// 2012-07-06 - MFC - Updated IF condition to check 'undefined' with quotes.
 	documentCookie = document.cookie;
-	if(!documentCookie && typeof commonspot != 'undefined' && typeof commonspot.lightbox != undefined){
+	if(!documentCookie && typeof commonspot != 'undefined' && typeof commonspot.lightbox != 'undefined'){
 		documentCookie = commonspot.lightbox.getPageWindow().document.cookie;
 	}
 

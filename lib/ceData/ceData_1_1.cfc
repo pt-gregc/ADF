@@ -35,7 +35,7 @@ History:
 --->
 <cfcomponent displayname="ceData_1_1" extends="ADF.lib.ceData.ceData_1_0" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="1_1_1">
+<cfproperty name="version" value="1_1_2">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_1">
 <cfproperty name="data" type="dependency" injectedBean="data_1_1">
@@ -152,6 +152,7 @@ Arguments:
 History:
 	2011-02-09 - RAK - Var'ing un-var'd variables
 	2011-05-04 - MFC - Added check for CS 5 to decode the HTML escaped param WDDX.
+	2012-04-16 - GAC - Removed the circular references to application.ADF.cedata
 --->
 <cffunction name="getFieldDefaultValueFromID" hint="Returns struct containing form field default values"
 				access="public" 
@@ -173,7 +174,7 @@ History:
   			where FieldID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.fieldID#">
 	</cfquery>
 	<cfloop query="formFieldQuery">
-		<cfset multipleFieldQuery = application.ADF.cedata.getElementFieldsByFormID(formID)>
+		<cfset multipleFieldQuery = getElementFieldsByFormID(formID)>
 		<!---
 			getElementFieldsByFormID returns a resultset that contains EVERY field in the form, we just want the ONE field we need info from...
 		--->
@@ -181,7 +182,7 @@ History:
 			select * from multipleFieldQuery where fieldID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.fieldID#">
 		</cfquery>
 		<cfscript>
-			fieldDefaultValues = application.ADF.cedata.getElementInfoByPageID(pageid=0,formid=formID);
+			fieldDefaultValues = getElementInfoByPageID(pageid=0,formid=formID);
 			rtnStruct = StructNew();
 			
 			// 2011-05-04 - MFC - Added check for CS 5 to decode the HTML escaped param WDDX.
@@ -631,6 +632,8 @@ History:
 						Changed memoValue field size to "max".
 	2011-05-03 - RAK - Modified code to default to try the memo field if the data is null or ''
 	2010-09-24 - GAC - Added an optional FIX for use with SQL2000. The FIX is commented out since SQL 2000 is not widely used.
+	2012-06-20 - GAC - Updated the SQL to allow CE Field names with underscores (_). Changed the 'AS {FIELDNAME}' to strip the "FIC_" instead of using a ListGetAt with an underscore delimiter.
+					 - Also added brackets [] around the {FIELDNAME} to allow for field names that might be reserved or non-standard SQL field names.
 --->
 <cffunction name="buildRealTypeView" access="public" returntype="boolean" hint="Builds ane lement view for the passed in element name">
 	<cfargument name="elementName" type="string" required="true" hint="element name to build the view table off of">
@@ -721,7 +724,9 @@ History:
 					</cfdefaultcase>
 				</cfswitch>
 				<!--- ) as FieldID#ID#, --->
-				) as #listGetAt(fieldName, 2, "_")#,
+				<!--- ) as #listGetAt(fieldName, 2, "_")#, --->
+				<!--- // Remove the "FIC_" from the CS field name when creating the column alias so this works with CE field names with underscores --->
+				 ) as [#ReplaceNoCase(fieldName, "FIC_", "")#],
 			</cfloop>
 		   			PageID, controlID, formID<!--- , dateApproved, dateAdded --->
 			  FROM data_fieldvalue

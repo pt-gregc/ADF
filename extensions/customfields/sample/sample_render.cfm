@@ -30,6 +30,9 @@ History:
  	2011-09-26 - RAK - Created
 	2011-12-19 - MFC - Updated the validation for the property fields.
 	2012-03-19 - GAC - Added the fieldPermission parameter to the wrapFieldHTML function call
+	2012-04-11 - GAC - Added the includeLabel and includeDescription parameters to the wrapFieldHTML function call
+					 - Updated the readOnly check to also use the cs6 fieldPermission parameter
+					 - Updated the wrapFieldHTML explanation comment block
 --->
 <cfscript>
 	// the fields current value
@@ -42,13 +45,17 @@ History:
 		currentValue = xparams.defaultText;
 	}
 
+	// Set defaults for the label and description 
+	includeLabel = true;
+	includeDescription = true; 
+
 	//-- Update for CS 6.x / backwards compatible for CS 5.x --
 	//   If it does not exist set the Field Permission variable to a default value
 	if ( NOT StructKeyExists(variables,"fieldPermission") )
 		variables.fieldPermission = "";
 
-	//--Read Only Field Security--
-	readOnly = application.ADF.forms.isFieldReadOnly(xparams);
+	//-- Read Only Check w/ cs6 fieldPermission parameter --
+	readOnly = application.ADF.forms.isFieldReadOnly(xparams,variables.fieldPermission);
 	
 	// Load JQuery
 	application.ADF.scripts.loadJQuery();
@@ -83,11 +90,12 @@ History:
 	</cfsavecontent>
 
 	<!---
-		This version is using the wrapFieldHTML functionality, what this does is it takes
-		the HTML that you want to put into the TD of the right section of the display, you
-		can optionally disable this by adding the includeLabel = false (fourth parameter)
-		when false it simply creates a TD and puts your content inside it. This wrapper handles
-		everything from description to simple form field handling.
+		This CFT is using the forms lib wrapFieldHTML functionality. The wrapFieldHTML takes
+		the Form Field HTML that you want to put into the TD of the right section of the CFT 
+		table row and helps with display formatting, adds the hidden simple form fields (if needed) 
+		and handles field permissions (other than read-only).
+		Optionally you can disable the field label and the field discription by setting 
+		the includeLabel and/or the includeDescription variables (found above) to false.  
 	--->
-	#application.ADF.forms.wrapFieldHTML(inputHTML,fieldQuery,attributes,variables.fieldPermission)#
+	#application.ADF.forms.wrapFieldHTML(inputHTML,fieldQuery,attributes,variables.fieldPermission,includeLabel,includeDescription)#
 </cfoutput>

@@ -38,15 +38,16 @@ History:
 	2012-02-21 - GAC - added additional fixes for slashes 
 					 - combined forked versions
 					 - file cleanup
+	2012-04-11 - GAC - Added the fieldPermission parameter to the wrapFieldHTML function call
+					 - Added the includeLabel and includeDescription parameters to the wrapFieldHTML function call
+					 - Added readOnly field security code with the cs6 fieldPermission parameter
+					 - Updated the wrapFieldHTML explanation comment block
 --->
 <cfscript>
 	// the fields current value
 	currentValue = attributes.currentValues[fqFieldName];
 	// the param structure which will hold all of the fields from the props dialog
 	xparams = parameters[fieldQuery.inputID];
-
-	//--Field Security--
-	readOnly = application.ADF.forms.isFieldReadOnly(xparams);
 
 	uiFilterOutList = ".svn,base"; 		// Add DIRs that need to be filtered from the theme drop down	
 	defaultVersion = "jquery-ui-1.8";
@@ -68,14 +69,22 @@ History:
 		
 	if ( LEN(TRIM(currentValue)) EQ 0 )
 		currentValue = defaultTheme; 
+		
+	// Set defaults for the label and description 
+	includeLabel = true;
+	includeDescription = true; 
 
-//application.ADF.utils.doDump(xparams.uiVersionPath,"xparams.uiVersionPath",1);
-//application.ADF.utils.doDump(currentValue,"currentValue",0);		
+	//-- Update for CS 6.x / backwards compatible for CS 5.x --
+	//   If it does not exist set the Field Permission variable to a default value
+	if ( NOT StructKeyExists(variables,"fieldPermission") )
+		variables.fieldPermission = "";
+
+	//-- Read Only Check w/ cs6 fieldPermission parameter --
+	readOnly = application.ADF.forms.isFieldReadOnly(xparams,variables.fieldPermission);	
 </cfscript>
 
 <!--- // Get a list of jQuery UI themes for the version of jQuery --->
 <cfdirectory action="list" directory="#xparams.uiVersionPath#" name="qThemes" type="dir">
-<!--- <cfdump var ="#qThemes#" expand="false"> --->
 
 <cfoutput>
 	<script>
@@ -102,14 +111,6 @@ History:
 			return false;
 		}
 	</script>
-	
-<!---
-	This version is using the wrapFieldHTML functionality, what this does is it takes
-	the HTML that you want to put into the TD of the right section of the display, you
-	can optionally disable this by adding the includeLabel = false (fourth parameter)
-	when false it simply creates a TD and puts your content inside it. This wrapper handles
-	everything from description to simple form field handling.
---->
 
 	<cfsavecontent variable="inputHTML">
 		<cfoutput>
@@ -141,5 +142,15 @@ History:
 	        </cfif>
 		</cfoutput>
 	</cfsavecontent>
-	#application.ADF.forms.wrapFieldHTML(inputHTML,fieldQuery,attributes)#
+	
+	<!---
+		This CFT is using the forms lib wrapFieldHTML functionality. The wrapFieldHTML takes
+		the Form Field HTML that you want to put into the TD of the right section of the CFT 
+		table row and helps with display formatting, adds the hidden simple form fields (if needed) 
+		and handles field permissions (other than read-only).
+		Optionally you can disable the field label and the field discription by setting 
+		the includeLabel and/or the includeDescription variables (found above) to false.  
+	--->
+	
+	#application.ADF.forms.wrapFieldHTML(inputHTML,fieldQuery,attributes,variables.fieldPermission,includeLabel,includeDescription)#
 </cfoutput>

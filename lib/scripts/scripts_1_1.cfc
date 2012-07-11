@@ -38,7 +38,7 @@ History:
 --->
 <cfcomponent displayname="scripts_1_1" extends="ADF.lib.scripts.scripts_1_0" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" default="1_1_7">
+<cfproperty name="version" default="1_1_8">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_1" type="dependency">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Scripts_1_1">
@@ -299,13 +299,17 @@ Arguments:
 	String - version - CFJS version to load.
 History:
 	2009-06-18 - GAC - Created
+	2012-06-27 - MFC - Renamed the JS files to "jquery.cfjs-#version#.js".
+						Set the default to v1.2.
 --->
 <cffunction name="loadCFJS" access="public" output="true" returntype="void" hint="Loads the CFJS jQuery Plug-in Headers if not loaded.">
-	<cfargument name="version" type="string" required="false" default="1.1.12" hint="CFJS version to load.">
+	<cfargument name="version" type="string" required="false" default="1.2" hint="CFJS version to load.">
 	<cfset var outputHTML = "">
+	<!---  2011-12-28 - MFC - Make the version backwards compatiable to remove minor build numbers. --->
+	<cfset arguments.version = variables.scriptsService.getMajorMinorVersion(arguments.version)>
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
-			<script type="text/javascript" src="/ADF/thirdParty/jquery/cfjs/cfjs.packed-#arguments.version#.js"></script>
+			<script type="text/javascript" src="/ADF/thirdParty/jquery/cfjs/jquery.cfjs-#arguments.version#.js"></script>
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
@@ -1946,6 +1950,7 @@ Arguments:
 	String - Version
 History:
  	2011-10-20 - GAC - Created
+	2012-06-01 - MFC - Fixed function calls to loadjQueryEasing and loadjQueryMouseWheel.
 --->
 <cffunction name="loadJQueryFancyBox" access="public" output="true" returntype="void" hint="Loads the fancyBox plugin for jQuery">
 	<cfargument name="version" type="string" required="false" default="1.3.4" hint="Script version to load.">
@@ -1954,8 +1959,8 @@ History:
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
 			<script type="text/javascript" src="#thirdPartyLibPath#jquery.fancybox-#arguments.version#.pack.js"></script>
-			#loadjQueryEasing#
-			#loadjQueryMouseWheel#
+			#loadjQueryEasing()#
+			#loadjQueryMouseWheel()#
 			<link rel="stylesheet" href="#thirdPartyLibPath#jquery.fancybox-#arguments.version#.css" type="text/css" media="screen" />
 		</cfoutput>
 	</cfsavecontent>

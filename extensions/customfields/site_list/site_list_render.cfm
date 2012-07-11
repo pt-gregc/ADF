@@ -1,3 +1,6 @@
+<!--
+	DEPRICATED DO NOT USE
+--->
 <!---
 The contents of this file are subject to the Mozilla Public License Version 1.1
 (the "License"); you may not use this file except in compliance with the
@@ -18,58 +21,24 @@ in this directory, you agree to the terms and conditions of the applicable
 end user license agreement.
 --->
 
-<cfscript>
-	// the fields current value
-	currentValue = attributes.currentValues[fqFieldName];
-	// the param structure which will hold all of the fields from the props dialog
-	xparams = parameters[fieldQuery.inputID];
-
-	//--Field Security--
-	readOnly = application.ADF.forms.isFieldReadOnly(xparams);
-	
-	// retrieve the sites on this server
-	sitesQry = application.ADF.csData.getCommonSpotSites();
-</cfscript>
-<cfoutput>
-	<script>
-		// javascript validation to make sure they have text to be converted
-		#fqFieldName#=new Object();
-		#fqFieldName#.id='#fqFieldName#';
-		#fqFieldName#.tid=#rendertabindex#;
-		#fqFieldName#.msg="Please select a value for the #xparams.label# field.";
-		#fqFieldName#.validator = "validate_#fqFieldName#()";
-
-		//If the field is required
-		if ( '#xparams.req#' == 'Yes' ){
-			// push on to validation array
-			vobjects_#attributes.formname#.push(#fqFieldName#);
-		}
-
-		//Validation function
-		function validate_#fqFieldName#(){
-			if (jQuery("input[name=#fqFieldName#]").val() != ''){
-				return true;
-			}else{
-				return false;
-			}
-		}
-	</script>
 <!---
-	This version is using the wrapFieldHTML functionality, what this does is it takes
-	the HTML that you want to put into the TD of the right section of the display, you
-	can optionally disable this by adding the includeLabel = false (fourth parameter)
-	when false it simply creates a TD and puts your content inside it. This wrapper handles
-	everything from description to simple form field handling.
+/* *************************************************************** */
+Author: 	
+	PaperThin Inc.
+Name:
+	site_list_render.cfm
+Summary:
+
+	DEPRICATED DO NOT USE
+
+Version:
+	1.0.0
+History:
+	2012-04-11 - GAC - Added the fieldPermission parameter to the wrapFieldHTML function call
+					 - Added the includeLabel and includeDescription parameters to the wrapFieldHTML function call
+					 - Added readOnly field security code with the cs6 fieldPermission parameter
+					 - Updated the wrapFieldHTML explanation comment block
+					 - Fixed an issue in the query loop by changing the output variable from ID to siteID
+	2012-04-12 - GAC - Added redirect CFINCLUDE to point to /cs_site_select/cs_site_select_render.cfm
 --->
-	<cfsavecontent variable="inputHTML">
-		<cfoutput>
-			<select name="#fqFieldName#" id='#fqFieldName#' <cfif readOnly>disabled="disabled"</cfif>>
-				<option value="">--Select--</option>
-				<cfloop query="sitesQry">
-					<option value="#sitesQry.siteID#">#sitesQry.siteName# (siteID: #sitesQry.ID#)</option>
-				</cfloop>
-			</select>
-		</cfoutput>
-	</cfsavecontent>
-	#application.ADF.forms.wrapFieldHTML(inputHTML,fieldQuery,attributes)#
-</cfoutput>
+<cfinclude template="/ADF/extensions/customfields/cs_site_select/cs_site_select_render.cfm">
