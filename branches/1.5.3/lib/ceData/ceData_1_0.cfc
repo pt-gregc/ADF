@@ -335,7 +335,7 @@ Summary:
 	Returns array of structs for all data matching the Custom Element.
 	Params can specify exact fields for searching.
 Returns:
-	Array
+	Query
 Arguments:
 	String - Custom Element Name
 	String - Element Field Name
@@ -353,7 +353,6 @@ History:
 	2010-09-17 - MFC - Updated: Added new queryType for "searchInList".
 								Find any of the items in a list that match a list item in a 
 									CE field that stores a list of values.
-	2012-05-25 - MFC - Performance Enhancements
 --->
 <cffunction name="getCEData" access="public" returntype="array" hint="Returns array of structs for all data matching the Custom Element.">
 	<cfargument name="customElementName" type="string" required="true">
@@ -404,9 +403,6 @@ History:
 		
 		// Check that we got a query back
 		if ( getPageIDValues.RecordCount gt 0 ){
-			// Get ALL the fields for the custom element
-			elementFormFieldQry = getElementFieldsByFormID(CEFormID);
-		
 			// Loop over the query of page ids 
 			for( data_i=1; data_i LTE getPageIDValues.RecordCount; data_i=data_i+1 ) {
 				if (isNumeric(getPageIDValues.PageID[data_i])) {
@@ -417,26 +413,15 @@ History:
 					}
 					else {
 						// get the data for the page id
-						dataArray[data_i] = getElementInfoByPageID(pageid=getPageIDValues.PageID[data_i], 
-																	formid=CEFormID, 
-																	separateValueStruct=true, 
-																	elementFormFields=elementFormFieldQry);
+						dataArray[data_i] = getElementInfoByPageID(getPageIDValues.PageID[data_i], CEFormID, true);
 					}
 				}
 			}
 		}
 		// Check if we are processing the selected list
 		if ( arguments.queryType EQ "selected" and len(arguments.customElementFieldName) and len(arguments.item) ){
-			//a1 = GetTickCount();
-		
 			// Order the return data by the order the list was passed in
 			dataArray = sortArrayByIDList(dataArray, arguments.customElementFieldName, arguments.item);
-			
-			//dataArray = sortCEDataArrayByIDList(dataArray, arguments.customElementFieldName, arguments.item);
-			
-			//b1 = GetTickCount();
-			//timer1 = b1-a1;
-			//application.ADF.utils.dodump(timer1);
 		}
 		/* 2010-09-17 - MFC - Updated */
 		// Check the query type for "selectedList"
@@ -511,19 +496,6 @@ History:
 			AND 	  (Data_FieldValue.VersionID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.versionID#">)
 		</cfif>
 	</cfquery>
-	<!--- TODO - DETERMINE if this view table is still really needed! --->
-	<!--- <cfquery name="getDataFieldValues" datasource="#request.site.datasource#">
-		SELECT  	*
-		FROM      	ce_form_fields
-		WHERE     	(PageID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.pageid#">)
-		AND 	  	(FormID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.formid#">)
-		<cfif arguments.currentVersionFlag eq true>
-			AND 	  (VersionState = 2)
-		<cfelse>
-			<!--- else return the version from the argument --->
-			AND 	  (VersionID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.versionID#">)
-		</cfif>
-	</cfquery> --->
 	<cfreturn getDataFieldValues>
 </cffunction>
 
@@ -643,19 +615,16 @@ History:
 	2010-12-10 - RAK - Removed requirement of formID.
 	2010-12-14 - MFC - Updated argument to getFormIDFromPageID function.  Added comments.
 	2011-09-21 - RAK - Added authorID, ownerID to return struct
-	2012-05-25 - MFC - Performance Enhancements
 --->
 <cffunction name="getElementInfoByPageID" access="public" returntype="struct">
 	<cfargument name="pageid" type="Numeric" required="true">
 	<cfargument name="formid" type="Numeric" required="false" default="-1">
 	<cfargument name="separateValueStruct" type="boolean" required="false" default="true">
-	<cfargument name="elementFormFields" type="query" required="false" default="#queryNew('null')#">
 
 	<cfscript>
 		// Initialize the variables
 		var getElementInfo = queryNew("temp");
-		//var getElementFields = queryNew("temp");
-		var getElementFields = arguments.elementFormFields;
+		var getElementFields = queryNew("temp");
 		var dataValuesStruct = StructNew();
 		var elmt_i = 1;
 		var retStruct = StructNew();
@@ -667,19 +636,12 @@ History:
 		if(arguments.formID eq -1){
 			arguments.formID = getFormIDFromPageID(arguments.pageid);
 		}
-		//a1 = GetTickCount();
 		// Query to get the data for the custom element by pageid
 		// [MFC 2/11/09] Added formid argument to function call
 		getElementInfo = getDataFieldValueByPageID(arguments.pageid, arguments.formid);
-		//b1 = GetTickCount();
-		//timer1 = b1-a1;
-		//application.ADF.utils.dodump(timer1);
-		
-		// Check if element fields are pass in or not
-		if ( NOT isQuery(getElementFields) OR getElementFields.recordCount LTE 0 ){
-			// Get ALL the fields for the custom element
-			getElementFields = getElementFieldsByFormID(arguments.formid);
-		}
+		// Get ALL the fields for the custom element
+		// getElementFields = getElementFieldsByFormID(getElementInfo.FormID[1]);
+		getElementFields = getElementFieldsByFormID(arguments.formid);
 
 		// Load the field data into a struct with the fieldID as keys
 		for( elmt_i = 1; elmt_i LTE getElementInfo.RecordCount; elmt_i=elmt_i+1 )
