@@ -30,12 +30,13 @@ Version:
 	1.0.1
 History:
 	2012-07-09 - PaperThin, Inc. - Created
+	2012-07-11 - DMB - injected scriptsService and added function to load jQueryMobile.
 --->
 <cfcomponent displayname="mobile_1_0" extends="ADF.core.Base" hint="Mobile component functions for the ADF Library">
-
 <cfproperty name="version" value="1_0_0">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Mobile_1_0">
+<cfproperty name="scriptsService" injectedBean="scriptsService_1_0" type="dependency">
 
 <!---
 /* ***************************************************************
@@ -173,5 +174,34 @@ History:
 		</cfcatch>
 	</cftry>
  </cffunction>
+ <!---
+/* ***************************************************************
+/*
+Author: 	D. Beckstrom
+Name:
+	$loadJQueryMobile
+Summary:
+	Loads the JQuery Mobile script.
+Returns:
+	None
+Arguments:
+	String - version - JQuery version to load.
+	Boolean - force - Forces JQuery script header to load.
+History:
+	2012-07-11 - DMB - Created
+--->
+<cffunction name="loadJQueryMobile" access="public" output="true" returntype="void" hint="Loads the JQuery Mobile script if not loaded.">
+<cfargument name="version" type="string" required="false" default="1.1.0" hint="JQuery Mobile version to load.">
+<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery Mobile to load.">
+<cfif (not variables.scriptsService.isScriptLoaded("jquerymobile")) OR (arguments.force)>
+	<cfoutput>
+		<script type="text/javascript" src="/ADF/thirdParty/jquery/mobile/jquery.mobile-#arguments.version#.js"></script>
+	</cfoutput>
+	<!--- If we force, then don't record the loaded script --->
+	<cfif NOT arguments.force>
+		<cfset variables.scriptsService.loadedScript("jquerymobile")>
+	</cfif>
+</cfif>
+</cffunction>
 </cfcomponent>
 
