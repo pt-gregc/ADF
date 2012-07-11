@@ -1,0 +1,337 @@
+<!---
+The contents of this file are subject to the Mozilla Public License Version 1.1
+(the "License"); you may not use this file except in compliance with the
+License. You may obtain a copy of the License at http://www.mozilla.org/MPL/
+ 
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+the specific language governing rights and limitations under the License.
+ 
+The Original Code is comprised of the ADF directory
+ 
+The Initial Developer of the Original Code is
+PaperThin, Inc. Copyright(C) 2011.
+All Rights Reserved.
+ 
+By downloading, modifying, distributing, using and/or accessing any files
+in this directory, you agree to the terms and conditions of the applicable
+end user license agreement.
+--->
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M Carroll 
+Custom Field Type:
+	general_chooser_props.cfm
+Name:
+	general_chooser_props.cfm
+Summary:
+	General Chooser field type.
+	Allows for selection of the custom element records.
+Version:
+	1.1
+History:
+	2009-10-16 - MFC - Created
+	2009-11-13 - MFC - Updated the Ajax calls to the CFC to call the controller 
+						function.  This allows only the "controller" function to 
+						listed in the proxy white list XML file.
+	2010-11-09 - MFC - Updated the Scripts loading methods to dynamically load the latest 
+						script versions from the Scripts Object.
+	2011-03-20 - MFC - Updated component to simplify the customizations process and performance.
+						Removed Ajax loading process.
+	2011-03-27 - MFC - Updated for Add/Edit/Delete callback.
+	2011-09-21 - RAK - Added max/min selections
+	2011-10-20 - GAC - Added defualt value check for the minSelections and maxSelections xParams varaibles
+	2012-01-04 - SS - The field now honors the "required" setting in Standard Options.
+	2012-03-19 - MFC - Added "loadAvailable" option to set if the available selections load
+						when the form loads.
+					   Added the new records will load into the "selected" area when saved.
+--->
+<cfscript>
+	// the fields current value
+	currentValue = attributes.currentValues[fqFieldName];
+	// the param structure which will hold all of the fields from the props dialog
+	xparams = parameters[fieldQuery.inputID];
+	
+	// overwrite the field ID to be unique
+	xParams.fieldID = #fqFieldName#;
+	
+	// Set the defaults
+	if( StructKeyExists(xParams, "forceScripts") AND (xParams.forceScripts EQ "1") )
+		xParams.forceScripts = true;
+	else
+		xParams.forceScripts = false;
+		
+	if( NOT StructKeyExists(xParams, "minSelections") )
+		xParams.minSelections = "0"; //	0 = selections are optional
+	if( NOT StructKeyExists(xParams, "maxSelections") )
+		xParams.maxSelections = "0"; //	0 = infinite selections are possible
+	if( NOT StructKeyExists(xParams, "loadAvailable") )
+		xParams.loadAvailable = "0"; //	0 = infinite selections are possible
+	
+	// find if we need to render the simple form field
+	renderSimpleFormField = false;
+	if ( (StructKeyExists(request, "simpleformexists")) AND (request.simpleformexists EQ 1) )
+		renderSimpleFormField = true;
+</cfscript>
+
+<cfoutput>
+	<cfscript>
+		// Load the scripts
+		application.ADF.scripts.loadJQuery(force=xParams.forceScripts);
+		application.ADF.scripts.loadJQueryUI(force=xParams.forceScripts);
+		application.ADF.scripts.loadADFLightbox();
+		application.ADF.scripts.loadCFJS();
+		
+		// init Arg struct
+		initArgs = StructNew();
+		initArgs.fieldName = fqFieldName;
+		
+		// Build the argument structure to pass into the Run Command
+		selectionsArg = StructNew();
+		selectionsArg.item = currentValue;
+		selectionsArg.queryType = "selected";
+		selectionsArg.csPageID = request.page.id;
+		selectionsArg.fieldID = xParams.fieldID;
+	</cfscript>
+	
+	<script type="text/javascript">
+		// javascript validation to make sure they have text to be converted
+		#fqFieldName#=new Object();
+		#fqFieldName#.id='#fqFieldName#';
+		#fqFieldName#.tid=#rendertabindex#;
+		#fqFieldName#.validator = "#xParams.fieldID#_validate()";
+		vobjects_#attributes.formname#.push(#fqFieldName#);
+		
+		var #xParams.fieldID#_ajaxProxyURL = "#application.ADF.ajaxProxy#";
+		var #xParams.fieldID#currentValue = "#currentValue#";
+		var #xParams.fieldID#searchValues = "";
+		var #xParams.fieldID#queryType = "all";
+		
+		jQuery(document).ready(function() {
+			
+			// Resize the window on the page load
+			checkResizeWindow();
+			
+			// JQuery use the LIVE event b/c we are adding links/content dynamically		    
+		    // click for show all not-selected items
+		    jQuery('###fqFieldName#-showAllItems').live("click", function(event){
+			  	// Load all the not-selected options
+			  	#xParams.fieldID#_loadTopics('notselected');
+			});
+		    
+		    // JQuery use the LIVE event b/c we are adding links/content dynamically
+		    jQuery('###fqFieldName#-searchBtn').live("click", function(event){
+		  	//load the search field into currentItems
+				#xParams.fieldID#searchValues = jQuery('input###fqFieldName#-searchFld').val();
+				#xParams.fieldID#currentValue = jQuery('input###fqFieldName#').val();
+				#xParams.fieldID#_loadTopics('search')
+			});
+			
+			// Load the effects and lightbox - this is b/c we are auto loading the selections
+			#xParams.fieldID#_loadEffects();
+			// Re-init the ADF Lightbox
+			initADFLB();
+		});
+		
+		function #xParams.fieldID#_loadTopics(queryType) {
+			// Put up the loading message
+			if (queryType == "selected")
+				jQuery("###xParams.fieldID#-sortable2").html("Loading ... <img src='/ADF/extensions/customfields/general_chooser/ajax-loader-arrows.gif'>");
+			else
+				jQuery("###xParams.fieldID#-sortable1").html("Loading ... <img src='/ADF/extensions/customfields/general_chooser/ajax-loader-arrows.gif'>");
+			
+			// load the initial list items based on the top terms from the chosen facet
+			jQuery.get( #xParams.fieldID#_ajaxProxyURL,
+			{ 	
+				bean: '#xParams.chooserCFCName#',
+				method: 'controller',
+				chooserMethod: 'getSelections',
+				item: #xParams.fieldID#currentValue,
+				queryType: queryType,
+				searchValues: #xParams.fieldID#searchValues,
+				csPageID: '#request.page.id#',
+				fieldID: '#xParams.fieldID#'
+			},
+			function(msg){
+				if (queryType == "selected")
+					jQuery("###xParams.fieldID#-sortable2").html(jQuery.trim(msg));
+				else
+					jQuery("###xParams.fieldID#-sortable1").html(jQuery.trim(msg));
+					
+				#xParams.fieldID#_loadEffects();
+				
+				// Re-init the ADF Lightbox
+				initADFLB();
+			});
+		}
+		
+		function #xParams.fieldID#_loadEffects() {
+			jQuery("###xParams.fieldID#-sortable1, ###xParams.fieldID#-sortable2").sortable({
+				connectWith: '.connectedSortable',
+				stop: function(event, ui) { #xParams.fieldID#_serialize(); }
+			}).disableSelection();
+		}
+		
+		// serialize the selections
+		function #xParams.fieldID#_serialize() {
+			// get the serialized list
+			var serialList = jQuery('###xParams.fieldID#-sortable2').sortable( 'toArray' );
+			// Check if the serialList is Array
+			if ( jQuery.isArray(serialList) ){
+				serialList = jQuery.ArrayToList(serialList);
+			}
+			
+			// load serial list into current values
+			#xParams.fieldID#currentValue = serialList;
+			// load current values into the form field
+			jQuery("input###fqFieldName#").val(#xParams.fieldID#currentValue);
+		}
+		
+		// Resize the window function
+		function checkResizeWindow(){
+			// Check if we are in a loader.cfm page
+			if ( '#ListLast(cgi.SCRIPT_NAME,"/")#' == 'loader.cfm' ) {
+				ResizeWindow();
+			}
+		}
+		
+		function #xParams.fieldID#_formCallback(formData){
+			
+			// Load the newest item onto the selected values
+			if ( jQuery.ListLen(#xParams.fieldID#currentValue) > 0 ){
+				// Check that the record does not exist in the list already
+				if ( jQuery.ListFindNoCase(#xParams.fieldID#currentValue, formData[js_#xParams.fieldID#_CE_FIELD]) <= 0 )	
+					#xParams.fieldID#currentValue = jQuery.ListAppend(formData[js_#xParams.fieldID#_CE_FIELD], #xParams.fieldID#currentValue);
+			}
+			else 
+				#xParams.fieldID#currentValue = formData[js_#xParams.fieldID#_CE_FIELD];
+				
+			//alert(#xParams.fieldID#currentValue);
+			// load current values into the form field
+			jQuery("input###fqFieldName#").val(#xParams.fieldID#currentValue);
+			
+			// Reload the selected Values
+			#xParams.fieldID#_loadTopics("selected");
+			
+			// Close the lightbox
+			closeLB();
+		}
+
+		// Validation function to validate required field and max/min selections
+		function #xParams.fieldID#_validate(){
+			//Get the list of selected items
+			var selections = jQuery("###fqFieldName#").val();
+			var lengthOfSelections = 0;
+			//.split will return an array with 1 item if there is an empty string. Get around that.
+			if(selections.length){
+				var arraySelections = selections.split(",");
+				lengthOfSelections = arraySelections.length;
+			}
+			<cfif xparams.req EQ 'Yes'>
+				// If the field is required, check that a select has been made.
+				if (lengthOfSelections <= 0) {
+					alert("Please make a selection from the available items list.");
+					return false;
+				}
+			</cfif>
+			<cfif isNumeric(xParams.minSelections) and xParams.minSelections gt 0>
+				if(lengthOfSelections < #xParams.minSelections#){
+					alert("Minimum number of selections is #xParams.minSelections# you have only selected "+lengthOfSelections+" items");
+					return false;
+				}
+			</cfif>
+			<cfif isNumeric(xParams.maxSelections) and xParams.maxSelections gt 0>
+				if(lengthOfSelections > #xParams.maxSelections#){
+					alert("Maximum number of selections is #xParams.maxSelections# you have selected "+lengthOfSelections+" items");
+					return false;
+				}
+			</cfif>
+			return true;
+		}
+	</script>
+	<tr>
+		<td class="cs_dlgLabelSmall" colspan="2">
+			<div>
+				#xparams.label#:
+			</div>
+			<div id="#xParams.fieldID#-gc-init-styles">
+				<!--- Load the General Chooser Styles --->
+				#application.ADF.utils.runCommand(beanName=xParams.chooserCFCName,
+													methodName="loadStyles",
+													args=initArgs)#
+			</div>
+			<div id="#xParams.fieldID#-gc-main-area">
+				<div id="#xParams.fieldID#-gc-top-area">
+					<!--- SECTION 1 - TOP LEFT --->
+					<div id="#xParams.fieldID#-gc-section1">
+						<!--- Load the Search Box --->
+						#application.ADF.utils.runCommand(beanName=xParams.chooserCFCName,
+															methodName="loadSearchBox",
+															args=initArgs)#
+					</div>									
+					<!--- SECTION 2 - TOP RIGHT --->
+					<div id="#xParams.fieldID#-gc-section2">
+						<!--- Load the Add New Link --->
+						#application.ADF.utils.runCommand(beanName=xParams.chooserCFCName,
+															methodName="loadAddNewLink",
+															args=initArgs)#
+					</div>
+				</div>
+				<!--- SECTION 3 --->
+				<div id="#xParams.fieldID#-gc-section3">
+					<!--- Instructions --->
+					<div id="#xParams.fieldID#-gc-top-area-instructions">
+						Select the records you want to include in the selections by dragging 
+							items into or out of the 'Available Items' list. Order the columns 
+							within the datasheet by dragging items within the 'Selected Items' field.
+					</div>
+					<!--- Select Boxes --->
+					<div id="#xParams.fieldID#-gc-select-left-box-label">
+						<strong>Available Items</strong>
+					</div>
+					<div id="#xParams.fieldID#-gc-select-right-box-label">
+						<strong>Selected Items</strong>
+					</div>
+					<div id="#xParams.fieldID#-gc-select-left-box">
+						<ul id="#xParams.fieldID#-sortable1" class="connectedSortable">
+							<!--- Auto load the available selections --->
+							<cfscript>
+								// Set the query type flag before running the command
+								selectionsArg.queryType = "notselected";
+							</cfscript>
+							<cfif xParams.loadAvailable>
+								#application.ADF.utils.runCommand(beanName=xParams.chooserCFCName,
+																methodName="getSelections",
+																args=selectionsArg)#
+							</cfif>
+						</ul>
+					</div>
+					
+					<div id="#xParams.fieldID#-gc-select-right-box">
+						<ul id="#xParams.fieldID#-sortable2" class="connectedSortable">
+							<!--- Check if we have current values and load the selected data --->
+							<cfif LEN(currentValue)>
+								<cfscript>
+									// Set the query type flag before running the command
+									selectionsArg.queryType = "selected";
+								</cfscript>
+								#application.ADF.utils.runCommand(beanName=xParams.chooserCFCName,
+																methodName="getSelections",
+																args=selectionsArg)#
+							</cfif>
+						</ul>
+					</div>
+				</div>
+			</div>	
+			<input type="hidden" id="#fqFieldName#" name="#fqFieldName#" value="#currentValue#">
+		</td>
+	</tr>
+	
+	<!--- // include hidden field for simple form processing --->
+	<cfif renderSimpleFormField>
+		<input type="hidden" name="#fqFieldName#_FIELDNAME" id="#fqFieldName#_FIELDNAME" value="#ReplaceNoCase(xParams.fieldName, 'fic_','')#">
+	</cfif>
+</cfoutput>
