@@ -21,16 +21,16 @@ end user license agreement.
 <cfoutput>
 <?xml version="1.0" encoding="utf-8"?>
 <settings>
-  <logging>
-       <enabled>1</enabled>
-   </logging>
+	<logging>
+		<enabled>1</enabled>
+	</logging>
 	<elements>
 		<UniqueElementName>
-		   <pageID>1000</pageID>
-		   <subsiteID>1</subsiteID>
-		   <elementType>custom</elementType>
-		   <controlName>Unnamed</controlName>
-	   </UniqueElementName>
+			<pageID>1000</pageID>
+			<subsiteID>1</subsiteID>
+			<elementType>custom</elementType>
+			<controlName>Unnamed</controlName>
+		</UniqueElementName>
 	</elements>
 	<wsVars>
 		<webserviceURL>http://cfusion/commonspot/webservice/cs_service.cfc?wsdl</webserviceURL>

@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
  
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2011.
+PaperThin, Inc. Copyright(C) 2012.
 All Rights Reserved.
  
 By downloading, modifying, distributing, using and/or accessing any files
@@ -34,12 +34,18 @@ Version:
 	2.0.0
 History:
 	2009-07-06 - MFC - Created
-	2009-08-14 - GAC - Modified - Converted to Custom Text Area With Class
-	2009-08-20 - GAC - Modified - Added code for the required field option
-	2010-07-08 - DMB - Modified - Added support for custom field name
-	2010-08-02 - DMB - Modified - Modified to display the label using Commonspot CSS for a required field.
-	2011-12-06 - GAC - Modified - Updated to use the wrapFieldHTML from ADF lib forms_1_1
-	2012-01-05 - GAC - Modified - Added a default variables for the props parameters
+	2009-08-14 - GAC - Converted to Custom Text Area With Class
+	2009-08-20 - GAC - Added code for the required field option
+	2010-07-08 - DMB - Added support for custom field name
+	2010-08-02 - DMB - Modified to display the label using Commonspot CSS for a required field.
+	2011-12-06 - GAC - Updated to use the wrapFieldHTML from ADF lib forms_1_1
+	2012-01-05 - GAC - Added a default variables for the props parameters
+	2012-01-10 - GAC - Removed obsolete show/hide field description logic
+	2012-04-11 - GAC - Changed the includeDescription option to be true by default
+					 - Updated the readOnly check to use the cs6 fieldPermission parameter
+					 - Updated the wrapFieldHTML explanation comment block
+	2012-04-13 - GAC - Fixed an issue with the Textarea Field ID not getting a value if a xparams.fldName was not entered in the props 
+					 - Added an optional parameter to assign a CSS property to the textarea field resizing handle
 --->
 <cfscript>
 	// the fields current value
@@ -51,12 +57,8 @@ History:
 	maxLen = 0;
 	// set the default for the validationJS variable
 	validationJS = "";
-	
-	// Set defaults for the label and description 
-	includeLabel = true;
-	includeDescription = false; // set to false to all conditional logic below to determine when it should be true
-	
-	if ( NOT StructKeyExists(xparams, "fldName") )
+
+	if ( NOT StructKeyExists(xparams, "fldName") OR LEN(TRIM(xparams.fldName)) EQ 0 )
 		xparams.fldName = fqFieldName;
 	//if ( StructKeyExists(xparams, "maxLength") EQ 0 )
 		//maxLen = xparams.maxLength;
@@ -68,9 +70,18 @@ History:
 		xparams.wrap = 'virtual';
 	if ( NOT StructKeyExists(xparams, "fldClass") )
 		xparams.fldClass = "";
+	if ( NOT StructKeyExists(xparams,"resizeHandleOption" ) )
+		xparams.resizeHandleOption = "default";
 	if ( NOT LEN(currentvalue) AND StructKeyExists(xparams,"defaultValue") )
 		currentValue = xparams.defaultValue;
-		
+	
+	// Valid Textarea resize handle options
+	resizeOptions = "none,both,horizontal,vertical"; 
+	
+	// Set defaults for the label and description 
+	includeLabel = true;
+	includeDescription = true;	
+	
 	//-- Update for CS 6.x / backwards compatible for CS 5.x --
 	//   If it does not exist set the Field Security variable to a default value
 	if ( NOT StructKeyExists(variables,"fieldPermission") )
@@ -78,29 +89,27 @@ History:
 		
 	//-- Read Only Check w/ cs6 fieldPermission parameter --
 	readOnly = application.ADF.forms.isFieldReadOnly(xparams,variables.fieldPermission);
-	
-	// TODO: determine if this conditional logic is needed to display the description or not (fieldPermission is new to CS6.x)
-	// conditional logic for field description from the original custom_text_area_field_render
-	if ( attributes.renderMode EQ 'standard' AND variables.fieldpermission GT 0 )
-		includeDescription = true;
 </cfscript>
 
 <cfoutput>
-	<!---
-		This version is using the wrapFieldHTML functionality, what this does is it takes
-		the HTML that you want to put into the TD of the right section of the display, you
-		can optionally disable this by adding the includeLabel = false (fourth parameter)
-		when false it simply creates a TD and puts your content inside it. This wrapper handles
-		everything from description to simple form field handling.
-	--->
-
-	<cfsavecontent variable="inputHTML">
-	<!--- <cfdump var="#attributes.renderMode#" expand="false"><br>	
-	<cfdump var="#variables.fieldpermission#" expand="false"><br> --->
+	<!--- // If the browser supports a textarea resizing handle apply the option --->
+	<cfif LEN(TRIM(xparams.resizeHandleOption)) AND ListFindNoCase(resizeOptions,xparams.resizeHandleOption)>
+	<style>
+		textarea###xparams.fldName# {
+			<cfif xparams.resizeHandleOption EQ "none">
+			resize: #xparams.resizeHandleOption#;
+			<cfelse>
+			overflow: auto; /* overflow is needed */  
+    		resize: #xparams.resizeHandleOption#; 
+			</cfif> 
+		}
+	</style>
+	</cfif>
 	
-	<cfoutput>
-	<textarea name="#fqFieldName#" id="#xparams.fldName#" cols="#xparams.columns#" rows="#xparams.rows#"<cfif LEN(TRIM(xparams.fldClass))> class="#xparams.fldClass#"</cfif> wrap="#xparams.wrap#"<cfif readOnly> readonly="readonly"</cfif>>#currentValue#</textarea>
-	</cfoutput>
+	<cfsavecontent variable="inputHTML">
+		<cfoutput>
+		<textarea name="#fqFieldName#" id="#xparams.fldName#" cols="#xparams.columns#" rows="#xparams.rows#"<cfif LEN(TRIM(xparams.fldClass))> class="#xparams.fldClass#"</cfif> wrap="#xparams.wrap#"<cfif readOnly> readonly="readonly"</cfif>>#currentValue#</textarea>
+		</cfoutput>
 	</cfsavecontent>
 	
 	<!--- JavaScript validation --->
@@ -121,17 +130,26 @@ History:
 			//fieldLen = document.getElementById('#fqFieldName#').value.length;
 			fieldLen = document.#attributes.formname#.#fqFieldName#.value.length;
 			//alert(fieldLen);
-			if (fieldLen <= #xparams.maxLength#)
+			if ( fieldLen <= #xparams.maxLength# )
 			{
 				return true;
 			}
 			else
 			{
 				alert(#fqFieldName#.msg);
-				return false;			}
+				return false;			
+			}
 		} */ --->
 	</script>
 
+	<!---
+		This CFT is using the forms lib wrapFieldHTML functionality. The wrapFieldHTML takes
+		the Form Field HTML that you want to put into the TD of the right section of the CFT 
+		table row and helps with display formatting, adds the hidden simple form fields (if needed) 
+		and handles field permissions (other than read-only).
+		Optionally you can disable the field label and the field discription by setting 
+		the includeLabel and/or the includeDescription variables (found above) to false.  
+	--->
 	<!--- // Added the CS6 fieldPermission parameter  --->
 	#application.ADF.forms.wrapFieldHTML(inputHTML,fieldQuery,attributes,variables.fieldPermission,includeLabel,includeDescription)#
 </cfoutput>

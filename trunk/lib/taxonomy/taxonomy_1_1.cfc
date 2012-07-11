@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="taxonomy_1_1" extends="ADF.lib.taxonomy.taxonomy_1_0" hint="Taxonomy functions for the ADF Library">
 
-<cfproperty name="version" value="1_1_0">
+<cfproperty name="version" value="1_1_1">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Taxonomy_1_1">
 
@@ -84,6 +84,7 @@ History:
 	2009-06-22 - MFC - Created
 	2010-07-01 - GAC - Modified - Broke the getTopTerms query out as a separate function
 	2010-12-06 - SFS - Rewritten for ADF 1.5 release to eliminate need for taxonomy calls and uses taxonomy DB views instead
+	2012-05-30 - GAC - Updated the orderby logic to fix an issue with the termID and termName text concatenation with the CFParam
 --->
 <cffunction name="getTopTermsQueryForFacet" access="public" returntype="query" output="no" hint="Taxonomy function to return top terms as a query for the facet ID">
 	<cfargument name="facetID" type="numeric" required="yes" hint="Facet ID">
@@ -92,6 +93,19 @@ History:
 	
 	<cfscript>
 		var getTopTerms = QueryNew("temp");
+		var orderByText = "";
+		var orderByOptions = "ID,TermID,Name,TermName";		
+		
+		// Handle the ORDERBY parameter options
+		if ( LEN(TRIM(arguments.orderby)) AND ListFindNoCase(orderByOptions,arguments.orderby) )
+		{
+			if ( arguments.orderby EQ "ID" )
+				orderByText = "TermID";
+			else if ( arguments.orderby EQ "Name" )
+				orderByText = "TermName";
+			else
+				orderByText = arguments.orderby;		
+		}
 	</cfscript>
 
 	<cfquery name="getTopTerms" datasource="#request.site.datasource#">
@@ -100,8 +114,8 @@ History:
 		WHERE taxonomyid = <CFQUERYPARAM VALUE="#arguments.taxonomyID#" CFSQLTYPE="CF_SQL_INTEGER">
 		AND facetid = <CFQUERYPARAM VALUE="#arguments.facetID#" CFSQLTYPE="CF_SQL_INTEGER">
 		AND (toptermname is null <cfif request.site.sitedbtype is not 'oracle'>OR toptermname = ''</cfif>)
-		<cfif LEN(TRIM(arguments.orderby)) AND (arguments.orderby IS "NAME" OR arguments.orderby IS "ID")>
-		ORDER BY Term<cfqueryparam value="#arguments.orderby#" cfsqltype="cf_sql_varchar">
+		<cfif LEN(TRIM(orderByText))>
+		ORDER BY #orderByText#
 		</cfif>
 	</cfquery>
 

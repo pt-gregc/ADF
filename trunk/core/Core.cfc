@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2011.
+PaperThin, Inc. Copyright(C) 2012.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -40,14 +40,14 @@ History:
 --->
 <cfcomponent name="Core" hint="Core component for Application Development Framework">
 
-<cfproperty name="version" value="1_5_2">
+<cfproperty name="version" value="1_5_3">
 
 <cfscript>
-	variables.ADFversion = "1.5.2"; // use a dot delimited version number
+	variables.ADFversion = "1.5.3"; // use a dot delimited version number
 	// ADF Build Revision Number
-	variables.buildRev = "782";
+	variables.buildRev = "835";
 	// ADF Codename
-	variables.buildName = "Battlezone";
+	variables.buildName = "Tetris";
 	// CS product version, get the decimal value
 	variables.csVersion = Val(ListLast(request.cp.productversion, " "));
 </cfscript>

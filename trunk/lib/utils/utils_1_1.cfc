@@ -27,7 +27,7 @@ Name:
 Summary:
 	Util functions for the ADF Library
 Version:
-	1.1.0
+	1.1.2
 History:
 	2011-01-25 - MFC - Created
 	2011-02-01 - GAC - Added dependency to csData_1_1
@@ -35,7 +35,7 @@ History:
 --->
 <cfcomponent displayname="utils_1_1" extends="ADF.lib.utils.utils_1_0" hint="Util functions for the ADF Library">
 
-<cfproperty name="version" value="1_1_1">
+<cfproperty name="version" value="1_1_2">
 <cfproperty name="type" value="singleton">
 <cfproperty name="ceData" type="dependency" injectedBean="ceData_1_1">
 <cfproperty name="csData" type="dependency" injectedBean="csData_1_1">
@@ -640,6 +640,36 @@ History:
 	</cfif>
 
 	<cfreturn rtn>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+	T. Parker 
+Name:
+	$fileLastModifiedDateTime
+Summary:
+	Returns the last modified datetime stamp for a file
+	
+	To get the file last modified date of the calling script use:
+	thisModulePath = GetCurrentTemplatePath();
+	modDateTime = application.ADF.utils.fileLastModifiedDateTime(thisModulePath);
+Returns:
+	String
+Arguments:
+	String - filePath
+History:
+ 	2012-05-04 - GAC - Added
+--->
+ <cffunction name="fileLastModifiedDateTime" access="public" returntype="string" hint="Returns the last modified datetime stamp for a file">
+	<cfargument name="filePath" type="string" required="true" default="" hint="Full path to a file">
+	<cfscript>
+		var fileInfo = CreateObject("java","java.io.File").init(arguments.filePath);
+ 		var thisModuleLastModified = fileInfo.lastModified();
+ 		var thisModuleDateTime = createObject("java","java.util.Date").init(thisModuleLastModified);
+    	return thisModuleDateTime;
+	</cfscript>
 </cffunction>
 
 </cfcomponent>
