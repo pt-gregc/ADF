@@ -45,7 +45,7 @@ History:
 			 // Run our device detection to see if this is a mobile device.  Set cookie either way. 
 			 null = application.ADF.mobile.mobileDetect(setCookie="1");
 	  }
-	  if ((not isDefined("cookie.forceFullSite"))) {
+	  if (cookie.forceFullSite is "false") {
 		if ((isDefined("cookie.isMobileBrowser") and (cookie.isMobileBrowser is "true"))) {
 		// we have a mobile device.  See if we have previously redirected it to the mobile site --->
 			 redirected = application.ADF. mobile.getMobileRedirectCookie();
@@ -54,8 +54,7 @@ History:
 					// We are on the home page.  Time to redirect.  
 					redirected = application.ADF. mobile.setMobileRedirectCookie();
 					// redirect to mobile site
-					redirectTarget = "/mobile/index.cfm";
-					GetPageContext().getResponse().sendRedirect(redirectTarget);
+					application.ADF.utils.pageRedirect("/mobile/index.cfm");
 				}
 	    }   
 	}		
