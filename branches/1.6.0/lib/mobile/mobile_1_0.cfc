@@ -25,7 +25,7 @@ Author:
 Name:
 	mobile_1_0.cfc
 Summary:
-	Data Utils component functions for the ADF Library
+	Mobile component functions for the ADF Library
 Version:
 	1.0.1
 History:
@@ -189,6 +189,7 @@ Arguments:
 	Boolean - force - Forces JQuery script header to load.
 History:
 	2012-07-11 - DMB - Created
+	2012-07-24 - DMB - Added check to see if user is authenticated before running jQuery
 --->
 <cffunction name="loadJQueryMobile" access="public" output="true" returntype="void" hint="Loads the JQuery Mobile script if not loaded.">
 <cfargument name="version" type="string" required="false" default="1.1.0" hint="JQuery Mobile version to load.">
@@ -196,6 +197,15 @@ History:
 <cfif (not variables.scriptsService.isScriptLoaded("jquerymobile")) OR (arguments.force)>
 	<cfoutput>
 		<script type="text/javascript" src="/ADF/thirdParty/jquery/mobile/jquery.mobile-#arguments.version#.js"></script>
+		<link rel="stylesheet" href="/ADF/thirdParty/jquery/mobile/jquery.mobile-#arguments.version#.css" />
+		<!--- the following adds rel="external" to the Commonspot dashboard entrance menu --->
+		<cfif not (session.user.userid is "anonymous">
+			<script type="text/javascript">
+				jQuery(document).ready(function() { 
+				jQuery("##cs_entrance_menu a").attr("rel","external");
+			})
+			</script>
+		</cfif>
 	</cfoutput>
 	<!--- If we force, then don't record the loaded script --->
 	<cfif NOT arguments.force>
