@@ -34,28 +34,28 @@ History:
 <cfparam name="cgi.script_name" default="">
 <cfparam name="url.forcefullSite" default="False">
 <cfparam name="cookie.forceFullSite" default="False">
-
 <cfscript>
 	  PageFileName = listLast(cgi.script_name,"/");
-	  if (url.forcefullSite is 1) {
+	  if (url.forcefullSite is 1) { 
 			// Set a cookie that the user wants to view the full desktop version of the site --->
 			 cookie.forceFullSite = "True";
 	  }
-	  if (not (isDefined("cookie.isMobileBrowser"))) {
+	  if (not (isDefined("cookie.isMobileBrowser"))) { 
 			 // Run our device detection to see if this is a mobile device.  Set cookie either way. 
 			 null = application.ADF.mobile.mobileDetect(setCookie="1");
 	  }
-	  if (cookie.forceFullSite is "false") {
-		if ((isDefined("cookie.isMobileBrowser") and (cookie.isMobileBrowser is "true"))) {
-		// we have a mobile device.  See if we have previously redirected it to the mobile site --->
+	  if (cookie.forceFullSite is "false") { 
+		if ((isDefined("cookie.isMobileBrowser") and (cookie.isMobileBrowser is "true"))) { 
+		// we have a mobile device.  See if we have previously redirected it to the mobile site  
 			 redirected = application.ADF. mobile.getMobileRedirectCookie();
 				// User has not been previously redirected.  See if we're on the home page. 
-				if ((request.subsite.id is 1) and (pageFileName is "index.cfm"))  {
-					// We are on the home page.  Time to redirect.  
+				if ((request.subsite.id is 1) and (pageFileName is "index.cfm")) {
+					// Set our cookie flagging that a redirect has occurred. 
 					redirected = application.ADF. mobile.setMobileRedirectCookie();
-					// redirect to mobile site
+					// redirect to mobile site	
 					application.ADF.utils.pageRedirect("/mobile/index.cfm");
 				}
 	    }   
 	}		
-</cfscript>	
+</cfscript>
+
