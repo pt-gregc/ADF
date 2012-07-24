@@ -902,5 +902,28 @@ History:
 		return(final_list);
 	</cfscript>
 </cffunction>
-
+<!---
+/* ***************************************************************
+/*
+Author: 	Dave Beckstrom
+Name:
+	$pageRedirect
+Summary:
+	Redirects page to a new url via cflocation.  Useful for cfscript notation.
+Returns:
+	void
+Arguments:
+	String targetURL - URL target for cflocation.
+	String logFile [optional] - an alternative log file
+History:
+	2012-07-23 - DMB - Created
+--->
+<cffunction name="pageRedirect" access="public" returntype="void">
+	<cfargument name="targetURL" type="any" required="true">
+	<cfif arguments.targetURL contains "http">
+		<cflocation url="http://#arguments.targetURL#" addtoken="No">
+	<cfelse>
+		<cflocation url="#arguments.targetURL#" addtoken="No">
+	</cfif>
+</cffunction>
 </cfcomponent>
