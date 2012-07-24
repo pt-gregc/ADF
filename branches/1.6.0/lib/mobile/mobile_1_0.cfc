@@ -199,7 +199,7 @@ History:
 		<script type="text/javascript" src="/ADF/thirdParty/jquery/mobile/jquery.mobile-#arguments.version#.js"></script>
 		<link rel="stylesheet" href="/ADF/thirdParty/jquery/mobile/jquery.mobile-#arguments.version#.css" />
 		<!--- the following adds rel="external" to the Commonspot dashboard entrance menu --->
-		<cfif not (session.user.userid is "anonymous">
+		<cfif not (session.user.userid is "anonymous")>
 			<script type="text/javascript">
 				jQuery(document).ready(function() { 
 				jQuery("##cs_entrance_menu a").attr("rel","external");
