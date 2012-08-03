@@ -634,6 +634,7 @@ History:
 	2010-09-24 - GAC - Added an optional FIX for use with SQL2000. The FIX is commented out since SQL 2000 is not widely used.
 	2012-06-20 - GAC - Updated the SQL to allow CE Field names with underscores (_). Changed the 'AS {FIELDNAME}' to strip the "FIC_" instead of using a ListGetAt with an underscore delimiter.
 					 - Also added brackets [] around the {FIELDNAME} to allow for field names that might be reserved or non-standard SQL field names.
+	2012-08-03 - DMB - Added check for db type around the square brackets Greg added and rendered single quotes instead if under mySQL.
 --->
 <cffunction name="buildRealTypeView" access="public" returntype="boolean" hint="Builds ane lement view for the passed in element name">
 	<cfargument name="elementName" type="string" required="true" hint="element name to build the view table off of">
@@ -726,7 +727,7 @@ History:
 				<!--- ) as FieldID#ID#, --->
 				<!--- ) as #listGetAt(fieldName, 2, "_")#, --->
 				<!--- // Remove the "FIC_" from the CS field name when creating the column alias so this works with CE field names with underscores --->
-				 ) as [#ReplaceNoCase(fieldName, "FIC_", "")#],
+				 ) <cfif dbtype is 'MySQL'> as '#ReplaceNoCase(fieldName, "FIC_", "")#'<cfelse> as [#ReplaceNoCase(fieldName, "FIC_", "")#]</cfif>,
 			</cfloop>
 		   			PageID, controlID, formID<!--- , dateApproved, dateAdded --->
 			  FROM data_fieldvalue
