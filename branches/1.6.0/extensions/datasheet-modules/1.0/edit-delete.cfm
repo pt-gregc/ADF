@@ -31,6 +31,7 @@ History:
 	2011-02-15 - RAK - Updated to handle client side sorting in a better way.
 	2011-03-11 - MFC - Updated to add class "ADF-Edit-Delete" to TD for custom styling.
 	2012-03-08 - MFC - Updated the styles for the buttons to align left and be a fixed width.
+	2012-08-27 - MFC - Updated the styles for the buttons to be fixed width.
 --->
 <cfscript>
 	//Path to open the ligthbox to
@@ -76,11 +77,11 @@ History:
 			</cfif>
 			<style>
 				.ds-icons {
-					padding: 1px 10px;
+					padding: 1px 5px;
 					text-decoration: none;
-					margin-left: 10px;
-					margin-right: 10px;
-					width: 30px;
+					margin-left: 5px;
+					margin-right: 5px;
+					width: 16px;
 				}
 				.ds-icons:hover{
 					cursor:pointer;
