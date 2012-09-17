@@ -35,7 +35,7 @@ History:
 --->
 <cfcomponent displayname="utils_1_1" extends="ADF.lib.utils.utils_1_0" hint="Util functions for the ADF Library">
 
-<cfproperty name="version" value="1_1_2">
+<cfproperty name="version" value="1_1_3">
 <cfproperty name="type" value="singleton">
 <cfproperty name="ceData" type="dependency" injectedBean="ceData_1_1">
 <cfproperty name="csData" type="dependency" injectedBean="csData_1_1">
@@ -532,13 +532,14 @@ History:
 					 - removed the CFOUTPUTS and move all generated string values into the returned structure
 					 - added the hints to the parameters
 					 - moved to utils_1_1 since removing the CFOUTPUTS may change backwards compatiblity
+	2012-09-17 - MFC - Fixed cfargument "default" attribute for URLparams. 
 --->
 <cffunction name="buildPaginationStruct" access="public" returntype="struct">
 	<cfargument name="page" type="numeric" required="true" default="1" hint="the value of the current page">
 	<cfargument name="itemCount" type="numeric" required="true" default="0" hint="the total number of items">
 	<cfargument name="pageSize" type="numeric" required="true" default="1" hint="the number of items per page">
 	<cfargument name="showCount" type="boolean" required="false" default="true" hint="build the record results count string">
-	<cfargument name="URLparams" type="string" required="false" default="additional URL params for page links">
+	<cfargument name="URLparams" type="string" required="false" default="" hint="additional URL params for page links">
 	<cfargument name="listLimit" type="numeric" required="false" default="6" hint="the number of link structs that get built">
 	<cfargument name="linkSeparator" type="string" required="false" default="|" hint="a character(s) separator for between consecutive links">
 	<cfargument name="gapSeparator" type="string" required="false" default="..." hint="a character(s) separator for the gab between skipped links">
