@@ -533,6 +533,7 @@ History:
 					 - added the hints to the parameters
 					 - moved to utils_1_1 since removing the CFOUTPUTS may change backwards compatiblity
 	2012-09-17 - MFC - Fixed cfargument "default" attribute for URLparams. 
+	2012-09-18 - MFC - Validate that the URL Params arg starts with a leading "&" 
 --->
 <cffunction name="buildPaginationStruct" access="public" returntype="struct">
 	<cfargument name="page" type="numeric" required="true" default="1" hint="the value of the current page">
@@ -578,6 +579,10 @@ History:
 
 		rtn.itemStart = itemStart;
 		rtn.itemEnd = itemEnd;
+		
+		// Validate that the URL Params arg starts with a leading "&"
+		if ( LEN(arguments.URLparams) AND (LEFT(arguments.URLparams,1) NEQ "&") )
+			arguments.URLparams = "&" & arguments.URLparams;
 	</cfscript>
 
 	<!--- // Moved the Record Count string into the rtn Struct --->
