@@ -934,12 +934,13 @@ History:
 	2011-06-01 - MTT - Created
 	2011-06-24 - GAC - Added CFOUTPUTS around the renderScriptOnce method call
 	2011-09-09 - RAK - Added cfoutput tags to the cfsavecontent
+	2012-10-01 - MFC - Fixed case issue with the path.
 --->
 <cffunction name="loadJQueryDump" access="public" output="true" returntype="void" hint="Loads the dump plugin for jquery">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
-			<script type="text/javascript" src="/ADF/thirdparty/jquery/dump/jquery.dump.js"></script>
+			<script type="text/javascript" src="/ADF/thirdParty/jquery/dump/jquery.dump.js"></script>
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
