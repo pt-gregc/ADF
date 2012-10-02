@@ -77,6 +77,6 @@ History:
 	<input type="hidden" id="#fqFieldName#" name="#fqFieldName#" value="#currentValue#">
 	<!--- // include hidden field for simple form processing --->
 	<cfif renderSimpleFormField>
-		<input type="hidden" name="#fqFieldName#_FIELDNAME" id="#fqFieldName#_FIELDNAME" value="##ReplaceNoCase(xParams.fieldName, 'fic_','')#">
+		<input type="hidden" name="#fqFieldName#_FIELDNAME" id="#fqFieldName#_FIELDNAME" value="#ReplaceNoCase(xParams.fieldName, 'fic_','')#">
 	</cfif>
 </cfoutput>
