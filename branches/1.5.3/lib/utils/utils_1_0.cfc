@@ -905,7 +905,9 @@ History:
 
 <!---
 /* *************************************************************** */
-Author: 	Dave Beckstrom
+Author: 	
+	PaperThin, Inc.
+	Dave Beckstrom
 Name:
 	$pageRedirect
 Summary:
