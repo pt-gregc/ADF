@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2011.
+PaperThin, Inc. Copyright(C) 2012.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -36,19 +36,22 @@ History:
 						to avoid dependencies on functions in CSData v1.1.
 	2012-02-17 - GAC - Enhancement to the getCustomMetadataFieldsByCSPageID function add field params to the values Custom MetaData form/field structure
 					 - Added two additional function getCustomMetadataFieldParamValue and getCustomMetadatawithFieldLabelsKeys 
+	2012-09-10 - GAC - Updated inconsistant comment headers
+					 - Added a csPageID parameter to the getRSSFeedURLFromElementID element
 --->
 <cfcomponent displayname="csData_1_1" extends="ADF.lib.csData.csData_1_0" hint="CommonSpot Data Utils functions for the ADF Library">
 	
-<cfproperty name="version" value="1_1_3">
+<cfproperty name="version" value="1_1_4">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_1">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">
 <cfproperty name="wikiTitle" value="CSData_1_1">
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 
+	PaperThin, Inc.	
+	Ron West
 Name:
 	$getCustomMetadata
 Summary:
@@ -145,8 +148,7 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	
 	PaperThin, Inc.
 	Ryan Kahn
@@ -296,11 +298,15 @@ Returns:
 	string
 Arguments:
 	Numeric elementID
+	Numeric csPageID
 History:
 	2010-10-15 - RAK - Created
+	2012-09-12 - GAC - Added a CSPAGEID parameter so when a element has been added to the template level it returns the RSS Feed path for the 
+						element data from the specific commonspot page. Set the parameter to 'not required' to maintain backwards compatiblity.	
 --->
 <cffunction name="getRSSFeedURLFromElementID" access="public" returntype="string" hint="Given an elementID get the RSS feed url">
 	<cfargument name="elementID" required="true" type="numeric" hint="attributes.elementinfo.id">
+	<cfargument name="csPageID" required="false" type="numeric" default="0" hint="request.page.id">
 	<cfscript>
 		var rssData = "";
 		var pageURL = "";
@@ -309,6 +315,9 @@ History:
 		select xpub.pageid, xfmt.name as fmtName, xpub.name as pubName from xmlpublications xpub
 		join xmlpublicationformat xfmt on xfmt.XMLPublicationFormatID = xpub.XMLPublicationFormatID
 		where xpub.controlid = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.elementID#">
+		<cfif IsNumeric(csPageID) AND csPageID GT 0>
+		and xpub.pageid = <cfqueryparam cfsqltype="cf_sql_integer" value="#csPageID#">
+		</cfif>
 	</cfquery>
 	<cfif rssData.recordCount>
 		<cfscript>
@@ -321,7 +330,9 @@ History:
 
 <!---
 /* *************************************************************** */
-Author: 	Greg Cronkright
+Author: 
+	PaperThin, Inc.	
+	Greg Cronkright
 Name:
 	$findReplaceStandardMetadata
 Summary:
@@ -409,7 +420,9 @@ History:
 
 <!---
 /* *************************************************************** */
-Author: 	Ron West
+Author: 
+	PaperThin, Inc.	
+	Ron West
 Name:
 	$getStandardMetadata
 Summary:
@@ -514,7 +527,9 @@ History:
 
 <!---
 /* *************************************************************** */
-Author: 	G. Cronkright
+Author: 
+	PaperThin, Inc.	
+	G. Cronkright
 Name:
 	$getGlobalKeywords
 Summary:
@@ -571,9 +586,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	R. West
+/* *************************************************************** */
+Author: 
+	PaperThin, Inc.	
+	R. West
 Name:
 	$getElementsByPageID
 Summary:
