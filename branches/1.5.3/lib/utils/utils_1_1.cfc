@@ -35,7 +35,7 @@ History:
 --->
 <cfcomponent displayname="utils_1_1" extends="ADF.lib.utils.utils_1_0" hint="Util functions for the ADF Library">
 
-<cfproperty name="version" value="1_1_3">
+<cfproperty name="version" value="1_1_4">
 <cfproperty name="type" value="singleton">
 <cfproperty name="ceData" type="dependency" injectedBean="ceData_1_1">
 <cfproperty name="csData" type="dependency" injectedBean="csData_1_1">
