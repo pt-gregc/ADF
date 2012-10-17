@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
  
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2011.
+PaperThin, Inc. Copyright(C) 2012.
 All Rights Reserved.
  
 By downloading, modifying, distributing, using and/or accessing any files
@@ -48,6 +48,7 @@ History:
 	2012-03-19 - MFC - Added "loadAvailable" option to set if the available selections load
 						when the form loads.
 					   Added the new records will load into the "selected" area when saved.
+	2012-07-31 - MFC - Replaced the CFJS function for "ListLen" and "ListFindNoCase".
 --->
 <cfscript>
 	// the fields current value
@@ -201,14 +202,16 @@ History:
 		function #xParams.fieldID#_formCallback(formData){
 			
 			// Load the newest item onto the selected values
-			if ( jQuery.ListLen(#xParams.fieldID#currentValue) > 0 ){
+			// 2012-07-31 - MFC - Replaced the CFJS function for "ListLen" and "ListFindNoCase".
+			if ( #xParams.fieldID#currentValue.length > 0 ){
 				// Check that the record does not exist in the list already
-				if ( jQuery.ListFindNoCase(#xParams.fieldID#currentValue, formData[js_#xParams.fieldID#_CE_FIELD]) <= 0 )	
+				tempValue = #xParams.fieldID#currentValue.search(formData[js_#xParams.fieldID#_CE_FIELD]); 
+				if ( tempValue.length > 0 )
 					#xParams.fieldID#currentValue = jQuery.ListAppend(formData[js_#xParams.fieldID#_CE_FIELD], #xParams.fieldID#currentValue);
 			}
 			else 
 				#xParams.fieldID#currentValue = formData[js_#xParams.fieldID#_CE_FIELD];
-				
+		
 			//alert(#xParams.fieldID#currentValue);
 			// load current values into the form field
 			jQuery("input###fqFieldName#").val(#xParams.fieldID#currentValue);
