@@ -272,6 +272,7 @@ History:
 				if ( StructKeyExists(application.ADF.beanConfig.getConfigStruct(), beanData.beanName) ){
 					// Get the nickname of the CFC to override
 					if ( StructKeyExists(application.ADF.beanConfig.getConfigStruct(), arguments.appBeanName)
+							AND StructKeyExists(application.ADF.beanConfig.getConfigStruct()[arguments.appBeanName], "CONSTRUCTORDEPENDENCYSTRUCT")
 							AND StructKeyExists(application.ADF.beanConfig.getConfigStruct()[arguments.appBeanName].CONSTRUCTORDEPENDENCYSTRUCT, beanData.beanName) ){
 						beanData.cfcName = application.ADF.beanConfig.getConfigStruct()[arguments.appBeanName].CONSTRUCTORDEPENDENCYSTRUCT[beanData.beanName];
 					}
