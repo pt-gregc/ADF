@@ -35,7 +35,7 @@ History:
 --->
 <cfcomponent name="AppBase" extends="ADF.core.Base" hint="App Base component for the ADF">
 
-<cfproperty name="version" value="1_5_0">
+<cfproperty name="version" value="1_5_3">
 
 <cffunction name="init" output="true" returntype="any">
 	<cfscript>
@@ -239,6 +239,9 @@ History:
 	2010-04-06 - MFC - Code cleanup.
 	2010-04-08 - MFC - Updated the Library overrides to pull from the "/lib/" directory
 							not the "/components/lib/" in the sites application directory.
+	2012-10-18 - MFC - Check to see if a bean already exists within an app, and load in the override.
+						Resolves the issue with the bean and CFC name being different names loaded into the
+						App Bean Config.
 --->
 <cffunction name="loadSiteAppComponents" access="private" returntype="void" hint="Stores the site specific components in '/_cs_apps/components' into application.ADF space."> 
 	<cfargument name="appBeanName" type="string" required="true" default="" hint="ADF lightwire bean name.">
@@ -264,6 +267,16 @@ History:
 			for ( i = 1; i LTE siteComponentsFiles.RecordCount; i = i + 1)
 			{
 				beanData = application.ADF.beanConfig.buildBeanDataStruct(siteComponentsFiles.directory[i], siteComponentsFiles.name[i]);
+
+				// 2012-10-18 - Check to see if a bean already exists within an app, and load in the override.
+				if ( StructKeyExists(application.ADF.beanConfig.getConfigStruct(), beanData.beanName) ){
+					// Get the nickname of the CFC to override
+					if ( StructKeyExists(application.ADF.beanConfig.getConfigStruct(), arguments.appBeanName)
+							AND StructKeyExists(application.ADF.beanConfig.getConfigStruct()[arguments.appBeanName].CONSTRUCTORDEPENDENCYSTRUCT, beanData.beanName) ){
+						beanData.cfcName = application.ADF.beanConfig.getConfigStruct()[arguments.appBeanName].CONSTRUCTORDEPENDENCYSTRUCT[beanData.beanName];
+					}
+				}
+				
 				// Add the bean into the Application ADF objectfactory
 				application.ADF.BeanConfig.addSingleton(beanData.cfcPath, beanData.beanName);
 				application.ADF.BeanConfig.addConstructorDependency(arguments.appBeanName, beanData.beanName, beanData.cfcName);
