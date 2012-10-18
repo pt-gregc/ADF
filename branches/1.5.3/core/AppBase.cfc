@@ -256,7 +256,9 @@ History:
 		var beanData = StructNew();
 		var i = 1;
 		var refreshObjFactory = false;
-	
+
+		var beanConfigStruct = application.ADF.beanConfig.getConfigStruct();
+			
 		// Check if there is a 'components' directory in the site
 		if ( directoryExists(expandPath(comPath)) ) {
 			utilsObj = server.ADF.objectFactory.getBean("utils_1_0");
@@ -269,12 +271,12 @@ History:
 				beanData = application.ADF.beanConfig.buildBeanDataStruct(siteComponentsFiles.directory[i], siteComponentsFiles.name[i]);
 
 				// 2012-10-18 - Check to see if a bean already exists within an app, and load in the override.
-				if ( StructKeyExists(application.ADF.beanConfig.getConfigStruct(), beanData.beanName) ){
+				if ( StructKeyExists(beanConfigStruct, beanData.beanName) ){
 					// Get the nickname of the CFC to override
-					if ( StructKeyExists(application.ADF.beanConfig.getConfigStruct(), arguments.appBeanName)
-							AND StructKeyExists(application.ADF.beanConfig.getConfigStruct()[arguments.appBeanName], "CONSTRUCTORDEPENDENCYSTRUCT")
-							AND StructKeyExists(application.ADF.beanConfig.getConfigStruct()[arguments.appBeanName].CONSTRUCTORDEPENDENCYSTRUCT, beanData.beanName) ){
-						beanData.cfcName = application.ADF.beanConfig.getConfigStruct()[arguments.appBeanName].CONSTRUCTORDEPENDENCYSTRUCT[beanData.beanName];
+					if ( StructKeyExists(beanConfigStruct, arguments.appBeanName)
+							AND StructKeyExists(beanConfigStruct[arguments.appBeanName], "CONSTRUCTORDEPENDENCYSTRUCT")
+							AND StructKeyExists(beanConfigStruct[arguments.appBeanName].CONSTRUCTORDEPENDENCYSTRUCT, beanData.beanName) ){
+						beanData.cfcName = beanConfigStruct[arguments.appBeanName].CONSTRUCTORDEPENDENCYSTRUCT[beanData.beanName];
 					}
 				}
 				
