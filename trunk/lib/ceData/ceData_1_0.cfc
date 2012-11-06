@@ -33,10 +33,11 @@ History:
 	2010-12-21 - MFC - v1.0.1 - Added buildRealTypeView and buildCEDataArrayFromQuery functions.
 	2012-03-01 - DMB - v1.0.2 - Fixed getFormIDByCEName to work for simpleforms not based on a Custom Element.
 	2012-03-19 - GAC - Updated and fixed comment headers
+	2012-07-25 - GAC - v1.0.5 - Fixed an issue with getPageIDForElement using MSSQL specific concatenation.
 --->
 <cfcomponent displayname="ceData_1_0" extends="ADF.core.Base" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_4">
+<cfproperty name="version" value="1_0_5">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_0">
 <cfproperty name="data" type="dependency" injectedBean="data_1_0">
@@ -914,6 +915,7 @@ History:
 	2011-05-03 - RAK - Added the ability to search the memo field also
 	2012-04-11 - GAC - Removed the MSSQL specific concatenation (+) in the LIKE statements in the SEARCH queryType for MySQL compatibility 
 					 - Removed the brackets around the MemoValue field name both updates for MySQL compatibility 
+	2012-07-12 - GAC - Removed the MSSQL specific concatenation (+) in the LIKE statements in the SEARCHINLIST queryType
 --->
 <cffunction name="getPageIDForElement" access="public" returntype="query" hint="Returns Page ID Query in Data_FieldValue matching Form ID">
 	<cfargument name="formid" type="numeric" required="true">
@@ -1023,8 +1025,9 @@ History:
 			<cfelseif arguments.queryType EQ "searchInList">
 				AND fieldID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.fieldID#">
 				<!--- Filter down the result set with a search --->
+				<!--- 2012-07-12 - GAC - Removed the MSSQL specific concatenation (+) in the LIKE statement --->
 				<cfloop from="1" to="#ListLen(arguments.item)#" index="itm">
-					AND	LOWER(fieldValue) LIKE '%' + <cfqueryparam cfsqltype="cf_sql_varchar" value="#ListGetAt(arguments.item, itm)#"> + '%'
+					AND	LOWER(fieldValue) LIKE <cfqueryparam cfsqltype="cf_sql_varchar" value="%#ListGetAt(arguments.item, itm)#%">
 				</cfloop>
 			</cfif>
 		</cfif>

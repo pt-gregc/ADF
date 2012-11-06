@@ -634,6 +634,10 @@ History:
 	2010-09-24 - GAC - Added an optional FIX for use with SQL2000. The FIX is commented out since SQL 2000 is not widely used.
 	2012-06-20 - GAC - Updated the SQL to allow CE Field names with underscores (_). Changed the 'AS {FIELDNAME}' to strip the "FIC_" instead of using a ListGetAt with an underscore delimiter.
 					 - Also added brackets [] around the {FIELDNAME} to allow for field names that might be reserved or non-standard SQL field names.
+	2012-08-03 - DMB - Added check for db type around the square brackets Greg added and rendered single quotes instead if under mySQL.
+	2012-10-16 - DMB - Updated to use the memovalue field for fields longer than 850 characters.
+	2012-10-24 - GAC - Added a db type version check to uncomment the fix for using nvarchar(4000) instead of nvarchar(max) for older versions of MSSQL.
+					 - Moved the memovalue field fix into the conditional logic for MySQL. In the old position the syntax caused MSSQL view table creation to fail. 
 --->
 <cffunction name="buildRealTypeView" access="public" returntype="boolean" hint="Builds ane lement view for the passed in element name">
 	<cfargument name="elementName" type="string" required="true" hint="element name to build the view table off of">
@@ -643,12 +647,18 @@ History:
 		var viewCreated = false;
 		var formID = getFormIDByCEName(arguments.elementName);
 		var dbType = Request.Site.SiteDBType;
+		var dbInfo = server.commonspot.datasources[request.site.datasource];
+		var dbVersion = "";
 		var realTypeView = '';
 		var fieldsSQL = '';
 		var fldqry = '';
 		var intType = '';
 		// Remove the spaces in the name
 		arguments.viewName = Replace(arguments.viewName, " ", "_", "all");
+		// Set the db version if available 
+		if ( StructKeyExists(dbInfo,"version") )
+			dbVersion = ListFirst(dbInfo.version,".");
+		// Set datatypes for different db types
 		switch (dbtype)
 		{
 			case 'Oracle':
@@ -709,13 +719,14 @@ History:
 										--->
 										<!--- WHEN length(memovalue) < 4000 THEN CAST(memovalue as varchar2(4000)) --->
 										<!--- ELSE CAST([memovalue] AS nvarchar2(2000)) --->
+									<cfelseif dbtype is 'SQLServer' AND dbVersion LT 9><!--- // 9 = MSSQL 2005 --->
+										<!--- // nvarchar(max) FIX FOR MSSQL 2000 and below --->
+										ELSE CAST([memovalue] AS nvarchar(4000))
 									<cfelseif dbtype is 'SQLServer'>
 										ELSE CAST([memovalue] AS nvarchar(max))
-										<!--- // TODO: conditional logic could be added to determine SQLServer version --->
-										<!--- // Or this function could be added to the site level override and the ELSE line below can replace the ELSE line above --->
-										<!--- // FIX FOR MSSQL 2000 --->
-										<!--- ELSE CAST([memovalue] AS nvarchar(4000)) --->
 									<cfelse>
+										<!--- // MySQL fix for when memovalue (instead of fieldvalue) is used up due to the data being over 850 characters --->
+										WHEN memoValue <> '' THEN memovalue
 										<!--- Don't CAST if using MySQL --->
 									</cfif>
 								END
@@ -726,7 +737,7 @@ History:
 				<!--- ) as FieldID#ID#, --->
 				<!--- ) as #listGetAt(fieldName, 2, "_")#, --->
 				<!--- // Remove the "FIC_" from the CS field name when creating the column alias so this works with CE field names with underscores --->
-				 ) as [#ReplaceNoCase(fieldName, "FIC_", "")#],
+				 ) <cfif dbtype is 'MySQL'> as '#ReplaceNoCase(fieldName, "FIC_", "")#'<cfelse> as [#ReplaceNoCase(fieldName, "FIC_", "")#]</cfif>,
 			</cfloop>
 		   			PageID, controlID, formID<!--- , dateApproved, dateAdded --->
 			  FROM data_fieldvalue
