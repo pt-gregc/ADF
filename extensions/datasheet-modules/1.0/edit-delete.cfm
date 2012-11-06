@@ -31,6 +31,7 @@ History:
 	2011-02-15 - RAK - Updated to handle client side sorting in a better way.
 	2011-03-11 - MFC - Updated to add class "ADF-Edit-Delete" to TD for custom styling.
 	2012-03-08 - MFC - Updated the styles for the buttons to align left and be a fixed width.
+	2012-09-18 - MFC - Add a blank sort value to field.
 --->
 <cfscript>
 	//Path to open the ligthbox to
@@ -110,3 +111,5 @@ History:
 	</cfoutput>
 </cfsavecontent>
 <cfset request.datasheet.currentFormattedValue = tdHTML>
+<!--- Add a blank sort value --->
+<cfset request.datasheet.currentSortValue = "">

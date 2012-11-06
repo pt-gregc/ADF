@@ -127,6 +127,7 @@ Arguments:
 History:
 	2009-01-20 - MFC - Created
 	2011-09-01 - GAC - Modified - Added a flag to force all query columns to be varchar datatype
+	2012-09-21 - AW  - Updated - Updates to support Railo
 --->
 <cffunction name="arrayOfStructuresToQuery" access="public" returntype="query">
 	<cfargument name="theArray" type="array" required="true">
@@ -143,41 +144,46 @@ History:
 		* @author David Crawford (rbils@amkor.comdcrawford@acteksoft.com)
 		* @version 2, March 19, 2003
 		*/
-	    var colNames = "";
-	    var theQuery = QueryNew("tmp");
-	    var i=0;
-	    var j=0;
-	    var c=0;
-	    var colNamesList = "";
-	    var colTypesList = "";
-	    //if there's nothing in the array, return the empty query
-	    if ( NOT arrayLen(arguments.theArray) )
-	        return theQuery;
-	    //get the column names into an array =
-	    colNames = structKeyArray(arguments.theArray[1]);
-	    //convert the colNames Array to a list
-	    colNamesList = arrayToList(colNames);
-	    //build the query based on the colNames
-	    if ( arguments.forceColsToVarchar )
-	    {
-	  		// Create a dataTypes list of all VarChar to pass in to the QueryNew function 
-	  		for ( c=1; c LTE ListLen(colNamesList); c=c+1)
-	    		colTypesList = ListAppend(colTypesList,"VarChar");
-	    	theQuery = queryNew(colNamesList,colTypesList);    
-	    }
-	    else
-	    {
-	    	theQuery = queryNew(colNamesList);
-	    }
-	    //add the right number of rows to the query
-	    queryAddRow(theQuery, arrayLen(arguments.theArray));
-	    //for each element in the array, loop through the columns, populating the query
-	    for(i=1; i LTE arrayLen(arguments.theArray); i=i+1){
-	        for(j=1; j LTE arrayLen(colNames); j=j+1){
-	            querySetCell(theQuery, colNames[j], arguments.theArray[i][colNames[j]], i);
-	        }
-	    }
-	    return theQuery;
+		var colNames = "";
+		var theQuery = QueryNew("tmp");
+		var i = 0;
+		var j = 0;
+		var c = 0;
+		var foo = "";
+		var count = arrayLen(arguments.theArray);
+		var col_num = 0;
+		var item = "";
+
+		//if there's nothing in the array, return the empty query
+		if (count eq 0)
+			return theQuery;
+		//get the column names into an array =
+		colNames = structKeyArray(arguments.theArray[1]);
+		col_num = ArrayLen(colNames);
+		//build the query based on the colNames
+		if (arguments.forceColsToVarchar)
+			theQuery = queryNew(arrayToList(colNames), RepeatString("varchar,", col_num));    
+		else
+			theQuery = queryNew(arrayToList(colNames));
+		//add the right number of rows to the query
+		queryAddRow(theQuery, count);
+		//for each element in the array, loop through the columns, populating the query
+		for(i=1; i LTE count; i=i+1)
+		{
+			item = arguments.theArray[i];
+			for(j=1; j LTE col_num; j=j+1)
+			{
+				foo = '';
+				if (StructKeyExists(item, colNames[j]))
+					foo = item[colNames[j]];
+
+				if (NOT IsSimpleValue(foo))
+					foo = '';
+
+				querySetCell(theQuery, colNames[j], foo, i);
+			}
+		}
+		return theQuery;
 	</cfscript>
 
 </cffunction>

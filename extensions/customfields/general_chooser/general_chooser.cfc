@@ -419,6 +419,7 @@ History:
 	2012-01-20 - GAC - Added the title attribute to the DIV wrapper around Item info since the display is truncated
 					 - Added logic to display an ellipsis if the the Display text for an Item get truncated
 	2012-01-23 - GAC - Added a DISPLAY_TEXT variable to allow different item Display Text from what is used for the ORDER_FIELD
+	2012-09-06 - MFC - Updated to build the display text outside of the main string build.
 --->
 <cffunction name="getSelections" access="public" returntype="string" hint="Returns the html code for the selections of the profile select custom element.">
 	<cfargument name="item" type="string" required="false" default="">
@@ -455,8 +456,12 @@ History:
 				    // Set the item class to add the spacing for the edit/delete links
 				    itemCls = itemCls & " itemEditDelete";
 				}
+				// Set the display text and determine if need "..."
+				displayText = LEFT(ceDataArray[i].Values[variables.DISPLAY_FIELD],26);
+				if ( LEN(displayText) GT 26 )
+					displayText = displayText & "...";
 				// Build the item, and add the Edit/Delete links
-				retHTML = retHTML & "<li id='#ceDataArray[i].Values[variables.CE_FIELD]#' class='#itemCls#'><div class='itemCell' title='#ceDataArray[i].Values[variables.DISPLAY_FIELD]#'>#LEFT(ceDataArray[i].Values[variables.DISPLAY_FIELD],26)#<cfif LEN(ceDataArray[i].Values[variables.DISPLAY_FIELD])) GT 26>...</cfif>#editDeleteLinks#</div></li>";
+				retHTML = retHTML & "<li id='#ceDataArray[i].Values[variables.CE_FIELD]#' class='#itemCls#'><div class='itemCell' title='#ceDataArray[i].Values[variables.DISPLAY_FIELD]#'>#displayText##editDeleteLinks#</div></li>";
 			}
 		}
 	</cfscript>

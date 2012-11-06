@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="utils_1_0" extends="ADF.core.Base" hint="Util functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_1">
+<cfproperty name="version" value="1_0_2">
 <cfproperty name="type" value="singleton">
 <cfproperty name="ceData" type="dependency" injectedBean="ceData_1_0">
 <cfproperty name="wikiTitle" value="Utils_1_0">
@@ -73,9 +73,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 
+	PaperThin, Inc.	
+	Ron West
 Name:
 	$logAppend
 Summary:
@@ -115,21 +116,23 @@ History:
 		</cfcatch>
 	</cftry>
 </cffunction>
+
 <!---
-	/* ***************************************************************
-	/*
-	Author: 	Ron West
-	Name:
-		$bulkLogAppend
-	Summary:	
-		Takes an array of log writes and calls log append with each write
-	Returns:
-		Void
-	Arguments:
-		Array logs
-	History:
-		2009-07-09 - RLW - Created
-	--->
+/* *************************************************************** */
+Author: 
+	PaperThin, Inc.		
+	Ron West
+Name:
+	$bulkLogAppend
+Summary:	
+	Takes an array of log writes and calls log append with each write
+Returns:
+	Void
+Arguments:
+	Array logs
+History:
+	2009-07-09 - RLW - Created
+--->
 <cffunction name="bulkLogAppend" access="public" returntype="void" hint="Takes an array of log writes and calls log append with each write">
 	<cfargument name="logs" type="array" required="true" hint="Array of log append records">
 	<cfscript>
@@ -144,10 +147,12 @@ History:
 		}
 	</cfscript>
 </cffunction>
+
 <!---
-/* ***************************************************************
-/*
-Author: 	M. Carroll
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.	
+	M. Carroll
 Name:
 	$doDump
 Summary:
@@ -198,20 +203,21 @@ History:
 </cffunction>
 
 <!---
-	/* ***************************************************************
-	/*
-	Author: 	M. Carroll
-	Name:
-		$directoryFiles
-	Summary:
-		Returns the files for the directory
-	Returns:
-		Query - Directory files
-	Arguments:
-		String - Directory path
-		String - Recurse Value
-	History:
-		2009-05-11 - MFC - Created
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.	
+	M. Carroll
+Name:
+	$directoryFiles
+Summary:
+	Returns the files for the directory
+Returns:
+	Query - Directory files
+Arguments:
+	String - Directory path
+	String - Recurse Value
+History:
+	2009-05-11 - MFC - Created
 --->
 <cffunction name="directoryFiles" returntype="query" access="public" output="true" hint="Returns the files for the directory.">
 	<cfargument name="dirPath" type="string" required="true" default="">
@@ -226,22 +232,23 @@ History:
 </cffunction>
 
 <!---
-	/* ***************************************************************
-	/*
-	Author: 	M. Carroll
-	Name:
-		$filterQueryByCFCFile
-	Summary:
-		Filters the files for the directory query to find the whereCondValue file.
-	Returns:
-		Query
-	Arguments:
-		String - Directory Query
-		String - whereCondValue
-		String - whereOperator
-		String - Query Type
-	History:
-		2009-06-22 - MFC - Created
+/* *************************************************************** */
+Author: 
+	PaperThin, Inc.		
+	M. Carroll
+Name:
+	$filterQueryByCFCFile
+Summary:
+	Filters the files for the directory query to find the whereCondValue file.
+Returns:
+	Query
+Arguments:
+	String - Directory Query
+	String - whereCondValue
+	String - whereOperator
+	String - Query Type
+History:
+	2009-06-22 - MFC - Created
 --->
 <cffunction name="filterDirectoryQueryByType" access="public" returntype="query" output="true" hint="Filters the query to find the CFC file name.">
 	<cfargument name="dirQuery" type="query" required="true" default="">
@@ -264,9 +271,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	M Carroll
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.	
+	M Carroll
 Name:
 	$setScheduledTask
 Summary:
@@ -308,9 +316,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	M Carroll
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.	
+	M Carroll
 Name:
 	$deleteScheduledTask
 Summary:
@@ -375,10 +384,12 @@ History:
 		return newPath; 
 	</cfscript>
 </cffunction>
+
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.	
+	Ron West
 Name:
 	$getFieldTypes
 Summary:	
@@ -408,10 +419,12 @@ History:
 	</cfif>
 	<cfreturn fieldTypes>
 </cffunction>
+
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.	
+	Ron West
 Name:
 	$updateCustomFieldType
 Summary:	
@@ -460,6 +473,7 @@ History:
 	</cftry>
 	<cfreturn results>
 </cffunction>
+
 <!---
 /**
 * From CFLib on 11/27/2009
@@ -541,10 +555,12 @@ History:
 	    zipFile.close();
 	</cfscript>
 </cffunction>
+
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.	
+	Ron West
 Name:
 	$scriptExists
 Summary:	
@@ -563,10 +579,12 @@ History:
 	</cfscript>
 	<cfreturn exists>
 </cffunction>
+
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.	
+	Ron West
 Name:
 	$updateListItems
 Summary:	
@@ -678,10 +696,12 @@ History:
 	</cfif>
 	<cfreturn results>
 </cffunction>
+
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.	
+	Ron West
 Name:
 	$fieldTypeIsList
 Summary:	

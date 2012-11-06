@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2010.
+PaperThin, Inc. Copyright(C) 2012.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -27,7 +27,7 @@ Name:
 Summary:
 	Scripts functions for the ADF Library
 Version:
-	1.1.0
+	1.1
 History:
 	2010-10-04 - RAK - Created - New v1.1
 						Made massive revisons to script loading everything now goes 
@@ -35,18 +35,20 @@ History:
 	2011-06-24 - GAC - Removed a misplaced double </cfcomponent> end tag
 	2012-02-15 - MTT - Re-ordered the functions by name - ascending. This makes it easier to easily find the function you 
 						want or want to add. 
+	2012-08-16 - GAC - Added the force parameter to all the functions that did not already have it
 --->
 <cfcomponent displayname="scripts_1_1" extends="ADF.lib.scripts.scripts_1_0" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" default="1_1_8">
+<cfproperty name="version" default="1_1_10">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_1" type="dependency">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Scripts_1_1">
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
 Name:
 	$jQueryUIButtonClass
 Summary:	
@@ -75,6 +77,7 @@ Returns:
 	None
 Arguments:
 	String - version - ADF Lightbox version to load
+	Boolean - Force
 History:
 	2009-10-27 - MFC - Created
 	2009-11-17 - RLW - Updated to set dynamic ajaxProxy
@@ -91,7 +94,6 @@ History:
 <cffunction name="loadADFLightbox" access="public" output="true" returntype="void" hint="ADF Lightbox Framework for the ADF Library">
 	<cfargument name="version" type="string" required="false" default="1.0" hint="ADF Lightbox version to load">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
-	
 	<cfset var outputHTML = "">
 	<cfoutput>
 		#LoadJQuery(force=arguments.force)#
@@ -228,9 +230,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
 Name:
 	$loadADFStyles
 Summary:	
@@ -238,11 +241,13 @@ Summary:
 Returns:
 	Void
 Arguments:
-	Void
+	Boolean - Force
 History:
 	2009-05-28 - RLW - Created
+	2012-08-16 - GAC - Added the force parameter
 --->
 <cffunction name="loadADFStyles" access="public" returntype="void">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
@@ -250,14 +255,19 @@ History:
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
-		#variables.scriptsService.renderScriptOnce("ADFStyles",outputHTML)#
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("ADFStyles",outputHTML)#
+		</cfif>
 	</cfoutput>
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	G. Cronkright
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	G. Cronkright
 Name:
 	$loadAutoGrow
 Summary:
@@ -266,11 +276,14 @@ Returns:
 	None
 Arguments:
 	String - version - AutoGrow version to load.
+	Boolean - Force
 History:
 	2009-06-18 - GAC - Created
+	2012-08-16 - GAC - Added the force parameter
 --->
 <cffunction name="loadAutoGrow" access="public" output="true" returntype="void" hint="Loads the AutoGrow jQuery Plug-in Headers if not loaded.">
 	<cfargument name="version" type="string" required="false" default="1.2.2" hint="AutoGrow version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
@@ -278,14 +291,19 @@ History:
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
-		#variables.scriptsService.renderScriptOnce("autogrow",outputHTML)#
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("autogrow",outputHTML)#
+		</cfif>
 	</cfoutput>
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	G. Cronkright
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	G. Cronkright
 Name:
 	$loadCFJS
 Summary:
@@ -297,13 +315,16 @@ Returns:
 	None
 Arguments:
 	String - version - CFJS version to load.
+	Boolean - Force
 History:
 	2009-06-18 - GAC - Created
 	2012-06-27 - MFC - Renamed the JS files to "jquery.cfjs-#version#.js".
 						Set the default to v1.2.
+	2012-08-16 - GAC - Added the force parameter
 --->
 <cffunction name="loadCFJS" access="public" output="true" returntype="void" hint="Loads the CFJS jQuery Plug-in Headers if not loaded.">
 	<cfargument name="version" type="string" required="false" default="1.2" hint="CFJS version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfset var outputHTML = "">
 	<!---  2011-12-28 - MFC - Make the version backwards compatiable to remove minor build numbers. --->
 	<cfset arguments.version = variables.scriptsService.getMajorMinorVersion(arguments.version)>
@@ -313,13 +334,16 @@ History:
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
-		#variables.scriptsService.renderScriptOnce("cfjs",outputHTML)#
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("cfjs",outputHTML)#
+		</cfif>
 	</cfoutput>
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	
 	PaperThin, Inc.
 	M. Carroll
@@ -330,13 +354,16 @@ Summary:
 Returns:
 	Void
 Arguments:
-	Version
+	String - Version
+	Boolean - Force
 History:
  	2009-11-04 - MFC - Created
 	2011-06-24 - GAC - Added CFOUTPUTS around the renderScriptOnce method call
+	2012-08-16 - GAC - Added the force parameter
 --->
 <cffunction name="loadDropCurves" access="public" output="true" returntype="void" hint="Loads the Drop Curves plugin for jQuery"> 
 	<cfargument name="version" type="string" required="false" default="0.1.2" hint="Script version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
@@ -344,7 +371,11 @@ History:
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
-	#variables.scriptsService.renderScriptOnce("dropcurves",outputHTML)#
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("dropcurves",outputHTML)#
+		</cfif>
 	</cfoutput>
 </cffunction>
 
@@ -360,11 +391,13 @@ Summary:
 Returns:
 	void
 Arguments:
-
+	Boolean - Force
 History:
  	2011-09-09 - RAK - Created
+	2012-08-16 - GAC - Added the force parameter
 --->
 <cffunction name="loadDynatree" access="public" returntype="void" hint="Loads the Dynatree plugin">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
@@ -372,10 +405,14 @@ History:
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
-		#loadJQuery()#
-		#loadJQueryUI()#
-		#loadJQueryCookie()#
-		#variables.scriptsService.renderScriptOnce("dynatree",outputHTML)#
+		#loadJQuery(force=arguments.force)#
+		#loadJQueryUI(force=arguments.force)#
+		#loadJQueryCookie(force=arguments.force)#
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("dynatree",outputHTML)#
+		</cfif>
 	</cfoutput>
 </cffunction>
 
@@ -392,27 +429,34 @@ Summary:
 Returns:
 	None
 Arguments:
-	None
+	Boolean - Force
 History:
 	2011-11-21 - MTT - Created
+	2012-08-16 - GAC - Added the force parameter
 --->
 <cffunction name="loadFileUploader" access="public" output="true" returntype="void" hint="Loads the file uploader code.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
-			<link rel="stylesheet" href="/ADF/thirdparty/jquery/fileuploader/client/fileuploader.css">
-			<script type="text/javascript" src="/ADF/thirdparty/jquery/fileuploader/client/fileuploader.js"></script>
+			<link rel="stylesheet" href="/ADF/thirdParty/jquery/fileuploader/client/fileuploader.css">
+			<script type="text/javascript" src="/ADF/thirdParty/jquery/fileuploader/client/fileuploader.js"></script>
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
-		#variables.scriptsService.renderScriptOnce("fileUploader",outputHTML)#
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("fileUploader",outputHTML)#
+		</cfif>
 	</cfoutput>
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	M. Carroll
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
 Name:
 	$loadGalleryView
 Summary:
@@ -420,13 +464,17 @@ Summary:
 Returns:
 	None
 Arguments:
-	None
+	Numeric - version
+	String - themeName
+	Boolean - Force
 History:
 	2009-02-04 - MFC - Created
+	2012-08-16 - GAC - Added the force parameter
 --->
 <cffunction name="loadGalleryView" access="public" output="true" returntype="void" hint="Loads the JQuery UI Headers if not loaded."> 
 	<cfargument name="version" type="numeric" required="false" default="1.1" hint="">
 	<cfargument name="themeName" type="string" required="false" default="light" hint="">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
@@ -441,14 +489,19 @@ History:
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
-		#variables.scriptsService.renderScriptOnce("galleryview",outputHTML)#
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("galleryview",outputHTML)#
+		</cfif>
 	</cfoutput>
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	M. Carroll
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
 Name:
 	$loadJCarousel
 Summary:
@@ -456,7 +509,7 @@ Summary:
 Returns:
 	None
 Arguments:
-	None
+	Boolean - Force
 History:
 	2009-02-04 - MFC - Created
 --->
@@ -482,8 +535,7 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	
 	PaperThin, Inc.
 	M. Carroll
@@ -494,12 +546,14 @@ Summary:
 Returns:
 	Void
 Arguments:
-	Version
+	Boolean - Force
 History:
  	2009-12-15 - MFC - Created
 	2011-06-24 - GAC - Added CFOUTPUTS around the renderScriptOnce method call
+	2012-08-16 - GAC - Added the force parameter
 --->
 <cffunction name="loadJCrop" access="public" output="true" returntype="void" hint="Loads the JQuery Crop plugin"> 
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
@@ -508,14 +562,19 @@ History:
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
-	#variables.scriptsService.renderScriptOnce("jquerycrop",outputHTML)#
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("jquerycrop",outputHTML)#
+		</cfif>
 	</cfoutput>
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
 Name:
 	$loadJCycle
 Summary:	
@@ -523,12 +582,15 @@ Summary:
 Returns:
 	Void
 Arguments:
-	String version
+	String - version
+	Boolean - Force
 History:
- 2009-10-20 - RLW - Created
+ 	2009-10-20 - RLW - Created
+	2012-08-16 - GAC - Added the force parameter
 --->
 <cffunction name="loadJCycle" access="public" output="true" returntype="void" hint="Loads the jCycle plugin for jQuery"> 
 	<cfargument name="version" type="string" required="false" default="2.72" hint="jCycle version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
@@ -536,7 +598,11 @@ History:
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
-		#variables.scriptsService.renderScriptOnce("jcycle",outputHTML)#
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("jcycle",outputHTML)#
+		</cfif>
 	</cfoutput>
 </cffunction>
 
@@ -552,12 +618,13 @@ Summary:
 Returns:
 	struct
 Arguments:
-	Void
+	Boolean - Force
 History:
 	2012-02-23 - MFC - Created
+	2012-08-16 - GAC - Added the force parameter
 --->
 <cffunction name="loadJSONJS" access="public" returntype="void" output="true">
-
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
@@ -565,13 +632,19 @@ History:
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
-		#variables.scriptsService.renderScriptOnce("json-js",outputHTML)#
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("json-js",outputHTML)#
+		</cfif>
 	</cfoutput>
 </cffunction>
 
 <!---
 /* *************************************************************** */
-Author: 	M. Carroll
+Author: 	
+	PaperThin, Inc. 	
+	M. Carroll
 Name:
 	$loadJQuery
 Summary:
@@ -627,9 +700,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
 Name:
 	$loadJQueryAutocomplete
 Summary:	
@@ -637,11 +711,13 @@ Summary:
 Returns:
 	Void
 Arguments:
-	Void
+	Boolean - Force
 History:
- 2010-03-31 - RLW - Created
+ 	2010-03-31 - RLW - Created
+	2012-08-16 - GAC - Added the force parameter
 --->
 <cffunction name="loadJQueryAutocomplete" access="public" returntype="void">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
@@ -651,13 +727,16 @@ History:
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
-		#variables.scriptsService.renderScriptOnce("jqueryAutocomplete",outputHTML)#
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("jqueryAutocomplete",outputHTML)#
+		</cfif>
 	</cfoutput>
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	
 	PaperThin, Inc.
 	S. Smith
@@ -668,13 +747,15 @@ Summary:
 Returns:
 	Void
 Arguments:
-	Version
+	Boolean - Force
 History:
  	2010-07-08 - SFS - Created
 	2011-06-24 - GAC - Added CFOUTPUTS around the renderScriptOnce method call
+	2012-08-16 - GAC - Added the force parameter
 --->
 <cffunction name="loadJQueryBBQ" access="public" output="true" returntype="void" hint="Loads the BBQ plugin for jQuery"> 
 	<cfargument name="version" type="string" required="false" default="1.2.1" hint="Script version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
@@ -682,7 +763,11 @@ History:
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
-	#variables.scriptsService.renderScriptOnce("bbq",outputHTML)#
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("bbq",outputHTML)#
+		</cfif>
 	</cfoutput>
 </cffunction>
 
@@ -698,13 +783,15 @@ Returns:
 	None
 Arguments:
 	String - version - JQuery BlockUI version to load.
-
+	Boolean - Force
 History:
 	2010-09-27 - RLW - Created
 	2011-06-24 - GAC - Added CFOUTPUTS around the renderScriptOnce method call
+	2012-08-16 - GAC - Added the force parameter
 --->
 <cffunction name="loadJQueryBlockUI" access="public" output="true" returntype="void" hint="Loads the JQuery BlockUI plugin if not loaded.">
 	<cfargument name="version" type="string" required="false" default="2.35" hint="JQuery BlockUI plugin version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
@@ -712,13 +799,16 @@ History:
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
-	#variables.scriptsService.renderScriptOnce("jQueryBlockUI",outputHTML)#
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("jQueryBlockUI",outputHTML)#
+		</cfif>
 	</cfoutput>
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author:
 	Fig Leaf Software
 	Mike Tangorre (mtangorre@figleaf.com)
@@ -729,27 +819,33 @@ Summary:
 Returns:
 	None
 Arguments:
-	None
+	Boolean - Force
 History:
 	2012-01-20 - MTT - Created
+	2012-08-16 - GAC - Added the force parameter
 --->
 <cffunction name="loadJQueryCapty" access="public" output="true" returntype="void" hint="Loads the JQuery Capty plugin code.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
-			<link rel="stylesheet" href="/ADF/thirdparty/jquery/capty/css/jquery.capty.css">
-			<script type="text/javascript" src="/ADF/thirdparty/jquery/capty/js/jquery.capty.min.js"></script>
+			<link rel="stylesheet" href="/ADF/thirdParty/jquery/capty/css/jquery.capty.css">
+			<script type="text/javascript" src="/ADF/thirdParty/jquery/capty/js/jquery.capty.min.js"></script>
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
-		#variables.scriptsService.renderScriptOnce("jQueryCapty",outputHTML)#
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("jQueryCapty",outputHTML)#
+		</cfif>
 	</cfoutput>
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	
+	PaperThin, Inc. 	
 	G. Cronkright
 Name:
 	$loadJQueryCheckboxes
@@ -783,9 +879,9 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	
+	PaperThin, Inc. 	
 	S. Smith
 Name:
 	$loadJQueryCookie
@@ -866,15 +962,17 @@ Summary:
 Returns:
 	Void
 Arguments:
-	Version
+	Boolean - Force
 History:
  	2010-09-27 - RAK - Created
 	2011-06-24 - GAC - Added CFOUTPUTS around the renderScriptOnce method call
 	2012-01-24 - MFC - Replaced "@import" with "link" tag to load the CSS.
+	2012-08-16 - GAC - Added the force parameter
 --->
 <cffunction name="loadJQueryDatePick" access="public" output="true" returntype="void" hint="Loads the DatePick plugin for jQuery"> 
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfset var outputHTML = "">
-	#loadJQuery()#
+	#loadJQuery(force=arguments.force)#
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
 			<link rel='stylesheet' href='/ADF/thirdParty/jquery/datepick/jquery.datepick.css' type='text/css' />
@@ -882,13 +980,16 @@ History:
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
-	#variables.scriptsService.renderScriptOnce("datePick",outputHTML)#
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("datePick",outputHTML)#
+		</cfif>
 	</cfoutput>
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author:
 	Fig Leaf Software
 	Mike Tangorre (mtangorre@figleaf.com)
@@ -899,21 +1000,27 @@ Summary:
 Returns:
 	None
 Arguments:
-	None
+	Boolean - Force
 History:
 	2011-06-22 - MTT - Created
 	2011-07-20 - RAK - Added cfOutput to the code so that it will actually print the results
 	2011-09-09 - RAK - Added cfoutput tags to the cfsavecontent
+	2012-08-16 - GAC - Added the force parameter
 --->
 <cffunction name="loadJQueryDoTimeout" access="public" output="true" returntype="void" hint="Loads the do timeout plugin for jquery">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
-			<script type="text/javascript" src="/ADF/thirdparty/jquery/dotimeout/jquery.dotimeout.plugin.js"></script>
+			<script type="text/javascript" src="/ADF/thirdParty/jquery/dotimeout/jquery.dotimeout.plugin.js"></script>
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
-		#variables.scriptsService.renderScriptOnce("jQueryDoTimeout",outputHTML)#
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("jQueryDoTimeout",outputHTML)#
+		</cfif>
 	</cfoutput>
 </cffunction>
 
@@ -929,27 +1036,32 @@ Summary:
 Returns:
 	None
 Arguments:
-	None
+	Boolean - Force
 History:
 	2011-06-01 - MTT - Created
 	2011-06-24 - GAC - Added CFOUTPUTS around the renderScriptOnce method call
 	2011-09-09 - RAK - Added cfoutput tags to the cfsavecontent
+	2012-08-16 - GAC - Added the force parameter
 --->
 <cffunction name="loadJQueryDump" access="public" output="true" returntype="void" hint="Loads the dump plugin for jquery">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
-			<script type="text/javascript" src="/ADF/thirdparty/jquery/dump/jquery.dump.js"></script>
+			<script type="text/javascript" src="/ADF/thirdParty/jquery/dump/jquery.dump.js"></script>
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
-		#variables.scriptsService.renderScriptOnce("jQueryDump",outputHTML)#
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("jQueryDump",outputHTML)#
+		</cfif>
 	</cfoutput>
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author:
 	Fig Leaf Software
 	Mike Tangorre (mtangorre@figleaf.com)
@@ -964,26 +1076,31 @@ Arguments:
 History:
 	2011-07-26 - MTT - Created
 	2011-09-09 - RAK - Added cfoutput tags to the cfsavecontent
+	2012-08-16 - GAC - Added the force parameter
 --->
 <cffunction name="loadJQueryFileUpload" access="public" output="true" returntype="void" hint="Loads the file upload plugin for jquery">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
-			<link rel="stylesheet" href="/ADF/thirdparty/jquery/fileupload/jquery.fileupload-ui.css">
-			<script type="text/javascript" src="/ADF/thirdparty/jquery/fileupload/jquery.iframe-transport.js"></script>
-			<script type="text/javascript" src="/ADF/thirdparty/jquery/fileupload/jquery.fileupload.js"></script>
-			<script type="text/javascript" src="/ADF/thirdparty/jquery/fileupload/jquery.fileupload-ui.js"></script>
+			<link rel="stylesheet" href="/ADF/thirdParty/jquery/fileupload/jquery.fileupload-ui.css">
+			<script type="text/javascript" src="/ADF/thirdParty/jquery/fileupload/jquery.iframe-transport.js"></script>
+			<script type="text/javascript" src="/ADF/thirdParty/jquery/fileupload/jquery.fileupload.js"></script>
+			<script type="text/javascript" src="/ADF/thirdParty/jquery/fileupload/jquery.fileupload-ui.js"></script>
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
-		#variables.scriptsService.renderScriptOnce("jQueryFileUpload",outputHTML)#
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("jQueryFileUpload",outputHTML)#
+		</cfif>
 	</cfoutput>
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author:
+/* *************************************************************** */
+Author: 	
 	PaperThin, Inc.
 	G. Cronkright
 Name:
@@ -994,13 +1111,16 @@ Returns:
 	Void
 Arguments:
 	String - Version
+	Boolean - Force
 History:
  	2010-12-13 - GAC - Created
 	2011-03-08 - GAC - Updated the renderScriptOnce with correct variable path
 	2011-06-24 - GAC - Added CFOUTPUTS around the renderScriptOnce method call
+	2012-08-16 - GAC - Added the force parameter
 --->
 <cffunction name="loadJQueryHighlight" access="public" output="true" returntype="void" hint="Loads the Highlight plugin for jQuery">
 	<cfargument name="version" type="string" required="false" default="3.0.0" hint="Script version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
@@ -1008,7 +1128,11 @@ History:
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
-	#variables.scriptsService.renderScriptOnce("highlight",outputHTML)#
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("highlight",outputHTML)#
+		</cfif>
 	</cfoutput>
 </cffunction>
 
@@ -1024,11 +1148,13 @@ Summary:
 Returns:
 	void
 Arguments:
-
+	Boolean - Force
 History:
  	2011-05-31 - RAK - Created
+	2012-08-16 - GAC - Added the force parameter
 --->
 <cffunction name="loadJQueryHotkeys" access="public" returntype="void" hint="Loads jQuery Hotkeys plugin">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
@@ -1036,14 +1162,18 @@ History:
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
-		#variables.scriptsService.renderScriptOnce("jQueryHotkeys",outputHTML)#
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("jQueryHotkeys",outputHTML)#
+		</cfif>
 	</cfoutput>
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	
+	PaperThin, Inc.	
 	G. Cronkright
 Name:
 	$loadJQueryJSON
@@ -1077,9 +1207,8 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author:
+/* *************************************************************** */
+Author: 	
 	Fig Leaf Software
 	Mike Tangorre (mtangorre@figleaf.com)
 Name:
@@ -1089,11 +1218,13 @@ Summary:
 Returns:
 	None
 Arguments:
-	None
+	Boolean - Force
 History:
 	2011-09-27 - MTT - Created
+	2012-08-16 - GAC - Added the force parameter
 --->
 <cffunction name="loadJQueryMultiselect" access="public" output="true" returntype="void" hint="Loads the multiselect plugin for jquery">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
 		<link rel="stylesheet" href="/ADF/thirdParty/jquery/multiselect/jquery.multiselect.css">
@@ -1102,13 +1233,16 @@ History:
 		<script type="text/javascript" src="/ADF/thirdParty/jquery/multiselect/jquery.multiselect.filter.min.js"></script>
 	</cfsavecontent>
 	<cfoutput>
-		#variables.scriptsService.renderScriptOnce("jQueryMultiselect",outputHTML)#
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("jQueryMultiselect",outputHTML)#
+		</cfif>
 	</cfoutput>
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author:
 	Fig Leaf Software
 	Mike Tangorre (mtangorre@figleaf.com)
@@ -1119,11 +1253,13 @@ Summary:
 Returns:
 	None
 Arguments:
-	None
+	Boolean - Force
 History:
 	2011-07-27 - MTT - Created
+	2012-08-16 - GAC - Added the force parameter
 --->
 <cffunction name="loadJQueryPlupload" access="public" output="true" returntype="void" hint="Loads the plupload plugin for jquery">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
@@ -1131,14 +1267,19 @@ History:
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
-		#variables.scriptsService.renderScriptOnce("jQueryPlupload",outputHTML)#
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("jQueryPlupload",outputHTML)#
+		</cfif>
 	</cfoutput>
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
 Name:
 	$loadJQuerySelectboxes
 Summary:	
@@ -1146,12 +1287,15 @@ Summary:
 Returns:
 	Void
 Arguments:
-	String version
+	String - version
+	Boolean - Force
 History:
 	2009-07-29 - RLW - Created
+	2012-08-16 - GAC - Added the force parameter
 --->
 <cffunction name="loadJQuerySelectboxes" access="public" output="true" returntype="void" hint="Loads the JQuery selectboxes plugin."> 
 	<cfargument name="version" type="string" required="false" default="2.2.4" hint="version to load - defaults to 2.2.4.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
@@ -1159,16 +1303,19 @@ History:
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
-		#variables.scriptsService.renderScriptOnce("selectboxes",outputHTML)#
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("selectboxes",outputHTML)#
+		</cfif>
 	</cfoutput>
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	
 	PaperThin, Inc.
-	RLW
+	Ron West
 Name:
 	$loadSuperFish
 Summary:	
@@ -1176,13 +1323,15 @@ Summary:
 Returns:
 	Void
 Arguments:
-	Version
+	Boolean - Force
 History:
  	2009-11-05 - RLW - Created
 	2011-06-24 - GAC - Added CFOUTPUTS around the renderScriptOnce method call
+	2012-08-16 - GAC - Added the force parameter
 --->
 <cffunction name="loadJQuerySuperfish" access="public" output="true" returntype="void" hint="Loads the JQuery UI Stars plugin"> 
 	<cfargument name="version" type="string" required="false" default="1.4.8" hint="Script version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
@@ -1192,14 +1341,17 @@ History:
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
-	#variables.scriptsService.renderScriptOnce("jquerySuperfish",outputHTML)#
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("jquerySuperfish",outputHTML)#
+		</cfif>
 	</cfoutput>
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author:
+/* *************************************************************** */
+Author: 	
 	Fig Leaf Software
 	Mike Tangorre (mtangorre@figleaf.com)
 Name:
@@ -1209,12 +1361,14 @@ Summary:
 Returns:
 	None
 Arguments:
-	None
+	Boolean - Force
 History:
 	2011-07-31 - MTT - Created
+	2012-08-16 - GAC - Added the force parameter
 --->
 <cffunction name="loadJQuerySWFUpload" access="public" output="true" returntype="void" hint="Loads the SWF upload plugin for jquery">
 	<cfargument name="version" type="string" required="false" default="2.2.0.1" hint="Script version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
@@ -1225,13 +1379,16 @@ History:
 		--->
 	</cfsavecontent>
 	<cfoutput>
-		#variables.scriptsService.renderScriptOnce("jQuerySWFUpload",outputHTML)#
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("jQuerySWFUpload",outputHTML)#
+		</cfif>
 	</cfoutput>
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author:
 	Fig Leaf Software
 	Mike Tangorre (mtangorre@figleaf.com)
@@ -1242,23 +1399,28 @@ Summary:
 Returns:
 	None
 Arguments:
-	None
+	Boolean - Force
 History:
 	2011-07-27 - MTT - Created
+	2012-08-16 - GAC - Added the force parameter
 --->
 <cffunction name="loadJQueryTemplates" access="public" output="true" returntype="void" hint="Loads the templates (tmpl) plugin for jquery">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
 		<script type="text/javascript" src="/ADF/thirdParty/jquery/templates/jquery.tmpl.min.js"></script>
 	</cfsavecontent>
 	<cfoutput>
-		#variables.scriptsService.renderScriptOnce("jQueryTemplates",outputHTML)#
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("jQueryTemplates",outputHTML)#
+		</cfif>
 	</cfoutput>
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author:
 	Fig Leaf Software
 	Mike Tangorre (mtangorre@figleaf.com)
@@ -1269,28 +1431,35 @@ Summary:
 Returns:
 	None
 Arguments:
-	None
+	Boolean - Force
 History:
 	2011-06-22 - MTT - Created
 	2011-07-20 - RAK - Added cfOutput to the code so that it will actually print the results
 	2011-09-09 - RAK - Added cfoutput tags to the cfsavecontent
+	2012-08-16 - GAC - Added the force parameter
 --->
 <cffunction name="loadJQueryTextLimit" access="public" output="true" returntype="void" hint="Loads the text limit plugin for jquery">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
-			<script type="text/javascript" src="/ADF/thirdparty/jquery/textlimit/jquery.textlimit.plugin.js"></script>
+			<script type="text/javascript" src="/ADF/thirdParty/jquery/textlimit/jquery.textlimit.plugin.js"></script>
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
-		#variables.scriptsService.renderScriptOnce("jQueryTextLimit",outputHTML)#
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("jQueryTextLimit",outputHTML)#
+		</cfif>
 	</cfoutput>
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
 Name:
 	$loadJQueryTools
 Summary:	
@@ -1298,14 +1467,17 @@ Summary:
 Returns:
 	Void
 Arguments:
-	String tool
+	String - tool
+	Boolean - Force
 History:
  	2009-10-17 - RLW - Created
 	2010-02-03 - MFC - Updated path to the CSS to remove from Third Party directory.
 	2010-04-06 - MFC - Updated path to the CSS to "style".
+	2012-08-16 - GAC - Added the force parameter
 --->
 <cffunction name="loadJQueryTools" access="public" output="true" returntype="void" hint="Loads the JQuery tools plugin"> 
 	<cfargument name="tool" type="string" required="false" default="all" hint="List of tools to load - leave blank to load entire library">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
@@ -1323,7 +1495,11 @@ History:
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
-		#variables.scriptsService.renderScriptOnce("tools_#arguments.tool#",outputHTML)#
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("tools_#arguments.tool#",outputHTML)#
+		</cfif>
 	</cfoutput>
 </cffunction>
 
@@ -1380,8 +1556,7 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author:
 	Fig Leaf Software
 	Mike Tangorre (mtangorre@figleaf.com)
@@ -1392,23 +1567,28 @@ Summary:
 Returns:
 	None
 Arguments:
-	None
+	Boolean - Force
 History:
 	2011-09-27 - MTT - Created
+	2012-08-16 - GAC - Added the force parameter
 --->
 <cffunction name="loadJQueryUIForm" access="public" output="true" returntype="void" hint="Loads the form plugin for jquery ui">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
 		<script type="text/javascript" src="/ADF/thirdParty/jquery/ui/form/jquery.ui.form.js"></script>
 	</cfsavecontent>
 	<cfoutput>
-		#variables.scriptsService.renderScriptOnce("jQueryUIForm",outputHTML)#
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("jQueryUIForm",outputHTML)#
+		</cfif>
 	</cfoutput>
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	
 	PaperThin, Inc.
 	M. Carroll
@@ -1419,18 +1599,20 @@ Summary:
 Returns:
 	Void
 Arguments:
-	Version
+	Boolean - force
 History:
  	2009-11-05 - MFC - Created
 	2009-12-02 - SFS - Added check to make sure jqueryUI is loaded ahead of time
 	2011-02-02 - RAK - Updated default to 3.0
 	2011-06-24 - GAC - Added CFOUTPUTS around the renderScriptOnce method call
+	2012-08-16 - GAC - Added the force parameter
 --->
 <cffunction name="loadJQueryUIStars" access="public" output="true" returntype="void" hint="Loads the JQuery UI Stars plugin"> 
 	<cfargument name="version" type="string" required="false" default="3.0" hint="Script version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfset var outputHTML = "">
 	<cfoutput>
-		#loadJQueryUI()#
+		#loadJQueryUI(force=arguments.force)#
 	</cfoutput>
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
@@ -1439,7 +1621,11 @@ History:
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
-	#variables.scriptsService.renderScriptOnce("jqueryuistars",outputHTML)#
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("jqueryuistars",outputHTML)#
+		</cfif>
 	</cfoutput>
 </cffunction>
 
@@ -1455,12 +1641,14 @@ Summary:
 Returns:
 	void
 Arguments:
-
+	Boolean - force
 History:
  	2011-05-31 - RAK - Created
  	2011-06-13 - RAK - removed a bug where I was defining a var after a output was opened
+	2012-08-16 - GAC - Added the force parameter
 --->
 <cffunction name="loadJSTree" access="public" returntype="void" hint="Loads the jsTree plugin">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfscript>
 		var outputHTML = "";
 	</cfscript>
@@ -1478,13 +1666,16 @@ History:
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
-		#variables.scriptsService.renderScriptOnce("jstree",outputHTML)#
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("jstree",outputHTML)#
+		</cfif>
 	</cfoutput>
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author:
 	Fig Leaf Software
 	Mike Tangorre (mtangorre@figleaf.com)
@@ -1495,12 +1686,14 @@ Summary:
 Returns:
 	None
 Arguments:
-	None
+	Boolean - Force
 History:
 	2012-02-15 - MTT - Created
 	2012-02-23 - MFC - Moved the JS file into a "math-uuid" folder.
+	2012-08-16 - GAC - Added the force parameter
 --->
 <cffunction name="loadMathUUID" access="public" output="true" returntype="void" hint="Loads the math.uuid.js library.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
@@ -1508,14 +1701,19 @@ History:
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
-		#variables.scriptsService.renderScriptOnce("mathuuid",outputHTML)#
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("mathuuid",outputHTML)#
+		</cfif>
 	</cfoutput>
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	S. Smith
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	S. Smith
 Name:
 	$loadMouseMovement
 Summary:
@@ -1524,11 +1722,14 @@ Returns:
 	None
 Arguments:
 	String - version - mouse movement version to load.
+	Boolean - Force
 History:
 	2009-10-18 - SFS - Created
+	2012-08-16 - GAC - Added the force parameter
 --->
 <cffunction name="loadMouseMovement" access="public" output="true" returntype="void" hint="Loads the mouse movement detection script for CFFormProtect if not already loaded.">
 	<cfargument name="version" type="string" required="false" default="2.0.1" hint="Mouse Movement script version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
@@ -1536,14 +1737,19 @@ History:
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
-		#variables.scriptsService.renderScriptOnce("mouseMovement",outputHTML)#
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("mouseMovement",outputHTML)#
+		</cfif>
 	</cfoutput>
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
 Name:
 	$loadNiceForm
 Summary:
@@ -1551,11 +1757,13 @@ Summary:
 Returns:
 	void
 Arguments:
-	void
+	Boolean - Force
 History:
 	2009-03-12 - RLW - Created
+	2012-08-16 - GAC - Added the force parameter
 --->
 <cffunction name="loadNiceForms" access="public" returntype="void">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
@@ -1579,14 +1787,19 @@ History:
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
-		#variables.scriptsService.renderScriptOnce("niceForms",outputHTML)#
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("niceForms",outputHTML)#
+		</cfif>
 	</cfoutput>
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	M. Carroll
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.	
+	M. Carroll
 Name:
 	$loadQTip
 Summary:
@@ -1618,9 +1831,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	G. Cronkright
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	G. Cronkright
 Name:
 	$loadSWFObject
 Summary:
@@ -1629,11 +1843,14 @@ Returns:
 	None
 Arguments:
 	String - version - SWFObject version to load.
+	Boolean - Force
 History:
 	2010-02-25 - GAC - Created
+	2012-08-16 - GAC - Added the force parameter
 --->
 <cffunction name="loadSWFObject" access="public" output="true" returntype="void" hint="Loads the SWFObject Flash Embed Headers if not loaded.">
 	<cfargument name="version" type="string" required="false" default="2.2" hint="SWFObject version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
@@ -1641,14 +1858,17 @@ History:
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
-		#variables.scriptsService.renderScriptOnce("swfObject",outputHTML)#
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("swfObject",outputHTML)#
+		</cfif>
 	</cfoutput>
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author:
+/* *************************************************************** */
+Author: 	
 	PaperThin, Inc.
 	Ryan kahn
 Name:
@@ -1658,12 +1878,15 @@ Summary:
 Returns:
 	Void
 Arguments:
+	Boolean - Force
 History:
  	2010-11-09 - RAK - Created
 	2011-02-09 - RAK - Var'ing un-var'd variables
 	2011-06-24 - GAC - Added CFOUTPUTS around the renderScriptOnce method call
+	2012-08-16 - GAC - Added the force parameter
 --->
 <cffunction name="loadSimplePassMeter" access="public" output="true" returntype="void" hint="Loads the simplePassMeter plugin for jQuery">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfscript>
 		var outputHTML = '';
 	</cfscript>
@@ -1674,14 +1897,19 @@ History:
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
-	#variables.scriptsService.renderScriptOnce("simplePassMeter",outputHTML)#
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("simplePassMeter",outputHTML)#
+		</cfif>
 	</cfoutput>
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	G. Cronkright
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	G. Cronkright
 Name:
 	$loadTableSorter
 Summary:
@@ -1690,11 +1918,14 @@ Returns:
 	None
 Arguments:
 	String - version - Tablesorter version to load.
+	Boolean - Force
 History:
 	2009-06-25 - GAC - Created
+	2012-08-16 - GAC - Added the force parameter
 --->
 <cffunction name="loadTableSorter" access="public" output="true" returntype="void" hint="Loads the Tablesorter Plugin Headers if not loaded."> 
 	<cfargument name="version" type="string" required="false" default="2.0.3" hint="Tablesorter Plugin version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
@@ -1702,14 +1933,19 @@ History:
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
-		#variables.scriptsService.renderScriptOnce("tablesorter",outputHTML)#
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("tablesorter",outputHTML)#
+		</cfif>
 	</cfoutput>
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	G. Cronkright
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	G. Cronkright
 Name:
 	$loadTableSorterPager
 Summary:	
@@ -1718,11 +1954,14 @@ Returns:
 	Void
 Arguments:
 	String - version - Tablesorter version to load.
+	Boolean - Force
 History:
 	2009-06-25 - GAC - Created
+	2012-08-16 - GAC - Added the force parameter
 --->
 <cffunction name="loadTableSorterPager" access="public" returntype="void" hint="Loads the Tablesorter Plugin Pager addon Headers if not loaded.">
 	<cfargument name="version" type="string" required="false" default="2.0.3" hint="Tablesorter Plugin version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfset var addonpath = "/ADF/thirdParty/jquery/tablesorter/tablesorter-" & TRIM(arguments.version) & "/addons/pager/" />
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
@@ -1732,14 +1971,19 @@ History:
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
-		#variables.scriptsService.renderScriptOnce("TablesSorterPager",outputHTML)#
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("TablesSorterPager",outputHTML)#
+		</cfif>
 	</cfoutput>
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	G. Cronkright
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	G. Cronkright
 Name:
 	$loadTableSorterTheme
 Summary:	
@@ -1749,12 +1993,15 @@ Returns:
 Arguments:
 	String - Tablesorter Theme Name (directory name)
 	String - version - Tablesorter version to load.
+	Boolean - Force
 History:
 	2009-06-25 - GAC - Created
+	2012-08-16 - GAC - Added the force parameter
 --->
 <cffunction name="loadTableSorterThemes" access="public" returntype="void" hint="Loads the Tablesorter Plugin Theme Headers if not loaded.">
 	<cfargument name="themeName" type="string" required="false" default="blue" hint="Tablesorter Theme Name (directory name)">
 	<cfargument name="version" type="string" required="false" default="2.0.3" hint="Tablesorter Plugin version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery Tablesorter Plugin script header to load.">
 	<cfset var themepath = "/ADF/thirdParty/jquery/tablesorter/tablesorter-" & TRIM(arguments.version) & "/themes/" />
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
@@ -1767,14 +2014,19 @@ History:
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
-		#variables.scriptsService.renderScriptOnce("TableSorterThemes",outputHTML)#
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("TableSorterThemes",outputHTML)#
+		</cfif>
 	</cfoutput>
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	M. Carroll
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
 Name:
 	$loadThickbox
 Summary:
@@ -1807,9 +2059,9 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Andy Reid
+/* *************************************************************** */
+Author: 	
+	Andy Reid
 Name:
 	$loadTipsy
 Summary:
@@ -1817,7 +2069,6 @@ Summary:
 Returns:
 	None
 Arguments:
-	String - version - tipsy version to load.
 	Boolean - force - Forces tipsy script header to load.
 History:
 	2011-11-22 - AAR - Created
@@ -1843,8 +2094,7 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	
 	PaperThin, Inc.
 	Ryan kahn
@@ -1855,16 +2105,20 @@ Summary:
 Returns:
 	Void
 Arguments:
+	String - version
+	Boolean - Force
 History:
  	2010-10-26 - RAK - Created
 	2011-06-24 - GAC - Added CFOUTPUTS around the renderScriptOnce method call
 	2011-07-27 - MTT - Added the version argument. Created a folder for each version inside of /uploadify and renamed each minified version of the uploadify js file to jquery.uploadify.min.js (removing the version numbers from the file names). This lets us keep all the packaged files together per version.
+	2012-08-16 - GAC - Added the force parameter
 --->
 <cffunction name="loadUploadify" access="public" output="true" returntype="void" hint="Loads the uploadify plugin for jQuery">
 	<cfargument name="version" type="string" required="false" default="2.1.0" hint="JQuery Uploadify plugin version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfset var outputHTML = "">
 	<cfoutput>
-		#loadSWFObject()#
+		#loadSWFObject(force=arguments.force)#
 	</cfoutput>
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
@@ -1873,14 +2127,19 @@ History:
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
-	#variables.scriptsService.renderScriptOnce("uploadify",outputHTML)#
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("uploadify",outputHTML)#
+		</cfif>
 	</cfoutput>
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	S. Smith
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	S. Smith
 Name:
 	$loadUsedKeyword
 Summary:
@@ -1889,11 +2148,14 @@ Returns:
 	None
 Arguments:
 	String - version - used keyboard script version to load.
+	Boolean - Force
 History:
 	2009-10-18 - SFS - Created
+	2012-08-16 - GAC - Added the force parameter
 --->
 <cffunction name="loadUsedKeyboard" access="public" output="true" returntype="void" hint="Loads the used keyboard detection script for CFFormProtect if not already loaded.">
 	<cfargument name="version" type="string" required="false" default="2.0.1" hint="Used Keyboard script version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
@@ -1901,7 +2163,11 @@ History:
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
-		#variables.scriptsService.renderScriptOnce("usedKeyboard",outputHTML)#
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("usedKeyboard",outputHTML)#
+		</cfif>
 	</cfoutput>
 </cffunction>
 
@@ -1918,11 +2184,14 @@ Returns:
 	Void
 Arguments:
 	String - Version
+	Boolean - Force
 History:
  	2011-10-20 - GAC - Created
+	2012-08-16 - GAC - Added the force parameter
 --->
 <cffunction name="loadJQueryEasing" access="public" output="true" returntype="void" hint="Loads the Easing plugin for jQuery">
 	<cfargument name="version" type="string" required="false" default="1.3" hint="Script version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfset var outputHTML = "">
 	<cfset var thirdPartyLibPath = "/ADF/thirdParty/jquery/easing/">
 	<cfsavecontent variable="outputHTML">
@@ -1931,7 +2200,11 @@ History:
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
-	#variables.scriptsService.renderScriptOnce("jqueryeasing",outputHTML)#
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("jqueryeasing",outputHTML)#
+		</cfif>
 	</cfoutput>
 </cffunction>
 
@@ -1948,24 +2221,31 @@ Returns:
 	Void
 Arguments:
 	String - Version
+	Boolean - Force
 History:
  	2011-10-20 - GAC - Created
 	2012-06-01 - MFC - Fixed function calls to loadjQueryEasing and loadjQueryMouseWheel.
+	2012-08-16 - GAC - Added the force parameter
 --->
 <cffunction name="loadJQueryFancyBox" access="public" output="true" returntype="void" hint="Loads the fancyBox plugin for jQuery">
 	<cfargument name="version" type="string" required="false" default="1.3.4" hint="Script version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfset var outputHTML = "">
 	<cfset var thirdPartyLibPath = "/ADF/thirdParty/jquery/fancybox/">
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
 			<script type="text/javascript" src="#thirdPartyLibPath#jquery.fancybox-#arguments.version#.pack.js"></script>
-			#loadjQueryEasing()#
-			#loadjQueryMouseWheel()#
+			#loadjQueryEasing(force=arguments.force)#
+			#loadjQueryMouseWheel(force=arguments.force)#
 			<link rel="stylesheet" href="#thirdPartyLibPath#jquery.fancybox-#arguments.version#.css" type="text/css" media="screen" />
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
-	#variables.scriptsService.renderScriptOnce("fancybox",outputHTML)#
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("fancybox",outputHTML)#
+		</cfif>
 	</cfoutput>
 </cffunction>
 
@@ -1982,11 +2262,14 @@ Returns:
 	Void
 Arguments:
 	String - Version
+	Boolean - Force
 History:
  	2011-10-20 - GAC - Created
+	2012-08-16 - GAC - Added the force parameter
 --->
 <cffunction name="loadJQueryMouseWheel" access="public" output="true" returntype="void" hint="Loads the Mouse Wheel plugin for jQuery">
 	<cfargument name="version" type="string" required="false" default="3.0.4" hint="Script version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfset var outputHTML = "">
 	<cfset var thirdPartyLibPath = "/ADF/thirdParty/jquery/mousewheel/">
 	<cfsavecontent variable="outputHTML">
@@ -1995,14 +2278,19 @@ History:
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
-	#variables.scriptsService.renderScriptOnce("jquerymousewheel",outputHTML)#
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("jquerymousewheel",outputHTML)#
+		</cfif>
 	</cfoutput>
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	G. Cronkright
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	G. Cronkright
 Name:
 	$loadjQuerySWFObject
 Summary:
@@ -2011,15 +2299,18 @@ Returns:
 	None
 Arguments:
 	String - version - jQuery SWFObject version to load.
+	Boolean - Force
 History:
 	2009-09-04 - GAC - Created
 	2010-02-25 - GAC - Updated and renamed the function
+	2012-08-16 - GAC - Added the force parameter
 --->
 <cffunction name="loadJQuerySWFObject" access="public" output="true" returntype="void" hint="Loads the SWFObject jQuery Plug-in Flash Embed Headers if not loaded.">
 	<cfargument name="version" type="string" required="false" default="1.0.9" hint="jQuery SWFObject version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfset var outputHTML = "">
 	<cfoutput>
-		#loadJQuery()#
+		#loadJQuery(force=arguments.force)#
 	</cfoutput>
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
@@ -2027,14 +2318,17 @@ History:
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
-		#variables.scriptsService.renderScriptOnce("jQuerySWFObject",outputHTML)#
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("jQuerySWFObject",outputHTML)#
+		</cfif>
 	</cfoutput>
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author:
+/* *************************************************************** */
+Author: 	
 	PaperThin, Inc.
 	G. Cronkright
 Name:
@@ -2045,12 +2339,15 @@ Returns:
 	Void
 Arguments:
 	String - Version
+	Boolean - Force
 History:
  	2011-03-08 - GAC - Created
 	2011-06-24 - GAC - Added CFOUTPUTS around the renderScriptOnce method call
+	2012-08-16 - GAC - Added the force parameter
 --->
 <cffunction name="loadJQueryTimeAgo" access="public" output="true" returntype="void" hint="Loads the TimeAgo (automatically updating fuzzy timestamps) plugin for jQuery">
 	<cfargument name="version" type="string" required="false" default="0.9.3" hint="Script version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
@@ -2058,14 +2355,17 @@ History:
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
-	#variables.scriptsService.renderScriptOnce("timeago",outputHTML)#
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("timeago",outputHTML)#
+		</cfif>
 	</cfoutput>
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author:
+/* *************************************************************** */
+Author: 	
 	PaperThin, Inc.
 	Ryan kahn
 Name:
@@ -2075,7 +2375,7 @@ Summary:
 Returns:
 	Void
 Arguments:
-	Version 1.0
+	Boolean - debugMode
 History:
  	2010-10-04 - RAK - Created
 --->

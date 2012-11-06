@@ -36,6 +36,7 @@ ADF Requirements:
 History:
 	2009-06-29 - RLW - Created
 	2010-11-04 - MFC - Updated props and render for the defaultValue in the paramFields variable.
+	2012-10-01 - MFC - Updated to support fieldname containing "_" in a simple form.
 --->
 <cfscript>
 	// the fields current value
@@ -73,22 +74,9 @@ History:
 		// push on to validation array
 		//vobjects_#attributes.formname#.push(#fqFieldName#);
 	</script>
-	<!--- // determine if this is rendererd in a simple form or the standard custom element interface --->
-	<cfscript>
-		if ( structKeyExists(request, "element") )
-		{
-			labelText = '<span class="CS_Form_Label_Baseline"><label for="#fqFieldName#">#xParams.label#:</label></span>';
-			tdClass = 'CS_Form_Label_Baseline';
-		}
-		else
-		{
-			labelText = '<label for="#fqFieldName#">#xParams.label#:</label>';
-			tdClass = 'cs_dlgLabel';
-		}
-	</cfscript>
 	<input type="hidden" id="#fqFieldName#" name="#fqFieldName#" value="#currentValue#">
 	<!--- // include hidden field for simple form processing --->
 	<cfif renderSimpleFormField>
-		<input type="hidden" name="#fqFieldName#_FIELDNAME" id="#fqFieldName#_FIELDNAME" value="#listLast(xParams.fieldName, "_")#">
+		<input type="hidden" name="#fqFieldName#_FIELDNAME" id="#fqFieldName#_FIELDNAME" value="#ReplaceNoCase(xParams.fieldName, 'fic_','')#">
 	</cfif>
 </cfoutput>

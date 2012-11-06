@@ -38,6 +38,8 @@ History:
 						to locate the callback function.
 	2012-04-10 - MFC - Updated "loadCallback" function to set the commonspot.lightbox variable
 						from the "commonspot" or "top.commonspot" variables.
+	2012-10-17 - GAC - Updated the "replaceLB" function to work with commonspot v6.2+ lightbox
+						windows and the opener page is in or out of the LView.
 */
 
 // Set default variables
@@ -115,8 +117,17 @@ function openLB(url) {
 // Calls the window.parent to run the actions
 //	This allows to just call "replaceLB(...)" in the current pages code
 function replaceLB(url){
-	parentReplaceLB(url);
+	// Check to see if the lightbox we are replacing is opened on top of the LView iFrame
+	var csLViewIFrameID = 'page_frame';
+	var csIFrameObj = window.parent.document.getElementById(csLViewIFrameID);
+	if ( csIFrameObj != null && csIFrameObj.contentWindow != 'undefined'){
+		window.parent.document.getElementById('page_frame').contentWindow.parentReplaceLB(url);
+	}
+	else {
+		window.parent.parentReplaceLB(url);
+	}
 }
+
 // Close the current lightbox and open a new lightbox, thus replacing the current lightbox
 function parentReplaceLB(url){
 	closeLB();
