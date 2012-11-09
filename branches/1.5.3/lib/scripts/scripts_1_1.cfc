@@ -39,7 +39,7 @@ History:
 --->
 <cfcomponent displayname="scripts_1_1" extends="ADF.lib.scripts.scripts_1_0" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" default="1_1_10">
+<cfproperty name="version" default="1_1_11">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_1" type="dependency">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Scripts_1_1">
@@ -665,9 +665,10 @@ History:
 					   Removed "Force jQuery no conflict" b/c not backwards compatiable with
 							custom script code referencing "$". 
 	2011-12-28 - MFC - Updated to load 1.7 by default.
+	2012-11-09 - MFC - Updated to load 1.7 by default.
 --->
 <cffunction name="loadJQuery" access="public" returntype="void" hint="Loads the JQuery Headers if not loaded.">
-	<cfargument name="version" type="string" required="false" default="1.7" hint="JQuery version to load.">
+	<cfargument name="version" type="string" required="false" default="1.8" hint="JQuery version to load.">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfargument name="noConflict" type="boolean" required="false" default="0" hint="JQuery no conflict flag.">
 	<cfscript>
