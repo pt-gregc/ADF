@@ -290,7 +290,7 @@ History:
 
 	<!---
 	Check to see if we need to trim the data. Be default,
-	we are going to pull off any new line and carraige
+	we are going to pull off any new line and carriage
 	returns that are at the end of the file (we do NOT want
 	to strip spaces or tabs).
 	--->
@@ -307,7 +307,7 @@ History:
 
 	<!---
 	Create a compiled Java regular expression pattern object
-	for the experssion that will be needed to parse the
+	for the expression that will be needed to parse the
 	CSV tokens including the field values as well as any
 	delimiters along the way.
 	--->
