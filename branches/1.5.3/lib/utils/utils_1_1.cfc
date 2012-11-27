@@ -35,7 +35,7 @@ History:
 --->
 <cfcomponent displayname="utils_1_1" extends="ADF.lib.utils.utils_1_0" hint="Util functions for the ADF Library">
 
-<cfproperty name="version" value="1_1_4">
+<cfproperty name="version" value="1_1_5">
 <cfproperty name="type" value="singleton">
 <cfproperty name="ceData" type="dependency" injectedBean="ceData_1_1">
 <cfproperty name="csData" type="dependency" injectedBean="csData_1_1">
@@ -43,8 +43,7 @@ History:
 <cfproperty name="wikiTitle" value="Utils_1_1">
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author:
 	PaperThin, Inc.
 	Ryan Kahn
@@ -123,8 +122,7 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author:
 	PaperThin, Inc.
 	Greg Cronkright
@@ -142,8 +140,10 @@ History:
 	2011-02-01 - RAK - Added the json decode to process data passed in a json objects
 	2011-02-01 - GAC - Modified - converted csData lib calls to global  
 	2011-02-09 - RAK - Var'ing un-var'd variables
+	2012-11-27 - GAC - Added a fix for Railo's problem with seeing simple date strings as JSON objects
+	2012-11-27 - GAC/MFC - Added some extra checks to the IsJSON logic to make sure the value really needs to processed via JSON.decode
 --->
-<cffunction name="buildRunCommandArgs" access="public" returntype="struct" hint="Builds the args struct for the runCommand method">
+<cffunction name="buildRunCommandArgs" access="public" returntype="struct" output="true" hint="Builds the args struct for the runCommand method">
 	<cfargument name="params" type="struct" required="false" default="#StructNew()#" hint="Structure of parameters to be passed to the runCommand method">
 	<cfargument name="excludeList" type="string" required="false" default="bean,method,appName" hint="a list of arguments to exclude from the return args struct">
 	<cfscript>
@@ -155,7 +155,7 @@ History:
 		// loop through arguments.params parameters to get the args
 		for( itm=1; itm lte listLen(structKeyList(arguments.params)); itm=itm+1 )
 		{
-			thisParam = listGetAt(structKeyList(arguments.params), itm);
+			thisParam = listGetAt(structKeyList(arguments.params), itm);				
 			// Do no add the param to the args struct if it is in the excludeList
 			if( not listFindNoCase(arguments.excludeList, thisParam) )
 			{
@@ -165,8 +165,9 @@ History:
 					serialFormStruct = variables.csData.serializedFormStringToStruct(arguments.params[thisParam]);
 					StructInsert(args,"serializedForm",serialFormStruct);
 				}else{
-					// is thisParam is a JSON object process it throught the json lib decode method
-					if(isJSON(arguments.params[thisParam])){
+					// is thisParam is a JSON object then process it throught the json lib decode method
+					// - also check if the thisParam value is a SimpleValue and is not a numeric, boolean or a date value
+					if( IsSimpleValue(arguments.params[thisParam]) AND NOT IsNumeric(arguments.params[thisParam]) AND NOT IsBoolean(arguments.params[thisParam]) AND NOT IsDate(arguments.params[thisParam]) AND IsJSON(arguments.params[thisParam])){
 						json = server.ADF.objectFactory.getBean("json");
 						arguments.params[thisParam] = json.decode(arguments.params[thisParam]);
 					}
@@ -179,8 +180,7 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author:
 	PaperThin, Inc.
 	Ryan Kahn
@@ -223,8 +223,7 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author:
 	PaperThin, Inc.
 	Ron West
@@ -409,28 +408,6 @@ History:
 		return variables.data.numberAsString(number=arguments.number);
 	</cfscript>
 </cffunction>
-
-<!---
-/* *************************************************************** */
-Author:
-	PaperThin, Inc.
-	Ryan Kahn
-Name:
-	$createUUID
-Summary:
-	Creates a UUID to return back via ajaxPRoxy
-Returns:
-	uuid
-Arguments:
-
-History:
- 	2011-08-02 - RAK - Created
-	2011-09-07 - MFC - Commented out function because: 
-						'The names of user-defined functions cannot be the same as built-in ColdFusion functions.'
---->
-<!--- <cffunction name="createUUID" access="public" returntype="uuid" hint="Creates a UUID to return back via ajaxPRoxy">
-	<cfreturn createUUID()>
-</cffunction> --->
 
 <!---
 /* *************************************************************** */
