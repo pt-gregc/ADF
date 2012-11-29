@@ -28,18 +28,20 @@ Name:
 Summary:
 	Scheduler base for the ADF
 Version:
-	1.0.0
+	1.0.1
 History:
 	2010-11-30 - RAK - Created
 	2011-09-17 - GAC - Added checks to each method to verify that the application.schedule variable exists
 	2011-09-26 - GAC - Updated application.schedule to be application.ADFscheduler 
 	2011-09-27 - GAC - Added the UTILS and SCRIPTS LIBs as a dependencies and converted all application.ADF references to the local 'variables.'. 
+	2012-11-29 - GAC - Added the DATA lib as a dependency 
 --->
 <cfcomponent displayname="scheduler_1_0" extends="ADF.core.Base" hint="Scheduler base for the ADF">
 	
-<cfproperty name="version" value="1_0_0">
+<cfproperty name="version" value="1_0_1">
 <cfproperty name="type" value="singleton">
 <cfproperty name="scripts" injectedBean="scripts_1_1" type="dependency">
+<cfproperty name="data" type="dependency" injectedBean="data_1_1">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_1">
 <cfproperty name="wikiTitle" value="Scheduler_1_0">
 
@@ -553,30 +555,81 @@ Arguments:
 	String - taskNameFilter
 History:
 	2010-12-21 - GAC - Added
-	2010-12-21 - GAC - Modified - Added task name filter
+	2010-12-21 - GAC - Added task name filter
+	2012-11-29 - GAC - Updated to handle getting the CFSCHEDULED tasks list from RAILO
 --->
 <cffunction name="getScheduledTasks" returntype="array" output="no" access="public" hint="Obtain an Array of CF scheduled tasks ">
 	<cfargument name="taskNameFilter" type="string" required="false" default="" hint="Used to only display Scheduled Task Names that contain this filter value">	
 	<cfscript>
 		var result = ArrayNew(1);
-		var newResult = ArrayNew(1);
-		var taskService = createobject('java','coldfusion.server.ServiceFactory').getCronService();
-		var itm = 1;
+		var newResultA = ArrayNew(1);
+		var newResultB = ArrayNew(1);
+		var taskService = "";
+		var taskQuery = QueryNew("temp");
+		var i = 1;
 		var taskName = "";
-		// Get Array of Scheduled tasks from the task service
-		result = taskservice.listall();
-		// If filter value is passed in loop over the Array of task and build a new array
-		if ( LEN(TRIM(arguments.taskNameFilter)) ) 
-		{ 
-			for ( itm; itm LTE ArrayLen(result); itm=itm+1 ) {
-				taskName = result[itm].task;
-				// Only Add Tasks to the Result Array if they contain the filter value
-				if ( FindNoCase(arguments.taskNameFilter,taskName,1) NEQ 0 ) 
-				{
-					arrayAppend(newResult,result[itm]);
+		var cfmlEngineType = server.coldfusion.productname;
+		var a = 1;
+		var keyVal = "";
+		var logError = false;
+		var schedArgs = StructNew();
+	</cfscript>
+	<!--- // Check what CFML engine were are in and then get a list of CF SCHEDULED TASKS --->
+	<cfif FindNoCase(cfmlEngineType,'ColdFusion Server')>
+		<!--- // if in Adobe Coldfusion get the Scheduled via this JAVA object --->
+		<cfset taskService = createobject('java','coldfusion.server.ServiceFactory').getCronService()>
+		<!--- // Get Array of Structs of the current Scheduled tasks on the server from the task service --->
+		<cfset result = taskservice.listall()>
+	<cfelseif FindNoCase(cfmlEngineType,'Railo')>
+		<!--- // Use an attributeCollection for the cfscheduele tag so Adobe ColdFusion will not throw an error on the non-ACF attribute --->
+		<cfset schedArgs.action = "list">
+		<cfset schedArgs.returnvariable = "taskQuery">
+		<cfschedule attributeCollection="#schedArgs#">
+				
+		<cfif taskQuery.RecordCount>
+			<cfscript>
+				// Convert the Scheduled task query from Railo to a Array of Struts
+				result = variables.DATA.queryToArrayOfStructures(queryData=taskQuery,keysToLowercase=true);
+				// Now convert Railo specific keys names to ACF compatible key names
+				for ( a=1; a LTE ArrayLen(result); a=a+1 ) {
+					for (key in result[a]) {
+						keyVal = result[a][key]; 
+						if ( key EQ "startdate" )
+							newResultA[a]["start_date"] = keyVal; 
+						else if ( key EQ "starttime" )
+							newResultA[a]["start_time"] = keyVal;
+						if ( key EQ "enddate" )
+							newResultA[a]["end_date"] = keyVal; 
+						else if ( key EQ "endtime" )
+							newResultA[a]["end_time"] = keyVal;
+						else if ( key EQ "port" )
+							newResultA[a]["http_port"] = keyVal;
+						else if ( key EQ "proxyport" )
+							newResultA[a]["http_proxy_port"] = keyVal;
+						else if ( key EQ "timeout" )
+							newResultA[a]["request_time_out"] = keyVal;
+						else
+							newResultA[a][key] = keyVal; 
+					}
 				}
+				result = newResultA;
+			</cfscript>
+		</cfif>
+	</cfif>
+	<!--- // If we have results filter the list --->
+	<cfscript>
+		if ( ArrayLen(result) ){
+			// If filter value is passed in loop over the Array of task and build a new array
+			if ( LEN(TRIM(arguments.taskNameFilter)) ) { 
+				for ( i; itm LTE ArrayLen(result); i=i+1 ) {
+					taskName = result[i].task;
+					// Only Add Tasks to the Result Array if they contain the filter value
+					if ( FindNoCase(arguments.taskNameFilter,taskName,1) NEQ 0 ) {
+						arrayAppend(newResultB,result[i]);
+					}
+				}
+				result = newResultB;
 			}
-			result = newResult;
 		}
 		return result;
 	</cfscript>
