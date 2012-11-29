@@ -311,7 +311,9 @@ History:
 
 <!---
 /* *************************************************************** */
-Author: 	M. Carroll
+Author: 
+	PaperThin, Inc.	
+	M. Carroll
 Name:
 	$processMetadata
 Summary:
@@ -382,6 +384,7 @@ History:
 				addTransient(arguments.beanData.cfcPath, arguments.beanData.beanName);
 		}
 		catch (any exception){
+			// CF9+ specific code - cfscript: throw
 			throw(type="Custom", message="Error processing the metadata for the component [#arguments.beandata.CFCPath#].", detail="Error processing the metadata for the component [#arguments.beandata.CFCPath#].");
 		}	
 	</cfscript>
