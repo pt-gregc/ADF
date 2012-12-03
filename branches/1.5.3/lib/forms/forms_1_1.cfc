@@ -27,7 +27,7 @@ Name:
 Summary:
 	Form functions for the ADF Library
 Version:
-	1.1.0
+	1.1.3
 History:
 	2009-09-28 - MFC - Created
 	2010-12-20 - MFC - Updated Forms_1_1 for dependency to Scripts_1_1.
@@ -35,7 +35,7 @@ History:
 --->
 <cfcomponent displayname="forms_1_1" extends="ADF.lib.forms.forms_1_0" hint="Form functions for the ADF Library">
 
-<cfproperty name="version" value="1_1_2">
+<cfproperty name="version" value="1_1_3">
 <cfproperty name="type" value="transient">
 <cfproperty name="ceData" injectedBean="ceData_1_1" type="dependency">
 <cfproperty name="scripts" injectedBean="scripts_1_1" type="dependency">
@@ -290,6 +290,7 @@ Arguments:
 History:
 	2010-12-06 - RAK - Created
 	2011-11-22 - GAC - Added a fieldPermission argument and logic to handle 6.x field security
+	2012-12-03 - GAC - Fixed the logic when checking the fieldPermission value for CS 6.0+ to only return ReadOnly when the fieldPermission value equals 1
 --->
 <cffunction name="isFieldReadOnly" access="public" returntype="boolean" hint="Given xparams determines if the field is readOnly">
 	<cfargument name="xparams" type="struct" required="true" default="" hint="XParams struct">
@@ -304,7 +305,9 @@ History:
 		{
 			// For CS 6.x and above
 			// - If the user has ready only rights (fieldPermission = 1) readOnly will be true
-			if ( LEN(TRIM(arguments.fieldPermission)) OR arguments.fieldPermission NEQ 1 ) 
+			if ( LEN(TRIM(arguments.fieldPermission)) AND arguments.fieldPermission EQ 1 ) 
+				readOnly = true;
+			else
 				readOnly = false;				
 		}
 		else
