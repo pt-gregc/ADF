@@ -6,6 +6,7 @@
 <!-- // RAK 2011-09-22 - Added CCAPI_1_0 stuff back in -->
 <!-- // GAC 2011-10-04 - Updated v1.5 csSecurity node to be set to csSecurity_1_1 -->
 <!-- // MFC 2012-06-04 - Railo Fix - Moved comments below 'settings' tag. -->
+<!-- // MFC 2012-07-11 - Added v1.6 tag for new lib versions. -->
 	<v_1.0>
 		<!-- // ajax -->
 		<ajax_1_0/>
@@ -79,4 +80,28 @@
 		<!-- // utils -->
 		<utils_1_1/>
 	</v_1.5>
+	<v_1.6>
+		<ajax_1_0/>
+		<ccapi_1_0/>
+		<ccapiConfig_1_0/>
+		<csapi_1_0/>
+		<ceData_1_1/>
+		<csUpload_1_0/>
+		<csContent_1_0/>
+		<csSubsite_1_0/>
+		<csPage_1_1/>
+		<csData_1_1/>
+		<csSecurity_1_1/>
+		<data_1_1/>
+		<date_1_1/>
+		<forms_1_1/>
+		<lightbox_1_0/>
+		<mobile_1_0/>
+		<scheduler_1_0/>
+		<scripts_1_1/>
+		<scriptsService_1_1/>
+		<taxonomy_1_1/>
+		<ui_1_0/>
+		<utils_1_1/>
+	</v_1.6>
 </settings>

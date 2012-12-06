@@ -37,17 +37,18 @@ History:
 	2012-03-08 - MFC - Modified - Removed the cfproperty for the "svnRevision".
 								  Added "variables.buildRev" to be manually updated before releases.
 								  Added "server.ADF.buildRev" to have available in the ADF space.
+	2012-07-11 - MFC - Modified - New v1.6.0 branch.
 --->
 <cfcomponent name="Core" hint="Core component for Application Development Framework">
 
-<cfproperty name="version" value="1_5_3">
+<cfproperty name="version" value="1_6_0">
 
 <cfscript>
-	variables.ADFversion = "1.5.3"; // use a dot delimited version number
+	variables.ADFversion = "1.6.0"; // use a dot delimited version number
 	// ADF Build Revision Number
 	variables.buildRev = "917";
 	// ADF Codename
-	variables.buildName = "Tetris";
+	variables.buildName = "TBD";
 	// CS product version, get the decimal value
 	variables.csVersion = Val(ListLast(request.cp.productversion, " "));
 </cfscript>
