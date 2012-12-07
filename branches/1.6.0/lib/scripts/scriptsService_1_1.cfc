@@ -27,7 +27,7 @@ Name:
 Summary:
 	Scripts Service functions for the ADF Library
 Version:
-	1.1.0
+	1.1
 History:
 	2010-12-10 - RAK - Created
 --->

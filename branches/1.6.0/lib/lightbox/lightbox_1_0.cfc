@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2010.
+PaperThin, Inc. Copyright(C) 2012.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -34,7 +34,7 @@ History:
 	2012-01-30 - MFC - Updated the wikiTitle cfproperty.
 	2012-04-09 - MFC - Rolled back updates for Lightbox with CS 7 and 6.2.
 --->
-<cfcomponent displayname="lightbox" extends="ADF.core.Base" hint="Lightbox functions for the ADF Library">
+<cfcomponent displayname="lightbox_1_0" extends="ADF.core.Base" hint="Lightbox functions for the ADF Library">
 	
 <cfproperty name="version" value="1_0_7">
 <cfproperty name="type" value="singleton">
@@ -72,7 +72,7 @@ History:
 <!--- // ATTENTION: 
 		Do not call is method directly. Call from inside the LightboxProxy.cfm file  (method properties are subject to change)
 --->
-<cffunction name="buildLightboxProxyHTML" access="public" returntype="string" hint="Returns a HTML string for content that displays inside an ADF lightbox">
+<cffunction name="buildLightboxProxyHTML" access="public" returntype="string" output="false" hint="Returns a HTML string for content that displays inside an ADF lightbox">
 	<cfargument name="proxyFile" required="false" default="#CGI.SCRIPT_NAME#" hint="Proxyfile to load lightbox proxy from"><!--- // Must NOT be required so the Lightbox will display the error --->
 	<cfscript>
 		var hasError = 0;

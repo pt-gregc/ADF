@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2010.
+PaperThin, Inc. Copyright(C) 2012.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files
@@ -28,7 +28,7 @@ Name:
 Summary:
 	Scheduler base for the ADF
 Version:
-	1.0.1
+	1.0
 History:
 	2010-11-30 - RAK - Created
 	2011-09-17 - GAC - Added checks to each method to verify that the application.schedule variable exists

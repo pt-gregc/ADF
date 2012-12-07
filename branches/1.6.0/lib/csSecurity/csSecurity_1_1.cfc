@@ -27,9 +27,10 @@ Name:
 Summary:
 	 Security functions for the ADF Library
 Version:
-	1.1.0
+	1.1
 History:
 	2011-10-04 - GAC - Created
+	2012-12-07 - MFC - Moved new functions to CSSecurity v1.2.
 --->
 <cfcomponent displayname="csSecurity_1_1" extends="ADF.lib.csSecurity.csSecurity_1_0" hint="Security functions for the ADF Library">
 
@@ -124,33 +125,6 @@ History:
 			}	
 		}
 		return retStruct;
-	</cfscript>
-</cffunction>
-
-<!---
-/* *************************************************************** */
-Author: 	
-	PaperThin, Inc.	
-	G. Cronkright
-Name:
-	$isValidAuthToken
-Summary:	
-	Returns T/F if the passed in authToken validates or not
-Returns:
-	Boolean
-Arguments:
-	String authToken
-History:
-	2012-06-25 - GAC - Created
---->
-<cffunction name="isValidAuthToken" access="public" returntype="boolean" hint="Returns T/F if the passed in authToken validates or not">
-	<cfargument name="authToken" type="string" required="true" hint="">
-	<cfscript>
-		var result = true;
-		
-		/* Place the logic here to validate the provided auth token and return true if valid */
-			
-		return result;
 	</cfscript>
 </cffunction>
 

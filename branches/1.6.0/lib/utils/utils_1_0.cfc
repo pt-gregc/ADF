@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2010.
+PaperThin, Inc. Copyright(C) 2012.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -27,7 +27,7 @@ Name:
 Summary:
 	Util functions for the ADF Library
 Version:
-	1.0.1
+	1.0
 History:
 	2009-06-22 - MFC - Created
 --->
@@ -926,28 +926,5 @@ History:
 		return(final_list);
 	</cfscript>
 </cffunction>
-<!---
-/* ***************************************************************
-/*
-Author: 	Dave Beckstrom
-Name:
-	$pageRedirect
-Summary:
-	Redirects page to a new url via cflocation.  Useful for cfscript notation.
-Returns:
-	void
-Arguments:
-	String targetURL - URL target for cflocation.
-	String logFile [optional] - an alternative log file
-History:
-	2012-07-23 - DMB - Created
---->
-<cffunction name="pageRedirect" access="public" returntype="void">
-	<cfargument name="targetURL" type="any" required="true">
-	<cfif arguments.targetURL contains "http">
-		<cflocation url="http://#arguments.targetURL#" addtoken="No">
-	<cfelse>
-		<cflocation url="#arguments.targetURL#" addtoken="No">
-	</cfif>
-</cffunction>
+
 </cfcomponent>

@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2011.
+PaperThin, Inc. Copyright(C) 2012.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files
@@ -27,7 +27,7 @@ Name:
 Summary:
 	Form functions for the ADF Library
 Version:
-	1.1.3
+	1.1
 History:
 	2009-09-28 - MFC - Created
 	2010-12-20 - MFC - Updated Forms_1_1 for dependency to Scripts_1_1.

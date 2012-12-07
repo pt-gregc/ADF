@@ -27,7 +27,7 @@ Name:
 Summary:
 	Taxonomy functions for the ADF Library
 Version:
-	1.0.1
+	1.0
 History:
 	2009-06-22 - MFC - Created
 	2011-01-14 - MFC - v1.0.1	- Bug fixes to getPageBindingsForTermID.

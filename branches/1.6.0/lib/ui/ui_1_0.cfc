@@ -17,6 +17,7 @@ By downloading, modifying, distributing, using and/or accessing any files
 in this directory, you agree to the terms and conditions of the applicable 
 end user license agreement.
 --->
+
 <!---
 /* *************************************************************** */
 Author: 	
@@ -26,7 +27,7 @@ Name:
 Summary:
 	UI functions for the ADF Library
 Version:
-	1.0.0
+	1.0
 History:
 	2010-12-21 - GAC - Created
 	2011-01-21 - GAC - Moved in the lightbox wrapper function from forms_1_1

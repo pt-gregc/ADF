@@ -27,7 +27,7 @@ Name:
 Summary:
 	Date Utils functions for the ADF Library
 Version:
-	1.1.0
+	1.1
 History:
 	2011-03-08 - GAC - Created - New v1.1
 --->
