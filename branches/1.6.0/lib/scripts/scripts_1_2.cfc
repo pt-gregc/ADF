@@ -110,6 +110,33 @@ History:
 
 <!---
 /* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 	
+	M. Carroll
+Name:
+	$loadJQuery
+Summary:
+	Loads the JQuery Headers if not loaded.
+Returns:
+	None
+Arguments:
+	String - version - JQuery version to load.
+	Boolean - force - Forces JQuery script header to load.
+	Boolean - noConflict - JQuery no conflict flag.
+History:
+	2012-12-07 - MFC - Based on 1.1.  Set to defaul load JQuery 1.8.
+--->
+<cffunction name="loadJQuery" access="public" returntype="void" hint="Loads the JQuery Headers if not loaded.">
+	<cfargument name="version" type="string" required="false" default="1.8" hint="JQuery version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
+	<cfargument name="noConflict" type="boolean" required="false" default="0" hint="JQuery no conflict flag.">
+	<cfscript>
+		super.loadJQuery(version=arguments.version, force=arguments.force, noConflict=arguments.noConflict);
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
 Author:
 	Fig Leaf Software
 	Mike Tangorre (mtangorre@figleaf.com)
@@ -280,6 +307,59 @@ History:
 			#variables.scriptsService.renderScriptOnce("jQueryTemplates",outputHTML)#
 		</cfif>
 	</cfoutput>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
+Name:
+	$loadJQueryUI
+Summary:
+	Loads the JQuery UI Headers if not loaded.
+Returns:
+	None
+Arguments:
+	String - version - JQuery UI version to load.
+	String - theme - JQuery UI theme to load.
+	Boolean - force - Forces JQuery script header to load.
+History:
+	2009-07-31 - MFC - Based on 1.1. Changed the theme loading folders for 1.9.
+--->
+<cffunction name="loadJQueryUI" access="public" output="true" returntype="void" hint="Loads the JQuery UI Headers if not loaded."> 
+	<cfargument name="version" type="string" required="false" default="1.9" hint="JQuery version to load.">
+	<cfargument name="themeName" type="string" required="false" default="ui-lightness" hint="UI Theme Name (directory name)">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery UI script header to load.">
+	<cfscript>
+		var outputHTML = "";
+		// 2011-12-28 - MFC - Make the version backwards compatiable to remove minor build numbers.
+		arguments.version = variables.scriptsService.getMajorMinorVersion(arguments.version);
+	</cfscript>
+	<!--- Check the version, if less than "1.9", then call the Scripts 1.1 function to load --->
+	<cfif arguments.version LTE 1.8>
+		<cfscript>
+			super.loadJQueryUI(version=arguments.version, themeName=arguments.themeName, force=arguments.force);
+		</cfscript>
+	<cfelse>
+		<cfsavecontent variable="outputHTML">
+			<cfoutput>
+				<script type='text/javascript' src='/ADF/thirdParty/jquery/ui/jquery-ui-#arguments.version#/js/jquery-ui-#arguments.version#.js'></script>
+				<cfif DirectoryExists(expandPath("/_cs_apps/thirdParty/jquery/ui/jquery-ui-#arguments.version#/css/#arguments.themeName#"))>
+					<link rel='stylesheet' href='/_cs_apps/thirdParty/jquery/ui/jquery-ui-#arguments.version#/css/#arguments.themeName#/jquery-ui.css' type='text/css' media='screen' />
+				<cfelseif DirectoryExists(expandPath("/ADF/thirdParty/jquery/ui/jquery-ui-#arguments.version#/css/#arguments.themeName#"))>
+					<link rel='stylesheet' href='/ADF/thirdParty/jquery/ui/jquery-ui-#arguments.version#/css/#arguments.themeName#/jquery-ui.css' type='text/css' media='screen' />
+				</cfif>
+			</cfoutput>
+		</cfsavecontent>
+		<cfoutput>
+			<cfif arguments.force>
+				#outputHTML#
+			<cfelse>
+				#variables.scriptsService.renderScriptOnce("jQueryUI",outputHTML)#
+			</cfif>
+		</cfoutput>
+	</cfif>
 </cffunction>
 
 <!---
