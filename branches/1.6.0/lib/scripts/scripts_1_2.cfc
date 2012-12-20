@@ -124,7 +124,7 @@ Arguments:
 	Boolean - force - Forces JQuery script header to load.
 	Boolean - noConflict - JQuery no conflict flag.
 History:
-	2012-12-07 - MFC - Based on 1.1.  Set to defaul load JQuery 1.8.
+	2012-12-07 - MFC - Based on 1.1.  Set to default load JQuery 1.8.
 --->
 <cffunction name="loadJQuery" access="public" returntype="void" hint="Loads the JQuery Headers if not loaded.">
 	<cfargument name="version" type="string" required="false" default="1.8" hint="JQuery version to load.">
@@ -168,6 +168,31 @@ History:
 			#variables.scriptsService.renderScriptOnce("jQueryCapty",outputHTML)#
 		</cfif>
 	</cfoutput>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$loadJCycle
+Summary:	
+	Loads the jCycle plugin for jQuery
+Returns:
+	Void
+Arguments:
+	String - version - "2.9"
+	Boolean - Force
+History:
+ 	2012-12-17 - MFC - Based on 1.1.  Set to default load version 2.9.
+--->
+<cffunction name="loadJCycle" access="public" output="true" returntype="void" hint="Loads the jCycle plugin for jQuery"> 
+	<cfargument name="version" type="string" required="false" default="2.9" hint="jCycle version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
+	<cfscript>
+		// Call the super function
+		super.loadJCycle(version=arguments.version, force=arguments.force);
+	</cfscript>
 </cffunction>
 
 <!---
