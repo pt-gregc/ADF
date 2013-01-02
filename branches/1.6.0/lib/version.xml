@@ -111,17 +111,19 @@ History:
 	</v_1.5>
 	<v_1.6>
 		<ajax_1_0/>
-		<ccapi_1_0/>
+		<api_1_0/>
+		<apiElement_1_0/>
+		<ccapi_2_0/>
 		<ccapiConfig_1_0/>
 		<csapi_1_0/>
-		<ceData_1_1/>
+		<ceData_1_2/>
 		<csUpload_1_0/>
-		<csContent_1_0/>
+		<csContent_2_0/>
 		<csSubsite_1_0/>
 		<csPage_1_1/>
 		<csData_1_2/>
 		<csSecurity_1_2/>
-		<data_1_1/>
+		<data_1_2/>
 		<date_1_1/>
 		<forms_1_1/>
 		<lightbox_1_0/>
