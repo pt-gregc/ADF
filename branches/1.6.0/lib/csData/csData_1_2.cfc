@@ -30,10 +30,17 @@ Version:
 	1.2
 History:
 	2012-12-07 - MFC - Created - New v1.1
+	2013-01-02 - MFC - Added new functions:
+						getSubsiteStructBySubsiteID
+						getSubsiteURLbySubsiteID
+						createUniquePageInfofromPageTitle
+						createUniquePageTitle
+						createUniquePageName
+						getCSPageIDByTitle
 --->
 <cfcomponent displayname="csData_1_2" extends="ADF.lib.csData.csData_1_1" hint="CommonSpot Data Utils functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_1">
+<cfproperty name="version" value="1_2_2">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_1">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">
@@ -165,6 +172,401 @@ History:
 		WHERE ID = <cfqueryparam value="#arguments.userID#" cfsqltype="cf_sql_integer">
 	</cfquery>
 	<cfreturn TRIM(qryData.UserName)>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$getSubsiteStructBySubsiteID
+Summary:
+	Given a subsiteID return a structure that contains subsite information
+Returns:
+	Struct 
+Arguments:
+	Numeric - subsiteID
+History:
+	2012-03-22 - GAC - Created
+--->
+<cffunction name="getSubsiteStructBySubsiteID" access="public" returntype="struct" hint="Given a subsiteID return a structure that contains subsite information">
+	<cfargument name="subsiteID" type="numeric" required="true">
+	<cfscript>
+		var rtnStruct = structNew();
+		var subsiteQry = getSubsiteQueryByID(arguments.subsiteID);
+		if ( StructKeyExists(subsiteQry,"name") )
+			rtnStruct.subsiteName = subsiteQry["name"][1];
+		if ( StructKeyExists(subsiteQry,"subsiteID") )
+			rtnStruct.subsiteID = subsiteQry["subsiteID"][1];
+		if ( StructKeyExists(subsiteQry,"subsiteURL") )
+			rtnStruct.subsiteURL = subsiteQry["subsiteURL"][1];
+		if ( StructKeyExists(subsiteQry,"subsiteDir") )
+			rtnStruct.subsiteDir = subsiteQry["subsiteDir"][1];
+		return rtnStruct; 
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$getSubsiteURLbySubsiteID
+Summary:
+	Given a subsiteID return a valid SubsiteURL
+Returns:
+	String 
+Arguments:
+	Numeric - subsiteID
+History:
+	2012-03-22 - GAC - Created
+--->
+<cffunction name="getSubsiteURLbySubsiteID" access="public" returntype="string" hint="Given a subsiteID return a valid SubsiteURL">
+	<cfargument name="subsiteID" type="numeric" required="true">
+	<cfscript>
+		var rtnStr = "";
+		var subsiteStruct = getSubsiteStructBySubsiteID(arguments.subsiteID);
+		if ( StructKeyExists(subsiteStruct,"subsiteURL") )
+			rtnStr = subsiteStruct["subsiteURL"];
+		return rtnStr; 
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$createUniquePageInfofromPageTitle
+Summary:
+	Creates a unique page title, page name and file name for a page from a passed in pageTitle
+Returns:
+	Struct
+Arguments:
+	String csPageTitle
+	String csPageName
+	Numeric csSubsiteID
+	Numeric csPageID
+	Numeric pageNameWordMax
+	Boolean verbose
+History:
+	2012-03-26 - GAC - Created 
+--->
+<cffunction name="createUniquePageInfofromPageTitle" access="public" returntype="struct" output="true" hint="Creates a unique page title, page name and file name for a page from a passed in pageTitle">
+	<cfargument name="csPageTitle" type="string" required="true" hint="a page title to build a page name and file name from">
+	<cfargument name="csPageName" type="string" required="true" hint="a page name to build a page name and file name from">
+	<cfargument name="csSubsiteID" type="numeric" required="false" default="0" hint="if subsite is 0 check whole, else check only the specified subsite">
+	<cfargument name="csPageID" type="numeric" required="false" default="0" hint="if a cs pageid is passed in and it matches an existing and valid cs page DO NOT create unique name">
+	<cfargument name="pageTitleWordMax" type="numeric" required="false" default="10" hint="Word limit for page and file names">
+	<cfargument name="verbose" type="boolean" required="false" default="false" hint="Toggle debugging dump outputs">
+	<cfscript>
+		var retResult = StructNew();
+		var newPageTitle = arguments.csPageTitle;
+		var newPageName = arguments.csPageName;
+		var newFileName = "";
+		var newFullFileName = "";
+		var newFullFileURL = "";
+		var newFullFilePath = "";
+		var qSubsite = QueryNew("temp");
+		var subsiteURL = "/";
+		var qNewPageData = QueryNew("temp");
+		var existingFullFilePath = "";
+		var newUniqueNamePath = "";
+				
+		// Strip HTML tags
+		newPageTitle = TRIM(application.npsAsset.data.stripHTMLtags(str=newPageTitle,replaceStr=" "));
+		if ( arguments.verbose )					
+			application.ADF.utils.doDump(newPageTitle, "newPageTitle - Strip HTML tags", 1);
+	
+		// Convert HTML entities to text
+		newPageTitle = TRIM(application.npsAsset.data.unescapeHTMLentities(str=newPageTitle));
+		if ( arguments.verbose )					
+			application.ADF.utils.doDump(newPageTitle, "newPageTitle - Strip HTML entities", 1);
+
+		// Shorten the newPageTitle by a set number of words ( Zero '0' would bypass this modification )
+		if ( arguments.pageTitleWordMax NEQ 0 ) 	
+			newPageTitle = application.ADF.data.trimStringByWordCount(newPageTitle,arguments.pageTitleWordMax,false);
+		if ( arguments.verbose )					
+			application.ADF.utils.doDump(newPageTitle, "newPageTitle - Shortened", 1);		
+		
+		// Create a unique Page Title from the passed in csPageTitle 
+		// - check the whole site if a SubsiteID is 0
+		// - if a cs pageid is passed in and it matches an existing and valid cs page DO NOT create unique name 
+		newPageTitle = createUniquePageTitle(csPageTitle=newPageTitle,csSubsiteID=arguments.csSubsiteID,csPageID=arguments.csPageID);
+		if ( arguments.verbose )					
+			application.ADF.utils.doDump(newPageTitle, "newPageTitle - Unique", 1);			
+			
+		// Build New PageName from the new unique PageTitle 
+		newPageName = createUniquePageName(csPageName=newPageName,csSubsiteID=arguments.csSubsiteID,csPageID=arguments.csPageID);
+		if ( arguments.verbose )	
+			application.ADF.utils.doDump(newPageName, "newPageName", 1);		
+		
+		// Assign to FileName variable from the shortend PageName
+		newFileName = newPageName;
+		
+		// Filter out any international characters
+		newFileName = application.ADF.data.filterInternationlChars(newFileName);
+
+		// Make the File Name it CS safe (add dashes, etc.)		
+		newFileName = application.ADF.csData.makeCSSafe(newFileName);	
+		if ( arguments.verbose )	
+			application.ADF.utils.doDump(newFileName, "newFileName", 1);
+		
+		newFullFileName = newFileName & ".cfm";
+		if ( arguments.verbose )	
+			application.ADF.utils.doDump(newFullFileName, "newFullFileName", 1);
+				
+		// Make the file name Unique if needed
+		// - Get the subsite data from destSubsiteID 
+		qSubsite = application.ADF.CSData.getSubsiteQueryByID(arguments.csSubsiteID);
+		if ( arguments.verbose )
+			application.ADF.utils.doDump(qSubsite, "qSubsite", 0);
+		
+		if ( qSubsite.RecordCount ) 
+		{
+			// Get the Destination Subsite URL 
+			subsiteURL = qSubsite.SUBSITEURL;
+			if ( arguments.verbose )					
+				application.ADF.utils.doDump(subsiteURL,"subsiteURL",1);
+		}			
+
+		// Build potential page URL to Check to see if page name is unique
+		newFullFileURL = subsiteURL & newFullFileName;
+		if ( arguments.verbose )
+			application.ADF.utils.doDump(newFullFileURL,"newFullFileURL",1);
+		
+		// Check to see if file name is unique 
+		// - Get the page query but the fullFileURL
+		qNewPageData = application.ADF.csData.getCSPageDataByURL(newFullFileURL);
+		if ( arguments.verbose )
+			application.ADF.utils.doDump(qNewPageData,"qNewPageData",1);	
+		
+		// If pageID exists then create a new unique name
+		if ( structKeyExists(qNewPageData,"ID") 
+				AND LEN(TRIM(qNewPageData.ID)) 
+				AND IsNumeric(qNewPageData.ID) )  
+		{	
+			// Full File Path of the existing page
+			existingFullFilePath = ExpandPath(newFullFileURL);	
+			
+			if ( qNewPageData.ID NEQ 0 AND qNewPageData.ID NEQ arguments.csPageID ) {
+				if ( arguments.verbose )				
+					application.ADF.utils.doDump(existingFullFilePath,"existingFullFilePath",1);
+			
+				// new unique File path
+				newUniqueNamePath = application.ADF.utils.createUniqueFileName(existingFullFilePath);
+			}
+			else {
+				newUniqueNamePath = existingFullFilePath;		
+			}
+			if ( arguments.verbose )
+				application.ADF.utils.doDump(newUniqueNamePath,"newUniqueNamePath",1);
+		
+			// New Full Unique File Name (full w/ ext)
+			newFullFileName = ListLast(newUniqueNamePath,"/");
+			if ( arguments.verbose )
+				application.ADF.utils.doDump(newFullFileName,"newFullFileName",1);
+		
+			// New Full URL with File Name
+			newFullFileURL = subsiteURL & newFullFileName;
+			if ( arguments.verbose )
+				application.ADF.utils.doDump(newFullFileURL,"newFullFileURL",1);
+				
+			// New unique File Name (w/o ext)
+			newFileName = ListFirst(newFullFileName,".");
+			if ( arguments.verbose )	
+				application.ADF.utils.doDump(newFileName,"newFileName",1);	
+		}
+		
+		retResult["title"] = newPageTitle; 
+		retResult["name"] = newPageName; 
+		retResult["filename"] = newFullFileName; 
+		retResult["filenameNoExt"] = newFileName; 
+		retResult["url"] = newFullFileURL;
+		retResult["type"] = newFullFileURL; 
+		 
+		return retResult;
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$createUniquePageTitle
+Summary:
+	From given a page title check if it exists. If so, create a unique page title. 
+	Can check the whole site or a specified subsite.
+Returns:
+	String
+Arguments:
+	String - csPageTitle
+	Numeric - csSubsiteID
+	string - csPageID
+History:
+	2011-05-13 - GAC - Created
+--->
+<cffunction name="createUniquePageTitle" access="public" returntype="string" output="true" hint="From given a page title check if it exists. If so, create a unique page title. Can check the whole site or a specified subsite.">
+	<cfargument name="csPageTitle" type="string" required="true">
+	<cfargument name="csSubsiteID" type="numeric" required="false" default="0" hint="if subsite is 0 check whole, else check only the specified subsite">
+	<cfargument name="csPageID" type="numeric" required="false" default="0" hint="if a cs pageid is passed in and it matches an existing and valid cs pageID DO NOT create unique name">
+	<cfscript>
+		var newTitle = TRIM(arguments.csPageTitle);
+		var counter = 0;
+		var pageTitleExists = true;
+		var currentPageID = 0;
+		var currentSubsiteID = 0;
+		// Continue to create new PageTitles if pageTitleExists is true
+		while ( pageTitleExists ) {
+			// increment the counter	
+			counter = counter + 1; 
+			// Get the PageID for the current Page Title
+			currentPageID = getCSPageIDByTitle(newTitle);
+			// if a page ID is passed in other than 0, and the currentPageID and the passed in pageid match DO NOT create a unique name
+			if ( currentPageID NEQ 0 AND currentPageID NEQ arguments.csPageID )  
+			{
+				// if a subsite ID is passed in other than 0, only check in that subsite
+				if ( arguments.csSubsiteID NEQ 0 ) 
+				{
+					// Get the currentSubsiteID for the currentPageID
+					currentSubsiteID = getSubsiteIDByPageID(currentPageID);
+					if ( currentPageID NEQ 0 AND currentSubsiteID EQ arguments.csSubsiteID ) 
+					{
+						pageTitleExists = true;
+						newTitle = arguments.csPageTitle & "-" & counter; 
+					} 
+					else 
+					{ 
+						pageTitleExists = false;
+					}
+				} 
+				else 
+				{
+					if ( currentPageID NEQ 0 ) 
+					{
+						pageTitleExists = true; 
+						newTitle = arguments.csPageTitle & "-" & counter;
+					} 
+					else 
+					{
+						pageTitleExists = false;
+					}
+				}
+			} 
+			else 
+			{
+				pageTitleExists = false;
+			}
+		}
+		return newTitle; 
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$createUniquePageName
+Summary:
+	From given a page title check if it exists. If so, create a unique page title. 
+	Can check the whole site or a specified subsite.
+Returns:
+	String
+Arguments:
+	String - csPageName
+	Numeric - csSubsiteID
+	string - csPageID
+History:
+	2012-06-10 - GAC - Created
+--->
+<cffunction name="createUniquePageName" access="public" returntype="string" output="true" hint="From given a page title check if it exists. If so, create a unique page title. Can check the whole site or a specified subsite.">
+	<cfargument name="csPageName" type="string" required="true">
+	<cfargument name="csSubsiteID" type="numeric" required="false" default="0" hint="if subsite is 0 check whole, else check only the specified subsite">
+	<cfargument name="csPageID" type="numeric" required="false" default="0" hint="if a cs pageid is passed in and it matches an existing and valid cs pageID DO NOT create unique name">
+	<cfscript>
+		var cleanedPageName = buildCSPageName(TRIM(LCASE(arguments.csPageName)));
+		var newName = cleanedPageName;
+		var counter = 0;
+		var pageNameExists = true;
+		var currentPageID = 0;
+		var currentSubsiteID = 0;
+		// Continue to create new PageTitles if pageNameExists is true
+		while ( pageNameExists ) {
+			// increment the counter	
+			counter = counter + 1; 
+			// Get the PageID for the current Page Title
+			currentPageID = getCSPageByName(newName, arguments.csSubsiteID);
+			// if a page ID is passed in other than 0, and the currentPageID and the passed in pageid match DO NOT create a unique name
+			if ( currentPageID NEQ 0 AND currentPageID NEQ arguments.csPageID )  
+			{
+				// if a subsite ID is passed in other than 0, only check in that subsite
+				if ( arguments.csSubsiteID NEQ 0 ) 
+				{
+					// Get the currentSubsiteID for the currentPageID
+					currentSubsiteID = getSubsiteIDByPageID(currentPageID);
+					if ( currentPageID NEQ 0 AND currentSubsiteID EQ arguments.csSubsiteID ) 
+					{
+						pageNameExists = true;
+						newName = cleanedPageName & "-" & counter; 
+					} 
+					else 
+					{ 
+						pageNameExists = false;
+					}
+				} 
+				else 
+				{
+					if ( currentPageID NEQ 0 ) 
+					{
+						pageNameExists = true; 
+						newName = cleanedPageName & "-" & counter;
+					} 
+					else 
+					{
+						pageNameExists = false;
+					}
+				}
+			} 
+			else 
+			{
+				pageNameExists = false;
+			}
+		}
+		return newName; 
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$getCSPageIDByTitle
+Summary:
+	Given a page title get the pageID
+Returns:
+	Numeric csPageID
+Arguments:
+	String csPageTitle
+History:
+	2010-01-27 - GAC - Created
+	2011-05-13 - GAC - Modified - Added an OR to also check page title using the ToHTML function
+--->
+<cffunction name="getCSPageIDByTitle" access="public" returntype="numeric" output="true">
+	<cfargument name="csPageTitle" type="string" required="true">
+	<cfset var csPageID = 0>
+	<cfquery name="getPageData" datasource="#request.site.datasource#">
+		select ID, subsiteID
+		from sitePages
+		where title = <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.csPageTitle#">
+			or title = <cfqueryparam cfsqltype="cf_sql_varchar" value="#application.CS.Data.ToHTML(arguments.csPageTitle)#">
+	</cfquery>
+	<cfif getPageData.recordCount>
+		<cfset csPageID = getPageData.ID>
+	</cfif>
+	<cfreturn csPageID>
 </cffunction>
 
 </cfcomponent>
