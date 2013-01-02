@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2012.
+PaperThin, Inc. Copyright(C) 2013.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -29,10 +29,11 @@ Summary:
 History:
 	2009-08-14 - MFC - Created
 	2011-07-11 - MFC/AW - Updated Init and loadADFAppBeanConfig for performance improvements.
+	2012-12-26 - MFC - Updated the logging for the v1.6.
 --->
 <cfcomponent name="LightWireConfigBase" extends="ADF.thirdParty.lightwire.BaseConfigObject" output="false">
 
-<cfproperty name="version" value="1_5_1">
+<cfproperty name="version" value="1_6_1">
 
 <cffunction name="init" returntype="any" hint="I initialize default LightWire config properties." output=false access="public">
 	<cfscript>
@@ -327,6 +328,7 @@ History:
 	2010-04-06 - MFC - Code cleanup.
 	2011-02-09 - RAK - Var'ing un-var'd items
 	2012-07-09 - MFC - Added TRY-CATCH error handling for if processing the metadata form fails.
+	2012-12-26 - MFC - Replaced CFSCRIPT TRY-CATCH with CF tagged based TRY-CATCH.
 --->
 <cffunction name="processMetadata" access="private" returntype="void">
 	<cfargument name="beanData" type="struct" required="true">
@@ -338,8 +340,11 @@ History:
 		var i = 1;
 		var keys = "";
 		var properties = arrayNew(1);
-		
-		try {
+		var errorMessage = "";
+	</cfscript>
+	
+	<cftry>
+		<cfscript>
 			metadata = getMetaData(CreateObject("component", arguments.beanData.cfcPath));
 			
 			if( structKeyExists(metadata, "properties") )
@@ -382,12 +387,23 @@ History:
 			// if it was not injected then assume it is a transient
 			if( not injected )
 				addTransient(arguments.beanData.cfcPath, arguments.beanData.beanName);
-		}
-		catch (any exception){
-			// CF9+ specific code - cfscript: throw
-			throw(type="Custom", message="Error processing the metadata for the component [#arguments.beandata.CFCPath#].", detail="Error processing the metadata for the component [#arguments.beandata.CFCPath#].");
-		}	
-	</cfscript>
+		</cfscript>
+		<cfcatch>
+			<cfscript>
+				// Build the CF error string to throw
+				errorMessage = "Error processing the metadata for the component [#arguments.beandata.CFCPath#]";
+				if ( StructKeyExists(cfcatch, "message") )
+					errorMessage = errorMessage & "[CF Error Message = #cfcatch.message#]";
+				if ( StructKeyExists(cfcatch, "TagContext")
+						AND isArray(cfcatch.TagContext)
+						AND ArrayLen(cfcatch.TagContext) ){
+					
+					errorMessage = errorMessage & "[Template = #cfcatch.TagContext[1].template#] [Line = #cfcatch.TagContext[1].line#]";
+				}
+			</cfscript>
+			<cfthrow message="#errorMessage#" detail="#errorMessage#">
+		</cfcatch>
+	</cftry>
 </cffunction>
 
 <!---
