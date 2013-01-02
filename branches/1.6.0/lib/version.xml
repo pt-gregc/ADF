@@ -113,6 +113,7 @@ History:
 		<ajax_1_0/>
 		<api_1_0/>
 		<apiElement_1_0/>
+		<apiPage_1_0/>
 		<ccapi_2_0/>
 		<ccapiConfig_1_0/>
 		<csapi_1_0/>
@@ -120,7 +121,7 @@ History:
 		<csUpload_1_0/>
 		<csContent_2_0/>
 		<csSubsite_1_0/>
-		<csPage_1_1/>
+		<csPage_2_0/>
 		<csData_1_2/>
 		<csSecurity_1_2/>
 		<data_1_2/>

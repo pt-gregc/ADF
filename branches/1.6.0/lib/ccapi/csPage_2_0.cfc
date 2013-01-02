@@ -34,9 +34,10 @@ History:
 ---> 
 <cfcomponent displayname="csPage_2_0" extends="ADF.lib.ccapi.csPage_1_1" hint="Constructs a CCAPI instance and then creates or deletes a page with the given information">
 
-<cfproperty name="version" value="2_0_1">
+<cfproperty name="version" value="2_0_2">
 <cfproperty name="type" value="transient">
-<cfproperty name="apiElement" type="dependency" injectedBean="apiPage_1_0">
+<cfproperty name="api" type="dependency" injectedBean="api_1_0">
+<cfproperty name="apiPage" type="dependency" injectedBean="apiPage_1_0">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
 <cfproperty name="wikiTitle" value="CSPage_2_0">
 
@@ -182,16 +183,80 @@ History:
 	</cfscript>
 	<cfreturn result> --->
 	<cfscript>
+		var contentResult = "";
+		// Merge the custom metadata form into the standard metadata form to make a single data structure
+		var pageData = arguments.stdMetadata;
+		var tempStruct = structNew();
+		var i = 1;
+		var j = 1;
+		var metadataKeyList = "";
+		var currFormName = "";
+		var currFormKeyList = "";
+		var currFieldName = "";
+		
+		var logStruct = structNew();
+		var logArray = arrayNew(1);
+		var loggingEnabled = false;
+		// Check the element is in the API Config file and defined		
+		var apiConfig = variables.api.getAPIConfig();
+		
+		// Convert Metadata Struct into an Array of values
+		//	FieldName = The name of the field in the metadata form.
+		//	FormName = The name of the metadata form.
+		//	Value = The value of the metadata field.
+		pageData.metadata = ArrayNew(1);
+		// Loop over the struct
+		metadataKeyList = StructKeylist(arguments.custMetadata);
+		for ( i=1; i LTE ListLen(metadataKeyList); i++ ){
+			currFormName = ListGetAt(metadataKeyList, i);
+			currFormKeyList = StructKeylist(arguments.custMetadata[currFormName]);
+			// Loop over the fields in the form
+			for ( j=1; j LTE ListLen(currFormKeyList); j++ ){
+				currFieldName = ListGetAt(currFormKeyList, j);
+				tempStruct = structNew();
+				tempStruct['FormName'] = currFormName;
+				tempStruct['FieldName'] = currFieldName;
+				tempStruct['Value'] = arguments.custMetadata[currFormName][currFieldName];
+				// Add the struct back into the array
+				ArrayAppend(pageData.metadata, tempStruct);
+			}
+		}
+		
 		// Call the API apiElement Lib Component
-		var contentResult = variables.apiPage.populateCustom(elementName=arguments.elementName,
-															    data=arguments.data,
-															    forceSubsiteID=arguments.forceSubsiteID,
-															    forcePageID=arguments.forcePageID,
-															    forceLogout=arguments.forceLogout);
+		var contentResult = variables.apiPage.create(pageData=pageData);
 		
 		// Format the result in the way that was previously constructed
-		result.contentUpdated = contentResult.status;
-		result.msg = contentResult.msg;
+		result.contentUpdated = contentResult.CMDSTATUS;
+		result.msg = contentResult.CMDRESULTS;
+		// Update the existing return variables to make backwards compat.
+		result.newPageID = contentResult.CMDRESULTS;
+		result.pageCreated = contentResult.CMDSTATUS;
+		
+		// Set the logging flag
+		if ( isStruct(apiConfig) 
+			AND StructKeyExists(apiConfig, "logging")
+			AND StructKeyExists(apiConfig.logging, "enabled")
+			AND apiConfig.logging.enabled == 1 ) {
+			
+			if ( result.contentUpdated ){
+				logStruct.msg = "#request.formattedTimestamp# - Page [Page ID = #result.newPageID#] [Title = #arguments.stdMetadata.title#]";
+				logStruct.logFile = 'API_Page_create.log';
+				arrayAppend(logArray, logStruct);
+			}
+			else {
+				// Check if the error is a CFCATCH struct
+				if ( isStruct(result.msg)
+						AND StructKeyExists(result.msg, "message")
+						AND StructKeyExists(result.msg, "detail") )
+					logStruct.msg = "#request.formattedTimestamp# - Error [Message: #e.message#] [Details: #e.detail#]";
+				else 
+					logStruct.msg = "#request.formattedTimestamp# - Error [#result.msg#]";
+				logStruct.logFile = 'API_Page_create_error.log';
+				arrayAppend(logArray, logStruct);
+			}
+			// Write the log files
+			variables.utils.bulkLogAppend(logArray);		
+		}
 		return result; 
 	</cfscript>
 </cffunction>

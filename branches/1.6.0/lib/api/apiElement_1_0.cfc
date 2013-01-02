@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="apiElement" extends="ADF.core.Base" hint="CCAPI functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_1">
+<cfproperty name="version" value="1_0_2">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
 <cfproperty name="wikiTitle" value="API Elements">
@@ -75,6 +75,8 @@ History:
 		var contentStruct = structNew();
 		var apiResponse = "";
 		var loggingEnabled = true;
+		var logFileName = "API_Element_populateCustom.log";
+		var logErrorFileName = "API_Element_populateCustom_error.log";
 		
 		// Init the return data structure
 		result.status = false;
@@ -115,7 +117,7 @@ History:
 					// Log the error message also
 					if ( loggingEnabled ) {
 						logStruct.msg = "#request.formattedTimestamp# - Element [#arguments.elementName#] is not defined in the API Configuration.";
-						logStruct.logFile = "API_populate_custom_error.log";
+						logStruct.logFile = logErrorFileName;
 						arrayAppend(logArray, logStruct);
 						variables.utils.bulkLogAppend(logArray);
 					}
@@ -128,7 +130,7 @@ History:
 					if ( loggingEnabled ) {
 						// Log the error message also
 						logStruct.msg = "#request.formattedTimestamp# - Element [#arguments.elementName#] is not defined as a custom element in the API Configuration.";
-						logStruct.logFile = "API_populate_custom_error.log";
+						logStruct.logFile = logErrorFileName;
 						arrayAppend(logArray, logStruct);
 						variables.utils.bulkLogAppend(logArray);
 					}
@@ -189,14 +191,14 @@ History:
 					// Log the success
 					if ( listFirst(result.data, ":") eq "Success" ){
 						logStruct.msg = "#request.formattedTimestamp# - Elemented Updated/Created: #thisElementConfig['elementType']# [#arguments.elementName#]. ContentUpdateResponse: #result.data#";
-						logStruct.logFile = 'CCAPI_populate_content.log';
+						logStruct.logFile = logFileName;
 						arrayAppend(logArray, logStruct);
 					}
 					else {
 						// Log the error message also
 						result.msg = listRest(result.data, ":");
 						logStruct.msg = "#request.formattedTimestamp# - Error updating element: #thisElementConfig['elementType']# [#arguments.elementName#]. Error recorded: #result.msg#";
-						logStruct.logFile = 'API_populate_custom_error.log';
+						logStruct.logFile = logErrorFileName;
 						arrayAppend(logArray, logStruct);
 					}
 				}
@@ -207,7 +209,7 @@ History:
 					logStruct.msg = "#request.formattedTimestamp# - Error [Message: #result.msg#]";
 					if ( StructKeyExists(result.data, "detail") )
 						logStruct.msg = logStruct.msg & " [Details: #result.data.detail#]";
-					logStruct.logFile = "API_populate_custom_error.log";
+					logStruct.logFile = logErrorFileName;
 					arrayAppend(logArray, logStruct);
 				}
 			}
@@ -218,7 +220,7 @@ History:
 				result.data = e;
 				// Log the error message also
 				logStruct.msg = "#request.formattedTimestamp# - Error [Message: #e.message#] [Details: #e.detail#]";
-				logStruct.logFile = "API_populate_custom_error.log";
+				logStruct.logFile = logErrorFileName;
 				arrayAppend(logArray, logStruct);
 			}
 			

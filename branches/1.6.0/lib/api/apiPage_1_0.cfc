@@ -33,10 +33,94 @@ History:
 --->
 <cfcomponent displayname="apiPage" extends="ADF.core.Base" hint="API Page functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_1">
+<cfproperty name="version" value="1_0_2">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
 <cfproperty name="wikiTitle" value="API Page">
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$create
+Summary:
+	Creates a commonspot page using the public command API
+	http://{servername}/commonspot/help/api_help/Content/Components/Page/create.html
+Returns:
+	Struct
+Arguments:
+	Numeric csPageID			
+History:
+	2013-01-02 - MFC - Created
+--->
+<cffunction name="create" access="public" returntype="struct" hint="Creates a page.">
+	<cfargument name="pageData" type="struct" required="true" hint="a structure that contains page the required fields as page data.">
+	<cfargument name="activatePage" type="numeric" required="false" default="1" hint="Flag to make the new page active or inactive"> 
+	<cfscript>
+		var pageResult = StructNew();
+		// Use the CS 6.x Command API to SET page Metadata
+		var pageComponent = Server.CommonSpot.api.getObject('Page');
+		var pageCmdResults = StructNew();
+		var newConfidentialityID = 0;
+		var newShowInList = "PageIndex,SearchResults";
+		var newExpirationDate = "";
+		var newExpirationAction = "";
+		var newExpirationRedirectURL = "";
+		var newMetadata = ArrayNew(1);
+		var activateState = "";
+		
+		// Build the Optional Field Nodes
+		if ( StructKeyExists(arguments.pageData,"confidentialityID") )
+			newConfidentialityID = arguments.pageData.confidentialityID;	
+		if ( StructKeyExists(arguments.pageData,"showInList") )
+			newShowInList = arguments.pageData.showInList;
+		if ( StructKeyExists(arguments.pageData,"expirationDate") )
+			newExpirationDate = arguments.pageData.expirationDate;
+		if ( StructKeyExists(arguments.pageData,"expirationAction") )
+			newExpirationAction = arguments.pageData.expirationAction;
+		if ( StructKeyExists(arguments.pageData,"expirationRedirectURL") )
+			newExpirationRedirectURL = arguments.pageData.expirationRedirectURL;
+		if ( StructKeyExists(arguments.pageData,"expirationDate") )
+			newExpirationDate = arguments.pageData.expirationWarningMsg;
+		
+		if ( StructKeyExists(arguments.pageData,"metadata") )
+			newMetadata = arguments.pageData.metadata;
+
+		try {
+			pageCmdResults = pageComponent.create(subsiteIDOrURL=arguments.pageData.subsiteID,
+													name=arguments.pageData.name,
+		                                            title=arguments.pageData.title,
+		                                            caption=arguments.pageData.caption,
+		                                            publicationDate=arguments.pageData.publicationDate,
+		                                            categoryID=arguments.pageData.categoryID,
+		                                            templateID=arguments.pageData.templateID,
+		                                            description=arguments.pageData.description,
+		                                            targetedAudienceID=0,
+		                                            confidentialityID=newConfidentialityID,
+		                                            showInList=newShowInList,
+		                                            expirationDate=newExpirationDate,
+		                                            expirationAction=newExpirationAction,
+		                                            expirationRedirectURL=newExpirationRedirectURL,
+		                                            expirationWarningMsg=newExpirationDate,
+		                                            metadata=newMetadata);
+		    
+		    // Activate the page
+		    if ( arguments.activatePage )
+		    	activateState = saveActivationState(pageCmdResults, "Active");
+		    
+		    // Check the return status has a LENGTH
+		    pageResult["CMDSTATUS"] = true;
+		    pageResult["CMDRESULTS"] = pageCmdResults;
+		}
+		catch (any e) {
+		    pageResult["CMDSTATUS"] = false;
+		    pageResult["CMDRESULTS"] = e;
+		    pageResult["CFCATCH"] = e;
+		}
+		return pageResult;
+	</cfscript>
+</cffunction>
 
 <!---
 /* *************************************************************** */
@@ -187,6 +271,51 @@ History:
        return pageResult;
    </cfscript>
 </cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$saveActivationState
+Summary:
+	Saves Activation State on a commonspot page using the public command API
+	http://{servername}/commonspot/help/api_help/Content/Components/Page/saveActivationState.html
+Returns:
+	Struct
+		CMDSTATUS
+		CMDRESULTS
+Arguments:
+	Numeric csPageID
+	String state - A string describing a page's activation state; for example, 'Active', 'AutoActivate', or 'Inactive'.			
+History:
+	2013-01-02 - MFC - Created
+--->
+<cffunction name="saveActivationState" access="public" returntype="struct" hint="Adds a keywords to an object. If a keyword does not exit, CommonSpot creates and adds it.">
+	<cfargument name="csPageID" type="numeric" required="true" hint="numeric commonspot page id">
+	<cfargument name="state" type="string" required="true" hint="numeric commonspot page id">
+	<cfscript>
+		var pageCmdResult = StructNew();
+		// Use the CS 6.x Command API to SET page keywords
+		var pageComponent = Server.CommonSpot.api.getObject('page');
+		try {
+			pageComponent.saveActivationState(arguments.csPageID, arguments.state);
+			pageCmdResult["CMDSTATUS"] = true;
+			pageCmdResult["CMDRESULTS"] = true;
+		} 
+		catch (any e) {
+			pageCmdResult["CMDSTATUS"] = false;
+			if ( StructKeyExists(e,"Reason") AND StructKeyExists(e['Reason'],"pageID") ) 
+				pageCmdResult["CMDRESULTS"] = e['Reason']['pageID']; 
+			else if ( StructKeyExists(e,"message") )
+				pageCmdResult["CMDRESULTS"] = e.message;
+			else
+				pageCmdResult["CMDRESULTS"] = e;
+		}
+		return pageCmdResult;
+	</cfscript>
+</cffunction>
+
 
 <!---
 /* *************************************************************** */
