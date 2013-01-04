@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="api" extends="ADF.core.Base" hint="CCAPI functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_1">
+<cfproperty name="version" value="1_0_2">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
 <cfproperty name="wikiTitle" value="API">
 
@@ -279,8 +279,7 @@ History:
 	<cfargument name="commandArgsXML" type="String" required="false" hint="Command collection as XML.">
 	<cfargument name="authCommand" type="boolean" required="false" default="true" hint="Run the command as the Authenticated user. Will force the login process.">
 	<cfscript>
-		//var commandXML = "";
-		var commandArgsXML = "";
+		var commandXML = "";
 		var command_collection = '';
 		var CFID = "";
 		var CFToken = "";
@@ -290,19 +289,19 @@ History:
 		// Check if the commands collection is a structure
 		if ( isStruct(arguments.commandStruct)
 				AND StructCount(arguments.commandStruct) GT 0 ){
-			commandArgsXML = Server.CommonSpot.UDF.Util.serializeBean(commandStruct);
+			commandXML = Server.CommonSpot.UDF.Util.serializeBean(commandStruct);
 			// Trim off the surrounding "<struct></struct>" tags
-			commandArgsXML = MID(commandArgsXML,9,LEN(commandArgsXML)-17);
+			commandXML = MID(commandArgsXML,9,LEN(commandArgsXML)-17);
 		}
 		else if ( LEN(arguments.commandArgsXML) ){
-			commandArgsXML = arguments.commandArgsXML;
+			commandXML = arguments.commandArgsXML;
 		}
 		
 		// Validate if the XML starts with "COMMAND"
-		if ( MID(Server.commonspot.UDF.HTML.escape(TRIM(commandArgsXML)),5, 7) NEQ "Command" ) 
-			commandArgsXML = '<Command>' & commandArgsXML & '</Command>';
+		if ( MID(Server.commonspot.UDF.HTML.escape(TRIM(commandXML)),5, 7) NEQ "Command" ) 
+			commandXML = '<Command>' & commandArgsXML & '</Command>';
 		
-		command_collection = '<CommandCollection class="array">' & #commandArgsXML# & '</CommandCollection>';
+		command_collection = '<CommandCollection class="array">' & #commandXML# & '</CommandCollection>';
 		//application.ADF.utils.dodump(command_collection,"command_collection",false);
 	
 		// Check if session is logged in
@@ -488,7 +487,7 @@ History:
 		//application.ADF.utils.dodump(subsiteData,"buildSubsiteFullURL - subsiteData", false);	
 		//application.ADF.utils.dodump(request.site.CP_URL,"buildSubsiteFullURL - request.site.CP_URL", false);	
 		// Remove the root subsite from the path
-		httpSubsiteURL = Replace(httpSubsiteURL, request.site.CP_URL, "")
+		httpSubsiteURL = Replace(httpSubsiteURL, request.site.CP_URL, "");
 		//application.ADF.utils.dodump(httpSubsiteURL,"buildSubsiteFullURL - httpSubsiteURL", false);	
 		// Add the subsite path to the string
 		httpSubsiteURL = httpSubsiteURL & subsiteData.SubSiteURL;

@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="data_1_2" extends="ADF.lib.data.data_1_1" hint="Data Utils component functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_1">
+<cfproperty name="version" value="1_2_2">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Data_1_2">
 
@@ -101,6 +101,8 @@ History:
 		var isEqual = false;
 		var i=1;
 		var currentKey = "";
+		var dataAObjectValue = "";
+		var dataBObjectValue = "";
 		
 		// Remove the Primary Keys before doing compare
 		for ( i=1;i LTE ListLen(arguments.excludeKeyList);i=i+1 ) {
@@ -120,10 +122,13 @@ History:
 			{
 				// Compare the object fields
 				if ( isJSON(arguments.structDataA[currentKey])
-						AND NOT deserializeJSON(arguments.structDataA[currentKey]).EQUALS(deserializeJSON(arguments.structDataB[currentKey])) ){
+						AND isJSON(arguments.structDataB[currentKey]) ) {
+					// Set into variables to run the comparison
+					dataAObjectValue = deserializeJSON(arguments.structDataA[currentKey]);
+					dataBObjectValue = deserializeJSON(arguments.structDataB[currentKey]);
 					// If not equal, then end all the remaining comparisons
-					isEqual = false;
-					return isEqual;		
+					if ( NOT dataAObjectValue.EQUALS(dataBObjectValue) )
+						return false;		
 				}
 				
 				// If not equal, then remove from the structs for the final compare
