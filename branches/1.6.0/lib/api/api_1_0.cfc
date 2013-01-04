@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="api" extends="ADF.core.Base" hint="CCAPI functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_2">
+<cfproperty name="version" value="1_0_3">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
 <cfproperty name="wikiTitle" value="API">
 
@@ -66,8 +66,7 @@ History:
 		// Get the user account from the CCAPI Config
 		var apiConfig = getAPIConfig();
 		// Set the setSiteURL
-		if ( LEN(apiConfig.wsVars.siteURL) )
-			setSiteURL(apiConfig.wsVars.siteURL);
+		setSiteURL(apiConfig.wsVars.siteURL);
 		setSubsiteID(apiConfig.wsVars.subsiteID);
 	</cfscript>
 </cffunction>
@@ -291,7 +290,7 @@ History:
 				AND StructCount(arguments.commandStruct) GT 0 ){
 			commandXML = Server.CommonSpot.UDF.Util.serializeBean(commandStruct);
 			// Trim off the surrounding "<struct></struct>" tags
-			commandXML = MID(commandArgsXML,9,LEN(commandArgsXML)-17);
+			commandXML = MID(commandXML,9,LEN(commandXML)-17);
 		}
 		else if ( LEN(arguments.commandArgsXML) ){
 			commandXML = arguments.commandArgsXML;
@@ -299,7 +298,7 @@ History:
 		
 		// Validate if the XML starts with "COMMAND"
 		if ( MID(Server.commonspot.UDF.HTML.escape(TRIM(commandXML)),5, 7) NEQ "Command" ) 
-			commandXML = '<Command>' & commandArgsXML & '</Command>';
+			commandXML = '<Command>' & commandXML & '</Command>';
 		
 		command_collection = '<CommandCollection class="array">' & #commandXML# & '</CommandCollection>';
 		//application.ADF.utils.dodump(command_collection,"command_collection",false);
@@ -415,8 +414,8 @@ History:
 		// Get the user account from the CCAPI Config
 		var apiConfig = getAPIConfig();
 		var wsObj = getWebService();
-				
-		var loginResult = wsObj.csLogin(site = 'http://dev.services.commonspotcloud.com/nps',
+		
+		var loginResult = wsObj.csLogin(site = getSiteURL(),
 										csUserID = apiConfig.wsVars.csuserid,
 										csPassword = apiConfig.wsVars.cspassword,
 										subSiteID = getSubsiteID(),
