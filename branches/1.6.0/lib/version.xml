@@ -35,6 +35,7 @@ History:
 	2011-10-04 - GAC - Updated v1.5 csSecurity node to be set to csSecurity_1_1.
 	2012-06-04 - MFC - Railo Fix - Moved comments below 'settings' tag.
 	2012-07-11 - MFC - Added v1.6 tag for new lib versions.
+	2013-01-08 - GAC - Added a Date_1_2 lib
  -->
 	<v_1.0>
 		<!-- // ajax -->
@@ -125,7 +126,7 @@ History:
 		<csData_1_2/>
 		<csSecurity_1_2/>
 		<data_1_2/>
-		<date_1_1/>
+		<date_1_2/>
 		<forms_1_1/>
 		<lightbox_1_0/>
 		<mobile_1_0/>
