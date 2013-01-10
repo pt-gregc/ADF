@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="data_1_2" extends="ADF.lib.data.data_1_1" hint="Data Utils component functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_2">
+<cfproperty name="version" value="1_2_3">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Data_1_2">
 
@@ -298,6 +298,66 @@ History:
 		else
 			return replace(replace(ReplaceList(trim(arguments.fileName), bad_chars, good_chars)," ","_","all"),"'","","all");
 	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$QuerySort
+Summary:
+	Sort a query based on a custom list.
+	http://cookbooks.adobe.com/post_Sort_query_in_custom_order-17997.html 
+Returns:
+	query 
+Arguments:
+	query
+	string
+	string
+	string
+	string
+History:
+	2013-01-10 - MFC - Created
+--->
+<cffunction name="QuerySort" displayname="QuerySort" access="public" hint="Sort a query based on a custom list" returntype="query" output="true">
+    <cfargument name="query" type="query" required="yes" hint="The query to be sorted">
+    <cfargument name="columnName" type="string" required="yes" hint="The name of the column to be sorted">
+    <cfargument name="columnType" type="string" required="no" default="numeric" hint="The column type. Possible values: numeric, varchar">
+    <cfargument name="orderList" type="string" required="yes" hint="The lsit used to sort the query">
+    <cfargument name="orderColumnName" type="string" required="no" default="orderNo" hint="The name of the column containing the order number">
+    <cfset var qResult = queryNew("null")>
+    
+    <!--- Make the order list unique to avoid duplicating query records --->
+    <!--- <cfset arguments.orderList = ListUnique(arguments.orderList)> --->
+    <cftry>
+		<!--- <cfdump var="#arguments#" label="QuerySort - args" expand="false"> --->
+		<!--- <cfdump var="#GetMetaData(arguments.query)#" label="QuerySort - GetMetaData" expand="false"> --->
+		<cfquery name="qResult" dbtype="query">
+			<cfloop from="1" to="#listLen(arguments.orderList)#" index="orderItem">
+				SELECT *, #orderItem# AS #arguments.orderColumnName#
+				FROM arguments.query
+				WHERE #arguments.columnName# = '#listGetAt(arguments.orderList, orderItem)#'
+				<cfif orderItem LT listLen(arguments.orderList)>
+					
+					UNION
+					 
+				</cfif>
+			</cfloop>
+			<!--- 
+			SELECT *, #listLen(arguments.orderList) + 1# AS #arguments.orderColumnName#
+			FROM arguments.query
+			WHERE #arguments.columnName# NOT IN (<cfqueryparam value="#arguments.orderList#" list="yes" cfsqltype="cf_sql_#arguments.columnType#" />)
+			 --->
+			ORDER BY #arguments.orderColumnName#
+		</cfquery>
+		<!--- <cfdump var="#qResult#" label="QuerySort - qResult" expand="false"> --->
+    	<cfreturn qResult>
+		<cfcatch>
+			<cfdump var="#cfcatch#" label="cfcatch" expand="false">
+			<cfreturn arguments.query>
+		</cfcatch>
+	</cftry>    
 </cffunction>
 
 </cfcomponent>
