@@ -34,7 +34,7 @@ History:
 ---> 
 <cfcomponent displayname="csPage_2_0" extends="ADF.lib.ccapi.csPage_1_1" hint="Constructs a CCAPI instance and then creates or deletes a page with the given information">
 
-<cfproperty name="version" value="2_0_2">
+<cfproperty name="version" value="2_0_3">
 <cfproperty name="type" value="transient">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <cfproperty name="apiPage" type="dependency" injectedBean="apiPage_1_0">
@@ -83,105 +83,12 @@ History:
 	2011-06-21 - MFC - Added logout call at the end of the process.
 	2012-02-24 - MFC - Added TRY-CATCH around processing 
 						to logout the CCAPI if any errors.
+	2013-01-11 - MFC - Fixed issue with VAR not at the top for CF8 and under.
 --->
 <cffunction name="createPage" access="public" output="true" returntype="struct" hint="Creates a page using the argument data passed in">
 	<cfargument name="stdMetadata" type="struct" required="true" hint="Standard Metadata would include 'Title, Description, TemplateId, SubsiteID etc...'">
 	<cfargument name="custMetadata" type="struct" required="true" hint="Custom Metadata would be any custom metadata for the new page ex. customMetadata['formName']['fieldname']">
 	<cfargument name="activatePage" type="numeric" required="false" default="1" hint="Flag to make the new page active or inactive"> 
-	<!--- <cfscript>
-		var pageData = structNew();
-		var ws = "";
-		var createPageResult = structNew();
-		var msg = "";
-		var pageExists = "";
-		var logStruct = structNew();
-		var logArray = arrayNew(1);
-		var result = structNew();
-		result.pageCreated = false;
-		result.newPageID = 0;
-		result.msg = "";
-		
-		// construct the CCAPI object
-		variables.ccapi.initCCAPI();
-		
-		try {
-			// NOTE: always logging in to make sure that we create page in correct subsite
-			variables.ccapi.login(arguments.stdMetadata.subsiteID);
-			ws = variables.ccapi.getWS();
-			// build page data structure
-			pageData.type = "page";
-			pageData.activate = arguments.activatePage;
-	
-			// Page create parameters
-			pageData.cParams = arguments.stdMetadata;
-			pageData.mData = arguments.custMetadata;
-			
-			// check to see if this page exists yet
-			pageExists = variables.csData.getCSPageByName(pageData.cParams.name, pageData.cParams.subsiteID);
-			if( not pageExists )
-			{	
-				// invoke createPage API call
-				createPageResult = ws.createPage(
-					ssid = variables.ccapi.getSSID(),
-					sParams = pageData);
-	
-				// if the call was successful then send back the new pageID
-				if( listFirst( createPageResult, ":") eq "success" )
-				{
-					// set the new pageID
-					result.newPageID = listRest( createPageResult, ":");
-					result.pageCreated = true;
-	
-					//Log success
-					logStruct.msg = "#request.formattedTimestamp# - Page (#result.newPageID# - #arguments.stdMetadata.title#) created on #request.formattedTimeStamp#";
-					logStruct.logFile = 'CCAPI_create_pages.log';
-					arrayAppend(logArray, logStruct);
-				}
-				else
-				{
-					result.msg = createPageResult;
-					/* need debugging on why this failed
-					1. No subsite
-					2. Page Exists
-					3. No metadata
-					*/
-					//Log error
-					logStruct.msg = "#request.formattedTimestamp# - Page Was Not Created (#arguments.stdMetadata.title#). Error: #createPageResult#";
-					logStruct.logFile = 'CCAPI_create_pages_errors.log';
-					arrayAppend(logArray, logStruct);
-				}
-			}
-			else
-			{
-				result.newPageID = pageExists;
-				result.pageCreated = false;
-				logStruct.msg = "#request.formattedTimeStamp# - Page with title #arguments.stdMetadata.title# in subsite #request.subsiteCache[arguments.stdMetadata.subsiteID].url# already exists";
-				logStruct.logFile = 'CCAPI_create_pages_errors.log';
-				arrayAppend(logArray, logStruct);
-			}
-			
-			// handle logging
-			// TODO: plug the logging option into the CCAPI config settings
-			if( variables.ccapi.loggingEnabled() and arrayLen(logArray) )
-				variables.utils.bulkLogAppend(logArray);
-		}
-		catch (e ANY){
-			// Error caught, send back the error message
-			result.pageCreated = false;
-			result.msg = e.message;
-			
-			// Log the error message also
-			logStruct.msg = "#request.formattedTimestamp# - Error [Message: #e.message#] [Details: #e.Details#]";
-			logStruct.logFile = "CCAPI_create_pages_errors.log";
-			variables.utils.bulkLogAppend(logArray);
-		}
-			
-		// Logout
-		variables.ccapi.logout();
-		// clear locks before starting
-		variables.ccapi.clearLock(result.newPageID);
-	</cfscript>
-	<cfreturn result> --->
 	<cfscript>
 		var contentResult = "";
 		// Merge the custom metadata form into the standard metadata form to make a single data structure
@@ -223,7 +130,7 @@ History:
 		}
 		
 		// Call the API apiElement Lib Component
-		var contentResult = variables.apiPage.create(pageData=pageData);
+		contentResult = variables.apiPage.create(pageData=pageData);
 		
 		// Format the result in the way that was previously constructed
 		result.contentUpdated = contentResult.CMDSTATUS;

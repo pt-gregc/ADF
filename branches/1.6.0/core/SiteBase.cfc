@@ -35,7 +35,7 @@ History:
 --->
 <cfcomponent displayname="SiteBase" extends="ADF.core.AppBase">
 
-<cfproperty name="version" value="1_5_1">
+<cfproperty name="version" value="1_6_1">
 
 <!---
 /* *************************************************************** */
@@ -429,15 +429,16 @@ Arguments:
 	Void
 History:
  	2012-12-27 - MFC - Created
+	2013-01-11 - MFC - Updated to support CF 8 and under.
 --->
 <cffunction name="loadSiteAPIConfig" access="private" returntype="void">
-	<cftry>
-		<cfscript>
-			var APIConfig = StructNew();
-			var configAppXMLPath = ExpandPath("#request.site.csAppsWebURL#config/ccapi.xml");
-			var configAppCFMPath = request.site.csAppsWebURL & "config/ccapi.cfm";
-			var buildError = StructNew();	
-			
+	<cfscript>
+		var APIConfig = StructNew();
+		var configAppXMLPath = ExpandPath("#request.site.csAppsWebURL#config/ccapi.xml");
+		var configAppCFMPath = request.site.csAppsWebURL & "config/ccapi.cfm";
+		var buildError = StructNew();<strong></strong>
+		
+		try {
 			// Pass a Logical path for the CFM file to the getConfigViaXML() since it will be read via CFINCLUDE
 			if ( FileExists(ExpandPath(configAppCFMPath)) )
 				APIConfig = server.ADF.objectFactory.getBean("CoreConfig").getConfigViaXML(configAppCFMPath);
@@ -456,18 +457,16 @@ History:
 				// Add the errorStruct to the server.ADF.buildErrors Array 
 				ArrayAppend(server.ADF.buildErrors,buildError);
 			}
-		</cfscript>
-		<cfcatch>
-			<cfscript>
-				// Build the Error Struct
-				buildError.ADFmethodName = "API Config";
-				//buildError.details = "API Configuration CFM (or XML) file is not setup for this site [#request.site.name# - #request.site.id#].";
-				buildError.details = cfcatch;
-				// Add the errorStruct to the server.ADF.buildErrors Array 
-				ArrayAppend(server.ADF.buildErrors,buildError);
-			</cfscript>
-		</cfcatch>
-	</cftry>
+		}
+		catch (Any exception){
+			// Build the Error Struct
+			buildError.ADFmethodName = "API Config";
+			//buildError.details = "API Configuration CFM (or XML) file is not setup for this site [#request.site.name# - #request.site.id#].";
+			buildError.details = exception;
+			// Add the errorStruct to the server.ADF.buildErrors Array 
+			ArrayAppend(server.ADF.buildErrors, buildError);	
+		}
+	</cfscript>
 </cffunction>
 
 </cfcomponent>

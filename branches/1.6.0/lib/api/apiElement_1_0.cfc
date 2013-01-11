@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="apiElement" extends="ADF.core.Base" hint="CCAPI functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_2">
+<cfproperty name="version" value="1_0_3">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
 <cfproperty name="wikiTitle" value="API Elements">
@@ -60,6 +60,7 @@ Arguments:
 	boolean - forceLogout - Flag to keep the API session logged in for a continuous process. 
 History:
 	2012-02-24 - MFC - Created
+	2013-01-11 - MFC - Updated to the add VAR for "apiConfig".
 --->
 <cffunction name="populateCustom" access="public" returntype="struct">
 	<cfargument name="elementName" type="string" required="true" hint="The name of the element from the CCAPI configuration">
@@ -68,6 +69,7 @@ History:
 	<cfargument name="forcePageID" type="numeric" required="false" default="-1" hint="If set this will override the pageID in the data.">
 	<cfargument name="forceLogout" type="boolean" required="false" default="true" hint="Flag to keep the API session logged in for a continuous process.">
 	<cfscript>
+		var apiConfig = "";
 		var result = structNew();
 		var logStruct = structNew();
 		var logArray = arrayNew(1);
