@@ -35,7 +35,7 @@ History:
 --->
 <cfcomponent displayname="SiteBase" extends="ADF.core.AppBase">
 
-<cfproperty name="version" value="1_6_1">
+<cfproperty name="version" value="1_6_2">
 
 <!---
 /* *************************************************************** */
@@ -436,7 +436,7 @@ History:
 		var APIConfig = StructNew();
 		var configAppXMLPath = ExpandPath("#request.site.csAppsWebURL#config/ccapi.xml");
 		var configAppCFMPath = request.site.csAppsWebURL & "config/ccapi.cfm";
-		var buildError = StructNew();<strong></strong>
+		var buildError = StructNew();
 		
 		try {
 			// Pass a Logical path for the CFM file to the getConfigViaXML() since it will be read via CFINCLUDE
