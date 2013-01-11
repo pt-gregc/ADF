@@ -133,12 +133,13 @@ History:
 		</td>
 	</tr> --->
 	<cfscript>
-		// Set the read only 
-		readOnly = true;
+		// Set the read only
+		readOnly = false;
 		// Check the Edit Once flag
 		if ( LEN(currentValue) AND xparams.editOnce )
 			readOnly = true;
 	</cfscript>
+	<cfdump var="#readOnly#">
 	<cfsavecontent variable="inputHTML">
 		<cfoutput>
 			<!--- Render the input field --->
