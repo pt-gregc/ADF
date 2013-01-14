@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="scripts_1_2" extends="ADF.lib.scripts.scripts_1_1" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" default="1_2_1">
+<cfproperty name="version" default="1_2_2">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_1" type="dependency">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Scripts_1_2">
@@ -276,29 +276,33 @@ Summary:
 Returns:
 	None
 Arguments:
+	String - version
+	Boolean - useQueue
 	Boolean - Force
 History:
 	2011-07-31 - MTT - Created
 	2012-08-16 - GAC - Added the force parameter
+	2013-01-08 - MTT - Added the useQueue parameter to add the queue plugin to swfupload
 --->
 <cffunction name="loadJQuerySWFUpload" access="public" output="true" returntype="void" hint="Loads the SWF upload plugin for jquery">
 	<cfargument name="version" type="string" required="false" default="2.2.0.1" hint="Script version to load.">
+	<cfargument name="useQueue" type="boolean" required="false" default="0" hint="Flag to include the SWFUpload queue plugin file.">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
 		<script type="text/javascript" src="/ADF/thirdParty/jquery/swfupload/swfupload-#arguments.version#/swfupload.js"></script>
-		</cfoutput>
-		<!---
+		<cfif arguments.useQueue>
 		<script type="text/javascript" src="/ADF/thirdParty/jquery/swfupload/swfupload-#arguments.version#/swfupload.queue.js"></script>
-		--->
+		</cfif>
+		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
-		<cfif arguments.force>
-			#outputHTML#
-		<cfelse>
-			#variables.scriptsService.renderScriptOnce("jQuerySWFUpload",outputHTML)#
-		</cfif>
+	<cfif arguments.force>
+		#outputHTML#
+	<cfelse>
+		#variables.scriptsService.renderScriptOnce("jQuerySWFUpload",outputHTML)#
+	</cfif>
 	</cfoutput>
 </cffunction>
 
@@ -468,8 +472,7 @@ Arguments:
 	Boolean - force - Forces tipsy script header to load.
 History:
 	2011-11-22 - AAR - Created
-	2012-02-15 - MTT - Modified the key used with the renderScriptOnce call. It was set to qtip which is already used byt the 
-						load loadQTip function call. I changed it to tipsy.
+	2012-02-15 - MTT - Modified the key used with the renderScriptOnce call to tipsy.
 --->
 <cffunction name="loadTipsy" access="public" output="true" returntype="void" hint="Loads the JQuery Headers if not loaded.">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
