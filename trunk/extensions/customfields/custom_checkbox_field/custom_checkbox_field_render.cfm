@@ -41,6 +41,8 @@ History:
 					 - Added the includeLabel and includeDescription parameters to the wrapFieldHTML function call
 					 - Updated the readOnly check to use the cs6 fieldPermission parameter
 					 - Updated the wrapFieldHTML explanation comment block
+	2012-11-13 - GAC - Updated the logic for 'Checked By Default' option so when the unchecked value is blank and the currentValue is blank 
+					   it determines if this form is creating the a new record before setting the currentValue to the default value					     
 --->
 <cfscript>
 	// Load JQuery to the script
@@ -69,15 +71,20 @@ History:
 	// Set the field ID from the field name
 	xparams.fldID = TRIM(xparams.fldName);
 	
-	// Check the default value
-	if ( LEN(currentValue) LTE 0 ) 
-	{
+	// Get the DataPageID to see if this is a form to create a new record or update an existing record
+	// 0 = new record and greater than 0 = existing record
+	formDataPageID = 0;
+	if ( StructKeyExists(attributes,"LayoutStruct") AND StructKeyExists(attributes.LayoutStruct,"UDFPAGEID") ) 
+		formDataPageID = attributes.LayoutStruct.UDFPAGEID;	
+
+	if ( LEN(TRIM(currentValue)) LTE 0 ) {
 		currentValue = xparams.uncheckedVal; //'no'
-		// If defaulted to checked
-		if ( xparams.defaultVal EQ "yes" )
+		//  If no value and this is a new record then use the defaulted value 
+		if ( formDataPageID EQ 0 AND xparams.defaultVal EQ "yes" )
 			currentValue = xparams.checkedVal; //'yes'
 	}
-		
+
+	
 	// Set defaults for the label and description 
 	includeLabel = true;
 	includeDescription = true; 
@@ -105,13 +112,11 @@ History:
 	
 		jQuery(function(){
 			
-			// Check if we want to hide the field
-			// Check if we are rendering the field 
+			// Check if we want to hide the field or if we are rendering the field 
 			if ( '#xparams.renderField#' == 'yes' ) {
 			
 				// Set the value of the checkbox
-				if ( jQuery('input[name=#fqFieldName#]').val() == '#xparams.checkedVal#' ) // || jQuery('input[name=#fqFieldName#]').val() == 1
-				{
+				if ( jQuery('input[name=#fqFieldName#]').val() == '#xparams.checkedVal#' ) {
 					jQuery('###xparams.fldID#_checkbox').attr('checked', 'checked');
 				}
 							
@@ -138,12 +143,14 @@ History:
 
 	<cfsavecontent variable="inputHTML">
 		<cfoutput>
+			
 			<div id="#fqFieldName#_renderCheckbox">
 				<!--- <input type='checkbox' name='#fqFieldName#_checkbox' id='#fqFieldName#_checkbox' value='yes' <cfif readOnly>readonly="true"</cfif>> --->
 				<input type='checkbox' name='#fqFieldName#_checkbox' id='#xparams.fldID#_checkbox'<cfif LEN(TRIM(xparams.fldClass))> class="#xparams.fldClass#"</cfif> value='yes' <cfif readOnly>readonly="true"</cfif>>
 			</div>
 			<!--- hidden field to store the value --->
 			<input type='hidden' name='#fqFieldName#' id='#xparams.fldID#' value='#currentValue#'>
+			
 		</cfoutput>
 	</cfsavecontent>
 	

@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2011.
+PaperThin, Inc. Copyright(C) 2012.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -30,6 +30,7 @@ History:
 	2009-06-09 - MFC - Created
 	2012-01-06 - MFC - Updated to logout when complete and added ADF login test
 	2012-01-24 - MFC - Updated to remove "ADFdemo" reference.
+	2012-12-26 - MFC - Updated to remove "CFINVOKE" tags for RAILO.
 --->
 
 <!--- // Use this file to test to see if the CommonSpot is allowing a user to login to the CCAPI web service --->
@@ -45,35 +46,33 @@ History:
 	<cfset variables.webserviceURL = "http://#Request.CGIVars.HTTP_HOST#/commonspot/webservice/cs_service.cfc?wsdl">
 	<cfset variables.site = "#request.site.url#">
 	
-	<!--- // create Web service object --->
-	<cfobject webservice="#webserviceURL#" name="ws">
+	<cfscript>
+		// create object for the webService call
+		ws = createObject("webservice", webserviceURL);
 	
-	<!--- // invoke the login API call --->
-	<cfinvoke webservice ="#ws#"
-		method ="cslogin"
-		site = "#site#"
-		csuserid="#userid#"
-		cspassword="#password#"
-		subsiteid="1"
-		subsiteurl=""
-		returnVariable="foo">
+		// call the login API
+		foo = ws.csLogin(site = site,
+						 csUserID = userID,
+						 csPassword = password,
+						 subSiteID = '1',
+						 subSiteURL = '');
+	</cfscript>	
 	
 	<!--- // determine whether or not we logged in successfully --->
 	<cfif ListFirst(foo, ":") is "Error">
 		<cfoutput><p>Login Failed</p></cfoutput>
 		<!--- //Output the results --->
 		<cfdump var="#foo#">
-		<cfexit>
+		<cfthrow detail="Login Failed">
 	</cfif>
 	<!--- // set the ssid token to be used in the remainder of the API calls --->
 	<cfset ssid = ListRest(foo, ":")>
 	<cfoutput><p>Login -- #ssid#</p></cfoutput>
 	
 	<!--- // invoke the logout API call --->
-	<cfinvoke webservice ="#ws#"
-		method ="cslogout"
-		ssid = "#ssid#"
-		returnVariable="foo">
+	<cfscript>
+		foo = ws.cslogout(ssid = "#ssid#");
+	</cfscript>
 	<CFOUTPUT><p>Logout -- #foo#</p></CFOUTPUT>
 
 	<cfcatch>

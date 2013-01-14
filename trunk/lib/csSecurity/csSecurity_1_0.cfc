@@ -27,7 +27,7 @@ Name:
 Summary:
 	Custom Element Security functions for the ADF Library
 Version:
-	1.0.1
+	1.0
 History:
 	2009-07-08 - MFC - Created
 	2011-10-04 - GAC - Updated comment block headers

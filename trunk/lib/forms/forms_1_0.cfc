@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2010.
+PaperThin, Inc. Copyright(C) 2012.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -27,13 +27,13 @@ Name:
 Summary:
 	Form functions for the ADF Library
 Version:
-	1.0.1
+	1.0
 History:
 	2009-06-22 - MFC - Created
 --->
 <cfcomponent displayname="forms_1_0" extends="ADF.core.Base" hint="Form functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_1">
+<cfproperty name="version" value="1_0_2">
 <cfproperty name="type" value="transient">
 <cfproperty name="ceData" injectedBean="ceData_1_0" type="dependency">
 <cfproperty name="scripts" injectedBean="scripts_1_0" type="dependency">

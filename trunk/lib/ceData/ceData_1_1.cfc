@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2011.
+PaperThin, Inc. Copyright(C) 2012.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -27,7 +27,7 @@ Name:
 Summary:
 	Custom Element Data functions for the ADF Library
 Version
-	1.1.0
+	1.1
 History:
 	2011-01-25 - MFC - Created - New v1.1
 	2011-10-04 - GAC - Updated csSecurity dependency to csSecurity_1_1
@@ -35,7 +35,7 @@ History:
 --->
 <cfcomponent displayname="ceData_1_1" extends="ADF.lib.ceData.ceData_1_0" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="1_1_2">
+<cfproperty name="version" value="1_1_3">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_1">
 <cfproperty name="data" type="dependency" injectedBean="data_1_1">
@@ -608,7 +608,6 @@ History:
 /* *************************************************************** */
 Author: 	
 	PaperThin, Inc.
-	Ron West
 Name:
 	$buildRealTypeView
 Summary:	
@@ -638,6 +637,7 @@ History:
 	2012-10-16 - DMB - Updated to use the memovalue field for fields longer than 850 characters.
 	2012-10-24 - GAC - Added a db type version check to uncomment the fix for using nvarchar(4000) instead of nvarchar(max) for older versions of MSSQL.
 					 - Moved the memovalue field fix into the conditional logic for MySQL. In the old position the syntax caused MSSQL view table creation to fail. 
+	2013-01-08 - MFC - Added TRY-CATCH for error handling when generating the view table.				 
 --->
 <cffunction name="buildRealTypeView" access="public" returntype="boolean" hint="Builds ane lement view for the passed in element name">
 	<cfargument name="elementName" type="string" required="true" hint="element name to build the view table off of">
@@ -683,70 +683,81 @@ History:
 			<cfcatch></cfcatch>
 		</cftry>
 	
-		<cfquery name="fldqry" datasource="#Request.Site.DataSource#">
-			select fic.ID, fic.type, fic.fieldName
-			  from formINputControl fic, forminputcontrolMap
-			 where forminputcontrolMap.fieldID  = fic.ID
-				and forminputcontrolMap.formID = <cfqueryparam value="#formID#" cfsqltype="cf_sql_integer">
-		</cfquery>
-		<cfquery name="realTypeView" datasource="#Request.Site.DataSource#">
-			CREATE VIEW #arguments.viewName# AS
-			SELECT
-			<cfloop query="fldqry">
-				max(
-				<cfswitch expression="#fldqry.type#">
-					<cfcase value="integer">
-						CASE
-							WHEN FieldID = #ID# THEN CAST(fieldvalue as #intType#)
-							ELSE 0
-						END
+		<cftry>
+			<cfquery name="fldqry" datasource="#Request.Site.DataSource#">
+				select fic.ID, fic.type, fic.fieldName
+				  from formINputControl fic, forminputcontrolMap
+				 where forminputcontrolMap.fieldID  = fic.ID
+					and forminputcontrolMap.formID = <cfqueryparam value="#formID#" cfsqltype="cf_sql_integer">
+			</cfquery>
+			<cfquery name="realTypeView" datasource="#Request.Site.DataSource#">
+				CREATE VIEW #arguments.viewName# AS
+				SELECT
+				<cfloop query="fldqry">
+					max(
+					<cfswitch expression="#fldqry.type#">
+						<cfcase value="integer">
+							CASE
+								WHEN FieldID = #ID# THEN CAST(fieldvalue as #intType#)
+								ELSE 0
+							END
+							</cfcase>
+							<cfcase value="float">
+							CASE
+								WHEN FieldID = #ID# THEN CAST(fieldvalue as DECIMAL(7,2))
+								ELSE 0.0
+							END
 						</cfcase>
-						<cfcase value="float">
-						CASE
-							WHEN FieldID = #ID# THEN CAST(fieldvalue as DECIMAL(7,2))
-							ELSE 0.0
-						END
-					</cfcase>
-					<cfdefaultcase> <!--- NEEDSWORK fieldtype like List, should add ListID column, fieldtype like email, could add 'lower case' function to avoid case sensitive issue --->
-						CASE
-							WHEN FieldID = #ID# THEN
-								CASE
-									WHEN fieldValue <> '' THEN fieldvalue
-									<cfif dbtype is 'oracle'>
-										<!--- TODO
-											Issue with Oracle DB and casting the 'memovalue' field.
-											Commented out to make this work in Oracle, but still needs to be resolved.
-										--->
-										<!--- WHEN length(memovalue) < 4000 THEN CAST(memovalue as varchar2(4000)) --->
-										<!--- ELSE CAST([memovalue] AS nvarchar2(2000)) --->
-									<cfelseif dbtype is 'SQLServer' AND dbVersion LT 9><!--- // 9 = MSSQL 2005 --->
-										<!--- // nvarchar(max) FIX FOR MSSQL 2000 and below --->
-										ELSE CAST([memovalue] AS nvarchar(4000))
-									<cfelseif dbtype is 'SQLServer'>
-										ELSE CAST([memovalue] AS nvarchar(max))
-									<cfelse>
-										<!--- // MySQL fix for when memovalue (instead of fieldvalue) is used up due to the data being over 850 characters --->
-										WHEN memoValue <> '' THEN memovalue
-										<!--- Don't CAST if using MySQL --->
-									</cfif>
-								END
-							ELSE null
-						END
-					</cfdefaultcase>
-				</cfswitch>
-				<!--- ) as FieldID#ID#, --->
-				<!--- ) as #listGetAt(fieldName, 2, "_")#, --->
-				<!--- // Remove the "FIC_" from the CS field name when creating the column alias so this works with CE field names with underscores --->
-				 ) <cfif dbtype is 'MySQL'> as '#ReplaceNoCase(fieldName, "FIC_", "")#'<cfelse> as [#ReplaceNoCase(fieldName, "FIC_", "")#]</cfif>,
-			</cfloop>
-		   			PageID, controlID, formID<!--- , dateApproved, dateAdded --->
-			  FROM data_fieldvalue
-			 where formID = #formID#
-				and versionstate >= 2
-				and PageID > 0
-		 GROUP BY PageID, ControlID, formID<!--- , dateApproved, dateAdded --->
-		</cfquery>
-		<cfset viewCreated = true>
+						<cfdefaultcase> <!--- NEEDSWORK fieldtype like List, should add ListID column, fieldtype like email, could add 'lower case' function to avoid case sensitive issue --->
+							CASE
+								WHEN FieldID = #ID# THEN
+									CASE
+										WHEN fieldValue <> '' THEN fieldvalue
+										<cfif dbtype is 'oracle'>
+											<!--- TODO
+												Issue with Oracle DB and casting the 'memovalue' field.
+												Commented out to make this work in Oracle, but still needs to be resolved.
+											--->
+											<!--- WHEN length(memovalue) < 4000 THEN CAST(memovalue as varchar2(4000)) --->
+											<!--- ELSE CAST([memovalue] AS nvarchar2(2000)) --->
+										<cfelseif dbtype is 'SQLServer' AND dbVersion LT 9><!--- // 9 = MSSQL 2005 --->
+											<!--- // nvarchar(max) FIX FOR MSSQL 2000 and below --->
+											ELSE CAST([memovalue] AS nvarchar(4000))
+										<cfelseif dbtype is 'SQLServer'>
+											ELSE CAST([memovalue] AS nvarchar(max))
+										<cfelse>
+											<!--- // MySQL fix for when memovalue (instead of fieldvalue) is used up due to the data being over 850 characters --->
+											WHEN memoValue <> '' THEN memovalue
+											<!--- Don't CAST if using MySQL --->
+										</cfif>
+									END
+								ELSE null
+							END
+						</cfdefaultcase>
+					</cfswitch>
+					<!--- ) as FieldID#ID#, --->
+					<!--- ) as #listGetAt(fieldName, 2, "_")#, --->
+					<!--- // Remove the "FIC_" from the CS field name when creating the column alias so this works with CE field names with underscores --->
+					 ) <cfif dbtype is 'MySQL'> as '#ReplaceNoCase(fieldName, "FIC_", "")#'<cfelse> as [#ReplaceNoCase(fieldName, "FIC_", "")#]</cfif>,
+				</cfloop>
+			   			PageID, controlID, formID<!--- , dateApproved, dateAdded --->
+				  FROM data_fieldvalue
+				 where formID = #formID#
+					and versionstate >= 2
+					and PageID > 0
+			 GROUP BY PageID, ControlID, formID<!--- , dateApproved, dateAdded --->
+			</cfquery>
+			<cfset viewCreated = true>
+			<cfcatch>
+				<!--- <cfdump var="#cfcatch#" label="cfcatch" expand="false"> --->
+				<cfscript>
+					// Log the error creating the view table
+					
+					// Failed to create view table
+					return false;
+				</cfscript>
+			</cfcatch>
+		</cftry>
 	</cfif>
 	<cfreturn viewCreated>
 </cffunction>

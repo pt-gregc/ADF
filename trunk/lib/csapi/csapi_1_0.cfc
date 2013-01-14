@@ -27,7 +27,7 @@ Name:
 Summary:
 	CS API functions for the ADF Library
 Version:
-	1.0.0
+	1.0
 History:
 	2011-06-09 - MFC - Created
 --->

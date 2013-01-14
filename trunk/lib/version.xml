@@ -1,11 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <settings>
-<!-- // RLW 2011-03-19 - created -->
-<!-- // RLW 2011-06-24 - added csUpload to version 1.0 and version 1.5 -->
-<!-- // MFC 2011-09-19 - Removed CCAPI_1_1 updates. -->
-<!-- // RAK 2011-09-22 - Added CCAPI_1_0 stuff back in -->
-<!-- // GAC 2011-10-04 - Updated v1.5 csSecurity node to be set to csSecurity_1_1 -->
-<!-- // MFC 2012-06-04 - Railo Fix - Moved comments below 'settings' tag. -->
+<!--
+The contents of this file are subject to the Mozilla Public License Version 1.1
+(the "License"); you may not use this file except in compliance with the
+License. You may obtain a copy of the License at http://www.mozilla.org/MPL/
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+the specific language governing rights and limitations under the License.
+
+The Original Code is comprised of the ADF directory
+
+The Initial Developer of the Original Code is
+PaperThin, Inc. Copyright(C) 2010.
+All Rights Reserved.
+
+By downloading, modifying, distributing, using and/or accessing any files 
+in this directory, you agree to the terms and conditions of the applicable 
+end user license agreement.
+
+Author: 	
+	PaperThin, Inc. 
+Name:
+	version.xml
+Summary:
+	ADF Library Version XML 
+Version:
+	1.6
+History:
+	2011-03-19 - RLW - created
+	2011-06-24 - RLW - Added csUpload to version 1.0 and version 1.5.
+	2011-09-19 - MFC - Removed CCAPI_1_1 updates.
+	2011-09-22 - RAK - Added CCAPI_1_0 back in.
+	2011-10-04 - GAC - Updated v1.5 csSecurity node to be set to csSecurity_1_1.
+	2012-06-04 - MFC - Railo Fix - Moved comments below 'settings' tag.
+	2012-07-11 - MFC - Added v1.6 tag for new lib versions.
+	2013-01-08 - GAC - Added a Date_1_2 lib
+ -->
 	<v_1.0>
 		<!-- // ajax -->
 		<ajax_1_0/>
@@ -79,4 +110,31 @@
 		<!-- // utils -->
 		<utils_1_1/>
 	</v_1.5>
+	<v_1.6>
+		<ajax_1_0/>
+		<api_1_0/>
+		<apiElement_1_0/>
+		<apiPage_1_0/>
+		<ccapi_2_0/>
+		<ccapiConfig_1_0/>
+		<csapi_1_0/>
+		<ceData_2_0/>
+		<csUpload_1_0/>
+		<csContent_2_0/>
+		<csSubsite_1_0/>
+		<csPage_2_0/>
+		<csData_1_2/>
+		<csSecurity_1_2/>
+		<data_1_2/>
+		<date_1_2/>
+		<forms_1_1/>
+		<lightbox_1_0/>
+		<mobile_1_0/>
+		<scheduler_1_0/>
+		<scripts_1_2/>
+		<scriptsService_1_1/>
+		<taxonomy_1_1/>
+		<ui_1_0/>
+		<utils_1_2/>
+	</v_1.6>
 </settings>
