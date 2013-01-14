@@ -27,7 +27,7 @@ Name:
 Summary:
 	CommonSpot Data Utils functions for the ADF Library
 Version:
-	1.0.2
+	1.0
 History:
 	2009-06-22 - MFC - Created
 	2011-02-23 - GAC - Added a helper method getGlobalKeywords that is used by getStandardMetadata to handle 

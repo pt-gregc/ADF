@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2011.
+PaperThin, Inc. Copyright(C) 2013.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -35,7 +35,7 @@ History:
 --->
 <cfcomponent displayname="SiteBase" extends="ADF.core.AppBase">
 
-<cfproperty name="version" value="1_5_0">
+<cfproperty name="version" value="1_6_2">
 
 <!---
 /* *************************************************************** */
@@ -89,6 +89,7 @@ Arguments:
 History:
 	2009-08-07 - MFC - Created
 	2011-04-05 - MFC - Added 'application.ADF.csVersion' variable.
+	2012-12-27 - MFC - Added the call to Load the site API or CCAPI Config
 --->
 <cffunction name="loadSite" access="private" returntype="void" hint="Stores the ADF Lib Components into application.ADF space.">
 	<cfscript>
@@ -106,6 +107,9 @@ History:
 		
 		// Load the site components
 		loadSiteComponents();
+		
+		// Load the site API or CCAPI Config
+		loadSiteAPIConfig();
 		
 		// Adds the ADF version to the Application.ADF stuct
 		application.ADF.version = getADFversion();
@@ -407,6 +411,60 @@ History:
 		{
 			// TODO: Need to check this... not sure the cfscript version of cfthrow is CF8 compatible
 			throw("Could not find bean name: '#beanName#' while calling loadLibraryComponent");
+		}
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+Name:
+	$loadSiteAPIConfig
+Summary:
+	Loads the API (or CCAPI) config file into server.ADF.environment space.
+Returns:
+	Void
+Arguments:
+	Void
+History:
+ 	2012-12-27 - MFC - Created
+	2013-01-11 - MFC - Updated to support CF 8 and under.
+--->
+<cffunction name="loadSiteAPIConfig" access="private" returntype="void">
+	<cfscript>
+		var APIConfig = StructNew();
+		var configAppXMLPath = ExpandPath("#request.site.csAppsWebURL#config/ccapi.xml");
+		var configAppCFMPath = request.site.csAppsWebURL & "config/ccapi.cfm";
+		var buildError = StructNew();
+		
+		try {
+			// Pass a Logical path for the CFM file to the getConfigViaXML() since it will be read via CFINCLUDE
+			if ( FileExists(ExpandPath(configAppCFMPath)) )
+				APIConfig = server.ADF.objectFactory.getBean("CoreConfig").getConfigViaXML(configAppCFMPath);
+			// Pass an Absolute path for the XML file to the getConfigViaXML() since it will be read via CFFILE
+			else if ( FileExists(configAppXMLPath) )
+				APIConfig = server.ADF.objectFactory.getBean("CoreConfig").getConfigViaXML(configAppXMLPath);
+			
+			// Validate the config has the fields we need
+			if( isStruct(APIConfig) ){
+				server.ADF.environment[request.site.id]['apiConfig'] = APIConfig;
+			}
+			else {
+				// Build the Error Struct
+				buildError.ADFmethodName = "API Config";
+				buildError.details = "API Configuration CFM (or XML) file is not a valid data format. [#request.site.name# - #request.site.id#].";
+				// Add the errorStruct to the server.ADF.buildErrors Array 
+				ArrayAppend(server.ADF.buildErrors,buildError);
+			}
+		}
+		catch (Any exception){
+			// Build the Error Struct
+			buildError.ADFmethodName = "API Config";
+			//buildError.details = "API Configuration CFM (or XML) file is not setup for this site [#request.site.name# - #request.site.id#].";
+			buildError.details = exception;
+			// Add the errorStruct to the server.ADF.buildErrors Array 
+			ArrayAppend(server.ADF.buildErrors, buildError);	
 		}
 	</cfscript>
 </cffunction>

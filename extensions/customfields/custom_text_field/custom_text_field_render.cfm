@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
  
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2010.
+PaperThin, Inc. Copyright(C) 2013.
 All Rights Reserved.
  
 By downloading, modifying, distributing, using and/or accessing any files
@@ -37,6 +37,7 @@ History:
 	2009-10-15 - MFC - Created
 	2011-02-08 - MFC - Updated the "fldName" prop to "fldID" variable.
 	2011-06-30 - MFC - Changed ADF server object call to Data_1_0 to call "application.ADF.data".
+	2013-01-10 - MFC - Updated the field to use the "forms.wrapFieldHTML" function.
 --->
 <cfscript>
 	// the fields current value
@@ -89,7 +90,7 @@ History:
 		//vobjects_#attributes.formname#.push(#fqFieldName#);
 	</script>
 	<!--- hidden field to store the value --->
-	
+	<!--- 	
 	<cfscript>
 		if ( structKeyExists(request, "element") )
 		{
@@ -130,5 +131,31 @@ History:
 				<input type="hidden" name="#fqFieldName#_FIELDNAME" id="#fqFieldName#_FIELDNAME" value="#ReplaceNoCase(xParams.fieldName, 'FIC_', '')#">
 			</cfif>
 		</td>
-	</tr>
+	</tr> --->
+	<cfscript>
+		// Set the read only
+		readOnly = false;
+		// Check the Edit Once flag
+		if ( LEN(currentValue) AND xparams.editOnce )
+			readOnly = true;
+	</cfscript>
+	<cfsavecontent variable="inputHTML">
+		<cfoutput>
+			<!--- Render the input field --->
+			<input type="text" name="#fqFieldName#" value="#currentValue#" id="#xparams.fldID#" size="#xparams.fldSize#"<cfif LEN(TRIM(xparams.fldClass))> class="#xparams.fldClass#"</cfif> tabindex="#rendertabindex#" <cfif readOnly>readonly="true"</cfif>>
+			<!--- // include hidden field for simple form processing --->
+			<cfif renderSimpleFormField>
+				<input type="hidden" name="#fqFieldName#_FIELDNAME" id="#fqFieldName#_FIELDNAME" value="#ReplaceNoCase(xParams.fieldName, 'FIC_', '')#">
+			</cfif>
+		</cfoutput>
+	</cfsavecontent>
+	<!---
+		This CFT is using the forms lib wrapFieldHTML functionality. The wrapFieldHTML takes
+		the Form Field HTML that you want to put into the TD of the right section of the CFT 
+		table row and helps with display formatting, adds the hidden simple form fields (if needed) 
+		and handles field permissions (other than read-only).
+		Optionally you can disable the field label and the field discription by setting 
+		the includeLabel and/or the includeDescription variables (found above) to false.  
+	--->
+	#application.ADF.forms.wrapFieldHTML(inputHTML,fieldQuery,attributes)#
 </cfoutput>

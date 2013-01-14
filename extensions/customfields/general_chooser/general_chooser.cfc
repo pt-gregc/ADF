@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
  
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2011.
+PaperThin, Inc. Copyright(C) 2013.
 All Rights Reserved.
  
 By downloading, modifying, distributing, using and/or accessing any files
@@ -21,8 +21,7 @@ end user license agreement.
 <!---
 /* *************************************************************** */
 Author: 	
-	PaperThin, Inc.
-	M Carroll 
+	PaperThin, Inc. 
 Custom Field Type:
 	general_chooser.cfc
 Name:
@@ -39,10 +38,11 @@ History:
 	2011-03-20 - MFC - Updated component to simplify the customizations process and performance.
 						Removed Ajax loading process.
 	2012-01-30 - GAC - Added a Display_Feild varaible to the General Chooser init variables.
+	2013-01-10 - MFC - Disabled the Delete icon/action in the selection.
 --->
 <cfcomponent name="general_chooser" extends="ADF.lib.ceData.ceData_1_0">
 
-<cfproperty name="version" value="1_1_2">
+<cfproperty name="version" value="1_1_3">
 
 <cfscript>
 	// CUSTOM ELEMENT INFO
@@ -396,7 +396,6 @@ History:
 /* *************************************************************** */
 Author: 	
 	PaperThin, Inc.
-	M Carroll
 Name:
 	$getSelections
 Summary:
@@ -420,6 +419,7 @@ History:
 					 - Added logic to display an ellipsis if the the Display text for an Item get truncated
 	2012-01-23 - GAC - Added a DISPLAY_TEXT variable to allow different item Display Text from what is used for the ORDER_FIELD
 	2012-09-06 - MFC - Updated to build the display text outside of the main string build.
+	2013-01-10 - MFC - Disabled the Delete icon/action in the selection.
 --->
 <cffunction name="getSelections" access="public" returntype="string" hint="Returns the html code for the selections of the profile select custom element.">
 	<cfargument name="item" type="string" required="false" default="">
@@ -451,8 +451,9 @@ History:
 				itemCls = variables.SELECT_ITEM_CLASS;
 				// Build the Edit/Delete links
 				if ( variables.SHOW_EDIT_DELETE_LINKS ) {
-					editDeleteLinks = "<br /><table><tr><td><a href='javascript:;' rel='#application.ADF.ajaxProxy#?bean=Forms_1_1&method=renderAddEditForm&formID=#ceDataArray[i].formID#&datapageId=#ceDataArray[i].pageID#&callback=#arguments.fieldID#_formCallback&title=Edit Record' class='ADFLightbox ui-icon ui-icon-pencil'></a></td>";
-					editDeleteLinks = editDeleteLinks & "<td><a href='javascript:;' rel='#application.ADF.ajaxProxy#?bean=Forms_1_1&method=renderDeleteForm&formID=#ceDataArray[i].formID#&datapageId=#ceDataArray[i].pageID#&callback=#arguments.fieldID#_formCallback&title=Delete Record' class='ADFLightbox ui-icon ui-icon-trash'></a></td></tr></table>";
+					//editDeleteLinks = "<br /><table><tr><td><a href='javascript:;' rel='#application.ADF.ajaxProxy#?bean=Forms_1_1&method=renderAddEditForm&formID=#ceDataArray[i].formID#&datapageId=#ceDataArray[i].pageID#&callback=#arguments.fieldID#_formCallback&title=Edit Record' class='ADFLightbox ui-icon ui-icon-pencil'></a></td>";
+					//editDeleteLinks = editDeleteLinks & "<td><a href='javascript:;' rel='#application.ADF.ajaxProxy#?bean=Forms_1_1&method=renderDeleteForm&formID=#ceDataArray[i].formID#&datapageId=#ceDataArray[i].pageID#&callback=#arguments.fieldID#_formCallback&title=Delete Record' class='ADFLightbox ui-icon ui-icon-trash'></a></td></tr></table>";
+					editDeleteLinks = "<br /><a href='javascript:;' rel='#application.ADF.ajaxProxy#?bean=Forms_1_1&method=renderAddEditForm&formID=#ceDataArray[i].formID#&datapageId=#ceDataArray[i].pageID#&callback=#arguments.fieldID#_formCallback&title=Edit Record' class='ADFLightbox ui-icon ui-icon-pencil'></a>";
 				    // Set the item class to add the spacing for the edit/delete links
 				    itemCls = itemCls & " itemEditDelete";
 				}

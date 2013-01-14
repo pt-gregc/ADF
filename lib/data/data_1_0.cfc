@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2010.
+PaperThin, Inc. Copyright(C) 2012.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -27,13 +27,13 @@ Name:
 Summary:
 	Data Utils component functions for the ADF Library
 Version:
-	1.0.1
+	1.0
 History:
 	2009-06-22 - PaperThin, Inc. - Created
 --->
 <cfcomponent displayname="data_1_0" extends="ADF.core.Base" hint="Data Utils component functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_2">
+<cfproperty name="version" value="1_0_3">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Data_1_0">
 
@@ -290,7 +290,7 @@ History:
 
 	<!---
 	Check to see if we need to trim the data. Be default,
-	we are going to pull off any new line and carraige
+	we are going to pull off any new line and carriage
 	returns that are at the end of the file (we do NOT want
 	to strip spaces or tabs).
 	--->
@@ -307,7 +307,7 @@ History:
 
 	<!---
 	Create a compiled Java regular expression pattern object
-	for the experssion that will be needed to parse the
+	for the expression that will be needed to parse the
 	CSV tokens including the field values as well as any
 	delimiters along the way.
 	--->

@@ -138,7 +138,7 @@ History:
 				<input type="radio" name="#prefix#resizeHandleOption" id="#prefix#resizeHandleOption" value="both" <cfif currentValues.resizeHandleOption eq 'both'>checked</cfif>>Both
 				<input type="radio" name="#prefix#resizeHandleOption" id="#prefix#resizeHandleOption" value="horizontal" <cfif currentValues.resizeHandleOption eq 'horizontal'>checked</cfif>>Horizontal
 				<input type="radio" name="#prefix#resizeHandleOption" id="#prefix#resizeHandleOption" value="vertical" <cfif currentValues.resizeHandleOption eq 'vertical'>checked</cfif>>Vertical
-				<br/><span>Apply an option the resize handle that appears in the corner of this textarea field (if the browser supports it).</span>
+				<br/><span>Apply an option for the resize handle that appears in the corner of this textarea field (if the browser supports it).</span>
 			</td>
 		</tr>
 </cfoutput>

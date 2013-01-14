@@ -49,6 +49,7 @@ History:
 						when the form loads.
 					   Added the new records will load into the "selected" area when saved.
 	2012-07-31 - MFC - Replaced the CFJS function for "ListLen" and "ListFindNoCase".
+	2013-01-10 - MFC - Fixed issue with the to add the new records into the "selected" area when saved.
 --->
 <cfscript>
 	// the fields current value
@@ -200,19 +201,17 @@ History:
 		}
 		
 		function #xParams.fieldID#_formCallback(formData){
-			
 			// Load the newest item onto the selected values
 			// 2012-07-31 - MFC - Replaced the CFJS function for "ListLen" and "ListFindNoCase".
 			if ( #xParams.fieldID#currentValue.length > 0 ){
 				// Check that the record does not exist in the list already
 				tempValue = #xParams.fieldID#currentValue.search(formData[js_#xParams.fieldID#_CE_FIELD]); 
-				if ( tempValue.length > 0 )
+				if ( tempValue <= 0 )
 					#xParams.fieldID#currentValue = jQuery.ListAppend(formData[js_#xParams.fieldID#_CE_FIELD], #xParams.fieldID#currentValue);
 			}
 			else 
 				#xParams.fieldID#currentValue = formData[js_#xParams.fieldID#_CE_FIELD];
 		
-			//alert(#xParams.fieldID#currentValue);
 			// load current values into the form field
 			jQuery("input###fqFieldName#").val(#xParams.fieldID#currentValue);
 			

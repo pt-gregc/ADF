@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2010.
+PaperThin, Inc. Copyright(C) 2012.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -27,7 +27,7 @@ Name:
 Summary:
 	Util functions for the ADF Library
 Version:
-	1.0.1
+	1.0
 History:
 	2009-06-22 - MFC - Created
 --->
@@ -89,17 +89,21 @@ Arguments:
 History:
 	2008-06-17 - RLW - Created
 	2011-07-15 - RAK - Converted msg to be able to take anything
+	2012-11-16 - SFS - Added Label argument so that you can individually label each complex object dump
 --->
 <cffunction name="logAppend" access="public" returntype="void">
 	<cfargument name="msg" type="any" required="true">
 	<cfargument name="logFile" type="string" required="false" default="debug.log">
 	<cfargument name="addTimeStamp" type="boolean" required="false" default="true">
 	<cfargument name="logDir" type="string" required="false" default="#request.cp.commonSpotDir#logs/">
+	<cfargument name="label" type="string" required="false" default="">
 	<cfscript>
 		var logFileName = arguments.logFile;
 		var utcNow = DateConvert('local2utc', now());
 		if( arguments.addTimeStamp )
 			logFileName = dateFormat(now(), "yyyymmdd") & "." & request.site.name & "." & logFileName;
+		if( len(arguments.label) )
+			arguments.label = arguments.label & "-";
 	</cfscript>
 	<cftry>
 		<!--- Check if the file exists --->
@@ -107,7 +111,7 @@ History:
 			<cfdirectory action="create" directory="#arguments.logdir#">
 		</cfif>
 		<cfif NOT isSimpleValue(msg)>
-			<cfset msg = Application.ADF.utils.doDump(msg,"msg-#application.ADF.date.csDateFormat(now(),now())#",0,1)>
+			<cfset msg = Application.ADF.utils.doDump(msg,"#arguments.label#msg-#application.ADF.date.csDateFormat(now(),now())#",0,1)>
 		</cfif>
 		<cffile action="append" file="#arguments.logDir##logFileName#" output="#application.adf.date.csDateFormat(utcNow,utcNow)# (UTC) - #arguments.msg#" addnewline="true">
 		<cfcatch type="any">

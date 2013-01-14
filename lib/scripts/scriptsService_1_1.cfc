@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2010.
+PaperThin, Inc. Copyright(C) 2012.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -27,13 +27,13 @@ Name:
 Summary:
 	Scripts Service functions for the ADF Library
 Version:
-	1.1.0
+	1.1
 History:
 	2010-12-10 - RAK - Created
 --->
 <cfcomponent displayname="scriptsService_1_1" extends="ADF.lib.scripts.scriptsService_1_0" hint="Scripts Service functions for the ADF Library">
 
-<cfproperty name="version" default="1_1_0">
+<cfproperty name="version" default="1_1_1">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="ScriptsService_1_1">
 
@@ -139,6 +139,7 @@ History:
  	2011-01-18 - RAK - Created
  	2011-05-10 - RAK - Modified findScript to trim out the min prior to checking to see if there is anything other than 0-9 and .
 	2011-07-14 - MFC - Renamed cache variable to be under ADF struct, "application.ADF.cache".
+	2012-07-13 - MFC - Added the "allowoverwrite" flag to "true" on the StructInsert commands to avoid errors.
 --->
 <cffunction name="findScript" access="public" returntype="struct" hint="Finds the closest matching script to the version number in the filesystem">
 	<cfargument name="version" type="string" required="true" default="1.0" hint="version number to search for (only accepts 0-9 and periods)">
@@ -182,14 +183,14 @@ History:
 			tempFile = "#csAppsDir##preamble##tempVersion##postamble#";
 			if(FileExists(ExpandPath(tempFile))){
 				rtn.message = tempFile;
-				StructInsert(application.ADF.cache.scriptsCache,cacheString,tempFile);
+				StructInsert(application.ADF.cache.scriptsCache,cacheString,tempFile,true);
 				return rtn;
 			}
 			// Search the cs_apps directory for the Min
 			tempFile = "#csAppsDir##preamble##tempVersion#.min#postamble#";
 			if(FileExists(ExpandPath(tempFile))){
 				rtn.message = tempFile;
-				StructInsert(application.ADF.cache.scriptsCache,cacheString,tempFile);
+				StructInsert(application.ADF.cache.scriptsCache,cacheString,tempFile,true);
 				return rtn;
 			}
 
@@ -197,7 +198,7 @@ History:
 			tempFile = "#adfDir##preamble##tempVersion##postamble#";
 			if(FileExists(ExpandPath(tempFile))){
 				rtn.message = tempFile;
-				StructInsert(application.ADF.cache.scriptsCache,cacheString,tempFile);
+				StructInsert(application.ADF.cache.scriptsCache,cacheString,tempFile,true);
 				return rtn;
 			}
 
@@ -205,7 +206,7 @@ History:
 			tempFile = "#adfDir##preamble##tempVersion#.min#postamble#";
 			if(FileExists(ExpandPath(tempFile))){
 				rtn.message = tempFile;
-				StructInsert(application.ADF.cache.scriptsCache,cacheString,tempFile);
+				StructInsert(application.ADF.cache.scriptsCache,cacheString,tempFile,true);
 				return rtn;
 			}
 
@@ -217,7 +218,7 @@ History:
 				tempVersion = "";
 			}
 		}
-		StructInsert(application.ADF.cache.scriptsCache,cacheString,"");
+		StructInsert(application.ADF.cache.scriptsCache,cacheString,"",true);
 		//Uh oh, we couldnt find it.
 		application.ADF.utils.logAppend("Unable to find script #defaultDirectory#/#preamble##version##postamble#","findScript-error.txt");
 		rtn.message = "Unable to find script. #defaultDirectory#/#preamble##version##postamble#";

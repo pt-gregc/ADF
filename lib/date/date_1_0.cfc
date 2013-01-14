@@ -27,7 +27,7 @@ Name:
 Summary:
 	Date Utils functions for the ADF Library
 Version:
-	1.0.1
+	1.0
 History:
 	2009-06-22 - MFC - Created
 	2010-09-21 - MFC - Added formatDateTimeISO8601 and getDateFields functions.

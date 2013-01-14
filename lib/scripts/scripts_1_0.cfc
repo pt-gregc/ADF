@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2010.
+PaperThin, Inc. Copyright(C) 2012.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -27,13 +27,13 @@ Name:
 Summary:
 	Scripts functions for the ADF Library
 Version:
-	1.0.1
+	1.0
 History:
 	2009-06-22 - MFC - Created
 --->
 <cfcomponent displayname="scripts_1_0" extends="ADF.core.Base" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" default="1_0_4">
+<cfproperty name="version" default="1_0_5">
 <cfproperty name="type" value="singleton">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_0" type="dependency">
 <cfproperty name="wikiTitle" value="Scripts_1_0">
