@@ -214,7 +214,7 @@ History:
 	2013-01-16 - MFC - Restructured the thirdparty folders & versions. Set to default load JQuery Data Tables 1.9.
 --->
 <cffunction name="loadJQueryDataTables" access="public" output="true" returntype="void" hint="Loads the JQuery DataTables Headers if not loaded.">
-	<cfargument name="version" type="string" required="false" default="1.7" hint="JQuery DataTables version to load.">
+	<cfargument name="version" type="string" required="false" default="1.9" hint="JQuery DataTables version to load.">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery DataTables script header to load.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
