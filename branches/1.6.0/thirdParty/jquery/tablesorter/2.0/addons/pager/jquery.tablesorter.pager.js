@@ -1,9 +1,9 @@
-(function(jQuery) {
-	jQuery.extend({
+(function($) {
+	$.extend({
 		tablesorterPager: new function() {
 			
 			function updatePageDisplay(c) {
-				var s = jQuery(c.cssPageDisplay,c.container).val((c.page+1) + c.seperator + c.totalPages);	
+				var s = $(c.cssPageDisplay,c.container).val((c.page+1) + c.seperator + c.totalPages);	
 			}
 			
 			function setPageSize(table,size) {
@@ -18,7 +18,7 @@
 			function fixPosition(table) {
 				var c = table.config;
 				if(!c.pagerPositionSet && c.positionFixed) {
-					var c = table.config, o = jQuery(table);
+					var c = table.config, o = $(table);
 					if(o.offset) {
 						c.container.css({
 							top: o.offset().top + o.height() + 'px',
@@ -80,11 +80,11 @@
 				}
 				
 				
-				var tableBody = jQuery(table.tBodies[0]);
+				var tableBody = $(table.tBodies[0]);
 				
 				// clear the table body
 				
-				jQuery.tablesorter.clearTableBody(table);
+				$.tablesorter.clearTableBody(table);
 				
 				for(var i = s; i < e; i++) {
 					
@@ -101,7 +101,7 @@
 				
 				fixPosition(table,tableBody);
 				
-				jQuery(table).trigger("applyWidgets");
+				$(table).trigger("applyWidgets");
 				
 				if( c.page >= c.totalPages ) {
         			moveToLastPage(table);
@@ -143,32 +143,32 @@
 				
 				return this.each(function() {	
 					
-					config = jQuery.extend(this.config, jQuery.tablesorterPager.defaults, settings);
+					config = $.extend(this.config, $.tablesorterPager.defaults, settings);
 					
 					var table = this, pager = config.container;
 				
-					jQuery(this).trigger("appendCache");
+					$(this).trigger("appendCache");
 					
-					config.size = parseInt(jQuery(".pagesize",pager).val());
+					config.size = parseInt($(".pagesize",pager).val());
 					
-					jQuery(config.cssFirst,pager).click(function() {
+					$(config.cssFirst,pager).click(function() {
 						moveToFirstPage(table);
 						return false;
 					});
-					jQuery(config.cssNext,pager).click(function() {
+					$(config.cssNext,pager).click(function() {
 						moveToNextPage(table);
 						return false;
 					});
-					jQuery(config.cssPrev,pager).click(function() {
+					$(config.cssPrev,pager).click(function() {
 						moveToPrevPage(table);
 						return false;
 					});
-					jQuery(config.cssLast,pager).click(function() {
+					$(config.cssLast,pager).click(function() {
 						moveToLastPage(table);
 						return false;
 					});
-					jQuery(config.cssPageSize,pager).change(function() {
-						setPageSize(table,parseInt(jQuery(this).val()));
+					$(config.cssPageSize,pager).change(function() {
+						setPageSize(table,parseInt($(this).val()));
 						return false;
 					});
 				});
@@ -177,8 +177,8 @@
 		}
 	});
 	// extend plugin scope
-	jQuery.fn.extend({
-        tablesorterPager: jQuery.tablesorterPager.construct
+	$.fn.extend({
+        tablesorterPager: $.tablesorterPager.construct
 	});
 	
 })(jQuery);				
