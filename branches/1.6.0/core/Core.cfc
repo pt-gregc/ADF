@@ -46,7 +46,7 @@ History:
 <cfscript>
 	variables.ADFversion = "1.6.0"; // use a dot delimited version number
 	// ADF Build Revision Number
-	variables.buildRev = "956";
+	variables.buildRev = "957";
 	// ADF Codename
 	variables.buildName = "Tetris";
 	// CS product version, get the decimal value
@@ -70,6 +70,7 @@ History:
 		server.ADF.csVersion = getCSVersion(); // Get the ADF version
 		server.ADF.buildRev = variables.buildRev;
 		server.ADF.buildName = variables.buildName;
+		server.ADF.environment = StructNew();  // Stores the App and Site configuration data
 		
 		// Build object factory 
 		server.ADF.beanConfig = createObject("component","ADF.core.lightwire.BeanConfig").init();

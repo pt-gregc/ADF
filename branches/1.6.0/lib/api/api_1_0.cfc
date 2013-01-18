@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="api" extends="ADF.core.Base" hint="CCAPI functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_3">
+<cfproperty name="version" value="1_0_4">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
 <cfproperty name="wikiTitle" value="API">
 
@@ -66,8 +66,10 @@ History:
 		// Get the user account from the CCAPI Config
 		var apiConfig = getAPIConfig();
 		// Set the setSiteURL
-		setSiteURL(apiConfig.wsVars.siteURL);
-		setSubsiteID(apiConfig.wsVars.subsiteID);
+		if ( isStruct(apiConfig) AND StructKeyExists(apiConfig, "wsVars") ) {
+			setSiteURL(apiConfig.wsVars.siteURL);
+			setSubsiteID(apiConfig.wsVars.subsiteID);
+		}
 	</cfscript>
 </cffunction>
 
@@ -596,24 +598,30 @@ History:
 <cffunction name="getAPIConfig" access="public" returntype="struct">
 	<cfscript>
 		var tempStruct = structNew();
-			
-		if ( StructKeyExists(server.ADF.environment, request.site.id)
-				AND NOT StructKeyExists(server.ADF.environment[request.site.id], "apiConfig") ) {
-			// Build a init struct keys to pass back
-			tempStruct.logging = StructNew();
-			tempStruct.logging.enabled = false;
-			tempStruct.elements = StructNew();
-			tempStruct.wsVars = StructNew();
-			tempStruct.wsVars.webserviceURL = "";
-			tempStruct.wsVars.csuserid = "";
-			tempStruct.wsVars.cspassword = "";
-			tempStruct.wsVars.site = "";
-			tempStruct.wsVars.siteURL = "";
-			tempStruct.wsVars.subsiteID = 1;
-			tempStruct.wsVars.cssites = "";
+		// Build a init struct keys to pass back
+		tempStruct.logging = StructNew();
+		tempStruct.logging.enabled = false;
+		tempStruct.elements = StructNew();
+		tempStruct.wsVars = StructNew();
+		tempStruct.wsVars.webserviceURL = "";
+		tempStruct.wsVars.csuserid = "";
+		tempStruct.wsVars.cspassword = "";
+		tempStruct.wsVars.site = "";
+		tempStruct.wsVars.siteURL = "";
+		tempStruct.wsVars.subsiteID = 1;
+		tempStruct.wsVars.cssites = "";
+		
+		if ( NOT StructKeyExists(server.ADF.environment, request.site.id) ) {
+			//return tempStruct;
+			server.ADF.environment[request.site.id] = StructNew();
+			StructInsert(server.ADF.environment[request.site.id], "apiConfig", tempStruct);
+		}
+		// Build the temporary config if nothing is defined at the site config level
+		else if ( NOT StructKeyExists(server.ADF.environment[request.site.id], "apiConfig") ) {
 			// Insert into the Site Config
 			StructInsert(server.ADF.environment[request.site.id], "apiConfig", tempStruct);
 		}
+		
 		return server.ADF.environment[request.site.id].apiConfig;
 	</cfscript>
 </cffunction>

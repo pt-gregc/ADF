@@ -35,7 +35,7 @@ History:
 --->
 <cfcomponent name="AppBase" extends="ADF.core.Base" hint="App Base component for the ADF">
 
-<cfproperty name="version" value="1_5_3">
+<cfproperty name="version" value="1_6_1">
 
 <cffunction name="init" output="true" returntype="any">
 	<cfscript>
@@ -93,6 +93,7 @@ History:
 	2009-06-05 - MFC - Created
 	2010-04-06 - MFC - Removed old code.
 	2010-08-26 - MFC - Changed "isDefined" to "StructKeyExists"
+	2013-01-18 - MFC - Added check for if the "app" is a struct.
 --->
 <cffunction name="loadApp" access="private" returntype="void" hint="Stores the ADF Lib Components into application.ADF space.">
 	<cfargument name="appBeanName" type="string" required="true" default="" hint="ADF lightwire bean name.">
@@ -120,7 +121,8 @@ History:
 			// run the post init function if it is defined
 			app = application.ADF.objectFactory.getBean(arguments.appBeanName);
 			// [MFC] - Changed "isDefined" to "StructKeyExists"
-			if( StructKeyExists(app, "postInit") )
+			// [MFC] - Added check for if the "app" is a struct.
+			if( isStruct(app) AND StructKeyExists(app, "postInit") )
 				app.postInit();
 		}
 	</cfscript>
