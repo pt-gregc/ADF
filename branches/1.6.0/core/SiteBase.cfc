@@ -35,7 +35,7 @@ History:
 --->
 <cfcomponent displayname="SiteBase" extends="ADF.core.AppBase">
 
-<cfproperty name="version" value="1_6_3">
+<cfproperty name="version" value="1_6_4">
 
 <!---
 /* *************************************************************** */
@@ -432,25 +432,26 @@ History:
 	2013-01-11 - MFC - Updated to support CF 8 and under.
 	2013-01-18 - MFC - Updated to not get the CoreConfig from the object factory
 						when the server restarts.
+	2012-01-23 - MFC - Modified the function to NOT expand the file of the CFM file.
 --->
 <cffunction name="loadSiteAPIConfig" access="private" returntype="void">
 	<cfscript>
-		var APIConfig = StructNew();
+		var APIConfig = "";
 		var configAppXMLPath = ExpandPath("#request.site.csAppsWebURL#config/ccapi.xml");
-		var configAppCFMPath = ExpandPath("#request.site.csAppsWebURL#config/ccapi.cfm");
+		var configAppCFMPath = "#request.site.csAppsWebURL#config/ccapi.cfm";
 		var buildError = StructNew();
 		var coreConfigObj = "";
 		
 		try {
 			coreConfigObj = CreateObject("component", "ADF.core.Config");
-				
+			 	
 			// Pass a Logical path for the CFM file to the getConfigViaXML() since it will be read via CFINCLUDE
-			if ( FileExists(configAppCFMPath) )
+			if ( FileExists(ExpandPath(configAppCFMPath)) )
 				APIConfig = coreConfigObj.getConfigViaXML(configAppCFMPath);
 			// Pass an Absolute path for the XML file to the getConfigViaXML() since it will be read via CFFILE
 			else if ( FileExists(configAppXMLPath) )
 				APIConfig = coreConfigObj.getConfigViaXML(configAppXMLPath);
-			
+			 
 			// Validate the config has the fields we need
 			if( isStruct(APIConfig) ){
 				server.ADF.environment[request.site.id]['apiConfig'] = APIConfig;
