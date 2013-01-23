@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2012.
+PaperThin, Inc. Copyright(C) 2013.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="ccapi" extends="ADF.lib.ccapi.ccapi_1_0" hint="CCAPI functions for the ADF Library">
 	
-<cfproperty name="version" value="2_0_1">
+<cfproperty name="version" value="2_0_2">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
 <cfproperty name="wikiTitle" value="CCAPI">
@@ -52,10 +52,11 @@ History:
 	variables.elements = structNew();
 	variables.templates = structNew();
 </cfscript>
+
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
 Name:
 	$initCCAPI
 Summary:	
@@ -67,16 +68,10 @@ Arguments:
 History:
 	2009-05-13 - RLW - Created
 	2009-06-30 - RLW - Removed the "loadTemplates()" function - obsolete
+	2012-01-23 - MFC - Modified to call the API library.
 --->
 <cffunction name="initCCAPI" access="public" returntype="void" hint="Initializes the CCAPI object using the settings in the ccapi.xml file from the site root">
 	<cfscript>
-		/* 
-		loadCCAPIConfig();
-		// load the elements and templates
-		loadElements();
-		loadWSVars();
-		buildWS();
-		 */
 		variables.api.initAPIConfig();
 		
 		apiConfig = variables.api.getAPIConfig();
@@ -91,217 +86,10 @@ History:
 	</cfscript>
 </cffunction>
 
-<!--- // Utility functions for building and running WS --->
-
-<!---
-/* ***************************************************************
-/*
-Author: 	Ron West
-Name:
-	$loadCCAPIConfig
-Summary:	
-	Using the CoreConfig object - loads up the current sites configuration
-	for this application
-Returns:
-	Void
-Arguments:
-	Void
-History:
-	2009-05-13 - RLW - Created
-	2009-11-19 - GAC - Modified to load a XML CCAPI config values from a ccapi.CFM file (if available)
-	2010-03-05 - GAC - Removed the loggingEnabled() function call from the try/catch
-	2012-01-26 - MFC - Updated the config error message.
---->
-<!--- <cffunction name="loadCCAPIConfig" access="public" returntype="void">
-	<cfset var CCAPIConfig = StructNew()>
-	<cfset var configAppXMLPath = ExpandPath("#request.site.csAppsWebURL#config/ccapi.xml")>
-	<cfset var configAppCFMPath = request.site.csAppsWebURL & "config/ccapi.cfm">
-	<cftry>
-		<cfscript>
-			// config data should be loaded here
-			// TODO: Need some error checking here
-			// CCAPIConfig = server.ADF.environment[request.site.id].ccapi;
-			
-			// Pass a Logical path for the CFM file to the getConfigViaXML() since it will be read via CFINCLUDE
-			if ( FileExists(ExpandPath(configAppCFMPath)) )
-				CCAPIConfig = server.ADF.objectFactory.getBean("CoreConfig").getConfigViaXML(configAppCFMPath);
-			// Pass an Absolute path for the XML file to the getConfigViaXML() since it will be read via CFFILE
-			else if ( FileExists(configAppXMLPath) )
-				CCAPIConfig = server.ADF.objectFactory.getBean("CoreConfig").getConfigViaXML(configAppXMLPath);
-			
-			setCCAPIConfig(CCAPIConfig);
-		</cfscript>
-		<cfcatch>
-			<cfscript>
-				variables.utils.logAppend("CCAPI Configuration CFM (or XML) file is not setup for this site [#request.site.name# - #request.site.id#].", "CCAPI_Errors.log");
-			</cfscript>
-		</cfcatch>
-	</cftry>
-</cffunction> --->
-
-<!---
-/* ***************************************************************
-/*
-Author: 	Ron West
-Name:
-	$buildWS
-Summary:	
-	Builds the Web Service object from all of the varialbes
-	defined from the configuration file
-Returns:
-	Void
-Arguments:
-	Void
-History:
-	2009-05-13 - RLW - Created
---->
-<!--- <cffunction name="buildWS" access="private" returntype="void">
-	<cfset variables.ws = createObject("component", "commonspot.webservice.cs_service")>
-	<!--- <cfset variables.ws = createObject("webService", getWebServiceURL())> --->
-</cffunction> --->
-
-<!---
-/* ***************************************************************
-/*
-Author: 	Ron West
-Name:
-	$loadElements
-Summary:	
-	Based on the data returned from the configuration
-	this utility will set all of the elements which are
-	configured to handle API calls
-Returns:
-	Void
-Arguments:
-	Void
-History:
-	2009-05-13 - RLW - Created
---->
-<!--- <cffunction name="loadElements" access="private" returntype="void">
-	<cfscript>
-		var CCAPIConfig = getCCAPIConfig();
-		var elementsList = "";
-		var itm = 0;
-		var thisElement = "";
-		var elementName = "";
-		var elements = structNew();
-		if( isStruct(CCAPIConfig) and structKeyExists(CCAPIConfig, "elements") and isStruct(CCAPIConfig["elements"]) )
-			elementsList = structKeyList(CCAPIConfig["elements"]);
-		for( itm=1; itm lte listLen(elementsList); itm=itm+1 )
-		{
-			elementName = listGetAt(elementsList, itm);
-			thisElement = CCAPIConfig["elements"][elementName];
-			// load this element into local variables first
-			structInsert(elements, elementName, thisElement);			
-		}
-		// load the elements into object space
-		setElements(elements);
-	</cfscript>
-</cffunction> --->
-
-<!---
-/* ***************************************************************
-/*
-Author: 	Ron West
-Name:
-	$loadWSVars
-Summary:	
-	Builds the WebService variables required like: Username,Password,URL etc..
-Returns:
-	Void
-Arguments:
-	Void
-History:
-	2009-05-13 - RLW - Created
---->
-<!--- <cffunction name="loadWSVars" access="private" returntype="void">
-	<cfscript>
-		var CCAPIConfig = getCCAPIConfig();
-		var wsVars = structNew();
-		if( isStruct(CCAPIConfig) and structKeyExists(CCAPIConfig, "wsVars") )
-			wsVars = CCAPIConfig["wsVars"];
-		if( structKeyExists(wsVars, "csuserid") )
-			setCSUserID(wsVars["csuserid"]);
-		if( structKeyExists(wsVars, "cspassword") )
-			setCSPassword(wsVars["cspassword"]);
-		if( structKeyExists(wsVars, "siteURL") )
-			setSiteURL(wsVars["siteURL"]);
-		if( structKeyExists(wsVars, "webserviceURL") )
-			setWebServiceURL(wsVars["webserviceURL"]);
-		if( structKeyExists(wsVars, "subsiteID") )
-			setSubsiteID(wsVars["subsiteID"]);
-	</cfscript>
-</cffunction> --->
-
-<!---
-/* ***************************************************************
-/*
-Author: 	Ron West
-Name:
-	$loadTemplates
-Summary:	
-	Based on the data returned from the configuration
-	this utility will set all of the templates which are
-	configured to handle API calls
-Returns:
-	Void
-Arguments:
-	Void
-History:
-	2009-05-13 - RLW - Created
-	2009-06-30 - Deleted
-
-<cffunction name="loadTemplates" access="private" returntype="void">
-	<cfscript>
-		var CCAPIConfig = getCCAPIConfig();
-		var templatesList = "";
-		var itm = 0;
-		var thisTemplate = "";
-		var templates = structNew();
-		if( isStruct(CCAPIConfig) and structKeyExists(CCAPIConfig, "templates") )
-			tempatesList = structKeyList(CCAPIConfig["templates"]);
-		for( itm=1; itm lte listLen(templatesList); itm=itm+1 )
-		{
-			thisTemplate = CCAPIConfig["templates"][listGetAt(templatesList, itm)];
-			// load this element into local variables first
-			structInsert(templates, thisTemplate["name"], thisTemplates);			
-		}
-		// load the elements into object space
-		setTemplates(templates);
-	</cfscript>
-</cffunction>--->
-
-<!---
-/* *************************************************************** */
-Author: 	Ron West
-Name:
-	$hasElement
-Summary:	
-	Given an element name - determines if it is configured correctly
-	to use that element
-Returns:
-	Boolean elementExists
-Arguments:
-	String elementName
-History:
-	2009-05-13 - RLW - Created
-	2011-02-09 - RAK - Var'ing un-var'd variables
---->
-<!--- <cffunction name="hasElement" access="public" returntype="numeric">
-	<cfargument name="elementName" type="string" required="true">
-	<cfscript>
-		var elementExists = 0;
-		if( structKeyExists(getElements(), arguments.elementName) )
-			elementExists = 1;
-	</cfscript>
-	<cfreturn elementExists>
-</cffunction> --->
-
 <!---
 /* *************************************************************** */
 Author: 	
 	PaperThin, Inc.
-	Ron West
 Name:
 	$login
 Summary:	
@@ -314,47 +102,10 @@ History:
 	2009-05-13 - RLW - Created
 	2011-06-16 - MFC - Updated login verification logic for success or error.
 	2011-07-14 - RAK - Made sure that the user was logged out before they logged back in again. AKA cleaned up logged in sessions
+	2012-01-23 - MFC - Modified to call the API library.
 --->
 <cffunction name="login">
 	<cfargument name="subsiteID" required="false" type="numeric" default="1">
-	<!--- // call the CS API login --->
-	<!--- <cfscript>
-		var error = "";
-		var loginResult = "";
-
-		if(loggedIn()){
-			logout();
-		}
-
-		if( arguments.subsiteID gt 0 ){
-			setSubsiteID(arguments.subsiteID);
-		}
-
-		loginResult = variables.ws.csLogin(
-			site = getSiteURL(),
-			csUserID = getCSUserID(),
-			csPassword = getCSPassword(),
-			subSiteID = getSubsiteID(),
-			subSiteURL = '');
-		
-		// Verify that the login was successful and set the SSID
-		if ( ListFirst(loginResult, ":") is "Success" ){
-			// Set the SSID
-			setSSID(listRest(loginResult, ":"));
-			// Log Success
-			if( loggingEnabled() )
-				variables.utils.logAppend("#request.formattedTimestamp# - Success logging in to CCAPI: #loginResult#, [SubSiteID:#subSiteID#]", "CCAPI_ws_login.log");
-		}
-		else {
-			// Clear the SSID
-			setSSID("");
-			error = listLast(loginResult, ":");
-			// Log Error
-			if( loggingEnabled() )
-				variables.utils.logAppend("#request.formattedTimestamp# - Error logging in to CCAPI: #error#", "CCAPI_ws_login.log");
-		}
-	</cfscript>
-	<cfreturn this> --->
 	<cfscript>
 		if( arguments.subsiteID gt 0 ){
 			variables.api.setSubsiteID(arguments.subsiteID);
@@ -365,9 +116,9 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
 Name:
 	$logout
 Summary:
@@ -379,27 +130,18 @@ Arguments:
 History:
 	2008-05-21 - RLW - Created
 	2010-06-17 - MFC - Added Clear the SSID and SubsiteID for the session
+	2012-01-23 - MFC - Modified to call the API library.
 --->
 <cffunction name="logout">
-	<!--- <cfscript>
-		var logoutResult = variables.ws.csLogout(getSSID());
-		
-		// Clear the SSID and SubsiteID for the session
-		setSSID("");
-		setSubsiteID(0);
-		
-		if( loggingEnabled() )
-			variables.utils.logAppend("#request.formattedTimestamp# - Logout result: #logoutResult#", "CCAPI_ws_login.log");
-	</cfscript>
-	<cfreturn logoutResult> --->
 	<cfscript>
 		variables.api.logout();
 	</cfscript>
 </cffunction>
+
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
 Name:
 	loggedIn()
 Summary:
@@ -411,26 +153,10 @@ Arguments:
 		This will be used to see if it contains "no login" message
 History:
 	2007-08-08 - RLW - Created
+	2012-01-23 - MFC - Modified to call the API library.
 --->
 <cffunction name="loggedIn">
 	<cfargument name="resultMsg" type="string" required="false" default="">
-	<!--- <cfscript>
-		var rtnVar = "false";
-		// if we did not get a message assume that length in the ssid will suffice
-		if( not len(arguments.resultMsg) )
-		{
-			// if the first character of the SSID is a number then we logged in
-			if( isNumeric(left(getSSID(),1)) )
-				rtnVar = "true";
-		}
-		else
-		{
-			// do we have the "no login" message
-			if( not findNoCase("No login", arguments.resultMsg) )
-				rtnVar = "true";
-		}
-	</cfscript>
-	<cfreturn rtnVar> --->
 	<cfscript>
 		variables.api.isLoggedIn();
 	</cfscript>
@@ -438,7 +164,8 @@ History:
 
 <!---
 /* *************************************************************** */
-Author: 	Ron West
+Author: 	
+	PaperThin, Inc.
 Name:
 	$clearLock
 Summary:
@@ -469,7 +196,8 @@ History:
 
 <!---
 /* *************************************************************** */
-Author: 	Ron West
+Author: 	
+	PaperThin, Inc.
 Name:
 	$loggingEnabled
 Summary:	
@@ -481,18 +209,9 @@ Arguments:
 History:
 	2009-07-09 - RLW - Created
 	2010-12-09 - RAK - Improved fault tolerance
+	2012-01-23 - MFC - Modified to call the API library.
 --->
 <cffunction name="loggingEnabled" access="public" returntype="boolean" hint="Determines if logging is enabled">
-	<!--- <cfscript>
-		var config = getCCAPIConfig();
-		if(isStruct(config)	and StructKeyExists(config,"logging")
-									and StructKeyExists(config.logging,"enabled")
-									and Len(config.logging.enabled)){
-			return true;
-		}
-		return false;
-	</cfscript>
-	<cfreturn rtnVal> --->
 	<cfscript>
 		var config = variables.api.getAPIConfig();
 		if(isStruct(config)	and StructKeyExists(config,"logging")
