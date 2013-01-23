@@ -36,9 +36,10 @@ History:
 	2011-06-02 - RAK - Added * to end of regular expression so it would validate input on the entire string not just the first character
 	2012-01-10 - MFC - Added span tag with ID around the reset message.
 	2012-07-02 - MFC - Added lock around the entire ADF reset processing. Prevents errors on server restarts.
+	2013-01-23 - MFC - Increased the CFLOCK timeout to "300".
  --->
 <!--- Lock around the entire load ADF processing --->
-<cflock timeout="120" type="exclusive" name="ADF-RESET-LOAD-SITE">
+<cflock timeout="300" type="exclusive" name="ADF-RESET-LOAD-SITE">
 	<cfscript>
 		// Initialize the RESET TYPE variable
 		// Determine what kind of reset is needed (if any)

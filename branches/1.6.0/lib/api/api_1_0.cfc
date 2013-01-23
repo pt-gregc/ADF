@@ -554,13 +554,13 @@ History:
 		if ( LEN(arguments.siteURL) ){
 			session.ADF.API.siteURL = arguments.siteURL;
 			//	Set the remote status
-			setRemoteFlag(true);
+			//setRemoteFlag(true);
 		}
 		else {
 			// If the config site URL is not undefined, then make commands against the current site URL
 			session.ADF.API.siteURL = request.site.url;
 			//	Set the remote status
-			setRemoteFlag(false);
+			//setRemoteFlag(false);
 		}
 		
 		// Check if ends in "/"
