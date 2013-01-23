@@ -619,7 +619,7 @@ History:
 		// Build the temporary config if nothing is defined at the site config level
 		else if ( NOT StructKeyExists(server.ADF.environment[request.site.id], "apiConfig") ) {
 			// Insert into the Site Config
-			StructInsert(server.ADF.environment[request.site.id], "apiConfig", tempStruct);
+			StructInsert(server.ADF.environment[request.site.id], "apiConfig", tempStruct, true);
 		}
 		
 		return server.ADF.environment[request.site.id].apiConfig;
