@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="ceData_2_0" extends="ADF.lib.ceData.ceData_1_1" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="2_0_1">
+<cfproperty name="version" value="2_0_2">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_2">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
@@ -271,6 +271,7 @@ Arguments:
 	String - Search Values
 History:
 	2013-01-04 - MFC - Reworked the processing for the GETCEDATA functionality.
+	2013-01-24 - MFC - Added check if the value is in the Field ID Name Map.
 --->
 <cffunction name="getCEData" access="public" returntype="array" hint="Returns array of structs for all data matching the Custom Element.">
 	<cfargument name="customElementName" type="string" required="true">
@@ -292,6 +293,7 @@ History:
 		var ceFieldName = "";
 		var getPageIDValues = QueryNew("temp");
 		var retTempDataArray = ArrayNew(1);
+		var ceFieldIDNameMap = StructNew();
 		
 		if (LEN(arguments.customElementFieldName) OR Len(arguments.searchFields)) {
 			// check if queryType is Search
@@ -319,12 +321,9 @@ History:
 		else
 			getPageIDValues = getPageIDForElement(CEFormID, CEFieldID, arguments.item, arguments.queryType, arguments.searchValues, searchCEFieldID);
 		
-		
 		// Get the default structure for the element fields
-		//ceDefaultFields = defaultFieldStruct(ceName=arguments.customElementName);
 		// Build the query row for the default field values
 		ceDefaultFieldQry = defaultFieldQuery(CEFormID=CEFormID);
-		
 		ceFieldQuery = getElementFieldsByFormID(formID=CEFormID);
 		
 		// Get the mapping of field ID's to Field Names
@@ -336,22 +335,13 @@ History:
 	
 		// Build in the initial query for the CE Data storage
 		ceDataQry = duplicate(ceDefaultFieldQry);
-		
 		getDataPageValueQry = getDataFieldValue(pageID=ValueList(getPageIDValues.pageID));
-		
 	</cfscript>
-	<!--- <cfdump var="#getDataPageValueQry#" label="getDataPageValueQry" expand="false"> --->
-	
 	
 	<cfquery name="distinctPageIDQry" dbtype="query">
 		SELECT 	DISTINCT PageID
 		FROM 	getDataPageValueQry
 	</cfquery>
-	<!--- <cfdump var="#distinctPageIDQry#" label="distinctPageIDQry" expand="false"> --->
-	
-	<!--- <cfscript>	
-		a3 = GetTickCount();
-	</cfscript> --->
 	
 	<cfif distinctPageIDQry.RecordCount gt 0 >
 		<!--- Loop over the query of page ids --->
@@ -372,26 +362,20 @@ History:
 					<!--- Set the PageID and FormID --->
 					<cfset QuerySetCell(ceDataQry, "pageID", currPageIDDataQry.pageID, newRow)>
 					<cfset QuerySetCell(ceDataQry, "formID", currPageIDDataQry.formID, newRow)>
-					<!--- Get the field ID to the set the column field name --->
-					<cfset currFieldName = ceFieldIDNameMap[currPageIDDataQry.fieldID]>
-					<cfif LEN(currPageIDDataQry.memoValue)>
-						<cfset QuerySetCell(ceDataQry, currFieldName, currPageIDDataQry.memoValue, newRow)>
-					<cfelse>
-						<cfset QuerySetCell(ceDataQry, currFieldName, currPageIDDataQry.fieldValue, newRow)>
+					<!--- Check if the value is in the Field ID Name Map --->
+					<cfif StructKeyExists(ceFieldIDNameMap, currPageIDDataQry.fieldID)>
+						<!--- Get the field ID to the set the column field name --->
+						<cfset currFieldName = ceFieldIDNameMap[currPageIDDataQry.fieldID]>
+						<cfif LEN(currPageIDDataQry.memoValue)>
+							<cfset QuerySetCell(ceDataQry, currFieldName, currPageIDDataQry.memoValue, newRow)>
+						<cfelse>
+							<cfset QuerySetCell(ceDataQry, currFieldName, currPageIDDataQry.fieldValue, newRow)>
+						</cfif>
 					</cfif>
 				</cfloop>
 			</cfif>
 		</cfloop>
 	</cfif>
-	<!--- <cfdump var="#ceDataQry#" label="ceDataQry" expand="false"> --->
-	
-	<!--- <cfscript>
-		b3 = GetTickCount();
-		timer3 = "getElementInfoByPageID - Query Timer = " & b3-a3;
-	</cfscript>
-	<cfdump var="#timer3#" label="getElementInfoByPageID - Query Timer" expand="false"> --->
-	<!--- <cfabort> --->
-	
 	<cfscript>
 		// Check if we are processing the selected list
 		if ( arguments.queryType EQ "selected" and len(arguments.customElementFieldName) and len(arguments.item) ){
