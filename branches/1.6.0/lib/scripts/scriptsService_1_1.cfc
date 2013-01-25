@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="scriptsService_1_1" extends="ADF.lib.scripts.scriptsService_1_0" hint="Scripts Service functions for the ADF Library">
 
-<cfproperty name="version" default="1_1_1">
+<cfproperty name="version" value="1_1_2">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="ScriptsService_1_1">
 

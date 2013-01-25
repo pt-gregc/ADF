@@ -33,7 +33,8 @@ History:
 	2011-12-28 - MFC - Added "getMajorMinorVersion" function to backwards compatibility.
 --->
 <cfcomponent displayname="scriptsService_1_0" extends="ADF.core.Base" hint="Scripts Service functions for the ADF Library">
-<cfproperty name="version" default="1_0_2">
+
+<cfproperty name="version" value="1_0_3">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="ScriptsService_1_0">
 
