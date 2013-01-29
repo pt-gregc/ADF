@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="ceData_2_0" extends="ADF.lib.ceData.ceData_1_1" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="2_0_2">
+<cfproperty name="version" value="2_0_3">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_2">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
@@ -157,13 +157,14 @@ Arguments:
 History:
 	2013-01-04 - MFC - Sets the view table name to the "getViewTableName" function if no
 						value passed in.  Calls the SUPER function to create the table.
+	2013-01-29 - GAC - Updated the getViewTableName logic so it creates a view table name if a viewName is NOT passed in
 --->
 <cffunction name="buildRealTypeView" access="public" returntype="boolean" hint="Builds ane lement view for the passed in element name">
 	<cfargument name="elementName" type="string" required="true" hint="element name to build the view table off of">
 	<cfargument name="viewName" type="string" required="false" default="" hint="Override the view name that gets generated">
 	<cfscript>
-		// Set the table name if not passed in
-		if ( LEN(arguments.viewName) )
+		// Set the view table name from the elementName if a viewName is NOT passed in
+		if ( LEN(TRIM(arguments.viewName)) EQ 0 )
 			arguments.viewName = getViewTableName(customElementName=arguments.elementName);
 		// Call the SUPER function to build the view table
 		return super.buildRealTypeView(elementName=arguments.elementName, viewName=arguments.viewName);
@@ -1026,6 +1027,57 @@ History:
 		else 
 			return "";
 	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	G. Cronkright
+Name:
+	$verifyViewTableExists
+Summary:
+	Verifies that a CE View Table exists, if one does not exist then it attempt to build one.
+	
+	--Tested with MySQL and MSSQL
+Returns:
+	boolean
+Arguments:
+	String - customElementName
+	String - viewTableName
+History:
+	2013-01-29 - GAC - Created
+--->
+<cffunction name="verifyViewTableExists" access="public" returntype="boolean" output="false" hint="Verifies that a CE View Table exists, if one does not exist then it attempt to build one.">
+	<cfargument name="customElementName" type="string" required="true">
+	<cfargument name="viewTableName" type="string" required="false" default="">
+	<cfscript>
+		var verifySourceDB = QueryNew("temp");
+		
+		// Set the view table name if a viewTableName is not passed in
+		if ( LEN(TRIM(arguments.viewTableName)) EQ 0 )
+			arguments.viewTableName = getViewTableName(customElementName=arguments.customElementName);
+	</cfscript>
+	<cftry>
+		<cfif LEN(TRIM(arguments.viewTableName))>
+			<!--- // Check if the table exists in the Source DB --->
+			<cfquery name="verifySourceDB" datasource="#Request.Site.DataSource#">
+				SELECT 	* 
+				  FROM 	INFORMATION_SCHEMA.TABLES 
+	    		 WHERE 	TABLE_NAME = <cfqueryparam value="#arguments.viewTableName#" cfsqltype="cf_sql_varchar">
+			</cfquery>
+		</cfif>
+		<!--- // Check that we don't have the table --->
+		<cfif verifySourceDB.RecordCount LTE 0> 
+			<!--- // Create the view from the Element --->
+			<cfreturn buildRealTypeView(elementName=arguments.customElementName,viewName=arguments.viewTableName)>
+		<cfelse>
+			<cfreturn true>
+		</cfif>
+		<cfcatch>
+			<cfreturn false>
+		</cfcatch>
+	</cftry>
 </cffunction>
 
 </cfcomponent>
