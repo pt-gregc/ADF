@@ -61,6 +61,7 @@ History:
 					 - Updated comments for the code that builds structure key names and datasheet element names based on ceName values
 	2012-05-08 - GAC - Fixed an issue with the displayAddButtonList variable name
 					 - Added a option for custom "Add New" button text
+	2013-01-15 - GAC - If tabs are not being rendered, then don't add additional line breaks.
 --->
 <cfoutput>
 	<cfif structKeyExists(attributes,"elementName") and Len(attributes.elementName)>
@@ -190,8 +191,10 @@ History:
 						custel = REREPLACE(ceName,"[\s]","","all");
 						customControlName = "customManagementFor#custel#";
 					</cfscript>
+					<cfif renderTabFormat>
 					<br/>
 					<br/>
+					</cfif>
 					<cfif enableAddButton>
 						<cfif StructKeyExists(displayAddBtnOptions,custel) AND displayAddBtnOptions[custel]>
 							<!--- // Get the Custom Add Button Text if it was provided --->
