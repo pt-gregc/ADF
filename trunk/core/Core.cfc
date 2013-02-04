@@ -46,7 +46,7 @@ History:
 <cfscript>
 	variables.ADFversion = "1.6.0"; // use a dot delimited version number
 	// ADF Build Revision Number
-	variables.buildRev = "951";
+	variables.buildRev = "976";
 	// ADF Codename
 	variables.buildName = "Tetris";
 	// CS product version, get the decimal value
@@ -70,6 +70,7 @@ History:
 		server.ADF.csVersion = getCSVersion(); // Get the ADF version
 		server.ADF.buildRev = variables.buildRev;
 		server.ADF.buildName = variables.buildName;
+		server.ADF.environment = StructNew();  // Stores the App and Site configuration data
 		
 		// Build object factory 
 		server.ADF.beanConfig = createObject("component","ADF.core.lightwire.BeanConfig").init();
@@ -173,6 +174,7 @@ History:
 	2011-06-29 - MT - Set a response header indicating if the ADF was reset or not.
 	2011-07-14 - MFC - Renamed cache variable to be under ADF struct, "application.ADF.cache".
 	2012-01-12 - MFC - Updated the ADF reset message text.
+	2013-01-23 - MFC - Increased the CFLOCK timeout to "120".
 --->
 <cffunction name="reset" access="remote" returnType="Struct">
 	<cfargument name="type" type="string" required="false" default="all" hint="The type of the ADF to reset.  Options are 'Server', 'Site' or 'All'. Defaults to 'All'.">
@@ -193,7 +195,7 @@ History:
 	<!--- // Check for reset for the user id logged in OR we have set the force flag --->
 	<cfif (request.user.id gt 0) OR (forceReset)>
 		<cftry>
-			<cflock timeout="30" type="exclusive" name="ADF-RESET">
+			<cflock timeout="120" type="exclusive" name="ADF-RESET">
 				<cfscript>
 			 		// 2010-06-23 jrybacek Determine if user is logged in.
 			  		// 2010-06-23 jrybacek Determine how much of the ADF is being requested to be reset

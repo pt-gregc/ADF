@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="utils_1_2" extends="ADF.lib.utils.utils_1_1" hint="Util functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_1">
+<cfproperty name="version" value="1_2_2">
 <cfproperty name="type" value="singleton">
 <cfproperty name="ceData" type="dependency" injectedBean="ceData_1_1">
 <cfproperty name="csData" type="dependency" injectedBean="csData_1_1">
@@ -230,14 +230,176 @@ Arguments:
 	String targetURL - URL target for cflocation.
 History:
 	2012-07-23 - DMB - Created
+	2013-01-29 - GAC - Updated logic for the HTTP check
 --->
 <cffunction name="pageRedirect" access="public" returntype="void">
 	<cfargument name="targetURL" type="any" required="true">
-	<cfif arguments.targetURL contains "http">
+	<cfif REFIND("^https?://",arguments.targetURL,1) EQ false>
 		<cflocation url="http://#arguments.targetURL#" addtoken="No">
 	<cfelse>
 		<cflocation url="#arguments.targetURL#" addtoken="No">
 	</cfif>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+	G. Cronkright
+Name:
+	$setRecurringScheduledTask
+Summary:
+	Creates or updates a scheduled task that is recurring.
+Returns:
+	struct
+Arguments:
+	String url 
+	String taskname 
+	String schedLogFileName 
+	String interval
+	String startDate
+	String startTime
+	String endDate
+	String endTime
+	String timeout
+	String AuthToken -  future feature
+History:
+	2012-08-16 - GAC - Created
+--->
+<cffunction name="setRecurringScheduledTask" access="public" returntype="struct" output="false" hint="">
+	<cfargument name="url" type="string" required="true">
+	<cfargument name="taskName" type="string" required="true">
+	<cfargument name="schedLogFileName" type="string" default="#arguments.taskName#" required="false"> 
+	<cfargument name="interval" type="string" default="" required="false" hint="number of seconds,daily,weekly,monthly"> 
+	<cfargument name="startDate" type="string" default="" required="false" hint="">
+	<cfargument name="startTime" type="string" default="" required="false" hint=""> 
+	<cfargument name="endDate" type="string" default="" required="false" hint="">
+	<cfargument name="endTime" type="string" default="" required="false" hint="">
+	<cfargument name="timeout" type="string" default="3600" required="false"> 
+	<cfargument name="AuthToken" type="string" default="" required="false" hint=""> 
+	<cfscript>
+		var retResult = StructNew();
+		var schedURL = arguments.url;
+		
+		var defaultDateFormat = "mm/dd/yyyy";
+		var defaultTimeFormat = "HH:mm";
+		var defaultMinStartDelay = 5;
+		var defaultMinIntervalDelay = 15;
+		var defaultRequestTimeOut = "3600"; // 3600 second (1 hour) is the default before the request times out
+		var defaultInterval = "once";
+		var intervalOptionsList = "once,daily,weekly,monthly";
+		var defaultStartDateTime = DateAdd("n",defaultMinStartDelay,Now()); 
+		var defaultEndDateTime = DateAdd("n",1,defaultStartDateTime);
+		
+		var logFileDir = request.cp.commonSpotDir & "logs/";
+		var fullLogFilePath = logFileDir & arguments.schedLogFileName;
+		var uniqueFullLogFilePath = createUniqueFileName(fullLogFilePath);
+		var uniqueLogFileName = ListLast(uniqueFullLogFilePath,"/");
+		
+		var schedStartDate = arguments.startDate;
+		var schedStartTime = arguments.startTime;
+		var schedEndDate = "";
+		var schedEndTime = "";
+		var schedStartDateTime = "";
+		var schedEndDateTime = "";
+		
+		// Set the schedInterval to the default value
+		var schedInterval = defaultInterval;
+		var schedRequestTimeOut = defaultRequestTimeOut;
+		
+		// TODO: FUTURE FEATURE: Use for recurring tasks that need authenication to run unattended
+		var validAuthToken = false;
+		
+		// Verify that the interval passed is valid, if not set the interval to once
+		// - if a numeric value they run the task every X number of seconds
+		if ( IsNumeric(arguments.interval) OR ListFindNoCase(intervalOptionsList,arguments.interval) )
+			schedInterval = arguments.interval;
+		
+		// Build Start Date	
+		if ( LEN(TRIM(schedStartDate)) AND IsDate(schedStartDate) ) 
+			schedStartDate = DateFormat(schedStartDate,defaultDateFormat);
+		else
+			schedStartDate = DateFormat(defaultStartDateTime,defaultDateFormat);
+			
+		// Build Start Time
+		if ( LEN(TRIM(schedStartTime)) AND IsDate(schedStartTime) ) 
+			schedStartTime = TimeFormat(schedStartTime, defaultTimeFormat);
+		else
+			schedStartTime = TimeFormat(defaultStartDateTime, defaultTimeFormat);
+		
+		// Build Start Date/Time String
+		schedStartDateTime = DateFormat(schedStartDate,"mm-dd-yyyy") & " " & TimeFormat(schedStartTime,"HH:mm:ss");
+		
+		// Make sure the Start Date/Time is really in the future
+		if ( defaultStartDateTime GT schedStartDateTime ) {
+			schedStartDate = DateFormat(defaultStartDateTime,defaultDateFormat);
+			schedStartTime = TimeFormat(defaultStartDateTime, defaultTimeFormat);
+			schedStartDateTime = DateFormat(schedStartDate,"mm-dd-yyyy") & " " & TimeFormat(schedStartTime,"HH:mm:ss");
+		}
+		
+		// Build End Date
+		if ( LEN(TRIM(arguments.endDate)) AND IsDate(arguments.endDate) ) {
+			schedEndDate = DateFormat(schedStartDate,defaultDateFormat);
+			
+			if ( LEN(TRIM(arguments.endTime)) AND IsDate(arguments.endTime) )
+				schedEndTime = TimeFormat(arguments.endTime, defaultTimeFormat);
+			else
+				schedEndTime = "23:59:59";
+				
+			schedEndDateTime = DateFormat(schedEndDate,"mm-dd-yyyy") & " " & TimeFormat(schedEndTime,"HH:mm:ss");
+		
+			// Make sure the End Date/Time is after the Start Date/Time
+			if ( schedEndDateTime GT schedStartDateTime ) {
+				schedEndDate = "";
+				schedEndTime = "";
+				schedEndDateTime = "";
+			}
+		}
+		
+		// Make sure the passed timeout value is a valid integer
+		if ( IsNumeric(arguments.timeout) )
+			schedRequestTimeOut = int(arguments.timeout);
+			
+		// Validate authtoken (Future authentication feature)
+		//validAuthToken = application.adf.csSecurity.isValidAuthToken(arguments.authtoken);
+		validAuthToken = true;
+		
+		if ( LEN(TRIM(arguments.AuthToken)) AND validAuthToken )
+			schedURL = schedURL & "&authtoken=" & arguments.authtoken;
+		
+		// Set up the return result struct variables
+		retResult.status = "";
+		retResult.authenicated = validAuthToken; //Future authentication feature
+	</cfscript>
+
+	<cftry>
+		
+		<!--- // set the recurring scheduled task --->
+		<cfschedule 
+			task="#arguments.taskName#"
+			url="#arguments.url#"
+			action="update"
+			operation="HTTPRequest"
+			startdate="#schedStartDate#"
+			starttime="#schedStartTime#"
+			enddate="#schedEndDate#"
+			endtime="#schedEndTime#"
+			interval="#schedInterval#"
+			publish="yes"
+			file="#uniqueLogFileName#"
+			path="#logFileDir#"
+			requesttimeout="#schedRequestTimeOut#">
+			
+			<cfset retResult.status = "success">
+		<cfcatch type="any">
+			<cfset retResult.status = "failed">
+			<cfif StructKeyExists(cfcatch,"message")>
+				<cfset retResult.msg = cfcatch.message>
+			</cfif>
+		</cfcatch>
+	</cftry>
+	
+	<cfreturn retResult>
 </cffunction>
 
 </cfcomponent>

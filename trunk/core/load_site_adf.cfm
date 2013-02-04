@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2012.
+PaperThin, Inc. Copyright(C) 2013.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -36,9 +36,11 @@ History:
 	2011-06-02 - RAK - Added * to end of regular expression so it would validate input on the entire string not just the first character
 	2012-01-10 - MFC - Added span tag with ID around the reset message.
 	2012-07-02 - MFC - Added lock around the entire ADF reset processing. Prevents errors on server restarts.
+	2013-01-23 - MFC - Increased the CFLOCK timeout to "300".
+	2013-01-24 - MFC - Setup the "Session.ADF" space if it doesn't exist for the users session
  --->
 <!--- Lock around the entire load ADF processing --->
-<cflock timeout="120" type="exclusive" name="ADF-RESET-LOAD-SITE">
+<cflock timeout="300" type="exclusive" name="ADF-RESET-LOAD-SITE">
 	<cfscript>
 		// Initialize the RESET TYPE variable
 		// Determine what kind of reset is needed (if any)
@@ -48,10 +50,14 @@ History:
 		if ( NOT StructKeyExists(server, "ADF") ){
 			adfResetType = "ALL";
 			force = true;
-		}else if ( NOT StructKeyExists(application, "ADF") ){
+		} else if ( NOT StructKeyExists(application, "ADF") ){
 			force = true;
 			adfResetType = "SITE";
 		}
+		
+		// Setup the "Session.ADF" space if it doesn't exist for the users session
+		if ( NOT StructKeyExists(session, "ADF") )
+			session.ADF = StructNew();
 	</cfscript>
 	
 	<!--- Check if the user is logged in run the reset commands --->

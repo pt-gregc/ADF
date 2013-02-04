@@ -39,10 +39,11 @@ History:
 						Removed Ajax loading process.
 	2012-01-30 - GAC - Added a Display_Feild varaible to the General Chooser init variables.
 	2013-01-10 - MFC - Disabled the Delete icon/action in the selection.
+	2013-01-30 - GAC - Updated to use the ceData 2.0 lib component
 --->
-<cfcomponent name="general_chooser" extends="ADF.lib.ceData.ceData_1_0">
+<cfcomponent name="general_chooser" extends="ADF.lib.ceData.ceData_2_0">
 
-<cfproperty name="version" value="1_1_3">
+<cfproperty name="version" value="1_1_4">
 
 <cfscript>
 	// CUSTOM ELEMENT INFO

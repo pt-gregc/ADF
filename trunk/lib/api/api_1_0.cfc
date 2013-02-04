@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="api" extends="ADF.core.Base" hint="CCAPI functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_3">
+<cfproperty name="version" value="1_0_5">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
 <cfproperty name="wikiTitle" value="API">
 
@@ -42,15 +42,7 @@ History:
 		super.init();
 		
 		// Init the session variables
-		session.ADF.API = StructNew();
-		session.ADF.API.csSession = StructNew();
-		session.ADF.API.csSession.cfID = "";
-		session.ADF.API.csSession.cfToken = "";
-		session.ADF.API.csSession.jSessionID = "";
-		session.ADF.API.token = "";
-		session.ADF.API.siteURL = "";
-		session.ADF.API.subsiteID = 1;
-		session.ADF.API.remote = false;
+		initSession();
 		
 		this.loginComponent = Server.CommonSpot.api.getObject('Login');
 		
@@ -61,13 +53,37 @@ History:
 	</cfscript>
 </cffunction>
 
+<cffunction name="initSession" access="private">
+	<cfscript>
+		// Check if the session space does NOT exist, then setup the variables
+		if ( NOT StructKeyExists(session.ADF, "API")
+				OR NOT isStruct(session.ADF.API) ) {
+			// Init the session variables
+			session.ADF.API = StructNew();
+			session.ADF.API.csSession = StructNew();
+			session.ADF.API.csSession.cfID = "";
+			session.ADF.API.csSession.cfToken = "";
+			session.ADF.API.csSession.jSessionID = "";
+			session.ADF.API.token = "";
+			session.ADF.API.siteURL = "";
+			session.ADF.API.subsiteID = 1;
+			session.ADF.API.remote = false;
+			
+			// Init the API Config Settings
+			initAPIConfig();
+		}	
+	</cfscript>
+</cffunction>
+
 <cffunction name="initAPIConfig" access="public">
 	<cfscript>
 		// Get the user account from the CCAPI Config
 		var apiConfig = getAPIConfig();
 		// Set the setSiteURL
-		setSiteURL(apiConfig.wsVars.siteURL);
-		setSubsiteID(apiConfig.wsVars.subsiteID);
+		if ( isStruct(apiConfig) AND StructKeyExists(apiConfig, "wsVars") ) {
+			setSiteURL(apiConfig.wsVars.siteURL);
+			setSubsiteID(apiConfig.wsVars.subsiteID);
+		}
 	</cfscript>
 </cffunction>
 
@@ -87,6 +103,9 @@ History:
 	</cfscript>
 	<cftry>
 		<cfscript>
+			// Setup the Session space
+			initSession();
+			
 			// Clear the CS Session
 			session.ADF.API.csSession = StructNew();
 			session.ADF.API.csSession.cfID = "";
@@ -209,6 +228,9 @@ History:
 		var retDataCmd = "";
 		var loginStatus = false;
 		
+		// Setup the Session space
+		initSession();
+		
 		// Check if the session token is defined
 		if ( LEN(getAPIToken()) ) {
 		
@@ -243,7 +265,10 @@ History:
 		var apiConfig = getAPIConfig();
 		var command = '';
 		var retDataCmd = "";
-				
+		
+		// Setup the Session space
+		initSession();
+		
 		// Login via ColdFusion
 		command = StructNew();
 		command['Target'] = "Login";
@@ -282,7 +307,12 @@ History:
 		var command_collection = '';
 		var CFID = "";
 		var CFToken = "";
-		var httpSubsiteURL = buildSubsiteFullURL(session.ADF.API.subsiteID);
+		var httpSubsiteURL = "";
+		
+		// Setup the Session space
+		initSession();
+		
+		httpSubsiteURL = buildSubsiteFullURL(session.ADF.API.subsiteID);
 		
 		// Psuedo overloading the arguments
 		// Check if the commands collection is a structure
@@ -353,6 +383,9 @@ History:
 		result.status = false;
 		result.msg = "";
 		result.data = StructNew();
+		
+		// Setup the Session space
+		initSession();
 		
 		// Set the flag to make all CCAPI commands as remote
 		//setRemoteFlag(true);
@@ -552,13 +585,13 @@ History:
 		if ( LEN(arguments.siteURL) ){
 			session.ADF.API.siteURL = arguments.siteURL;
 			//	Set the remote status
-			setRemoteFlag(true);
+			//setRemoteFlag(true);
 		}
 		else {
 			// If the config site URL is not undefined, then make commands against the current site URL
 			session.ADF.API.siteURL = request.site.url;
 			//	Set the remote status
-			setRemoteFlag(false);
+			//setRemoteFlag(false);
 		}
 		
 		// Check if ends in "/"
@@ -596,24 +629,30 @@ History:
 <cffunction name="getAPIConfig" access="public" returntype="struct">
 	<cfscript>
 		var tempStruct = structNew();
-			
-		if ( StructKeyExists(server.ADF.environment, request.site.id)
-				AND NOT StructKeyExists(server.ADF.environment[request.site.id], "apiConfig") ) {
-			// Build a init struct keys to pass back
-			tempStruct.logging = StructNew();
-			tempStruct.logging.enabled = false;
-			tempStruct.elements = StructNew();
-			tempStruct.wsVars = StructNew();
-			tempStruct.wsVars.webserviceURL = "";
-			tempStruct.wsVars.csuserid = "";
-			tempStruct.wsVars.cspassword = "";
-			tempStruct.wsVars.site = "";
-			tempStruct.wsVars.siteURL = "";
-			tempStruct.wsVars.subsiteID = 1;
-			tempStruct.wsVars.cssites = "";
-			// Insert into the Site Config
+		// Build a init struct keys to pass back
+		tempStruct.logging = StructNew();
+		tempStruct.logging.enabled = false;
+		tempStruct.elements = StructNew();
+		tempStruct.wsVars = StructNew();
+		tempStruct.wsVars.webserviceURL = "";
+		tempStruct.wsVars.csuserid = "";
+		tempStruct.wsVars.cspassword = "";
+		tempStruct.wsVars.site = "";
+		tempStruct.wsVars.siteURL = "";
+		tempStruct.wsVars.subsiteID = 1;
+		tempStruct.wsVars.cssites = "";
+		
+		if ( NOT StructKeyExists(server.ADF.environment, request.site.id) ) {
+			//return tempStruct;
+			server.ADF.environment[request.site.id] = StructNew();
 			StructInsert(server.ADF.environment[request.site.id], "apiConfig", tempStruct);
 		}
+		// Build the temporary config if nothing is defined at the site config level
+		else if ( NOT StructKeyExists(server.ADF.environment[request.site.id], "apiConfig") ) {
+			// Insert into the Site Config
+			StructInsert(server.ADF.environment[request.site.id], "apiConfig", tempStruct, true);
+		}
+		
 		return server.ADF.environment[request.site.id].apiConfig;
 	</cfscript>
 </cffunction>

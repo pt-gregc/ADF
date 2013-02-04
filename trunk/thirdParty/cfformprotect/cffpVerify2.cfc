@@ -39,9 +39,11 @@ NOTES       : Dave Shuck - created
 
 	<cffunction name="init" access="public" output="false" returntype="cffpVerify2">
 		<cfargument name="configPath" required="false" default="#request.site.csAppsDir#config/" type="string" />
+		<cfargument name="configFilename" required="false" default="cffp.ini.cfm" type="string" />
 		<cfscript>
-		setConfig(arguments.configPath);
-		return this;
+			setConfig(arguments.configPath);
+			this.configFilename = arguments.configFilename;
+			return this;
 		</cfscript>
 	</cffunction>
 	

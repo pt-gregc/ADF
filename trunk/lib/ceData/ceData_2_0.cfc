@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="ceData_2_0" extends="ADF.lib.ceData.ceData_1_1" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="2_0_1">
+<cfproperty name="version" value="2_0_3">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_2">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
@@ -157,13 +157,14 @@ Arguments:
 History:
 	2013-01-04 - MFC - Sets the view table name to the "getViewTableName" function if no
 						value passed in.  Calls the SUPER function to create the table.
+	2013-01-29 - GAC - Updated the getViewTableName logic so it creates a view table name if a viewName is NOT passed in
 --->
 <cffunction name="buildRealTypeView" access="public" returntype="boolean" hint="Builds ane lement view for the passed in element name">
 	<cfargument name="elementName" type="string" required="true" hint="element name to build the view table off of">
 	<cfargument name="viewName" type="string" required="false" default="" hint="Override the view name that gets generated">
 	<cfscript>
-		// Set the table name if not passed in
-		if ( LEN(arguments.viewName) )
+		// Set the view table name from the elementName if a viewName is NOT passed in
+		if ( LEN(TRIM(arguments.viewName)) EQ 0 )
 			arguments.viewName = getViewTableName(customElementName=arguments.elementName);
 		// Call the SUPER function to build the view table
 		return super.buildRealTypeView(elementName=arguments.elementName, viewName=arguments.viewName);
@@ -271,6 +272,7 @@ Arguments:
 	String - Search Values
 History:
 	2013-01-04 - MFC - Reworked the processing for the GETCEDATA functionality.
+	2013-01-24 - MFC - Added check if the value is in the Field ID Name Map.
 --->
 <cffunction name="getCEData" access="public" returntype="array" hint="Returns array of structs for all data matching the Custom Element.">
 	<cfargument name="customElementName" type="string" required="true">
@@ -292,6 +294,7 @@ History:
 		var ceFieldName = "";
 		var getPageIDValues = QueryNew("temp");
 		var retTempDataArray = ArrayNew(1);
+		var ceFieldIDNameMap = StructNew();
 		
 		if (LEN(arguments.customElementFieldName) OR Len(arguments.searchFields)) {
 			// check if queryType is Search
@@ -319,12 +322,9 @@ History:
 		else
 			getPageIDValues = getPageIDForElement(CEFormID, CEFieldID, arguments.item, arguments.queryType, arguments.searchValues, searchCEFieldID);
 		
-		
 		// Get the default structure for the element fields
-		//ceDefaultFields = defaultFieldStruct(ceName=arguments.customElementName);
 		// Build the query row for the default field values
 		ceDefaultFieldQry = defaultFieldQuery(CEFormID=CEFormID);
-		
 		ceFieldQuery = getElementFieldsByFormID(formID=CEFormID);
 		
 		// Get the mapping of field ID's to Field Names
@@ -336,22 +336,13 @@ History:
 	
 		// Build in the initial query for the CE Data storage
 		ceDataQry = duplicate(ceDefaultFieldQry);
-		
 		getDataPageValueQry = getDataFieldValue(pageID=ValueList(getPageIDValues.pageID));
-		
 	</cfscript>
-	<!--- <cfdump var="#getDataPageValueQry#" label="getDataPageValueQry" expand="false"> --->
-	
 	
 	<cfquery name="distinctPageIDQry" dbtype="query">
 		SELECT 	DISTINCT PageID
 		FROM 	getDataPageValueQry
 	</cfquery>
-	<!--- <cfdump var="#distinctPageIDQry#" label="distinctPageIDQry" expand="false"> --->
-	
-	<!--- <cfscript>	
-		a3 = GetTickCount();
-	</cfscript> --->
 	
 	<cfif distinctPageIDQry.RecordCount gt 0 >
 		<!--- Loop over the query of page ids --->
@@ -372,26 +363,20 @@ History:
 					<!--- Set the PageID and FormID --->
 					<cfset QuerySetCell(ceDataQry, "pageID", currPageIDDataQry.pageID, newRow)>
 					<cfset QuerySetCell(ceDataQry, "formID", currPageIDDataQry.formID, newRow)>
-					<!--- Get the field ID to the set the column field name --->
-					<cfset currFieldName = ceFieldIDNameMap[currPageIDDataQry.fieldID]>
-					<cfif LEN(currPageIDDataQry.memoValue)>
-						<cfset QuerySetCell(ceDataQry, currFieldName, currPageIDDataQry.memoValue, newRow)>
-					<cfelse>
-						<cfset QuerySetCell(ceDataQry, currFieldName, currPageIDDataQry.fieldValue, newRow)>
+					<!--- Check if the value is in the Field ID Name Map --->
+					<cfif StructKeyExists(ceFieldIDNameMap, currPageIDDataQry.fieldID)>
+						<!--- Get the field ID to the set the column field name --->
+						<cfset currFieldName = ceFieldIDNameMap[currPageIDDataQry.fieldID]>
+						<cfif LEN(currPageIDDataQry.memoValue)>
+							<cfset QuerySetCell(ceDataQry, currFieldName, currPageIDDataQry.memoValue, newRow)>
+						<cfelse>
+							<cfset QuerySetCell(ceDataQry, currFieldName, currPageIDDataQry.fieldValue, newRow)>
+						</cfif>
 					</cfif>
 				</cfloop>
 			</cfif>
 		</cfloop>
 	</cfif>
-	<!--- <cfdump var="#ceDataQry#" label="ceDataQry" expand="false"> --->
-	
-	<!--- <cfscript>
-		b3 = GetTickCount();
-		timer3 = "getElementInfoByPageID - Query Timer = " & b3-a3;
-	</cfscript>
-	<cfdump var="#timer3#" label="getElementInfoByPageID - Query Timer" expand="false"> --->
-	<!--- <cfabort> --->
-	
 	<cfscript>
 		// Check if we are processing the selected list
 		if ( arguments.queryType EQ "selected" and len(arguments.customElementFieldName) and len(arguments.item) ){
@@ -1042,6 +1027,57 @@ History:
 		else 
 			return "";
 	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	G. Cronkright
+Name:
+	$verifyViewTableExists
+Summary:
+	Verifies that a CE View Table exists, if one does not exist then it attempt to build one.
+	
+	--Tested with MySQL and MSSQL
+Returns:
+	boolean
+Arguments:
+	String - customElementName
+	String - viewTableName
+History:
+	2013-01-29 - GAC - Created
+--->
+<cffunction name="verifyViewTableExists" access="public" returntype="boolean" output="false" hint="Verifies that a CE View Table exists, if one does not exist then it attempt to build one.">
+	<cfargument name="customElementName" type="string" required="true">
+	<cfargument name="viewTableName" type="string" required="false" default="">
+	<cfscript>
+		var verifySourceDB = QueryNew("temp");
+		
+		// Set the view table name if a viewTableName is not passed in
+		if ( LEN(TRIM(arguments.viewTableName)) EQ 0 )
+			arguments.viewTableName = getViewTableName(customElementName=arguments.customElementName);
+	</cfscript>
+	<cftry>
+		<cfif LEN(TRIM(arguments.viewTableName))>
+			<!--- // Check if the table exists in the Source DB --->
+			<cfquery name="verifySourceDB" datasource="#Request.Site.DataSource#">
+				SELECT 	* 
+				  FROM 	INFORMATION_SCHEMA.TABLES 
+	    		 WHERE 	TABLE_NAME = <cfqueryparam value="#arguments.viewTableName#" cfsqltype="cf_sql_varchar">
+			</cfquery>
+		</cfif>
+		<!--- // Check that we don't have the table --->
+		<cfif verifySourceDB.RecordCount LTE 0> 
+			<!--- // Create the view from the Element --->
+			<cfreturn buildRealTypeView(elementName=arguments.customElementName,viewName=arguments.viewTableName)>
+		<cfelse>
+			<cfreturn true>
+		</cfif>
+		<cfcatch>
+			<cfreturn false>
+		</cfcatch>
+	</cftry>
 </cffunction>
 
 </cfcomponent>
