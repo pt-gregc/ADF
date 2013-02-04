@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="utils_1_0" extends="ADF.core.Base" hint="Util functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_2">
+<cfproperty name="version" value="1_0_3">
 <cfproperty name="type" value="singleton">
 <cfproperty name="ceData" type="dependency" injectedBean="ceData_1_0">
 <cfproperty name="wikiTitle" value="Utils_1_0">
@@ -289,6 +289,7 @@ Arguments:
 	String url - URL to run on the scheduled task
 	String taskname - Scheduled task name
 	String logFileName - log file for task
+	String minuteDelay - amount of time in minutes from now before running the scheduled task
 History:
 	2009-04-13 - MFC - Created
 	2011-02-09 - RAK - Var'ing un-var'd variables

@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2011.
+PaperThin, Inc. Copyright(C) 2013.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -19,8 +19,7 @@ end user license agreement.
 --->
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	
 	PaperThin, Inc. 
 Name:
@@ -33,28 +32,26 @@ History:
 --->
 <cfcomponent name="Config" hint="Config component for Application Development Framework" extends="ADF.core.Base">
 
-<cfproperty name="version" value="1_5_0">
-<!--- 
-	TODO determine if a.) Config should be versioned and b.) if we should allow for injection
-<cfproperty type="dependency" name="ceData" injectedBean="ceData_1_0"> --->
+<cfproperty name="version" value="1_6_1">
 	
 <!---
-	/* ***************************************************************
-	/*
-	Author: 	Ron West
-	Name:
-		$getConfigViaXML
-	Summary:	
-		Returns the configuration of an application via XML
-	Returns:
-		Struct configStruct
-	Arguments:
-		String filePath
-	History:
-		2009-05-17 - RLW - Created
-		2009-11-19 - GAC - Modified to read a XML config values from an included .CFM file
-		2011-03-20 - RLW - Modified to use the new deserializeXML function loaded into Base
-	--->
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$getConfigViaXML
+Summary:	
+	Returns the configuration of an application via XML
+Returns:
+	Struct configStruct
+Arguments:
+	String filePath
+History:
+	2009-05-17 - RLW - Created
+	2009-11-19 - GAC - Modified to read a XML config values from an included .CFM file
+	2011-03-20 - RLW - Modified to use the new deserializeXML function loaded into Base.
+	2013-01-23 - MFC - Added ADF Build Error handling.
+--->
 <cffunction name="getConfigViaXML" access="public" returntype="struct" output="true">
 	<cfargument name="filePath" type="string" required="true">
 	<cfscript>
@@ -63,27 +60,35 @@ History:
 		var configPath = arguments.filePath;
 		var isConfigCFM = false;
 	 
-		if ( ListLast(arguments.filePath,".") IS "cfm" ) {
+	 	// Check if the config is CFM
+		if ( ListLast(arguments.filePath,".") EQ "cfm" ) {
+			// Set the expanded path for the config to run the file exists
 			configPath = ExpandPath(arguments.filePath);
 			isConfigCFM = true;
 		}
 	</cfscript>
-	
-	<!--- //check if the file exists --->
+	<!--- Check if the file exists --->
 	<cfif fileExists(configPath)>
 		<cfif isConfigCFM>
-			<!--- // include the CFM config file --->
+			<!--- // Include the CFM config file --->
 			<cfinclude template="#arguments.filePath#">
 			<cfset configXML=toString(configXML)>
 		<cfelse>
 			<!--- // read the XML config file --->
-			<cffile action="read" file="#arguments.filePath#" variable="configXML">
+			<cffile action="read" file="#configPath#" variable="configXML">
 		</cfif>
 		<cftry>
 			<cfset configStruct = deserializeXML(configXML)>
 			<cfcatch>
 				<!--- // TODO: this needs some error catching --->
 				<!--- <cfdump var="#cfcatch#" lablel="cfcatch" expand="false"> --->
+				<cfscript>
+					// Build the Error Struct
+					buildError.ADFmethodName = "Core Config";
+					buildError.details = "Core Config deserialize XML Error. [#request.site.name# - #request.site.id#].";
+					// Add the errorStruct to the server.ADF.buildErrors Array 
+					ArrayAppend(server.ADF.buildErrors,buildError);
+				</cfscript>
 			</cfcatch>
 		</cftry>
 	</cfif>
@@ -91,23 +96,23 @@ History:
 </cffunction>
 
 <!---
-	/* ***************************************************************
-	/*
-	Author: 	Ron West / M. Carroll
-	Name:
-		$getConfigViaElement
-	Summary:	
-		Returns the configuration of a site via a Custom Element
-		
-		Note: The custom element must have the following naming configuration:
-		"#appName# Configuration"
-	Returns:
-		Struct configStruct
-	Arguments:
-		String Custom Element Name
-	History:
-		2009-08-06 - RLW - Created
-	--->
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$getConfigViaElement
+Summary:	
+	Returns the configuration of a site via a Custom Element
+	
+	Note: The custom element must have the following naming configuration:
+	"#appName# Configuration"
+Returns:
+	Struct configStruct
+Arguments:
+	String Custom Element Name
+History:
+	2009-08-06 - RLW/MFC - Created
+--->
 <cffunction name="getConfigViaElement" access="public" returntype="struct">
 	<cfargument name="appName" type="string" required="true">
 	
@@ -128,7 +133,8 @@ History:
 
 <!---
 /* *************************************************************** */
-Author: 	M. Carroll
+Author: 
+	PaperThin, Inc.
 Name:
 	$searchConfigurationCE
 Summary:

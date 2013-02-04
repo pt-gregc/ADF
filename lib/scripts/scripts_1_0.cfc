@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="scripts_1_0" extends="ADF.core.Base" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" default="1_0_5">
+<cfproperty name="version" value="1_0_6">
 <cfproperty name="type" value="singleton">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_0" type="dependency">
 <cfproperty name="wikiTitle" value="Scripts_1_0">

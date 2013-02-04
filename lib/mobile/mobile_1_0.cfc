@@ -33,7 +33,8 @@ History:
 	2012-07-11 - DMB - injected scriptsService and added function to load jQueryMobile.
 --->
 <cfcomponent displayname="mobile_1_0" extends="ADF.core.Base" hint="Mobile component functions for the ADF Library">
-<cfproperty name="version" value="1_0_0">
+
+<cfproperty name="version" value="1_0_1">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Mobile_1_0">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_0" type="dependency">

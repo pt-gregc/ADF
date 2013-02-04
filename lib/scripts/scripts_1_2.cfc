@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="scripts_1_2" extends="ADF.lib.scripts.scripts_1_1" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" default="1_2_2">
+<cfproperty name="version" value="1_2_5">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_1" type="dependency">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Scripts_1_2">
@@ -198,6 +198,51 @@ History:
 <!---
 /* *************************************************************** */
 Author: 	
+	PaperThin, Inc.
+Name:
+	$loadJQueryDataTables
+Summary:
+	Loads the JQuery DataTables Headers if not loaded.
+Returns:
+	None
+Arguments:
+	String - version - JQuery DataTables version to load.
+	Boolean - force - Forces JQuery DataTables script header to load.
+History:
+	2010-05-19 - MFC - Created
+	2011-06-24 - GAC - Added CFOUTPUTS around the renderScriptOnce method call
+	2013-01-16 - MFC - Restructured the thirdparty folders & versions. Set to default load JQuery Data Tables 1.9.
+--->
+<cffunction name="loadJQueryDataTables" access="public" output="true" returntype="void" hint="Loads the JQuery DataTables Headers if not loaded.">
+	<cfargument name="version" type="string" required="false" default="1.9" hint="JQuery DataTables version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery DataTables script header to load.">
+	<cfset var outputHTML = "">
+	<cfsavecontent variable="outputHTML">
+		<cfoutput>
+			<script type="text/javascript" src="/ADF/thirdParty/jquery/datatables/#arguments.version#/js/jquery.dataTables.min.js"></script>
+			<link rel='stylesheet' href='/ADF/thirdParty/jquery/datatables/#arguments.version#/css/demo_page.css' type='text/css' media='screen' />
+			<link rel='stylesheet' href='/ADF/thirdParty/jquery/datatables/#arguments.version#/css/demo_table_jui.css' type='text/css' media='screen' />
+			<link rel='stylesheet' href='/ADF/thirdParty/jquery/datatables/#arguments.version#/css/demo_table.css' type='text/css' media='screen' />
+			<cfif FileExists(expandPath("/ADF/thirdParty/jquery/datatables/#arguments.version#/css/jquery.dataTables.css"))>
+				<link rel='stylesheet' href='/ADF/thirdParty/jquery/datatables/#arguments.version#/css/jquery.dataTables.css' type='text/css' media='screen' />
+			</cfif>
+			<cfif FileExists(expandPath("/ADF/thirdParty/jquery/datatables/#arguments.version#/css/jquery.dataTables_themeroller.css"))>
+				<link rel='stylesheet' href='/ADF/thirdParty/jquery/datatables/#arguments.version#/css/jquery.dataTables_themeroller.css' type='text/css' media='screen' />
+			</cfif>
+		</cfoutput>
+	</cfsavecontent>
+	<cfoutput>
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("jqueryDataTables",outputHTML)#
+		</cfif>
+	</cfoutput>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
 	Fig Leaf Software
 	Mike Tangorre (mtangorre@figleaf.com)
 Name:
@@ -226,6 +271,41 @@ History:
 			#outputHTML#
 		<cfelse>
 			#variables.scriptsService.renderScriptOnce("jQueryMultiselect",outputHTML)#
+		</cfif>
+	</cfoutput>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$loadJQueryNMCFormHelper
+Summary:	
+	Loads the nmcFormHelper plugin for jQuery.
+	http://www.gethifi.com/blog/nmcformhelper
+Returns:
+	Void
+Arguments:
+	String - version
+	Boolean - Force
+History:
+ 	2013-01-16 - MFC - Created
+--->
+<cffunction name="loadJQueryNMCFormHelper" access="public" output="true" returntype="void" hint="Loads the nmcFormHelper plugin for jQuery."> 
+	<cfargument name="version" type="string" required="false" default="1.0" hint="Version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery nmcFormHelper plugin script header to load.">
+	<cfset var outputHTML = "">
+	<cfsavecontent variable="outputHTML">
+		<cfoutput>
+			<script type="text/javascript" src="/ADF/thirdParty/jquery/nmcFormHelper/#arguments.version#/nmcFormHelper.min.js"></script>
+		</cfoutput>
+	</cfsavecontent>
+	<cfoutput>
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("jqueryNMCFormHelper",outputHTML)#
 		</cfif>
 	</cfoutput>
 </cffunction>
@@ -308,6 +388,123 @@ History:
 
 <!---
 /* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$loadTableSorter
+Summary:
+	Loads the JQuery Tablesorter Plugin Headers if not loaded.
+Returns:
+	None
+Arguments:
+	String - version - Tablesorter version to load.
+	Boolean - force
+History:
+	2009-06-25 - GAC - Created
+	2013-01-16 - MFC - Restructured the thirdparty folders & versions. Set to default load version 2.0.
+--->
+<cffunction name="loadTableSorter" access="public" output="true" returntype="void" hint="Loads the Tablesorter Plugin Headers if not loaded."> 
+	<cfargument name="version" type="string" required="false" default="2.0" hint="Tablesorter Plugin version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery DataTables script header to load.">
+	<cfset var outputHTML = "">
+	<cfsavecontent variable="outputHTML">
+		<cfoutput>
+			<script type="text/javascript" src="/ADF/thirdParty/jquery/tablesorter/#arguments.version#/jquery.tablesorter.min.js"></script>
+		</cfoutput>
+	</cfsavecontent>
+	<cfoutput>
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("jqueryTablesorter",outputHTML)#
+		</cfif>
+	</cfoutput>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+Name:
+	$loadTableSorterTheme
+Summary:	
+	Loads the JQuery Tablesorter Plugin Themes from the argument.
+Returns:
+	Void
+Arguments:
+	String - Tablesorter Theme Name (directory name)
+	String - version - Tablesorter version to load.
+	Boolean - force
+History:
+	2009-06-25 - GAC - Created
+	2013-01-16 - MFC - Restructured the thirdparty folders & versions. Set to default load version 2.0.
+--->
+<cffunction name="loadTableSorterThemes" access="public" returntype="void" hint="Loads the Tablesorter Plugin Theme Headers if not loaded.">
+	<cfargument name="themeName" type="string" required="false" default="blue" hint="Tablesorter Theme Name (directory name)">
+	<cfargument name="version" type="string" required="false" default="2.0" hint="Tablesorter Plugin version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery DataTables script header to load.">
+	<cfset var themepath = "/ADF/thirdParty/jquery/tablesorter/#arguments.version#/themes/">
+	<cfset var outputHTML = "">
+	<cfsavecontent variable="outputHTML">
+		<!--- Verify the length and that the theme directory exists --->
+		<cfif LEN(TRIM(arguments.themeName)) AND FileExists(expandPath("#themepath##TRIM(arguments.themeName)#/style.css"))>
+			<cfoutput>
+				<link rel="stylesheet" href="#themepath##TRIM(arguments.themeName)#/style.css" type="text/css" media="screen" />
+			</cfoutput>
+		<cfelse> <!--- default to blue --->
+			<cfoutput>
+				<link rel="stylesheet" href="#themepath#blue/style.css" type="text/css" media="screen" />
+			</cfoutput>
+		</cfif>
+	</cfsavecontent>
+	<cfoutput>
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("jqueryTableSorterThemes",outputHTML)#
+		</cfif>
+	</cfoutput>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$loadTableSorterPager
+Summary:	
+	Loads the JQuery Tablesorter Pager Addon from the argument.
+Returns:
+	Void
+Arguments:
+	String - version - Tablesorter version to load.
+	Boolean - force
+History:
+	2009-06-25 - GAC - Created
+	2013-01-16 - MFC - Restructured the thirdparty folders & versions. Set to default load version 2.0.
+--->
+<cffunction name="loadTableSorterPager" access="public" returntype="void" hint="Loads the Tablesorter Plugin Pager addon Headers if not loaded.">
+	<cfargument name="version" type="string" required="false" default="2.0" hint="Tablesorter Plugin version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery Tablesorter script header to load.">
+	<cfset var addonpath = "/ADF/thirdParty/jquery/tablesorter/#arguments.version#/addons/pager/" />
+	<cfset var outputHTML = "">
+	<cfsavecontent variable="outputHTML">
+		<cfoutput>
+			<script type="text/javascript" src="#addonpath#tablesorter.pager.js"></script>
+			<link rel="stylesheet" href="#addonpath#tablesorter.pager.css" type="text/css" media="screen" />
+		</cfoutput>
+	</cfsavecontent>
+	<cfoutput>
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("jqueryTableSorterThemes",outputHTML)#
+		</cfif>
+	</cfoutput>
+</cffunction>
+
+<!---
+/* *************************************************************** */
 Author:
 	Fig Leaf Software
 	Mike Tangorre (mtangorre@figleaf.com)
@@ -334,6 +531,47 @@ History:
 			#outputHTML#
 		<cfelse>
 			#variables.scriptsService.renderScriptOnce("jQueryTemplates",outputHTML)#
+		</cfif>
+	</cfoutput>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
+Name:
+	$loadJQueryTools
+Summary:	
+	Loads the Tools library for various effects
+Returns:
+	Void
+Arguments:
+	String - version
+	Boolean - Force
+History:
+ 	2009-10-17 - RLW - Created
+	2010-02-03 - MFC - Updated path to the CSS to remove from Third Party directory.
+	2010-04-06 - MFC - Updated path to the CSS to "style".
+	2012-08-16 - GAC - Added the force parameter
+	2013-01-16 - MFC - Restructured the thirdparty folders & versions.
+	 				   Removed the "tool" argument.
+	 				   Added the "version" argument.
+--->
+<cffunction name="loadJQueryTools" access="public" output="true" returntype="void" hint="Loads the JQuery tools plugin"> 
+	<cfargument name="version" type="string" required="false" default="1.2" hint="JQuery Tools version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery Tools script header to load.">
+	<cfset var outputHTML = "">
+	<cfsavecontent variable="outputHTML">
+		<cfoutput>
+			<script type="text/javascript" src="/ADF/thirdParty/jquery/tools/#arguments.version#/jquery.tools.min.js"></script>
+		</cfoutput>
+	</cfsavecontent>
+	<cfoutput>
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("jqueryTools",outputHTML)#
 		</cfif>
 	</cfoutput>
 </cffunction>
