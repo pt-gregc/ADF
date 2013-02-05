@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="apiElement" extends="ADF.core.Base" hint="CCAPI functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_3">
+<cfproperty name="version" value="1_0_4">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
 <cfproperty name="wikiTitle" value="API Elements">
@@ -61,6 +61,7 @@ Arguments:
 History:
 	2012-02-24 - MFC - Created
 	2013-01-11 - MFC - Updated to the add VAR for "apiConfig".
+	2013-02-05 - MFC - Updated the logout to call the "ccapilogout".
 --->
 <cffunction name="populateCustom" access="public" returntype="struct">
 	<cfargument name="elementName" type="string" required="true" hint="The name of the element from the CCAPI configuration">
@@ -232,7 +233,7 @@ History:
 			
 			// Check if we want to force the logout
 			if ( arguments.forceLogout )
-				variables.api.logout();
+				variables.api.ccapiLogout();
 			
 			return result;
 		</cfscript>

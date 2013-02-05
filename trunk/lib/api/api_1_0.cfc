@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="api" extends="ADF.core.Base" hint="CCAPI functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_5">
+<cfproperty name="version" value="1_0_6">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
 <cfproperty name="wikiTitle" value="API">
 
@@ -469,6 +469,31 @@ History:
 			// Log Error
 			if( apiConfig.logging.enabled )
 				variables.utils.logAppend("#request.formattedTimestamp# - Error logging in to CCAPI: #error#", "API_Login.log");
+		}
+	</cfscript>
+</cffunction>
+
+<cffunction name="ccapiLogout" access="public" returntype="void">
+	
+	<cfscript>
+		// Get the user account from the CCAPI Config
+		var apiConfig = getAPIConfig();
+		var wsObj = getWebService();
+		
+		var logoutResult = wsObj.csLogout(ssid=getAPIToken());
+		
+		// Verify that the login was successful and set the Token
+		if ( ListFirst(logoutResult, ":") is "Success" ){
+			// Clear the API token
+			clearAPIToken();
+			// Log Success
+			if( apiConfig.logging.enabled )
+				variables.utils.logAppend("#request.formattedTimestamp# - CCAPI Logout Success.", "API_Login.log");
+		}
+		else {
+			// Log Error
+			if( apiConfig.logging.enabled )
+				variables.utils.logAppend("#request.formattedTimestamp# - Error Logout with the CCAPI: #error#", "API_Login.log");
 		}
 	</cfscript>
 </cffunction>
