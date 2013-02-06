@@ -38,6 +38,7 @@ History:
 	2011-04-07 - RAK - Created display for CS 6.1 and above because we cant do our previous schemes for the confirmation
 	2011-06-22 - GAC - Added a callback ID list param in the request.params that are being passed to the callback function 
 						to include IDs of records to be modified by the callback other than the one being deleted 
+	2012-11-01 - DMB - Added exclusion to field loop to prevent the doDelete form field from appearing twice in the form and breaking the logic of the app.
 --->
 <cfscript>
 	if (NOT StructKeyExists(Request.Params,"doDelete"))
@@ -53,7 +54,7 @@ History:
 				<form action="/ADF/extensions/datasheet-modules/delete_element_handler.cfm?subsiteURL=#request.subsite.url#" method="post">
 					<input type="hidden" value="1" name="dodelete">
 					<CFLOOP index="fld" list="#StructKeyList(Request.Params)#">
-						<CFIF fld NEQ 'csModule'>
+						<cfif (fld NEQ 'csModule') and (fld NEQ 'doDelete')>
 							<input type="hidden" name="#fld#" value="#Request.Params[fld]#"/>
 						</CFIF>
 					</CFLOOP>
