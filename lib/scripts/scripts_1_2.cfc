@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="scripts_1_2" extends="ADF.lib.scripts.scripts_1_1" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" value="1_2_6">
+<cfproperty name="version" value="1_2_7">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_1" type="dependency">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Scripts_1_2">
@@ -125,21 +125,35 @@ Arguments:
 	Boolean - noConflict - JQuery no conflict flag.
 History:
 	2012-12-07 - MFC - Based on 1.1.  Set to default load JQuery 1.8.
-	2013-02-06 - MFC - Set default to 1.9 and load JQuery Migrate Plugin.
+	2013-02-06 - MFC - Set default to 1.9 and load JQuery Migrate Plugin when 
+						loading v1.9 or greater.
 --->
 <cffunction name="loadJQuery" access="public" returntype="void" hint="Loads the JQuery Headers if not loaded.">
 	<cfargument name="version" type="string" required="false" default="1.9" hint="JQuery version to load.">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfargument name="noConflict" type="boolean" required="false" default="0" hint="JQuery no conflict flag.">
 	<cfscript>
+		// Flag to determine if we load the JQuery Migrate plugin after the loading process
+		var loadMigratePlugin = false; 
+		
 		// Make the version backwards compatiable to remove minor build numbers.
 		arguments.version = variables.scriptsService.getMajorMinorVersion(arguments.version);
 
+		// Check that we are loading v1.9 or greater
+		if ( (arguments.version EQ 1.9)
+				OR (LEN(ListLast(arguments.version, ".")) GTE 2) ) {
+			// If forcing, then load migrate plugin
+			//	OR the jquery script is NOT loaded yet
+			if ( arguments.force
+					OR NOT variables.scriptsService.isScriptLoaded("jQuery") )
+				loadMigratePlugin = true;	
+		}
+				
 		// Call the super function to load
 		super.loadJQuery(version=arguments.version, force=arguments.force, noConflict=arguments.noConflict);
-	
-		// If version is GT than 1.9, then load with JQuery Migrate plugin
-		if ( arguments.version GTE 1.9 )
+		
+		// Check that we need to load with JQuery Migrate plugin
+		if ( loadMigratePlugin )
 			loadJQueryMigrate(force=arguments.force);
 	</cfscript>
 </cffunction>
@@ -637,6 +651,7 @@ Arguments:
 History:
 	2013-01-01 - MFC - Based on 1.1. Changed the theme loading folders for 1.9.
 	2013-02-06 - MFC - Changed the theme loading folders for 1.10.
+					   Updated the IF statement to check the decimal places is only 1 length. 
 --->
 <cffunction name="loadJQueryUI" access="public" output="true" returntype="void" hint="Loads the JQuery UI Headers if not loaded."> 
 	<cfargument name="version" type="string" required="false" default="1.10" hint="JQuery version to load.">
@@ -647,8 +662,11 @@ History:
 		// 2011-12-28 - MFC - Make the version backwards compatiable to remove minor build numbers.
 		arguments.version = variables.scriptsService.getMajorMinorVersion(arguments.version);
 	</cfscript>
-	<!--- Check the version, if less than "1.9", then call the Scripts 1.1 function to load --->
-	<cfif arguments.version LTE 1.8>
+	<!--- Check the version, if less than "1.9"
+			AND the decimal places is only 1 length (this prevents the comparison of '1.10')
+		  Then call the Scripts 1.1 function to load. --->
+	<cfif arguments.version LTE 1.8
+			AND LEN(ListLast(arguments.version, ".")) EQ 1>
 		<cfscript>
 			super.loadJQueryUI(version=arguments.version, themeName=arguments.themeName, force=arguments.force);
 		</cfscript>
