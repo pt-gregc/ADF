@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2012.
+PaperThin, Inc. Copyright(C) 2013.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="scripts_1_2" extends="ADF.lib.scripts.scripts_1_1" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" value="1_2_5">
+<cfproperty name="version" value="1_2_6">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_1" type="dependency">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Scripts_1_2">
@@ -125,13 +125,22 @@ Arguments:
 	Boolean - noConflict - JQuery no conflict flag.
 History:
 	2012-12-07 - MFC - Based on 1.1.  Set to default load JQuery 1.8.
+	2013-02-06 - MFC - Set default to 1.9 and load JQuery Migrate Plugin.
 --->
 <cffunction name="loadJQuery" access="public" returntype="void" hint="Loads the JQuery Headers if not loaded.">
-	<cfargument name="version" type="string" required="false" default="1.8" hint="JQuery version to load.">
+	<cfargument name="version" type="string" required="false" default="1.9" hint="JQuery version to load.">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfargument name="noConflict" type="boolean" required="false" default="0" hint="JQuery no conflict flag.">
 	<cfscript>
+		// Make the version backwards compatiable to remove minor build numbers.
+		arguments.version = variables.scriptsService.getMajorMinorVersion(arguments.version);
+
+		// Call the super function to load
 		super.loadJQuery(version=arguments.version, force=arguments.force, noConflict=arguments.noConflict);
+	
+		// If version is GT than 1.9, then load with JQuery Migrate plugin
+		if ( arguments.version GTE 1.9 )
+			loadJQueryMigrate(force=arguments.force);
 	</cfscript>
 </cffunction>
 
@@ -236,6 +245,40 @@ History:
 			#outputHTML#
 		<cfelse>
 			#variables.scriptsService.renderScriptOnce("jqueryDataTables",outputHTML)#
+		</cfif>
+	</cfoutput>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$loadJQueryMigrate
+Summary:
+	Loads the JQuery Migrate Plugin for Jquery backwards compatibility. 
+Returns:
+	None
+Arguments:
+	String - Version
+	Boolean - Force
+History:
+	2013-02-06 - MFC - Created
+--->
+<cffunction name="loadJQueryMigrate" access="public" output="true" returntype="void" hint="Loads the JQuery Migrate Plugin for Jquery backwards compatibility.">
+	<cfargument name="version" type="string" required="false" default="1.1" hint="JQuery Migrate version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery Migrate script header to load.">
+	<cfset var outputHTML = "">
+	<cfsavecontent variable="outputHTML">
+		<cfoutput>
+			<script src="/ADF/thirdParty/jquery/migrate/jquery-migrate-#arguments.version#.js"></script>
+		</cfoutput>	
+	</cfsavecontent>
+	<cfoutput>
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("jQueryMigrate",outputHTML)#
 		</cfif>
 	</cfoutput>
 </cffunction>
@@ -592,10 +635,11 @@ Arguments:
 	String - theme - JQuery UI theme to load.
 	Boolean - force - Forces JQuery script header to load.
 History:
-	2009-07-31 - MFC - Based on 1.1. Changed the theme loading folders for 1.9.
+	2013-01-01 - MFC - Based on 1.1. Changed the theme loading folders for 1.9.
+	2013-02-06 - MFC - Changed the theme loading folders for 1.10.
 --->
 <cffunction name="loadJQueryUI" access="public" output="true" returntype="void" hint="Loads the JQuery UI Headers if not loaded."> 
-	<cfargument name="version" type="string" required="false" default="1.9" hint="JQuery version to load.">
+	<cfargument name="version" type="string" required="false" default="1.10" hint="JQuery version to load.">
 	<cfargument name="themeName" type="string" required="false" default="ui-lightness" hint="UI Theme Name (directory name)">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery UI script header to load.">
 	<cfscript>
