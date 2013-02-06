@@ -28,7 +28,7 @@ Name:
 Summary:
 	ADF Lightbox Framework JavaScript
 Version:
-	1.0.2
+	1.0.3
 History:
 	2010-02-19 - MFC - Created
 	2010-08-26 - MFC - Updated processRel function to not force the "addMainTable" parameter.
@@ -40,6 +40,7 @@ History:
 						from the "commonspot" or "top.commonspot" variables.
 	2012-10-17 - GAC - Updated the "replaceLB" function to work with commonspot v6.2+ lightbox
 						windows and the opener page is in or out of the LView.
+	2013-02-06 - MFC - Removed JS 'alert' commands for CS 8.0.1 and CS 9 compatibility
 */
 
 // Set default variables
@@ -47,7 +48,6 @@ defaultWidth = 500;
 defaultHeight = 500;
 
 function initADFLB() {
-	//alert("initADFLB");
 	jQuery(".ADFLightbox").each(function(){
 
       // Unbind any click actions before resetting the binding events
@@ -146,7 +146,6 @@ function getCallback(cbFunct, inArgsArray) {
 
 // Loads the JS call back function defined in the params
 function loadCallback(cbFunct, inArgsArray){
-	//alert("callback -> CBFunct = " + cbFunct);
 	var i=0;
 	var callBackLevel = 0;
 	var lbFrame = "";
@@ -169,11 +168,9 @@ function loadCallback(cbFunct, inArgsArray){
 		
 				// Get the current level LB frame
 				lbFrame = csLbObj.stack[callBackLevel].frameName;
-				//alert("lbFrame = " + lbFrame);
-			
+				
 				// Build the function document JS path
 				functPath = "top.document.getElementsByName(lbFrame)[0].contentWindow." + cbFunct;
-				//alert("functPath = " + functPath);
 			}
 			else {
 				// Find if the CB function is not in a lightbox page
@@ -192,7 +189,6 @@ function loadCallback(cbFunct, inArgsArray){
 					functPath = "top." + cbFunct;
 				}
 			}
-			//alert("functPath = " + functPath);
 			
 			// Verify that the callback function exists in this level
 			if ( typeof(eval(functPath)) != 'undefined' ){

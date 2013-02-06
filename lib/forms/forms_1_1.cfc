@@ -35,7 +35,7 @@ History:
 --->
 <cfcomponent displayname="forms_1_1" extends="ADF.lib.forms.forms_1_0" hint="Form functions for the ADF Library">
 
-<cfproperty name="version" value="1_1_3">
+<cfproperty name="version" value="1_1_4">
 <cfproperty name="type" value="transient">
 <cfproperty name="ceData" injectedBean="ceData_1_1" type="dependency">
 <cfproperty name="scripts" injectedBean="scripts_1_1" type="dependency">
@@ -87,6 +87,7 @@ History:
 						Removed the loadADFLightbox force argument when loading the form.
 	2012-01-03 - MFC - Added check that the field has the name attribute.
 	2012-02-03 - MFC - Updates to the lightbox callback to store the form in "top.commonspot".
+	2013-02-06 - MFC - Removed JS 'alert' commands for CS 8.0.1 and CS 9 compatibility
 --->
 <cffunction name="renderAddEditForm" access="public" returntype="String" hint="Returns the HTML for an Add/Edit Custom element record">
 	<cfargument name="formID" type="numeric" required="true" hint="Form ID to render">
@@ -119,14 +120,12 @@ History:
 				jQuery(document).ready(function(){
 					lbResizeWindow();
 					<cfif Len(arguments.callback)>
-						//alert("Callback - FORMS!");
 						// Get the PageWindow and the form value
 						var pageWindow = top.commonspot.lightbox.getPageWindow();
 						var value = pageWindow.ADFFormData.formValueStore;
 						//console.log(value);
 						//Call the callback with the form value
 						getCallback('#arguments.callback#', value);
-						//alert("Finish Callback");
 					</cfif>
 				});
 			</script>
