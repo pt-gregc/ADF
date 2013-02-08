@@ -34,7 +34,7 @@ History:
 ---> 
 <cfcomponent displayname="csPage_2_0" extends="ADF.lib.ccapi.csPage_1_1" hint="Constructs a CCAPI instance and then creates or deletes a page with the given information">
 
-<cfproperty name="version" value="2_0_3">
+<cfproperty name="version" value="2_0_4">
 <cfproperty name="type" value="transient">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <cfproperty name="apiPage" type="dependency" injectedBean="apiPage_1_0">
@@ -84,6 +84,7 @@ History:
 	2012-02-24 - MFC - Added TRY-CATCH around processing 
 						to logout the CCAPI if any errors.
 	2013-01-11 - MFC - Fixed issue with VAR not at the top for CF8 and under.
+	2013-02-08 - MFC - Updated logging variable in error handling.
 --->
 <cffunction name="createPage" access="public" output="true" returntype="struct" hint="Creates a page using the argument data passed in">
 	<cfargument name="stdMetadata" type="struct" required="true" hint="Standard Metadata would include 'Title, Description, TemplateId, SubsiteID etc...'">
@@ -155,7 +156,7 @@ History:
 				if ( isStruct(result.msg)
 						AND StructKeyExists(result.msg, "message")
 						AND StructKeyExists(result.msg, "detail") )
-					logStruct.msg = "#request.formattedTimestamp# - Error [Message: #e.message#] [Details: #e.detail#]";
+					logStruct.msg = "#request.formattedTimestamp# - Error [Message: #result.msg.message#] [Details: #result.msg.detail#]";
 				else 
 					logStruct.msg = "#request.formattedTimestamp# - Error [#result.msg#]";
 				logStruct.logFile = 'API_Page_create_error.log';
