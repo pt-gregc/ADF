@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="apiPage" extends="ADF.core.Base" hint="API Page functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_2">
+<cfproperty name="version" value="1_0_3">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
 <cfproperty name="wikiTitle" value="API Page">
@@ -114,6 +114,7 @@ History:
 		    pageResult["CMDRESULTS"] = pageCmdResults;
 		}
 		catch (any e) {
+			//application.ADF.utils.logAppend(e,"APIPage_Errors.log");
 		    pageResult["CMDSTATUS"] = false;
 		    pageResult["CMDRESULTS"] = e;
 		    pageResult["CFCATCH"] = e;
@@ -315,7 +316,6 @@ History:
 		return pageCmdResult;
 	</cfscript>
 </cffunction>
-
 
 <!---
 /* *************************************************************** */
