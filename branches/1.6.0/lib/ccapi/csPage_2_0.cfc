@@ -23,14 +23,14 @@ end user license agreement.
 Author: 	
 	PaperThin, Inc. 
 Name:
-	csPage_1_1.cfc
+	csPage_2_0.cfc
 Summary:
 	CCAPI Page functions for the ADF Library
 Version:
-	1.1
+	2.0
 History:
-	2011-01-25 - RLW - Created - New v1.1
-	2011-03-20 - RLW - Updated ccapi version to new 1.1
+	2013-01-01 - MFC - Created - New v2.0 to support ADF v1.6.
+	2013-02-12 - MFC - Added injection dependency with CSData v1.2.
 ---> 
 <cfcomponent displayname="csPage_2_0" extends="ADF.lib.ccapi.csPage_1_1" hint="Constructs a CCAPI instance and then creates or deletes a page with the given information">
 
@@ -39,6 +39,7 @@ History:
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <cfproperty name="apiPage" type="dependency" injectedBean="apiPage_1_0">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
+<cfproperty name="csData" type="dependency" injectedBean="csData_1_2">
 <cfproperty name="wikiTitle" value="CSPage_2_0">
 
 <cfscript>
@@ -85,6 +86,7 @@ History:
 						to logout the CCAPI if any errors.
 	2013-01-11 - MFC - Fixed issue with VAR not at the top for CF8 and under.
 	2013-02-08 - MFC - Updated logging variable in error handling.
+	2013-02-12 - MFC - Moved the "metadataStructToArray" code to a function in CSData.
 --->
 <cffunction name="createPage" access="public" output="true" returntype="struct" hint="Creates a page using the argument data passed in">
 	<cfargument name="stdMetadata" type="struct" required="true" hint="Standard Metadata would include 'Title, Description, TemplateId, SubsiteID etc...'">
@@ -112,23 +114,7 @@ History:
 		//	FieldName = The name of the field in the metadata form.
 		//	FormName = The name of the metadata form.
 		//	Value = The value of the metadata field.
-		pageData.metadata = ArrayNew(1);
-		// Loop over the struct
-		metadataKeyList = StructKeylist(arguments.custMetadata);
-		for ( i=1; i LTE ListLen(metadataKeyList); i++ ){
-			currFormName = ListGetAt(metadataKeyList, i);
-			currFormKeyList = StructKeylist(arguments.custMetadata[currFormName]);
-			// Loop over the fields in the form
-			for ( j=1; j LTE ListLen(currFormKeyList); j++ ){
-				currFieldName = ListGetAt(currFormKeyList, j);
-				tempStruct = structNew();
-				tempStruct['FormName'] = currFormName;
-				tempStruct['FieldName'] = currFieldName;
-				tempStruct['Value'] = arguments.custMetadata[currFormName][currFieldName];
-				// Add the struct back into the array
-				ArrayAppend(pageData.metadata, tempStruct);
-			}
-		}
+		pageData.metadata = variables.csData.metadataStructToArray(metadata=arguments.custMetadata);		
 		
 		// Call the API apiElement Lib Component
 		contentResult = variables.apiPage.create(pageData=pageData);
