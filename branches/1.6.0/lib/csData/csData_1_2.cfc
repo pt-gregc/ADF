@@ -40,7 +40,7 @@ History:
 --->
 <cfcomponent displayname="csData_1_2" extends="ADF.lib.csData.csData_1_1" hint="CommonSpot Data Utils functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_2">
+<cfproperty name="version" value="1_2_3">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_1">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">
@@ -567,6 +567,57 @@ History:
 		<cfset csPageID = getPageData.ID>
 	</cfif>
 	<cfreturn csPageID>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$metadataStructToArray
+Summary:
+	Converts the Metadata structure to an array of MetadataValue structures:
+	The sub-structure has the following keys:
+		FieldName = The name of the field in the metadata form.
+		FormName = The name of the metadata form.
+		Value = The value of the metadata field.
+Returns:
+	Array
+Arguments:
+	Struct - metadata
+History:
+	2013-02-11 - MFC - Created
+--->
+<cffunction name="metadataStructToArray" access="public" returntype="array" output="true">
+	<cfargument name="metadata" type="struct" required="true">
+	<cfscript>
+		var metadataArray = ArrayNew(1);
+		var currFormName = "";
+		var currFormKeyList = "";
+		var currFieldName = "";
+		var tempStruct = structNew();
+		var i=1;
+		var j=1;
+		
+		// Loop over the struct
+		var metadataKeyList = StructKeylist(arguments.metadata);
+		for ( i=1; i LTE ListLen(metadataKeyList); i++ ){
+			currFormName = ListGetAt(metadataKeyList, i);
+			currFormKeyList = StructKeylist(arguments.metadata[currFormName]);
+			// Loop over the fields in the form
+			for ( j=1; j LTE ListLen(currFormKeyList); j++ ){
+				currFieldName = ListGetAt(currFormKeyList, j);
+				tempStruct = structNew();
+				tempStruct['FormName'] = currFormName;
+				tempStruct['FieldName'] = currFieldName;
+				tempStruct['Value'] = arguments.metadata[currFormName][currFieldName];
+				// Add the struct back into the array
+				ArrayAppend(metadataArray, tempStruct);
+			}
+		}
+		
+		return metadataArray;
+	</cfscript>
 </cffunction>
 
 </cfcomponent>
