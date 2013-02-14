@@ -75,21 +75,20 @@ History:
 		//-- App Override Variables --//
 	if ( NOT StructKeyExists(xparams, "appBeanName") OR LEN(xparams.appBeanName) LTE 0 )
 		xparams.appBeanName = "";
-	if ( NOT StructKeyExists(xparams, "cftAppPropsVarName") OR LEN(xparams.cftAppPropsVarName) LTE 0 )
-		xparams.cftAppPropsVarName = "";
+	if ( NOT StructKeyExists(xparams, "appPropsVarName") OR LEN(xparams.appPropsVarName) LTE 0 )
+		xparams.appPropsVarName = "";
 
-	// Build the Application CFT Config variable used to Override the XPARAMS keys and values
-	If ( LEN(TRIM(xparams.appBeanName)) AND LEN(TRIM(xparams.cftAppPropsVarName)) ) {
-		cftPropsOverride = StructNew();
-		// Property fields that can not be overridden by the App
-		propsExceptionsList = "fldID,appBeanName,cftAppPropsVarName";
-		if ( StructKeyExists(application,xparams.appBeanName) AND StructKeyExists(application[xparams.appBeanName],xparams.cftAppPropsVarName) )
-			cftPropsOverride = application[xparams.appBeanName][xparams.cftAppPropsVarName];
-		// Replace the the XPARAMS PROPS values with the APP CONFIG override values
-		for ( key in cftPropsOverride ) {
-			if ( ListFindNoCase(propsExceptionsList,key) EQ 0 )
-				xparams[key] = cftPropsOverride[key];	
-		}	
+	// XPARAMS fields that cannot be overridden by the App
+	xparamsExceptionsList = "fldID,appBeanName,appPropsVarName";
+
+	// Optional ADF App Override for the Custom Field Type XPARAMS
+	If ( LEN(TRIM(xparams.appBeanName)) AND LEN(TRIM(xparams.appPropsVarName)) ) {
+		xparams = application.ADF.utils.appOverrideCSParams(
+													csParams=xparams,
+													appName=xparams.appBeanName,
+													appParamsVarName=xparams.appPropsVarName,
+													paramsExceptionList=xparamsExceptionsList
+												);
 	}
 	
 	displayValue = "";
@@ -167,6 +166,7 @@ History:
 					,showButtonPanel : true
 					,constrainInput : false 
 					,dateFormat : '#xparams.jsDateMask#'
+					,zIndex:9999
 					<cfif useCalendarIcon>
 					,showOn : "both" //button
 					,buttonImage : "#xparams.fldIconImg#"
@@ -179,6 +179,10 @@ History:
 				
 			// Calendar Picker Fields
 			jQuery("###xparams.fldID#_picker").datepicker( datePickerOptions_#fqFieldName# );
+			
+			// Set the offset to help with displaying inside an lightbox
+			jQuery.extend(jQuery.datepicker,{_checkOffset:function(inst,offset,isFixed){offset.top=40; offset.left=200; return offset;}});
+			
 			<!--- // Now set the useCalendarIcon variable to false since the plugin js handles rendering it --->
 			<cfset useCalendarIcon = false>
 			

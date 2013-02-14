@@ -35,7 +35,7 @@ Attributes:
 	useAddButtonSecurity - true/false to enable or disable security for the 'Add Button' (default: true)
 	customAddButtonText - a comm-delimited list of custom "Add Button" names (default: Add New {{elementName}})
 	// App Level Override Parameters
-	appBeanName - appBeanName for an app
+	appBeanName - the AppBeanName of the app from the appBeanConfig.cfm file
 	appParamsVarName - a variable name of a struct that contains key/values for the custom script attrubutes
 Custom Script Parameters Tab Examples:
 	elementName=My Element One,My Element Two,My Element Three
@@ -67,25 +67,19 @@ History:
 	2012-05-08 - GAC - Fixed an issue with the displayAddButtonList variable name
 					 - Added a option for custom "Add New" button text
 	2013-01-15 - GAC - If tabs are not being rendered, then don't add additional line breaks.
-	2013-02-13 - GAC - Added a hook to override the Attributes passed in from the Custom Script Parameters tab with a structure from an App  
+	2013-02-13 - GAC - Added a hook to override the Attributes passed in from the Custom Script Parameters tab with a structure from an App 
+					 - Updated to use a UTILS lib function to process the override 
 --->
 
 <!--- // Optional ADF App Override Attributes for the Custom Script Parameters tab --->
 <cfscript>
-	if ( StructKeyExists(attributes,"appBeanName") AND LEN(TRIM(attributes.appBeanName)) 
-		AND StructKeyExists(attributes,"appParamsVarName") AND LEN(TRIM(attributes.appParamsVarName)) ) {
-		
-		// Build the Application CustomCF variable used to Override the Attributes keys and values
-		attribsOverride = StructNew();
-		// Attribs fields that can not be overridden by the App
-		attribsExceptionsList = "appBeanName,appParamsVarName";
-		if ( StructKeyExists(application,attributes.appBeanName) AND StructKeyExists(application[attributes.appBeanName],attributes.appParamsVarName) )
-			attribsOverride = application[attributes.appBeanName][attributes.appParamsVarName];
-		// Replace the the ATTRIBUTES values with the APP CONFIG override values
-		for ( key in attribsOverride ) {
-			if ( ListFindNoCase(attribsExceptionsList,key) EQ 0 )
-				attributes[key] = attribsOverride[key];	
-		}
+	if ( StructKeyExists(attributes,"appBeanName") AND LEN(TRIM(attributes.appBeanName)) AND StructKeyExists(attributes,"appParamsVarName") AND LEN(TRIM(attributes.appParamsVarName)) ) {
+		attributes = application.ADF.utils.appOverrideCSParams(
+													csParams=attributes,
+													appName=attributes.appBeanName,
+													appParamsVarName=attributes.appParamsVarName,
+													paramsExceptionList="appBeanName,appParamsVarName"
+												);
 	}
 </cfscript>
 

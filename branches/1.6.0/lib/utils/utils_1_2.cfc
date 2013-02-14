@@ -435,8 +435,8 @@ History:
 		var key = "";
 		// Build the App Params Struct that will override the XPARAMS/ATTRIBUTES keys and values
 		If ( LEN(TRIM(arguments.appName)) AND LEN(TRIM(arguments.appParamsVarName)) ) {
-			if ( StructKeyExists(application,arguments.appName) AND StructKeyExists(application[arguments.appName],arguments.appParamsVarName) )
-				paramsOverride = application[arguments.appName][arguments.appParamsVarName];
+			if ( StructKeyExists(application,TRIM(arguments.appName)) AND StructKeyExists(application[TRIM(arguments.appName)],TRIM(arguments.appParamsVarName)) )
+				paramsOverride = application[TRIM(arguments.appName)][TRIM(arguments.appParamsVarName)];
 			// Replace the the XPARAMS PROPS values with the APP CONFIG override values
 			if ( IsStruct(paramsOverride) ) {
 				for ( key in paramsOverride ) {

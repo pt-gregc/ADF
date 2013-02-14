@@ -81,7 +81,7 @@ History:
 	
 	//-- App Override Variables --//
 	defaultValues.appBeanName = "";
-	defaultValues.cftAppPropsVarName = "";
+	defaultValues.appPropsVarName = "";
 
 	// This will override the current values with the default values.
 	// In normal use this should not need to be modified.
@@ -104,7 +104,7 @@ History:
 <cfoutput>
 	<script language="JavaScript" type="text/javascript">
 		// register the fields with global props object
-		fieldProperties['#typeid#'].paramFields = '#prefix#fldID,#prefix#displayType,#prefix#cfDateMask,#prefix#jsDateMask,#prefix#standardizedTimeStr,#prefix#standardizedTimeType,#prefix#uiTheme,#prefix#fldIcon,#prefix#fldIconImg,#prefix#fldClearDate,#prefix#appBeanName,#prefix#cftAppPropsVarName';
+		fieldProperties['#typeid#'].paramFields = '#prefix#fldID,#prefix#displayType,#prefix#cfDateMask,#prefix#jsDateMask,#prefix#standardizedTimeStr,#prefix#standardizedTimeType,#prefix#uiTheme,#prefix#fldIcon,#prefix#fldIconImg,#prefix#fldClearDate,#prefix#appBeanName,#prefix#appPropsVarName';
 		// allows this field to support the orange icon (copy down to label from field name)
 		fieldProperties['#typeid#'].jsLabelUpdater = '#prefix#doLabel';
 		// allows this field to have a common onSubmit Validator
@@ -254,7 +254,7 @@ History:
 		<tr>
 			<td class="cs_dlgLabelSmall" valign="top">App Props Variable Name:</td>
 			<td class="cs_dlgLabelSmall">
-				<input type="text" name="#prefix#cftAppPropsVarName" id="#prefix#cftAppPropsVarName" class="cs_dlgControl" value="#currentValues.cftAppPropsVarName#" size="60">
+				<input type="text" name="#prefix#appPropsVarName" id="#prefix#appPropsVarName" class="cs_dlgControl" value="#currentValues.appPropsVarName#" size="60">
 				<br/><span>Please enter the App Props Variable name that contains PROPS keys and values to override.</span> 
 			</td>
 		</tr>

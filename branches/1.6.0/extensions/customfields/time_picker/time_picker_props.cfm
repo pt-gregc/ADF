@@ -43,7 +43,7 @@ end user license agreement.
 	defaultValues.fldID = "";
 	
 	defaultValues.uiTheme = "redmond";
-	defaultValues.displayType = "UItimepickerAddon";
+	defaultValues.displayType = pickerArray[1].name;
 	defaultValues.fldIcon = "none"; //option: clock
 	defaultValues.fldIconImg = "/ADF/extensions/customfields/time_picker/clock.png";
 	
@@ -53,7 +53,7 @@ end user license agreement.
 	
 	//-- App Override Variables --//
 	defaultValues.appBeanName = "";
-	defaultValues.cftAppPropsVarName = "";
+	defaultValues.appPropsVarName = "";
 	
 	// This will override the current values with the default values.
 	// In normal use this should not need to be modified.
@@ -76,7 +76,7 @@ end user license agreement.
 <cfoutput>
 	<script language="JavaScript" type="text/javascript">
 		// register the fields with global props object
-		fieldProperties['#typeid#'].paramFields = '#prefix#fldID,#prefix#displayType,#prefix#jsTimeMask,#prefix#uiTheme,#prefix#fldIcon,#prefix#fldIconImg#,#prefix#standardizedDateStr,#prefix#cfTimeMask,#prefix#appBeanName,#prefix#cftAppPropsVarName';
+		fieldProperties['#typeid#'].paramFields = '#prefix#fldID,#prefix#displayType,#prefix#jsTimeMask,#prefix#uiTheme,#prefix#fldIcon,#prefix#fldIconImg,#prefix#standardizedDateStr,#prefix#cfTimeMask,#prefix#appBeanName,#prefix#appPropsVarName';
 		// allows this field to support the orange icon (copy down to label from field name)
 		fieldProperties['#typeid#'].jsLabelUpdater = '#prefix#doLabel';
 		// allows this field to have a common onSubmit Validator
@@ -182,7 +182,7 @@ end user license agreement.
 		<tr>
 			<td class="cs_dlgLabelSmall" valign="top">App Props Variable Name:</td>
 			<td class="cs_dlgLabelSmall">
-				<input type="text" name="#prefix#cftAppPropsVarName" id="#prefix#cftAppPropsVarName" class="cs_dlgControl" value="#currentValues.cftAppPropsVarName#" size="40">
+				<input type="text" name="#prefix#appPropsVarName" id="#prefix#appPropsVarName" class="cs_dlgControl" value="#currentValues.appPropsVarName#" size="40">
 				<br/><span>Please enter the App Props Variable name that contains PROPS keys and values to override.</span> 
 			</td>
 		</tr>
