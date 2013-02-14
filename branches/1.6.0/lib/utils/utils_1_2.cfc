@@ -411,7 +411,7 @@ Author:
 Name:
 	$appOverrideCSParams
 Summary:
-	Used in Custom Fields Types for Props (XPARAMS)and in Custom Scripts for Parameters (ATTRIBUTES) 
+	Used in Custom Fields Types for Props (XPARAMS) and in Custom Scripts for Parameters (ATTRIBUTES) 
 	as a hook it to override key and values from with global params from the App  
 Returns:
 	Struct
