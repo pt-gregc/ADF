@@ -422,6 +422,7 @@ Arguments:
 	String paramsExceptionList
 History:
 	2013-02-12 - GAC - Created
+	2013-02-13 - GAC - Updated to allow params to be added to the return struct event if they are not in the original csParams struct
 --->
 <cffunction name="appOverrideCSParams" access="public" returntype="struct" output="false" hint="Used in Custom Fields Types for Props (XPARAMS)and in Custom Scripts for Parameters (ATTRIBUTES) as a hook it to override key and values from with global params from the App.">
 	<cfargument name="csParams" type="struct" default="#StructNew()#" required="false" hint="The structure of parameters or props from the CS custom script or custom field type">
@@ -438,9 +439,9 @@ History:
 				paramsOverride = application[arguments.appName][arguments.appParamsVarName];
 			// Replace the the XPARAMS PROPS values with the APP CONFIG override values
 			if ( IsStruct(paramsOverride) ) {
-				for ( key IN paramsOverride ) {
+				for ( key in paramsOverride ) {
 					// Check to make sure the param from the App can override the CS param
-					if ( StructKeyExists(retParams,key) AND ListFindNoCase(arguments.paramsExceptionList,key) EQ 0 )
+					if ( ListFindNoCase(arguments.paramsExceptionList,key) EQ 0 )
 						retParams[key] = paramsOverride[key];	
 				}	
 			}
