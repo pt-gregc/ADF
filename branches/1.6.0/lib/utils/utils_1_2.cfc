@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="utils_1_2" extends="ADF.lib.utils.utils_1_1" hint="Util functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_2">
+<cfproperty name="version" value="1_2_3">
 <cfproperty name="type" value="singleton">
 <cfproperty name="ceData" type="dependency" injectedBean="ceData_1_1">
 <cfproperty name="csData" type="dependency" injectedBean="csData_1_1">
@@ -231,9 +231,10 @@ Arguments:
 History:
 	2012-07-23 - DMB - Created
 	2013-01-29 - GAC - Updated logic for the HTTP check
+	2013-02-13 - GAC - Updated the type from ANY to STRING for the targetURL argument
 --->
 <cffunction name="pageRedirect" access="public" returntype="void">
-	<cfargument name="targetURL" type="any" required="true">
+	<cfargument name="targetURL" type="string" required="true">
 	<cfif REFIND("^https?://",arguments.targetURL,1) EQ false>
 		<cflocation url="http://#arguments.targetURL#" addtoken="No">
 	<cfelse>
