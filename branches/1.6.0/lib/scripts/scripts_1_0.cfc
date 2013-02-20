@@ -943,16 +943,21 @@ Arguments:
 	Version
 History:
  	2009-11-05 - RLW - Created
+ 	2013-02-20 - SFS - Added force parameter so that the library can be forced to display.
 --->
 <cffunction name="loadJQuerySuperfish" access="public" output="true" returntype="void" hint="Loads the JQuery UI Stars plugin"> 
 	<cfargument name="version" type="string" required="false" default="1.4.8" hint="Script version to load.">
-	<cfif NOT variables.scriptsService.isScriptLoaded("jquerySuperfish")>
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery Superfish script header to load.">
+	<cfif (NOT variables.scriptsService.isScriptLoaded("jquerySuperfish")) OR (arguments.force)>
 		<cfoutput>
 			<script type='text/javascript' src='/ADF/thirdParty/jquery/superfish/hoverIntent.js'></script>
 			<script type='text/javascript' src='/ADF/thirdParty/jquery/superfish/jquery.superfish-#arguments.version#.js'></script>
 			<link rel='stylesheet' href='/ADF/thirdParty/jquery/superfish/css/superfish.css' type='text/css' media='screen' />
 		</cfoutput>
-		<cfset variables.scriptsService.loadedScript("jquerySuperfish")>
+		<!--- If we force, then don't record the loaded script --->
+		<cfif NOT arguments.force>
+			<cfset variables.scriptsService.loadedScript("jquerySuperfish")>
+		</cfif>
 	</cfif>
 </cffunction>
 
