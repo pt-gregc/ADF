@@ -37,12 +37,13 @@ History:
 						createUniquePageTitle
 						createUniquePageName
 						getCSPageIDByTitle
+	2013-02-20 - SFS - Updated the "data" dependency to data_1_2, updated all references to application.adf.data to variables.data, updated version to 1_2_4.
 --->
 <cfcomponent displayname="csData_1_2" extends="ADF.lib.csData.csData_1_1" hint="CommonSpot Data Utils functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_3">
+<cfproperty name="version" value="1_2_4">
 <cfproperty name="type" value="singleton">
-<cfproperty name="data" type="dependency" injectedBean="data_1_1">
+<cfproperty name="data" type="dependency" injectedBean="data_1_2">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">
 <cfproperty name="wikiTitle" value="CSData_1_2">
 
@@ -274,18 +275,18 @@ History:
 		var newUniqueNamePath = "";
 				
 		// Strip HTML tags
-		newPageTitle = TRIM(application.npsAsset.data.stripHTMLtags(str=newPageTitle,replaceStr=" "));
+		newPageTitle = TRIM(variables.data.stripHTMLtags(str=newPageTitle,replaceStr=" "));
 		if ( arguments.verbose )					
 			application.ADF.utils.doDump(newPageTitle, "newPageTitle - Strip HTML tags", 1);
 	
 		// Convert HTML entities to text
-		newPageTitle = TRIM(application.npsAsset.data.unescapeHTMLentities(str=newPageTitle));
+		newPageTitle = TRIM(variables.data.unescapeHTMLentities(str=newPageTitle));
 		if ( arguments.verbose )					
 			application.ADF.utils.doDump(newPageTitle, "newPageTitle - Strip HTML entities", 1);
 
 		// Shorten the newPageTitle by a set number of words ( Zero '0' would bypass this modification )
 		if ( arguments.pageTitleWordMax NEQ 0 ) 	
-			newPageTitle = application.ADF.data.trimStringByWordCount(newPageTitle,arguments.pageTitleWordMax,false);
+			newPageTitle = variables.data.trimStringByWordCount(newPageTitle,arguments.pageTitleWordMax,false);
 		if ( arguments.verbose )					
 			application.ADF.utils.doDump(newPageTitle, "newPageTitle - Shortened", 1);		
 		
@@ -305,7 +306,7 @@ History:
 		newFileName = newPageName;
 		
 		// Filter out any international characters
-		newFileName = application.ADF.data.filterInternationlChars(newFileName);
+		newFileName = variables.data.filterInternationlChars(newFileName);
 
 		// Make the File Name it CS safe (add dashes, etc.)		
 		newFileName = application.ADF.csData.makeCSSafe(newFileName);	
