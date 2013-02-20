@@ -79,12 +79,12 @@ end user license agreement.
 	}
 	
 	function loadEvents_#fqFieldName#() {
-		$("a.link_builder_edit").click(function () { 
-	    	var currUUID = $(this).attr("id");
+		jQuery("a.link_builder_edit").click(function () { 
+	    	var currUUID = jQuery(this).attr("id");
 	    	editLink_#fqFieldName#(currUUID);
 	    });
-	    $("a.link_builder_remove").click(function () { 
-	    	var currUUID = $(this).attr("id");
+	    jQuery("a.link_builder_remove").click(function () { 
+	    	var currUUID = jQuery(this).attr("id");
 	    	removeLinks_#fqFieldName#(currUUID);
 	    });
 	}

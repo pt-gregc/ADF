@@ -33,6 +33,7 @@ Version:
 History:
 	2010-09-15 - MFC - Created
 	2011-02-09 - RAK - Fixing issue where deletions were not processing properly
+	2013-02-20 - MFC - Replaced Jquery "$" references.
 --->
 <!--- Check the params --->
 <cfscript>
@@ -124,12 +125,12 @@ History:
 				// Hover states on the Submit Button
 				jQuery("div.ds-icons").hover(
 					function() {
-						$(this).css("cursor", "hand");
-						$(this).addClass('ui-state-hover');
+						jQuery(this).css("cursor", "hand");
+						jQuery(this).addClass('ui-state-hover');
 					},
 					function() {
-						$(this).css("cursor", "pointer");
-						$(this).removeClass('ui-state-hover');
+						jQuery(this).css("cursor", "pointer");
+						jQuery(this).removeClass('ui-state-hover');
 					}
 				);
 				
