@@ -90,6 +90,7 @@ History:
 	2008-06-17 - RLW - Created
 	2011-07-15 - RAK - Converted msg to be able to take anything
 	2012-11-16 - SFS - Added Label argument so that you can individually label each complex object dump
+	2013-02-20 - SFS - Added label name to the cffile so that the passed in label is actually part of the dump
 --->
 <cffunction name="logAppend" access="public" returntype="void">
 	<cfargument name="msg" type="any" required="true">
@@ -113,7 +114,7 @@ History:
 		<cfif NOT isSimpleValue(msg)>
 			<cfset msg = Application.ADF.utils.doDump(msg,"#arguments.label#msg-#application.ADF.date.csDateFormat(now(),now())#",0,1)>
 		</cfif>
-		<cffile action="append" file="#arguments.logDir##logFileName#" output="#application.adf.date.csDateFormat(utcNow,utcNow)# (UTC) - #arguments.msg#" addnewline="true">
+		<cffile action="append" file="#arguments.logDir##logFileName#" output="#application.adf.date.csDateFormat(utcNow,utcNow)# (UTC) - #arguments.label# #arguments.msg#" addnewline="true" fixnewline="true">
 		<cfcatch type="any">
 			<cfdump var="#arguments.logDir##logFileName#" label="Log File: #arguments.logDir##logFileName#" />
 			<cfdump expand="false" label="LogAppend() Error" var="#cfcatch#" />
