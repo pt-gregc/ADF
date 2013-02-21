@@ -139,11 +139,11 @@ Arguments:
 History:
 	2012-10-25 - MFC/GAC - Created
 --->
-<cffunction name="delete" access="public" returntype="struct" hint="Adds a keywords to an object. If a keyword does not exit, CommonSpot creates and adds it.">
+<cffunction name="delete" access="public" returntype="struct" hint="Deletes a page or template.">
 	<cfargument name="csPageID" type="numeric" required="true" hint="numeric commonspot page id">
 	<cfscript>
 		var pageCmdResult = StructNew();
-		// Use the CS 6.x Command API to SET page keywords
+		// Use the CS 6.x Command API to delete the page whose pageID was passed in
 		var pageComponent = Server.CommonSpot.api.getObject('page');
 		try {
 			pageComponent.delete(arguments.csPageID,0);
@@ -292,9 +292,9 @@ Arguments:
 History:
 	2013-01-02 - MFC - Created
 --->
-<cffunction name="saveActivationState" access="public" returntype="struct" hint="Adds a keywords to an object. If a keyword does not exit, CommonSpot creates and adds it.">
+<cffunction name="saveActivationState" access="public" returntype="struct" hint="Sets the activation state for a page to 'Activate', 'AutoActivate', or 'Inactive'.">
 	<cfargument name="csPageID" type="numeric" required="true" hint="numeric commonspot page id">
-	<cfargument name="state" type="string" required="true" hint="numeric commonspot page id">
+	<cfargument name="state" type="string" required="true" hint="A string describing a page's activation state; for example, 'Active', 'AutoActivate', or 'Inactive'.">
 	<cfscript>
 		var pageCmdResult = StructNew();
 		// Use the CS 6.x Command API to SET page keywords
