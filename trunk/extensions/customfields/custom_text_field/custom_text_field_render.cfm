@@ -38,6 +38,8 @@ History:
 	2011-02-08 - MFC - Updated the "fldName" prop to "fldID" variable.
 	2011-06-30 - MFC - Changed ADF server object call to Data_1_0 to call "application.ADF.data".
 	2013-01-10 - MFC - Updated the field to use the "forms.wrapFieldHTML" function.
+	2013-02-14 - GAC - Updated to add in the CS6+ security setting for the wrapFieldHTML function
+					 - Cleaned up old and unnecessary code
 --->
 <cfscript>
 	// the fields current value
@@ -47,6 +49,7 @@ History:
 	
 	if ( NOT StructKeyExists(xparams, "fldName") )
 		xparams.fldName = fqFieldName;
+		
 	// Set the field ID from the field name
 	xparams.fldID = xparams.fldName;
 	
@@ -73,82 +76,57 @@ History:
 		}
 	}
 	
-	// find if we need to render the simple form field
-	renderSimpleFormField = false;
-	if ( (StructKeyExists(request, "simpleformexists")) AND (request.simpleformexists EQ 1) )
-		renderSimpleFormField = true;
+	// Set defaults for the label and description 
+	includeLabel = true;
+	includeDescription = true; 
+
+	//-- Update for CS 6.x / backwards compatible for CS 5.x --
+	//   If it does not exist set the Field Permission variable to a default value
+	if ( NOT StructKeyExists(variables,"fieldPermission") )
+		variables.fieldPermission = "";
+
+	//-- Read Only Check w/ cs6 fieldPermission parameter --
+	readOnly = application.ADF.forms.isFieldReadOnly(xparams,variables.fieldPermission);
+	
+	// Check the Edit Once flag 
+	if ( LEN(currentValue) AND xparams.editOnce )
+		readOnly = true;
+		
+	// Load JQuery
+	application.ADF.scripts.loadJQuery();
 </cfscript>
+
 <cfoutput>
 	<script>
 		// javascript validation to make sure they have text to be converted
-		#fqFieldName# = new Object();
-		#fqFieldName#.id = '#fqFieldName#';
-		#fqFieldName#.tid = #rendertabindex#;
-		//#fqFieldName#.validator = "validateLength()";
-		//#fqFieldName#.msg = "Please upload a document.";
-		// push on to validation array
-		//vobjects_#attributes.formname#.push(#fqFieldName#);
+		#fqFieldName#=new Object();
+		#fqFieldName#.id='#fqFieldName#';
+		#fqFieldName#.tid=#rendertabindex#;
+		#fqFieldName#.msg="Please enter a value for the #xparams.label# field.";
+		#fqFieldName#.validator = "validate_#fqFieldName#()";
+
+		//If the field is required
+		if ( '#xparams.req#' == 'Yes' ){
+			// push on to validation array
+			vobjects_#attributes.formname#.push(#fqFieldName#);
+		}
+
+		//Validation function
+		function validate_#fqFieldName#(){
+			if (jQuery("input[name=#fqFieldName#]").val() != ''){
+				return true;
+			}
+			return false;
+		}
 	</script>
-	<!--- hidden field to store the value --->
-	<!--- 	
-	<cfscript>
-		if ( structKeyExists(request, "element") )
-		{
-			labelText = '<span class="CS_Form_Label_Baseline"><label for="#fqFieldName#">#xParams.label#:</label></span>';
-			tdClass = 'CS_Form_Label_Baseline';
-		}
-		else
-		{
-			labelText = '<label for="#fqFieldName#">#xParams.label#:</label>';
-			tdClass = 'cs_dlgLabel';
-		}
-	</cfscript>
-	<tr>
-		<td class="#tdClass#" valign="top">
-			<font face="Verdana,Arial" color="##000000" size="2">
-				<cfif xparams.req eq "Yes"><strong></cfif>
-				#labelText#
-				<cfif xparams.req eq "Yes"></strong></cfif>
-			</font>
-		</td>
-		<td class="cs_dlgLabelSmall">
-			<cfscript>
-				// Get the list permissions and compare
-				commonGroups = application.ADF.data.ListInCommon(request.user.grouplist, xparams.pedit);
-				// Set the read only 
-				readOnly = true;
-				// Check if the user does have edit permissions
-				if ( (xparams.UseSecurity EQ 0) OR ( (xparams.UseSecurity EQ 1) AND (ListLen(commonGroups)) ) )
-					readOnly = false;
-				// Check the Edit Once flag
-				if ( LEN(currentValue) AND xparams.editOnce )
-					readOnly = true;
-			</cfscript>
-			<!--- Render the input field --->
-			<input type="text" name="#fqFieldName#" value="#currentValue#" id="#xparams.fldID#" size="#xparams.fldSize#"<cfif LEN(TRIM(xparams.fldClass))> class="#xparams.fldClass#"</cfif> tabindex="#rendertabindex#" <cfif readOnly>readonly="true"</cfif>>
-			<!--- // include hidden field for simple form processing --->
-			<cfif renderSimpleFormField>
-				<input type="hidden" name="#fqFieldName#_FIELDNAME" id="#fqFieldName#_FIELDNAME" value="#ReplaceNoCase(xParams.fieldName, 'FIC_', '')#">
-			</cfif>
-		</td>
-	</tr> --->
-	<cfscript>
-		// Set the read only
-		readOnly = false;
-		// Check the Edit Once flag
-		if ( LEN(currentValue) AND xparams.editOnce )
-			readOnly = true;
-	</cfscript>
+		
 	<cfsavecontent variable="inputHTML">
 		<cfoutput>
-			<!--- Render the input field --->
+			<!--- // Render the input field --->
 			<input type="text" name="#fqFieldName#" value="#currentValue#" id="#xparams.fldID#" size="#xparams.fldSize#"<cfif LEN(TRIM(xparams.fldClass))> class="#xparams.fldClass#"</cfif> tabindex="#rendertabindex#" <cfif readOnly>readonly="true"</cfif>>
-			<!--- // include hidden field for simple form processing --->
-			<cfif renderSimpleFormField>
-				<input type="hidden" name="#fqFieldName#_FIELDNAME" id="#fqFieldName#_FIELDNAME" value="#ReplaceNoCase(xParams.fieldName, 'FIC_', '')#">
-			</cfif>
 		</cfoutput>
 	</cfsavecontent>
+	
 	<!---
 		This CFT is using the forms lib wrapFieldHTML functionality. The wrapFieldHTML takes
 		the Form Field HTML that you want to put into the TD of the right section of the CFT 
@@ -157,5 +135,5 @@ History:
 		Optionally you can disable the field label and the field discription by setting 
 		the includeLabel and/or the includeDescription variables (found above) to false.  
 	--->
-	#application.ADF.forms.wrapFieldHTML(inputHTML,fieldQuery,attributes)#
+	#application.ADF.forms.wrapFieldHTML(inputHTML,fieldQuery,attributes,variables.fieldPermission,includeLabel,includeDescription)#
 </cfoutput>

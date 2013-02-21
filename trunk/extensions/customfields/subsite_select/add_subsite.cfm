@@ -33,6 +33,7 @@ ADF Requirements:
 History:
 	2007-01-24 - RLW - Created
 	2011-02-08 - GAC - Modified - Removed references to ptBlog2
+	2013-02-20 - MFC - Replaced Jquery "$" references.
 --->
 <cfoutput><html>
 	<head>
@@ -55,23 +56,23 @@ History:
 				jQuery(function(){
 					alert(window.parent.#fqFieldName#addSubsite());
 					// add click for the actual create subsite form processing
-					$("###fqFieldName#_create").click(function() {
+					jQuery("###fqFieldName#_create").click(function() {
 						#fqFieldName#addSubsite();
 					});
 					
-					$("input[name='submitbutton']").hover(
+					jQuery("input[name='submitbutton']").hover(
 						function(){ 
-							$(this).addClass("ui-state-hover"); 
+							jQuery(this).addClass("ui-state-hover"); 
 						},
 						function(){ 
-							$(this).removeClass("ui-state-hover"); 
+							jQuery(this).removeClass("ui-state-hover"); 
 						}
 					)
-					$("input[name='submitbutton']").mousedown(function(){
-						$(this).addClass("ui-state-active"); 
+					jQuery("input[name='submitbutton']").mousedown(function(){
+						jQuery(this).addClass("ui-state-active"); 
 					})
-					$("input[name='submitbutton']").mouseup(function(){
-							$(this).removeClass("ui-state-active");
+					jQuery("input[name='submitbutton']").mouseup(function(){
+							jQuery(this).removeClass("ui-state-active");
 					});	
 				});
 			</script>

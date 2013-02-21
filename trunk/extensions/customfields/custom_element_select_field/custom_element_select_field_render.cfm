@@ -54,6 +54,7 @@ History:
 	2011-06-23 - GAC - Added the the conditional logic for the sortField option 
 					- Modified the "Other" option  from the displayFieldBuilder to be "--Other--" to make more visible and to avoid CE field name conflicts 
 					- Added code to display the Description text 
+	2013-02-20 - MFC - Replaced Jquery "$" references.
 --->
 <cfscript>
 	// the fields current value
@@ -279,10 +280,10 @@ History:
 							// Hover states on the static widgets
 							jQuery("##addNew").hover(
 								function() {
-									$(this).addClass('ui-state-hover');
+									jQuery(this).addClass('ui-state-hover');
 								},
 								function() {
-									$(this).removeClass('ui-state-hover');
+									jQuery(this).removeClass('ui-state-hover');
 								}
 							);
 						});

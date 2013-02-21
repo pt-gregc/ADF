@@ -34,6 +34,7 @@ History:
 	2007-01-24 - RLW - Created
 	2011-10-22 - MFC - Set the default selected value to be stored when loading the CFT.
 	2012-02-06 - MFC - Updated scripts to load with the site ADF
+	2013-02-20 - MFC - Replaced Jquery "$" references.
 --->
 <cfscript>
 	// the fields current value
@@ -84,7 +85,7 @@ History:
 			jQuery("input[name=#fqFieldName#]").val(jQuery("###fqFieldName#_select option:selected").val());
 		}
 		
-		jQuery(document).ready( function($){
+		jQuery(document).ready(function() {
 			#fqFieldName#_loadTemplates();
 		});
 		

@@ -33,10 +33,87 @@ History:
 --->
 <cfcomponent displayname="scripts_1_2" extends="ADF.lib.scripts.scripts_1_1" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" value="1_2_8">
+<cfproperty name="version" value="1_2_9">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_1" type="dependency">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Scripts_1_2">
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin Inc.
+	Greg Cronkright
+Name:
+	$loadDateFormat
+Summary:
+	Loads the JavaScript Date Format library for the Calendar App if not loaded.
+	By Steven Levithan
+	http://blog.stevenlevithan.com/archives/date-time-format
+Returns:
+	None
+Arguments:
+	String - version 
+	Boolean - force - Forces JQuery script header to load.
+History:
+	2013-02-12 - GAC - Created
+--->
+<cffunction name="loadDateFormat" access="public" output="true" returntype="void" hint="Loads the JavaScript Date Format library for the Calendar App if not loaded.d.">
+	<cfargument name="version" type="string" required="false" default="1.2" hint="Date Format version to load.">
+	<cfargument name="force" type="boolean" required="false" default="false" hint="Forces the JavaScript for the Calendar App to load.">
+	<cfscript>
+		var outputHTML = "";
+	</cfscript>
+	<cfsavecontent variable="outputHTML">
+		<cfoutput>
+		<script type="text/javascript" src="/ADF/thirdParty/js/dateformat/#arguments.version#/date.format.js" charset="utf-8"></script>
+		</cfoutput>
+	</cfsavecontent>
+	<cfoutput>
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("DateFormat",outputHTML)#
+		</cfif>
+	</cfoutput>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin Inc.
+	Greg Cronkright
+Name:
+	$loadDateJS
+Summary:
+	Loads the JavaScript DateJS library for the Calendar App if not loaded.
+	http://www.datejs.com/
+Returns:
+	None
+Arguments:
+	String - version 
+	Boolean - force - Forces JQuery script header to load.
+History:
+	2013-02-12 - GAC - Created
+--->
+<cffunction name="loadDateJS" access="public" output="true" returntype="void" hint="Loads the JavaScript Date Format library for the Calendar App if not loaded.d.">
+	<cfargument name="version" type="string" required="false" default="1.0" hint="Date Format version to load.">
+	<cfargument name="force" type="boolean" required="false" default="false" hint="Forces the JavaScript for the Calendar App to load.">
+	<cfscript>
+		var outputHTML = "";
+	</cfscript>
+	<cfsavecontent variable="outputHTML">
+		<cfoutput>
+		<script type="text/javascript" src="/ADF/thirdParty/js/datejs/#arguments.version#/date.js" charset="utf-8"></script>
+		</cfoutput>
+	</cfsavecontent>
+	<cfoutput>
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("DateJS",outputHTML)#
+		</cfif>
+	</cfoutput>
+</cffunction>
 
 <!---
 /* ***************************************************************
@@ -244,6 +321,44 @@ History:
 	<cfscript>
 		super.loadJQueryDataTables(version=arguments.version, force=arguments.force);
 	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin Inc.
+	Greg Cronkright
+Name:
+	$loadJQueryUITimepickerFG
+Summary:
+	Loads the jQuery iCalendar for the Calendar App if not loaded.
+Returns:
+	None
+Arguments:
+	String - version 
+	Boolean - force - Forces JQuery script header to load.
+History:
+	2013-02-12 - GAC - Created
+--->
+<cffunction name="loadJQueryiCalendar" access="public" output="true" returntype="void" hint="Loads the jQuery iCalendar for the Calendar App if not loaded.">
+	<cfargument name="version" type="string" required="false" default="1.1" hint="JQuery iCalendar version to load.">
+	<cfargument name="force" type="boolean" required="false" default="false" hint="Forces the JavaScript for the Calendar App to load.">
+	<cfscript>
+		var outputHTML = "";
+	</cfscript>
+	<cfsavecontent variable="outputHTML">
+		<cfoutput>
+		<link href="/ADF/thirdParty/jquery/icalendar/#arguments.version#/jquery.icalendar.pt.css" rel="stylesheet" type="text/css" />
+		<script type="text/javascript" src="/ADF/thirdParty/jquery/icalendar/#arguments.version#/jquery.icalendar.pt.js" charset="utf-8"></script>
+		</cfoutput>
+	</cfsavecontent>
+	<cfoutput>
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("jQueryiCalendar",outputHTML)#
+		</cfif>
+	</cfoutput>
 </cffunction>
 
 <!---
@@ -702,6 +817,89 @@ History:
 			#outputHTML#
 		<cfelse>
 			#variables.scriptsService.renderScriptOnce("jQueryUIForm",outputHTML)#
+		</cfif>
+	</cfoutput>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin Inc.
+	Greg Cronkright
+Name:
+	$loadJQueryUITimepickerAddon
+Summary:
+	Loads the jQuery UI Timepicker Addon for the Calendar App if not loaded.
+	
+	https://github.com/trentrichardson/jQuery-Timepicker-Addon
+Returns:
+	None
+Arguments:
+	String - version 
+	Boolean - force - Forces script header to load.
+History:
+	2013-02-06 - GAC - Created
+--->
+<cffunction name="loadJQueryUITimepickerAddon" access="public" output="true" returntype="void" hint="Loads the jQuery UI Timepicker Addon for the Calendar App if not loaded.">
+	<cfargument name="version" type="string" required="false" default="1.2" hint="JQueryUI Timepicker Addon version to load.">
+	<cfargument name="force" type="boolean" required="false" default="false" hint="Forces the JavaScript for the Calendar App to load.">
+	<cfscript>
+		var outputHTML = "";
+	</cfscript>
+	<cfsavecontent variable="outputHTML">
+		<cfoutput>
+		<link href="/ADF/thirdParty/jquery/ui/timepicker-addon/#arguments.version#/jquery-ui-timepicker-addon.css" rel="stylesheet" type="text/css" />
+		<script type="text/javascript" src="/ADF/thirdParty/jquery/ui/timepicker-addon/#arguments.version#/jquery-ui-timepicker-addon.js" charset="utf-8"></script>
+		<cfif arguments.version GTE "1.2">
+		<script type="text/javascript" src="/ADF/thirdParty/jquery/ui/timepicker-addon/#arguments.version#/jquery-ui-sliderAccess.js" charset="utf-8"></script>
+		</cfif>
+		</cfoutput>
+	</cfsavecontent>
+	<cfoutput>
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("jQueryUITimepickerAddon",outputHTML)#
+		</cfif>
+	</cfoutput>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin Inc.
+	Greg Cronkright
+Name:
+	$loadJQueryUITimepickerFG
+Summary:
+	Loads the jQuery UI Timepicker FG (François Gélinas) for the Calendar App if not loaded.
+	
+	http://fgelinas.com/code/timepicker/
+Returns:
+	None
+Arguments:
+	String - version 
+	Boolean - force - Forces JQuery script header to load.
+History:
+	2013-02-06 - GAC - Created
+--->
+<cffunction name="loadJQueryUITimepickerFG" access="public" output="true" returntype="void" hint="Loads the jQuery UI Timepicker Addon for the Calendar App if not loaded.">
+	<cfargument name="version" type="string" required="false" default="0.3" hint="JQueryUI Timepicker Addon version to load.">
+	<cfargument name="force" type="boolean" required="false" default="false" hint="Forces the JavaScript for the Calendar App to load.">
+	<cfscript>
+		var outputHTML = "";
+	</cfscript>
+	<cfsavecontent variable="outputHTML">
+		<cfoutput>
+		<link href="/ADF/thirdParty/jquery/ui/timepicker-fg/#arguments.version#/jquery-ui-timepicker.css" rel="stylesheet" type="text/css" />
+		<script type="text/javascript" src="/ADF/thirdParty/jquery/ui/timepicker-fg/#arguments.version#/jquery.ui.timepicker.js" charset="utf-8"></script>
+		</cfoutput>
+	</cfsavecontent>
+	<cfoutput>
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("jQueryUITimepickerFG",outputHTML)#
 		</cfif>
 	</cfoutput>
 </cffunction>
