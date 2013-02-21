@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="utils_1_2" extends="ADF.lib.utils.utils_1_1" hint="Util functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_2">
+<cfproperty name="version" value="1_2_4">
 <cfproperty name="type" value="singleton">
 <cfproperty name="ceData" type="dependency" injectedBean="ceData_1_1">
 <cfproperty name="csData" type="dependency" injectedBean="csData_1_1">
@@ -231,9 +231,10 @@ Arguments:
 History:
 	2012-07-23 - DMB - Created
 	2013-01-29 - GAC - Updated logic for the HTTP check
+	2013-02-13 - GAC - Updated the type from ANY to STRING for the targetURL argument
 --->
 <cffunction name="pageRedirect" access="public" returntype="void">
-	<cfargument name="targetURL" type="any" required="true">
+	<cfargument name="targetURL" type="string" required="true">
 	<cfif REFIND("^https?://",arguments.targetURL,1) EQ false>
 		<cflocation url="http://#arguments.targetURL#" addtoken="No">
 	<cfelse>
@@ -266,7 +267,7 @@ Arguments:
 History:
 	2012-08-16 - GAC - Created
 --->
-<cffunction name="setRecurringScheduledTask" access="public" returntype="struct" output="false" hint="">
+<cffunction name="setRecurringScheduledTask" access="public" returntype="struct" output="false" hint="Creates or updates a scheduled task that is recurring.">
 	<cfargument name="url" type="string" required="true">
 	<cfargument name="taskName" type="string" required="true">
 	<cfargument name="schedLogFileName" type="string" default="#arguments.taskName#" required="false"> 
@@ -400,6 +401,53 @@ History:
 	</cftry>
 	
 	<cfreturn retResult>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	G. Cronkright
+Name:
+	$appOverrideCSParams
+Summary:
+	Used in Custom Fields Types for Props (XPARAMS) and in Custom Scripts for Parameters (ATTRIBUTES) 
+	as a hook it to override key and values from with global params from the App  
+Returns:
+	Struct
+Arguments:
+	Struct csParams
+	String appName
+	String appParamsVarName
+	String paramsExceptionList
+History:
+	2013-02-12 - GAC - Created
+	2013-02-13 - GAC - Updated to allow params to be added to the return struct event if they are not in the original csParams struct
+--->
+<cffunction name="appOverrideCSParams" access="public" returntype="struct" output="false" hint="Used in Custom Fields Types for Props (XPARAMS)and in Custom Scripts for Parameters (ATTRIBUTES) as a hook it to override key and values from with global params from the App.">
+	<cfargument name="csParams" type="struct" default="#StructNew()#" required="false" hint="The structure of parameters or props from the CS custom script or custom field type">
+	<cfargument name="appName" type="string" default="" required="false" hint="The name of the App that is providing the override variable structure">
+	<cfargument name="appParamsVarName" type="string" default="" required="false" hint="The name of override variable structure">
+	<cfargument name="paramsExceptionList" type="string" default="" required="false" hint="A list of params that cannot be orverriden by the app">
+	<cfscript>
+		var retParams = arguments.csParams;
+		var paramsOverride = StructNew();
+		var key = "";
+		// Build the App Params Struct that will override the XPARAMS/ATTRIBUTES keys and values
+		If ( LEN(TRIM(arguments.appName)) AND LEN(TRIM(arguments.appParamsVarName)) ) {
+			if ( StructKeyExists(application,TRIM(arguments.appName)) AND StructKeyExists(application[TRIM(arguments.appName)],TRIM(arguments.appParamsVarName)) )
+				paramsOverride = application[TRIM(arguments.appName)][TRIM(arguments.appParamsVarName)];
+			// Replace the the XPARAMS PROPS values with the APP CONFIG override values
+			if ( IsStruct(paramsOverride) ) {
+				for ( key in paramsOverride ) {
+					// Check to make sure the param from the App can override the CS param
+					if ( ListFindNoCase(arguments.paramsExceptionList,key) EQ 0 )
+						retParams[key] = paramsOverride[key];	
+				}	
+			}
+		}
+		return retParams;
+	</cfscript>
 </cffunction>
 
 </cfcomponent>

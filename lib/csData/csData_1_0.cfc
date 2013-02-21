@@ -40,7 +40,7 @@ History:
 --->
 <cfcomponent displayname="csData_1_0" extends="ADF.core.Base" hint="CommonSpot Data Utils functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_1">
+<cfproperty name="version" value="1_0_2">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_0">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_0">
@@ -253,26 +253,58 @@ Summary:
 Returns:
 	Struct subsiteStruct
 Arguments:
-	NA
+	String - filterValueList
 History:
 	2009-05-14 - RLW - Created
+	2013-02-14 - GAC - Added filter list parameter to allow subsites to be filtered out of the return struct
 --->
-<cffunction name="getSubsiteStruct" access="public" returntype="struct">
+<cffunction name="getSubsiteStruct" access="public" returntype="struct" output="false" hint="Returns a structure with subsiteID and subsiteURL">
+	<cfargument name="filterValueList" type="string" required="false" default="" hint="A list of subsiteIDs OR subsiteNames to filter from the return struct">
 	<cfscript>
-		var getSubsites = "";
+		var getSubsites = QueryNew("tmp");
 		var subsiteStruct = structNew();
+		var ssItm = 1;
+		var subsiteNameList = "";
+		var skipSubsite = false;
 	</cfscript>
 	<!--- // retrieve the available susbsites --->
 	<cfquery name="getSubsites" datasource="#request.site.datasource#">
-		select ss.id, ss.subsiteURL as displayName
+		select ss.id, ss.subsiteURL
 		from subsites ss, sitePages sp
 		where ss.securityPageID = sp.id
 		order by ss.subsiteURL
 	</cfquery>
-	<cfloop query="getSubsites">
-		<cfset structInsert(subsiteStruct, getSubsites.ID, displayName)>
-	</cfloop>
-	<cfreturn subsiteStruct>
+	<cfscript>
+		// Loop over the records returned from the getSubsites query
+		for ( ssItm=1; ssItm LTE getSubsites.RecordCount; ssItm=ssItm+1 ) {
+			skipSubsite = false;
+			// if a filter value list is passed in check if it is an ID list or a Name list
+			if ( LEN(TRIM(arguments.filterValueList)) ) {
+				if ( IsNumeric(ListFirst(arguments.filterValueList)) ) {
+					//  Check the current SubsiteID to see if it is in the subsite ID list. If so, skip it.
+					if ( ListFind(arguments.filterValueList,getSubsites["ID"][ssItm]) NEQ 0 )
+						skipSubsite = true;
+				}
+				else {
+					// convert the subsiteURL to a comma-delimited subsite name list
+		  			subsiteNameList = getSubsites["subsiteURL"][ssItm];
+					// Check for slash direction
+					if ( Find("/",subsiteNameList,1) ) {
+						subsiteNameList = ListChangeDelims(subsiteNameList,",","/");
+					} 
+					else if ( Find("\",subsiteNameList,1) ) {
+						subsiteNameList = ListChangeDelims(subsiteNameList,",","\");
+					}
+					//  Check the current any of the subsites in the subsite URL in the filter Name list. If so, skip it.
+					if ( LISTLEN(variables.data.ListInCommon(subsiteNameList,arguments.filterValueList)) NEQ 0 )
+						skipSubsite = true;
+				}
+			}
+  			if ( skipSubsite EQ false )
+				StructInsert(subsiteStruct, getSubsites["ID"][ssItm], getSubsites["subsiteURL"][ssItm]);
+		}
+		return subsiteStruct;
+	</cfscript>
 </cffunction>
 
 <!---

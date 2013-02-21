@@ -37,12 +37,13 @@ History:
 						createUniquePageTitle
 						createUniquePageName
 						getCSPageIDByTitle
+	2013-02-20 - SFS - Updated the "data" dependency to data_1_2, updated all references to application.adf.data to variables.data, updated version to 1_2_4.
 --->
 <cfcomponent displayname="csData_1_2" extends="ADF.lib.csData.csData_1_1" hint="CommonSpot Data Utils functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_2">
+<cfproperty name="version" value="1_2_4">
 <cfproperty name="type" value="singleton">
-<cfproperty name="data" type="dependency" injectedBean="data_1_1">
+<cfproperty name="data" type="dependency" injectedBean="data_1_2">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">
 <cfproperty name="wikiTitle" value="CSData_1_2">
 
@@ -274,18 +275,18 @@ History:
 		var newUniqueNamePath = "";
 				
 		// Strip HTML tags
-		newPageTitle = TRIM(application.npsAsset.data.stripHTMLtags(str=newPageTitle,replaceStr=" "));
+		newPageTitle = TRIM(variables.data.stripHTMLtags(str=newPageTitle,replaceStr=" "));
 		if ( arguments.verbose )					
 			application.ADF.utils.doDump(newPageTitle, "newPageTitle - Strip HTML tags", 1);
 	
 		// Convert HTML entities to text
-		newPageTitle = TRIM(application.npsAsset.data.unescapeHTMLentities(str=newPageTitle));
+		newPageTitle = TRIM(variables.data.unescapeHTMLentities(str=newPageTitle));
 		if ( arguments.verbose )					
 			application.ADF.utils.doDump(newPageTitle, "newPageTitle - Strip HTML entities", 1);
 
 		// Shorten the newPageTitle by a set number of words ( Zero '0' would bypass this modification )
 		if ( arguments.pageTitleWordMax NEQ 0 ) 	
-			newPageTitle = application.ADF.data.trimStringByWordCount(newPageTitle,arguments.pageTitleWordMax,false);
+			newPageTitle = variables.data.trimStringByWordCount(newPageTitle,arguments.pageTitleWordMax,false);
 		if ( arguments.verbose )					
 			application.ADF.utils.doDump(newPageTitle, "newPageTitle - Shortened", 1);		
 		
@@ -305,7 +306,7 @@ History:
 		newFileName = newPageName;
 		
 		// Filter out any international characters
-		newFileName = application.ADF.data.filterInternationlChars(newFileName);
+		newFileName = variables.data.filterInternationlChars(newFileName);
 
 		// Make the File Name it CS safe (add dashes, etc.)		
 		newFileName = application.ADF.csData.makeCSSafe(newFileName);	
@@ -567,6 +568,57 @@ History:
 		<cfset csPageID = getPageData.ID>
 	</cfif>
 	<cfreturn csPageID>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$metadataStructToArray
+Summary:
+	Converts the Metadata structure to an array of MetadataValue structures:
+	The sub-structure has the following keys:
+		FieldName = The name of the field in the metadata form.
+		FormName = The name of the metadata form.
+		Value = The value of the metadata field.
+Returns:
+	Array
+Arguments:
+	Struct - metadata
+History:
+	2013-02-11 - MFC - Created
+--->
+<cffunction name="metadataStructToArray" access="public" returntype="array" output="true">
+	<cfargument name="metadata" type="struct" required="true">
+	<cfscript>
+		var metadataArray = ArrayNew(1);
+		var currFormName = "";
+		var currFormKeyList = "";
+		var currFieldName = "";
+		var tempStruct = structNew();
+		var i=1;
+		var j=1;
+		
+		// Loop over the struct
+		var metadataKeyList = StructKeylist(arguments.metadata);
+		for ( i=1; i LTE ListLen(metadataKeyList); i++ ){
+			currFormName = ListGetAt(metadataKeyList, i);
+			currFormKeyList = StructKeylist(arguments.metadata[currFormName]);
+			// Loop over the fields in the form
+			for ( j=1; j LTE ListLen(currFormKeyList); j++ ){
+				currFieldName = ListGetAt(currFormKeyList, j);
+				tempStruct = structNew();
+				tempStruct['FormName'] = currFormName;
+				tempStruct['FieldName'] = currFieldName;
+				tempStruct['Value'] = arguments.metadata[currFormName][currFieldName];
+				// Add the struct back into the array
+				ArrayAppend(metadataArray, tempStruct);
+			}
+		}
+		
+		return metadataArray;
+	</cfscript>
 </cffunction>
 
 </cfcomponent>
