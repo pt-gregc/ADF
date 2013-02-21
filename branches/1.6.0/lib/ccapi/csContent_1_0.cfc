@@ -68,6 +68,7 @@ History:
 						"security-exception -- conflict" error message.
 	2012-02-24 - MFC - Added TRY-CATCH around processing 
 						to logout the CCAPI if any errors.
+	2013-02-21 - GAC - Fixed typo in log text message
 --->
 <cffunction name="populateContent" access="public" returntype="struct" hint="Use this method to populate content for either a Textblock or Custom Element">
 	<cfargument name="elementName" type="string" required="true" hint="The name of the element from the CCAPI configuration">
@@ -199,7 +200,7 @@ History:
 					{
 						result.contentUpdated = true;
 						result.msg = contentUpdateResponse;
-						logStruct.msg = "#request.formattedTimestamp# - Elemented Updated/Created: #thisElement['elementType']# [#arguments.elementName#]. ContentUpdateResponse: #contentUpdateResponse#";
+						logStruct.msg = "#request.formattedTimestamp# - Element Updated/Created: #thisElement['elementType']# [#arguments.elementName#]. ContentUpdateResponse: #contentUpdateResponse#";
 						logStruct.logFile = 'CCAPI_populate_content.log';
 						arrayAppend(logArray, logStruct);
 					}

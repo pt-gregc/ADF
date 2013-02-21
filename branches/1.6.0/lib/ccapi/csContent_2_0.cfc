@@ -193,7 +193,7 @@ History:
 					{
 						result.contentUpdated = true;
 						result.msg = contentUpdateResponse;
-						logStruct.msg = "#request.formattedTimestamp# - Elemented Updated/Created: #thisElement['elementType']# [#arguments.elementName#]. ContentUpdateResponse: #contentUpdateResponse#";
+						logStruct.msg = "#request.formattedTimestamp# - Element Updated/Created: #thisElement['elementType']# [#arguments.elementName#]. ContentUpdateResponse: #contentUpdateResponse#";
 						logStruct.logFile = 'CCAPI_populate_content.log';
 						arrayAppend(logArray, logStruct);
 					}
