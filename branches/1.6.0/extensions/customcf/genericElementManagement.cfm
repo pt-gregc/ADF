@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2011.
+PaperThin, Inc. Copyright(C) 2013.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files
@@ -21,7 +21,6 @@ end user license agreement.
 /* *********************************************************************** */
 Author:
 	PaperThin, Inc.
-	Ryan Kahn
 Name:
 	genericElementManagement.cfm
 Summary:
@@ -34,6 +33,7 @@ Attributes:
 	showAddButtons -  a comma-delimited list of true/false for each element name to show the 'Add Button' or not  on each tab (default: true)
 	useAddButtonSecurity - true/false to enable or disable security for the 'Add Button' (default: true)
 	customAddButtonText - a comm-delimited list of custom "Add Button" names (default: Add New {{elementName}})
+	formBeanName - Override the form bean (component) to open for the form.
 	// App Level Override Parameters
 	appBeanName - the AppBeanName of the app from the appBeanConfig.cfm file
 	appParamsVarName - a variable name of a struct that contains key/values for the custom script attrubutes
@@ -69,6 +69,7 @@ History:
 	2013-01-15 - GAC - If tabs are not being rendered, then don't add additional line breaks.
 	2013-02-13 - GAC - Added a hook to override the Attributes passed in from the Custom Script Parameters tab with a structure from an App 
 					 - Updated to use a UTILS lib function to process the override 
+	2013-02-22 - MFC - Added the "appBeanName" into the attributes.
 --->
 
 <!--- // Optional ADF App Override Attributes for the Custom Script Parameters tab --->
@@ -99,6 +100,11 @@ History:
 			
 			// Bean Name for the Add Button
 			beanName = "Forms_1_1";
+			// Check to see if the attribute 'formBeanName' was passed in.
+			//	This will override the bean to open for the form
+			if ( StructKeyExists(attributes,"formBeanName")
+					AND LEN(TRIM(attributes.formBeanName)) )
+				beanName = attributes.formBeanName;
 			
 			// Set the 'Add Button' display defaults
 			displayAddButtonDefault = true; // Display the 'Add Button'
