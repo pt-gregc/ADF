@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent name="LightWireConfigBase" extends="ADF.thirdParty.lightwire.BaseConfigObject" output="false">
 
-<cfproperty name="version" value="1_6_1">
+<cfproperty name="version" value="1_6_2">
 
 <cffunction name="init" returntype="any" hint="I initialize default LightWire config properties." output=false access="public">
 	<cfscript>
@@ -195,24 +195,25 @@ History:
 </cffunction>
 
 <!---
-	/* *************************************************************** */
-	Author: 	M. Carroll
-	Name:
-		$loadADFAppBeanConfig
-	Summary:
-		Searches the ADF to find "appBeanConfig.cfm". 
-		These commands are included into the base ADF to create the objects
-			for the custom application.
-	Returns:
-		Void
-	Arguments:
-		String - path
-	History:
-		2009-05-11 - MFC - Created
-		2011-01-21 - GAC - Modified to add error logging around the cfinclude
-		2011-02-09 - GAC - Removed self-closing CF tag slashes
-		2011-05-13 - MFC - Set the expand path variable outside of the CFLOOP
-		2011-07-11 - MFC/AW - Updated AppConfig path building.
+/* *************************************************************** */
+Author: 	M. Carroll
+Name:
+	$loadADFAppBeanConfig
+Summary:
+	Searches the ADF to find "appBeanConfig.cfm". 
+	These commands are included into the base ADF to create the objects
+		for the custom application.
+Returns:
+	Void
+Arguments:
+	String - path
+History:
+	2009-05-11 - MFC - Created
+	2011-01-21 - GAC - Modified to add error logging around the cfinclude
+	2011-02-09 - GAC - Removed self-closing CF tag slashes
+	2011-05-13 - MFC - Set the expand path variable outside of the CFLOOP
+	2011-07-11 - MFC/AW - Updated AppConfig path building.
+	2013-02-26 - MFC - Updated comments to make sure the "appComPath" variable is not removed.
 --->
 <cffunction name="loadADFAppBeanConfig" returntype="void" access="public" output="true" hint="Loads the custom apps bean config file.">
 	<cfargument name="path" type="string" required="false" default="\ADF\apps\">
@@ -234,17 +235,18 @@ History:
 
 	<!--- Build the appBeanConfig include statements --->
 	<cfloop index="i" from="1" to="#retFilteredQry.RecordCount#">
-		<cfscript>
-			dirPath = Replace(retFilteredQry.directory[i], expPath, "");
-			target = Replace('#arguments.path##dirPath#/#retFilteredQry.name[i]#', '\', '/', 'all');
-			appComPath = getComPathForCustomAppDir(dirPath);
-		</cfscript>
 		<cftry>
+			<cfscript>
+				dirPath = Replace(retFilteredQry.directory[i], expPath, "");
+				target = Replace('#arguments.path##dirPath#/#retFilteredQry.name[i]#', '\', '/', 'all');
+				// This is needed for the cfinclude below
+				appComPath = getComPathForCustomAppDir(dirPath);
+			</cfscript>
 			<!--- // Include the the appBeanConfig file from each app --->
 			<cfinclude template="#target#">
 			<cfcatch>
 				<!--- // Build the Error Struct --->
-				<cfset buildError.appBeanConfigPath = appBeanConfigPath>
+				<cfset buildError.appBeanConfigPath = target>
 				<!--- <cfset buildError.args = arguments> --->
 				<cfset buildError.details = cfcatch>
 				<!--- // Log the Error struct and add it to the ADF buildErrors Array --->
