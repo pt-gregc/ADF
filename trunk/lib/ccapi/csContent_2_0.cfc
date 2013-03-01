@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="csContent_2_0" extends="ADF.lib.ccapi.csContent_1_0" hint="Constructs a CCAPI instance and then allows you to populate Custom Elements and Textblocks">
 
-<cfproperty name="version" value="2_0_1">
+<cfproperty name="version" value="2_0_2">
 <cfproperty name="type" value="transient">
 <cfproperty name="apiElement" type="dependency" injectedBean="apiElement_1_0">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
@@ -193,7 +193,7 @@ History:
 					{
 						result.contentUpdated = true;
 						result.msg = contentUpdateResponse;
-						logStruct.msg = "#request.formattedTimestamp# - Elemented Updated/Created: #thisElement['elementType']# [#arguments.elementName#]. ContentUpdateResponse: #contentUpdateResponse#";
+						logStruct.msg = "#request.formattedTimestamp# - Element Updated/Created: #thisElement['elementType']# [#arguments.elementName#]. ContentUpdateResponse: #contentUpdateResponse#";
 						logStruct.logFile = 'CCAPI_populate_content.log';
 						arrayAppend(logArray, logStruct);
 					}
