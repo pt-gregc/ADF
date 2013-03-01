@@ -34,7 +34,7 @@ History:
 --->
 <cfcomponent displayname="csContent_1_0" hint="Constructs a CCAPI instance and then allows you to populate Custom Elements and Textblocks" extends="ADF.core.Base">
 
-<cfproperty name="version" value="1_0_2">
+<cfproperty name="version" value="1_0_3">
 <cfproperty name="type" value="transient">
 <cfproperty name="ccapi" type="dependency" injectedBean="ccapi_1_0">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_0">
@@ -68,6 +68,7 @@ History:
 						"security-exception -- conflict" error message.
 	2012-02-24 - MFC - Added TRY-CATCH around processing 
 						to logout the CCAPI if any errors.
+	2013-02-21 - GAC - Fixed typo in log text message
 --->
 <cffunction name="populateContent" access="public" returntype="struct" hint="Use this method to populate content for either a Textblock or Custom Element">
 	<cfargument name="elementName" type="string" required="true" hint="The name of the element from the CCAPI configuration">
@@ -199,7 +200,7 @@ History:
 					{
 						result.contentUpdated = true;
 						result.msg = contentUpdateResponse;
-						logStruct.msg = "#request.formattedTimestamp# - Elemented Updated/Created: #thisElement['elementType']# [#arguments.elementName#]. ContentUpdateResponse: #contentUpdateResponse#";
+						logStruct.msg = "#request.formattedTimestamp# - Element Updated/Created: #thisElement['elementType']# [#arguments.elementName#]. ContentUpdateResponse: #contentUpdateResponse#";
 						logStruct.logFile = 'CCAPI_populate_content.log';
 						arrayAppend(logArray, logStruct);
 					}

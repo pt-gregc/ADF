@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="csapi_1_0" extends="ADF.core.Base" hint="CS API functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_0">
+<cfproperty name="version" value="1_0_1">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_1">
 <cfproperty name="wikiTitle" value="CSAPI_1_0">
 
@@ -108,6 +108,7 @@ Arguments:
 History:
 	2010-08-26 - MFC - Created
 	2010-10-25 - MFC - Added the deserialize for the return XML.
+	2013-02-21 - SFS - Changed the CFHTTP call to work in Railo. Changed the cfhttpparam for CFID and CFTOKEN to be of type COOKIE instead of FORMFIELD as described in the published CommonSpot API docs.
 --->
 <cffunction name="run" access="public" returntype="any" output="true" hint="run a command">
 	<cfargument name="commandXML" type="string" required="true" hint="XML to run">
@@ -136,8 +137,8 @@ History:
 	<cfhttp url="#httpSubsiteURL#loader.cfm" method="POST">
 		<cfhttpparam type="FORMFIELD" name="csModule" value="components/dashboard/dashboard" />
 		<cfhttpparam type="FORMFIELD" name="cmdCollectionXML" value="#command_collection#" />
-		<cfhttpparam type="FORMFIELD" name="CFID" value="#CFID#" />
-		<cfhttpparam type="FORMFIELD" name="CFTOKEN" value="#CFToken#" />
+		<cfhttpparam type="COOKIE" name="CFID" value="#CFID#" />
+		<cfhttpparam type="COOKIE" name="CFTOKEN" value="#CFToken#" />
 	</cfhttp>
 	
 	<!--- Deserialize the return XML to struct --->
