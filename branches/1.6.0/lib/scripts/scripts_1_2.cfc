@@ -30,10 +30,11 @@ Version:
 	1.2
 History:
 	2012-12-07 - RAK - Created - New v1.2
+	2013-03-01 - GAC - Updated jQuery iCalendar comment headers
 --->
 <cfcomponent displayname="scripts_1_2" extends="ADF.lib.scripts.scripts_1_1" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" value="1_2_9">
+<cfproperty name="version" value="1_2_10">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_1" type="dependency">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Scripts_1_2">
@@ -329,9 +330,9 @@ Author:
 	PaperThin Inc.
 	Greg Cronkright
 Name:
-	$loadJQueryUITimepickerFG
+	$loadJQueryiCalendar
 Summary:
-	Loads the jQuery iCalendar for the Calendar App if not loaded.
+	Loads the jQuery iCalendar Headers if not loaded.
 Returns:
 	None
 Arguments:
