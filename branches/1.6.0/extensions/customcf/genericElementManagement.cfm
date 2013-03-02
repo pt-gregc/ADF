@@ -69,7 +69,7 @@ History:
 	2013-01-15 - GAC - If tabs are not being rendered, then don't add additional line breaks.
 	2013-02-13 - GAC - Added a hook to override the Attributes passed in from the Custom Script Parameters tab with a structure from an App 
 					 - Updated to use a UTILS lib function to process the override 
-	2013-02-22 - MFC - Added the "appBeanName" into the attributes.
+	2013-02-22 - MFC - Added the "formBeanName" into the attributes.
 --->
 
 <!--- // Optional ADF App Override Attributes for the Custom Script Parameters tab --->
