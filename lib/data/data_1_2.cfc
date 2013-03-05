@@ -30,10 +30,11 @@ Version:
 	1.2
 History:
 	2012-12-31 - MFC/GAC - Created - New v1.2
+	2013-02-28 - GAC - Added new string to number and number to string functions
 --->
 <cfcomponent displayname="data_1_2" extends="ADF.lib.data.data_1_1" hint="Data Utils component functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_3">
+<cfproperty name="version" value="1_2_4">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Data_1_2">
 
@@ -358,6 +359,141 @@ History:
 			<cfreturn arguments.query>
 		</cfcatch>
 	</cftry>    
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	Mark Andrachek
+Name:
+	$getOrdinalSuffixforNumber
+Summary:
+	This function returns the 2 character english text ordinal for numbers.
+	
+	aka. GetOrdinal(num)
+	http://cflib.org/index.cfm?event=page.udfbyid&udfid=349
+	
+ 	@author Mark Andrachek (&#104;&#97;&#108;&#108;&#111;&#119;&#64;&#119;&#101;&#98;&#109;&#97;&#103;&#101;&#115;&#46;&#99;&#111;&#109;) 
+	@version 1, November 5, 2003 
+Returns:
+	String
+Arguments:
+	String - number
+History:
+	2013-02-28 - GAC - Added from CFLib.org
+--->
+<cffunction name="getOrdinalSuffixforNumber" access="public" output="false" returntype="string" hint="This function returns the 2 character english text ordinal for numbers.">
+	<cfargument name="number" type="numeric" required="true" hint="">
+	<cfscript>
+		// if the right 2 digits are 11, 12, or 13, set number to them.
+  		// Otherwise we just want the digit in the one's place.
+  		var two=Right(arguments.number,2);
+  		var ordinal="";
+  		
+  		switch(two) {
+       		case "11": 
+       		case "12": 
+       		case "13": { arguments.number = two; break; }
+       		default: { arguments.number = Right(arguments.number,1); break; }
+  		}
+
+		// 1st, 2nd, 3rd, everything else is "th"
+		switch(arguments.number) {
+			case "1": { ordinal = "st"; break; }
+			case "2": { ordinal = "nd"; break; }
+			case "3": { ordinal = "rd"; break; }
+			default: { ordinal = "th"; break; }
+		}
+  		// return the text.
+ 		return ordinal;
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	G. Cronkright
+Name:
+	$NumberToOrdinal
+Summary:
+	Returns an Ordinal string version of a number from a numeric value (1 = first, 2 = second, 3 = thrid)
+	
+	Uses the NumberAsString method convert the numeric value to a string and then uses the CardinalToOrdinal method
+	to convert the number string to an ordinal for the number
+Returns:
+	String
+Arguments:
+	numeric - number
+History:
+	2013-02-28 - GAC - Created
+--->
+<cffunction name="numberToOrdinal" access="public" output="false" returntype="string" hint="Returns an Ordinal string version of a number from a numeric value.">
+	<cfargument name="number" type="numeric" required="true" hint="">
+	<cfscript>
+		return cardinalToOrdinal(NumberAsString(number));
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	Howard Fore
+Name:
+	$cardinalToOrdinal
+Summary:
+	This function converts cardinal number strings (one, two, three) to ordinal number strings (first, second, thrid).
+	
+	http://cflib.org/index.cfm?event=page.udfbyid&udfid=918
+	
+ 	@author Howard Fore (&#109;&#101;&#64;&#104;&#111;&#102;&#111;&#46;&#99;&#111;&#109;) 
+ 	@version 1, May 26, 2003
+Returns:
+	String
+Arguments:
+	String - cardinalString
+History:
+	2013-02-28 - GAC - Added from CFLib.org
+--->
+<cffunction name="cardinalToOrdinal" access="public" output="false" returntype="string" hint="This function converts cardinal number strings to ordinal number strings..">
+	<cfargument name="cardinalString" type="string" required="true" hint="">
+	<cfscript>  
+		var resultString = "";        // Generated result to return
+	 	var lastCardinal = "";        // Last word in cardinal number string
+	  	var TempNum = 0;              // temp integer
+
+  		cardinalSpecialStrings = "One,one,Two,two,Three,three,Four,four,Five,five,Six,six,Eight,eight,Nine,nine,Twelve,twelve";
+  		ordinalSpecialStrings = "First,first,Second,second,Third,third,Fourth,fourth,Fifth,fifth,Sixth,sixth,Eighth,eighth,Ninth,ninth,Twelfth,twelfth";
+  
+  		cardinalString = trim(cardinalString);
+ 		lastCardinal = listLast(cardinalString," ");
+  		resultString = ListDeleteAt(cardinalString,ListLen(cardinalString," ")," ");
+  
+		// Is lastCardinal a special case?
+		TempNum = listFindNoCase(cardinalSpecialStrings,lastCardinal);
+		if (TempNum GT 0) {
+		  	resultString = ListAppend(resultString,ListGetAt(ordinalSpecialStrings,TempNum)," ");
+		} 
+		else {
+		    if (ListFindNoCase(Right(lastCardinal,2),"en")) {
+		      // Last word ends with "en", add "th"
+		      resultString = ListAppend(resultString,lastCardinal & "th"," ");
+		    } 
+		    if (ListFindNoCase(Right(lastCardinal,1),"d")) {
+		      // Last word ends with "d", add "th"
+		      resultString = ListAppend(resultString,lastCardinal & "th"," ");
+		    } 
+		    if (ListFindNoCase(Right(lastCardinal,1),"y")) {
+		      // Last word ends with "y", delete "y", add "ieth"
+		      resultString = ListAppend(resultString, Left(lastCardinal,Len(lastCardinal) - 1) & "ieth"," ");
+		    } 
+		    if (ListFindNoCase(Right(lastCardinal,3),"ion")) {
+		      // Last word ends with "ion", add "th"
+		      resultString = ListAppend(resultString,lastCardinal & "th"," ");
+		    } 
+		}
+		return resultString;
+	</cfscript>
 </cffunction>
 
 </cfcomponent>

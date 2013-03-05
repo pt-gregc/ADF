@@ -61,6 +61,7 @@ Arguments:
 	numeric - forcePageID - If set this will override the pageID in the data.
 History:
 	2012-12-27 - MFC - Created.  Direct functions to the API Element Library.
+	2013-02-21 - GAC - Fixed typo in log text message
 --->
 <cffunction name="populateContent" access="public" returntype="struct" hint="Use this method to populate content for either a Textblock or Custom Element">
 	<cfargument name="elementName" type="string" required="true" hint="The name of the element from the CCAPI configuration">
