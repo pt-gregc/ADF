@@ -36,6 +36,7 @@ History:
 					 - Replaced the getBean call with Application.ADF
 	2012-02-13 - GAC - Updated to use accept a filter porperty and a uitheme propery 
 					 - Also added the appBeanName and appPropsVarName props to allow porps to be overridden by an app
+	2013-03-07 - GAC - Fixed an issue with the Required field validation script.
 --->
 <cfscript>
 	// the fields current value
@@ -116,7 +117,7 @@ History:
 
 		// Validation function
 		function validate_#fqFieldName#(){
-			if (jQuery("input[name=#fqFieldName#]").val() != ''){
+			if ( jQuery("select[name=#fqFieldName#]").val() != ''){
 				return true;
 			}
 			return false;
