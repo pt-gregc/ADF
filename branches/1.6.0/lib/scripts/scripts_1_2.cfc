@@ -34,7 +34,7 @@ History:
 --->
 <cfcomponent displayname="scripts_1_2" extends="ADF.lib.scripts.scripts_1_1" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" value="1_2_10">
+<cfproperty name="version" value="1_2_11">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_1" type="dependency">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Scripts_1_2">
@@ -358,6 +358,54 @@ History:
 			#outputHTML#
 		<cfelse>
 			#variables.scriptsService.renderScriptOnce("jQueryiCalendar",outputHTML)#
+		</cfif>
+	</cfoutput>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	D. Beckstrom
+Name:
+	$loadJQueryMobile
+Summary:
+	Loads the JQuery Mobile script.
+Returns:
+	None
+Arguments:
+	String - version - JQuery version to load.
+	Boolean - force - Forces JQuery script header to load.
+History:
+	2012-07-11 - DMB - Created
+	2012-07-24 - DMB - Added check to see if user is authenticated before running jQuery
+	2013-03-14 - MFC - Moved the function into the Scripts library.  Updated the logic for the 
+						"renderScriptOnce" call to script service.
+					   Set the default to v1.3.
+--->
+<cffunction name="loadJQueryMobile" access="public" output="true" returntype="void" hint="Loads the JQuery Mobile script if not loaded.">
+	<cfargument name="version" type="string" required="false" default="1.3" hint="JQuery Mobile version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery Mobile to load.">
+	<cfset var outputHTML = "">
+	<cfsavecontent variable="outputHTML">
+		<cfoutput>
+			<script type="text/javascript" src="/ADF/thirdParty/jquery/mobile/#arguments.version#/jquery.mobile-#arguments.version#.min.js"></script>
+			<link rel="stylesheet" href="/ADF/thirdParty/jquery/mobile/jquery.mobile-#arguments.version#.min.css" />
+			<!--- the following adds rel="external" to the Commonspot dashboard entrance menu --->
+			<cfif not (session.user.userid is "anonymous")>
+				<script type="text/javascript">
+					jQuery(document).ready(function() { 
+					jQuery("##cs_entrance_menu a").attr("rel","external");
+				})
+				</script>
+			</cfif>
+		</cfoutput>	
+	</cfsavecontent>
+	<cfoutput>
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("jQueryMobile",outputHTML)#
 		</cfif>
 	</cfoutput>
 </cffunction>
