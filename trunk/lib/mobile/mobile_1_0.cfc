@@ -31,18 +31,20 @@ Version:
 History:
 	2012-07-09 - PaperThin, Inc. - Created
 	2012-07-11 - DMB - injected scriptsService and added function to load jQueryMobile.
+	2013-03-14 - MFC - Moved the "loadJQueryMobile" function into the Scripts library.
+						Removed the "scriptsService" injection.
 --->
 <cfcomponent displayname="mobile_1_0" extends="ADF.core.Base" hint="Mobile component functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_1">
+<cfproperty name="version" value="1_0_2">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Mobile_1_0">
-<cfproperty name="scriptsService" injectedBean="scriptsService_1_0" type="dependency">
 
 <!---
-/* ***************************************************************
-/*
-Author: 	D. Beckstrom
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	D. Beckstrom
 Name:
 	$getDeviceType
 Summary:
@@ -70,10 +72,12 @@ History:
 		return deviceType;
 	</cfscript>
 </cffunction>
+
 <!---
-/* ***************************************************************
-/*
-Author: 	D. Beckstrom
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	D. Beckstrom
 Name:
 	$mobileDetect
 Summary:
@@ -127,16 +131,18 @@ History:
 	return deviceStuct;
  </cfscript>
 </cffunction>
+
 <!---
-/* ***************************************************************
-/*
-Author: 	D. Beckstrom
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	D. Beckstrom
 Name:
 	$setMobileRedirectCookie
 Summary:
 	Sets cookie indicating if the mobile device has been redirected.
 Returns:
-	cookie .  
+	cookie
 Arguments:
 	
 History:
@@ -148,10 +154,12 @@ History:
 		 cookie.MobileRedirect = "True";
 	</cfscript>
  </cffunction>
- <!---
-/* ***************************************************************
-/*
-Author: 	D. Beckstrom
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	D. Beckstrom
 Name:
 	$getMobileRedirectCookie
 Summary:
@@ -175,44 +183,8 @@ History:
 		</cfcatch>
 	</cftry>
  </cffunction>
- <!---
-/* ***************************************************************
-/*
-Author: 	D. Beckstrom
-Name:
-	$loadJQueryMobile
-Summary:
-	Loads the JQuery Mobile script.
-Returns:
-	None
-Arguments:
-	String - version - JQuery version to load.
-	Boolean - force - Forces JQuery script header to load.
-History:
-	2012-07-11 - DMB - Created
-	2012-07-24 - DMB - Added check to see if user is authenticated before running jQuery
---->
-<cffunction name="loadJQueryMobile" access="public" output="true" returntype="void" hint="Loads the JQuery Mobile script if not loaded.">
-<cfargument name="version" type="string" required="false" default="1.1.0" hint="JQuery Mobile version to load.">
-<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery Mobile to load.">
-<cfif (not variables.scriptsService.isScriptLoaded("jquerymobile")) OR (arguments.force)>
-	<cfoutput>
-		<script type="text/javascript" src="/ADF/thirdParty/jquery/mobile/jquery.mobile-#arguments.version#.js"></script>
-		<link rel="stylesheet" href="/ADF/thirdParty/jquery/mobile/jquery.mobile-#arguments.version#.css" />
-		<!--- the following adds rel="external" to the Commonspot dashboard entrance menu --->
-		<cfif not (session.user.userid is "anonymous")>
-			<script type="text/javascript">
-				jQuery(document).ready(function() { 
-				jQuery("##cs_entrance_menu a").attr("rel","external");
-			})
-			</script>
-		</cfif>
-	</cfoutput>
-	<!--- If we force, then don't record the loaded script --->
-	<cfif NOT arguments.force>
-		<cfset variables.scriptsService.loadedScript("jquerymobile")>
-	</cfif>
-</cfif>
-</cffunction>
+
 </cfcomponent>
+
+
 

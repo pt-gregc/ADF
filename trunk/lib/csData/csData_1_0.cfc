@@ -40,7 +40,7 @@ History:
 --->
 <cfcomponent displayname="csData_1_0" extends="ADF.core.Base" hint="CommonSpot Data Utils functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_2">
+<cfproperty name="version" value="1_0_3">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_0">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_0">
@@ -249,61 +249,49 @@ Name:
 	$getSubsiteStruct
 Summary:	
 	Returns a structure with subsiteID and subsiteURL
-	Can return JSON object
 Returns:
 	Struct subsiteStruct
 Arguments:
 	String - filterValueList
+	String - orderby
 History:
 	2009-05-14 - RLW - Created
 	2013-02-14 - GAC - Added filter list parameter to allow subsites to be filtered out of the return struct
+	2013-03-12 - GAC - Modified the filtering logic to do the work mostly in the SQL rather than a complex loop
+					 - Added the ORDER BY parameter to allow the list to be sorted by id or subsiteURL
 --->
 <cffunction name="getSubsiteStruct" access="public" returntype="struct" output="false" hint="Returns a structure with subsiteID and subsiteURL">
-	<cfargument name="filterValueList" type="string" required="false" default="" hint="A list of subsiteIDs OR subsiteNames to filter from the return struct">
+	<cfargument name="filterValueList" type="string" required="false" default="" hint="A list of subsiteIDs OR subsiteNames to filter out of the return struct">
+	<cfargument name="orderby" type="string" required="false" default="SubsiteURL" hint="Order By Column Name. Options: ID or SubsiteURL. Default: SubsiteURL">
 	<cfscript>
 		var getSubsites = QueryNew("tmp");
 		var subsiteStruct = structNew();
-		var ssItm = 1;
-		var subsiteNameList = "";
-		var skipSubsite = false;
+		var s = "";
 	</cfscript>
 	<!--- // retrieve the available susbsites --->
 	<cfquery name="getSubsites" datasource="#request.site.datasource#">
 		select ss.id, ss.subsiteURL
 		from subsites ss, sitePages sp
 		where ss.securityPageID = sp.id
-		order by ss.subsiteURL
+		<cfif LEN(TRIM(arguments.filterValueList))>
+			<cfif IsNumeric(ListFirst(arguments.filterValueList))>
+				and ss.ID not in (<cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.filterValueList#" list="true">)
+			<cfelse>
+				<cfloop list="#arguments.filterValueList#" index="s">
+					and ss.subsiteURL not like <cfqueryparam cfsqltype="cf_sql_varchar" value="%#s#%">
+				</cfloop>
+			</cfif>
+		</cfif>
+		<cfif arguments.orderby EQ "ID">
+			order by ss.id
+		<cfelse>
+			order by ss.subsiteURL
+		</cfif>
 	</cfquery>
 	<cfscript>
-		// Loop over the records returned from the getSubsites query
-		for ( ssItm=1; ssItm LTE getSubsites.RecordCount; ssItm=ssItm+1 ) {
-			skipSubsite = false;
-			// if a filter value list is passed in check if it is an ID list or a Name list
-			if ( LEN(TRIM(arguments.filterValueList)) ) {
-				if ( IsNumeric(ListFirst(arguments.filterValueList)) ) {
-					//  Check the current SubsiteID to see if it is in the subsite ID list. If so, skip it.
-					if ( ListFind(arguments.filterValueList,getSubsites["ID"][ssItm]) NEQ 0 )
-						skipSubsite = true;
-				}
-				else {
-					// convert the subsiteURL to a comma-delimited subsite name list
-		  			subsiteNameList = getSubsites["subsiteURL"][ssItm];
-					// Check for slash direction
-					if ( Find("/",subsiteNameList,1) ) {
-						subsiteNameList = ListChangeDelims(subsiteNameList,",","/");
-					} 
-					else if ( Find("\",subsiteNameList,1) ) {
-						subsiteNameList = ListChangeDelims(subsiteNameList,",","\");
-					}
-					//  Check the current any of the subsites in the subsite URL in the filter Name list. If so, skip it.
-					if ( LISTLEN(variables.data.ListInCommon(subsiteNameList,arguments.filterValueList)) NEQ 0 )
-						skipSubsite = true;
-				}
-			}
-  			if ( skipSubsite EQ false )
-				StructInsert(subsiteStruct, getSubsites["ID"][ssItm], getSubsites["subsiteURL"][ssItm]);
-		}
-		return subsiteStruct;
+		if ( getSubsites.recordCount )
+			subsiteStruct = variables.data.queryColumnsToStruct(getSubsites, "ID", "subsiteURL");
+		return subsiteStruct;	
 	</cfscript>
 </cffunction>
 
@@ -954,26 +942,45 @@ Summary:
 Returns:
 	Struct templates
 Arguments:
-	NA
+	String - filterValueList
+	String - orderby
 History:
 	2009-07-30 - RLW - Created
+	2013-03-12 - GAC - Added filter list parameter to allow subsites to be filtered out of the return struct
+					 - Added the ORDER BY parameter to allow the struct to be sorted by title or ID
 --->
-<cffunction name="getSiteTemplates" access="public" returntype="struct" hint="">
+<cffunction name="getSiteTemplates" access="public" returntype="struct" hint="Returns a structure with the templates available for this site">
+	<cfargument name="filterValueList" type="string" required="false" default="" hint="A list of pageIDs or Template Names to filter out of the return struct">
+	<cfargument name="orderby" type="string" required="false" default="ID" hint="Order By Column Name. Options: ID or Title. Default: ID">
 	<cfscript>
 		var templates = structNew();
 		var getTemplates = "";
+		var t = "";
 	</cfscript>
 	<cfquery name="getTemplates" datasource="#request.site.datasource#">
-		select ID,title
+		select id,title
 		from sitePages
 		where pageType = 1
-		order by ID
+		<cfif LEN(TRIM(arguments.filterValueList))>
+			<cfif IsNumeric(ListFirst(arguments.filterValueList))>
+				and id not in (<cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.filterValueList#" list="true">)
+			<cfelse>
+				<cfloop list="#arguments.filterValueList#" index="t">
+				and title not like <cfqueryparam cfsqltype="cf_sql_varchar" value="%#t#%">
+				</cfloop>
+			</cfif>
+		</cfif>
+		<cfif arguments.orderby EQ "title" OR arguments.orderby EQ "name">
+			order by title
+		<cfelse>
+			order by ID
+		</cfif>
 	</cfquery>
 	<cfscript>
-		if( getTemplates.recordCount )
-			templates = server.ADF.objectFactory.getBean("Data_1_0").queryColumnsToStruct(getTemplates, "ID", "Title");
+		if ( getTemplates.recordCount )
+			templates = variables.data.queryColumnsToStruct(getTemplates, "ID", "Title");
+		return templates;	
 	</cfscript>
-	<cfreturn templates>
 </cffunction>
 		
 <!---

@@ -47,11 +47,11 @@ History:
 	  if (cookie.forceFullSite is "false") { 
 		if ((isDefined("cookie.isMobileBrowser") and (cookie.isMobileBrowser is "true"))) { 
 		// we have a mobile device.  See if we have previously redirected it to the mobile site  
-			 redirected = application.ADF. mobile.getMobileRedirectCookie();
+			 redirected = application.ADF.mobile.getMobileRedirectCookie();
 				// User has not been previously redirected.  See if we're on the home page. 
 				if ((request.subsite.id is 1) and (pageFileName is "index.cfm")) {
 					// Set our cookie flagging that a redirect has occurred. 
-					redirected = application.ADF. mobile.setMobileRedirectCookie();
+					redirected = application.ADF.mobile.setMobileRedirectCookie();
 					// redirect to mobile site	
 					application.ADF.utils.pageRedirect("/mobile/index.cfm");
 				}

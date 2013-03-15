@@ -35,24 +35,92 @@ History:
 	2011-10-22 - MFC - Set the default selected value to be stored when loading the CFT.
 	2012-02-06 - MFC - Updated scripts to load with the site ADF
 	2013-02-20 - MFC - Replaced Jquery "$" references.
+	2013-03-08 - GAC - Updated to use the wrapFieldHTML function
 --->
 <cfscript>
 	// the fields current value
 	currentValue = attributes.currentValues[fqFieldName];
 	// the param structure which will hold all of the fields from the props dialog
 	xparams = parameters[fieldQuery.inputID];
+	
+	if ( NOT StructKeyExists(xparams, "filterList") OR LEN(xparams.filterList) LTE 0 )
+		xparams.filterList = "";	
+		
+	//-- App Override Variables --//
+	if ( NOT StructKeyExists(xparams, "appBeanName") OR LEN(xparams.appBeanName) LTE 0 )
+		xparams.appBeanName = "";
+	if ( NOT StructKeyExists(xparams, "appPropsVarName") OR LEN(xparams.appPropsVarName) LTE 0 )
+		xparams.appPropsVarName = "";
+		
+	xparamsExceptionsList = "appBeanName,appPropsVarName";
+
+	// Optional ADF App Override for the Custom Field Type XPARAMS
+	If ( LEN(TRIM(xparams.appBeanName)) AND LEN(TRIM(xparams.appPropsVarName)) ) {
+		xparams = application.ADF.utils.appOverrideCSParams(
+													csParams=xparams,
+													appName=xparams.appBeanName,
+													appParamsVarName=xparams.appPropsVarName,
+													paramsExceptionList=xparamsExceptionsList
+												);
+	}
+	
 	// Updated scripts to load with the site ADF
 	application.ADF.scripts.loadJQuery();
 	application.ADF.scripts.loadJQuerySelectboxes();
+	
+	// Added for future use
+	// TODO: Add options in Props for a Bean and a Method that return a custom Subsite Struct
+	templateStructBeanName = "csData_1_2";
+	templateStructMethodName = "getSiteTemplates";
+	
+	selectField = "select_#fqFieldName#";
+	
+	// Set defaults for the label and description 
+	includeLabel = true;
+	includeDescription = true; 
+
+	//-- Update for CS 6.x / backwards compatible for CS 5.x --
+	//   If it does not exist set the Field Permission variable to a default value
+	if ( NOT StructKeyExists(variables,"fieldPermission") )
+		variables.fieldPermission = "";
+
+	//-- Read Only Check w/ cs6 fieldPermission parameter --
+	readOnly = application.ADF.forms.isFieldReadOnly(xparams,variables.fieldPermission);
 </cfscript>
 <cfoutput>
 	<script type="text/javascript">
+		// javascript validation to make sure they have text to be converted
+		#fqFieldName#=new Object();
+		#fqFieldName#.id='#fqFieldName#';
+		#fqFieldName#.tid=#rendertabindex#;
+		#fqFieldName#.msg="Please select a value for the #xparams.label# field.";
+		#fqFieldName#.validator = "validate_#fqFieldName#()";
+
+		//If the field is required
+		if ( '#xparams.req#' == 'Yes' ){
+			// push on to validation array
+			vobjects_#attributes.formname#.push(#fqFieldName#);
+		}
+
+		// Validation function
+		function validate_#fqFieldName#(){
+			if ( jQuery("select[name=#fqFieldName#_select]").val() != ''){
+				return true;
+			}
+			return false;
+		}
+		
 		// get the list of subsites and load them into the select list
 		function #fqFieldName#_loadTemplates()
 		{
+			//Show the ajax working image
+			jQuery("###selectField#_loading").show();
+			
 			jQuery.get("#application.ADF.ajaxProxy#",
-				{ 	bean: "csData_1_0",
-					method: "getSiteTemplates",
+				{ 	bean: "#templateStructBeanName#",
+					method: "#templateStructMethodName#",
+					filterValueList: "#xparams.filterList#",
+					oderby: "title",
 					returnFormat: "json" },
 				function( subsiteStruct )
 				{
@@ -68,6 +136,10 @@ History:
 					
 					// Load the on change binding for the select field
 					#fqFieldName#_loadBinding();
+					
+					//Hide the ajax working image
+					jQuery("###selectField#_loading").hide();
+					
 					ResizeWindow();
 				},
 				"json"
@@ -88,37 +160,28 @@ History:
 		jQuery(document).ready(function() {
 			#fqFieldName#_loadTemplates();
 		});
-		
-		// javascript validation to make sure they have text to be converted
-		#fqFieldName#=new Object();
-		#fqFieldName#.id='#fqFieldName#';
-		#fqFieldName#.tid=#rendertabindex#;
-		//#fqFieldName#.validator="validateBlogName()";
-		#fqFieldName#.msg="Please upload a document.";
-		// push on to validation array
-		//vobjects_#attributes.formname#.push(#fqFieldName#);
-		
 	</script>
-	<!--- // determine if this is rendererd in a simple form or the standard custom element interface --->
-	<cfscript>
-		if ( structKeyExists(request, "element") )
-		{
-			labelText = '<span class="CS_Form_Label_Baseline"><label for="#fqFieldName#">#xParams.label#:</label></span>';
-			tdClass = 'CS_Form_Label_Baseline';
-		}
-		else
-		{
-			labelText = '<label for="#fqFieldName#">#xParams.label#:</label>';
-			tdClass = 'cs_dlgLabel';
-		}
-	</cfscript>
-	<tr>
-		<td class="#tdClass#" valign="top">#labelText#</td>
-		<td class="cs_dlgLabelSmall">
-			<select name="#fqFieldName#_select" id="#fqFieldName#_select" size="1"></select>
-		</td>
-	</tr>
-	<!--- hidden field to store the value --->
-	<input type='hidden' name='#fqFieldName#' id='#fqFieldName#' value='#currentValue#'>
-	<input type="hidden" name="#fqFieldName#_FIELDNAME" id="#fqFieldName#_FIELDNAME" value="#listLast(xParams.fieldName, "_")#">
+	
+	<cfsavecontent variable="inputHTML">
+		<cfoutput>
+		<select name="#fqFieldName#_select" id="#fqFieldName#_select" size="1"<cfif readOnly> disabled='disabled'</cfif>>
+			<option value="">--Select--</option>
+		</select>
+		<span id="#selectField#_loading" style="display:none;font-size:10px;">
+			<img src="/ADF/extensions/customfields/template_select/ajax-loader-arrows.gif" width="16" height="16" /> Loading Templates...
+		</span>
+		<!--- hidden field to store the value --->
+		<input type='hidden' name='#fqFieldName#' id='#fqFieldName#' value='#currentValue#'>
+		</cfoutput>
+	</cfsavecontent>	
+	
+	<!---
+		This CFT is using the forms lib wrapFieldHTML functionality. The wrapFieldHTML takes
+		the Form Field HTML that you want to put into the TD of the right section of the CFT 
+		table row and helps with display formatting, adds the hidden simple form fields (if needed) 
+		and handles field permissions (other than read-only).
+		Optionally you can disable the field label and the field discription by setting 
+		the includeLabel and/or the includeDescription variables (found above) to false.  
+	--->
+	#application.ADF.forms.wrapFieldHTML(inputHTML,fieldQuery,attributes,variables.fieldPermission,includeLabel,includeDescription)#
 </cfoutput>
