@@ -99,8 +99,8 @@ History:
 		<td class="cs_dlgLabelSmall" valign="top">Subsite Name Filter List:</td>
 		<td class="cs_dlgLabelSmall">
 			<!--- <input type="text" name="#prefix#filterList" id="#prefix#filterList" class="cs_dlgControl" value="#currentValues.filterList#" size="40"> --->
-			<textarea type="text" name="#prefix#filterList" id="#prefix#filterList" class="cs_dlgControl" rows="4" cols="60" wrap="soft">#currentValues.filterList#</textarea>
-			<br/><span>(Comma-Delimited list of Subsite Names or SubsiteIDs to exclude. Using Subsite Names excludes the any child subsites.)</span>
+			<textarea type="text" name="#prefix#filterList" id="#prefix#filterList" class="cs_dlgControl" rows="3" cols="60" wrap="soft">#currentValues.filterList#</textarea>
+			<br/><span>(Comma-Delimited list of Subsite Names OR SubsiteIDs to exclude. Using Subsite Names excludes the any child subsites.)</span>
 		</td>
 	</tr>
 	<tr>

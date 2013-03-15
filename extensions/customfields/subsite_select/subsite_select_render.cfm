@@ -117,28 +117,23 @@ History:
 
 		// Validation function
 		function validate_#fqFieldName#(){
-			if ( jQuery("select[name=#fqFieldName#]").val() != ''){
+			if ( jQuery("select[name=#fqFieldName#]").val() != '') {
 				return true;
 			}
 			return false;
 		}
 		
+		// init allowSubsiteAdd show/hide options
 		var options = {};
 		
 		// handle on start processing
 		jQuery(function() {
 			//Hide the ajax working image
 			jQuery("###selectField#_loading").hide();	
+			
+			<!--- // TODO: future enhancement --->
+			<!--- // jQuery("###fqFieldName#_new_button").button(); --->
 				
-			jQuery("input[name='submitbutton']").addClass("ui-button ui-state-default ui-corner-all");
-			jQuery("input[name='submitbutton']").hover(
-				function(){ 
-					jQuery(this).addClass("ui-state-hover"); 
-				},
-				function(){ 
-					jQuery(this).removeClass("ui-state-hover"); 
-				}
-			)
 			// load the list of subsites
 			#fqFieldName#_loadSubsites();		
 		});
@@ -154,6 +149,7 @@ History:
 					bean: "#subsiteStructBeanName#",
 					method: "#subsiteStructMethodName#",
 					filterValueList: "#xparams.filterList#",
+					orderby: "subsiteURL",
 					returnFormat: "json" 
 				},
 				function( subsiteStruct )
@@ -170,6 +166,7 @@ History:
 						jQuery("###fqFieldName#").addOption(i, val);
 					});
 					
+					// Sort by Options by Struct Value
 					jQuery("###fqFieldName#").sortOptions();
 					
 					if ( cValue.length && cValueText.length ) {
