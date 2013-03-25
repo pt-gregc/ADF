@@ -401,7 +401,7 @@ History:
 	2011-01-25 - MFC - Modified - Updated formBean param default value to "forms_1_1"
 	2012-03-08 - GAC - Modified - Added a comment to encourage the use of the current function in the UI lib
 --->
-<!--- // This function is depricated! // ---> 
+<!--- // This function has be DEPRECATED! // ---> 
 <!--- // - To use the buildAddEditLink to call the default formBean of forms_1_1 please use the buildAddEditLink in the UI lib --->
 <cffunction name="buildAddEditLink" access="public" returntype="string" output="false">
 	<cfargument name="linkTitle" type="string" required="true">
