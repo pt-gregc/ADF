@@ -1,5 +1,9 @@
 <!--
-	DEPRICATED DO NOT USE
+	DEPRECATED DO NOT USE
+	DEPRECATED DO NOT USE
+	DEPRECATED DO NOT USE
+	DEPRECATED DO NOT USE
+	DEPRECATED DO NOT USE
 --->
 <!---
 The contents of this file are subject to the Mozilla Public License Version 1.1
@@ -29,7 +33,7 @@ Name:
 	site_list_props.cfm
 Summary:
 
-	DEPRICATED DO NOT USE
+	DEPRECATED DO NOT USE
 
 Version:
 	1.0.0

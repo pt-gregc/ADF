@@ -1,5 +1,9 @@
 <!--
-	DEPRICATED DO NOT USE
+	DEPRECATED DO NOT USE
+	DEPRECATED DO NOT USE
+	DEPRECATED DO NOT USE
+	DEPRECATED DO NOT USE
+	DEPRECATED DO NOT USE
 --->
 <!---
 The contents of this file are subject to the Mozilla Public License Version 1.1
