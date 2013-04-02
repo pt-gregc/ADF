@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="ceData_2_0" extends="ADF.lib.ceData.ceData_1_1" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="2_0_3">
+<cfproperty name="version" value="2_0_4">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_2">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
@@ -273,6 +273,8 @@ Arguments:
 History:
 	2013-01-04 - MFC - Reworked the processing for the GETCEDATA functionality.
 	2013-01-24 - MFC - Added check if the value is in the Field ID Name Map.
+	2013-04-02 - SDH - Fixed issue with VAR variables in the function.
+	2013-04-02 - MFC - Cleaned up the variable names and removed unused variables.
 --->
 <cffunction name="getCEData" access="public" returntype="array" hint="Returns array of structs for all data matching the Custom Element.">
 	<cfargument name="customElementName" type="string" required="true">
@@ -285,16 +287,25 @@ History:
 	<cfscript>
 		// initialize the variables
 		var data_i = 1;
-		var dataArray = ArrayNew(1);
-		var retQuery = "";
-		var CEFormID = getFormIDByCEName(arguments.customElementName);
-		var CEFieldID = "";
+	 	var ceFormID = getFormIDByCEName(arguments.customElementName);
+		var ceFieldID = "";
 		var searchCEFieldName = "";
 		var searchCEFieldID = "";
 		var ceFieldName = "";
-		var getPageIDValues = QueryNew("temp");
-		var retTempDataArray = ArrayNew(1);
+		var pageIDValueQry = QueryNew("temp");
 		var ceFieldIDNameMap = StructNew();
+		
+		// sdhardesty fixes 03-27-13
+		var i = 1;
+		var currFieldName = '';
+		var newRow = "";
+		var ceDefaultFieldQry = QueryNew("temp");
+		var ceFieldQuery = QueryNew("temp");
+		var getDataPageValueQry = QueryNew("temp");
+		var ceDataQry = QueryNew("temp"); 
+		var distinctPageIDQry = QueryNew("temp"); 
+		var currPageIDDataQry = QueryNew("temp"); 
+		// end sdhardesty fixes 03-27-13
 		
 		if (LEN(arguments.customElementFieldName) OR Len(arguments.searchFields)) {
 			// check if queryType is Search
@@ -302,30 +313,30 @@ History:
 				// get the id's for each item in the list and create a new list of id's
 				for (data_i=1; data_i LTE ListLen(arguments.searchFields); data_i=data_i+1){
 					searchCEFieldName = "FIC_" & TRIM(ListGetAt(arguments.searchFields,data_i));
-					searchCEFieldID = ListAppend(searchCEFieldID, getElementFieldID(CEFormID, searchCEFieldName));
+					searchCEFieldID = ListAppend(searchCEFieldID, getElementFieldID(ceFormID, searchCEFieldName));
 				}
 			}
 
 			// convert the CE Field Name Arg to the field ID
 			// check if the field name starts with 'FIC_'
 			if (arguments.customElementFieldName CONTAINS "FIC_")
-				CEFieldID = getElementFieldID(CEFormID, arguments.customElementFieldName);
+				ceFieldID = getElementFieldID(ceFormID, arguments.customElementFieldName);
 			else
 			{
 				ceFieldName = "FIC_" & arguments.customElementFieldName;
-				CEFieldID = getElementFieldID(CEFormID, ceFieldName);
+				ceFieldID = getElementFieldID(ceFormID, ceFieldName);
 			}
 		}
 		// special case for versions
 		if ( arguments.queryType eq "versions" )
-			getPageIDValues = getPageIDForElement(CEFormID, CEFieldID, arguments.item, "selected", arguments.searchValues, searchCEFieldID);
+			pageIDValueQry = getPageIDForElement(ceFormID, ceFieldID, arguments.item, "selected", arguments.searchValues, searchCEFieldID);
 		else
-			getPageIDValues = getPageIDForElement(CEFormID, CEFieldID, arguments.item, arguments.queryType, arguments.searchValues, searchCEFieldID);
+			pageIDValueQry = getPageIDForElement(ceFormID, ceFieldID, arguments.item, arguments.queryType, arguments.searchValues, searchCEFieldID);
 		
 		// Get the default structure for the element fields
 		// Build the query row for the default field values
-		ceDefaultFieldQry = defaultFieldQuery(CEFormID=CEFormID);
-		ceFieldQuery = getElementFieldsByFormID(formID=CEFormID);
+		ceDefaultFieldQry = defaultFieldQuery(ceFormID=ceFormID);
+		ceFieldQuery = getElementFieldsByFormID(formID=ceFormID);
 		
 		// Get the mapping of field ID's to Field Names
 		//	Example: ceFieldIDNameMap[1011] = "myFieldName"
@@ -336,7 +347,7 @@ History:
 	
 		// Build in the initial query for the CE Data storage
 		ceDataQry = duplicate(ceDefaultFieldQry);
-		getDataPageValueQry = getDataFieldValue(pageID=ValueList(getPageIDValues.pageID));
+		getDataPageValueQry = getDataFieldValue(pageID=ValueList(pageIDValueQry.pageID));
 	</cfscript>
 	
 	<cfquery name="distinctPageIDQry" dbtype="query">
@@ -387,9 +398,8 @@ History:
 													   orderList=arguments.item);
 		} 
 		// Flip the query back into the CE Data Array Format
-		dataArray = buildCEDataArrayFromQuery(ceDataQuery=ceDataQry);
+		return buildCEDataArrayFromQuery(ceDataQuery=ceDataQry);
 	</cfscript>
-	<cfreturn dataArray>
 </cffunction>
 
 <!---
@@ -412,7 +422,8 @@ Arguments:
 	String - Search Values
 	String - Search Fields
 History:
-	2012-01-04 - MFC - Created
+	2013-01-04 - MFC - Created
+	2013-04-02 - MFC - Added call to verify if the view table exists and create the view.
 --->
 <cffunction name="getCEDataView" access="public" returntype="array" output="true">
 	<cfargument name="customElementName" type="string" required="true">
@@ -425,79 +436,91 @@ History:
 		var viewTableName = getViewTableName(customElementName=arguments.customElementName);
 		var ceViewQry = QueryNew("null");
 		var dataArray = ArrayNew(1);
+		var viewTableExists = false;
 		
 		try {
+			
+			// Verify if the view table exists, create if doesn't exists
+			viewTableExists = verifyViewTableExists(customElementName=arguments.customElementName,
+													viewTableName=viewTableName);
 			
 			// TIMER START
 			//a2 = GetTickCount();
 			
-			// Switch Case based on the query type
-			switch (arguments.queryType){
-			
-				case "selected":
-					ceViewQry = getCEDataViewSelected(customElementName=arguments.customElementName,
-													  customElementFieldName=arguments.customElementFieldName,
-													  item=arguments.item,
-													  overrideViewTableName=viewTableName);
-					break;
-				case "notSelected":
-					ceViewQry = getCEDataViewNotSelected(customElementName=arguments.customElementName,
-													     customElementFieldName=arguments.customElementFieldName,
-													  	 item=arguments.item,
-													     overrideViewTableName=viewTableName);
-					break;	
+			if ( viewTableExists ) {
 				
-				case "search":
-					ceViewQry = getCEDataViewSearch(customElementName=arguments.customElementName,
-													searchValues=arguments.searchValues,
-												  	searchFields=arguments.searchFields,
-												    item=arguments.item,
-												  	customElementFieldName=arguments.customElementFieldName,
-												    overrideViewTableName=viewTableName);
-					break;	
-				case "searchInList":
-					// To make backwards compatiable, check if the "searchFields" are passed in the "customElementFieldName" arg.
-					if ( LEN(arguments.searchFields) EQ 0 AND LEN(arguments.customElementFieldName) GT 0 )
-						arguments.searchFields = arguments.customElementFieldName;
-					// To make backwards compatiable, check if the "searchValues" are passed in the "items" arg.
-					if ( LEN(arguments.searchValues) EQ 0 AND LEN(arguments.item) GT 0 )
-						arguments.searchValues = arguments.item;
+				// Switch Case based on the query type
+				switch (arguments.queryType){
 				
-					ceViewQry = getCEDataViewSearchInList(customElementName=arguments.customElementName,
-														  searchFields=arguments.searchFields,
-														  searchValues=arguments.searchValues,
-													  	  overrideViewTableName=viewTableName);
-					break;	
-				case "multi":
-					ceViewQry = getCEDataViewMulti(customElementName=arguments.customElementName,
-												   searchFields=arguments.searchFields,
-												   searchValues=arguments.searchValues,
-											  	   overrideViewTableName=viewTableName);
-					break;
-				case "list":
+					case "selected":
+						ceViewQry = getCEDataViewSelected(customElementName=arguments.customElementName,
+														  customElementFieldName=arguments.customElementFieldName,
+														  item=arguments.item,
+														  overrideViewTableName=viewTableName);
+						break;
+					case "notSelected":
+						ceViewQry = getCEDataViewNotSelected(customElementName=arguments.customElementName,
+														     customElementFieldName=arguments.customElementFieldName,
+														  	 item=arguments.item,
+														     overrideViewTableName=viewTableName);
+						break;	
+					
+					case "search":
+						ceViewQry = getCEDataViewSearch(customElementName=arguments.customElementName,
+														searchValues=arguments.searchValues,
+													  	searchFields=arguments.searchFields,
+													    item=arguments.item,
+													  	customElementFieldName=arguments.customElementFieldName,
+													    overrideViewTableName=viewTableName);
+						break;	
+					case "searchInList":
+						// To make backwards compatiable, check if the "searchFields" are passed in the "customElementFieldName" arg.
+						if ( LEN(arguments.searchFields) EQ 0 AND LEN(arguments.customElementFieldName) GT 0 )
+							arguments.searchFields = arguments.customElementFieldName;
+						// To make backwards compatiable, check if the "searchValues" are passed in the "items" arg.
+						if ( LEN(arguments.searchValues) EQ 0 AND LEN(arguments.item) GT 0 )
+							arguments.searchValues = arguments.item;
+					
+						ceViewQry = getCEDataViewSearchInList(customElementName=arguments.customElementName,
+															  searchFields=arguments.searchFields,
+															  searchValues=arguments.searchValues,
+														  	  overrideViewTableName=viewTableName);
+						break;	
+					case "multi":
+						ceViewQry = getCEDataViewMulti(customElementName=arguments.customElementName,
+													   searchFields=arguments.searchFields,
+													   searchValues=arguments.searchValues,
+												  	   overrideViewTableName=viewTableName);
+						break;
+					case "list":
+					
+						break;	
+					case "numericList":
+					
+						break;
+					case "greaterThan":
+						ceViewQry = getCEDataViewGreaterThan(customElementName=arguments.customElementName,
+														  	 customElementFieldName=arguments.customElementFieldName,
+														  	 item=arguments.item,
+														  	 overrideViewTableName=viewTableName);
+						break;
+					case "between":
+						ceViewQry = getCEDataViewBetween(customElementName=arguments.customElementName,
+														 customElementFieldName=arguments.customElementFieldName,
+														 item=arguments.item,
+														 overrideViewTableName=viewTableName);
+						break;
+				}
 				
-					break;	
-				case "numericList":
+				// TIMER END
+				//b2 = GetTickCount();
+				//timer2 = "getCEDataView - Query Timer = " & b2-a2;
+				//application.ADF.utils.dodump(ceViewQry, "ceViewQry", false);	
 				
-					break;
-				case "greaterThan":
-					ceViewQry = getCEDataViewGreaterThan(customElementName=arguments.customElementName,
-													  	 customElementFieldName=arguments.customElementFieldName,
-													  	 item=arguments.item,
-													  	 overrideViewTableName=viewTableName);
-					break;
-				case "between":
-					ceViewQry = getCEDataViewBetween(customElementName=arguments.customElementName,
-													 customElementFieldName=arguments.customElementFieldName,
-													 item=arguments.item,
-													 overrideViewTableName=viewTableName);
-					break;
 			}
-			
-			// TIMER END
-			//b2 = GetTickCount();
-			//timer2 = "getCEDataView - Query Timer = " & b2-a2;
-			//application.ADF.utils.dodump(ceViewQry, "ceViewQry", false);	
+			else {
+				throw(message="View Table Does Not Exist", detail="View Table Does Not Exist");	
+			}
 		}
 		catch (ANY exception){
 			application.ADF.utils.dodump(exception, "CFCATCH", false);	
