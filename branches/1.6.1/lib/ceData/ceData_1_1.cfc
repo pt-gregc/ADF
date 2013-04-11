@@ -35,7 +35,7 @@ History:
 --->
 <cfcomponent displayname="ceData_1_1" extends="ADF.lib.ceData.ceData_1_0" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="1_1_4">
+<cfproperty name="version" value="1_1_5">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_1">
 <cfproperty name="data" type="dependency" injectedBean="data_1_1">
@@ -846,6 +846,7 @@ History:
 						Updated the build key list in step 5 with a unique delimiter for key values that may contain "," in the text.
 	2011-07-17 - MFC - Removed update to step 5, this has been cleared up when generating the key.
 						Added call to clear the "currentElement" variable when looping in step 2.
+	2013-04-11 - MFC - Updated the calls to "generateStructKey" function for the new function name.
 --->
 <cffunction name="differentialSync" access="public" returntype="struct" hint="Given a list of custom elements, create or update or optionally delete elements.">
 	<cfargument name="elementName" type="string" required="true" default="" hint="Name of the element to sync">
@@ -963,7 +964,7 @@ History:
 			// 2011-07-08 - MFC
 			//	Set the source element key to a variable.
 			//	Check if the key already exists, then we have a duplicate record.
-			currSrcElementKey = __generateStructKey(srcElements[i],arguments.primaryKeys);
+			currSrcElementKey = generateStructKey(srcElements[i],arguments.primaryKeys);
 			if ( NOT StructKeyExists(srcElementStruct, currSrcElementKey) )
 				StructInsert(srcElementStruct,currSrcElementKey,srcElements[i],true);
 			else
@@ -992,7 +993,7 @@ History:
 		for(i=1;i<=ArrayLen(arguments.newElements);i++){
 			newElement = arguments.newElements[i];
 			//Figure out the element's lookup key
-			currentKey = __generateStructKey(newElement,arguments.primaryKeys);
+			currentKey = generateStructKey(newElement,arguments.primaryKeys);
 			// Clear the variable when iterating
 			currentElement = StructNew();
 			//3. If the newElement exists in the srcElements record check to see if it changed.
@@ -1079,7 +1080,7 @@ Author:
 	PaperThin, Inc.
 	Ryan Kahn
 Name:
-	$__generateStructKey
+	$generateStructKey
 Summary:	
 	Helper function for getting the structures unique identifier as a string
 Returns:
@@ -1091,8 +1092,10 @@ History:
  	2011-01-20 - RAK - Created - String of keys to search within the element for
 	2011-07-17 - MFC - Updated to add check for the key value before adding to the tempStruct.
 					   Updated the return to encrypt the key to avoid any problems with JSON string as key.
+	2013-04-11 - MFC - Changed the function name from "__generateStructKey" to remove leading underscores.
+					   Changed the function access type to public.
 --->
-<cffunction name="__generateStructKey" access="private" returntype="string" hint="Helper function for getting the structures unique identifier as a string">
+<cffunction name="generateStructKey" access="public" returntype="string" hint="Helper function for getting the structures unique identifier as a string">
 	<cfargument name="element" type="struct" required="true" default="" hint="Element that we will get the key from">
 	<cfargument name="primaryKeys" type="string" required="true" default="" hint="String of keys to search within the element for">
 	<cfscript>
