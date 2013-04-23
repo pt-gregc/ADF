@@ -34,7 +34,7 @@ History:
 --->
 <cfcomponent displayname="scripts_1_2" extends="ADF.lib.scripts.scripts_1_1" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" value="1_2_12">
+<cfproperty name="version" value="1_2_13">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_1" type="dependency">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Scripts_1_2">
@@ -1039,7 +1039,7 @@ Arguments:
 History:
  	2011-10-20 - GAC - Created
 	2012-08-16 - GAC - Added the force parameter
-	2013-04-23 - MFC - Fixed the path to remove the "pack" name in the file.
+	2013-04-23 - MFC - Fixed the path to remove the "pack" and "-" in the file name.
 --->
 <cffunction name="loadJQueryEasing" access="public" output="true" returntype="void" hint="Loads the Easing plugin for jQuery">
 	<cfargument name="version" type="string" required="false" default="1.3" hint="Script version to load.">
@@ -1048,7 +1048,7 @@ History:
 	<cfset var thirdPartyLibPath = "/ADF/thirdParty/jquery/easing/">
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
-			<script type="text/javascript" src="#thirdPartyLibPath#jquery.easing-#arguments.version#.js"></script>	
+			<script type="text/javascript" src="#thirdPartyLibPath#jquery.easing.#arguments.version#.js"></script>	
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
