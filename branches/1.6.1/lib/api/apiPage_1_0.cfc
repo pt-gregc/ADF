@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2012.
+PaperThin, Inc. Copyright(C) 2013.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="apiPage" extends="ADF.core.Base" hint="API Page functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_3">
+<cfproperty name="version" value="1_0_4">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
 <cfproperty name="wikiTitle" value="API Page">
@@ -191,7 +191,6 @@ History:
 
        try {
            pageCmdResults = pageComponent.getInfo(pageID=arguments.csPageID);
-           //doErrorLogging("getCommonspotPageInfo","pageCmdResults",pageCmdResults);
            
            // Check the return status has a LENGTH
            if ( isStruct(pageCmdResults) )
@@ -254,7 +253,6 @@ History:
                                                  name=arguments.pageData.name,
                                                  title=newPageTitle,
                                                  caption=newCaption);
-           //doErrorLogging("setCommonspotPageFileName","pageCmdResults",pageCmdResults);
            
            // Check the return status has a LENGTH
            if ( LEN(pageCmdResults) )
@@ -349,6 +347,7 @@ Arguments:
 	
 History:
 	2012-10-22 - GAC - Created
+	2013-04-29 - MFC - Removed reference to function "DOERRORLOGGING" that was removed.
 --->
 <cffunction name="saveInfo" access="public" returntype="struct" hint="Updates the properties for a page (standard and custom)">
 	<cfargument name="pageData" type="struct" required="true" hint="a structure that contains page the required fields as page data.">
@@ -401,7 +400,6 @@ History:
 		    pageResult["CMDRESULTS"] = "";
 		}
 		catch (any e) {
-		    doErrorLogging("setCommonspotPageInfo","CFCATCH",e);
 		    pageResult["CMDSTATUS"] = false;
 		    pageResult["CMDRESULTS"] = "";
 		    pageResult["CFCATCH"] = e;
