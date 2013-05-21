@@ -39,17 +39,18 @@ History:
 								  Added "server.ADF.buildRev" to have available in the ADF space.
 	2012-07-11 - MFC - Modified - New v1.6.0 branch.
 	2013-03-15 - MFC - Modified - New v1.6.1 branch.
+	2013-05-21 - MFC - Modified - New v1.6.2 branch.
 --->
 <cfcomponent name="Core" hint="Core component for Application Development Framework">
 
 <cfproperty name="version" value="1_6_1">
 
 <cfscript>
-	variables.ADFversion = "1.6.1"; // use a dot delimited version number
+	variables.ADFversion = "1.6.2"; // use a dot delimited version number
 	// ADF Build Revision Number
-	variables.buildRev = "1045";
+	variables.buildRev = "1051";
 	// ADF Codename
-	variables.buildName = "Zelda";
+	variables.buildName = "TBD";
 	// CS product version, get the decimal value
 	variables.csVersion = Val(ListLast(request.cp.productversion, " "));
 </cfscript>
