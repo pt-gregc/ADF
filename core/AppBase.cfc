@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2011.
+PaperThin, Inc. Copyright(C) 2013.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -32,10 +32,11 @@ History:
 	2010-04-08 - MFC - Updated loadSiteAppComponents function.
 	2011-04-05 - MFC - Modified - Updated the version property.
 	2011-07-11 - MFC - Updated INIT function for no IF statement for call to "super.init".
+	2013-04-25 - MFC - Added "validateAppBeanExists" function.
 --->
 <cfcomponent name="AppBase" extends="ADF.core.Base" hint="App Base component for the ADF">
 
-<cfproperty name="version" value="1_6_1">
+<cfproperty name="version" value="1_6_2">
 
 <cffunction name="init" output="true" returntype="any">
 	<cfscript>
@@ -78,9 +79,9 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	M. Carroll
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
 Name:
 	$loadApp
 Summary:
@@ -94,36 +95,46 @@ History:
 	2010-04-06 - MFC - Removed old code.
 	2010-08-26 - MFC - Changed "isDefined" to "StructKeyExists"
 	2013-01-18 - MFC - Added check for if the "app" is a struct.
+	2013-04-25 - MFC - Validate if the "appBeanName" exists in the SERVER object factory.
 --->
 <cffunction name="loadApp" access="private" returntype="void" hint="Stores the ADF Lib Components into application.ADF space.">
 	<cfargument name="appBeanName" type="string" required="true" default="" hint="ADF lightwire bean name.">
 	<cfscript>
 		var app = "";
+		
 		if ( LEN(arguments.appBeanName) )
 		{
 			// Update the siteAppList
 			application.ADF.siteAppList = ListAppend(application.ADF.siteAppList, arguments.appBeanName);
 			
-			// Create the Application Space for the app bean
-			application[arguments.appBeanName] = StructNew();
+			// Validate if the "appBeanName" exists in the SERVER object factory
+			if ( validateAppBeanExists(arguments.appBeanName) ){
 			
-			// Copy the App bean config struct from Server.ADF into Application.ADF
-			copyServerBeanToApplication(arguments.appBeanName);
-			// Load the local App components into the object factory
-			loadSiteAppComponents(arguments.appBeanName);
-			// Load the App
-			application[arguments.appBeanName] = application.ADF.objectFactory.getBean(arguments.appBeanName);
-			
-			// set up the configuration of the element
-			setAppConfig(arguments.appBeanName);			
-			// Load the site ajax service proxy white list XML
-			loadAppProxyWhiteList(arguments.appBeanName);
-			// run the post init function if it is defined
-			app = application.ADF.objectFactory.getBean(arguments.appBeanName);
-			// [MFC] - Changed "isDefined" to "StructKeyExists"
-			// [MFC] - Added check for if the "app" is a struct.
-			if( isStruct(app) AND StructKeyExists(app, "postInit") )
-				app.postInit();
+				// Create the Application Space for the app bean
+				application[arguments.appBeanName] = StructNew();
+				
+				// Copy the App bean config struct from Server.ADF into Application.ADF
+				copyServerBeanToApplication(arguments.appBeanName);
+				// Load the local App components into the object factory
+				loadSiteAppComponents(arguments.appBeanName);
+				// Load the App
+				application[arguments.appBeanName] = application.ADF.objectFactory.getBean(arguments.appBeanName);
+				
+				// set up the configuration of the element
+				setAppConfig(arguments.appBeanName);			
+				// Load the site ajax service proxy white list XML
+				loadAppProxyWhiteList(arguments.appBeanName);
+				// run the post init function if it is defined
+				app = application.ADF.objectFactory.getBean(arguments.appBeanName);
+				// [MFC] - Changed "isDefined" to "StructKeyExists"
+				// [MFC] - Added check for if the "app" is a struct.
+				if( isStruct(app) AND StructKeyExists(app, "postInit") )
+					app.postInit();
+			}
+			else {
+				// Throw error that the App Bean doesn't exist.
+				throw("The'#arguments.appBeanName#' app could not be loaded. Check that the app exists in the '/ADF/apps/' directory.");
+			}
 		}
 	</cfscript>
 </cffunction>
@@ -432,6 +443,32 @@ History:
 			// Merge this config struct into the application proxy white list 
 			application.ADF.proxyWhiteList = server.ADF.objectFactory.getBean("Data_1_0").structMerge(application.ADF.proxyWhiteList, configStruct, true);
 		}
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+Name:
+	$validateAppBeanExists
+Summary:
+	Validates if the app bean exists in the server ADF object factory.
+Returns:
+	Boolean
+Arguments:
+	String - appName
+History:
+	2013-04-25 - MFC - Created
+--->
+<cffunction name="validateAppBeanExists" access="public" returntype="boolean" hint="Validates if the app bean exists in the server ADF object factory.">
+	<cfargument name="appName" type="string" required="true">
+	<cfscript>
+		// Check if the App Bean is created in the Server ADF object factory
+		if ( isObject(server.ADF.objectFactory.getBean(arguments.appName)) )
+			return true;
+		else
+			return false;	 
 	</cfscript>
 </cffunction>
 

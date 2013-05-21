@@ -40,7 +40,7 @@ History:
 --->
 <cfcomponent displayname="scripts_1_1" extends="ADF.lib.scripts.scripts_1_0" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" value="1_1_16">
+<cfproperty name="version" value="1_1_17">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_1" type="dependency">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Scripts_1_1">
@@ -91,6 +91,8 @@ History:
 	2011-07-14 - MFC - Run check for if commonspot.lightbox is defined yet
 	2012-04-09 - MFC - Rolled back updates for Lightbox with CS 7 and 6.2.
 						Added conditions for CS 7 and 6.2 lightbox handling.
+	2013-05-07 - MFC - Changed the "lightbox_overrides" CSS file names for the file to load for CS versions
+						less than 6.1 is called "lightbox_overrides_legacy".
 --->
 <cffunction name="loadADFLightbox" access="public" output="true" returntype="void" hint="ADF Lightbox Framework for the ADF Library">
 	<cfargument name="version" type="string" required="false" default="1.0" hint="ADF Lightbox version to load">
@@ -123,9 +125,9 @@ History:
 			<script type='text/javascript' src='/ADF/extensions/lightbox/#arguments.version#/js/framework.js'></script>
 			<!--- Load lightbox override styles --->
 			<cfif application.ADF.csVersion GTE 6.1>
-	         <link href="/ADF/extensions/lightbox/#arguments.version#/css/lightbox_overrides_6_1.css" rel="stylesheet" type="text/css">
+				<link href="/ADF/extensions/lightbox/#arguments.version#/css/lightbox_overrides.css" rel="stylesheet" type="text/css">
 			<cfelse>
-	         <link href="/ADF/extensions/lightbox/#arguments.version#/css/lightbox_overrides.css" rel="stylesheet" type="text/css">
+				<link href="/ADF/extensions/lightbox/#arguments.version#/css/lightbox_overrides_legacy.css" rel="stylesheet" type="text/css">
 			</cfif>
 		</cfoutput>
 			<!--- Load the CommonSpot Lightbox when not in version 6.0 --->

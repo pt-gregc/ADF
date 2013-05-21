@@ -29,14 +29,17 @@ Summary:
 History:
  	2011-09-01 - RAK - Created
 	2011-09-22 - RAK - Updated file uploader to be able to get more detailed information if they choose to override the props.
+	2013-05-13 - MFC - Updated the "variables.destinationDir" to use the "request.subsiteCache[1].url" variable and
+						corrected issue with multiple "//" in the path.
+					   Added the "createUploadDir" function.
 --->
 <cfcomponent name="file_uploader" extends="ADF.core.Base">
-	<cfproperty name="version" value="1_0_0">
+	<cfproperty name="version" value="1_0_1">
 	<cfscript>
 		//Default settings, you can override these in your extended cfc
 		variables.acceptedExtensions = "png,pdf";
 		variables.maxSize = "1000";//In kB
-		variables.destinationDir = "#expandPath(request.site.cp_url&'/_cs_apps/uploads/')#";
+		variables.destinationDir = "#expandPath(request.subsiteCache[1].url&'_cs_apps/uploads/')#";
 		variables.overwriteExistingFiles = false;
 
 		//Thumbnails
@@ -356,6 +359,7 @@ History:
 
 	History:
 	 	2011-09-02 - RAK - Created
+	 	2013-05-13 - MFC - Updated to call the "createUploadDir" function.
 	--->
 	<cffunction name="_preformFileMove" access="public" returntype="struct" hint="Preforms the file move from temporary to permanent storage">
 		<cfargument name="filePath" type="string" required="true" default="" hint="Fully qualified filepath">
@@ -365,11 +369,16 @@ History:
 			var source = arguments.filePath;
 			var rtnStruct = StructNew();
 			var destination = "";
+			var createDirStatus = false;
 			if(!FileExists(source)){
 				throw(message="Source file does not exist.",type="custom");
 			}
 			if(!DirectoryExists(variables.destinationDir)){
-				throw(message="Destination directory does not exist.",type="custom",detail="Please create directory: #variables.destinationDir#");
+				
+				// Create the directory
+				createDirStatus = createUploadDir();
+				if ( !createDirStatus )
+					throw(message="Destination directory does not exist.",type="custom",detail="Please create directory: #variables.destinationDir#");
 			}
 			//Dont overwrite, so get a unique filename!
 			if(!variables.overwriteExistingFiles){
@@ -473,5 +482,31 @@ History:
 	--->
 	<cffunction name="getConfiguration" access="public" returntype="struct" hint="Returns the configuration object for the file uploader">
 		<cfreturn variables>
+	</cffunction>
+	
+	<!---
+	/* *************************************************************** */
+	Author:
+		PaperThin, Inc.
+		Ryan Kahn
+	Name:
+		$createUploadDir
+	Summary:
+		Returns T/F to create the uploads directory.
+	Returns:
+		struct
+	Arguments:
+
+	History:
+	 	2013-05-13 - MFC - Created
+	--->
+	<cffunction name="createUploadDir" access="private" returntype="boolean">
+		<cftry>
+			<cfdirectory directory="#variables.destinationDir#" action="create">
+			<cfreturn true>
+			<cfcatch>
+				<cfreturn false>
+			</cfcatch>
+		</cftry>
 	</cffunction>
 </cfcomponent>

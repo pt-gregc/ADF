@@ -1,5 +1,5 @@
 <cfsetting requesttimeout="2500" showdebugoutput="false">
-<cfsilent>
+
 <!--- 
 The contents of this file are subject to the Mozilla Public License Version 1.1
 (the "License"); you may not use this file except in compliance with the
@@ -12,7 +12,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2010.
+PaperThin, Inc. Copyright(C) 2013.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -56,6 +56,8 @@ History:
 						to load the lightbox within the specific subsites application scope.
 	2011-03-11 - MFC - Updated the APPLICATION.CFC to use the ADF Application file
 						and loading the sites Application space function directly.
+	2013-05-02 - MFC - Moved the CFSILENT to be conditional based on the "debug" param.  
+						When "debug" is on, any CFDUMP code within ajax call will be displayed.
 --->
 	<cfheader name="Expires" value="#now()#">
   	<cfheader name="Pragma" value="no-cache">
@@ -77,13 +79,22 @@ History:
 		 */
 		if ( LEN(request.params.subsiteURL) )
 			CreateObject("component","ADF.Application").loadSiteAppSpace(request.params.subsiteURL);	
+	</cfscript>
 	
-		// reAJAX = ""; //Don't initalize the reAJAX allows for a return: void
-		ajaxData = Application.ADF.ajax.buildAjaxProxyString();
+	<!--- // reAJAX = ""; //Don't initalize the reAJAX allows for a return: void --->
+	<cfif (NOT request.params.debug)>
+		<cfsilent>
+			<cfset ajaxData = Application.ADF.ajax.buildAjaxProxyString()>
+		</cfsilent>
+	<cfelse>
+		<cfset ajaxData = Application.ADF.ajax.buildAjaxProxyString()>
+	</cfif>
+	
+	<cfscript>
 		if ( StructKeyExists(ajaxData,"reString") )
 			reAJAX = ajaxData.reString;
 	</cfscript>
-</cfsilent>
+
 <cfif StructKeyExists(variables,"reAJAX")>
 	<cfif request.params.returnFormat eq "xml"><cfcontent type="text/xml; charset=utf-8"></cfif>
 	<cfoutput>#TRIM(reAJAX)#</cfoutput>
