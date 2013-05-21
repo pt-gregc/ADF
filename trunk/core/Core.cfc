@@ -47,9 +47,9 @@ History:
 <cfscript>
 	variables.ADFversion = "1.6.1"; // use a dot delimited version number
 	// ADF Build Revision Number
-	variables.buildRev = "1034";
+	variables.buildRev = "1045";
 	// ADF Codename
-	variables.buildName = "TBD";
+	variables.buildName = "Zelda";
 	// CS product version, get the decimal value
 	variables.csVersion = Val(ListLast(request.cp.productversion, " "));
 </cfscript>
@@ -57,8 +57,10 @@ History:
 <cffunction name="init" output="true" returntype="void">
 	<cfscript>
 		// Check if the ADF variable does not exist in server scope
-		if ( NOT StructKeyExists(server, "ADF") )
+		if ( NOT StructKeyExists(server, "ADF") ) {
 			server.ADF = StructNew();
+			server.ADF.environment = StructNew();  // Stores the App and Site configuration data
+		}
 		
 		server.ADF.beanConfig = StructNew();  // Stores the server bean configuration
 		server.ADF.objectFactory = StructNew(); // Stores the server object factory
@@ -71,8 +73,7 @@ History:
 		server.ADF.csVersion = getCSVersion(); // Get the ADF version
 		server.ADF.buildRev = variables.buildRev;
 		server.ADF.buildName = variables.buildName;
-		server.ADF.environment = StructNew();  // Stores the App and Site configuration data
-		
+				
 		// Build object factory 
 		server.ADF.beanConfig = createObject("component","ADF.core.lightwire.BeanConfig").init();
 		server.ADF.objectFactory = createObject("component","ADF.core.lightwire.LightWireExtendedBase").init(server.ADF.beanConfig);

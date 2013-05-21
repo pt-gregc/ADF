@@ -12,4 +12,3 @@ To use this version simply copy and paste the sampleUploader.cfc into your site 
  to the paperthin team so we can integrate that into the file uploader.
 
 Enjoy!
-~Ryan Kahn

@@ -21,18 +21,14 @@ end user license agreement.
  * 	ADF UPDATES - MFC [2010-02-23]
  *
  *	History:
- *		2012-02-24 - MFC - Added styles for the loading image, 
- *							lightbox border images, 
- *							and H1 title spacing.
+ *		2012-02-24 - MFC - Added styles for the lightbox border images.
+ *		2012-03-08 - MFC - Added "border: none;" for the img tags.
+ *		2012-03-12 - MFC - Added no background for the h1.
  *		2012-04-09 - MFC - Updated styles for CS 7 and 6.2.
  */
 
 .lightboxContainer .lightboxIframe {
-	overflow-y: hidden;
-	overflow-x: hidden;
-}
-.lightboxContainer .lightboxIframe {
-	overflow-y: hidden;
+	overflow-y: auto;
 	overflow-x: hidden;
 }
 .lightboxContainer .lightboxTopCorner {
@@ -59,6 +55,11 @@ div.lightboxContainer img {
 	display: inline;
 	border: none;
 }
+/* Remove any styles with the H1 in the lightbox header. */
+div.lightboxContainer .lightboxHeader h1 {
+	background: none;
+	background: none;
+}
 /* 2010-11-26 - RAK - Changed to fixed. Specified height variable.*/
 .lightboxOverlay {
 	position: fixed;
@@ -66,7 +67,17 @@ div.lightboxContainer img {
 	height: 100%;
 }
 /* Set the spacing for the H1 tag */
-.lightboxContainer .lightboxHeader h1 {
+div.lightboxContainer .lightboxHeader h1 {
 	line-height: 1 !important;
 	background: none !important;
+}
+
+div.lightboxContainer div.lightboxTopCorner img, div.lightboxContainer div.lightboxBottomCorner img  {
+	height: 12px;
+}
+div.lightboxContainer div.lightboxTopCorner img {
+	vertical-align: bottom;
+}
+div.lightboxContainer div.lightboxBottomCorner img {
+	vertical-align: top;
 }
