@@ -252,6 +252,7 @@ Arguments:
 	Boolean verbose
 History:
 	2012-03-26 - GAC - Created 
+	2013-05-29 - GAC - Updated the newUniqueNamePath to switch forward slashes to back slashes
 --->
 <cffunction name="createUniquePageInfofromPageTitle" access="public" returntype="struct" output="true" hint="Creates a unique page title, page name and file name for a page from a passed in pageTitle">
 	<cfargument name="csPageTitle" type="string" required="true" hint="a page title to build a page name and file name from">
@@ -323,8 +324,7 @@ History:
 		if ( arguments.verbose )
 			application.ADF.utils.doDump(qSubsite, "qSubsite", 0);
 		
-		if ( qSubsite.RecordCount ) 
-		{
+		if ( qSubsite.RecordCount ) {
 			// Get the Destination Subsite URL 
 			subsiteURL = qSubsite.SUBSITEURL;
 			if ( arguments.verbose )					
@@ -345,8 +345,7 @@ History:
 		// If pageID exists then create a new unique name
 		if ( structKeyExists(qNewPageData,"ID") 
 				AND LEN(TRIM(qNewPageData.ID)) 
-				AND IsNumeric(qNewPageData.ID) )  
-		{	
+				AND IsNumeric(qNewPageData.ID) ) {	
 			// Full File Path of the existing page
 			existingFullFilePath = ExpandPath(newFullFileURL);	
 			
@@ -360,11 +359,15 @@ History:
 			else {
 				newUniqueNamePath = existingFullFilePath;		
 			}
+			
 			if ( arguments.verbose )
 				application.ADF.utils.doDump(newUniqueNamePath,"newUniqueNamePath",1);
 		
+			// Convert Slashes
+			newUniqueNamePath = Replace(newUniqueNamePath,"\","/","all");
 			// New Full Unique File Name (full w/ ext)
 			newFullFileName = ListLast(newUniqueNamePath,"/");
+			
 			if ( arguments.verbose )
 				application.ADF.utils.doDump(newFullFileName,"newFullFileName",1);
 		
