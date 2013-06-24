@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="apiElement" extends="ADF.core.Base" hint="CCAPI functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_5">
+<cfproperty name="version" value="1_0_6">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
 <cfproperty name="wikiTitle" value="API Elements">
@@ -63,6 +63,7 @@ History:
 	2013-01-11 - MFC - Updated to the add VAR for "apiConfig".
 	2013-02-05 - MFC - Updated the logout to call the "ccapilogout".
 	2013-02-21 - GAC - Fixed typo in log text message
+	2013-06-24 - MFC - Added "forceControlName" arg to override the config control name.
 --->
 <cffunction name="populateCustom" access="public" returntype="struct">
 	<cfargument name="elementName" type="string" required="true" hint="The name of the element from the CCAPI configuration">
@@ -70,6 +71,7 @@ History:
 	<cfargument name="forceSubsiteID" type="numeric" required="false" default="-1" hint="If set this will override the subsiteID in the data.">
 	<cfargument name="forcePageID" type="numeric" required="false" default="-1" hint="If set this will override the pageID in the data.">
 	<cfargument name="forceLogout" type="boolean" required="false" default="true" hint="Flag to keep the API session logged in for a continuous process.">
+	<cfargument name="forceControlName" type="string" required="false" default="" hint="Field to override the element control name from the config.">
 	<cfscript>
 		var apiConfig = "";
 		var result = structNew();
@@ -166,6 +168,10 @@ History:
 					contentStruct.controlID = thisElementConfig["controlID"];
 				else
 					contentStruct.controlName = thisElementConfig["controlName"];	
+				
+				// 2013-06-24 - Override the config control name based on the argument
+				if ( LEN(arguments.forceControlName) )
+					contentStruct.controlName = arguments.forceControlName;
 				
 				// If we find the option to submit change in the data
 				if( StructKeyExists(arguments.data, "submitChange") )
