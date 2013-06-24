@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="apiElement" extends="ADF.core.Base" hint="CCAPI functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_6">
+<cfproperty name="version" value="1_0_7">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
 <cfproperty name="wikiTitle" value="API Elements">
@@ -64,6 +64,8 @@ History:
 	2013-02-05 - MFC - Updated the logout to call the "ccapilogout".
 	2013-02-21 - GAC - Fixed typo in log text message
 	2013-06-24 - MFC - Added "forceControlName" arg to override the config control name.
+					   Updated to check if the "forceControlName", "forceSubsiteID", and "forcePageID" arguments
+						are defined, then setup the element config to bypass the config file.
 --->
 <cffunction name="populateCustom" access="public" returntype="struct">
 	<cfargument name="elementName" type="string" required="true" hint="The name of the element from the CCAPI configuration">
@@ -119,6 +121,16 @@ History:
 					if( not StructKeyExists(thisElementConfig, "subsiteID") )
 						thisElementConfig["subsiteID"] = 1;
 				}
+				// Check if the "forceControlName", "forceSubsiteID", and "forcePageID" arguments
+				//	are defined, then setup the element config to bypass the config file.
+				else if ( (arguments.forceSubsiteID neq -1)
+							AND (arguments.forcePageID neq -1)
+							AND (LEN(arguments.forceControlName)) ){
+					thisElementConfig['subsiteID'] = arguments.forceSubsiteID;
+					thisElementConfig['pageID'] = arguments.forcePageID;
+					thisElementConfig['controlName'] = arguments.forceControlName;
+					thisElementConfig['elementType'] = "custom";			
+				}
 				else {
 					// Log the error message also
 					if ( loggingEnabled ) {
@@ -167,7 +179,7 @@ History:
 				if( StructKeyExists(thisElementConfig, "controlID") )
 					contentStruct.controlID = thisElementConfig["controlID"];
 				else
-					contentStruct.controlName = thisElementConfig["controlName"];	
+					contentStruct.controlName = thisElementConfig["controlName"];
 				
 				// 2013-06-24 - Override the config control name based on the argument
 				if ( LEN(arguments.forceControlName) )
