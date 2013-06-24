@@ -43,12 +43,12 @@ History:
 --->
 <cfcomponent name="Core" hint="Core component for Application Development Framework">
 
-<cfproperty name="version" value="1_6_1">
+<cfproperty name="version" value="1_6_2">
 
 <cfscript>
 	variables.ADFversion = "1.6.2"; // use a dot delimited version number
 	// ADF Build Revision Number
-	variables.buildRev = "1055";
+	variables.buildRev = "1056";
 	// ADF Codename
 	variables.buildName = "TBD";
 	// CS product version, get the decimal value

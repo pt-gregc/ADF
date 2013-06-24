@@ -557,6 +557,7 @@ History:
 	2010-12-21 - GAC - Added
 	2010-12-21 - GAC - Added task name filter
 	2012-11-29 - GAC - Updated to handle getting the CFSCHEDULED tasks list from RAILO
+	2013-06-12 - GAC - Fixed a variable name issue in the taskName filter loop
 --->
 <cffunction name="getScheduledTasks" returntype="array" output="no" access="public" hint="Obtain an Array of CF scheduled tasks ">
 	<cfargument name="taskNameFilter" type="string" required="false" default="" hint="Used to only display Scheduled Task Names that contain this filter value">	
@@ -621,7 +622,7 @@ History:
 		if ( ArrayLen(result) ){
 			// If filter value is passed in loop over the Array of task and build a new array
 			if ( LEN(TRIM(arguments.taskNameFilter)) ) { 
-				for ( i; itm LTE ArrayLen(result); i=i+1 ) {
+				for ( i; i LTE ArrayLen(result); i=i+1 ) {
 					taskName = result[i].task;
 					// Only Add Tasks to the Result Array if they contain the filter value
 					if ( FindNoCase(arguments.taskNameFilter,taskName,1) NEQ 0 ) {
