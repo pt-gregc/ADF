@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="apiElement" extends="ADF.core.Base" hint="CCAPI functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_7">
+<cfproperty name="version" value="1_0_8">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
 <cfproperty name="wikiTitle" value="API Elements">
@@ -63,7 +63,7 @@ History:
 	2013-01-11 - MFC - Updated to the add VAR for "apiConfig".
 	2013-02-05 - MFC - Updated the logout to call the "ccapilogout".
 	2013-02-21 - GAC - Fixed typo in log text message
-	2013-06-24 - MFC - Added "forceControlName" arg to override the config control name.
+	2013-06-24 - MFC - Added "forceControlName" and "forceControlID" arg to override the config control name or ID.
 					   Updated to check if the "forceControlName", "forceSubsiteID", and "forcePageID" arguments
 						are defined, then setup the element config to bypass the config file.
 --->
@@ -74,6 +74,7 @@ History:
 	<cfargument name="forcePageID" type="numeric" required="false" default="-1" hint="If set this will override the pageID in the data.">
 	<cfargument name="forceLogout" type="boolean" required="false" default="true" hint="Flag to keep the API session logged in for a continuous process.">
 	<cfargument name="forceControlName" type="string" required="false" default="" hint="Field to override the element control name from the config.">
+	<cfargument name="forceControlID" type="numeric" required="false" default="-1" hint="Field to override the element control name with the control ID.">
 	<cfscript>
 		var apiConfig = "";
 		var result = structNew();
@@ -125,11 +126,16 @@ History:
 				//	are defined, then setup the element config to bypass the config file.
 				else if ( (arguments.forceSubsiteID neq -1)
 							AND (arguments.forcePageID neq -1)
-							AND (LEN(arguments.forceControlName)) ){
+							AND ( LEN(arguments.forceControlName)
+									OR arguments.forceControlID neq -1 ) ){
 					thisElementConfig['subsiteID'] = arguments.forceSubsiteID;
 					thisElementConfig['pageID'] = arguments.forcePageID;
-					thisElementConfig['controlName'] = arguments.forceControlName;
-					thisElementConfig['elementType'] = "custom";			
+					thisElementConfig['elementType'] = "custom";
+					// Check if we want to use the control name of control id
+					if ( LEN(arguments.forceControlName) )
+						contentStruct.controlName = arguments.forceControlName;
+					else if ( arguments.forceControlID neq -1 )
+						contentStruct.controlID = arguments.forceControlID;
 				}
 				else {
 					// Log the error message also
@@ -184,6 +190,10 @@ History:
 				// 2013-06-24 - Override the config control name based on the argument
 				if ( LEN(arguments.forceControlName) )
 					contentStruct.controlName = arguments.forceControlName;
+					
+				// 2013-06-24 - Override the config control ID based on the argument
+				if ( arguments.forceControlID neq -1 )
+					contentStruct.controlID = arguments.forceControlID;
 				
 				// If we find the option to submit change in the data
 				if( StructKeyExists(arguments.data, "submitChange") )
