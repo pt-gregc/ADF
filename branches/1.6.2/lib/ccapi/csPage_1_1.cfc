@@ -34,7 +34,7 @@ History:
 ---> 
 <cfcomponent displayname="csPage_1_1" extends="ADF.lib.ccapi.csPage_1_0" hint="Constructs a CCAPI instance and then creates or deletes a page with the given information">
 
-<cfproperty name="version" value="1_1_2">
+<cfproperty name="version" value="1_1_3">
 <cfproperty name="type" value="transient">
 <cfproperty name="ccapi" type="dependency" injectedBean="ccapi_1_0">
 <cfproperty name="csData" type="dependency" injectedBean="csData_1_1">
@@ -93,6 +93,7 @@ History:
 						The modified Standard metadata will be used when creating the destination page.
 	2011-02-09 - RAK - Var'ing un-var'd variables
 	2012-02-24 - MFC - Added TRY-CATCH around processing to logout the CCAPI if any errors.
+	2013-07-01 - GAC - Fixed an issue with the createPage operation that was calling the application.ADF.csPage.createPage() instead of the local createPage() 
 --->	
 <cffunction name="copyPage" access="public" returntype="boolean" hint="Duplicates the page from source to destination using destination template. ">
 	<cfargument name="sourcePageID" type="numeric" required="true">
@@ -151,8 +152,8 @@ History:
 			//remove the pageid from the standard metadata
 			StructDelete(stdMetadata,"pageid");
 	
-			//Create the page
-			newPage = Application.ADF.csPage.createPage(stdMetadata,custMetadata);
+			// Create the page
+			newPage = createPage(stdMetadata,custMetadata);
 			if(!newPage.pageCreated){//we couldnt create the page! Log the error and return out false.
 				variables.utils.logAppend("There was an error while creating page: '#stdMetadata.name#' in subsiteID: #stdMetadata.subsiteID#","copyPageLog.txt");
 				return false;
