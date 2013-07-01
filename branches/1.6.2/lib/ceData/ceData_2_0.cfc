@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="ceData_2_0" extends="ADF.lib.ceData.ceData_1_1" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="2_0_4">
+<cfproperty name="version" value="2_0_5">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_2">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
@@ -275,6 +275,7 @@ History:
 	2013-01-24 - MFC - Added check if the value is in the Field ID Name Map.
 	2013-04-02 - SDH - Fixed issue with VAR variables in the function.
 	2013-04-02 - MFC - Cleaned up the variable names and removed unused variables.
+	2013-07-01 - GAC - Updated the getDataFieldValue call to also pass the formID to prevent returning bad data.
 --->
 <cffunction name="getCEData" access="public" returntype="array" hint="Returns array of structs for all data matching the Custom Element.">
 	<cfargument name="customElementName" type="string" required="true">
@@ -347,7 +348,7 @@ History:
 	
 		// Build in the initial query for the CE Data storage
 		ceDataQry = duplicate(ceDefaultFieldQry);
-		getDataPageValueQry = getDataFieldValue(pageID=ValueList(pageIDValueQry.pageID));
+		getDataPageValueQry = getDataFieldValue(pageID=ValueList(pageIDValueQry.pageID),formid=ceFormID);
 	</cfscript>
 	
 	<cfquery name="distinctPageIDQry" dbtype="query">
@@ -947,10 +948,12 @@ Arguments:
 	String - pageID
 History:
 	2013-01-04 - MFC - Created
+	2013-07-01 - GAC - Added a formID parameter to prevent bad data from being returned by the getDataFieldValueQry query.
 --->
 <cffunction name="getDataFieldValue" access="public" returntype="query" hint="Returns Page ID Query in Data_FieldValue matching Form ID">
 	<cfargument name="pageID" type="string" required="true">
-
+	<cfargument name="formID" type="string" required="false" default="">
+	
 	<cfscript>
 		// Initialize the variables
 		var getDataFieldValueQry = queryNew("temp");
@@ -967,6 +970,9 @@ History:
 			WHERE PageID IN (<cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.pageID#" list="true">)
 		<cfelse>
 			WHERE PageID = <cfqueryparam cfsqltype="cf_sql_numeric" value="#VAL(arguments.pageID)#">
+		</cfif>
+		<cfif LEN(TRIM(arguments.formID)) AND IsNumeric(arguments.formID)>
+			AND FormID = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.formID#">
 		</cfif>
 		AND VersionState = 2
 		AND PageID <> 0
