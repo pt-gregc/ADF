@@ -35,6 +35,8 @@ History:
 	2011-02-07 - RAK - Renamed file
 	2011-04-28 - RAK - Fixed so that it wont throw an error if they try to translate a bad subsite.
 	2011-12-06 - SFS - Added the other bad subsite fix that was missed about the currentSortValue as well.
+	2013-06-26 - GAC - Added IsNumeric checks around the subsiteID values
+					 - Added logic to always generate a currentSortValue
 --->
 <cfscript>
 	subsiteID = request.datasheet.currentColumnValue;
@@ -43,7 +45,7 @@ History:
 <cfsavecontent variable="tdHTML">
 	<cfoutput>
 		<td>
-			<cfif len(subsiteID) and StructKeyExists(request.subsiteCache,subsiteID)>
+			<cfif IsNumeric(subsiteID) AND StructKeyExists(request.subsiteCache,subsiteID)>
 				<a href="#request.subsiteCache[subsiteID].url#">
 					#request.subsiteCache[subsiteID].url#
 				</a>
@@ -54,7 +56,9 @@ History:
 	</cfoutput>
 </cfsavecontent>
 
-<cfif StructKeyExists(request.subsiteCache,subsiteID)>
+<cfif IsNumeric(subsiteID) AND StructKeyExists(request.subsiteCache,subsiteID)>
 	<cfset Request.datasheet.currentSortValue = request.subsiteCache[subsiteID].url>
+<cfelse>
+	<cfset Request.datasheet.currentSortValue = 0>	
 </cfif>
 <cfset request.datasheet.currentFormattedValue = tdHTML>
