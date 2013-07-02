@@ -38,10 +38,11 @@ History:
 						createUniquePageName
 						getCSPageIDByTitle
 	2013-02-20 - SFS - Updated the "data" dependency to data_1_2, updated all references to application.adf.data to variables.data, updated version to 1_2_4.
+	2013-07-02 - GAC - Updated the version cfproperty since updates were on 2013-05-29 but the version was not incremented
 --->
 <cfcomponent displayname="csData_1_2" extends="ADF.lib.csData.csData_1_1" hint="CommonSpot Data Utils functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_4">
+<cfproperty name="version" value="1_2_5">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">
