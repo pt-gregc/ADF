@@ -145,7 +145,11 @@ History:
 						arrayAppend(logArray, logStruct);
 						variables.utils.bulkLogAppend(logArray);
 					}
-					result.msg = "Element [#arguments.elementName#] is not defined in the API Configuration.";
+					result.msg = "Element [#arguments.elementName#] is not defined in the API Configuration.
+						arguments.forceSubsiteIDID = #arguments.forceSubsiteID# - 
+						arguments.forcePageID = #arguments.forcePageID# - 
+						arguments.forceControlID = #arguments.forceControlID#apiConfig";
+					
 					return result;	
 				}
 				
@@ -182,9 +186,20 @@ History:
 				contentStruct.subsiteID = thisElementConfig["subsiteID"];
 				contentStruct.pageID = thisElementConfig["pageID"];
 				
+				// 2013-06-24 - Commented out due to confusing logic. Each check needs to be done 
+				// separately.
+				/*
 				if( StructKeyExists(thisElementConfig, "controlID") )
 					contentStruct.controlID = thisElementConfig["controlID"];
 				else
+					contentStruct.controlName = thisElementConfig["controlName"];
+				*/
+				
+				// 2013-06-24 - Each check needs to be done separately.
+				if( StructKeyExists(thisElementConfig, "controlID") )
+					contentStruct.controlID = thisElementConfig["controlID"];
+					
+				if( StructKeyExists(thisElementConfig, "controlName") )
 					contentStruct.controlName = thisElementConfig["controlName"];
 				
 				// 2013-06-24 - Override the config control name based on the argument
