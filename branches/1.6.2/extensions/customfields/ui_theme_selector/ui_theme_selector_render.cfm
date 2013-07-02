@@ -42,6 +42,7 @@ History:
 					 - Added the includeLabel and includeDescription parameters to the wrapFieldHTML function call
 					 - Added readOnly field security code with the cs6 fieldPermission parameter
 					 - Updated the wrapFieldHTML explanation comment block
+	2012-07-01 - GAC - Updated the default jQuery version
 --->
 <cfscript>
 	// the fields current value
@@ -50,7 +51,7 @@ History:
 	xparams = parameters[fieldQuery.inputID];
 
 	uiFilterOutList = ".svn,base"; 		// Add DIRs that need to be filtered from the theme drop down	
-	defaultVersion = "jquery-ui-1.8";
+	defaultVersion = "jquery-ui-1.9";
 	defaultTheme = ""; 					//ui-lightness
 	
 	jQueryUIurl = "/ADF/thirdParty/jquery/ui/";
@@ -80,7 +81,10 @@ History:
 		variables.fieldPermission = "";
 
 	//-- Read Only Check w/ cs6 fieldPermission parameter --
-	readOnly = application.ADF.forms.isFieldReadOnly(xparams,variables.fieldPermission);	
+	readOnly = application.ADF.forms.isFieldReadOnly(xparams,variables.fieldPermission);
+	
+	// jQuery Headers
+	application.ADF.scripts.loadJQuery();	
 </cfscript>
 
 <!--- // Get a list of jQuery UI themes for the version of jQuery --->
