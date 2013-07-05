@@ -30,10 +30,11 @@ Version
 	2.0
 History:
 	2012-12-31 - MFC - Created - New v2.0
+	2013-07-03 - GAC - Added getCEDataViewList and getCEDataViewNumericList functions to be used by the getCEDataView function
 --->
 <cfcomponent displayname="ceData_2_0" extends="ADF.lib.ceData.ceData_1_1" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="2_0_5">
+<cfproperty name="version" value="2_0_6">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_2">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
@@ -425,6 +426,7 @@ Arguments:
 History:
 	2013-01-04 - MFC - Created
 	2013-04-02 - MFC - Added call to verify if the view table exists and create the view.
+	2013-07-03 - GAC - Added support for the "list" and "numericList" queryTypes 
 --->
 <cffunction name="getCEDataView" access="public" returntype="array" output="true">
 	<cfargument name="customElementName" type="string" required="true">
@@ -494,10 +496,16 @@ History:
 												  	   overrideViewTableName=viewTableName);
 						break;
 					case "list":
-					
+						ceViewQry = getCEDataViewList(customElementName=arguments.customElementName,
+													   customElementFieldName=arguments.customElementFieldName,
+													   item=arguments.item,
+												  	   overrideViewTableName=viewTableName);
 						break;	
 					case "numericList":
-					
+						ceViewQry = getCEDataViewNumericList(customElementName=arguments.customElementName,
+													  		 customElementFieldName=arguments.customElementFieldName,
+													  		 item=arguments.item,
+												  	   		 overrideViewTableName=viewTableName);
 						break;
 					case "greaterThan":
 						ceViewQry = getCEDataViewGreaterThan(customElementName=arguments.customElementName,
@@ -926,6 +934,131 @@ History:
 			<cfelseif ListLen(arguments.item) EQ 1>
 				WHERE #arguments.customElementFieldName# = <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.item#">
 			</cfif>
+		</cfquery>
+		<cfcatch>
+			<cfdump var="#cfcatch#" label="cfcatch" expand="false">
+		</cfcatch>
+	</cftry>
+	<cfreturn ceViewQry>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$getCEDataViewList
+Summary:
+	Queries the CE Data View table for the Query Type of "LIST".
+Returns:
+	Query
+Arguments:
+	String - customElementName - Custom Element Name
+	String - customElementFieldName - Element Field Name
+	String - item - Item Values find the records containing this values
+	String - overrideViewTableName - Override for the view table to query
+History:
+	2013-07-03 - GAC - Created
+--->
+<cffunction name="getCEDataViewList" access="public" returntype="Query" output="true" hint="Queries the CE Data View table for the Query Type of 'List'.">
+	<cfargument name="customElementName" type="string" required="true">
+	<cfargument name="customElementFieldName" type="string" required="false" default="">
+	<cfargument name="item" type="string" required="false" default="">
+	<cfargument name="overrideViewTableName" type="string" required="false" default="" hint="Override for the view table to query.">
+	<cfscript>
+		var viewTableName = "";
+		var ceViewQry = QueryNew("null");
+				
+		// Set the override for the view table name if defined
+		if ( LEN(arguments.overrideViewTableName) )
+			viewTableName = arguments.overrideViewTableName;
+		else
+			viewTableName = getViewTableName(customElementName=arguments.customElementName);
+	</cfscript>
+	
+	<!--- // queryType eq list get the listID's first that match the input --->
+	<!--- <cfquery name="getListItemIDs" datasource="#request.site.datasource#">
+		SELECT DISTINCT listID
+		FROM data_listItems
+		WHERE strItemValue in (<cfqueryparam cfsqltype="cf_sql_varchar" value="#preserveSingleQuotes(arguments.item)#" list="true">)
+	</cfquery> --->
+	
+	<cftry>
+		<cfquery name="ceViewQry" datasource="#request.site.datasource#">
+			SELECT *
+			FROM   #viewTableName# dvt
+			WHERE  PageID IN (	SELECT DISTINCT PageID
+								FROM  Data_FieldValue dfv
+								WHERE dfv.listID IN (	SELECT DISTINCT listID 
+														FROM  Data_ListItems
+														WHERE pageID = dfv.PageID
+														<cfif ListLen(arguments.item) GT 1>
+															AND StrItemValue IN (<cfqueryparam cfsqltype="cf_sql_varchar" value="#preserveSingleQuotes(arguments.item)#" list="true">)
+														<cfelseif ListLen(arguments.item) EQ 1>
+															AND StrItemValue = <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.item#">
+														</cfif>
+													)
+								AND   FormID = dvt.FormID
+								AND   VersionState = 2
+								AND   PageID <> 0
+							)
+		</cfquery>
+		<cfcatch>
+			<cfdump var="#cfcatch#" label="cfcatch" expand="false">
+		</cfcatch>
+	</cftry>
+	<cfreturn ceViewQry>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$getCEDataViewNumericList
+Summary:
+	Queries the CE Data View table for the Query Type of "NumericList".
+Returns:
+	Query
+Arguments:
+	String - customElementName - Custom Element Name
+	String - customElementFieldName - Element Field Name
+	String - item - Item Values find the records containing this values
+	String - overrideViewTableName - Override for the view table to query
+History:
+	2013-07-03 - GAC - Created
+--->
+<cffunction name="getCEDataViewNumericList" access="public" returntype="Query" output="true" hint="Queries the CE Data View table for the Query Type of 'NumericList'.">
+	<cfargument name="customElementName" type="string" required="true">
+	<cfargument name="customElementFieldName" type="string" required="false" default="">
+	<cfargument name="item" type="string" required="false" default="">
+	<cfargument name="overrideViewTableName" type="string" required="false" default="" hint="Override for the view table to query.">
+	<cfscript>
+		var viewTableName = "";
+		var ceViewQry = QueryNew("null");
+				
+		// Set the override for the view table name if defined
+		if ( LEN(arguments.overrideViewTableName) )
+			viewTableName = arguments.overrideViewTableName;
+		else
+			viewTableName = getViewTableName(customElementName=arguments.customElementName);
+	</cfscript>
+	
+	<cftry>
+		<cfquery name="ceViewQry" datasource="#request.site.datasource#">
+			SELECT *
+			FROM   #viewTableName# dvt
+			WHERE  PageID IN (	SELECT DISTINCT PageID 
+								FROM  Data_FieldValue dfv
+								WHERE dfv.listID IN (	SELECT DISTINCT listID 
+														FROM  Data_ListItems
+														WHERE pageID = dfv.PageID
+														AND   NumItemValue IN (<cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.item#" list="true">)
+													)
+								AND   FormID = dvt.FormID
+								AND   VersionState = 2
+								AND   PageID <> 0
+							)
 		</cfquery>
 		<cfcatch>
 			<cfdump var="#cfcatch#" label="cfcatch" expand="false">
