@@ -31,10 +31,11 @@ Version:
 History:
 	2012-12-31 - MFC/GAC - Created - New v1.2
 	2013-02-28 - GAC - Added new string to number and number to string functions
+	2013-09-06 - GAC - Added the listDiff and IsListDifferent functions
 --->
 <cfcomponent displayname="data_1_2" extends="ADF.lib.data.data_1_1" hint="Data Utils component functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_4">
+<cfproperty name="version" value="1_2_5">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Data_1_2">
 
@@ -493,6 +494,83 @@ History:
 		    } 
 		}
 		return resultString;
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	G. Cronkright
+Name:
+	$IsListDifferent
+Summary:
+	Compares two lists and then returns a true if they are different or not
+Returns:
+	Boolean
+Arguments:
+	String - list1
+	String - list2
+	String - delimiters
+History:
+	2013-04-11 - GAC - Created
+--->
+<cffunction name="IsListDifferent" access="public" returntype="string" hint="Compares two lists and then returns a true if they are different">
+	<cfargument name="list1" type="string" required="false" default="" hint="First list to compare">
+	<cfargument name="list2" type="string" required="false" default="" hint="Second list to compare">
+	<cfargument name="delimiters" type="string" required="false" default="," hint="Delimiter for all lists.  Defualt is comma. (Optional)">
+	<cfscript>
+		 var isDifferent = true;
+		 var listDifferences = listDiff(list1=arguments.list1,list2=arguments.list2,delimiters=arguments.delimiters);
+		 if ( ListLen(listDifferences, arguments.delimiters) EQ 0 )
+		 	isDifferent = false;
+		 return isDifferent;
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+From CFLib on 04/05/2012 [GAC]
+	
+Name:
+	$listDiff
+	
+	This function compares two lists and returns the elements that do not appear in both lists.
+	
+	@param list1 	 First list to compare (Required)
+	@param list2 	 Second list to compare (Required)
+	@param delimiters 	 Delimiter for all lists.  Defualt is comma. (Optional)
+	@return Returns a string. 
+	
+	@author Ivan Rodriguez (&#119;&#97;&#110;&#116;&#101;&#122;&#48;&#49;&#53;&#64;&#104;&#111;&#116;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;) 
+	@version 1, June 26, 2002 
+	
+	http://cflib.org/udf/ListDiff
+
+History:
+	2013-04-11 - GAC - Added
+--->
+<cffunction name="listDiff" access="public" returntype="string" hint="Compares two lists and returns the elements that do not appear in both lists.">
+	<cfargument name="list1" type="string" required="false" default="" hint="First list to compare">
+	<cfargument name="list2" type="string" required="false" default="" hint="Second list to compare">
+	<cfargument name="delimiters" type="string" required="false" default="," hint="Delimiter for all lists.  Defualt is comma. (Optional)">
+	<cfscript>
+		var listReturn = "";
+		var position = 1;	
+		var value = "";	
+		//checking list1
+	  	for ( position = 1; position LTE ListLen(arguments.list1,arguments.delimiters); position = position + 1 ) {
+		    value = ListGetAt(arguments.list1, position , arguments.delimiters);
+		    if ( ListFindNoCase(arguments.list2, value , arguments.delimiters) EQ 0 )
+		      listReturn = ListAppend(listReturn, value , arguments.delimiters );
+	    }	
+	    //checking list2
+	    for ( position = 1; position LTE ListLen(arguments.list2,arguments.delimiters); position = position + 1 ) {
+	      value = ListGetAt(arguments.list2, position , arguments.delimiters);
+	      if ( ListFindNoCase(arguments.list1, value , arguments.delimiters) EQ 0 )
+	        listReturn = ListAppend(listReturn, value , arguments.delimiters );
+	  	}
+		return listReturn;
 	</cfscript>
 </cffunction>
 
