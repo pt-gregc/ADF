@@ -38,7 +38,7 @@ History:
 --->
 <cfcomponent displayname="scheduler_1_0" extends="ADF.core.Base" hint="Scheduler base for the ADF">
 	
-<cfproperty name="version" value="1_0_1">
+<cfproperty name="version" value="1_0_4">
 <cfproperty name="type" value="singleton">
 <cfproperty name="scripts" injectedBean="scripts_1_1" type="dependency">
 <cfproperty name="data" type="dependency" injectedBean="data_1_1">
