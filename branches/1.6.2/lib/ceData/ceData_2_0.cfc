@@ -34,7 +34,7 @@ History:
 --->
 <cfcomponent displayname="ceData_2_0" extends="ADF.lib.ceData.ceData_1_1" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="2_0_6">
+<cfproperty name="version" value="2_0_7">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_2">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
@@ -394,7 +394,8 @@ History:
 		// Check if we are processing the selected list
 		if ( arguments.queryType EQ "selected" and len(arguments.customElementFieldName) and len(arguments.item) ){
 			// Order the return data by the order the list was passed in
-			ceDataQry = application.ADF.data.querySort(query=ceDataQry, 
+			//ceDataQry = application.ADF.data.querySort(
+			ceDataQry = variables.data.querySort(query=ceDataQry, 
 													   columnName=arguments.customElementFieldName, 
 													   columnType="varchar",
 													   orderList=arguments.item);
@@ -539,7 +540,8 @@ History:
 			// Check if we are processing the selected list
 			if ( arguments.queryType EQ "selected" and len(arguments.customElementFieldName) and len(arguments.item) ){
 				// Order the return data by the order the list was passed in
-				ceViewQry = application.ADF.data.querySort(query=ceViewQry, 
+				//ceViewQry = application.ADF.querySort(
+				ceViewQry = variables.data.querySort(query=ceViewQry, 
 														   columnName=arguments.customElementFieldName, 
 														   columnType="varchar",
 														   orderList=arguments.item);
@@ -1240,6 +1242,200 @@ History:
 			<cfreturn false>
 		</cfcatch>
 	</cftry>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$buildViewforDB
+Summary:	
+	Alters or Creates a view in the Database for an element
+Returns:
+	Boolean viewCreated
+Arguments:
+	String ceName
+	String viewName
+	String viewCMD
+History:
+ 2010-04-07 - RLW - Created
+ 2010-06-16 - GAC - Modified - Broke original function into two functions  (one to build the VIEW code and one to apply it to the DB )
+ 2010-06-16 - GAC - Modified - Added viewCMD parameter to ALTER or CREATE(and Drop) the view
+--->
+<cffunction name="buildViewforDB" access="public" returntype="boolean">
+	<cfargument name="elementName" type="string" required="true">
+	<cfargument name="viewName" type="string" required="false" default="ce_#TRIM(arguments.elementName)#View">
+	<cfargument name="viewCMD" type="string" required="false" default="CREATE"> <!--- // ALTER / CREATE  --->
+	
+	<cfscript>
+		var viewCreated = false;
+		//var formID = application.ADF.ceData.getFormIDByCEName(TRIM(arguments.elementName));
+		var formID = getFormIDByCEName(TRIM(arguments.elementName));
+		var deleteView = QueryNew("temp");
+		var realTypeView = QueryNew("temp");
+		var viewCode = buildViewCode(
+				elementName=TRIM(arguments.elementName),
+				viewCMD=TRIM(arguments.viewCMD),
+				viewName=TRIM(arguments.viewName)
+			);
+		var tmpCEName = Replace(TRIM(arguments.viewName), " ", "_", "all");
+	</cfscript>
+
+	<!--- // make sure that we actually have a form ID --->
+	<cfif len(formID) and formID GT 0>
+		
+		<cfif arguments.viewCMD IS "CREATE">
+			<!--- // delete the view if it exsists already delete it --->
+			<cftry>
+				<cfquery name="deleteView" datasource="#request.site.dataSource#">
+					Drop view #tmpCEName#
+				</cfquery>
+				<cfcatch></cfcatch>
+			</cftry>
+		</cfif>
+		
+		<cfif LEN(TRIM(viewCode)) AND ( arguments.viewCMD IS "CREATE" OR arguments.viewCMD IS "ALTER" )>
+			<cftry>
+				<cfquery name="realTypeView" datasource="#Request.Site.DataSource#">
+					#viewCode#
+				</cfquery>
+				<cfset viewCreated = true />
+				<cfcatch>
+					<cfset viewCreated = false />
+				</cfcatch>
+			</cftry>
+		</cfif>
+		
+	</cfif>
+	<cfreturn viewCreated />
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$buildViewCode
+Summary:	
+	Builds a code for a database view for an element
+Returns:
+	String viewCode
+Arguments:
+	String ceName
+	String viewName
+	String viewCMD
+History:
+ 2010-04-07 - RLW - Created
+ 2010-06-16 - GAC - Modified - Broke original function into two functions (one to build the VIEW code and one to apply it to the DB )
+ 2010-06-16 - GAC - Modified - Added viewCMD parameter to ALTER or CREATE(and Drop) the view
+--->
+<cffunction name="buildViewCode" access="public" returntype="string">
+	<cfargument name="elementName" type="string" required="true">
+	<cfargument name="viewName" type="string" required="false" default="ce_#TRIM(arguments.elementName)#View">
+	<cfargument name="viewCMD" type="string" required="false" default="CREATE"> <!--- // ALTER / CREATE --->
+	
+	<cfscript>
+		var viewCreated = false;
+		var formID = getFormIDByCEName(TRIM(arguments.elementName));
+		var dbType = Request.Site.SiteDBType;
+		var dbInfo = server.commonspot.datasources[request.site.datasource];
+		var dbVersion = "";
+		var realTypeView = '';
+		var fieldsSQL = '';
+		var fldqry = '';
+		var intType = '';
+		var viewcode = '';
+		var tmpCEName = Replace(TRIM(arguments.viewName), " ", "_", "all");
+		// Set the db version if available 
+		if ( StructKeyExists(dbInfo,"version") )
+			dbVersion = ListFirst(dbInfo.version,".");
+		// Set datatypes for different db types
+		switch (dbtype)
+		{
+			case 'Oracle':
+				intType = 'number(12)';
+				break;
+			case 'MySQL':
+				intType = 'UNSIGNED';
+				break;
+			case 'SQLServer':
+				intType = 'int';
+				break;
+		}
+	</cfscript>
+
+	<!--- // make sure that we actually have a form ID --->
+	<cfif len(formID) and formID GT 0>
+		<cfquery name="fldqry" datasource="#Request.Site.DataSource#">
+			select fic.ID, fic.type, fic.fieldName
+			  from formINputControl fic, forminputcontrolMap
+			 where forminputcontrolMap.fieldID  = fic.ID
+				and forminputcontrolMap.formID = <cfqueryparam value="#formID#" cfsqltype="cf_sql_integer">
+		</cfquery>
+
+		<cfsavecontent variable="viewcode">
+			<cfoutput>
+			#arguments.viewCMD# VIEW #tmpCEName# AS
+					SELECT
+					<cfloop query="fldqry">
+						max(
+						<cfswitch expression="#fldqry.type#">
+							<cfcase value="integer">
+								CASE
+									WHEN FieldID = #ID# THEN CAST(fieldvalue as #intType#)
+									ELSE 0
+								END
+								</cfcase>
+								<cfcase value="float">
+								CASE
+									WHEN FieldID = #ID# THEN CAST(fieldvalue as DECIMAL(7,2))
+									ELSE 0.0
+								END
+							</cfcase>
+							<cfdefaultcase> <!--- NEEDSWORK fieldtype like List, should add ListID column, fieldtype like email, could add 'lower case' function to avoid case sensitive issue --->
+								CASE
+									WHEN FieldID = #ID# THEN
+										CASE
+											WHEN fieldValue <> '' THEN fieldvalue
+											<cfif dbtype is 'oracle'>
+												<!--- TODO
+													Issue with Oracle DB and casting the 'memovalue' field.
+													Commented out to make this work in Oracle, but still needs to be resolved.
+												--->
+												<!--- WHEN length(memovalue) < 4000 THEN CAST(memovalue as varchar2(4000)) --->
+												<!--- ELSE CAST([memovalue] AS nvarchar2(2000)) --->
+											<cfelseif dbtype is 'SQLServer' AND dbVersion LT 9><!--- // 9 = MSSQL 2005 --->
+												<!--- // nvarchar(max) FIX FOR MSSQL 2000 and below --->
+												ELSE CAST([memovalue] AS nvarchar(4000))
+											<cfelseif dbtype is 'SQLServer'>
+												ELSE CAST([memovalue] AS nvarchar(max))
+											<cfelse>
+												<!--- // MySQL fix for when memovalue (instead of fieldvalue) is used up due to the data being over 850 characters --->
+												WHEN memoValue <> '' THEN memovalue
+												<!--- Don't CAST if using MySQL --->
+											</cfif>
+										END
+									ELSE null
+								END
+							</cfdefaultcase>
+						</cfswitch>
+						<!--- ) as FieldID#ID#, --->
+						<!--- ) as #listGetAt(fieldName, 2, "_")#, --->
+						<!--- // Remove the "FIC_" from the CS field name when creating the column alias so this works with CE field names with underscores --->
+						) <cfif dbtype is 'MySQL'> as '#ReplaceNoCase(fieldName, "FIC_", "")#'<cfelse> as [#ReplaceNoCase(fieldName, "FIC_", "")#]</cfif>,
+						<!--- ) <cfif dbtype is 'MySQL'> as '#fieldName#'<cfelse> as [#fieldName#]</cfif>, --->
+					</cfloop>
+				   			PageID, controlID, formID<!--- , dateApproved, dateAdded --->
+					  FROM data_fieldvalue
+					 where formID = #formID#
+						and versionstate >= 2
+						and PageID > 0
+				 GROUP BY PageID, ControlID, formID<!--- , dateApproved, dateAdded --->
+		 	</cfoutput>
+		</cfsavecontent>
+	</cfif>
+	<cfreturn viewcode />
 </cffunction>
 
 </cfcomponent>

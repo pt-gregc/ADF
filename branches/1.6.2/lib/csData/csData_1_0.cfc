@@ -40,7 +40,7 @@ History:
 --->
 <cfcomponent displayname="csData_1_0" extends="ADF.core.Base" hint="CommonSpot Data Utils functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_3">
+<cfproperty name="version" value="1_0_4">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_0">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_0">
@@ -106,6 +106,7 @@ Arguments:
 History:
 	2008-06-20 - RLW - Created
 	2009-10-22 - MFC - Updated: Added IF block to get the uploaded doc page url.
+	2013-08-23 - GAC - Update to return template URLs as well as page URLs
 --->
 <cffunction name="getCSPageURL" access="public" returntype="string">
 	<cfargument name="pageID" type="numeric" required="true">
@@ -119,8 +120,8 @@ History:
 		WHERE 	ID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.pageID#">
 	</cfquery>
 	<cfif getPageData.recordCount>
-		<!--- Check the doctype --->
-		<cfif getPageData.DocType EQ 0>
+		<!--- // Check the doctype AND pagetype --->
+		<cfif (getPageData.DocType EQ 0  OR getPageData.DocType EQ "") AND ListFind("0,1,2",getPageData.PageType)>
 			<!--- We are working with a CS page --->
 			<cfset csPageURL = request.subsiteCache[getPageData.subsiteID].url & getPageData.fileName>
 		<cfelse>
