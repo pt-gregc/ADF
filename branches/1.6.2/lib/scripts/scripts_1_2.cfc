@@ -31,10 +31,11 @@ Version:
 History:
 	2012-12-07 - RAK - Created - New v1.2
 	2013-03-01 - GAC - Updated jQuery iCalendar comment headers
+	2013-09-05 - GAC - Updated with functions for and jQuery qTip2 JQuery ImagesLoaded
 --->
 <cfcomponent displayname="scripts_1_2" extends="ADF.lib.scripts.scripts_1_1" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" value="1_2_13">
+<cfproperty name="version" value="1_2_14">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_1" type="dependency">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Scripts_1_2">
@@ -1134,6 +1135,92 @@ History:
 			#outputHTML#
 		<cfelse>
 			#variables.scriptsService.renderScriptOnce("jquerymousewheel",outputHTML)#
+		</cfif>
+	</cfoutput>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.	
+	G. Cronkright
+Name:
+	$loadQTip
+Summary:
+	Loads the QTip Headers if not loaded.
+Returns:
+	None
+Arguments:
+	String - version - QTip version to load.
+	Boolean - force - Forces QTip script header to load.
+History:
+	2013-09-04 - GAC - Created to add the latest version of qTip2
+--->
+<cffunction name="loadQTip" access="public" output="true" returntype="void" hint="Loads the JQuery Headers if not loaded.">
+	<cfargument name="version" type="string" required="false" default="2.1" hint="Version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces script header to load.">
+	<!--- <cfargument name="useImagesLoaded" type="boolean" required="false" default="0" hint="Loads optional imagesLoaded header add-on.">
+	<cfargument name="ImagesLoadedVersion" type="string" required="false" default="3.0" hint="Version of imagesLoaded to load."> --->
+	<cfset var outputHTML = "">
+	<cfset var thirdPartyLibPath = "/ADF/thirdParty/jquery/qtip">
+	<cfif arguments.version LT 2>
+		<cfscript> 
+			// Call the super function
+			super.loadQTip(version='1.0',force=arguments.force);
+		</cfscript>
+	<cfelse>
+		<cfsavecontent variable="outputHTML">
+			<cfoutput>
+				<link type="text/css" rel="stylesheet" href="#thirdPartyLibPath#/#arguments.version#/jquery.qtip.min.css" />
+				<script type="text/javascript" src="#thirdPartyLibPath#/#arguments.version#/jquery.qtip.min.js"></script>
+			</cfoutput>
+		</cfsavecontent>
+		<cfoutput>
+			<cfif arguments.force>
+				#outputHTML#
+			<cfelse>
+				#variables.scriptsService.renderScriptOnce("qtip",outputHTML)#
+			</cfif>
+			<!--- <cfif arguments.useImagesLoaded>
+				<!-- // Optional: imagesLoaded dependancy to better support images inside your tooltips -->
+				#loadJQueryImagesLoaded(force=arguments.force)# 
+			</cfif> --->
+		</cfoutput>
+	</cfif>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.	
+	G. Cronkright
+Name:
+	$loadJQueryImagesLoaded
+Summary:
+	Loads the jQuery Images Loaded Headers if not loaded.
+Returns:
+	None
+Arguments:
+	String - version - version to load.
+	Boolean - force - Forces script header to load.
+History:
+	2013-09-04 - GAC - Added
+--->
+<cffunction name="loadJQueryImagesLoaded" access="public" output="true" returntype="void" hint="Loads the JQuery Headers if not loaded.">
+	<cfargument name="version" type="string" required="false" default="3.0" hint="Version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces script header to load.">
+	<cfset var outputHTML = "">
+	<cfset var thirdPartyLibPath = "/ADF/thirdParty/jquery/imagesloaded">
+	<cfsavecontent variable="outputHTML">
+		<cfoutput>
+			<script type="text/javascript" src="#thirdPartyLibPath#/#arguments.version#/imagesloaded.pkgd.min.js"></script>
+		</cfoutput>
+	</cfsavecontent>
+	<cfoutput>
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("jqueryimagesloaded",outputHTML)#
 		</cfif>
 	</cfoutput>
 </cffunction>

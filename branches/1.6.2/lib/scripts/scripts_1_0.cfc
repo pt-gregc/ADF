@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="scripts_1_0" extends="ADF.core.Base" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_7">
+<cfproperty name="version" value="1_0_8">
 <cfproperty name="type" value="singleton">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_0" type="dependency">
 <cfproperty name="wikiTitle" value="Scripts_1_0">
@@ -536,14 +536,16 @@ Arguments:
 	Boolean - force - Forces QTip script header to load.
 History:
 	2009-09-26 - MFC - Created
+	2013-09-04 - GAC - Updated to use folder versioning
 --->
 <cffunction name="loadQTip" access="public" output="true" returntype="void" hint="Loads the JQuery Headers if not loaded.">
 <cfargument name="version" type="string" required="false" default="1.0" hint="JQuery version to load.">
 <cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
+<cfset var thirdPartyLibPath = "/ADF/thirdParty/jquery/qtip">
 <!--- Check if the header is out yet, or we want to force rendering --->
 <cfif (not variables.scriptsService.isScriptLoaded("qtip")) OR (arguments.force)>
 	<cfoutput>
-		<script type="text/javascript" src="/ADF/thirdParty/jquery/qtip/jquery.qtip-#arguments.version#.min.js"></script>
+		<script type="text/javascript" src="#thirdPartyLibPath#/#arguments.version#/jquery.qtip.min.js"></script>
 	</cfoutput>
 	<!--- If we force, then don't record the loaded script --->
 	<cfif NOT arguments.force>

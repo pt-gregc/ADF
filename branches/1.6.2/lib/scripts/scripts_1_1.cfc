@@ -40,7 +40,7 @@ History:
 --->
 <cfcomponent displayname="scripts_1_1" extends="ADF.lib.scripts.scripts_1_0" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" value="1_1_17">
+<cfproperty name="version" value="1_1_18">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_1" type="dependency">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Scripts_1_1">
@@ -219,6 +219,16 @@ History:
 					if ( (typeof commonspot != 'undefined') && (typeof commonspot.lightbox != 'undefined') ) {
 						commonspot.lightbox.initCurrent(#request.params.width#, #request.params.height#, { title: '#request.params.title#', subtitle: '#request.params.subtitle#', close: 'true', reload: 'true' });
 					}
+					
+					
+					// 2013-07-13 
+					// - Conversation with Todd and Surya about removing loadNonDashboardFiles() from every CS page request and 
+					// 	 moving it to CS lightbox specific modules, if this happens the below code would be need to be added to this function.
+					// Run check of parent.commonspot or parent.commonspot.lview
+					//if ( typeof parent.commonspot == 'undefined' || typeof parent.commonspot.lview == 'undefined' ) {
+					// 	console.log("loadNonDashboardFiles");
+  					//	loadNonDashboardFiles(); 
+					//}
 				});
 			</script>
 		</cfoutput>
@@ -1582,14 +1592,16 @@ Arguments:
 	Boolean - force - Forces QTip script header to load.
 History:
 	2009-09-26 - MFC - Created
+	2013-09-04 - GAC - Updated to use folder versioning
 --->
 <cffunction name="loadQTip" access="public" output="true" returntype="void" hint="Loads the JQuery Headers if not loaded.">
 	<cfargument name="version" type="string" required="false" default="1.0" hint="JQuery version to load.">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfset var outputHTML = "">
+	<cfset var thirdPartyLibPath = "/ADF/thirdParty/jquery/qtip">
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
-			<script type="text/javascript" src="/ADF/thirdParty/jquery/qtip/jquery.qtip-#arguments.version#.min.js"></script>
+			<script type="text/javascript" src="#thirdPartyLibPath#/#arguments.version#/jquery.qtip.min.js"></script>
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
