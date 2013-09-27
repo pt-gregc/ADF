@@ -55,6 +55,7 @@ History:
 					- Modified the "Other" option  from the displayFieldBuilder to be "--Other--" to make more visible and to avoid CE field name conflicts 
 					- Added code to display the Description text 
 	2013-02-20 - MFC - Replaced Jquery "$" references.
+	2013-09-19 - GAC - Removed the "-select-" option when using multiselect field with more than 1 row.
 --->
 <cfscript>
 	// the fields current value
@@ -67,10 +68,18 @@ History:
 	currentDescription = fieldQuery.DESCRIPTION[currentRow];
 	
 	// Set the defaults
-	if( StructKeyExists(xParams, "forceScripts") AND (xParams.forceScripts EQ "1") )
+	if ( StructKeyExists(xParams, "forceScripts") AND (xParams.forceScripts EQ "1") )
 		xParams.forceScripts = true;
 	else
 		xParams.forceScripts = false;
+
+	if ( !StructKeyExists(xparams,"multipleSelect") OR !IsBoolean(xParams.multipleSelect) )
+		xParams.multipleSelect = false;
+		 
+	if ( xParams.multipleSelect OR !StructKeyExists(xParams,"renderSelectOption") OR xParams.renderSelectOption EQ 0 )
+		xParams.renderSelectOption = false;
+	else
+		xParams.renderSelectOption = true;
 		
 	// Load JQuery to the script
 	application.ADF.scripts.loadJQuery(force=xParams.forceScripts);
@@ -224,9 +233,11 @@ History:
 					readOnly = false;
 			</cfscript>
 			<div id="#fqFieldName#_renderSelect">
-				<!---2011-04-20 - RAK - Added multiple select ability--->
+				<!---// 2011-04-20 - RAK - Added multiple select ability--->
 				<select <cfif StructKeyExists(xparams,"multipleSelect") and StructKeyExists(xparams,"multipleSelectSize") and xparams.multipleSelect>multiple="multiple" size="#xparams.multipleSelectSize#"</cfif> name='#fqFieldName#_select' class="#xparams.fldName#" id='#fqFieldName#_select' onchange='#fqFieldName#_loadSelection()' <cfif readOnly>disabled='disabled'</cfif>>
+					<cfif xParams.renderSelectOption>
 					<option value=''> - Select - </option>
+					</cfif>
 		 			<cfloop index="cfs_i" from="1" to="#ArrayLen(ceDataArray)#">
 						<cfif ListFind(currentValue,ceDataArray[cfs_i].Values['#xparams.valueField#'])>
 							<cfset isSelected = true>
