@@ -34,7 +34,7 @@ History:
 --->
 <cfcomponent displayname="ceData_2_0" extends="ADF.lib.ceData.ceData_1_1" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="2_0_7">
+<cfproperty name="version" value="2_0_8">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_2">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
@@ -61,6 +61,7 @@ History:
 						Attempted to add dependency but ADF build throws error.
 	2011-05-26 - MFC - Modified function to set the fieldStruct variable outside of the cfloop.	
 	2012-12-13 - MFC - Updated to check if the fieldname starts with "FIC_" and remove.
+	2013-09-27 - GAC - Updated the Forms Lib that is used to call the getCEFieldNameData function
 --->
 <cffunction name="buildCEDataArrayFromQuery" access="public" returntype="array" hint="Returns a standard CEData Array to be used in Render Handlers from a ceDataView query">
 	<cfargument name="ceDataQuery" type="query" required="true" hint="ceData Query (usually built from ceDataView) results to be converted">
@@ -85,7 +86,7 @@ History:
 		if ( arguments.ceDataQuery.recordCount GTE 1 ){
 			// Setup the default common fields 
 			// get the fields structure for this element
-			fieldStruct = server.ADF.objectFactory.getBean("Forms_1_0").getCEFieldNameData(getCENameByFormID(arguments.ceDataQuery["formID"][1]));
+			fieldStruct = server.ADF.objectFactory.getBean("Forms_1_1").getCEFieldNameData(getCENameByFormID(arguments.ceDataQuery["formID"][1]));
 		}
 		
 		// Check if the query column contains "FIC_" and remove
@@ -277,6 +278,7 @@ History:
 	2013-04-02 - SDH - Fixed issue with VAR variables in the function.
 	2013-04-02 - MFC - Cleaned up the variable names and removed unused variables.
 	2013-07-01 - GAC - Updated the getDataFieldValue call to also pass the formID to prevent returning bad data.
+	2013-09-27 - GAC - Added the ORDER BY statement to the Query Of Query for RAILO to obey the DISTINCT keyword in a QoQs (prevents railo for returning too many records)
 --->
 <cffunction name="getCEData" access="public" returntype="array" hint="Returns array of structs for all data matching the Custom Element.">
 	<cfargument name="customElementName" type="string" required="true">
@@ -352,9 +354,12 @@ History:
 		getDataPageValueQry = getDataFieldValue(pageID=ValueList(pageIDValueQry.pageID),formid=ceFormID);
 	</cfscript>
 	
+	<!--- // 2013-09-2013 - GAC - Added the ORDER BY statement to the Query Of Query for RAILO to obey the DISTINCT keyword in a QoQs --->
+	<!--- // https://issues.jboss.org/browse/RAILO-2252 --->
 	<cfquery name="distinctPageIDQry" dbtype="query">
 		SELECT 	DISTINCT PageID
 		FROM 	getDataPageValueQry
+		ORDER BY PageID 
 	</cfquery>
 	
 	<cfif distinctPageIDQry.RecordCount gt 0 >
@@ -1249,7 +1254,7 @@ History:
 Author: 	
 	PaperThin, Inc.
 Name:
-	$buildViewforDB
+	$buildViewforCE
 Summary:	
 	Alters or Creates a view in the Database for an element
 Returns:
@@ -1263,7 +1268,7 @@ History:
  2010-06-16 - GAC - Modified - Broke original function into two functions  (one to build the VIEW code and one to apply it to the DB )
  2010-06-16 - GAC - Modified - Added viewCMD parameter to ALTER or CREATE(and Drop) the view
 --->
-<cffunction name="buildViewforDB" access="public" returntype="boolean">
+<cffunction name="buildViewforCE" access="public" returntype="boolean">
 	<cfargument name="elementName" type="string" required="true">
 	<cfargument name="viewName" type="string" required="false" default="ce_#TRIM(arguments.elementName)#View">
 	<cfargument name="viewCMD" type="string" required="false" default="CREATE"> <!--- // ALTER / CREATE  --->
@@ -1274,7 +1279,7 @@ History:
 		var formID = getFormIDByCEName(TRIM(arguments.elementName));
 		var deleteView = QueryNew("temp");
 		var realTypeView = QueryNew("temp");
-		var viewCode = buildViewCode(
+		var viewCode = buildViewCodeforCE(
 				elementName=TRIM(arguments.elementName),
 				viewCMD=TRIM(arguments.viewCMD),
 				viewName=TRIM(arguments.viewName)
@@ -1316,7 +1321,7 @@ History:
 Author: 	
 	PaperThin, Inc.
 Name:
-	$buildViewCode
+	$buildViewCodeforCE
 Summary:	
 	Builds a code for a database view for an element
 Returns:
@@ -1330,7 +1335,7 @@ History:
  2010-06-16 - GAC - Modified - Broke original function into two functions (one to build the VIEW code and one to apply it to the DB )
  2010-06-16 - GAC - Modified - Added viewCMD parameter to ALTER or CREATE(and Drop) the view
 --->
-<cffunction name="buildViewCode" access="public" returntype="string">
+<cffunction name="buildViewCodeforCE" access="public" returntype="string">
 	<cfargument name="elementName" type="string" required="true">
 	<cfargument name="viewName" type="string" required="false" default="ce_#TRIM(arguments.elementName)#View">
 	<cfargument name="viewCMD" type="string" required="false" default="CREATE"> <!--- // ALTER / CREATE --->
