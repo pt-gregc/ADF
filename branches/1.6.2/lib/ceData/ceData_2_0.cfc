@@ -34,7 +34,7 @@ History:
 --->
 <cfcomponent displayname="ceData_2_0" extends="ADF.lib.ceData.ceData_1_1" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="2_0_8">
+<cfproperty name="version" value="2_0_9">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_2">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
@@ -278,7 +278,8 @@ History:
 	2013-04-02 - SDH - Fixed issue with VAR variables in the function.
 	2013-04-02 - MFC - Cleaned up the variable names and removed unused variables.
 	2013-07-01 - GAC - Updated the getDataFieldValue call to also pass the formID to prevent returning bad data.
-	2013-09-27 - GAC - Added the ORDER BY statement to the Query Of Query for RAILO to obey the DISTINCT keyword in a QoQs (prevents railo for returning too many records)
+	2013-09-27 - GAC - Added the ORDER BY statement to the Query Of Queries for RAILO to obey the DISTINCT keyword in a QoQs (prevents railo for returning too many records)
+					 - Added a cfqueryparam in the currPageIDDataQry QofQs
 --->
 <cffunction name="getCEData" access="public" returntype="array" hint="Returns array of structs for all data matching the Custom Element.">
 	<cfargument name="customElementName" type="string" required="true">
@@ -354,7 +355,7 @@ History:
 		getDataPageValueQry = getDataFieldValue(pageID=ValueList(pageIDValueQry.pageID),formid=ceFormID);
 	</cfscript>
 	
-	<!--- // 2013-09-2013 - GAC - Added the ORDER BY statement to the Query Of Query for RAILO to obey the DISTINCT keyword in a QoQs --->
+	<!--- // 2013-09-27 - GAC - Added the ORDER BY statement to the Query Of Query for RAILO to obey the DISTINCT keyword in a QoQs --->
 	<!--- // https://issues.jboss.org/browse/RAILO-2252 --->
 	<cfquery name="distinctPageIDQry" dbtype="query">
 		SELECT 	DISTINCT PageID
@@ -369,7 +370,7 @@ History:
 			<cfquery name="currPageIDDataQry" dbtype="query">
 				SELECT *
 				FROM   getDataPageValueQry
-				WHERE  pageid = #distinctPageIDQry.pageid#
+				WHERE  pageid = <cfqueryparam cfsqltype="cf_sql_integer" value="#distinctPageIDQry.pageid#">
 			</cfquery>
 			<cfif currPageIDDataQry.recordCount>
 				<!--- Create the data set to be added back in --->
@@ -395,6 +396,7 @@ History:
 			</cfif>
 		</cfloop>
 	</cfif>
+	
 	<cfscript>
 		// Check if we are processing the selected list
 		if ( arguments.queryType EQ "selected" and len(arguments.customElementFieldName) and len(arguments.item) ){
