@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="scripts_1_0" extends="ADF.core.Base" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_8">
+<cfproperty name="version" value="1_0_9">
 <cfproperty name="type" value="singleton">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_0" type="dependency">
 <cfproperty name="wikiTitle" value="Scripts_1_0">
@@ -574,8 +574,7 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	Ron West
 Name:
 	$loadJCycle
@@ -595,29 +594,6 @@ History:
 		<script type='text/javascript' src='/ADF/thirdParty/jquery/jcycle/jquery.cycle.all-#arguments.version#.js'></script>
 	</cfoutput>
 	<cfset variables.scriptsService.loadedScript("jcycle")>
-</cfif>
-</cffunction>
-<!---
-/* ***************************************************************
-/*
-Author: 	Dave Beckstrom
-Name:
-	$loadJCycle2
-Summary:	
-	Loads the jCycle2 responsive plugin for jQuery
-Returns:
-	Void
-Arguments:
-	String version
-History:
- 2013-09-25 - DMB - Created
---->
-<cffunction name="loadJCycle2" access="public" output="true" returntype="void" hint="Loads the jCycle2 responsive plugin for jQuery"> 
-<cfif not variables.scriptsService.isScriptLoaded("jcycle2")>
-	<cfoutput>
-		<script type='text/javascript' src='/ADF/thirdParty/jquery/jcycle/jquery.cycle2.min.js'></script>
-	</cfoutput>
-	<cfset variables.scriptsService.loadedScript("jcycle2")>
 </cfif>
 </cffunction>
 

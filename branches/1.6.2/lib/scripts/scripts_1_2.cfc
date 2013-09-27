@@ -32,10 +32,11 @@ History:
 	2012-12-07 - RAK - Created - New v1.2
 	2013-03-01 - GAC - Updated jQuery iCalendar comment headers
 	2013-09-05 - GAC - Updated with functions for and jQuery qTip2 JQuery ImagesLoaded
+	2013-09-27 - DMB - Added a function to load jQuery Cycle2 lib 
 --->
 <cfcomponent displayname="scripts_1_2" extends="ADF.lib.scripts.scripts_1_1" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" value="1_2_14">
+<cfproperty name="version" value="1_2_15">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_1" type="dependency">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Scripts_1_2">
@@ -295,6 +296,43 @@ History:
 		// Call the super function
 		super.loadJCycle(version=arguments.version, force=arguments.force);
 	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	Dave Beckstrom
+Name:
+	$loadJCycle2
+Summary:	
+	Loads the jCycle2 responsive plugin for jQuery
+Returns:
+	Void
+Arguments:
+	String version
+History:
+ 	2013-09-25 - DMB - Created
+--->
+<cffunction name="loadJCycle2" access="public" output="true" returntype="void" hint="Loads the jCycle2 responsive plugin for jQuery"> 
+	<cfargument name="version" type="string" required="false" default="20130909" hint="jCycle version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces jCycle2 script header to load.">
+	<cfscript>
+		var outputHTML = "";
+		// safety check to make sure atleast the min version is loaded
+		if ( !IsNumeric(arguments.version) OR arguments.version LT 20130909) 
+			arguments.version = 20130909;
+	</cfscript>	
+	<cfsavecontent variable="outputHTML">
+		<cfoutput>
+			<script type='text/javascript' src='/ADF/thirdParty/jquery/jcycle2/#arguments.version#/jquery.cycle2.min.js'></script>
+		</cfoutput>
+	</cfsavecontent>
+	<cfoutput>
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("jcycle",outputHTML)#
+		</cfif>
+	</cfoutput>
 </cffunction>
 
 <!---
