@@ -42,7 +42,7 @@ History:
 --->
 <cfcomponent displayname="csData_1_2" extends="ADF.lib.csData.csData_1_1" hint="CommonSpot Data Utils functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_5">
+<cfproperty name="version" value="1_2_6">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">
@@ -190,6 +190,7 @@ Arguments:
 	Numeric - subsiteID
 History:
 	2012-03-22 - GAC - Created
+	2013-07-09 - GAC - Added the Subsite Title struct Key
 --->
 <cffunction name="getSubsiteStructBySubsiteID" access="public" returntype="struct" hint="Given a subsiteID return a structure that contains subsite information">
 	<cfargument name="subsiteID" type="numeric" required="true">
@@ -204,6 +205,8 @@ History:
 			rtnStruct.subsiteURL = subsiteQry["subsiteURL"][1];
 		if ( StructKeyExists(subsiteQry,"subsiteDir") )
 			rtnStruct.subsiteDir = subsiteQry["subsiteDir"][1];
+		if ( StructKeyExists(subsiteQry,"Title") )
+			rtnStruct.Title = subsiteQry["Title"][1];
 		return rtnStruct; 
 	</cfscript>
 </cffunction>
