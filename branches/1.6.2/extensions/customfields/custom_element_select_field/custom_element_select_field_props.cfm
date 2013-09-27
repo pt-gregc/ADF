@@ -48,6 +48,7 @@ History:
 	2011-06-23 - GAC - Added the addtional field descriptions to the display field and sort field options
 					- Modified the "Other" option  from the displayFieldBuilder to be "--Other--" to make more visible and to avoid CE field name conflicts 
 	2011-12-28 - MFC - Force JQuery to "noconflict" mode to resolve issues with CS 6.2.
+	2013-09-27 - GAC - Added a renderSelectOption to allow the 'SELECT' text to be added or removed from the selection list
 --->
 <cfscript>
 	// initialize some of the attributes variables
@@ -84,8 +85,16 @@ History:
 		currentValues.multipleSelectSize = 1;
 	if( not structKeyExists(currentValues, "sortByField") )
 		currentValues.sortByField = "";
-	if( not structKeyExists(currentValues, "renderSelectOption") )
-		currentValues.renderSelectOption = 0;
+		
+	// For backwards compatiblity: 
+	// - when using a Single Select the render Select Option must be explicity TURNED OFF to be disabled
+	// - but for a Multi Select the render Select Option must be explicity TURNED ON to be enabled 
+	// - and we must leave this as an available option Multi Select dropdowns
+	if ( !StructKeyExists(currentValues,"renderSelectOption") OR !IsBoolean(currentValues.renderSelectOption) ) {
+		currentValues.renderSelectOption = true;
+		if ( currentValues.multipleSelect )
+			currentValues.renderSelectOption = false;
+	}
 </cfscript>
 <cfoutput>
 	<cfscript>
@@ -352,7 +361,8 @@ History:
 		<td class="cs_dlgLabelSmall">
 				Yes <input type="radio" id="#prefix#renderSelectOption" name="#prefix#renderSelectOption" value="1" <cfif currentValues.renderSelectOption EQ "1">checked</cfif>>&nbsp;&nbsp;&nbsp;
 				No <input type="radio" id="#prefix#renderSelectOption" name="#prefix#renderSelectOption" value="0" <cfif currentValues.renderSelectOption EQ "0">checked</cfif>><br />
-				Places a '--Select--' option in the list. Cannot be used with a multiple selection list. 
+				Places a '--Select--' option in the list. <!--- Cannot be used with a multiple selection list. ---> 
+				<!--- // Must leave this option available for multiple selections lists for backwards compatiblity --->
 		</td>
 	</tr>
 </table>

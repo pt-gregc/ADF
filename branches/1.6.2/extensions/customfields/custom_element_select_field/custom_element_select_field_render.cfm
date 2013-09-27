@@ -55,7 +55,7 @@ History:
 					- Modified the "Other" option  from the displayFieldBuilder to be "--Other--" to make more visible and to avoid CE field name conflicts 
 					- Added code to display the Description text 
 	2013-02-20 - MFC - Replaced Jquery "$" references.
-	2013-09-19 - GAC - Removed the "-select-" option when using multiselect field with more than 1 row.
+	2013-09-27 - GAC - Added a renderSelectOption to allow the 'SELECT' text to be added or removed from the selection list
 --->
 <cfscript>
 	// the fields current value
@@ -75,12 +75,17 @@ History:
 
 	if ( !StructKeyExists(xparams,"multipleSelect") OR !IsBoolean(xParams.multipleSelect) )
 		xParams.multipleSelect = false;
-		 
-	if ( xParams.multipleSelect OR !StructKeyExists(xParams,"renderSelectOption") OR xParams.renderSelectOption EQ 0 )
-		xParams.renderSelectOption = false;
-	else
+
+	// For backwards compatiblity: 
+	// - when using a Single Select the render Select Option must be explicity TURNED OFF to be disabled
+	// - but for a Multi Select the render Select Option must be explicity TURNED ON to be enabled 
+	// - and we must leave this as an available option Multi Select dropdowns
+	if ( !StructKeyExists(xParams,"renderSelectOption") OR !IsBoolean(xParams.renderSelectOption) ) {
 		xParams.renderSelectOption = true;
-		
+		if ( xParams.multipleSelect )
+			xParams.renderSelectOption = false;
+	}
+
 	// Load JQuery to the script
 	application.ADF.scripts.loadJQuery(force=xParams.forceScripts);
 	
