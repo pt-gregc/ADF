@@ -79,7 +79,7 @@ History:
 													csParams=attributes,
 													appName=attributes.appBeanName,
 													appParamsVarName=attributes.appParamsVarName,
-													paramsExceptionList="appBeanName,appParamsVarName"
+													paramsExceptionList="appBeanName,appParamsVarName,themeName"
 												);
 	}
 </cfscript>
@@ -88,7 +88,7 @@ History:
 	<cfif structKeyExists(attributes,"elementName") and Len(attributes.elementName)>
 		<cfscript>
 			application.ADF.scripts.loadJQuery();
-			
+
 			if ( StructKeyExists(attributes,"themeName") AND LEN(TRIM(attributes.themeName)) )
 				application.ADF.scripts.loadJQueryUI(themeName=attributes.themeName);
 			else
