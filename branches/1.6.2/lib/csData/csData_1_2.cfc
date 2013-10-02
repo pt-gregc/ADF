@@ -627,5 +627,35 @@ History:
 		return metadataArray;
 	</cfscript>
 </cffunction>
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$decipherCPPAGEID
+Summary:	
+	Returns a URL string based on the 'CP___PAGEID=' text provided by CEData() calls
+Returns:
+	String strURL
+Arguments:
+	String CP___PAGEID
+	Example argument: var containing "CP___PAGEID=48083,index.cfm,646" 
+History:
+	2013-10-02 - DMB - Created
+--->
+<cffunction name="decipherCPPAGEID" access="public" returntype="string" output="true">
+	<cfargument name="cpPageID" type="string" required="true">
+	<cfscript>
+		var strPageID = "";
+		var strURL = "";
 
+		if (arguments.cpPageID contains "CP___PAGEID=") {
+			strPageID = replacenocase(arguments.cpPageID,"CP___PAGEID=","");
+			strPageID = listFirst(strPageID,",");
+			// Get the url for this PageID
+			strURL = application.ADF.csData.getCSPageURL(strPageID);
+		}
+		return strURL;
+	</cfscript>
+</cffunction>
 </cfcomponent>
