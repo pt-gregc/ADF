@@ -83,6 +83,7 @@ History:
 		if ( isStruct(apiConfig) AND StructKeyExists(apiConfig, "wsVars") ) {
 			setSiteURL(apiConfig.wsVars.siteURL);
 			setSubsiteID(apiConfig.wsVars.subsiteID);
+			setSubsiteID(apiConfig.wsVars.subsiteID);
 		}
 	</cfscript>
 </cffunction>
@@ -567,31 +568,32 @@ Arguments:
 	Void
 History:
 	2012-12-26 - MFC - Created
+	2013-10-15 - GAC - Updated to handle the cs_remote for 7.0.1+, 8.0.1+ and 9+
 --->
 <cffunction name="getWebService" access="private" returntype="any">
 	<cfscript>
-		var apiConfig = "";
-		if ( getRemoteFlag() ){
-			// Get the config
-			apiConfig = getAPIConfig();
-			if( isStruct(apiConfig) 
-				AND structKeyExists(apiConfig, "wsVars")
-				AND structKeyExists(apiConfig.wsVars, "webserviceURL")
-				AND LEN(apiConfig.wsVars.webserviceURL) ) {
-				
-				// Call the remote Web Service
-				return createObject("webService", apiConfig.wsVars.webserviceURL);
-			}
+		var apiConfig = getAPIConfig();
+		var wsURL = "";
+		var wsPath = "commonspot.webservice.cs_service";
+		
+		// Set the wsURL from the apiConfig
+		if( isStruct(apiConfig) AND structKeyExists(apiConfig, "wsVars") AND structKeyExists(apiConfig.wsVars,"webserviceURL") AND LEN(apiConfig.wsVars.webserviceURL) ) 
+			wsURL = apiConfig.wsVars.webserviceURL;
+		
+		// Use the config webservice URL value to determine the correct wsPath
+		if ( FindNoCase(wsURL,"cs_remote") )
+			wsPath = "commonspot.webservice.cs_remote";	
+			
+		if ( getRemoteFlag() AND LEN(TRIM(wsURL)) ) {
+			// Call the remote Web Service
+			return createObject("webService", wsURL);
 		}
-		else {
+		else {	
 			// Create the local object directly on the server
-			return createObject("component", "commonspot.webservice.cs_service");				
+			return createObject("component", wsPath);				
 		}
-		// Else return nothing
-		return "";
 	</cfscript>
 </cffunction>
-
 
 
 <!--- // Private GETTERS/SETTERS --->

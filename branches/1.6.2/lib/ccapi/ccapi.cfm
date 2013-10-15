@@ -33,11 +33,13 @@ end user license agreement.
 		</UniqueElementName>
 	</elements>
 	<wsVars>
-		<webserviceURL>http://cfusion/commonspot/webservice/cs_service.cfc?wsdl</webserviceURL>
+		<webserviceURL>http://#request.CGIVars.SERVER_NAME#:#request.CGIVars.SERVER_PORT#/commonspot/webservice/cs_service.cfc?wsdl</webserviceURL>
+		<!-- // For CS 7.0.1+, 8.0.1+ and 9+ use the cs_remote.cfc -  uncomment webserviceURL below and delete the one above  -->
+		<!-- <webserviceURL>http://#request.CGIVars.SERVER_NAME#:#request.CGIVars.SERVER_PORT#/commonspot/webservice/cs_remote.cfc?wsdl</webserviceURL> -->
 		<csuserid>webmaster</csuserid>
 		<cspassword>password</cspassword>
-		<site>Demo</site>
-		<siteURL>http://cfusion/demo</siteURL>
+		<site>#request.site.name#</site>
+		<siteURL>http://#request.CGIVars.SERVER_NAME#:#request.CGIVars.SERVER_PORT##request.site.cp_url#</siteURL>
 		<subsiteID>1</subsiteID>
 		<cssites>commonspot-sites</cssites>
 	</wsVars>

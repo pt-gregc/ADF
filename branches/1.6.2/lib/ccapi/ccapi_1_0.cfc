@@ -129,24 +129,37 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	Ron West
 Name:
 	$buildWS
 Summary:	
-	Builds the Web Service object from all of the varialbes
-	defined from the configuration file
+	Builds the Web Service object from webserviceURL variable
+	defined in the configuration file
 Returns:
 	Void
 Arguments:
-	Void
+	Boolean - forceRemote
 History:
 	2009-05-13 - RLW - Created
+	2013-10-15 - GAC - Added logic to have CCAPI request use the new cs_remote.cfc
+					 - Added logic to force createObject to use the remote webservice URL instead local path
 --->
-<cffunction name="buildWS" access="private" returntype="void">
-	<cfset variables.ws = createObject("component", "commonspot.webservice.cs_service")>
-	<!--- <cfset variables.ws = createObject("webService", getWebServiceURL())> --->
+<cffunction name="buildWS" access="private" returntype="void" hint="Builds the Web Service object from webserviceURL variable defined in the configuration file">
+	<cfargument name="forceRemote" required="false" type="boolean" default="false">
+	<cfscript>
+		var wsURL = getWebServiceURL();
+		var wsPath = "commonspot.webservice.cs_service";
+		// Check to see if the WebService URL is using the 7.0.1+, 8.0.1+ and 9+ cs_remote.cfc
+		if ( FindNoCase(wsURL,"cs_remote") )
+			wsPath = "commonspot.webservice.cs_remote";
+		// Set the WS value	
+		if ( arguments.forceRemote )
+			variables.ws = createObject("webService", wsURL);
+		else
+			variables.ws = createObject("component", wsPath);
+	</cfscript>
 </cffunction>
 
 <!---
