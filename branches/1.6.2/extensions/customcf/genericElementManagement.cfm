@@ -37,6 +37,10 @@ Attributes:
 	// App Level Override Parameters
 	appBeanName - the AppBeanName of the app from the appBeanConfig.cfm file
 	appParamsVarName - a variable name of a struct that contains key/values for the custom script attrubutes
+	
+	/* NOTE: When both of the  App Level Override Params (appBeanName and appParamsVarName) are defined in the Custom Script Parameters and together they can be evaluated to create a data structure 
+	that defines key/value pairs, then the keys that match the standard Attributes will be used to OVERRIDE any additional attributes passed in. */
+
 Custom Script Parameters Tab Examples:
 	elementName=My Element One,My Element Two,My Element Three
 	themeName=redmond
@@ -70,16 +74,21 @@ History:
 	2013-02-13 - GAC - Added a hook to override the Attributes passed in from the Custom Script Parameters tab with a structure from an App 
 					 - Updated to use a UTILS lib function to process the override 
 	2013-02-22 - MFC - Added the "formBeanName" into the attributes.
+	2013-10-15 - GAC - Updated the App Level Override Parameters comments
+					 - Removed 'themeName' value from the paramsExceptionList in the appOverrideCSParams function. 
 --->
 
 <!--- // Optional ADF App Override Attributes for the Custom Script Parameters tab --->
+<!--- // !!!! DO NOT MODIFY THIS OVERRIDE LOGIC to force changes via the Custom Script Parameters from the CommonSpot UI!!! --->
+<!--- // !!!! To pass attributes from the CommonSpot Custom Script parameters field just DO NOT pass in an AppBeanName or an appParamsVarName 
+			  OR build an SiteLevel override for the App to pass in the custom values --->
 <cfscript>
 	if ( StructKeyExists(attributes,"appBeanName") AND LEN(TRIM(attributes.appBeanName)) AND StructKeyExists(attributes,"appParamsVarName") AND LEN(TRIM(attributes.appParamsVarName)) ) {
 		attributes = application.ADF.utils.appOverrideCSParams(
 													csParams=attributes,
 													appName=attributes.appBeanName,
 													appParamsVarName=attributes.appParamsVarName,
-													paramsExceptionList="appBeanName,appParamsVarName,themeName"
+													paramsExceptionList="appBeanName,appParamsVarName"
 												);
 	}
 </cfscript>
@@ -88,7 +97,7 @@ History:
 	<cfif structKeyExists(attributes,"elementName") and Len(attributes.elementName)>
 		<cfscript>
 			application.ADF.scripts.loadJQuery();
-
+			
 			if ( StructKeyExists(attributes,"themeName") AND LEN(TRIM(attributes.themeName)) )
 				application.ADF.scripts.loadJQueryUI(themeName=attributes.themeName);
 			else
