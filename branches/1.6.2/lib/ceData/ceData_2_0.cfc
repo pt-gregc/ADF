@@ -34,7 +34,7 @@ History:
 --->
 <cfcomponent displayname="ceData_2_0" extends="ADF.lib.ceData.ceData_1_1" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="2_0_9">
+<cfproperty name="version" value="2_0_10">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_2">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
@@ -106,19 +106,20 @@ History:
 			//tmp = defaultTmp;
 			
 			// add in common fields			
-			for( i=1; i lte listLen(commonFieldList); i=i+1 )
-			{				
+			for( i=1; i lte listLen(commonFieldList); i=i+1 ) {				
 				commonField = listGetAt(commonFieldList, i);
 				// handle each of the common fields
 				if( findNoCase(commonField, queryColFieldList) )
 					tmp[commonField] = arguments.ceDataQuery[commonField][row];
 				else
 					tmp[commonField] = "";
+					
 				// do special case work for formID/formName
-				if( commonField eq "formID" )
-				{
-					if( not len(formName) )
-						formName = getCENameByFormID(tmp.formID);
+				if( commonField eq "formID"  ) {
+					
+					if( not len(formName) AND IsNumeric(tmp[commonField]) )
+						formName = getCENameByFormID(tmp[commonField]);
+						
 					tmp.formName = formName;
 				} 
 			}
@@ -1442,7 +1443,37 @@ History:
 		 	</cfoutput>
 		</cfsavecontent>
 	</cfif>
-	<cfreturn viewcode />
+	<cfreturn viewcode>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+	G. Cronkright
+Name:
+	$arrayOfCEDataToQuery
+Summary:
+	Returns Query from a Custom Element Array of Structures
+Returns:
+	Query
+Arguments:
+	Array - theArray
+	Boolean - excludeFICfields
+	String - excludeTopLevelFieldList
+History:
+	2013-10-15 - GAC - Sets the "excludeFICfields" function to true to remove FIC_ feilds by default (if no value is passed in)
+					 - Calls the SUPER function in cedata_1_0 to convert the array to a query
+					 - Sets the excludeTopLevelFieldList with a default value list of 'ID,recordcount' 
+					 	which are not generally not needed when converting a CE Data Array to a query
+--->
+<cffunction name="arrayOfCEDataToQuery" returntype="query" output="true" access="public" hint="Returns Query from a Custom Element Array of Structures">
+	<cfargument name="theArray" type="array" required="true">
+	<cfargument name="excludeFICfields" type="boolean" required="false" default="true">
+	<cfargument name="excludeTopLevelFieldList" type="string" required="false" default="id,recordcount"> 
+	<cfscript>
+		return super.arrayOfCEDataToQuery(theArray=arguments.theArray, excludeFICfields=arguments.excludeFICfields, excludeTopLevelFieldList=arguments.excludeTopLevelFieldList);
+	</cfscript>
 </cffunction>
 
 </cfcomponent>

@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2012.
+PaperThin, Inc. Copyright(C) 2013.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -37,7 +37,7 @@ History:
 --->
 <cfcomponent displayname="ceData_1_0" extends="ADF.core.Base" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_5">
+<cfproperty name="version" value="1_0_8">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_0">
 <cfproperty name="data" type="dependency" injectedBean="data_1_0">
@@ -1224,6 +1224,7 @@ Arguments:
 	Numeric Form ID
 History:
 	2009-08-25 - MFC - Created
+	2013-09-18 - MLS - Updated: added action = 'custom_form_element' to the filter in the query, to make work with standard simple form elements
 --->
 <cffunction name="getCENameByFormID" access="public" returntype="string">
 	<cfargument name="FormID" type="numeric" required="true">
@@ -1236,7 +1237,7 @@ History:
 		SELECT 	FormName
 		FROM 	FormControl
 		WHERE 	ID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.FormID#">
-		AND 	(FormControl.action = '' OR FormControl.action is null)
+		AND 	(action = '' OR action is null OR action = 'custom_form_element')
 	</cfquery>
 
 	<cfif getFormID.RecordCount>
@@ -1713,26 +1714,61 @@ Summary:
 Returns:
 	Query
 Arguments:
-	Array
+	Array - theArray
+	Boolean - excludeFICfields
+	String - excludeTopLevelFieldList
 History:
-	2010-07-27 - SFS - 	Created based upon the arrayOfStructuresToQuery function in data_1_0.cfc
-	2011-06-28 - MT  - 	Modified the query returned to include the following fields: dateadded, 
-						dateapproved, formid, formname, and pageid fields from the CE data array that is 
-						passed in instead of just the values from the values structure.
+	2010-07-27 - SFS - Created based upon the arrayOfStructuresToQuery function in data_1_0.cfc
+	2011-06-28 - MT  - Modified the query returned to include the following fields: dateadded, 
+					   dateapproved, formid, formname, and pageid fields from the CE data array that is 
+					    passed in instead of just the values from the values structure.		
+	2013-10-10 - GAC - Added a boolean flag to remove FIC keys from the RenderMode Custom Element data
+					 - Added a parameter to allow removal other selected top level keys that could conflict data fields when converting RenderMode Custom Element Array to a query 
 --->
-<cffunction name="arrayOfCEDataToQuery" returntype="query" output="false" access="public" hint="">
-	<cfargument name="theArray" type="array" required="true" />
+<cffunction name="arrayOfCEDataToQuery" returntype="query" output="true" access="public" hint="">
+	<cfargument name="theArray" type="array" required="true">
+	<cfargument name="excludeFICfields" type="boolean" required="false" default="false">
+	<cfargument name="excludeTopLevelFieldList" type="string" required="false" default=""> 
 	<cfscript>
 		var data = arguments.theArray;
+		var colTempArray = arrayNew(1);
 		var qColumns = arrayNew(1);
 		var qData = "";
 		var columns = "";
 		var i = 0;
 		var x = 0;
 		var y = 0;
+		var currFormid = "";
+		var currFormName = "";
+		var addTopLevelKey = true;
+		
+		// init the qColumns Arrays
+		qColumns[1] = arrayNew(1);
+		qColumns[2] = arrayNew(1);
+		
+		// Get the FormID for the element if one does not exist in the data array
+		if ( ArrayLen(data) AND !StructKeyExists(data[1],"formID") AND StructKeyExists(data[1],"pageid") AND IsNumeric(data[1].pageid) ) {
+			currFormID = getFormIDFromPageID(data[1].pageid);
+			if ( IsNumeric(currFormID) )
+				currFormName = getCENameByFormID(currFormID);
+		}
 		
 		// store all the top level keys
-		qColumns[1] = structKeyArray(data[1]);
+		colTempArray = structKeyArray(data[1]);	
+		// Build the List of Query Columns form the Top level Struct Keys 
+		// Remove any "fic_" keys and any of the excluded keys
+		for ( c=1; c LTE ArrayLen(colTempArray); c=c+1 ) {
+			addTopLevelKey = true;
+			if ( arguments.excludeFICfields and FindNoCase("fic_",colTempArray[c]) ) 
+				addTopLevelKey = false;
+			if ( addTopLevelKey AND LEN(TRIM(arguments.excludeTopLevelFieldList)) AND ListFindNoCase(arguments.excludeTopLevelFieldList,colTempArray[c]) )
+				addTopLevelKey = false;
+				
+			// Do we Add the current Key Field to the Key array
+			if ( addTopLevelKey )
+				arrayAppend(qColumns[1],colTempArray[c]);	
+		}				
+		
 		// store all the values sub structure keys
 		qColumns[2] = structKeyArray(data[1].values);
 		// add all the top level keys to the list
@@ -1741,6 +1777,13 @@ History:
 		columns = listDeleteAt(columns,listFindNoCase(columns,"values"));
 		// add all the values sub structure keys to the list
 		columns = listAppend(columns,arrayToList(qColumns[2]));
+		
+		// add in the FormID and FormName to the query column list if needed
+		if ( LEN(TRIM(currFormID)) )
+			columns = listAppend(columns,"formID");
+		if ( LEN(TRIM(currFormName)) )
+			columns = listAppend(columns,"formName");
+
 		// create new query object with our column list
 		qData = queryNew(columns);
 		// size the query based on the size of the data array passed in
@@ -1748,16 +1791,22 @@ History:
 		
 		// loop over the data array passed in
 		for( i=1; i lte arrayLen(data); i++) {
+			// Add in the FormID value and FromName value if needed
+			if ( LEN(TRIM(currFormID)) )
+				querySetCell(qData,"formID",currFormID,i);		
+			if ( LEN(TRIM(currFormName)) )
+				querySetCell(qData,"formName",currFormName,i);	
+			
 			// loop over the keys
 			for( x=1; x lte arrayLen(qColumns[1]); x++ ) {
 				// if the key is "values"
 				if( qColumns[1][x] eq "values" ) {
 					// loop over the values sub-structure
 					for( y=1; y lte arrayLen(qColumns[2]); y++ ) {
-						querySetCell(qData,qColumns[2][y],data[i]["#qColumns[1][x]#"]["#qColumns[2][y]#"],i);
+						querySetCell(qData,qColumns[2][y],data[i][qColumns[1][x]][qColumns[2][y]],i);
 					}
 				} else {
-					querySetCell(qData,qColumns[1][x],data[i]["#qColumns[1][x]#"],i);
+					querySetCell(qData,qColumns[1][x],data[i][qColumns[1][x]],i);
 				}
 			}
 		}
