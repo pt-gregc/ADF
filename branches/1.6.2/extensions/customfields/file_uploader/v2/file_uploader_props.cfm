@@ -34,6 +34,7 @@ ADF Requirements:
 History:
 	2010-10-26 - RAK - Created
 	2012-03-08 - GAC - Added jQuery the noConflict option
+	2012-07-08 - SFS - Added comment to the bean name field to clarify what to enter and where the config component should go.
 --->
 <cfscript>
 	// initialize some of the attributes variables
@@ -59,7 +60,9 @@ History:
 	<tr>
 		<td class="cs_dlgLabelSmall">Bean Name:</td>
 		<td class="cs_dlgLabelSmall">
-			<input type="text" name="#prefix#beanName" id="#prefix#beanName" value="#currentValues.beanName#" size="40">
+			<input type="text" name="#prefix#beanName" id="#prefix#beanName" value="#currentValues.beanName#" size="40"><br>
+			Name of the Object Factory Bean that will hold the configuration for the file uploader. By default it is
+			"file_uploader" and to be put into the /_cs_apps/components/ of the site. Note: Do NOT include ".cfc" in the name.
 		</td>
 	</tr>
 </table>
