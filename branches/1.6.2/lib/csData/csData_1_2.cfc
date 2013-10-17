@@ -39,6 +39,7 @@ History:
 						getCSPageIDByTitle
 	2013-02-20 - SFS - Updated the "data" dependency to data_1_2, updated all references to application.adf.data to variables.data, updated version to 1_2_4.
 	2013-07-02 - GAC - Updated the version cfproperty since updates were on 2013-05-29 but the version was not incremented
+	2013-10-17 - SFS - Added new function: parse_url_el - Parses URLs passed via data sheets
 --->
 <cfcomponent displayname="csData_1_2" extends="ADF.lib.csData.csData_1_1" hint="CommonSpot Data Utils functions for the ADF Library">
 
@@ -630,6 +631,57 @@ History:
 
 <!---
 /* *************************************************************** */
+Author:
+	Henry Ivry, Monaco Lange
+	Added to the ADF by Samuel Smith, PaperThin
+Name:
+	$parse_url_el
+Summary:
+	Parses URLs passed via data sheets
+Returns:
+	String full_url
+Arguments:
+	String str
+History:
+	2013-03-06 - HI - Created
+	2013-10-17 - SFS - Added
+--->
+<cffunction name="parse_url_el" access="public" returntype="string" output="no" displayname="parse_url_el" hint="Parses URLs passed via data sheets">
+    <cfargument name="str" type="string" required="Yes">
+
+   <cfscript>
+        list = listToArray(arguments.str, ","); // first try to parse as list
+        list_len = arrayLen(list);
+        full_url = CGI.http_host & CGI.script_name & "?" & CGI.query_string;    // set default
+        page_id = REMatch("PAGEID=[\d]+", arguments.str);
+        page_id_ext = arrayLen(REMatch("PAGEID=[\d]+", arguments.str)) > 0 ? int(ReReplace(page_id[1], "PAGEID=", "")) : false;
+
+        if ( list_len >= 2 && (list_len == 2 || int(list[3]) == 1)) { // REGISTERED URLs AND IMAGES
+            full_url = list[2];
+        }
+        else if ( list_len == 3 && page_id_ext ) {   // INTERNAL PAGES
+            full_url = application.ADF.csData.getCSPageURL( page_id_ext);
+        }
+        else {  // MAILTO, UNREGISTERED URLS, DOCUMENTS
+            full_url = REMatch("@.*", arguments.str);
+            mailto = REMatch("mailto:", arguments.str);
+
+            if (arrayLen(full_url) > 0 && arrayLen(mailto) == 0) {
+                full_url = ReReplace(full_url[1], "@", ""); // MIXED TYPE URLS (WITH TARGET BLANK AND OTHER PROPERTIES)
+            } else {
+                full_url = arguments.str;   // MAILTO AND UNREGISTERED URLS
+            }
+
+            if (page_id_ext) {   // DOCUMENTS
+                full_url = application.ADF.csData.getCSPageURL( page_id_ext );
+            }
+        }
+    </cfscript>
+    <cfreturn full_url>
+</cffunction>
+
+<!---
+/* *************************************************************** */
 Author: 	
 	PaperThin, Inc.
 Name:
@@ -659,5 +711,4 @@ History:
 		return strURL;
 	</cfscript>
 </cffunction>
-
 </cfcomponent>
