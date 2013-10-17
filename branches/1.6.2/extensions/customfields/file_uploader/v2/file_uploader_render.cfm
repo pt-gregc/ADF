@@ -32,6 +32,7 @@ History:
 	2011-09-22 - RAK - Updated file uploader to be able to get more detailed information if they choose to override the props.
 	2012-01-03 - GAC - Moved the the hidden field code inside the TD tag
 	2012-02-14 - GAC - Moved the CFT hidden fields back inside of the <td> wrapper for the field
+	2013-01-21 - SFS - Moved the CFT hidden fields back outside of the <td> wrapper for the field to make more valid HTML
 --->
 <cfscript>
 	application.ADF.scripts.loadJQuery();
@@ -143,13 +144,12 @@ History:
 				<div id="errorMsg_#fqFieldName#"></div>
 				<input type="button" value="Clear" name="clear_btn_#fqFieldName#" id="clear_btn_#fqFieldName#" onclick="#fqFieldName#clearButtonClick()">
 			</div>
-		
-			<!--- hidden field to store the value --->
-			<input type='hidden' name='#fqFieldName#' id='#fqFieldName#' value='#currentValue#'>
-			<!--- // include hidden field for simple form processing --->
-			<cfif renderSimpleFormField>
-				<input type="hidden" name="#fqFieldName#_FIELDNAME" id="#fqFieldName#_FIELDNAME" value="#ReplaceNoCase(xParams.fieldName, 'fic_','')#">
-			</cfif>
 		</td>
 	</tr>
+	<!--- hidden field to store the value --->
+	<input type='hidden' name='#fqFieldName#' id='#fqFieldName#' value='#currentValue#'>
+	<!--- // include hidden field for simple form processing --->
+	<cfif renderSimpleFormField>
+		<input type="hidden" name="#fqFieldName#_FIELDNAME" id="#fqFieldName#_FIELDNAME" value="#ReplaceNoCase(xParams.fieldName, 'fic_','')#">
+	</cfif>
 </cfoutput>
