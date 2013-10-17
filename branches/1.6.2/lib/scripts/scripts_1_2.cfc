@@ -300,7 +300,9 @@ History:
 
 <!---
 /* *************************************************************** */
-Author: 	Dave Beckstrom
+Author: 
+	PaperThin, Inc.	
+	Dave Beckstrom
 Name:
 	$loadJCycle2
 Summary:	
@@ -311,6 +313,7 @@ Arguments:
 	String version
 History:
  	2013-09-25 - DMB - Created
+	2013-10-17 - GAC - Updated the script name passed to the renderScriptOnce function
 --->
 <cffunction name="loadJCycle2" access="public" output="true" returntype="void" hint="Loads the jCycle2 responsive plugin for jQuery"> 
 	<cfargument name="version" type="string" required="false" default="20130909" hint="jCycle version to load.">
@@ -330,7 +333,7 @@ History:
 		<cfif arguments.force>
 			#outputHTML#
 		<cfelse>
-			#variables.scriptsService.renderScriptOnce("jcycle",outputHTML)#
+			#variables.scriptsService.renderScriptOnce("jcycle2",outputHTML)#
 		</cfif>
 	</cfoutput>
 </cffunction>

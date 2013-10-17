@@ -40,7 +40,7 @@ History:
 --->
 <cfcomponent displayname="scripts_1_1" extends="ADF.lib.scripts.scripts_1_0" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" value="1_1_18">
+<cfproperty name="version" value="1_1_19">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_1" type="dependency">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Scripts_1_1">
@@ -219,16 +219,6 @@ History:
 					if ( (typeof commonspot != 'undefined') && (typeof commonspot.lightbox != 'undefined') ) {
 						commonspot.lightbox.initCurrent(#request.params.width#, #request.params.height#, { title: '#request.params.title#', subtitle: '#request.params.subtitle#', close: 'true', reload: 'true' });
 					}
-					
-					
-					// 2013-07-13 
-					// - Conversation with Todd and Surya about removing loadNonDashboardFiles() from every CS page request and 
-					// 	 moving it to CS lightbox specific modules, if this happens the below code would be need to be added to this function.
-					// Run check of parent.commonspot or parent.commonspot.lview
-					//if ( typeof parent.commonspot == 'undefined' || typeof parent.commonspot.lview == 'undefined' ) {
-					// 	console.log("loadNonDashboardFiles");
-  					//	loadNonDashboardFiles(); 
-					//}
 				});
 			</script>
 		</cfoutput>
