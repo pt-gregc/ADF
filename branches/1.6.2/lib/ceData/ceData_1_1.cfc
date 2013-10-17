@@ -640,7 +640,7 @@ History:
 	2013-01-08 - MFC - Added TRY-CATCH for error handling when generating the view table.
 	2013-02-04 - MFC - Added IF statement to check that the view table name has a length.				 
 --->
-<cffunction name="buildRealTypeView" access="public" returntype="boolean" hint="Builds ane lement view for the passed in element name">
+<cffunction name="buildRealTypeView" access="public" returntype="boolean" hint="Builds an element view for the passed in element name">
 	<cfargument name="elementName" type="string" required="true" hint="element name to build the view table off of">
 	<cfargument name="viewName" type="string" required="false" default="ce_#arguments.elementName#View" hint="Override the view name that gets generated">
 	<cfscript>
