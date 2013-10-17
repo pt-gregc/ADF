@@ -627,6 +627,7 @@ History:
 		return metadataArray;
 	</cfscript>
 </cffunction>
+
 <!---
 /* *************************************************************** */
 Author: 	
@@ -658,4 +659,5 @@ History:
 		return strURL;
 	</cfscript>
 </cffunction>
+
 </cfcomponent>
