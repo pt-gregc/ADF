@@ -83,12 +83,9 @@ History:
 		if ( isStruct(apiConfig) AND StructKeyExists(apiConfig, "wsVars") ) {
 			setSiteURL(apiConfig.wsVars.siteURL);
 			setSubsiteID(apiConfig.wsVars.subsiteID);
-			setSubsiteID(apiConfig.wsVars.subsiteID);
 		}
 	</cfscript>
 </cffunction>
-
-
 
 <cffunction name="login" access="public" output="true">
 	<cfargument name="remote" type="boolean" required="false" default="false">
@@ -579,22 +576,22 @@ History:
 		// Set the wsURL from the apiConfig
 		if( isStruct(apiConfig) AND structKeyExists(apiConfig, "wsVars") AND structKeyExists(apiConfig.wsVars,"webserviceURL") AND LEN(apiConfig.wsVars.webserviceURL) ) 
 			wsURL = apiConfig.wsVars.webserviceURL;
-		
-		// Use the config webservice URL value to determine the correct wsPath
-		if ( FindNoCase(wsURL,"cs_remote") )
-			wsPath = "commonspot.webservice.cs_remote";	
-			
+
 		if ( getRemoteFlag() AND LEN(TRIM(wsURL)) ) {
 			// Call the remote Web Service
 			return createObject("webService", wsURL);
 		}
 		else {	
+		
+			// Use the config webservice URL value to determine the correct wsPath
+			if ( FindNoCase(wsURL,"cs_remote") )
+				wsPath = "commonspot.webservice.cs_remote";	
+		
 			// Create the local object directly on the server
 			return createObject("component", wsPath);				
 		}
 	</cfscript>
 </cffunction>
-
 
 <!--- // Private GETTERS/SETTERS --->
 <cffunction name="setSubsiteID" access="private" returntype="void" hint="Set the subsiteID">
