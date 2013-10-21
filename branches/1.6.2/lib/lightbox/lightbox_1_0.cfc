@@ -36,7 +36,7 @@ History:
 --->
 <cfcomponent displayname="lightbox_1_0" extends="ADF.core.Base" hint="Lightbox functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_7">
+<cfproperty name="version" value="1_0_8">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_1">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_1">
@@ -68,6 +68,7 @@ History:
 	2011-10-03 - MFC - Modified - Added check to return the CFCATCH error message.
 	2012-03-08 - MFC - Added the cfcatch error message to the default error message display.
 	2012-03-12 - GAC - Added logic to the reHTML error struct to check if a message key was returned
+	2013-10-18 - MS  - Updated to comment out the verbose error messages which caused security issues
 --->
 <!--- // ATTENTION: 
 		Do not call is method directly. Call from inside the LightboxProxy.cfm file  (method properties are subject to change)
@@ -92,7 +93,8 @@ History:
 		// Initalize the reHTML key of the local struct
 		result.reHTML = "";
 		// Since we are relying on the request.params scope make sure the key params are available
-		if ( StructKeyExists(request,"params") ) {
+		if ( StructKeyExists(request,"params") ) 
+		{
 			params = request.params;
 			if ( StructKeyExists(request.params,"bean") ) 
 				bean = request.params.bean;
@@ -125,7 +127,7 @@ History:
 				if ( debug ) {
 					// If the variable reHTML doesn't exist set the debug output to the string: void 
 					if ( !StructKeyExists(result,"reHTML") ){reDebugRaw="void";}else{reDebugRaw=result.reHTML;}
-					reDebugRaw = variables.utils.doDump(reDebugRaw,"DEBUG OUTPUT",1,1);
+						reDebugRaw = variables.utils.doDump(reDebugRaw,"DEBUG OUTPUT",1,1);
 				}
 				
 				// Check to see if reHTML was destroyed by a method that returns void before attempting to process the return
@@ -160,10 +162,20 @@ History:
 			{
 				// Show error since the bean and/or method are not in the proxyWhiteList.xml file
 				hasError = 1;
+		
+				/* 
+					***  	[mseeley 18-Oct-2013] Revised error message output. 
+							Too much information for production use. Exposure to unsanitized URL parameters.
+							Uncomment for debugging purposes. ***
+				*/
+				result.reHTML = "Error: This LightBox Proxy call is not available remotely.";
+				/*	
 				if ( len(trim(appName)) )
 					result.reHTML = "Error: The Bean: #bean# with method: #method# in the App: #appName# is not accessible remotely via Lightbox Proxy.";	
 				else
 					result.reHTML = "Error: The Bean: #bean# with method: #method# is not accessible remotely via Lightbox Proxy.";	
+				*/	
+	
 			}
 			// pass the debug dumps to the result.reHTML for output
 			if ( debug ) 

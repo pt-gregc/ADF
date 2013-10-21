@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="ajax" extends="ADF.core.Base" hint="AJAX functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_2">
+<cfproperty name="version" value="1_0_3">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_1">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_1">
@@ -65,6 +65,7 @@ History:
 	2011-02-09 - GAC - Removed ADFlightbox specific forceOutput variable
 	2012-03-08 - MFC - Added the cfcatch error message to the default error message display.
 	2012-03-12 - GAC - Added logic to the reString error struct to check if a message key was returned
+	2013-10-18 - MS  - Updated to comment out the verbose error messages which caused security issues
 --->
 <!--- // ATTENTION: 
 		Do not call is method directly. Call from inside the AjaxProxy.cfm file (method properties are subject to change) 
@@ -95,7 +96,8 @@ History:
 		// initalize the reString key of the result struct
 		result.reString = "";
 		// Since we are relying on the request.params scope make sure the main params are available
-		if ( StructKeyExists(request,"params") ) {
+		if ( StructKeyExists(request,"params") ) 
+		{
 			params = request.params;
 			if ( StructKeyExists(request.params,"bean") ) 
 				bean = request.params.bean;
@@ -131,7 +133,7 @@ History:
 				if ( debug ) {
 					// If the variable result.reString doesn't exist set the debug output to the string: void 
 					if ( !StructKeyExists(result,"reString") ){debugRaw="void";}else{debugRaw=result.reString;}
-					reDebugRaw = variables.utils.doDump(debugRaw,"RAW OUTPUT",1,1);
+						reDebugRaw = variables.utils.doDump(debugRaw,"RAW OUTPUT",1,1);
 				}
 				// if runCommand throws an error skip processing jump down to the debug output
 				if ( !hasCommandError ) 
@@ -202,10 +204,21 @@ History:
 			else
 			{
 				hasProcessingError = 1; 
+
+				/* 
+					***  	[mseeley 18-Oct-2013] Revised error message output. 
+							Too much information for production use. Exposure to unsanitized URL parameters.
+							Uncomment for debugging purposes. ***
+				*/
+				result.reString = "Error: This Ajax Proxy call in not available remotely.";
+
+				/*			
 				if ( len(trim(appName)) )
 					result.reString = "Error: The Bean: #bean# with method: #method# in the App: #appName# is not accessible remotely via Ajax Proxy.";	
 				else
 					result.reString = "Error: The Bean: #bean# with method: #method# is not accessible remotely via Ajax Proxy.";	
+				*/
+
 			}
 			// build the dump for debugging the Processed value of result.reString
 			if ( debug AND passedSecurity AND ListFindNoCase(strFormatsList,returnformat) EQ 0 ) 
@@ -233,7 +246,9 @@ History:
 					result.reString = reDebugRaw & reDebugProcessed;
 				}
 			}
-		} else {
+		} 
+		else 
+		{
 			result.reString = "Error: This method can not be called directly. Use the AjaxProxy.cfm file.";	
 		}
 		return result;

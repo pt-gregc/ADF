@@ -48,9 +48,9 @@ History:
 <cfscript>
 	variables.ADFversion = "1.6.2"; // use a dot delimited version number
 	// ADF Build Revision Number
-	variables.buildRev = "1085";
+	variables.buildRev = "1086";
 	// ADF Codename
-	variables.buildName = "TBD";
+	variables.buildName = "Spy Hunter";
 	// CS product version, get the decimal value
 	variables.csVersion = Val(ListLast(request.cp.productversion, " "));
 </cfscript>
@@ -149,6 +149,31 @@ History:
 
 <!---
 /* *************************************************************** */
+Author: 
+	PaperThin, Inc.
+	G. Cronkright
+Name:
+	getSiteDevModeStatus
+Summary:
+	Returns the Site Dev Mode Status
+Returns:
+	boolean - dev mode status
+Arguments:
+	NA
+History:
+	2013-10-19 - GAC - Created
+--->
+<cffunction name="getSiteDevModeStatus" access="public" returntype="numeric">
+	<Cfscript>
+		var status = false;
+		if ( StructKeyExists(application,"ADF") AND StructKeyExists(application.ADF,"siteDevMode") AND IsBoolean(application.ADF.siteDevMode) AND application.ADF.siteDevMode ) 
+			status = true;				
+		return status;
+	</Cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
 Author: 	
 	jrybacek
 Name:
@@ -190,6 +215,7 @@ History:
 		var ADFversion = "v" & getADFversion();
 		var forceReset = false;
 		var dump = "";
+		var devModeStatus = false;
 		// Check if the ADF space exists in the SERVER and APPLICATION
 		if ( NOT StructKeyExists(server, "ADF") OR NOT StructKeyExists(application, "ADF") )
 			forceReset = true;
@@ -228,8 +254,15 @@ History:
 							rtnMsg = "Invalid argument '#arguments.type#' passed to method reset.";
 							break;
 					}
-					if ( ADFReset ) //Reset the cache.
+					if ( ADFReset ) {
+						//Reset the cache.
 						application.ADF.cache = StructNew();
+						// Get the Dev Mode Status to display with reset message
+						if (  getSiteDevModeStatus() ) 
+							rtnMsg = rtnMsg & " [Development Mode]";	
+						else 
+							rtnMsg = rtnMsg & " [Production Mode]";
+					}
 				</cfscript>
 				<!--- // If sever.ADF.buildError Array has any errors... throw an exception (used the cfthrow tag for CF8 compatibility) --->
 				<cfif StructKeyExists(server.ADF,"buildErrors") AND ArrayLen(server.ADF.buildErrors)>
@@ -273,7 +306,7 @@ History:
 		getPageContext().getResponse().setHeader( "X-CS_ADF_Reset" , "#ADFReset#" );
 		
 		returnStruct.success = ADFReset;
-		returnStruct.message = "&nbsp;"&DateFormat(now(),"yyyy-mm-dd")&" "&TimeFormat(now(),"hh:mm:ss")&" - "&rtnMsg;
+		returnStruct.message = "&nbsp;" & DateFormat(now(),"yyyy-mm-dd") & " " & TimeFormat(now(),"hh:mm:ss") & " - " & rtnMsg;
 		return returnStruct;
 	</cfscript>
 </cffunction>
