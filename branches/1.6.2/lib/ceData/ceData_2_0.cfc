@@ -106,7 +106,9 @@ History:
 			//tmp = defaultTmp;
 			
 			// add in common fields			
-			for( i=1; i lte listLen(commonFieldList); i=i+1 ) {				
+			for( i=1; i lte listLen(commonFieldList); i=i+1 ) {	
+				// Look at why sometimes the 'FormID' is undefined 
+									
 				commonField = listGetAt(commonFieldList, i);
 				// handle each of the common fields
 				if( findNoCase(commonField, queryColFieldList) )
@@ -402,7 +404,6 @@ History:
 		// Check if we are processing the selected list
 		if ( arguments.queryType EQ "selected" and len(arguments.customElementFieldName) and len(arguments.item) ){
 			// Order the return data by the order the list was passed in
-			//ceDataQry = application.ADF.data.querySort(
 			ceDataQry = variables.data.querySort(query=ceDataQry, 
 													   columnName=arguments.customElementFieldName, 
 													   columnType="varchar",
@@ -548,7 +549,6 @@ History:
 			// Check if we are processing the selected list
 			if ( arguments.queryType EQ "selected" and len(arguments.customElementFieldName) and len(arguments.item) ){
 				// Order the return data by the order the list was passed in
-				//ceViewQry = application.ADF.querySort(
 				ceViewQry = variables.data.querySort(query=ceViewQry, 
 														   columnName=arguments.customElementFieldName, 
 														   columnType="varchar",
@@ -1316,7 +1316,7 @@ History:
 		</cfif>
 		
 	</cfif>
-	<cfreturn viewCreated />
+	<cfreturn viewCreated>
 </cffunction>
 
 <!---

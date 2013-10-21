@@ -80,8 +80,6 @@ History:
 
 <!--- // Optional ADF App Override Attributes for the Custom Script Parameters tab --->
 <!--- // !!!! DO NOT MODIFY THIS OVERRIDE LOGIC to force changes via the Custom Script Parameters from the CommonSpot UI!!! --->
-<!--- // !!!! To pass attributes from the CommonSpot Custom Script parameters field just DO NOT pass in an AppBeanName or an appParamsVarName 
-			  OR build an SiteLevel override for the App to pass in the custom values --->
 <cfscript>
 	if ( StructKeyExists(attributes,"appBeanName") AND LEN(TRIM(attributes.appBeanName)) AND StructKeyExists(attributes,"appParamsVarName") AND LEN(TRIM(attributes.appParamsVarName)) ) {
 		attributes = application.ADF.utils.appOverrideCSParams(

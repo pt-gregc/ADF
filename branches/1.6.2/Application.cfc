@@ -36,8 +36,12 @@ History:
 	2011-03-19 - RLW - Moved the conditional logic of url scope check up because left panels don't have request.params until after Application.cfm executes
 	2011-10-04 - GAC - Updated getBean csSecurity call to reference csSecurity_1_1
 	2012-08-08 - MFC - Added structKeyExists check for "request.params".
+	2013-10-21 - GAC - Added version and 'file-version' property for ADF core file 
 --->
 <cfcomponent>
+	
+	<cfproperty name="version" value="1_6_2">
+	<cfproperty name="file-version" value="0">
 	
 	<cfset this.sessionManagement = true>
 	

@@ -33,10 +33,12 @@ History:
 	2011-04-05 - MFC - Modified - Updated the version property.
 	2011-07-11 - MFC - Updated INIT function for no IF statement for call to "super.init".
 	2013-04-25 - MFC - Added "validateAppBeanExists" function.
+	2013-10-21 - GAC - Added 'file-version' property for ADF core files 
 --->
 <cfcomponent name="AppBase" extends="ADF.core.Base" hint="App Base component for the ADF">
 
 <cfproperty name="version" value="1_6_2">
+<cfproperty name="file-version" value="0">
 
 <cffunction name="init" output="true" returntype="any">
 	<cfscript>

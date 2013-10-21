@@ -23,17 +23,19 @@ end user license agreement.
 Author: 	
 	PaperThin, Inc. 
 Name:
-	LightWireConfigExtendedBase,cfc
+	LightWireConfigExtendedBase.cfc
 Summary:
 	LightWire Configuration component extended from the Base.cfc.
 History:
 	2009-08-14 - MFC - Created
 	2011-07-11 - MFC/AW - Updated Init and loadADFAppBeanConfig for performance improvements.
 	2012-12-26 - MFC - Updated the logging for the v1.6.
+	2013-10-21 - GAC - Added 'file-version' property for ADF core files 
 --->
 <cfcomponent name="LightWireConfigBase" extends="ADF.thirdParty.lightwire.BaseConfigObject" output="false">
 
 <cfproperty name="version" value="1_6_2">
+<cfproperty name="file-version" value="0">
 
 <cffunction name="init" returntype="any" hint="I initialize default LightWire config properties." output=false access="public">
 	<cfscript>

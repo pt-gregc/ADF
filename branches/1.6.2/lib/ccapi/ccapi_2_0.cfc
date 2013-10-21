@@ -222,6 +222,7 @@ History:
 		return false;
 	</cfscript>
 </cffunction>
+
 <!--- // Public GETTERS/SETTERS --->
 <cffunction name="setSubsiteID" access="public" returntype="void">
 	<cfargument name="subsiteID" type="numeric" required="true">

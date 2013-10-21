@@ -28,11 +28,13 @@ Summary:
 	Config component for Custom Application Common Framework
 History:
 	2009-05-11 - MFC - Created
-	2011-04-05 - MFC - Updated the version property.
+	2011-04-05 - MFC - Updated the version property
+	2013-10-21 - GAC - Added 'file-version' property for ADF core files 
 --->
 <cfcomponent name="Config" hint="Config component for Application Development Framework" extends="ADF.core.Base">
 
-<cfproperty name="version" value="1_6_1">
+<cfproperty name="version" value="1_6_2">
+<cfproperty name="file-version" value="0">
 	
 <!---
 /* *************************************************************** */

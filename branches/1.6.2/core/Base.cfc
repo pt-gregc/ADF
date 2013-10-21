@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2011.
+PaperThin, Inc. Copyright(C) 2013.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -33,10 +33,12 @@ History:
 					   Added a getCSVersion function.
 	2011-07-11 - MFC - Updated INIT function to remove call to "super.init".
 	2011-09-27 - GAC - Added a getADFminorVersion to only return first two version digits
+	2013-10-21 - GAC - Added 'file-version' property for ADF core files
 --->
 <cfcomponent name="Base" hint="Base component for Custom Application Common Framework">
 
-<cfproperty name="version" value="1_5_0">
+<cfproperty name="version" value="1_6_2">
+<cfproperty name="file-version" value="0">
 	
 <cffunction name="init" output="true" returntype="any">
 	<cfscript>
@@ -63,7 +65,7 @@ History:
 --->
 <cffunction name="getADFversion" access="public" returntype="string">
 	<cfscript>
-		var ADFversion = "1.0.0";
+		var ADFversion = "0.0.0";
 		if ( StructKeyExists(server.ADF,"version") )
 			ADFversion = server.ADF.version;
 	 	return ADFversion;

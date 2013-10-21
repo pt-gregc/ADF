@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2011.
+PaperThin, Inc. Copyright(C) 2013.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -18,25 +18,39 @@ in this directory, you agree to the terms and conditions of the applicable
 end user license agreement.
 --->
 
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 
+Name:
+	LightWireExtendedBase.cfc
+History:
+	2009-08-14 - MFC - Created
+	2013-10-21 - GAC - Added 'file-version' property for ADF core files 
+--->
+
 <cfcomponent name="LightWireExtendedBase" extends="ADF.thirdParty.lightwire.LightWire" output="false">
 
-<cfproperty name="version" value="1_5_0">
+<cfproperty name="version" value="1_6_2">
+<cfproperty name="file-version" value="0">
 
 <!---
-	/* *************************************************************** */
-	Author: 	G. Cronkright
-	Name:
-		$getBean
-	Summary:
-		Override method for the Lightwire getBean method with added error handling.
-		Used return a bean with all of its dependencies loaded..
-	Returns:
-		void
-	Arguments:
-		String - ObjectName 
-	History:
-		2011-01-20 - GAC - Copied from Lightwire Lightwire.cfc
-						   Modified to add error logging
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.	
+	G. Cronkright
+Name:
+	$getBean
+Summary:
+	Override method for the Lightwire getBean method with added error handling.
+	Used return a bean with all of its dependencies loaded..
+Returns:
+	void
+Arguments:
+	String - ObjectName 
+History:
+	2011-01-20 - GAC - Copied from Lightwire Lightwire.cfc
+					   Modified to add error logging
 --->
 <cffunction name="getBean" returntype="any" access="public" output="false" hint="I return a bean with all of its dependencies loaded.">
 	<cfargument name="ObjectName" type="string" required="yes" hint="I am the name of the object to generate.">
@@ -60,19 +74,20 @@ end user license agreement.
 </cffunction>
 
 <!---
-	/* ***************************************************************
-	/*
-	Author: 	G. Cronkright
-	Name:
-		doBuildErrorLogging
-	Summary:
-		Create a Log file for the given error and add the error struct to the Application.ADF.buildErrors Array
-	Returns:
-		Boolean
-	Arguments:
-		String - meathodName
-	History:
-		2011-01-21 - GAC - Created
+/* *************************************************************** */
+Author: 
+	PaperThin, Inc.	
+	G. Cronkright
+Name:
+	doBuildErrorLogging
+Summary:
+	Create a Log file for the given error and add the error struct to the Application.ADF.buildErrors Array
+Returns:
+	Boolean
+Arguments:
+	String - meathodName
+History:
+	2011-01-21 - GAC - Created
 --->
 <cffunction name="doBuildErrorLogging" access="public" returntype="void" hint="Create a Log file for the given error and add the error struct to the Application.ADF.buildErrors Array">
 	<cfargument name="methodName" type="string" required="false" default="GenericBuild" hint="method that was called that we should log">

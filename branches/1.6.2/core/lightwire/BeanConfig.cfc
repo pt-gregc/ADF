@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2011.
+PaperThin, Inc. Copyright(C) 2013.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -86,7 +86,8 @@ Adds a constructor property to a bean.
 - PropertyValue:any:required - The value of the property to add. Can be of any simple or complex type (anything from a string or a boolean to a struct or even an object that isn't being managed by LightWire).
 --->
 
-<cfproperty name="version" value="1_5_0">
+<cfproperty name="version" value="1_6_2">
+<cfproperty name="update" value="0">
 
 <cffunction name="init" output="true" returntype="any" hint="I initialize the config bean.">
 	
