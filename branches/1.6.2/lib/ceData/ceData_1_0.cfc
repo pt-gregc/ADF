@@ -37,7 +37,7 @@ History:
 --->
 <cfcomponent displayname="ceData_1_0" extends="ADF.core.Base" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_8">
+<cfproperty name="version" value="1_0_9">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_0">
 <cfproperty name="data" type="dependency" injectedBean="data_1_0">
@@ -1724,6 +1724,7 @@ History:
 					    passed in instead of just the values from the values structure.		
 	2013-10-10 - GAC - Added a boolean flag to remove FIC keys from the RenderMode Custom Element data
 					 - Added a parameter to allow removal other selected top level keys that could conflict data fields when converting RenderMode Custom Element Array to a query 
+	2013-10-18 - GAC - Updated the "FIC_" field detect logic to be more specific
 --->
 <cffunction name="arrayOfCEDataToQuery" returntype="query" output="true" access="public" hint="">
 	<cfargument name="theArray" type="array" required="true">
@@ -1759,7 +1760,7 @@ History:
 		// Remove any "fic_" keys and any of the excluded keys
 		for ( c=1; c LTE ArrayLen(colTempArray); c=c+1 ) {
 			addTopLevelKey = true;
-			if ( arguments.excludeFICfields and FindNoCase("fic_",colTempArray[c]) ) 
+			if ( arguments.excludeFICfields AND LEFT(colTempArray[c],4) EQ "fic_"  ) 
 				addTopLevelKey = false;
 			if ( addTopLevelKey AND LEN(TRIM(arguments.excludeTopLevelFieldList)) AND ListFindNoCase(arguments.excludeTopLevelFieldList,colTempArray[c]) )
 				addTopLevelKey = false;
