@@ -68,6 +68,10 @@ History:
 		application.ADF.version = "";
 		// Set the proxyWhiteList from the Server Apps ProxyWhiteList
 		application.ADF.proxyWhiteList = server.ADF.proxyWhiteList;
+		// Set the site to NOT enable siteDevMode by default
+		application.ADF.siteDevMode = false;
+		// Set the site to NOT enable proxyDebugLogging by default
+		application.ADF.proxyDebugLogging = false;
 	</cfscript>	
 	
 </cffunction>
@@ -327,8 +331,7 @@ History:
 		var configPath = "#request.site.csAppsDir#config/proxyWhiteList.xml";
 		var configStruct = StructNew();
 		// Check if the file exist on the site
-		if ( fileExists( configPath ) )
-		{
+		if ( fileExists( configPath ) ) {
 			configStruct = server.ADF.objectFactory.getBean("CoreConfig").getConfigViaXML(configPath);
 			application.ADF.proxyWhiteList = server.ADF.objectFactory.getBean("Data_1_0").structMerge(application.ADF.proxyWhiteList, configStruct, true);
 		}
@@ -378,6 +381,49 @@ History:
 <cffunction name="setLightboxProxyURL" access="public" returntype="void" hint="Sets the URL to the LightboxProxy">
 	<cfargument name="proxyURL" type="string" required="true" hint="The server relative URL to the lightboxProxy.cfm file">
 	<cfset application.ADF.lightboxProxy = arguments.proxyURL>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Greg Cronkright
+Name:
+	$enableProxyDebugLogging
+Summary:	
+	Enables or disables the AjaxProxy and Lightbox Proxy Debug logging for the site
+Returns:
+	Void
+Arguments:
+	Boolean enable
+History:
+	2013-10-19 - GAC - Created
+--->
+<cffunction name="enableProxyDebugLogging" access="public" returntype="void" hint="Enables or disables the AjaxProxy and Lightbox Proxy Debug logging for the site">
+	<cfargument name="enable" type="boolean" required="false"  default="false">
+	<cfset application.ADF.proxyDebugLogging = arguments.enable>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Greg Cronkright
+Name:
+	$enableADFsiteDevMode
+Summary:	
+	Enables or disables the ADF site Dev mode
+	Default: false (disabled)
+Returns:
+	Void
+Arguments:
+	Boolenan enable
+History:
+	2013-10-19 - GAC - Created
+--->
+<cffunction name="enableADFsiteDevMode" access="public" returntype="void" hint="Enables or disables the ADF site Dev mode. Default: false (disabled)">
+	<cfargument name="enable" type="boolean" required="false" default="false">
+	<cfset application.ADF.siteDevMode = arguments.enable>
 </cffunction>
 
 <!---
