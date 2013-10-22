@@ -40,10 +40,14 @@ History:
 	2013-02-20 - SFS - Updated the "data" dependency to data_1_2, updated all references to application.adf.data to variables.data, updated version to 1_2_4.
 	2013-07-02 - GAC - Updated the version cfproperty since updates were on 2013-05-29 but the version was not incremented
 	2013-10-17 - SFS - Added new function: parse_url_el - Parses URLs passed via data sheets
+	2013-10-22 - GAC - Renamed and Updated the parse_url_el to 
+	2013-10-22 - GAC - Added new functions: csPageExistsByTitle,getCSPageIDlistByTitle,getCSPageQueryByTitle, getCSPageQueryByName,getCSPageIDlistByName
+					 - Updated the createUniquePageTitle,getCSPageIDByTitle functions
+
 --->
 <cfcomponent displayname="csData_1_2" extends="ADF.lib.csData.csData_1_1" hint="CommonSpot Data Utils functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_8">
+<cfproperty name="version" value="1_2_9">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">
@@ -415,6 +419,7 @@ Arguments:
 	string - csPageID
 History:
 	2011-05-13 - GAC - Created
+	2013-10-22 - GAC - Update to better handle the case when multiple pages with the same title are found 
 --->
 <cffunction name="createUniquePageTitle" access="public" returntype="string" output="true" hint="From given a page title check if it exists. If so, create a unique page title. Can check the whole site or a specified subsite.">
 	<cfargument name="csPageTitle" type="string" required="true">
@@ -424,52 +429,162 @@ History:
 		var newTitle = TRIM(arguments.csPageTitle);
 		var counter = 0;
 		var pageTitleExists = true;
-		var currentPageID = 0;
-		var currentSubsiteID = 0;
+		var pageIDlist = "";
 		// Continue to create new PageTitles if pageTitleExists is true
 		while ( pageTitleExists ) {
 			// increment the counter	
 			counter = counter + 1; 
-			// Get the PageID for the current Page Title
-			currentPageID = getCSPageIDByTitle(newTitle);
-			// if a page ID is passed in other than 0, and the currentPageID and the passed in pageid match DO NOT create a unique name
-			if ( currentPageID NEQ 0 AND currentPageID NEQ arguments.csPageID )  
-			{
-				// if a subsite ID is passed in other than 0, only check in that subsite
-				if ( arguments.csSubsiteID NEQ 0 ) 
-				{
-					// Get the currentSubsiteID for the currentPageID
-					currentSubsiteID = getSubsiteIDByPageID(currentPageID);
-					if ( currentPageID NEQ 0 AND currentSubsiteID EQ arguments.csSubsiteID ) 
-					{
-						pageTitleExists = true;
-						newTitle = arguments.csPageTitle & "-" & counter; 
-					} 
-					else 
-					{ 
-						pageTitleExists = false;
-					}
-				} 
-				else 
-				{
-					if ( currentPageID NEQ 0 ) 
-					{
-						pageTitleExists = true; 
-						newTitle = arguments.csPageTitle & "-" & counter;
-					} 
-					else 
-					{
-						pageTitleExists = false;
-					}
-				}
+			// Get the list of pageIDs for the current Page Title
+			pageIDlist = getCSPageIDlistByTitle(newTitle,arguments.csSubsiteID);
+			// if the pageIDlist has values but contains the passed in pageid DO NOT create a unique page title
+			if ( ListLen(pageIDlist) AND ListFind(pageIDlist,arguments.csPageID) EQ 0 )  {
+				pageTitleExists = true; 
+				newTitle = arguments.csPageTitle & "-" & counter;
 			} 
-			else 
-			{
+			else {
 				pageTitleExists = false;
 			}
 		}
 		return newTitle; 
 	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$getCSPageIDByTitle 
+Summary:
+	Given a page title get the pageID. 
+	
+	!! IMPORTANT !!!
+	This function should be used more like a CSPageExists because when csSubsiteID=0 and multiple pages are found 
+	this function will only return the pageid of the first page it finds
+	
+	// TODO: Change the returnType so no longer returns only a single numeric value or change the function name
+Returns:
+	Numeric csPageID
+Arguments:
+	String  csPageTitle
+	Numeric csSubsiteID
+	Boolean includeRegisteredURLS
+History:
+	2010-01-27 - GAC - Created
+	2011-05-13 - GAC - Added an OR to also check page title using the ToHTML function
+	2013-10-22 - GAC - Updated to use getCSPageQueryByTitle query
+--->
+<cffunction name="getCSPageIDByTitle" access="public" returntype="numeric" output="true">
+	<cfargument name="csPageTitle" type="string" required="true">
+	<cfargument name="csSubsiteID" type="numeric" required="false" default="0" hint="if subsite is 0 check whole site, else check only the specified subsite">
+	<cfargument name="includeRegisteredURLS" type="boolean" required="false" default="true" hint="If set to false it will not search for registered URLS">
+	<cfscript>
+		var csPageID = 0;
+		var pageQry = getCSPageQueryByTitle(csPageTitle=arguments.csPageTitle,csSubsiteID=arguments.csSubsiteID,includeRegisteredURLS=arguments.includeRegisteredURLS);
+		if ( pageQry.recordCount )
+			csPageID = pageQry.ID;
+		return csPageID;
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$csPageExistsByTitle 
+Summary:
+	Given a page title get the pageID. 
+Returns:
+	Boolean
+Arguments:
+	String  csPageTitle
+	Numeric csSubsiteID
+	Boolean includeRegisteredURLS
+History:
+	2013-10-22 - GAC - Created
+--->
+<cffunction name="csPageExistsByTitle" access="public" returntype="boolean" output="true">
+	<cfargument name="csPageTitle" type="string" required="true">
+	<cfargument name="csSubsiteID" type="numeric" required="false" default="0" hint="if subsite is 0 check whole site, else check only the specified subsite">
+	<cfargument name="includeRegisteredURLS" type="boolean" required="false" default="true" hint="If set to false it will not search for registered URLS">
+	<cfscript>
+		var pageQry = getCSPageQueryByTitle(csPageTitle=arguments.csPageTitle,csSubsiteID=arguments.csSubsiteID,includeRegisteredURLS=arguments.includeRegisteredURLS);
+		if ( pageQry.recordCount )
+			return true;
+		else
+			return false;
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$getCSPageIDlistByTitle
+Summary:
+	Given a page title get the a list of matching pageIDs
+Returns:
+	String csPageIDlist
+Arguments:
+	String - csPageTitle
+	String - csSubsiteID
+	Boolean -  csSubsiteID
+History:
+	2013-10-22 - GAC - Created
+--->
+<cffunction name="getCSPageIDlistByTitle" access="public" returntype="string" output="false">
+	<cfargument name="csPageTitle" type="string" required="true">
+	<cfargument name="csSubsiteID" type="string" required="false">
+	<cfargument name="includeRegisteredURLS" type="boolean" required="false" default="true" hint="If set to false it will not search for registered URLS">
+	<cfscript>
+		var csPageIDlist = "";
+	    var pageQry = getCSPageQueryByTitle(csPageTitle=arguments.csPageTitle,csSubsiteID=arguments.csSubsiteID,includeRegisteredURLS=arguments.includeRegisteredURLS);
+	    if ( pageQry.recordCount ) 
+	    	csPageIDlist = ValueList(pageQry.ID);
+	    return csPageIDlist;
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$getCSPageQueryByTitle
+Summary:
+	Given a page title get all of the cspages as a query
+Returns:
+	query 
+Arguments:
+	String  csPageTitle
+	Numeric csSubsiteID
+	Boolean includeRegisteredURLS
+History:
+	2013-10-22 - GAC - Created
+--->
+<cffunction name="getCSPageQueryByTitle" access="public" returntype="query" output="false">
+	<cfargument name="csPageTitle" type="string" required="true">
+	<cfargument name="csSubsiteID" type="numeric" required="false" default="0" hint="if subsite is 0 check whole, else check only the specified subsite">
+	<cfargument name="includeRegisteredURLS" type="boolean" required="false" default="true" hint="If set to false it will not search for registered URLS">
+	<cfset var pageQry = QueryNew('temp')>
+	<cfquery name="pageQry" datasource="#request.site.datasource#">
+		select  ID, subsiteid, name, Title, FileName
+		  from  sitePages
+		 where  ( title = <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.csPageTitle#">
+				  or  title = <cfqueryparam cfsqltype="cf_sql_varchar" value="#application.CS.Data.ToHTML(arguments.csPageTitle)#"> )
+		<cfif IsNumeric(arguments.csSubsiteID) AND arguments.csSubsiteID GT 0>
+		   and  subsiteID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.csSubsiteID#">
+		</cfif>
+		   and (
+				pageType = <cfqueryparam cfsqltype="cf_sql_integer" value="#request.constants.pgTypeNormal#">
+				<cfif includeRegisteredURLS>
+					or pageType = <cfqueryparam cfsqltype="cf_sql_integer" value="#request.constants.pgTypeRegisteredURL#">
+				</cfif>
+			)
+	</cfquery>
+	<cfreturn pageQry>
 </cffunction>
 
 <!---
@@ -499,47 +614,19 @@ History:
 		var newName = cleanedPageName;
 		var counter = 0;
 		var pageNameExists = true;
-		var currentPageID = 0;
-		var currentSubsiteID = 0;
-		// Continue to create new PageTitles if pageNameExists is true
+		var pageIDlist = "";
+		// Continue to create new PageName if pageNameExists is true
 		while ( pageNameExists ) {
 			// increment the counter	
 			counter = counter + 1; 
-			// Get the PageID for the current Page Title
-			currentPageID = getCSPageByName(newName, arguments.csSubsiteID);
-			// if a page ID is passed in other than 0, and the currentPageID and the passed in pageid match DO NOT create a unique name
-			if ( currentPageID NEQ 0 AND currentPageID NEQ arguments.csPageID )  
-			{
-				// if a subsite ID is passed in other than 0, only check in that subsite
-				if ( arguments.csSubsiteID NEQ 0 ) 
-				{
-					// Get the currentSubsiteID for the currentPageID
-					currentSubsiteID = getSubsiteIDByPageID(currentPageID);
-					if ( currentPageID NEQ 0 AND currentSubsiteID EQ arguments.csSubsiteID ) 
-					{
-						pageNameExists = true;
-						newName = cleanedPageName & "-" & counter; 
-					} 
-					else 
-					{ 
-						pageNameExists = false;
-					}
-				} 
-				else 
-				{
-					if ( currentPageID NEQ 0 ) 
-					{
-						pageNameExists = true; 
-						newName = cleanedPageName & "-" & counter;
-					} 
-					else 
-					{
-						pageNameExists = false;
-					}
-				}
+			// Get the list of pageIDs for the current Page name
+			pageIDlist = getCSPageIDlistByName(newName,arguments.csSubsiteID);
+			// if the pageIDlist has values but contains the passed in pageid DO NOT create a unique page name
+			if ( ListLen(pageIDlist) AND ListFind(pageIDlist,arguments.csPageID) EQ 0 )  {
+				pageNameExists = true; 
+				newName = cleanedPageName & "-" & counter;
 			} 
-			else 
-			{
+			else {
 				pageNameExists = false;
 			}
 		}
@@ -552,30 +639,99 @@ History:
 Author: 	
 	PaperThin, Inc.
 Name:
-	$getCSPageIDByTitle
+	$getCSPageIDlistByName
 Summary:
-	Given a page title get the pageID
+	Given a page name get the a list of matching pageIDs
 Returns:
-	Numeric csPageID
+	String csPageIDlist
 Arguments:
-	String csPageTitle
+	String - csPageName
+	String - csSubsiteID
+	Boolean -  csSubsiteID
 History:
-	2010-01-27 - GAC - Created
-	2011-05-13 - GAC - Modified - Added an OR to also check page title using the ToHTML function
+	2013-10-22 - GAC - Created
 --->
-<cffunction name="getCSPageIDByTitle" access="public" returntype="numeric" output="true">
-	<cfargument name="csPageTitle" type="string" required="true">
-	<cfset var csPageID = 0>
-	<cfquery name="getPageData" datasource="#request.site.datasource#">
-		select ID, subsiteID
-		from sitePages
-		where title = <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.csPageTitle#">
-			or title = <cfqueryparam cfsqltype="cf_sql_varchar" value="#application.CS.Data.ToHTML(arguments.csPageTitle)#">
+<cffunction name="getCSPageIDlistByName" access="public" returntype="string" output="false">
+	<cfargument name="csPageName" type="string" required="true">
+	<cfargument name="csSubsiteID" type="string" required="false">
+	<cfargument name="includeRegisteredURLS" type="boolean" required="false" default="true" hint="If set to false it will not search for registered URLS">
+	<cfscript>
+		var csPageIDlist = "";
+	    var pageQry = getCSPageQueryByName(csPageName=arguments.csPageName,csSubsiteID=arguments.csSubsiteID,includeRegisteredURLS=arguments.includeRegisteredURLS);
+	    if ( pageQry.recordCount ) 
+	    	csPageIDlist = ValueList(pageQry.ID);
+	    return csPageIDlist;
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$csPageExistsByTitle 
+Summary:
+	Check if a page name exists 
+Returns:
+	Boolean
+Arguments:
+	String  csPageName
+	Numeric csSubsiteID
+	Boolean includeRegisteredURLS
+History:
+	2013-10-22 - GAC - Created
+--->
+<cffunction name="csPageExistsByName" access="public" returntype="boolean" output="true" hint="Check if a page name exists ">
+	<cfargument name="csPageName" type="string" required="true">
+	<cfargument name="csSubsiteID" type="numeric" required="false" default="0" hint="if subsite is 0 check whole site, else check only the specified subsite">
+	<cfargument name="includeRegisteredURLS" type="boolean" required="false" default="true" hint="If set to false it will not search for registered URLS">
+	<cfscript>
+		var pageQry = getCSPageQueryByName(csPageName=arguments.csPageName,csSubsiteID=arguments.csSubsiteID,includeRegisteredURLS=arguments.includeRegisteredURLS);
+		if ( pageQry.recordCount )
+			return true;
+		else
+			return false;
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$getCSPageQueryByName
+Summary:
+	Given a page name get all of the cspages as a query
+Returns:
+	query 
+Arguments:
+	String  csPageName
+	Numeric csSubsiteID
+	Boolean includeRegisteredURLS
+History:
+	2013-10-22 - GAC - Created
+--->
+<cffunction name="getCSPageQueryByName" access="public" returntype="query" output="false">
+	<cfargument name="csPageName" type="string" required="true">
+	<cfargument name="csSubsiteID" type="numeric" required="false" default="0" hint="if subsite is 0 check whole, else check only the specified subsite">
+	<cfargument name="includeRegisteredURLS" type="boolean" required="false" default="true" hint="If set to false it will not search for registered URLS">
+	<cfset var pageQry = QueryNew('temp')>
+	<cfquery name="pageQry" datasource="#request.site.datasource#">
+		select  ID, subsiteid, name, Title, FileName
+		  from  sitePages
+		 where  ( name = <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.csPageName#">
+				  or  name = <cfqueryparam cfsqltype="cf_sql_varchar" value="#application.CS.Data.ToHTML(arguments.csPageName)#"> )
+		<cfif IsNumeric(arguments.csSubsiteID) AND arguments.csSubsiteID GT 0>
+		   and  subsiteID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.csSubsiteID#">
+		</cfif>
+		   and (
+				pageType = <cfqueryparam cfsqltype="cf_sql_integer" value="#request.constants.pgTypeNormal#">
+				<cfif includeRegisteredURLS>
+					or pageType = <cfqueryparam cfsqltype="cf_sql_integer" value="#request.constants.pgTypeRegisteredURL#">
+				</cfif>
+			)
 	</cfquery>
-	<cfif getPageData.recordCount>
-		<cfset csPageID = getPageData.ID>
-	</cfif>
-	<cfreturn csPageID>
+	<cfreturn pageQry>
 </cffunction>
 
 <!---
@@ -673,7 +829,7 @@ History:
 		    full_url = REMatch("@.*", arguments.str);
 		    mailto = REMatch("mailto:", arguments.str);
 		
-		    if (arrayLen(full_url) > 0 && arrayLen(mailto) == 0) {
+		    if ( arrayLen(full_url) GT 0 AND arrayLen(mailto) EQ 0) {
 		        full_url = ReReplace(full_url[1], "@", ""); // MIXED TYPE URLS (WITH TARGET BLANK AND OTHER PROPERTIES)
 		    } 
 		    else {
