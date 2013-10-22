@@ -40,6 +40,7 @@ History:
 	2012-01-30 - GAC - Added a Display_Feild varaible to the General Chooser init variables.
 	2013-01-10 - MFC - Disabled the Delete icon/action in the selection.
 	2013-01-30 - GAC - Updated to use the ceData 2.0 lib component
+	2013-10-22 - GAC - Updated to inject the data_1_2 lib in to the variables.data scope since we are extending ceData_2_0
 --->
 <cfcomponent name="general_chooser" extends="ADF.lib.ceData.ceData_2_0">
 
@@ -71,6 +72,11 @@ History:
 	variables.SHOW_ALL_LINK = true;  // Boolean
 	variables.SHOW_ADD_LINK = true;  // Boolean
 	variables.SHOW_EDIT_DELETE_LINKS = false;  // Boolean
+	
+	
+	//****************** IMPORTANT - DO NOT REMOVE ******************//
+	// Inject the 'data' Lib Bean as the local variables.data 
+	variables.data = application.ADF.objectFactory.getBean('data_1_2');
 </cfscript>
 
 <!---
