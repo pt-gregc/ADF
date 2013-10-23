@@ -31,13 +31,13 @@ Version
 History:
 	2012-12-31 - MFC - Created - New v2.0
 	2013-07-03 - GAC - Added getCEDataViewList and getCEDataViewNumericList functions to be used by the getCEDataView function
+	2013-10-23 - GAC - Removed the cfproperty dependency for the data_1_2 lib and injected directly in the required methods
 --->
 <cfcomponent displayname="ceData_2_0" extends="ADF.lib.ceData.ceData_1_1" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="2_0_10">
+<cfproperty name="version" value="2_0_12">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_2">
-<cfproperty name="data" type="dependency" injectedBean="data_1_2">
 <cfproperty name="wikiTitle" value="CEData_1_2">
 
 <!---
@@ -62,6 +62,7 @@ History:
 	2011-05-26 - MFC - Modified function to set the fieldStruct variable outside of the cfloop.	
 	2012-12-13 - MFC - Updated to check if the fieldname starts with "FIC_" and remove.
 	2013-09-27 - GAC - Updated the Forms Lib that is used to call the getCEFieldNameData function
+	2013-10-23 - GAC - Updated the commonFields logic that turns the formID into a formName
 --->
 <cffunction name="buildCEDataArrayFromQuery" access="public" returntype="array" hint="Returns a standard CEData Array to be used in Render Handlers from a ceDataView query">
 	<cfargument name="ceDataQuery" type="query" required="true" hint="ceData Query (usually built from ceDataView) results to be converted">
@@ -107,21 +108,21 @@ History:
 			
 			// add in common fields			
 			for( i=1; i lte listLen(commonFieldList); i=i+1 ) {	
-				// Look at why sometimes the 'FormID' is undefined 
-									
+				// Set the commonField to work with
 				commonField = listGetAt(commonFieldList, i);
 				// handle each of the common fields
-				if( findNoCase(commonField, queryColFieldList) )
+				if( findNoCase(commonField, queryColFieldList) and StructKeyExists(arguments.ceDataQuery,commonField) )
 					tmp[commonField] = arguments.ceDataQuery[commonField][row];
 				else
 					tmp[commonField] = "";
 					
 				// do special case work for formID/formName
-				if( commonField eq "formID"  ) {
-					
-					if( not len(formName) AND IsNumeric(tmp[commonField]) )
+				if ( commonField eq "formID"  ) {
+					// Get the FormName from the FormID
+					if( not len(formName) and StructKeyExists(tmp,commonField) and IsNumeric(tmp[commonField]) )
 						formName = getCENameByFormID(tmp[commonField]);
-						
+					
+					// Set the Value for the formName in the tmp Struct
 					tmp.formName = formName;
 				} 
 			}
@@ -129,8 +130,7 @@ History:
 			tmp.values = structNew();
 			
 			// loop through the field query and build the values structure
-			for( itm=1; itm lte listLen(structKeyList(fieldStruct)); itm=itm+1 )
-			{
+			for( itm=1; itm lte listLen(structKeyList(fieldStruct)); itm=itm+1 ) {
 				column = listGetAt(structKeyList(fieldStruct), itm);
 				// Get the position of the column from the in query
 				queryColPos = listFindNoCase(queryColFieldList, column);
@@ -283,6 +283,7 @@ History:
 	2013-07-01 - GAC - Updated the getDataFieldValue call to also pass the formID to prevent returning bad data.
 	2013-09-27 - GAC - Added the ORDER BY statement to the Query Of Queries for RAILO to obey the DISTINCT keyword in a QoQs (prevents railo for returning too many records)
 					 - Added a cfqueryparam in the currPageIDDataQry QofQs
+	2013-10-23 - GAC - Removed the local dependency for the data_1_2 Lib which was causing errors being extended by the general_chooser.cfc
 --->
 <cffunction name="getCEData" access="public" returntype="array" hint="Returns array of structs for all data matching the Custom Element.">
 	<cfargument name="customElementName" type="string" required="true">
@@ -402,12 +403,13 @@ History:
 	
 	<cfscript>
 		// Check if we are processing the selected list
-		if ( arguments.queryType EQ "selected" and len(arguments.customElementFieldName) and len(arguments.item) ){
+		if ( arguments.queryType EQ "selected" and len(arguments.customElementFieldName) and len(arguments.item) ) {
 			// Order the return data by the order the list was passed in
-			ceDataQry = variables.data.querySort(query=ceDataQry, 
-													   columnName=arguments.customElementFieldName, 
-													   columnType="varchar",
-													   orderList=arguments.item);
+			// --IMPORTANT: We CAN NOT use the local 'variables.data.QuerySortByOrderedList' since this LIB is extended by the general_chooser.cfc
+			ceDataQry = server.ADF.objectFactory.getBean("data_1_2").QuerySortByOrderedList(query=ceDataQry, 
+																							   columnName=arguments.customElementFieldName, 
+																							   columnType="varchar",
+																							   orderList=arguments.item);
 		} 
 		// Flip the query back into the CE Data Array Format
 		return buildCEDataArrayFromQuery(ceDataQuery=ceDataQry);
@@ -437,6 +439,7 @@ History:
 	2013-01-04 - MFC - Created
 	2013-04-02 - MFC - Added call to verify if the view table exists and create the view.
 	2013-07-03 - GAC - Added support for the "list" and "numericList" queryTypes 
+	2013-10-23 - GAC - Removed the local dependency for the data_1_2 Lib which was causing errors being extended by the general_chooser.cfc
 --->
 <cffunction name="getCEDataView" access="public" returntype="array" output="true">
 	<cfargument name="customElementName" type="string" required="true">
@@ -547,12 +550,13 @@ History:
 		
 		if ( ceViewQry.recordCount ) {
 			// Check if we are processing the selected list
-			if ( arguments.queryType EQ "selected" and len(arguments.customElementFieldName) and len(arguments.item) ){
+			if ( arguments.queryType EQ "selected" and len(arguments.customElementFieldName) and len(arguments.item) ) {
 				// Order the return data by the order the list was passed in
-				ceViewQry = variables.data.querySort(query=ceViewQry, 
-														   columnName=arguments.customElementFieldName, 
-														   columnType="varchar",
-														   orderList=arguments.item);
+				// --IMPORTANT: We CAN NOT use the local 'variables.data.QuerySortByOrderedList' since this LIB is extended by the general_chooser.cfc
+				ceDataQry = server.ADF.objectFactory.getBean("data_1_2").QuerySortByOrderedList(query=ceViewQry, 
+																								   columnName=arguments.customElementFieldName, 
+																								   columnType="varchar",
+																								   orderList=arguments.item);
 			}
 			// Flip the query back into the CE Data Array Format
 			dataArray = buildCEDataArrayFromQuery(ceDataQuery=ceViewQry);
@@ -1145,8 +1149,7 @@ Arguments:
 History:
 	2012-11-07 - MFC - Created
 --->
-<cffunction name="getGlobalCustomElements" access="public" returntype="query" output="true">
-
+<cffunction name="getGlobalCustomElements" access="public" returntype="query" output="false">
 	<cfscript>
 		// Initialize the variables
 		var csQry = QueryNew("temp");
@@ -1278,7 +1281,6 @@ History:
 	
 	<cfscript>
 		var viewCreated = false;
-		//var formID = application.ADF.ceData.getFormIDByCEName(TRIM(arguments.elementName));
 		var formID = getFormIDByCEName(TRIM(arguments.elementName));
 		var deleteView = QueryNew("temp");
 		var realTypeView = QueryNew("temp");

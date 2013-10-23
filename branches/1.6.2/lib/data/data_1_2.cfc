@@ -309,7 +309,55 @@ Author:
 Name:
 	$QuerySort
 Summary:
-	Sort a query based on a custom list.
+	Sort a query based on a specific column in the query
+Returns:
+	query 
+Arguments:
+	query - query
+	string - orderColumn
+	string - orderType
+History:
+	2013-10-23 - GAC - Created
+--->
+<cffunction name="QuerySort" displayname="QuerySort" access="public" hint="Sort a query based on a custom list" returntype="query" output="false">
+    <cfargument name="query" type="query" required="yes" hint="The query to be sorted">
+    <cfargument name="columnName" type="string" required="no" default="" hint="The name of the column to be sorted">
+    <cfargument name="orderType" type="string" required="no" default="asc" hint="The sort type. Options: asc, desc">
+    <cfscript>
+		var qResult = queryNew("null");
+		var qColumnsList = arguments.query.columnList;
+		var orderCol = "";
+		var orderTypeDefaults = "asc,desc";
+		var orderTypeOption = "";
+		if ( ListFindNoCase(qColumnsList,arguments.columnName) )
+			orderCol = arguments.columnName;
+		if ( ListFindNoCase(orderTypeDefaults,arguments.orderType) )
+			orderTypeOption = arguments.orderType;
+	</cfscript>
+    <cftry>
+		<cfquery name="qResult" dbtype="query">
+			SELECT #qColumnsList#
+			FROM arguments.query
+			<cfif LEN(TRIM(orderCol)) AND LEN(TRIM(orderTypeOption))>
+			ORDER BY #orderCol# #orderTypeOption#
+			</cfif>
+		</cfquery>
+    	<cfreturn qResult>
+		<cfcatch>
+			<cfdump var="#cfcatch#" label="cfcatch" expand="false">
+			<cfreturn arguments.query>
+		</cfcatch>
+	</cftry>    
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$QuerySortByOrderedList
+Summary:
+	Sort a query based on a custom ordered list.
 	http://cookbooks.adobe.com/post_Sort_query_in_custom_order-17997.html 
 Returns:
 	query 
@@ -321,39 +369,42 @@ Arguments:
 	string
 History:
 	2013-01-10 - MFC - Created
+	2013-10-23 - GAC - Renamed and cleaned up debug code in the method  
+					   Added null value protection logic around the ORDER BY statement
 --->
-<cffunction name="QuerySort" displayname="QuerySort" access="public" hint="Sort a query based on a custom list" returntype="query" output="true">
+<cffunction name="QuerySortByOrderedList" displayname="QuerySortByOrderedList" access="public" hint="Sort a query based on a custom ordered list" returntype="query" output="false">
     <cfargument name="query" type="query" required="yes" hint="The query to be sorted">
     <cfargument name="columnName" type="string" required="yes" hint="The name of the column to be sorted">
     <cfargument name="columnType" type="string" required="no" default="numeric" hint="The column type. Possible values: numeric, varchar">
-    <cfargument name="orderList" type="string" required="yes" hint="The lsit used to sort the query">
-    <cfargument name="orderColumnName" type="string" required="no" default="orderNo" hint="The name of the column containing the order number">
-    <cfset var qResult = queryNew("null")>
-    
-    <!--- Make the order list unique to avoid duplicating query records --->
-    <!--- <cfset arguments.orderList = ListUnique(arguments.orderList)> --->
+    <cfargument name="orderList" type="string" required="yes" hint="The list used to sort the query">
+	<cfargument name="orderColumnName" type="string" required="no" default="recSortCol" hint="The name of the column containing the order number"> 
+    <cfscript>
+		var qResult = queryNew("null");
+		var qColumnsList = arguments.query.columnList;
+		var orderCol = "";
+		var orderItem = "";
+		
+		if ( ListFindNoCase(qColumnsList,arguments.columnName) )
+			orderCol = arguments.columnName;
+	</cfscript>
+    <!--- // Make the order list unique to avoid duplicating query records --->
     <cftry>
-		<!--- <cfdump var="#arguments#" label="QuerySort - args" expand="false"> --->
-		<!--- <cfdump var="#GetMetaData(arguments.query)#" label="QuerySort - GetMetaData" expand="false"> --->
 		<cfquery name="qResult" dbtype="query">
 			<cfloop from="1" to="#listLen(arguments.orderList)#" index="orderItem">
-				SELECT *, #orderItem# AS #arguments.orderColumnName#
+				SELECT #qColumnsList#, #orderItem# AS #arguments.orderColumnName#
 				FROM arguments.query
-				WHERE #arguments.columnName# = '#listGetAt(arguments.orderList, orderItem)#'
+				WHERE #arguments.columnName# = <cfqueryparam value="#listGetAt(arguments.orderList, orderItem)#" cfsqltype="cf_sql_#arguments.columnType#">
+				<!--- WHERE #arguments.columnName# = '#listGetAt(arguments.orderList, orderItem)#' --->
 				<cfif orderItem LT listLen(arguments.orderList)>
 					
 					UNION
 					 
 				</cfif>
 			</cfloop>
-			<!--- 
-			SELECT *, #listLen(arguments.orderList) + 1# AS #arguments.orderColumnName#
-			FROM arguments.query
-			WHERE #arguments.columnName# NOT IN (<cfqueryparam value="#arguments.orderList#" list="yes" cfsqltype="cf_sql_#arguments.columnType#" />)
-			 --->
+			<cfif LEN(TRIM(arguments.orderColumnName))>
 			ORDER BY #arguments.orderColumnName#
+			</cfif>
 		</cfquery>
-		<!--- <cfdump var="#qResult#" label="QuerySort - qResult" expand="false"> --->
     	<cfreturn qResult>
 		<cfcatch>
 			<cfdump var="#cfcatch#" label="cfcatch" expand="false">
