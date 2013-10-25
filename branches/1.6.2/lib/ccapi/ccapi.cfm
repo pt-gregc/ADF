@@ -39,9 +39,9 @@ end user license agreement.
 		<csuserid>webmaster</csuserid>
 		<cspassword>password</cspassword>
 		<site>#request.site.name#</site>
-		<siteURL>http://#request.CGIVars.SERVER_NAME#:#request.CGIVars.SERVER_PORT##request.site.cp_url#</siteURL>
+		<siteURL>#request.site.url#</siteURL>
 		<subsiteID>1</subsiteID>
-		<cssites>commonspot-sites</cssites>
+		<cssites>#request.cp.sitesDatasource#</cssites>
 	</wsVars>
 </settings>
 </cfoutput>

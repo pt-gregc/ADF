@@ -75,14 +75,13 @@ History:
 		variables.api.initAPIConfig();
 		
 		apiConfig = variables.api.getAPIConfig();
-		
+
 		setCCAPIConfig(apiConfig);
 		setCSUserID(apiConfig.wsVars.csuserid);
 		setCSPassword(apiConfig.wsVars.cspassword);
-		setSiteURL(variables.api.getSiteURL());
+		setSiteURL(apiConfig.wsVars.siteURL);
 		setWebServiceURL(apiConfig.wsVars.webserviceURL);
-		setSubsiteID(variables.api.getSubsiteID());
-		
+		setSubsiteID(apiConfig.wsVars.subsiteID);
 	</cfscript>
 </cffunction>
 
@@ -106,12 +105,13 @@ History:
 --->
 <cffunction name="login">
 	<cfargument name="subsiteID" required="false" type="numeric" default="1">
+	<cfargument name="remote" type="boolean" required="false" default="false">
 	<cfscript>
-		if( arguments.subsiteID gt 0 ){
+		if ( arguments.subsiteID gt 0 ) {
 			variables.api.setSubsiteID(arguments.subsiteID);
 		}
 		
-		variables.api.login(forceSubsiteID=variables.api.getSubsiteid());
+		return variables.api.login(remote=arguments.remote,forceSubsiteID=variables.api.getSubsiteid());
 	</cfscript>
 </cffunction>
 
@@ -131,10 +131,11 @@ History:
 	2008-05-21 - RLW - Created
 	2010-06-17 - MFC - Added Clear the SSID and SubsiteID for the session
 	2012-01-23 - MFC - Modified to call the API library.
+	2013-10-25 - GAC - Updated to return status from the API logout call
 --->
 <cffunction name="logout">
 	<cfscript>
-		variables.api.logout();
+		return variables.api.logout();
 	</cfscript>
 </cffunction>
 
@@ -154,11 +155,12 @@ Arguments:
 History:
 	2007-08-08 - RLW - Created
 	2012-01-23 - MFC - Modified to call the API library.
+	2013-10-23 - GAC - Updated to return a value from the api.isloggedIn()
 --->
 <cffunction name="loggedIn">
 	<cfargument name="resultMsg" type="string" required="false" default="">
 	<cfscript>
-		variables.api.isLoggedIn();
+		return variables.api.isLoggedIn();
 	</cfscript>
 </cffunction>
 
@@ -237,8 +239,9 @@ History:
 	<cfreturn variables.ws>
 </cffunction>
 
+<!--- // 10-25-2013 - Updated to use the API getToken method --->
 <cffunction name="getSSID" access="public" returntype="string">
-	<cfreturn variables.SSID>
+	<cfreturn variables.api.getAPIToken()>
 </cffunction>
 
 <!--- // Private GETTERS/SETTERS --->
@@ -307,7 +310,7 @@ History:
 
 <cffunction name="setSSID" access="private" returntype="void">
 	<cfargument name="ssid" type="string" required="true">
-	<cfset variables.SSID = arguments.SSID>	
+	<cfset variables.ssid = arguments.ssid>
 </cffunction>
 
 </cfcomponent>
