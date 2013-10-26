@@ -307,6 +307,17 @@ Name:
 	$loadJCycle2
 Summary:	
 	Loads the jCycle2 responsive plugin for jQuery
+	
+	Note: Console logging is globally disabled by default. To enable on slide show by slide show 
+		  basis set the loadJCycle2(enablelog=true) and add 'data-cycle-log="false"' to your slide show 
+		  html parent element or control vian your cycle2 js configuration options
+		  
+		 <div class="cycle-slideshow" data-cycle-log="false"></div>
+		 OR
+		 jQuery('.cycle-slideshow').cycle({
+		 		speed: 600,
+			    log: false
+		 });
 Returns:
 	Void
 Arguments:
@@ -314,10 +325,12 @@ Arguments:
 History:
  	2013-09-25 - DMB - Created
 	2013-10-17 - GAC - Updated the script name passed to the renderScriptOnce function
+	2013-10-25 - GAC - Updated to globally disable Cycle2 console logging by default with a parameter to re-enable
 --->
 <cffunction name="loadJCycle2" access="public" output="true" returntype="void" hint="Loads the jCycle2 responsive plugin for jQuery"> 
 	<cfargument name="version" type="string" required="false" default="20130909" hint="jCycle version to load.">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces jCycle2 script header to load.">
+	<cfargument name="enablelog" type="boolean" required="false" default="false" hint="Set to true to enable console logging.">
 	<cfscript>
 		var outputHTML = "";
 		// safety check to make sure atleast the min version is loaded
@@ -327,6 +340,9 @@ History:
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
 			<script type='text/javascript' src='/ADF/thirdParty/jquery/jcycle2/#arguments.version#/jquery.cycle2.min.js'></script>
+			<cfif NOT arguments.enablelog>
+			<script>jQuery.fn.cycle.log = jQuery.noop</script>
+			</cfif>
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
