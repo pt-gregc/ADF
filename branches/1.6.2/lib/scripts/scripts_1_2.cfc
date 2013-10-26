@@ -36,7 +36,7 @@ History:
 --->
 <cfcomponent displayname="scripts_1_2" extends="ADF.lib.scripts.scripts_1_1" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" value="1_2_15">
+<cfproperty name="version" value="1_2_17">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_1" type="dependency">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Scripts_1_2">
@@ -220,12 +220,10 @@ History:
 		arguments.version = variables.scriptsService.getMajorMinorVersion(arguments.version);
 
 		// Check that we are loading v1.9 or greater
-		if ( (arguments.version EQ 1.9)
-				OR (LEN(ListLast(arguments.version, ".")) GTE 2) ) {
+		if ( (arguments.version EQ 1.9) OR (LEN(ListLast(arguments.version, ".")) GTE 2) ) {
 			// If forcing, then load migrate plugin
 			//	OR the jquery script is NOT loaded yet
-			if ( arguments.force
-					OR NOT variables.scriptsService.isScriptLoaded("jQuery") )
+			if ( arguments.force OR NOT variables.scriptsService.isScriptLoaded("jQuery") )
 				loadMigratePlugin = true;	
 		}
 				
@@ -483,9 +481,10 @@ Arguments:
 	Boolean - Force
 History:
 	2013-02-06 - MFC - Created
+	2013-10-26 - GAC - Updated to load v1.2 by default
 --->
 <cffunction name="loadJQueryMigrate" access="public" output="true" returntype="void" hint="Loads the JQuery Migrate Plugin for Jquery backwards compatibility.">
-	<cfargument name="version" type="string" required="false" default="1.1" hint="JQuery Migrate version to load.">
+	<cfargument name="version" type="string" required="false" default="1.2" hint="JQuery Migrate version to load.">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery Migrate script header to load.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
@@ -1280,6 +1279,31 @@ History:
 			#variables.scriptsService.renderScriptOnce("jqueryimagesloaded",outputHTML)#
 		</cfif>
 	</cfoutput>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	G. Cronkright
+Name:
+	$loadUploadify
+Summary:	
+	Loads the uploadify plugin for jQuery
+Returns:
+	Void
+Arguments:
+	String - version - 3.2.1
+	Boolean - Force
+History:
+ 	2012-12-17 - GAC - Based on scripts 1.1.  Set to default load version 2.9.
+--->
+<cffunction name="loadUploadify" access="public" output="true" returntype="void" hint="Loads the uploadify plugin for jQuery">
+	<cfargument name="version" type="string" required="false" default="3.2.1" hint="JQuery Uploadify plugin version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
+	<cfscript>
+		super.loadUploadify(version=arguments.version, force=arguments.force);
+	</cfscript>
 </cffunction>
 
 </cfcomponent>
