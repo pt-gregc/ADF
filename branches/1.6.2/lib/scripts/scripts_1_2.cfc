@@ -36,7 +36,7 @@ History:
 --->
 <cfcomponent displayname="scripts_1_2" extends="ADF.lib.scripts.scripts_1_1" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" value="1_2_17">
+<cfproperty name="version" value="1_2_18">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_1" type="dependency">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Scripts_1_2">
@@ -371,12 +371,14 @@ History:
 	2013-01-16 - MFC - Restructured the thirdparty folders & versions. Set to default load JQuery Data Tables 1.9.
 	2013-02-06 - MFC - Moved the "Restructured the thirdparty folders & versions" support code to
 						the Scripts 1.1 to make backwards compatibable.
+	2013-11-14 - DJM - Added a loadStyle parameter
 --->
 <cffunction name="loadJQueryDataTables" access="public" output="true" returntype="void" hint="Loads the JQuery DataTables Headers if not loaded.">
 	<cfargument name="version" type="string" required="false" default="1.9" hint="JQuery DataTables version to load.">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery DataTables script header to load.">
+	<cfargument name="loadStyles" type="boolean" required="false" default="true" hint="Boolean flag incicating if we need to load styles">
 	<cfscript>
-		super.loadJQueryDataTables(version=arguments.version, force=arguments.force);
+		super.loadJQueryDataTables(version=arguments.version, force=arguments.force, loadStyles=arguments.loadStyles);
 	</cfscript>
 </cffunction>
 
