@@ -310,7 +310,33 @@ History:
 			<br />To denote a ColdFusion Expression, add brackets around the expression (i.e. "[request.user.userid]")
 		</td>
 	</tr>
-		
+	
+	<tr>
+		<td colspan="2"><hr /></td>
+	</tr>
+	<tr>
+		<td class="cs_dlgLabelSmall">Select Option:</td>
+		<td class="cs_dlgLabelSmall">
+				Yes <input type="radio" id="#prefix#renderSelectOption" name="#prefix#renderSelectOption" value="1" <cfif currentValues.renderSelectOption EQ "1">checked</cfif>>&nbsp;&nbsp;&nbsp;
+				No <input type="radio" id="#prefix#renderSelectOption" name="#prefix#renderSelectOption" value="0" <cfif currentValues.renderSelectOption EQ "0">checked</cfif>><br />
+				Places a '--Select--' option in the list. <!--- Cannot be used with a multiple selection list. ---> 
+				<!--- // Must leave this option available for multiple selections lists for backwards compatiblity --->
+		</td>
+	</tr>
+	<tr>
+		<td class="cs_dlgLabelSmall">Multiple Select:</td>
+		<td class="cs_dlgLabelSmall">
+				Yes <input type="radio" id="#prefix#multipleSelect" name="#prefix#multipleSelect" value="1" <cfif currentValues.multipleSelect EQ "1">checked</cfif>>&nbsp;&nbsp;&nbsp;
+				No <input type="radio" id="#prefix#multipleSelect" name="#prefix#multipleSelect" value="0" <cfif currentValues.multipleSelect EQ "0">checked</cfif>><br />
+		</td>
+	</tr>
+	<tr>
+		<td class="cs_dlgLabelSmall">Multiple Select Size:</td>
+		<td class="cs_dlgLabelSmall">
+				<input id="#prefix#multipleSelectSize" name="#prefix#multipleSelectSize" value="#currentValues.multipleSelectSize#" size="3">
+		</td>
+	</tr>	
+	
 	<tr>
 		<td colspan="2"><hr /></td>
 	</tr>
@@ -343,32 +369,5 @@ History:
 				Force the JQuery script to load.
 		</td>
 	</tr>
-	
-	<tr>
-		<td colspan="2"><hr /></td>
-	</tr>
-	<tr>
-		<td class="cs_dlgLabelSmall">Select Option:</td>
-		<td class="cs_dlgLabelSmall">
-				Yes <input type="radio" id="#prefix#renderSelectOption" name="#prefix#renderSelectOption" value="1" <cfif currentValues.renderSelectOption EQ "1">checked</cfif>>&nbsp;&nbsp;&nbsp;
-				No <input type="radio" id="#prefix#renderSelectOption" name="#prefix#renderSelectOption" value="0" <cfif currentValues.renderSelectOption EQ "0">checked</cfif>><br />
-				Places a '--Select--' option in the list. <!--- Cannot be used with a multiple selection list. ---> 
-				<!--- // Must leave this option available for multiple selections lists for backwards compatiblity --->
-		</td>
-	</tr>
-	<tr>
-		<td class="cs_dlgLabelSmall">Multiple Select:</td>
-		<td class="cs_dlgLabelSmall">
-				Yes <input type="radio" id="#prefix#multipleSelect" name="#prefix#multipleSelect" value="1" <cfif currentValues.multipleSelect EQ "1">checked</cfif>>&nbsp;&nbsp;&nbsp;
-				No <input type="radio" id="#prefix#multipleSelect" name="#prefix#multipleSelect" value="0" <cfif currentValues.multipleSelect EQ "0">checked</cfif>><br />
-		</td>
-	</tr>
-	<tr>
-		<td class="cs_dlgLabelSmall">Multiple Select Size:</td>
-		<td class="cs_dlgLabelSmall">
-				<input id="#prefix#multipleSelectSize" name="#prefix#multipleSelectSize" value="#currentValues.multipleSelectSize#" size="3">
-		</td>
-	</tr>
-	
 </table>
 </cfoutput>

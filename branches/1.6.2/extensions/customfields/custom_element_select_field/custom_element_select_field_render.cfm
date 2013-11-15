@@ -57,6 +57,9 @@ History:
 					- Added code to display the Description text 
 	2013-02-20 - MFC - Replaced Jquery "$" references.
 	2013-09-27 - GAC - Added a renderSelectOption to allow the 'SELECT' text to be added or removed from the selection list
+	2013-11-14 - DJM - Added the fieldpermission variable for read only field 
+    				 - Moved the Field to Data Mask code out to an new ADF from_1_1 function
+	2013-11-14 - GAC - Updated the selected value to be an empty string if the stored value or the default value does not match available records from the bound element
 --->
 <cfscript>
 	// the fields current value
