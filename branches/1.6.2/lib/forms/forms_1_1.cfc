@@ -457,6 +457,56 @@ History:
 /* *************************************************************** */
 Author:
 	PaperThin, Inc.
+Name:
+	$renderDataValueStringfromFieldMask
+Summary:
+	Returns the string of data values from field mask. 
+	Used with the Custom Element Field Select CFT
+Returns:
+	string
+Arguments:
+	Struct - fieldDataStruct
+	string - fieldMaskStr
+History:
+ 	2010-12-06 - RAK - Created
+	2013-11-14 - DJM - Pulled out from the Custom Element Select Field render file and converted to its own method
+	2013-11-14 - GAC - Moved from the Custom Element Select Field to the Forms_1_1 lib
+--->
+<cffunction name="renderDataValueStringfromFieldMask" hint="Returns the string of data values from field mask" access="public" returntype="string">
+	<cfargument name="fieldDataStruct" type="struct" required="true" hint="Struct with the field key/value pair">
+	<cfargument name="fieldMaskStr" type="string" required="true" hint="String mask of <fieldNames> used build the field value display">
+	<cfscript>
+		var displayField = arguments.fieldMaskStr;
+		var startChar = chr(171);
+		var endChar = chr(187);
+		var value = '';
+		var foundIndex = 0;
+		var foundEndIndex = 0;
+		
+		// While we still detect the upper ascii start character loop through
+		while ( Find(startChar,displayField) ) {
+			foundIndex = Find(startChar,displayField);
+			foundEndIndex = Find(endChar,displayField);
+			//Grab the content in between the start and end character
+			value = mid(displayField,foundIndex+1,foundEndIndex-foundIndex-1);
+			if ( StructKeyExists(arguments.fieldDataStruct,value) ) {
+				// We found it. Replace the <value> with the actual value
+				displayField = Replace(displayField,"#startChar##value##endChar#", arguments.fieldDataStruct[value],"ALL");
+			}
+			else {
+				// Something is messed up... tell them so in the field!
+				displayField = Replace(displayField,"#startChar##value##endChar#", "Field '#value#' does not exist!");
+			}
+		}
+		
+		return displayField;
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
 	Ryan Kahn
 Name:
 	$wrapHTMLWithLightbox
