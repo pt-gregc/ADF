@@ -33,8 +33,8 @@ Summary:
 		option id and name values.
 	Added Properties to set the field name value, default field value, and field visibility.
 ADF Requirements:
-	csData_1_0
-	scripts_1_0
+	csData_2_0
+	scripts_1_2
 History:
 	2009-07-06 - MFC - Created
 	2010-09-17 - MFC - Updated the Default Value field to add [] to the value
@@ -49,6 +49,7 @@ History:
 					- Modified the "Other" option  from the displayFieldBuilder to be "--Other--" to make more visible and to avoid CE field name conflicts 
 	2011-12-28 - MFC - Force JQuery to "noconflict" mode to resolve issues with CS 6.2.
 	2013-09-27 - GAC - Added a renderSelectOption to allow the 'SELECT' text to be added or removed from the selection list
+	2013-11-14 - GAC - Reorganized the props fields
 --->
 <cfscript>
 	// initialize some of the attributes variables
@@ -290,7 +291,28 @@ History:
 		</td>
 	</tr>
 	<tr>
-		<td><br /></td>
+		<td class="cs_dlgLabelSmall">Active Flag</td>
+		<td class="cs_dlgLabelSmall">
+			Field: <select name="#prefix#activeFlagField" id="#prefix#activeFlagField"></select>
+		</td>
+	</tr>
+	<tr>
+		<td></td>
+		<td class="cs_dlgLabelSmall">
+			Value: <input type="text" name="#prefix#activeFlagValue" id="#prefix#activeFlagValue" value="#currentValues.activeFlagValue#" size="20">
+			<br />To denote a ColdFusion Expression, add brackets around the expression (i.e. "[request.user.userid]")
+		</td>
+	</tr>
+	<tr>
+		<td class="cs_dlgLabelSmall">Default Field Value:</td>
+		<td class="cs_dlgLabelSmall">
+			<input type="text" name="#prefix#defaultVal" id="#prefix#defaultVal" value="#currentValues.defaultVal#" size="40">
+			<br />To denote a ColdFusion Expression, add brackets around the expression (i.e. "[request.user.userid]")
+		</td>
+	</tr>
+		
+	<tr>
+		<td colspan="2"><hr /></td>
 	</tr>
 	<tr>
 		<td class="cs_dlgLabelSmall">Field Name:</td>
@@ -307,27 +329,12 @@ History:
 		</td>
 	</tr>
 	<tr>
-		<td class="cs_dlgLabelSmall">Default Field Value:</td>
-		<td class="cs_dlgLabelSmall">
-			<input type="text" name="#prefix#defaultVal" id="#prefix#defaultVal" value="#currentValues.defaultVal#" size="40">
-			<br />To denote a ColdFusion Expression, add brackets around the expression (i.e. "[request.user.userid]")
+		<td class="cs_dlgLabelSmall">Add Button:</td>
+			<td class="cs_dlgLabelSmall">
+				Yes <input type="radio" id="#prefix#addButton" name="#prefix#addButton" value="1" <cfif currentValues.addButton EQ "1">checked</cfif>>&nbsp;&nbsp;&nbsp;
+				No <input type="radio" id="#prefix#addButton" name="#prefix#addButton" value="0" <cfif currentValues.addButton EQ "0">checked</cfif>><br />
 		</td>
 	</tr>
-
-	<tr>
-		<td class="cs_dlgLabelSmall">Active Flag</td>
-		<td class="cs_dlgLabelSmall">
-			Field: <select name="#prefix#activeFlagField" id="#prefix#activeFlagField"></select>
-		</td>
-	</tr>
-	<tr>
-		<td></td>
-		<td class="cs_dlgLabelSmall">
-			Value: <input type="text" name="#prefix#activeFlagValue" id="#prefix#activeFlagValue" value="#currentValues.activeFlagValue#" size="20">
-			<br />To denote a ColdFusion Expression, add brackets around the expression (i.e. "[request.user.userid]")
-		</td>
-	</tr>
-
 	<tr>
 		<td class="cs_dlgLabelSmall">Force Loading Scripts:</td>
 			<td class="cs_dlgLabelSmall">
@@ -336,11 +343,17 @@ History:
 				Force the JQuery script to load.
 		</td>
 	</tr>
+	
 	<tr>
-		<td class="cs_dlgLabelSmall">Add Button:</td>
-			<td class="cs_dlgLabelSmall">
-				Yes <input type="radio" id="#prefix#addButton" name="#prefix#addButton" value="1" <cfif currentValues.addButton EQ "1">checked</cfif>>&nbsp;&nbsp;&nbsp;
-				No <input type="radio" id="#prefix#addButton" name="#prefix#addButton" value="0" <cfif currentValues.addButton EQ "0">checked</cfif>><br />
+		<td colspan="2"><hr /></td>
+	</tr>
+	<tr>
+		<td class="cs_dlgLabelSmall">Select Option:</td>
+		<td class="cs_dlgLabelSmall">
+				Yes <input type="radio" id="#prefix#renderSelectOption" name="#prefix#renderSelectOption" value="1" <cfif currentValues.renderSelectOption EQ "1">checked</cfif>>&nbsp;&nbsp;&nbsp;
+				No <input type="radio" id="#prefix#renderSelectOption" name="#prefix#renderSelectOption" value="0" <cfif currentValues.renderSelectOption EQ "0">checked</cfif>><br />
+				Places a '--Select--' option in the list. <!--- Cannot be used with a multiple selection list. ---> 
+				<!--- // Must leave this option available for multiple selections lists for backwards compatiblity --->
 		</td>
 	</tr>
 	<tr>
@@ -356,14 +369,6 @@ History:
 				<input id="#prefix#multipleSelectSize" name="#prefix#multipleSelectSize" value="#currentValues.multipleSelectSize#" size="3">
 		</td>
 	</tr>
-	<tr>
-		<td class="cs_dlgLabelSmall">Select Option:</td>
-		<td class="cs_dlgLabelSmall">
-				Yes <input type="radio" id="#prefix#renderSelectOption" name="#prefix#renderSelectOption" value="1" <cfif currentValues.renderSelectOption EQ "1">checked</cfif>>&nbsp;&nbsp;&nbsp;
-				No <input type="radio" id="#prefix#renderSelectOption" name="#prefix#renderSelectOption" value="0" <cfif currentValues.renderSelectOption EQ "0">checked</cfif>><br />
-				Places a '--Select--' option in the list. <!--- Cannot be used with a multiple selection list. ---> 
-				<!--- // Must leave this option available for multiple selections lists for backwards compatiblity --->
-		</td>
-	</tr>
+	
 </table>
 </cfoutput>

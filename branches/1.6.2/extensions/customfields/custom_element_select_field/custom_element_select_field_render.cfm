@@ -33,8 +33,9 @@ Summary:
 		option id and name values.
 	Added Properties to set the field name value, default field value, and field visibility.
 ADF Requirements:
-	csData_1_0
-	scripts_1_0
+	csData_2_0
+	scripts_1_2
+	forms_1_1
 History:
 	2009-10-28 - MFC - Created
 	2009-12-23 - MFC - Resolved error with loading the current value selected.
@@ -67,6 +68,9 @@ History:
 	// the description for the field 
 	currentDescription = fieldQuery.DESCRIPTION[currentRow];
 	
+	// Set the Selected Value for the HIDDEN field that passed the data to be stored
+	currentSelectedValue = "";
+	
 	// Set the defaults
 	if ( StructKeyExists(xParams, "forceScripts") AND (xParams.forceScripts EQ "1") )
 		xParams.forceScripts = true;
@@ -96,18 +100,19 @@ History:
 
 	if ( NOT StructKeyExists(xparams, "fldName") OR (LEN(xparams.fldName) LTE 0) )
 		xparams.fldName = fqFieldName;	
+		
 	if ( NOT StructKeyExists(xparams, "sortByField") OR (LEN(xparams.sortByField) LTE 0) )
 		xparams.sortByField = "--";
 		
 	// Get the data records
-	if(StructKeyExists(xparams,"activeFlagField") and Len(xparams.activeFlagField)
-			and StructKeyExists(xparams,"activeFlagValue") and Len(xparams.activeFlagValue)){
-			if((TRIM(LEFT(xparams.activeFlagValue,1)) EQ "[") AND (TRIM(RIGHT(xparams.activeFlagValue,1)) EQ "]")){
-				xparams.activeFlagValue = MID(xparams.activeFlagValue, 2, LEN(xparams.activeFlagValue)-2);
-				xparams.activeFlagValue = Evaluate(xparams.activeFlagValue);
-			}
+	if ( StructKeyExists(xparams,"activeFlagField") and Len(xparams.activeFlagField) and StructKeyExists(xparams,"activeFlagValue") and Len(xparams.activeFlagValue) ) {
+		if ( (TRIM(LEFT(xparams.activeFlagValue,1)) EQ "[") AND (TRIM(RIGHT(xparams.activeFlagValue,1)) EQ "]")){
+			xparams.activeFlagValue = MID(xparams.activeFlagValue, 2, LEN(xparams.activeFlagValue)-2);
+			xparams.activeFlagValue = Evaluate(xparams.activeFlagValue);
+		}
 		ceDataArray = application.ADF.cedata.getCEData(xparams.customElement,xparams.activeFlagField,xparams.activeFlagValue);
-	}else{
+	}
+	else {
 		ceDataArray = application.ADF.cedata.getCEData(xparams.customElement);
 	}
 
@@ -129,7 +134,8 @@ History:
 			//2011-01-06 - RAK - Added error catching on eval failure.
 			try{
 				currentValue = Evaluate(xparams.defaultVal);
-			}catch(Any e){
+			}
+			catch(Any e){
 				currentValue = "";
 			}
 		}
@@ -137,6 +143,7 @@ History:
 			currentValue = xparams.defaultVal;
 	}
 </cfscript>
+
 <cfoutput>
 	<script>
 		// javascript validation to make sure they have text to be converted
@@ -151,15 +158,12 @@ History:
 			vobjects_#attributes.formname#.push(#fqFieldName#);
 		}
 		
-		function validate_#fqFieldName#()
-		{
+		function validate_#fqFieldName#(){
 			//alert(fieldLen);
-			if (jQuery("input[name=#fqFieldName#]").val() != '')
-			{
+			if (jQuery("input[name=#fqFieldName#]").val() != '') {
 				return true;
 			}
-			else
-			{
+			else {
 				alert(#fqFieldName#.msg);
 				return false;
 			}
@@ -168,8 +172,7 @@ History:
 		// Set a global disable field flag 
 		var setDisableFlag = false;
 		
-		function #fqFieldName#_loadSelection()
-		{
+		function #fqFieldName#_loadSelection(){
 			//alert("fire");
 			// Selected value
 			var selectedVal = "";
@@ -208,17 +211,16 @@ History:
 	</script>
 	
 	<cfscript>
-		if ( structKeyExists(request, "element") )
-		{
+		if ( structKeyExists(request, "element") ) {
 			labelText = '<span class="CS_Form_Label_Baseline"><label for="#fqFieldName#">#xParams.label#:</label></span>';
 			tdClass = 'CS_Form_Label_Baseline';
 		}
-		else
-		{
+		else {
 			labelText = '<label for="#fqFieldName#">#xParams.label#:</label>';
 			tdClass = 'cs_dlgLabel';
 		}
 	</cfscript>
+	
 	<tr id="#fqFieldName#_fieldRow">
 		<td class="#tdClass#" valign="top">
 			<font face="Verdana,Arial" color="##000000" size="2">
@@ -234,49 +236,32 @@ History:
 				// Set the read only 
 				readOnly = true;
 				// Check if the user does have edit permissions
-				if ( (xparams.UseSecurity EQ 0) OR ( (xparams.UseSecurity EQ 1) AND (ListLen(commonGroups)) ) )
+				if ( (xparams.UseSecurity EQ 0) OR ( (xparams.UseSecurity EQ 1) AND (ListLen(commonGroups) OR fieldpermission EQ 2) ) )
 					readOnly = false;
 			</cfscript>
 			<div id="#fqFieldName#_renderSelect">
 				<!---// 2011-04-20 - RAK - Added multiple select ability--->
 				<select <cfif StructKeyExists(xparams,"multipleSelect") and StructKeyExists(xparams,"multipleSelectSize") and xparams.multipleSelect>multiple="multiple" size="#xparams.multipleSelectSize#"</cfif> name='#fqFieldName#_select' class="#xparams.fldName#" id='#fqFieldName#_select' onchange='#fqFieldName#_loadSelection()' <cfif readOnly>disabled='disabled'</cfif>>
-					<cfif xParams.renderSelectOption>
+				<cfif xParams.renderSelectOption>
 					<option value=''> - Select - </option>
+				</cfif>
+	 			<cfloop index="cfs_i" from="1" to="#ArrayLen(ceDataArray)#">
+					<cfif ListFind(currentValue,ceDataArray[cfs_i].Values['#xparams.valueField#'])>
+						<cfset isSelected = true>
+						<cfset currentSelectedValue = ListAppend(currentSelectedValue,ceDataArray[cfs_i].Values['#xparams.valueField#'])>
+					<cfelse>
+						<cfset isSelected = false>
 					</cfif>
-		 			<cfloop index="cfs_i" from="1" to="#ArrayLen(ceDataArray)#">
-						<cfif ListFind(currentValue,ceDataArray[cfs_i].Values['#xparams.valueField#'])>
-							<cfset isSelected = true>
+                  	<option value="#ceDataArray[cfs_i].Values['#xparams.valueField#']#"<cfif isSelected> selected="selected"</cfif>>
+						<cfif xparams.displayField eq "--Other--" and Len(xparams.displayFieldBuilder)>
+							<!--- // Covert the Field Builder String to Values from the element ---> 
+							<cfset displayField = application.ADF.forms.renderDataValueStringfromFieldMask(ceDataArray[cfs_i].Values, xparams.displayFieldBuilder)>
+							#displayField#
 						<cfelse>
-							<cfset isSelected = false>
+							#ceDataArray[cfs_i].Values['#xparams.displayField#']#
 						</cfif>
-                  <option value="#ceDataArray[cfs_i].Values['#xparams.valueField#']#" <cfif isSelected>selected</cfif>>
-							<cfif xparams.displayField eq "--Other--" and Len(xparams.displayFieldBuilder)>
-								<cfscript>
-									//String building!
-									displayField = xparams.displayFieldBuilder;
-									startChar = chr(171);
-									endChar = chr(187);
-									//While we still detect the upper ascii start character loop through
-									while(Find(startChar,displayField)){
-										foundIndex = Find(startChar,displayField);
-										foundEndIndex = Find(endChar,displayField);
-										//Grab the content in between the start and end character
-										value = mid(displayField,foundIndex+1,foundEndIndex-foundIndex-1);
-										if(StructKeyExists(ceDataArray[cfs_i].Values,value)){
-											//We found it. Replace the <value> with the actual value
-											displayField = Replace(displayField,"#startChar##value##endChar#", ceDataArray[cfs_i].Values[value],"ALL");
-										}else{
-											//Something is messed up... tell them so in the field!
-											displayField = Replace(displayField,"#startChar##value##endChar#", "Field '#value#' does not exist!");
-										}
-									}
-								</cfscript>
-								#displayField#
-							<cfelse>
-								#ceDataArray[cfs_i].Values['#xparams.displayField#']#
-							</cfif>
-						</option>
-					</cfloop>
+					</option>
+				</cfloop>
 		 		</select>
 		 		<cfif StructKeyExists(xparams,"addButton") && xparams.addButton eq "1">
 					#application.ADF.scripts.loadJQuery()#
@@ -312,10 +297,11 @@ History:
 			</div>
 		</td>
 	</tr>
-	<!--- hidden field to store the value --->
-	<input type='hidden' name='#fqFieldName#' id='#xparams.fldName#' value='#currentValue#'>
+	<!--- // hidden field to store the value --->
+	<input type='hidden' name='#fqFieldName#' id='#xparams.fldName#' value='#currentSelectedValue#'>
 	<!--- // include hidden field for simple form processing --->
 	<cfif renderSimpleFormField>
 		<input type="hidden" name="#fqFieldName#_FIELDNAME" id="#fqFieldName#_FIELDNAME" value="#ReplaceNoCase(xParams.fieldName, 'fic_','')#">
 	</cfif>
 </cfoutput>
+
