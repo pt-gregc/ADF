@@ -35,7 +35,7 @@ History:
 --->
 <cfcomponent displayname="ceData_2_0" extends="ADF.lib.ceData.ceData_1_1" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="2_0_12">
+<cfproperty name="version" value="2_0_13">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_2">
 <cfproperty name="wikiTitle" value="CEData_1_2">
@@ -1222,12 +1222,24 @@ Arguments:
 	String - viewTableName
 History:
 	2013-01-29 - GAC - Created
+	2013-11-18 - GAC - Added a dbType logic to add additional 'table_schema' criteria for MySQL
+					 - Added different table schema name for Oracle (thanks DM)
+					 - Added logging to the CFCatch rather than just returning false
 --->
 <cffunction name="verifyViewTableExists" access="public" returntype="boolean" output="false" hint="Verifies that a CE View Table exists, if one does not exist then it attempt to build one.">
 	<cfargument name="customElementName" type="string" required="true">
 	<cfargument name="viewTableName" type="string" required="false" default="">
 	<cfscript>
-		var verifySourceDB = QueryNew("temp");
+		var verifyDBtable = QueryNew("temp");
+		var siteDSN = Request.Site.DataSource;
+		var siteDBtype = Request.Site.SiteDBType;
+		var selectFromTable = "information_schema.tables";
+		// CFM 9+ syntax
+		//var selectFromTable = (dbType == "Oracle") ? "USER_TAB_COLUMNS" : "INFORMATION_SCHEMA.TABLES"; 
+		
+		// Schema Table for ORACLE
+		if ( siteDBtype EQ "Oracle" )
+		 	selectFromTable = "user_tab_columns"; 
 		
 		// Set the view table name if a viewTableName is not passed in
 		if ( LEN(TRIM(arguments.viewTableName)) EQ 0 )
@@ -1236,20 +1248,24 @@ History:
 	<cftry>
 		<cfif LEN(TRIM(arguments.viewTableName))>
 			<!--- // Check if the table exists in the Source DB --->
-			<cfquery name="verifySourceDB" datasource="#Request.Site.DataSource#">
+			<cfquery name="verifyDBtable" datasource="#siteDSN#">
 				SELECT 	* 
-				  FROM 	INFORMATION_SCHEMA.TABLES 
-	    		 WHERE 	TABLE_NAME = <cfqueryparam value="#arguments.viewTableName#" cfsqltype="cf_sql_varchar">
+				  FROM 	#selectFromTable#
+	    		 WHERE 	table_name = <cfqueryparam value="#arguments.viewTableName#" cfsqltype="cf_sql_varchar">
+	    		 <cfif  siteDBtype EQ "MySQL">
+	    		  AND   table_schema = DATABASE()
+	    		 </cfif>
 			</cfquery>
 		</cfif>
 		<!--- // Check that we don't have the table --->
-		<cfif verifySourceDB.RecordCount LTE 0> 
+		<cfif verifyDBtable.RecordCount LTE 0> 
 			<!--- // Create the view from the Element --->
 			<cfreturn buildRealTypeView(elementName=arguments.customElementName,viewName=arguments.viewTableName)>
 		<cfelse>
 			<cfreturn true>
 		</cfif>
 		<cfcatch>
+			<cfset application.ADF.utils.logAppend(msg="#arguments.customElementName#: #cfcatch.message#",logFile="ceData-verifyViewTableExists.log")>
 			<cfreturn false>
 		</cfcatch>
 	</cftry>
