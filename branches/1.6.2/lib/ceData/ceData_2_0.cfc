@@ -1225,7 +1225,7 @@ History:
 	2013-11-18 - GAC - Added a dbType logic to add additional 'table_schema' criteria for MySQL
 					 - Added different table schema name for Oracle (thanks DM)
 					 - Added logging to the CFCatch rather than just returning false
-	2013-11-18 - GAC - Converted to use the generic utils_1_2.verifyTableExists
+	2013-11-18 - GAC - Converted to use the generic data_1_2.verifyTableExists
 --->
 <cffunction name="verifyViewTableExists" access="public" returntype="boolean" output="false" hint="Verifies that a CE View Table exists, if one does not exist then it attempt to build one.">
 	<cfargument name="customElementName" type="string" required="true">
@@ -1234,6 +1234,7 @@ History:
 		var siteDSN = Request.Site.DataSource;
 		var siteDBtype = Request.Site.SiteDBType;
 		var viewTableExists = false;
+		var dataLib = server.ADF.objectFactory.getBean("data_1_2");
 		var utilsLib = server.ADF.objectFactory.getBean("utils_1_2");
 		
 		// Set the view table name if a viewTableName is not passed in
@@ -1241,7 +1242,7 @@ History:
 			arguments.viewTableName = getViewTableName(customElementName=arguments.customElementName);
 		
 		// Check to see if table exists
-		viewTableExists = utilsLib.verifyTableExists(tableName=arguments.viewTableName,datasourseName=siteDSN,databaseType=siteDBtype);
+		viewTableExists = dataLib.verifyTableExists(tableName=arguments.viewTableName,datasourseName=siteDSN,databaseType=siteDBtype);
 		
 		// If we don't have the table... build it
 		if ( viewTableExists ) {

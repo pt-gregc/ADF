@@ -35,7 +35,7 @@ History:
 --->
 <cfcomponent displayname="data_1_2" extends="ADF.lib.data.data_1_1" hint="Data Utils component functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_5">
+<cfproperty name="version" value="1_2_6">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Data_1_2">
 
@@ -54,6 +54,7 @@ Arguments:
 	Struct - structDataA
 	Struct - elementDataB
 	String - excludeFieldList
+	Any - objectFieldKeyList
 History:
 	2012-10-19 - GAC - Created - MOVE INTO THE ADF V1.6
 	2012-12-31 - Added 'objectFieldKeyList' argument for complex fields.
@@ -623,6 +624,73 @@ History:
 	  	}
 		return listReturn;
 	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	G. Cronkright
+Name:
+	$verifyTableExists
+Summary:
+	Verifies that a DB Table or View exists
+	
+	--Tested with MySQL and MSSQL
+Returns:
+	boolean
+Arguments:
+	String - tableName
+	String - datasourseName
+	String - databaseType
+History:
+	2013-11-18 - GAC - Created
+					 - Moved to data_1_2 from ceData_2_0.verifyViewTableExists and genernalized to check existance of any table or view not just custom element specific views
+					 - Added a dbType logic to add additional 'table_schema' criteria for MySQL
+					 - Added different table schema name for Oracle (thanks DM)
+					 - Added logging to the CFCatch rather than just returning false
+	2013-11-18 - GAC - Fixed issue with logAppend() method call			
+--->
+<cffunction name="verifyTableExists" access="public" returntype="boolean" output="false" hint="Verifies that a Tables and View Table exist for various db types.">
+	<cfargument name="tableName" type="string" required="true">
+	<cfargument name="datasourseName" type="string" required="false" default="#Request.Site.DataSource#">
+	<cfargument name="databaseType" type="string" required="false" default="#Request.Site.SiteDBType#">
+	<cfscript>
+		var verifySourceDB = QueryNew("temp");
+		var datasourse = arguments.datasourseName;
+		var dbType = arguments.databaseType;
+		var selectFromTable = "information_schema.tables"; // SQLServer and MySQL schema table
+		var utilsLib = server.ADF.objectFactory.getBean("utils_1_2");
+		// CFM 9+ syntax
+		//var selectFromTable = (dbType == "Oracle") ? "USER_TAB_COLUMNS" : "INFORMATION_SCHEMA.TABLES"; 
+
+		// Schema Table for ORACLE
+		if ( dbType EQ "Oracle" )
+		 	selectFromTable = "user_tab_columns"; 
+	</cfscript>
+	<cftry>
+		<cfif LEN(TRIM(arguments.tableName))>
+			<!--- // Check if the table exists in the Source DB --->
+			<cfquery name="verifyDB" datasource="#datasourse#">
+				SELECT 	* 
+				  FROM 	#selectFromTable#
+	    		 WHERE 	table_name = <cfqueryparam value="#arguments.tableName#" cfsqltype="cf_sql_varchar">
+	    		 <cfif  dbType EQ "MySQL">
+	    		  AND   table_schema = DATABASE()
+	    		 </cfif>
+			</cfquery>
+		</cfif>
+		<!--- // Check to see if we have the table --->
+		<cfif verifyDB.RecordCount> 
+			<cfreturn true>
+		<cfelse>
+			<cfreturn false>
+		</cfif>
+		<cfcatch>
+			<cfset utilsLib.logAppend(msg="#arguments.tableName#: #cfcatch.message#",logFile="utils-verifyTableExists.log")>
+			<cfreturn false>
+		</cfcatch>
+	</cftry>
 </cffunction>
 
 </cfcomponent>
