@@ -34,7 +34,7 @@ History:
 --->
 <cfcomponent displayname="utils_1_2" extends="ADF.lib.utils.utils_1_1" hint="Util functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_6">
+<cfproperty name="version" value="1_2_7">
 <cfproperty name="type" value="singleton">
 <cfproperty name="ceData" type="dependency" injectedBean="ceData_2_0">
 <cfproperty name="csData" type="dependency" injectedBean="csData_1_2">
@@ -474,6 +474,7 @@ History:
 					 - Added a dbType logic to add additional 'table_schema' criteria for MySQL
 					 - Added different table schema name for Oracle (thanks DM)
 					 - Added logging to the CFCatch rather than just returning false
+	2013-11-18 - GAC - Fixed issue with logAppend() method call			
 --->
 <cffunction name="verifyTableExists" access="public" returntype="boolean" output="false" hint="Verifies that a Tables and View Table exist for various db types.">
 	<cfargument name="tableName" type="string" required="true">
@@ -510,7 +511,7 @@ History:
 			<cfreturn false>
 		</cfif>
 		<cfcatch>
-			<cfset application.ADF.utils.logAppend(msg="#arguments.tableName#: #cfcatch.message#",logFile="utils-verifyTableExists.log")>
+			<cfset logAppend(msg="#arguments.tableName#: #cfcatch.message#",logFile="utils-verifyTableExists.log")>
 			<cfreturn false>
 		</cfcatch>
 	</cftry>
