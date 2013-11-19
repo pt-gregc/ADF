@@ -35,7 +35,7 @@ History:
 
 <cfproperty name="version" value="1_2_1">
 <cfproperty name="type" value="singleton">
-<cfproperty name="data" type="dependency" injectedBean="data_1_1">
+<cfproperty name="data" type="dependency" injectedBean="data_1_2">
 <cfproperty name="wikiTitle" value="CSSecurity_1_2">
 
 <!---

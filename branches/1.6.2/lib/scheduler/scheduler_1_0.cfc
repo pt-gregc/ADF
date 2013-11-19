@@ -35,14 +35,15 @@ History:
 	2011-09-26 - GAC - Updated application.schedule to be application.ADFscheduler 
 	2011-09-27 - GAC - Added the UTILS and SCRIPTS LIBs as a dependencies and converted all application.ADF references to the local 'variables.'. 
 	2012-11-29 - GAC - Added the DATA lib as a dependency 
+	2013-11-18 - GAC - Updated the lib dependencies to scripts_1_2, data_1_2, utils_1_2
 --->
 <cfcomponent displayname="scheduler_1_0" extends="ADF.core.Base" hint="Scheduler base for the ADF">
 	
 <cfproperty name="version" value="1_0_4">
 <cfproperty name="type" value="singleton">
-<cfproperty name="scripts" injectedBean="scripts_1_1" type="dependency">
-<cfproperty name="data" type="dependency" injectedBean="data_1_1">
-<cfproperty name="utils" type="dependency" injectedBean="utils_1_1">
+<cfproperty name="scripts" type="dependency" injectedBean="scripts_1_2">
+<cfproperty name="data" type="dependency" injectedBean="data_1_2">
+<cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
 <cfproperty name="wikiTitle" value="Scheduler_1_0">
 
 <cfscript>

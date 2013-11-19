@@ -38,9 +38,9 @@ History:
 
 <cfproperty name="version" value="1_0_0">
 <cfproperty name="type" value="singleton">
-<cfproperty name="ceData" injectedBean="ceData_1_1" type="dependency">
-<cfproperty name="csData" injectedBean="csData_1_1" type="dependency">
-<cfproperty name="scripts" injectedBean="scripts_1_1" type="dependency">
+<cfproperty name="ceData" injectedBean="ceData_2_0" type="dependency">
+<cfproperty name="csData" injectedBean="csData_1_2" type="dependency">
+<cfproperty name="scripts" injectedBean="scripts_1_2" type="dependency">
 <cfproperty name="wikiTitle" value="UI_1_0">
 
 <!---

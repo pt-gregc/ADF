@@ -37,8 +37,8 @@ History:
 
 <cfproperty name="version" value="1_1_4">
 <cfproperty name="type" value="transient">
-<cfproperty name="ceData" injectedBean="ceData_1_1" type="dependency">
-<cfproperty name="scripts" injectedBean="scripts_1_1" type="dependency">
+<cfproperty name="ceData" injectedBean="ceData_2_0" type="dependency">
+<cfproperty name="scripts" injectedBean="scripts_1_2" type="dependency">
 <cfproperty name="ui" injectedBean="ui_1_0" type="dependency">
 <cfproperty name="wikiTitle" value="Forms_1_1">
 
