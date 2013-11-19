@@ -60,6 +60,7 @@ History:
 	2013-11-14 - DJM - Added the fieldpermission variable for read only field 
     				 - Moved the Field to Data Mask code out to an new ADF from_1_1 function
 	2013-11-14 - GAC - Updated the selected value to be an empty string if the stored value or the default value does not match available records from the bound element
+	2013-11-15 - GAC - Converted the CFT to the ADF standard CFT format using the forms.wrapFieldHTML method
 --->
 <cfscript>
 	// the fields current value
@@ -68,10 +69,9 @@ History:
 	xparams = parameters[fieldQuery.inputID];
 	// the current row from the fieldQuery
 	currentRow = fieldQuery.currentRow;
-	// the description for the field 
-	currentDescription = fieldQuery.DESCRIPTION[currentRow];
 	
-	// Set the Selected Value for the HIDDEN field that passed the data to be stored
+	// Set the Current Selected Value for the HIDDEN field that is passes the data to be stored
+	// - This variable will only be populated if the value (default or stored) exists in the bound custom element  
 	currentSelectedValue = "";
 	
 	// Set the defaults
@@ -92,21 +92,16 @@ History:
 		if ( xParams.multipleSelect )
 			xParams.renderSelectOption = false;
 	}
-
-	// Load JQuery to the script
-	application.ADF.scripts.loadJQuery(force=xParams.forceScripts);
 	
-	// find if we need to render the simple form field
-	renderSimpleFormField = false;
-	if ( (StructKeyExists(request, "simpleformexists")) AND (request.simpleformexists EQ 1) )
-		renderSimpleFormField = true;
-
 	if ( NOT StructKeyExists(xparams, "fldName") OR (LEN(xparams.fldName) LTE 0) )
 		xparams.fldName = fqFieldName;	
 		
 	if ( NOT StructKeyExists(xparams, "sortByField") OR (LEN(xparams.sortByField) LTE 0) )
 		xparams.sortByField = "--";
 		
+	// Load JQuery to the script
+	application.ADF.scripts.loadJQuery(force=xParams.forceScripts);
+	
 	// Get the data records
 	if ( StructKeyExists(xparams,"activeFlagField") and Len(xparams.activeFlagField) and StructKeyExists(xparams,"activeFlagValue") and Len(xparams.activeFlagValue) ) {
 		if ( (TRIM(LEFT(xparams.activeFlagValue,1)) EQ "[") AND (TRIM(RIGHT(xparams.activeFlagValue,1)) EQ "]")){
@@ -123,15 +118,17 @@ History:
 	// Sort the list by the display field value, if its other.. all bets are off we sort via jquery... 
 	if ( xparams.sortByField neq "--" ) {
 		ceDataArray = application.ADF.cedata.arrayOfCEDataSort(ceDataArray, xparams.sortByField);
-	}else if( StructKeyExists(xparams, "displayField") AND LEN(xparams.displayField) AND xparams.displayField neq "--Other--" ) {
+	}
+	else if( StructKeyExists(xparams, "displayField") AND LEN(xparams.displayField) AND xparams.displayField neq "--Other--" ) {
 		ceDataArray = application.ADF.cedata.arrayOfCEDataSort(ceDataArray, xparams.displayField);
-	}else{
+	}
+	else {
 		application.ADF.scripts.loadJQuerySelectboxes();
 	}
 
 	// Check if we do not have a current value then set to the default
-	if ( (LEN(currentValue) LTE 0) OR (currentValue EQ "") ){
-		if ( (TRIM(LEFT(xparams.defaultVal,1)) EQ "[") AND (TRIM(RIGHT(xparams.defaultVal,1)) EQ "]") ){
+	if ( (LEN(currentValue) LTE 0) OR (currentValue EQ "") ) {
+		if ( (TRIM(LEFT(xparams.defaultVal,1)) EQ "[") AND (TRIM(RIGHT(xparams.defaultVal,1)) EQ "]") ) {
 			// Trim the [] from the expression
 			xparams.defaultVal = MID(xparams.defaultVal, 2, LEN(xparams.defaultVal)-2);
 			//2011-01-06 - RAK - Added error catching on eval failure.
@@ -145,6 +142,18 @@ History:
 		else
 			currentValue = xparams.defaultVal;
 	}
+	
+	// Set defaults for the label and description 
+	includeLabel = true;
+	includeDescription = true; 
+
+	//-- Update for CS 6.x / backwards compatible for CS 5.x --
+	//   If it does not exist set the Field Permission variable to a default value
+	if ( NOT StructKeyExists(variables,"fieldPermission") )
+		variables.fieldPermission = "";
+
+	//-- Read Only Check w/ cs6 fieldPermission parameter --
+	readOnly = application.ADF.forms.isFieldReadOnly(xparams,variables.fieldPermission);
 </cfscript>
 
 <cfoutput>
@@ -213,38 +222,11 @@ History:
 		});
 	</script>
 	
-	<cfscript>
-		if ( structKeyExists(request, "element") ) {
-			labelText = '<span class="CS_Form_Label_Baseline"><label for="#fqFieldName#">#xParams.label#:</label></span>';
-			tdClass = 'CS_Form_Label_Baseline';
-		}
-		else {
-			labelText = '<label for="#fqFieldName#">#xParams.label#:</label>';
-			tdClass = 'cs_dlgLabel';
-		}
-	</cfscript>
-	
-	<tr id="#fqFieldName#_fieldRow">
-		<td class="#tdClass#" valign="top">
-			<font face="Verdana,Arial" color="##000000" size="2">
-				<cfif xparams.req eq "Yes"><strong></cfif>
-				#labelText#
-				<cfif xparams.req eq "Yes"></strong></cfif>
-			</font>
-		</td>
-		<td class="cs_dlgLabelSmall">
-			<cfscript>
-				// Get the list permissions and compare
-				commonGroups = application.ADF.data.ListInCommon(request.user.grouplist, xparams.pedit);
-				// Set the read only 
-				readOnly = true;
-				// Check if the user does have edit permissions
-				if ( (xparams.UseSecurity EQ 0) OR ( (xparams.UseSecurity EQ 1) AND (ListLen(commonGroups) OR fieldpermission EQ 2) ) )
-					readOnly = false;
-			</cfscript>
+	<cfsavecontent variable="inputHTML">
+		<cfoutput>
 			<div id="#fqFieldName#_renderSelect">
 				<!---// 2011-04-20 - RAK - Added multiple select ability--->
-				<select <cfif StructKeyExists(xparams,"multipleSelect") and StructKeyExists(xparams,"multipleSelectSize") and xparams.multipleSelect>multiple="multiple" size="#xparams.multipleSelectSize#"</cfif> name='#fqFieldName#_select' class="#xparams.fldName#" id='#fqFieldName#_select' onchange='#fqFieldName#_loadSelection()' <cfif readOnly>disabled='disabled'</cfif>>
+				<select<cfif StructKeyExists(xparams,"multipleSelect") and StructKeyExists(xparams,"multipleSelectSize") and xparams.multipleSelect> multiple="multiple" size="#xparams.multipleSelectSize#"</cfif> name='#fqFieldName#_select' class="#xparams.fldName#" id='#fqFieldName#_select' onchange='#fqFieldName#_loadSelection()'<cfif readOnly> disabled='disabled'</cfif>>
 				<cfif xParams.renderSelectOption>
 					<option value=''> - Select - </option>
 				</cfif>
@@ -296,15 +278,21 @@ History:
 					<cfset ceFormID = application.ADF.cedata.getFormIDByCEName(xparams.customElement)>
 					<a href="javascript:;" rel="#application.ADF.ajaxProxy#?bean=Forms_1_1&method=renderAddEditForm&formid=#ceFormID#&datapageid=0&lbAction=refreshparent&title=#buttonLabel#" id="addNew" class="ADFLightbox add-button ui-state-default ui-corner-all">#buttonLabel#</a>
 		 		</cfif>
-		 		<cfif LEN(TRIM(currentDescription))><br /><span class="CS_Form_Description">#currentDescription#</span></cfif>
 			</div>
-		</td>
-	</tr>
-	<!--- // hidden field to store the value --->
-	<input type='hidden' name='#fqFieldName#' id='#xparams.fldName#' value='#currentSelectedValue#'>
-	<!--- // include hidden field for simple form processing --->
-	<cfif renderSimpleFormField>
-		<input type="hidden" name="#fqFieldName#_FIELDNAME" id="#fqFieldName#_FIELDNAME" value="#ReplaceNoCase(xParams.fieldName, 'fic_','')#">
-	</cfif>
+			
+			<!--- // hidden field to store the value --->
+			<input type='hidden' name='#fqFieldName#' id='#xparams.fldName#' value='#currentSelectedValue#'>
+		</cfoutput>
+	</cfsavecontent>
+
+	<!---
+		This CFT is using the forms lib wrapFieldHTML functionality. The wrapFieldHTML takes
+		the Form Field HTML that you want to put into the TD of the right section of the CFT 
+		table row and helps with display formatting, adds the hidden simple form fields (if needed) 
+		and handles field permissions (other than read-only).
+		Optionally you can disable the field label and the field discription by setting 
+		the includeLabel and/or the includeDescription variables (found above) to false.  
+	--->
+	#application.ADF.forms.wrapFieldHTML(inputHTML,fieldQuery,attributes,variables.fieldPermission,includeLabel,includeDescription)#
 </cfoutput>
 

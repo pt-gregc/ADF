@@ -50,6 +50,8 @@ History:
 	2011-12-28 - MFC - Force JQuery to "noconflict" mode to resolve issues with CS 6.2.
 	2013-09-27 - GAC - Added a renderSelectOption to allow the 'SELECT' text to be added or removed from the selection list
 	2013-11-14 - GAC - Reorganized the props fields
+	2013-11-15 - GAC - Converted the CFT to the ADF standard CFT format using the defaultValues struct to build the current values
+					 - Updated AJAX calls to use the "ceData_2_0" lib using a ajaxCEDataBean variable
 --->
 <cfscript>
 	// initialize some of the attributes variables
@@ -57,36 +59,38 @@ History:
 	prefix = attributes.prefix;
 	formname = attributes.formname;
 	currentValues = attributes.currentValues;
+	
+	// Setup the default values
+	defaultValues = StructNew();
+	defaultValues.customElement = "";
+	defaultValues.valueField = "";
+	defaultValues.displayField = "";
+	defaultValues.renderField = "yes";
+	defaultValues.defaultVal = "";
+	defaultValues.fldName = "";
+	defaultValues.forceScripts = "0";
+	defaultValues.displayFieldBuilder = "";
+	defaultValues.activeFlagField = "";
+	defaultValues.activeFlagValue = "";
+	defaultValues.addButton = "";
+	defaultValues.multipleSelect = "";
+	defaultValues.multipleSelectSize = "";
+	defaultValues.sortByField = "";
+	
+	// This will override the current values with the default values.
+	// In normal use this should not need to be modified.
+	defaultValueArray = StructKeyArray(defaultValues);
+	for(i=1;i<=ArrayLen(defaultValueArray);i++){
+		// If there is a default value to exists in the current values
+		//	AND the current value is an empty string
+		//	OR the default value does not exist in the current values
+		if( ( StructKeyExists(currentValues, defaultValueArray[i]) 
+				AND (NOT LEN(currentValues[defaultValueArray[i]])) )
+				OR (NOT StructKeyExists(currentValues, defaultValueArray[i])) ){
+			currentValues[defaultValueArray[i]] = defaultValues[defaultValueArray[i]];
+		}
+	}
 
-	if( not structKeyExists(currentValues, "customElement") )
-		currentValues.customElement = "";
-	if( not structKeyExists(currentValues, "valueField") )
-		currentValues.valueField = "";
-	if( not structKeyExists(currentValues, "displayField") )
-		currentValues.displayField = "";
-	if( not structKeyExists(currentValues, "renderField") )
-		currentValues.renderField = "yes";
-	if( not structKeyExists(currentValues, "defaultVal") )
-		currentValues.defaultVal = "";
-	if( not structKeyExists(currentValues, "fldName") )
-		currentValues.fldName = "";
-	if( not structKeyExists(currentValues, "forceScripts") )
-		currentValues.forceScripts = "0";
-	if( not structKeyExists(currentValues, "displayFieldBuilder") )
-		currentValues.displayFieldBuilder = "";
-	if( not structKeyExists(currentValues, "activeFlagField") )
-		currentValues.activeFlagField = "";
-	if( not structKeyExists(currentValues, "activeFlagValue") )
-		currentValues.activeFlagValue = "";
-	if( not structKeyExists(currentValues, "addButton") )
-		currentValues.addButton = 0;
-	if( not structKeyExists(currentValues, "multipleSelect") )
-		currentValues.multipleSelect = 0;
-	if( not structKeyExists(currentValues, "multipleSelectSize") )
-		currentValues.multipleSelectSize = 1;
-	if( not structKeyExists(currentValues, "sortByField") )
-		currentValues.sortByField = "";
-		
 	// For backwards compatiblity: 
 	// - when using a Single Select the render Select Option must be explicity TURNED OFF to be disabled
 	// - but for a Multi Select the render Select Option must be explicity TURNED ON to be enabled 
@@ -96,12 +100,17 @@ History:
 		if ( currentValues.multipleSelect )
 			currentValues.renderSelectOption = false;
 	}
+	
+	// Query to get the Custom Element List
+	customElements = application.ADF.ceData.getAllCustomElements();
+	// 2013-11-15 - GAC - Set to use 'ceData_2_0'
+	ajaxCEDataBean = "ceData_2_0";
+	
+	application.ADF.scripts.loadJQuery(noConflict=true);
+	application.ADF.scripts.loadJQuerySelectboxes();
 </cfscript>
+
 <cfoutput>
-	<cfscript>
-		application.ADF.scripts.loadJQuery(noConflict=true);
-		application.ADF.scripts.loadJQuerySelectboxes();
-	</cfscript>
 <script type="text/javascript">
 	fieldProperties['#typeid#'].paramFields = "#prefix#customElement,#prefix#valueField,#prefix#displayField,#prefix#renderField,#prefix#defaultVal,#prefix#fldName,#prefix#forceScripts,#prefix#displayFieldBuilder,#prefix#activeFlagField,#prefix#activeFlagValue,#prefix#addButton,#prefix#multipleSelect,#prefix#multipleSelectSize,#prefix#sortByField,#prefix#renderSelectOption";
 	// allows this field to support the orange icon (copy down to label from field name)
@@ -109,10 +118,10 @@ History:
 	// allows this field to have a common onSubmit Validator
 	//fieldProperties['#typeid#'].jsValidator = '#prefix#doValidate';
 	// handling the copy label function
-	function #prefix#doLabel(str)
-	{
+	function #prefix#doLabel(str) {
 		document.#formname#.#prefix#label.value = str;
 	}
+	
 	jQuery(document).ready(function(){
 		var customElement = "###prefix#customElement";
 		var customElementValue = "###prefix#valueField";
@@ -145,10 +154,11 @@ History:
 	});
 
 	function #prefix#handleDisplayFieldChange(){
-		if(jQuery('###prefix#displayField').val() == "--Other--"){
+		if (jQuery('###prefix#displayField').val() == "--Other--"){
 			jQuery(".other").show();
 			jQuery(".otherMsg").hide();
-		}else{
+		}
+		else {
 			jQuery(".other").hide();
 			jQuery(".otherMsg").show();
 			jQuery("###prefix#displayFieldBuilder").val("");
@@ -157,14 +167,15 @@ History:
 
 	//When the element name gets updated begin the process for updating the select fields
 	function #prefix#setElementFields(elementName){
-		if(elementName.length <= 0){
+		if (elementName.length <= 0){
 			return;
 		}
-		// 2011-03-18 - MFC - Updated to the 'ceData_1_1'.
+		// 2011-03-18 - MFC - Updated to the 'ceData_1_1'
+		// 2013-11-15 - GAC - Updated to use ajaxCEDataBean variable
 		jQuery.ajax({
 					type: 'POST',
 					url: "#application.ADF.ajaxProxy#",
-					data: { 	  bean: "ceData_1_1",
+					data: { 	  bean: "#ajaxCEDataBean#",
 								method: "getFormIDByCEName",
 								CENAME: elementName},
 					success: #prefix#handleFormIDPost,
@@ -175,12 +186,13 @@ History:
 
 	//Given a formID get the tabs and pass it off to the next step
 	function #prefix#handleFormIDPost(results){
-		if(results != 0){
-			// 2011-03-18 - MFC - Updated to the 'ceData_1_1'.
+		if (results != 0){
+			// 2011-03-18 - MFC - Updated to the 'ceData_1_1'
+			// 2013-11-15 - GAC - Updated to use ajaxCEDataBean variable
 			jQuery.ajax({
 				  type: 'POST',
 				  url: "#application.ADF.ajaxProxy#",
-				  data: { bean: "ceData_1_1",
+				  data: { bean: "#ajaxCEDataBean#",
 						  method: "getTabsFromFormID",
 						  returnformat: "json",
 						  formID: results,
@@ -194,11 +206,11 @@ History:
 	//Handle getting the tab data and populate the select boxes.
 	function  #prefix#handleTabsFromFormIDPost(results){
 		var fields = new Object();
-		if(typeof results === "string"){
+		if (typeof results === "string"){
 			results = jQuery.parseJSON(results);
 		}
 		var fieldInfo = results;
-		if(!jQuery.isArray(fieldInfo)){
+		if (!jQuery.isArray(fieldInfo)){
 			var fieldInfoTemp = Array();
 			fieldInfoTemp[1] = fieldInfo;
 			fieldInfo = fieldInfoTemp;
@@ -242,8 +254,7 @@ History:
 		jQuery("###prefix#displayField").selectOptions(jQuery("###prefix#displayField").selectedOptions(),true);
 	}
 </script>
-<!--- query to get the Custom Element List --->
-<cfset customElements = server.ADF.objectFactory.getBean("ceData_1_1").getAllCustomElements()>
+
 <table>
 	<tr>
 		<td class="cs_dlgLabelSmall">Custom Element:</td>
