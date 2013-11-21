@@ -32,10 +32,11 @@ History:
 	2009-09-28 - MFC - Created
 	2010-12-20 - MFC - Updated Forms_1_1 for dependency to Scripts_1_1.
 	2011-09-09 - GAC - Minor comment updates and formatting
+	2013-11-18 - GAC - Updated the lib dependencies to scripts_1_2 and ceData_2_0
 --->
 <cfcomponent displayname="forms_1_1" extends="ADF.lib.forms.forms_1_0" hint="Form functions for the ADF Library">
 
-<cfproperty name="version" value="1_1_4">
+<cfproperty name="version" value="1_1_5">
 <cfproperty name="type" value="transient">
 <cfproperty name="ceData" injectedBean="ceData_2_0" type="dependency">
 <cfproperty name="scripts" injectedBean="scripts_1_2" type="dependency">

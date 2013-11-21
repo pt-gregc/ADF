@@ -33,8 +33,8 @@ History:
 --->
 <cfcomponent displayname="csapi_1_0" extends="ADF.core.Base" hint="CS API functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_1">
-<cfproperty name="utils" type="dependency" injectedBean="utils_1_1">
+<cfproperty name="version" value="1_0_2">
+<cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
 <cfproperty name="wikiTitle" value="CSAPI_1_0">
 
 <cfscript>

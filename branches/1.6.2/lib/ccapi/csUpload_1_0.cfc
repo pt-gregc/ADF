@@ -31,6 +31,7 @@ Version:
 History:
 	2009-06-17 - MFC - Created
 	2011-03-20 - RLW - Updated to use the new ccapi_1_0 component (was the original ccapi.cfc file)
+	2013-11-18 - GAC - Updated the lib dependency to utils_1_2
 ---> 
 <cfcomponent displayname="csUpload_1_0" hint="Constructs a CCAPI instance and then allows you to Upload Images" extends="ADF.core.Base">
 

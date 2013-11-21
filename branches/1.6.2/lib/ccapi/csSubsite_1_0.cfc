@@ -31,10 +31,11 @@ Version:
 History:
 	2009-06-17 - RLW - Created
 	2011-03-20 - RLW - Updated to use the new ccapi_1_0 component (was the original ccapi.cfc file)
+	2013-11-18 - GAC - Updated the lib dependencies to utils_1_2 and csData_1_2
 ---> 
 <cfcomponent displayname="csSubsite_1_0" extends="ADF.core.Base" hint="Constructs a CCAPI object and then creates a subsite based on the argument data passed in">
 
-<cfproperty name="version" value="1_0_2">
+<cfproperty name="version" value="1_0_4">
 <cfproperty name="type" value="transient">
 <cfproperty name="ccapi" type="dependency" injectedBean="ccapi_1_0">	
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">

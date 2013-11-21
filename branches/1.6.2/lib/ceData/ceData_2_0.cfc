@@ -1239,10 +1239,10 @@ History:
 		
 		// Set the view table name if a viewTableName is not passed in
 		if ( LEN(TRIM(arguments.viewTableName)) EQ 0 )
-			arguments.viewTableName = getViewTableName(customElementName=arguments.customElementName);
+			arguments.viewTableName = getViewTableName(customElementName=TRIM(arguments.customElementName));
 		
 		// Check to see if table exists
-		viewTableExists = dataLib.verifyTableExists(tableName=arguments.viewTableName,datasourseName=siteDSN,databaseType=siteDBtype);
+		viewTableExists = dataLib.verifyTableExists(tableName=TRIM(arguments.viewTableName),datasourseName=siteDSN,databaseType=siteDBtype);
 		
 		// If we don't have the table... build it
 		if ( viewTableExists ) {
@@ -1251,10 +1251,10 @@ History:
 		else {
 			try {
 				// Create the view from the Element
-				return buildRealTypeView(elementName=arguments.customElementName,viewName=arguments.viewTableName);
+				return buildRealTypeView(elementName=TRIM(arguments.customElementName),viewName=TRIM(arguments.viewTableName));
 			}
 			catch (any e) {
-				utilsLib.logAppend(msg="#arguments.customElementName#: #e.message#",logFile="ceData-verifyViewTableExists.log");
+				utilsLib.logAppend(msg="#TRIM(arguments.customElementName)#: #e.message#",logFile="ceData-verifyViewTableExists.log");
 				return false;		
 			}
 		}

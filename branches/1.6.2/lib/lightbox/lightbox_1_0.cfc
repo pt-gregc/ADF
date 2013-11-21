@@ -33,14 +33,15 @@ History:
 	2011-10-04 - GAC - Updated csSecurity dependency to csSecurity_1_1
 	2012-01-30 - MFC - Updated the wikiTitle cfproperty.
 	2012-04-09 - MFC - Rolled back updates for Lightbox with CS 7 and 6.2.
+	2013-11-18 - GAC - Updated the lib dependencies to csSecurity_1_2, utils_1_2, data_1_2
 --->
 <cfcomponent displayname="lightbox_1_0" extends="ADF.core.Base" hint="Lightbox functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_9">
+<cfproperty name="version" value="1_0_10">
 <cfproperty name="type" value="singleton">
-<cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_1">
-<cfproperty name="utils" type="dependency" injectedBean="utils_1_1">
-<cfproperty name="data" type="dependency" injectedBean="data_1_1">
+<cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_2">
+<cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
+<cfproperty name="data" type="dependency" injectedBean="data_1_2">
 <cfproperty name="wikiTitle" value="lightbox_1_0">
 
 <!---

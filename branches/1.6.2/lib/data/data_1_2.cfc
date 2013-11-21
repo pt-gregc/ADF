@@ -649,7 +649,8 @@ History:
 					 - Added a dbType logic to add additional 'table_schema' criteria for MySQL
 					 - Added different table schema name for Oracle (thanks DM)
 					 - Added logging to the CFCatch rather than just returning false
-	2013-11-18 - GAC - Fixed issue with logAppend() method call			
+	2013-11-18 - GAC - Fixed issue with logAppend() method call		
+	2013-11-19 - DM - Adding compatiblity of ORACLE	
 --->
 <cffunction name="verifyTableExists" access="public" returntype="boolean" output="false" hint="Verifies that a Tables and View Table exist for various db types.">
 	<cfargument name="tableName" type="string" required="true">
@@ -659,24 +660,27 @@ History:
 		var verifySourceDB = QueryNew("temp");
 		var datasourse = arguments.datasourseName;
 		var dbType = arguments.databaseType;
-		var selectFromTable = "information_schema.tables"; // SQLServer and MySQL schema table
-		var utilsLib = server.ADF.objectFactory.getBean("utils_1_2");
+		var selectFromTable = "INFORMATION_SCHEMA.TABLES"; // SQLServer and MySQL schema table
 		// CFM 9+ syntax
 		//var selectFromTable = (dbType == "Oracle") ? "USER_TAB_COLUMNS" : "INFORMATION_SCHEMA.TABLES"; 
-
+		var utilsLib = server.ADF.objectFactory.getBean("utils_1_2");
+		
 		// Schema Table for ORACLE
 		if ( dbType EQ "Oracle" )
-		 	selectFromTable = "user_tab_columns"; 
+		 	selectFromTable = "USER_TAB_COLUMNS"; 
+		 	
+		 // ORACLE requires uppercase DB objects
+		arguments.tableName = uCase(Trim(arguments.tableName));
 	</cfscript>
 	<cftry>
 		<cfif LEN(TRIM(arguments.tableName))>
 			<!--- // Check if the table exists in the Source DB --->
 			<cfquery name="verifyDB" datasource="#datasourse#">
-				SELECT 	* 
+				SELECT 	TABLE_NAME 
 				  FROM 	#selectFromTable#
-	    		 WHERE 	table_name = <cfqueryparam value="#arguments.tableName#" cfsqltype="cf_sql_varchar">
+	    		 WHERE 	TABLE_NAME = <cfqueryparam value="#TRIM(arguments.tableName)#" cfsqltype="cf_sql_varchar">
 	    		 <cfif  dbType EQ "MySQL">
-	    		  AND   table_schema = DATABASE()
+	    		  AND   TABLE_SCHEMA = DATABASE()
 	    		 </cfif>
 			</cfquery>
 		</cfif>
@@ -687,7 +691,7 @@ History:
 			<cfreturn false>
 		</cfif>
 		<cfcatch>
-			<cfset utilsLib.logAppend(msg="#arguments.tableName#: #cfcatch.message#",logFile="utils-verifyTableExists.log")>
+			<cfset utilsLib.logAppend(msg="#TRIM(arguments.tableName)#: #cfcatch.message#",logFile="utils-verifyTableExists.log")>
 			<cfreturn false>
 		</cfcatch>
 	</cftry>
