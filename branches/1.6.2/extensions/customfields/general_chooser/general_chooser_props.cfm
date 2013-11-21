@@ -110,7 +110,7 @@ History:
 			<td class="cs_dlgLabelSmall">Minimum Number of Selections:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" id="#prefix#minSelections" name="#prefix#minSelections" value="#defaultValues.minSelections#" size="10"><br />
-				<span>Default: 0 (Use 0 if making a selection is optional)</span>
+				<span>Default: 0 (Use 0 to make a selection optional)</span>
 			</td>
 		</tr>
 		<tr valign="top">
@@ -125,7 +125,7 @@ History:
 			<td class="cs_dlgLabelSmall">
 				Yes <input type="radio" id="#prefix#loadAvailable" name="#prefix#loadAvailable" value="1" <cfif defaultValues.loadAvailable EQ "1">checked</cfif>>&nbsp;&nbsp;&nbsp;
 				No <input type="radio" id="#prefix#loadAvailable" name="#prefix#loadAvailable" value="0" <cfif defaultValues.loadAvailable EQ "0">checked</cfif>><br />
-				Select the option to load all the avialable selections on the form load.
+				Select 'Yes' to load all the available selections on the form load.
 			</td>
 		</tr>
 	</table>
