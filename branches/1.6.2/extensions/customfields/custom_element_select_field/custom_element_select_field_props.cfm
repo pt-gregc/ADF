@@ -52,6 +52,7 @@ History:
 	2013-11-14 - GAC - Reorganized the props fields
 	2013-11-15 - GAC - Converted the CFT to the ADF standard CFT format using the defaultValues struct to build the current values
 					 - Updated AJAX calls to use the "ceData_2_0" lib using a ajaxCEDataBean variable
+	2013-11-20 - TP  - Added a isBoolean check to the multipleSelect and the renderSelectOption logic
 --->
 <cfscript>
 	// initialize some of the attributes variables
@@ -97,7 +98,7 @@ History:
 	// - and we must leave this as an available option Multi Select dropdowns
 	if ( !StructKeyExists(currentValues,"renderSelectOption") OR !IsBoolean(currentValues.renderSelectOption) ) {
 		currentValues.renderSelectOption = true;
-		if ( currentValues.multipleSelect )
+		 if ( isBoolean(currentValues.multipleSelect) AND currentValues.multipleSelect )
 			currentValues.renderSelectOption = false;
 	}
 	
