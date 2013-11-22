@@ -35,10 +35,10 @@ History:
 --->
 <cfcomponent displayname="ceData_2_0" extends="ADF.lib.ceData.ceData_1_1" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="2_0_14">
+<cfproperty name="version" value="2_0_15">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_2">
-<cfproperty name="wikiTitle" value="CEData_1_2">
+<cfproperty name="wikiTitle" value="CEData_2_0">
 
 <!---
 /* ************************************************************** */
