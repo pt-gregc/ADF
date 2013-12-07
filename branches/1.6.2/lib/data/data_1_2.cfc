@@ -651,6 +651,7 @@ History:
 					 - Added logging to the CFCatch rather than just returning false
 	2013-11-18 - GAC - Fixed issue with logAppend() method call		
 	2013-11-19 - DM - Adding compatiblity of ORACLE	
+	2013-12-05 - GAC - Removed the table name check logic around the verifyDB query
 --->
 <cffunction name="verifyTableExists" access="public" returntype="boolean" output="false" hint="Verifies that a Tables and View Table exist for various db types.">
 	<cfargument name="tableName" type="string" required="true">
@@ -673,17 +674,15 @@ History:
 		arguments.tableName = uCase(Trim(arguments.tableName));
 	</cfscript>
 	<cftry>
-		<cfif LEN(TRIM(arguments.tableName))>
-			<!--- // Check if the table exists in the Source DB --->
-			<cfquery name="verifyDB" datasource="#datasourse#">
-				SELECT 	TABLE_NAME 
-				  FROM 	#selectFromTable#
-	    		 WHERE 	TABLE_NAME = <cfqueryparam value="#TRIM(arguments.tableName)#" cfsqltype="cf_sql_varchar">
-	    		 <cfif  dbType EQ "MySQL">
-	    		  AND   TABLE_SCHEMA = DATABASE()
-	    		 </cfif>
-			</cfquery>
-		</cfif>
+		<!--- // Check if the table exists in the Source DB --->
+		<cfquery name="verifyDB" datasource="#datasourse#">
+			SELECT 	TABLE_NAME 
+			  FROM 	#selectFromTable#
+    		 WHERE 	TABLE_NAME = <cfqueryparam value="#arguments.tableName#" cfsqltype="cf_sql_varchar">
+    		 <cfif  dbType EQ "MySQL">
+    		  AND   TABLE_SCHEMA = DATABASE()
+    		 </cfif>
+		</cfquery>
 		<!--- // Check to see if we have the table --->
 		<cfif verifyDB.RecordCount> 
 			<cfreturn true>
