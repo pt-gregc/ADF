@@ -36,7 +36,7 @@ History:
 --->
 <cfcomponent displayname="forms_1_1" extends="ADF.lib.forms.forms_1_0" hint="Form functions for the ADF Library">
 
-<cfproperty name="version" value="1_1_5">
+<cfproperty name="version" value="1_1_6">
 <cfproperty name="type" value="transient">
 <cfproperty name="ceData" injectedBean="ceData_2_0" type="dependency">
 <cfproperty name="scripts" injectedBean="scripts_1_2" type="dependency">
@@ -291,27 +291,35 @@ History:
 	2010-12-06 - RAK - Created
 	2011-11-22 - GAC - Added a fieldPermission argument and logic to handle 6.x field security
 	2012-12-03 - GAC - Fixed the logic when checking the fieldPermission value for CS 6.0+ to only return ReadOnly when the fieldPermission value equals 1
+	2013-12-05 - GAC - Added parameters for the CFTs fqFieldName and the attributes.currentValues struct
+					 - Added the CS 9+ fqFieldName_doReadonly check to see if the field is forces to be read only
 --->
 <cffunction name="isFieldReadOnly" access="public" returntype="boolean" hint="Given xparams determines if the field is readOnly">
-	<cfargument name="xparams" type="struct" required="true" default="" hint="XParams struct">
+	<cfargument name="xparams" type="struct" required="true" hint="the CFT xparams struct">
 	<cfargument name="fieldPermission" type="string" required="false" default="" hint="fieldPermission attribute for CS 6.x and above: 0 (no rights), 1 (read only), 2 (edit)">
+	<cfargument name="fqfieldName" type="string" required="false" default="" hint="the CFT's fqfieldName">
+	<cfargument name="currentValues" type="struct" required="false" default="#StructNew()#" hint="the CFT attributes.currentValues struct">
 	<cfscript>
 		var readOnly = true;
 		var productVersion = ListFirst(ListLast(request.cp.productversion," "),".");
 		var commonGroups = "";
 		// Determine if this field should be read only due to "Use Explicit Security"
+		
 		// Check the CS version
-		if ( productVersion GTE 6 )
-		{
-			// For CS 6.x and above
-			// - If the user has ready only rights (fieldPermission = 1) readOnly will be true
-			if ( LEN(TRIM(arguments.fieldPermission)) AND arguments.fieldPermission EQ 1 ) 
+		if ( productVersion GTE 6 ) {
+			// Check to see if this field is FORCED to be READ ONLY by looking for the CS 9+ fqFieldName_doReadonly struct key
+			if ( LEN(TRIM(arguments.fqFieldName)) AND StructKeyExists(arguments.currentValues,"#TRIM(arguments.fqFieldName)#_doReadonly") ) 
 				readOnly = true;
-			else
-				readOnly = false;				
+			else {
+				// For CS 6.x and above
+				// - If the user has ready only rights (fieldPermission = 1) readOnly will be true
+				if ( LEN(TRIM(arguments.fieldPermission)) AND arguments.fieldPermission EQ 1 ) 
+					readOnly = true;
+				else
+					readOnly = false;
+			}				
 		}
-		else
-		{
+		else {
 			// For CS 5.x 
 			// Get the list permissions and compare
 			commonGroups = application.ADF.data.ListInCommon(request.user.grouplist, arguments.xparams.pedit);
@@ -319,6 +327,7 @@ History:
 			if ( (arguments.xparams.UseSecurity EQ 0) OR ( (arguments.xparams.UseSecurity EQ 1) AND (ListLen(commonGroups)) ) )
 				readOnly = false;	
 		}
+		
 		return readOnly;
 	</cfscript>
 </cffunction>
@@ -348,6 +357,8 @@ History:
 	2011-11-07 - GAC - Addressed table formatting issues with the includeLabel argument 
 					 - Added an includeDescription argument to allow the description to be turned off
 	2011-11-22 - GAC - Added a fieldPermission argument and logic to handle 6.x field security
+	2013-12-06 - GAC - Added nowrap="nowrap" to the Label table cell
+					 - Added a TRIM to the label variable
 --->
 <cffunction name="wrapFieldHTML" access="public" returntype="String" hint="Wraps the given information with valid html for the current commonspot and configuration">
 	<cfargument name="fieldInputHTML" type="string" required="true" default="" hint="HTML for the field input, do a cfSaveContent on the input field and pass that in here">
@@ -419,9 +430,9 @@ History:
 			<cfif NOT doHiddenFieldSecurity>
 				<tr id="#fqFieldName#_FIELD_ROW">
 					<cfif arguments.includeLabel>
-						<td valign="top">
+						<td valign="top" nowrap="nowrap">
 							#labelStart#
-							<label for="#fqFieldName#" id="#fqFieldName#_LABEL">#xParams.label#:</label>
+							<label for="#fqFieldName#" id="#fqFieldName#_LABEL">#TRIM(xParams.label)#:</label>
 							#labelEnd#
 						</td>
 					</cfif>
