@@ -45,12 +45,12 @@ History:
 <cfcomponent name="Core" hint="Core component for Application Development Framework">
 
 <cfproperty name="version" value="1_6_2">
-<cfproperty name="file-version" value="0">
+<cfproperty name="file-version" value="2">
 
 <cfscript>
 	variables.ADFversion = "1.6.2"; // use a dot delimited version number
 	// ADF Build Revision Number
-	variables.buildRev = "1119";
+	variables.buildRev = "1120";
 	// ADF Codename
 	variables.buildName = "Spy Hunter";
 	// CS product version, get the decimal value
@@ -205,6 +205,8 @@ History:
 	2011-07-14 - MFC - Renamed cache variable to be under ADF struct, "application.ADF.cache".
 	2012-01-12 - MFC - Updated the ADF reset message text.
 	2013-01-23 - MFC - Increased the CFLOCK timeout to "120".
+	2013-10-28 - GAC - Added production mode or development mode designation message to the ADF reset message text
+	2013-12-05 - GAC - Added the forceResetStatus to the returnStruct to pass if the reset was Forced or not
 --->
 <cffunction name="reset" access="remote" returnType="Struct">
 	<cfargument name="type" type="string" required="false" default="all" hint="The type of the ADF to reset.  Options are 'Server', 'Site' or 'All'. Defaults to 'All'.">
@@ -217,7 +219,7 @@ History:
 		var ADFversion = "v" & getADFversion();
 		var forceReset = false;
 		var dump = "";
-		var devModeStatus = false;
+		var devModeStatus =  false;
 		// Check if the ADF space exists in the SERVER and APPLICATION
 		if ( NOT StructKeyExists(server, "ADF") OR NOT StructKeyExists(application, "ADF") )
 			forceReset = true;
@@ -230,8 +232,7 @@ History:
 				<cfscript>
 			 		// 2010-06-23 jrybacek Determine if user is logged in.
 			  		// 2010-06-23 jrybacek Determine how much of the ADF is being requested to be reset
-					switch (uCase(arguments.type))
-					{
+					switch (uCase(arguments.type)) {
 						case "ALL":
 							// 2010-06-23 jrybacek Reload ADF server
 							createObject("component", "ADF.core.Core").init();
@@ -260,7 +261,9 @@ History:
 						//Reset the cache.
 						application.ADF.cache = StructNew();
 						// Get the Dev Mode Status to display with reset message
-						if (  getSiteDevModeStatus() ) 
+						devModeStatus =  getSiteDevModeStatus();
+						// Append the dev or production mode text to the rtnMsg string
+						if ( devModeStatus ) 
 							rtnMsg = rtnMsg & " [Development Mode]";	
 						else 
 							rtnMsg = rtnMsg & " [Production Mode]";
@@ -309,6 +312,8 @@ History:
 		
 		returnStruct.success = ADFReset;
 		returnStruct.message = "&nbsp;" & DateFormat(now(),"yyyy-mm-dd") & " " & TimeFormat(now(),"hh:mm:ss") & " - " & rtnMsg;
+		returnStruct.forceResetStatus = forceReset;
+		returnStruct.devModeStatus = devModeStatus;
 		return returnStruct;
 	</cfscript>
 </cffunction>
