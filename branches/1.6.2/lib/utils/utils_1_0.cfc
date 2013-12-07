@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="utils_1_0" extends="ADF.core.Base" hint="Util functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_5">
+<cfproperty name="version" value="1_0_6">
 <cfproperty name="type" value="singleton">
 <cfproperty name="ceData" type="dependency" injectedBean="ceData_1_0">
 <cfproperty name="wikiTitle" value="Utils_1_0">
@@ -92,10 +92,11 @@ History:
 	2012-11-16 - SFS - Added Label argument so that you can individually label each complex object dump
 	2013-02-20 - SFS - Added label name to the cffile so that the passed in label is actually part of the dump
 	2013-11-20 - GAC - Added hints to the msg, addTimeStamp and the label arguments
+	2013-12-06 - GAC - Updated the default log file name to be ADF specific
 --->
 <cffunction name="logAppend" access="public" returntype="void">
 	<cfargument name="msg" type="any" required="true" hint="if this value is NOT a simple string then the value gets converted to sting output using CFDUMP">
-	<cfargument name="logFile" type="string" required="false" default="debug.log">
+	<cfargument name="logFile" type="string" required="false" default="ADF-debug.log">
 	<cfargument name="addTimeStamp" type="boolean" required="false" default="true" hint="Adds a date stamp to the file name">
 	<cfargument name="logDir" type="string" required="false" default="#request.cp.commonSpotDir#logs/">
 	<cfargument name="label" type="string" required="false" default="" hint="Adds a text label to the log entry">
@@ -113,7 +114,7 @@ History:
 			<cfdirectory action="create" directory="#arguments.logdir#">
 		</cfif>
 		<cfif NOT isSimpleValue(msg)>
-			<cfset msg = Application.ADF.utils.doDump(msg,"#arguments.label#msg-#application.ADF.date.csDateFormat(now(),now())#",0,1)>
+			<cfset msg = doDump(msg,"#arguments.label#msg-#application.ADF.date.csDateFormat(now(),now())#",0,1)>
 		</cfif>
 		<cffile action="append" file="#arguments.logDir##logFileName#" output="#application.adf.date.csDateFormat(utcNow,utcNow)# (UTC) - #arguments.label# #arguments.msg#" addnewline="true" fixnewline="true">
 		<cfcatch type="any">
