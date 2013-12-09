@@ -36,7 +36,7 @@ History:
 	2013-11-25 - DJM - Added a simple form and logged in user check
 	2013-11-27 - DJM - Updated code to allow multiple dataManager fields on the same form
 	2013-11-28 - DJM - Updated to correct issue with 3 element configuration
-	2013-12-04 - GAC - Added CommonSpot Version check since this feild only runs on CommonSpot v9+
+	2013-12-04 - GAC - Added CommonSpot Version check since this field only runs on CommonSpot v9+
 --->
 <cfscript>
 	requiredVersion = 9;
@@ -44,11 +44,10 @@ History:
 	
 	// Path to this CFT
 	cftPath = "/ADF/extensions/customfields/custom_element_datamanager";
-	
-	// Create oject path to proxy component in the context of the site
+	// Path to proxy component in the context of the site
 	componentPath = "#request.site.csAppsURL#components";
-	// Ajax path to the proxy component in the context of the site
-	ajaxComPath = "#request.site.url#_cs_apps/components";
+	// Ajax URL to the proxy component in the context of the site
+	ajaxComURL = "#request.site.URL#_cs_apps/components";
 </cfscript>
 
 <cfparam name="attributes.callingElement" default="">
@@ -200,7 +199,7 @@ History:
 			function loadData_#uniqueTableAppend#()
 			{
 				var res#uniqueTableAppend# = '';
-				jQuery.when(jQuery.getJSON("#ajaxComPath#/custom_element_datamanager_base.cfc?method=renderGrid&returnformat=json&formID=#ceFormID#&fieldID=#fieldQuery.inputID#&" + "&propertiesStruct=" + JSON.stringify(<cfoutput>#SerializeJSON(inputParameters)#</cfoutput>) + "&currentValues=" + JSON.stringify(<cfoutput>#SerializeJSON(attributes.currentvalues)#</cfoutput>))).done(function(res#uniqueTableAppend#) {
+				jQuery.when(jQuery.getJSON("#ajaxComURL#/custom_element_datamanager_base.cfc?method=renderGrid&returnformat=json&formID=#ceFormID#&fieldID=#fieldQuery.inputID#&" + "&propertiesStruct=" + JSON.stringify(<cfoutput>#SerializeJSON(inputParameters)#</cfoutput>) + "&currentValues=" + JSON.stringify(<cfoutput>#SerializeJSON(attributes.currentvalues)#</cfoutput>))).done(function(res#uniqueTableAppend#) {
 				
 					var columns = [];
 					var columnsList = res#uniqueTableAppend#.aoColumns;
@@ -273,7 +272,7 @@ History:
 										tableData = oTable#uniqueTableAppend#.fnGetNodes()[endPosition-1];
 										endVal = jQuery(tableData).attr("id");
 										jQuery.ajax({
-											"url": "datamanager_base.cfc?method=onDrop&formID=#ceFormID#&movedDataPageID=" + startVal + "&dropAfterDataPageID=" + endVal + "&propertiesStruct=" + JSON.stringify(<cfoutput>#SerializeJSON(inputParameters)#</cfoutput>) + "&currentValues=" + JSON.stringify(<cfoutput>#SerializeJSON(attributes.currentvalues)#</cfoutput>),
+											"url": "#ajaxComURL#/custom_element_datamanager_base.cfc?method=onDrop&formID=#ceFormID#&movedDataPageID=" + startVal + "&dropAfterDataPageID=" + endVal + "&propertiesStruct=" + JSON.stringify(<cfoutput>#SerializeJSON(inputParameters)#</cfoutput>) + "&currentValues=" + JSON.stringify(<cfoutput>#SerializeJSON(attributes.currentvalues)#</cfoutput>),
 											"dataType": "json",
 											"method": "POST",
 											"success": function(data) {

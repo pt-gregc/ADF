@@ -43,7 +43,7 @@ History:
 	// Path to this CFT
 	cftPath = "/ADF/extensions/customfields/custom_element_datamanager";
 	// Ajax path to the proxy component in the context of the site
-	ajaxComPath = "#request.site.url#_cs_apps/components";
+	ajaxComURL = "#request.site.url#_cs_apps/components";
 </cfscript>	
 
 <!--- // Make sure we are on CommonSpot 9 or greater --->
@@ -391,7 +391,7 @@ History:
 			jQuery("###prefix#childLinkedField").children().remove().end().append("<option value=\"\"> - Select -</option>");
 			jQuery("###prefix#inactiveField").children().remove().end().append("<option value=\"\"> - Select -</option>");
 			
-			jQuery.getJSON("#ajaxComPath#/custom_element_datamanager_base.cfc?method=getFields&returnformat=json",{"elementid":selectedChild})
+			jQuery.getJSON("#ajaxComURL#/custom_element_datamanager_base.cfc?method=getFields&returnformat=json",{"elementid":selectedChild})
 			.done(function(res) {
 				if (res.COLUMNS[0] != 'ERRORMSG')
 				{
@@ -458,7 +458,7 @@ History:
 						document.getElementById('assocCENameSpan').innerHTML = jQuery("option:selected",jQuery("###prefix#assocCustomElement")).text();
 						
 						// jQuery call to populate the Parent FormID, Parent Instance ID, Child Form ID, Child Instance ID and Sort By Fields
-						jQuery.getJSON("#ajaxComPath#/custom_element_datamanager_base.cfc?method=getFields&returnformat=json",{"elementid":selectedAssoc})
+						jQuery.getJSON("#ajaxComURL#/custom_element_datamanager_base.cfc?method=getFields&returnformat=json",{"elementid":selectedAssoc})
 						.done(function(res) {
 							if (res.COLUMNS[0] != 'ERRORMSG')
 							{
@@ -562,7 +562,7 @@ History:
 		
 		if (selectedChild != "")
 		{
-			jQuery.getJSON("#ajaxComPath#/custom_element_datamanager_base.cfc?method=getFieldIDList&returnformat=json",{"elementid":selectedChild})
+			jQuery.getJSON("#ajaxComURL#/custom_element_datamanager_base.cfc?method=getFieldIDList&returnformat=json",{"elementid":selectedChild})
 			.done(function(res) {
 				if (res != 'ERROR')
 				{
@@ -630,7 +630,7 @@ History:
 			{
 				if(document.#formname#.#prefix#refersParentCheckbox.checked == true)
 				{
-					jQuery.getJSON("#ajaxComPath#/custom_element_datamanager_base.cfc?method=getFields&returnformat=json",{"elementid":selectedChild})
+					jQuery.getJSON("#ajaxComURL#/custom_element_datamanager_base.cfc?method=getFields&returnformat=json",{"elementid":selectedChild})
 					.done(function(res) {
 						if (res.COLUMNS[0] != 'ERRORMSG')
 						{
@@ -678,7 +678,7 @@ History:
 			document.getElementById('inactiveFieldTr').style.display = "";
 			document.getElementById('assocCENameSpan').innerHTML = jQuery("option:selected",jQuery("###prefix#assocCustomElement")).text();
 			
-			jQuery.getJSON("#ajaxComPath#/custom_element_datamanager_base.cfc?method=getFields&returnformat=json",{"elementid":selectedAssoc})
+			jQuery.getJSON("#ajaxComURL#/custom_element_datamanager_base.cfc?method=getFields&returnformat=json",{"elementid":selectedAssoc})
 			.done(function(res) {
 				if (res.COLUMNS[0] != 'ERRORMSG')
 				{
@@ -757,7 +757,7 @@ History:
 		
 		if (selectedAssoc != "")
 		{
-			jQuery.getJSON("#ajaxComPath#/custom_element_datamanager_base.cfc?method=getFieldIDList&returnformat=json",{"elementid":selectedAssoc})
+			jQuery.getJSON("#ajaxComURL#/custom_element_datamanager_base.cfc?method=getFieldIDList&returnformat=json",{"elementid":selectedAssoc})
 			.done(function(res) {
 				if (res != 'ERROR')
 				{
@@ -862,7 +862,7 @@ History:
 			
 			jQuery("###prefix#assocCustomElement").children().remove().end().append("<option value=\"\"> - Select -</option>");
 			
-			jQuery.getJSON("#ajaxComPath#/custom_element_datamanager_base.cfc?method=getGlobalCE&returnformat=json")
+			jQuery.getJSON("#ajaxComURL#/custom_element_datamanager_base.cfc?method=getGlobalCE&returnformat=json")
 			.done(function(res) {
 				if (res.COLUMNS[0] != 'ERRORMSG')
 				{
@@ -889,7 +889,7 @@ History:
 				document.getElementById('errorMsgSpan').innerHTML = '#errorMsgCustom#';
 			});
 			
-			jQuery.getJSON("#ajaxComPath#/custom_element_datamanager_base.cfc?method=getFields&returnformat=json",{"elementid":selectedChild})
+			jQuery.getJSON("#ajaxComURL#/custom_element_datamanager_base.cfc?method=getFields&returnformat=json",{"elementid":selectedChild})
 			.done(function(res) {
 				if (res.COLUMNS[0] != 'ERRORMSG')
 				{

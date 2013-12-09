@@ -36,6 +36,8 @@ History:
 	2013-11-15 - GAC - Converted to an ADF custom field type
 	2013-11-25 - DJM - Removed code used for getting contents of a checkbox, multicheckbox and radiobutton
 	2013-11-27 - DJM - Updated code to allow multiple dataManager fields on the same form
+	2013-12-09 - DJM - Added changes to handle hidden fields and added code to set the size of actions column for datatable
+					 - Fixed issue for the range being considered as string
 --->
 <cfcomponent output="false" displayname="custom element datamanager_base" extends="ADF.core.Base" hint="This the base component for the Custom Element Data Manager field">
 	
@@ -82,9 +84,15 @@ History:
 				resultData = customElementObj.getFields(elementID=arguments.elementID);
 			</cfscript>
 			<cfquery name="result" dbtype="query">
-				SELECT ID, Label AS Name, Type, '#elementDetails.Name#' AS CustomElementName
+				SELECT ID, Label AS Name, Name AS FieldName, Type, '#elementDetails.Name#' AS CustomElementName
 				  FROM resultData
 			</cfquery>
+			<cfloop query="result">
+				<cfscript>
+					if (Len(result.Name) EQ 0)
+						result.Name = ReplaceNoCase(result.FieldName,'FIC_','');
+				</cfscript>
+			</cfloop>
 		<cfcatch>
 			<CFMODULE TEMPLATE="/commonspot/utilities/log-append.cfm" comment="Error while trying to retrieve the fields: #cfcatch.message# :: #cfcatch.detail#">
 			<cfscript>
@@ -755,11 +763,15 @@ History:
 			var renderData = '';
 		</cfscript>
 		<cfsavecontent variable="renderData">
-		<cfif ListFindNoCase(inputPropStruct.interfaceOptions,'edit')>
-			<cfoutput>#renderEditIcon(argumentCollection=arguments)#</cfoutput>
-		</cfif>
-		<cfif ListFindNoCase(inputPropStruct.interfaceOptions,'delete')>
-			<cfoutput>#renderDeleteIcon(argumentCollection=arguments)#</cfoutput>
+		<cfif ListFindNoCase(inputPropStruct.interfaceOptions,'edit') OR ListFindNoCase(inputPropStruct.interfaceOptions,'delete')>
+			<cfoutput><div style="width:42px;white-space:no-wrap;"></cfoutput>
+			<cfif ListFindNoCase(inputPropStruct.interfaceOptions,'edit')>
+				<cfoutput>#renderEditIcon(argumentCollection=arguments)#</cfoutput>
+			</cfif>
+			<cfif ListFindNoCase(inputPropStruct.interfaceOptions,'delete')>
+				<cfoutput>#renderDeleteIcon(argumentCollection=arguments)#</cfoutput>
+			</cfif>
+			<cfoutput></div></cfoutput>
 		</cfif>
 		</cfsavecontent>
 		<cfoutput>#renderData#</cfoutput>
@@ -976,6 +988,20 @@ History:
 			var dataFieldID = 0;
 			var getPageIDs = '';
 			var getRecsToChg = QueryNew('DataPageID,Pos');
+			var dbType = Request.Site.SiteDBType;
+			var intType = '';
+			switch (dbtype)
+			{
+				case 'Oracle':
+					intType = 'number(12)';
+					break;
+				case 'MySQL':
+					intType = 'UNSIGNED';
+					break;
+				case 'SQLServer':
+					intType = 'int';
+					break;
+			}
 			
 			if (IsNumeric(inputPropStruct.assocCustomElement))
 			{
@@ -1001,12 +1027,12 @@ History:
 			
 			<cfif getPageIDs.RecordCount>
 				<cfquery name="getRecsToChg" datasource="#Request.Site.Datasource#">
-					SELECT FieldValue AS Pos, PageID AS DataPageID
+					SELECT CAST(FieldValue AS #intType#) AS Pos, PageID AS DataPageID
 					  FROM Data_FieldValue
 					 WHERE FormID = <cfqueryparam value="#dataFormID#" cfsqltype="cf_sql_integer">
 						AND FieldID = <cfqueryparam value="#inputPropStruct.positionField#" cfsqltype="cf_sql_integer">
 						AND <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="PageID" LIST="#ValueList(getPageIDs.PageID)#">
-						AND VersionState = <cfqueryparam value="2" cfsqltype="cf_sql_integer">
+						AND VersionState = <cfqueryparam value="#request.constants.stateCURRENT#" cfsqltype="cf_sql_integer">
 						AND FieldValue >= <cfqueryparam value="#arguments.minPos#" cfsqltype="cf_sql_integer">
 						AND FieldValue <= <cfqueryparam value="#arguments.maxPos#" cfsqltype="cf_sql_integer">
 				 ORDER BY Pos

@@ -40,7 +40,6 @@ History:
 		There may be override fuctions and/or custom code in that site level version of this file. 
 		Confrim that the site level version EXTENDS to the base component file up in the ADF CustomField folder "ADF.extensions.customfields.custom_element_datamanager.custom_element_datamanager_base".
 
-
 3) Copy the 'post-save-form-hook.cfm' file from the '/ADF/extensions/customfields/custom_element_datamanager/site-files/' directory to the root of your site.
 	- If you already have a 'post-save-form-hook.cfm' file in the root of your site DO NOT overwrite it. 
 		There may be override fuctions and/or custom code in that site level version of this file.
@@ -48,4 +47,7 @@ History:
 		/custom_element_datamanager/site-files/post-save-form-hook.cfm file
 		into your sites existing post-save-form-hook.cfm file.
 			
-4) Restart CF
+4) Restart CF or Reset ADF 
+	-  If you already had a post-save-form-hook.cfm file in place in your site root then 
+	   only an ADF reset '?resetADF=1' is required and a CF restart would NOT be needed.
+	   
