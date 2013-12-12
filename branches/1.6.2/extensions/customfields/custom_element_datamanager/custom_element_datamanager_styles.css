@@ -118,4 +118,5 @@ div.box {
 .actionIcon {
     cursor: pointer;
     padding-right: 3px;
+    float: left;
 }

@@ -1055,7 +1055,9 @@ History:
 				</td></tr>
 				<tr><td>
 					<span id="positionFieldSpan" <cfif currentValues.sortByType EQ 'auto' OR currentValues.sortByType EQ ''>style="display:none;margin-left:40px;"<cfelse>style="margin-left:40px;"</cfif> class="cs_dlgLabelSmall">Position Field:&nbsp;<select name="#prefix#positionField" id="#prefix#positionField" onchange="#prefix#selectRadio(1)">
-					</select></span>
+					</select>
+					<div class="cs_dlgLabelSmall" style="margin-left:40px;margin-top:3px;">Only 'Number (integer)' or 'Hidden' fields can be used to Order Manually.</div>
+					</span>
 				</td></tr>
 				</table>
 			</td>

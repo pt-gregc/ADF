@@ -495,12 +495,12 @@ History:
 					</cfif>
 					<cfloop from="1" to="#ListLen(displayColNames)#" index="i">
 							<cfif ListFindNoCase(childDisplayColNames, ListGetAt(displayColNames,i))>
-								filteredData.#ListGetAt(displayColNames,i)#
+								filteredData.[#ListGetAt(displayColNames,i)#]
 							<cfelseif ListFindNoCase(assocDisplayColNames, ListGetAt(displayColNames,i))>
 								<cfif ListFindNoCase(assocColumnList, ListGetAt(displayColNames,i))>
-									assocData.#ListGetAt(displayColNames,i)#
+									assocData.[#ListGetAt(displayColNames,i)#]
 								<cfelseif ListLast(ListGetAt(displayColNames,i), '_') EQ 'assoc' AND ListFindNoCase(assocColumnList, Mid(ListGetAt(displayColNames,i),1,ListLast(ListGetAt(displayColNames,i), '_')))>
-									assocData.#Mid(ListGetAt(displayColNames,i),1,ListLast(ListGetAt(displayColNames,i), '_'))# AS #ListGetAt(displayColNames,i)#
+									assocData.[#Mid(ListGetAt(displayColNames,i),1,ListLast(ListGetAt(displayColNames,i), '_'))#] AS [#ListGetAt(displayColNames,i)#]
 								</cfif>
 							</cfif>
 						<cfif ListLen(displayColNames) GT 1 AND i NEQ ListLen(displayColNames)>
@@ -509,12 +509,12 @@ History:
 					</cfloop>
 					  FROM filteredData
 				<cfif IsNumeric(inputPropStruct.assocCustomElement)>
-					  ,assocData WHERE filteredData.#valueFieldName# = assocData.#assocReqFieldName#
+					  ,assocData WHERE filteredData.[#valueFieldName#] = assocData.[#assocReqFieldName#]
 				</cfif>
 				<cfif Len(childOrderColumnName)>
-				 ORDER BY filteredData.#childOrderColumnName# #defaultSortOrder#
+				 ORDER BY filteredData.[#childOrderColumnName#] #defaultSortOrder#
 				<cfelseif Len(assocOrderColumnName)>
-				 ORDER BY assocData.#assocOrderColumnName# #defaultSortOrder#
+				 ORDER BY assocData.[#assocOrderColumnName#] #defaultSortOrder#
 				</cfif>
 				</cfquery>
 			</cfif>
