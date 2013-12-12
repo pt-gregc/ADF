@@ -53,6 +53,7 @@ History:
 	2013-11-15 - GAC - Converted the CFT to the ADF standard CFT format using the defaultValues struct to build the current values
 					 - Updated AJAX calls to use the "ceData_2_0" lib using a ajaxCEDataBean variable
 	2013-11-20 - TP  - Added a isBoolean check to the multipleSelect and the renderSelectOption logic
+	2013-12-05 - GAC - Added standard CS text formatting to the props options 
 --->
 <cfscript>
 	// initialize some of the attributes variables
@@ -73,9 +74,9 @@ History:
 	defaultValues.displayFieldBuilder = "";
 	defaultValues.activeFlagField = "";
 	defaultValues.activeFlagValue = "";
-	defaultValues.addButton = "";
-	defaultValues.multipleSelect = "";
-	defaultValues.multipleSelectSize = "";
+	defaultValues.addButton = 0;
+	defaultValues.multipleSelect = 0;
+	defaultValues.multipleSelectSize = "1";
 	defaultValues.sortByField = "";
 	
 	// This will override the current values with the default values.
@@ -124,23 +125,39 @@ History:
 	}
 	
 	jQuery(document).ready(function(){
+		
+		<cfif isBoolean(currentValues.multipleSelect) AND currentValues.multipleSelect>
+		jQuery("tr###prefix#multipleSelectSizeRow").show();
+		<cfelse>
+		jQuery("tr###prefix#multipleSelectSizeRow").hide();
+		</cfif>
+		
+		<cfif LEN(TRIM(currentValues.activeFlagField)) AND currentValues.activeFlagField NEQ "--">
+		jQuery("tr###prefix#activeFlagValueRow").show();
+		<cfelse>
+		jQuery("tr###prefix#activeFlagValueRow").hide();
+		</cfif>
+		
 		var customElement = "###prefix#customElement";
 		var customElementValue = "###prefix#valueField";
+		
 		<cfif len(currentValues.customElement) gt 0>
-			#prefix#setElementFields("#currentValues.customElement#");
-			jQuery("###prefix#valueField").selectOptions("#currentValues.valueField#");
-			jQuery("###prefix#displayField").selectOptions("#currentValues.displayField#");
-			jQuery("###prefix#activeFlagField").selectOptions("#currentValues.activeFlagField#");
-			jQuery("###prefix#sortByField").selectOptions("#currentValues.sortByField#");
+		#prefix#setElementFields("#currentValues.customElement#");
+		jQuery("###prefix#valueField").selectOptions("#currentValues.valueField#");
+		jQuery("###prefix#displayField").selectOptions("#currentValues.displayField#");
+		jQuery("###prefix#activeFlagField").selectOptions("#currentValues.activeFlagField#");
+		jQuery("###prefix#sortByField").selectOptions("#currentValues.sortByField#");
 
-			#prefix#handleDisplayFieldChange();
+		#prefix#handleDisplayFieldChange();
 		</cfif>
 
 		jQuery(customElement).change(function(){
 			#prefix#setElementFields(jQuery(customElement).val());
 			#prefix#handleDisplayFieldChange();
 		});
+		
 		jQuery('###prefix#displayField').change(#prefix#handleDisplayFieldChange);
+		
 		jQuery("###prefix#fieldBuilder").change(function(){
 			var fieldBuilderVal = jQuery("###prefix#fieldBuilder").val();
 			//If the selected value is not -- and its the "build your own" add to the end of the string
@@ -152,6 +169,29 @@ History:
 				jQuery("###prefix#displayFieldBuilder").focus();
 			}
 		});
+		
+		jQuery("input[name=#prefix#multipleSelect]:radio").on('change', function() {
+			var multipleSelectVal = jQuery("input[name=#prefix#multipleSelect]:checked").val();
+          	if ( multipleSelectVal == 1 ) {
+          	   jQuery("tr###prefix#multipleSelectSizeRow").show();       	
+          	}
+          	else {
+          	   jQuery("tr###prefix#multipleSelectSizeRow").hide();
+          	   jQuery("###prefix#multipleSelectSize").val("#defaultValues.multipleSelectSize#");       	
+          	}
+               
+		});	
+		
+		jQuery("select[name=#prefix#activeFlagField]").change(function(){
+			var activeFlagFieldVal = jQuery("###prefix#activeFlagField").val();
+			if ( activeFlagFieldVal != "--" ){
+          		jQuery("tr###prefix#activeFlagValueRow").show();   
+			}
+			else {
+				 jQuery("tr###prefix#activeFlagValueRow").hide();	
+				 jQuery("###prefix#activeFlagValue").val("#defaultValues.activeFlagValue#"); 
+			}
+		});		
 	});
 
 	function #prefix#handleDisplayFieldChange(){
@@ -258,7 +298,7 @@ History:
 
 <table>
 	<tr>
-		<td class="cs_dlgLabelSmall">Custom Element:</td>
+		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Custom Element:</td>
 		<td class="cs_dlgLabelSmall">
 			<select id="#prefix#customElement" name="#prefix#customElement" size="1">
 				<option value="" selected> - Select - </option>
@@ -270,14 +310,14 @@ History:
 		</td>
 	</tr>
 	<tr>
-		<td class="cs_dlgLabelSmall">Select Value Field:</td>
+		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Select Value Field:</td>
 		<td class="cs_dlgLabelSmall">
 			<select name="#prefix#valueField" id="#prefix#valueField">
 			</select>
 		</td>
 	</tr>
 	<tr>
-		<td class="cs_dlgLabelSmall">Select Display Field:</td>
+		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Select Display Field:</td>
 		<td class="cs_dlgLabelSmall">
 			<select  name="#prefix#displayField" id="#prefix#displayField">
 			</select>
@@ -285,7 +325,7 @@ History:
 		</td>
 	</tr>
 	<tr class="other" style="display:none">
-		<td class="cs_dlgLabelSmall">Custom Display Text:</td>
+		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Custom Display Text:</td>
 		<td class="cs_dlgLabelSmall">
 			<span>Build your own display. Select a field from the drop down to have it added to the Custom Display Text field.</span>
 			<br/>
@@ -295,7 +335,7 @@ History:
 		</td>
 	</tr>
 	<tr>
-		<td class="cs_dlgLabelSmall">Sort By Field:</td>
+		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Sort By Field:</td>
 		<td class="cs_dlgLabelSmall">
 			<select name="#prefix#sortByField" id="#prefix#sortByField">
 			</select>
@@ -303,20 +343,21 @@ History:
 		</td>
 	</tr>
 	<tr>
-		<td class="cs_dlgLabelSmall">Active Flag</td>
+		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Active Flag Field:</td>
 		<td class="cs_dlgLabelSmall">
-			Field: <select name="#prefix#activeFlagField" id="#prefix#activeFlagField"></select>
+			<select name="#prefix#activeFlagField" id="#prefix#activeFlagField"></select>
 		</td>
 	</tr>
-	<tr>
-		<td></td>
+	<tr id="#prefix#activeFlagValueRow">
+		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap"><!--- Active Flag Value: ---></td>
 		<td class="cs_dlgLabelSmall">
-			Value: <input type="text" name="#prefix#activeFlagValue" id="#prefix#activeFlagValue" value="#currentValues.activeFlagValue#" size="20">
+			<label>Active Flag Value:&nbsp; 
+			<input type="text" name="#prefix#activeFlagValue" id="#prefix#activeFlagValue" value="#currentValues.activeFlagValue#" size="20"></label>
 			<br />To denote a ColdFusion Expression, add brackets around the expression (i.e. "[request.user.userid]")
 		</td>
 	</tr>
 	<tr>
-		<td class="cs_dlgLabelSmall">Default Field Value:</td>
+		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Default Field Value:</td>
 		<td class="cs_dlgLabelSmall">
 			<input type="text" name="#prefix#defaultVal" id="#prefix#defaultVal" value="#currentValues.defaultVal#" size="40">
 			<br />To denote a ColdFusion Expression, add brackets around the expression (i.e. "[request.user.userid]")
@@ -327,59 +368,65 @@ History:
 		<td colspan="2"><hr /></td>
 	</tr>
 	<tr>
-		<td class="cs_dlgLabelSmall">Select Option:</td>
+		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Select Option:</td>
 		<td class="cs_dlgLabelSmall">
-				Yes <input type="radio" id="#prefix#renderSelectOption" name="#prefix#renderSelectOption" value="1" <cfif currentValues.renderSelectOption EQ "1">checked</cfif>>&nbsp;&nbsp;&nbsp;
-				No <input type="radio" id="#prefix#renderSelectOption" name="#prefix#renderSelectOption" value="0" <cfif currentValues.renderSelectOption EQ "0">checked</cfif>><br />
-				Places a '--Select--' option in the list. <!--- Cannot be used with a multiple selection list. ---> 
-				<!--- // Must leave this option available for multiple selections lists for backwards compatiblity --->
+			<label style="color:black;font-size:12px;font-weight:normal;">Yes <input type="radio" id="#prefix#renderSelectOption" name="#prefix#renderSelectOption" value="1" <cfif currentValues.renderSelectOption EQ "1">checked</cfif>></label>
+			&nbsp;&nbsp;&nbsp;
+			<label style="color:black;font-size:12px;font-weight:normal;">No <input type="radio" id="#prefix#renderSelectOption" name="#prefix#renderSelectOption" value="0" <cfif currentValues.renderSelectOption EQ "0">checked</cfif>></label>
+			<br />Places a '--Select--' option at the top of the list. <!--- // Should not be used with a multiple selection list. ---> 
+			<!--- // Must leave this option available for multiple selections lists for backwards compatiblity --->
 		</td>
 	</tr>
 	<tr>
-		<td class="cs_dlgLabelSmall">Multiple Select:</td>
-		<td class="cs_dlgLabelSmall">
-				Yes <input type="radio" id="#prefix#multipleSelect" name="#prefix#multipleSelect" value="1" <cfif currentValues.multipleSelect EQ "1">checked</cfif>>&nbsp;&nbsp;&nbsp;
-				No <input type="radio" id="#prefix#multipleSelect" name="#prefix#multipleSelect" value="0" <cfif currentValues.multipleSelect EQ "0">checked</cfif>><br />
+		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Multiple Select:</td>
+		<td class="cs_dlgLabelSmall" valign="baseline">
+			<label style="color:black;font-size:12px;font-weight:normal;">Yes <input type="radio" id="#prefix#multipleSelect" name="#prefix#multipleSelect" value="1" <cfif currentValues.multipleSelect EQ "1">checked</cfif>></label>
+			&nbsp;&nbsp;&nbsp;
+			<label style="color:black;font-size:12px;font-weight:normal;">No <input type="radio" id="#prefix#multipleSelect" name="#prefix#multipleSelect" value="0" <cfif currentValues.multipleSelect EQ "0">checked</cfif>></label>
 		</td>
 	</tr>
-	<tr>
-		<td class="cs_dlgLabelSmall">Multiple Select Size:</td>
+	<tr id="#prefix#multipleSelectSizeRow">
+		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap"><!--- Multiple Select Size: ---></td>
 		<td class="cs_dlgLabelSmall">
-				<input id="#prefix#multipleSelectSize" name="#prefix#multipleSelectSize" value="#currentValues.multipleSelectSize#" size="3">
+			<label>Multiple Select Size:&nbsp; 
+			<input id="#prefix#multipleSelectSize" name="#prefix#multipleSelectSize" value="#currentValues.multipleSelectSize#" size="3"></label>
 		</td>
 	</tr>	
+	<tr>
+		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Add Button:</td>
+		<td class="cs_dlgLabelSmall">
+			<label style="color:black;font-size:12px;font-weight:normal;">Yes <input type="radio" id="#prefix#addButton" name="#prefix#addButton" value="1" <cfif currentValues.addButton EQ "1">checked</cfif>></label>
+			&nbsp;&nbsp;&nbsp;
+			<label style="color:black;font-size:12px;font-weight:normal;">No <input type="radio" id="#prefix#addButton" name="#prefix#addButton" value="0" <cfif currentValues.addButton EQ "0">checked</cfif>></label>
+		</td>
+	</tr>
 	
 	<tr>
 		<td colspan="2"><hr /></td>
 	</tr>
 	<tr>
-		<td class="cs_dlgLabelSmall">Field Name:</td>
+		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Field Name:</td>
 		<td class="cs_dlgLabelSmall">
 			<input type="text" name="#prefix#fldName" id="#prefix#fldName" value="#currentValues.fldName#" size="40">
 			<br/><span>Please enter the field name to be used via JavaScript (case sensitive).  If blank, will use default name.</span>
 		</td>
 	</tr>
 	<tr>
-		<td class="cs_dlgLabelSmall">Field Display Type:</td>
+		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Field Display Type:</td>
 		<td class="cs_dlgLabelSmall">
-			<input type="radio" name="#prefix#renderField" id="#prefix#renderField" value="yes" <cfif currentValues.renderField eq 'yes'>checked</cfif>>Visible
-			<input type="radio" name="#prefix#renderField" id="#prefix#renderField" value="no" <cfif currentValues.renderField eq 'no'>checked</cfif>>Hidden
+			<label style="color:black;font-size:12px;font-weight:normal;">Visible <input type="radio" name="#prefix#renderField" id="#prefix#renderField" value="yes" <cfif currentValues.renderField eq 'yes'>checked</cfif>></label>
+			<label style="color:black;font-size:12px;font-weight:normal;">Hidden <input type="radio" name="#prefix#renderField" id="#prefix#renderField" value="no" <cfif currentValues.renderField eq 'no'>checked</cfif>></label>
 		</td>
 	</tr>
 	<tr>
-		<td class="cs_dlgLabelSmall">Add Button:</td>
-			<td class="cs_dlgLabelSmall">
-				Yes <input type="radio" id="#prefix#addButton" name="#prefix#addButton" value="1" <cfif currentValues.addButton EQ "1">checked</cfif>>&nbsp;&nbsp;&nbsp;
-				No <input type="radio" id="#prefix#addButton" name="#prefix#addButton" value="0" <cfif currentValues.addButton EQ "0">checked</cfif>><br />
-		</td>
-	</tr>
-	<tr>
-		<td class="cs_dlgLabelSmall">Force Loading Scripts:</td>
-			<td class="cs_dlgLabelSmall">
-				Yes <input type="radio" id="#prefix#forceScripts" name="#prefix#forceScripts" value="1" <cfif currentValues.forceScripts EQ "1">checked</cfif>>&nbsp;&nbsp;&nbsp;
-				No <input type="radio" id="#prefix#forceScripts" name="#prefix#forceScripts" value="0" <cfif currentValues.forceScripts EQ "0">checked</cfif>><br />
-				Force the JQuery script to load.
+		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Force Loading Scripts:</td>
+		<td class="cs_dlgLabelSmall">
+			<label style="color:black;font-size:12px;font-weight:normal;">Yes <input type="radio" id="#prefix#forceScripts" name="#prefix#forceScripts" value="1" <cfif currentValues.forceScripts EQ "1">checked</cfif>></label>
+			&nbsp;&nbsp;&nbsp;
+			<label style="color:black;font-size:12px;font-weight:normal;">No <input type="radio" id="#prefix#forceScripts" name="#prefix#forceScripts" value="0" <cfif currentValues.forceScripts EQ "0">checked</cfif>></label>
+			<br />Force the JQuery script to load.
 		</td>
 	</tr>
 </table>
+<!--- <span class="cs_dlgLabelBoldNoAlign"></span> --->
 </cfoutput>

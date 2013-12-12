@@ -69,7 +69,7 @@ History:
 	xparams = parameters[fieldQuery.inputID];
 	// the current row from the fieldQuery
 	currentRow = fieldQuery.currentRow;
-	
+
 	// Set the Current Selected Value for the HIDDEN field that is passes the data to be stored
 	// - This variable will only be populated if the value (default or stored) exists in the bound custom element  
 	currentSelectedValue = "";
@@ -99,9 +99,6 @@ History:
 	if ( NOT StructKeyExists(xparams, "sortByField") OR (LEN(xparams.sortByField) LTE 0) )
 		xparams.sortByField = "--";
 		
-	// Load JQuery to the script
-	application.ADF.scripts.loadJQuery(force=xParams.forceScripts);
-	
 	// Get the data records
 	if ( StructKeyExists(xparams,"activeFlagField") and Len(xparams.activeFlagField) and StructKeyExists(xparams,"activeFlagValue") and Len(xparams.activeFlagValue) ) {
 		if ( (TRIM(LEFT(xparams.activeFlagValue,1)) EQ "[") AND (TRIM(RIGHT(xparams.activeFlagValue,1)) EQ "]")){
@@ -121,9 +118,6 @@ History:
 	}
 	else if( StructKeyExists(xparams, "displayField") AND LEN(xparams.displayField) AND xparams.displayField neq "--Other--" ) {
 		ceDataArray = application.ADF.cedata.arrayOfCEDataSort(ceDataArray, xparams.displayField);
-	}
-	else {
-		application.ADF.scripts.loadJQuerySelectboxes();
 	}
 
 	// Check if we do not have a current value then set to the default
@@ -152,8 +146,15 @@ History:
 	if ( NOT StructKeyExists(variables,"fieldPermission") )
 		variables.fieldPermission = "";
 
-	//-- Read Only Check w/ cs6 fieldPermission parameter --
-	readOnly = application.ADF.forms.isFieldReadOnly(xparams,variables.fieldPermission);
+	//-- Read Only Check with the cs6 fieldPermission parameter --
+	//-- Also check to see if this field is FORCED to be READ ONLY for CS 9+ by looking for attributes.currentValues[fqFieldName_doReadonly] variable --
+	readOnly = application.ADF.forms.isFieldReadOnly(xparams,variables.fieldPermission,fqFieldName,attributes.currentValues);
+
+	// Load JQuery to the script
+	application.ADF.scripts.loadJQuery(force=xParams.forceScripts);
+	if (  xparams.displayField EQ "--Other--" ) {
+		application.ADF.scripts.loadJQuerySelectboxes();
+	}
 </cfscript>
 
 <cfoutput>
