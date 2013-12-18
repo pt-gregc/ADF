@@ -22,10 +22,11 @@ end user license agreement.
 /* *************************************************************** */
 Author: 	
 	PaperThin, Inc.
+	M Carroll 
 Custom Field Type:
-	general chooser
+	General Chooser 2.0
 Name:
-	sample_gc.cfc
+	sample_2_0_gc.cfc
 Summary:
 	Sample General Chooser Property Component
 History:
@@ -33,8 +34,9 @@ History:
 	2011-03-20 - MFC - Updated component to simplify the customizations process and performance.
 						Removed Ajax loading process.
 	2011-03-28 - MFC - Updated the variable flags.
+	2013-12-09 - GAC - Update for General Chooser 2.0
 --->
-<cfcomponent name="sample_gc" extends="ADF.extensions.customfields.general_chooser.general_chooser">
+<cfcomponent name="sample_2_0_gc" extends="ADF.extensions.customfields.general_chooser.v2_0.general_chooser_2_0">
 
 <cfscript>
 	// CUSTOM ELEMENT INFO
@@ -55,18 +57,15 @@ History:
 	variables.SELECT_ITEM_CLASS = "ui-state-default";
 	variables.JQUERY_UI_THEME = "ui-lightness";
 	
-	// VARIABLES for v1.1
+	// NEW VARIABLES v1.1
 	variables.SHOW_SEARCH = true;  // Boolean
 	variables.SHOW_ALL_LINK = true;  // Boolean
 	variables.SHOW_ADD_LINK = true;  // Boolean
 	variables.SHOW_EDIT_DELETE_LINKS = false;  // Boolean
 	
-	// NEW VARIABLES for v1.2 for ADF 1.6.2
-	variables.AVAILABLE_LABEL = "Available Items";
-	variables.SELECTED_LABEL = "Selected Items";
-	variables.NEW_ITEM_LABEL = "Add New Item";
-	variables.SHOW_EDIT_LINKS = false;  			// Boolean - SHOW_EDIT_DELETE_LINKS must be true to enable this option 
-	variables.SHOW_DELETE_LINKS = false;  		// Boolean - SHOW_EDIT_DELETE_LINKS must be true to enable this option
+	// NEW VARIABLES v2.0
+	variables.SHOW_EDIT_LINKS = false;  		// Boolean
+	variables.SHOW_DELETE_LINKS = false;  		// Boolean
 </cfscript>
 
 </cfcomponent>

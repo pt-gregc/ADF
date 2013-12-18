@@ -21,31 +21,46 @@ end user license agreement.
 <!---
 /* *************************************************************** */
 Author: 	
-	PaperThin, Inc. 
+	PaperThin, Inc.
+	M Carroll 
 Custom Field Type:
-	general chooser
+	general chooser v1.1
 Name:
-	general_chooser.cfc
+	sample_1_1_gc.cfc
 Summary:
-	General Chooser component.
-Version:
-	1.2
+	Sample General Chooser Property Component
 History:
-	2009-10-16 - MFC - Created
-	2009-11-13 - MFC - Updated the Ajax calls to the CFC to call the controller 
-						function.  This allows only the "controller" function to 
-						listed in the proxy white list XML file.
+	2010-06-21 - MFC - Created
 	2011-03-20 - MFC - Updated component to simplify the customizations process and performance.
 						Removed Ajax loading process.
-	2012-01-30 - GAC - Added a Display_Feild varaible to the General Chooser init variables.
-	2013-01-10 - MFC - Disabled the Delete icon/action in the selection.
-	2013-01-30 - GAC - Updated to use the ceData 2.0 lib component
-	2013-10-22 - GAC - Updated to inject the data_1_2 lib in to the variables.data scope since we are extending ceData_2_0
-	2013-10-23 - GAC - Removed data_1_2 injection due to ADF reset errors on startup
-	2013-12-10 - GAC - Updated the extends to point to ADF.extensions.customfields.general_chooser.v1_2.general_chooser_1_2
+	2011-03-28 - MFC - Updated the variable flags.
 --->
-<cfcomponent name="general_chooser" extends="ADF.extensions.customfields.general_chooser.v1_2.general_chooser_1_2">
+<cfcomponent name="sample_1_1_gc" extends="ADF.extensions.customfields.general_chooser.general_chooser">
+
+<cfscript>
+	// CUSTOM ELEMENT INFO
+	variables.CUSTOM_ELEMENT = "";
+	variables.CE_FIELD = "";
+	variables.SEARCH_FIELDS = "";
+	variables.ORDER_FIELD = "";
 	
-	<!--- // This is pass through file for the v1.2 component for the General Chooser field --->
+	// STYLES
+	variables.MAIN_WIDTH = 580;
+	variables.SECTION1_WIDTH = 270;
+	variables.SECTION2_WIDTH = 270;
+	variables.SECTION3_WIDTH = 580;
+	variables.SELECT_BOX_HEIGHT = 350;
+	variables.SELECT_BOX_WIDTH = 250;
+	variables.SELECT_ITEM_HEIGHT = 15;
+	variables.SELECT_ITEM_WIDTH = 210;
+	variables.SELECT_ITEM_CLASS = "ui-state-default";
+	variables.JQUERY_UI_THEME = "ui-lightness";
 	
+	// NEW VARIABLES v1.1
+	variables.SHOW_SEARCH = true;  // Boolean
+	variables.SHOW_ALL_LINK = true;  // Boolean
+	variables.SHOW_ADD_LINK = true;  // Boolean
+	variables.SHOW_EDIT_DELETE_LINKS = false;  // Boolean
+</cfscript>
+
 </cfcomponent>

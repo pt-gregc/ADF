@@ -23,9 +23,9 @@ end user license agreement.
 Author: 	
 	PaperThin, Inc.
 Custom Field Type:
-	general chooser
+	general chooser v1.2
 Name:
-	sample_gc.cfc
+	sample_1_2_gc.cfc
 Summary:
 	Sample General Chooser Property Component
 History:
@@ -34,7 +34,7 @@ History:
 						Removed Ajax loading process.
 	2011-03-28 - MFC - Updated the variable flags.
 --->
-<cfcomponent name="sample_gc" extends="ADF.extensions.customfields.general_chooser.general_chooser">
+<cfcomponent name="sample_1_2_gc" extends="ADF.extensions.customfields.general_chooser.general_chooser">
 
 <cfscript>
 	// CUSTOM ELEMENT INFO
@@ -55,7 +55,7 @@ History:
 	variables.SELECT_ITEM_CLASS = "ui-state-default";
 	variables.JQUERY_UI_THEME = "ui-lightness";
 	
-	// VARIABLES for v1.1
+	// NEW VARIABLES for v1.1
 	variables.SHOW_SEARCH = true;  // Boolean
 	variables.SHOW_ALL_LINK = true;  // Boolean
 	variables.SHOW_ADD_LINK = true;  // Boolean
