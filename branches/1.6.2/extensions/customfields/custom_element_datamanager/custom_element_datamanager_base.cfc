@@ -935,6 +935,7 @@ History:
 				 	AND FormID = <cfqueryparam value="#dataFormID#" cfsqltype="cf_sql_integer">
 					AND FieldID = <cfqueryparam value="#inputPropStruct.positionField#" cfsqltype="cf_sql_integer">
 					AND VersionState = <cfqueryparam value="#request.constants.stateCURRENT#" cfsqltype="cf_sql_integer">
+					AND PageID > 0
 			</cfquery>
 			
 			<cfquery name="getOrderForEndRec" datasource="#Request.Site.Datasource#">
@@ -944,6 +945,7 @@ History:
 				 	AND FormID = <cfqueryparam value="#dataFormID#" cfsqltype="cf_sql_integer">
 					AND FieldID = <cfqueryparam value="#inputPropStruct.positionField#" cfsqltype="cf_sql_integer">
 					AND VersionState = <cfqueryparam value="#request.constants.stateCURRENT#" cfsqltype="cf_sql_integer">
+					AND PageID > 0
 			</cfquery>
 			
 			<cfscript>
@@ -1023,6 +1025,7 @@ History:
 					AND FieldID = <cfqueryparam value="#dataFieldID#" cfsqltype="cf_sql_integer">
 					AND FieldValue = <cfqueryparam value="#curValuesStruct[linkedIDSelectedName]#" cfsqltype="cf_sql_varchar">
 					AND VersionState = <cfqueryparam value="#request.constants.stateCURRENT#" cfsqltype="cf_sql_integer">
+					AND PageID > 0
 			</cfquery>
 			
 			<cfif getPageIDs.RecordCount>
@@ -1035,6 +1038,7 @@ History:
 						AND VersionState = <cfqueryparam value="#request.constants.stateCURRENT#" cfsqltype="cf_sql_integer">
 						AND FieldValue >= <cfqueryparam value="#arguments.minPos#" cfsqltype="cf_sql_integer">
 						AND FieldValue <= <cfqueryparam value="#arguments.maxPos#" cfsqltype="cf_sql_integer">
+						AND PageID > 0
 				 ORDER BY Pos
 				</cfquery>
 			</cfif>
@@ -1068,6 +1072,7 @@ History:
 			 WHERE PageID = <CFQUERYPARAM VALUE="#arguments.dataPageID#" CFSQLTYPE="CF_SQL_INTEGER">
 				AND FieldID = <CFQUERYPARAM VALUE="#inputPropStruct.PositionField#" CFSQLTYPE="CF_SQL_INTEGER">
 				AND VersionState = <CFQUERYPARAM VALUE="#request.constants.stateCURRENT#" CFSQLTYPE="CF_SQL_INTEGER">
+				AND PageID > 0
 		</cfquery>
 	</cffunction>
 

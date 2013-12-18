@@ -37,6 +37,7 @@ History:
 	2013-11-27 - DJM - Updated code to allow multiple dataManager fields on the same form
 	2013-11-28 - DJM - Updated to correct issue with 3 element configuration
 	2013-12-04 - GAC - Added CommonSpot Version check since this field only runs on CommonSpot v9+
+	2013-12-09 - DJM - Added code to change the cursor for datatable, actions column width and modified path to CFC to allow drag drop
 --->
 <cfscript>
 	requiredVersion = 9;
@@ -130,6 +131,14 @@ History:
 			application.ADF.scripts.loadJQueryUI();
 			application.ADF.scripts.loadJQueryDataTables(force=true,loadStyles="false");
 		</CFSCRIPT>
+		
+		<CFIF inputParameters.sortByType EQ 'manual'>
+			<CFOUTPUT>
+				<style>
+					##customElementData_#uniqueTableAppend# tbody td {cursor: ns-resize;}
+				</style>
+			</CFOUTPUT>
+		</CFIF>
 	
 		<CFIF inputParameters.childCustomElement neq ''>
 			<CFIF newData EQ 0>
@@ -212,9 +221,13 @@ History:
 							{
 								var obj = {"bVisible": false, "mDataProp": i+1};
 							}
+							else if (columnsArray[i] == "Actions")
+							{
+								var obj = { "sTitle": columnsArray[i], "mDataProp": i+1, "sWidth": "42px" };
+							}
 							else
 							{
-								var obj = { "sTitle": columnsArray[i], "mDataProp": i+1 };
+								var obj = { "sTitle": columnsArray[i], "mDataProp": i+1, "sWidth": null };
 							}
 							columns.push(obj);
 						};

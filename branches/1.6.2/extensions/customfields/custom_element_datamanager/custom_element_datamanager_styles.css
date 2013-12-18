@@ -1,3 +1,5 @@
+/* custom_element_datamanager_styles.css */
+
 .dataTables_wrapper {
 	position: relative;
 	clear: both;
@@ -37,11 +39,19 @@ table.display {
 }
 
 table.display thead th {
-	padding: 3px 18px 3px 10px;
+	padding: 3px;
 	border-bottom: 1px solid black;
 	font-weight: bold;
-	cursor: pointer;
-	* cursor: hand;
+	* cursor: pointer;
+
+	/* 2013-12-13 - gac - merged in changes from r&c - r&c wins */
+	/* 	
+		padding: 3px 18px 3px 10px;
+		border-bottom: 1px solid black;
+		font-weight: bold;
+		cursor: pointer;
+		* cursor: hand; 
+	*/
 }
 
 table.display tfoot th {
@@ -55,7 +65,9 @@ table.display tr.heading2 td {
 }
 
 table.display td {
-	padding: 3px 10px;
+	padding: 3px;
+	/* 2013-12-13 - gac - merged in changes from r&c - r&c wins */
+	/* padding: 3px 10px; */
 }
 
 table.display td.center {
