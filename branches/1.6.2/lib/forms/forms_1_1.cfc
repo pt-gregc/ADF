@@ -41,6 +41,7 @@ History:
 <cfproperty name="ceData" injectedBean="ceData_2_0" type="dependency">
 <cfproperty name="scripts" injectedBean="scripts_1_2" type="dependency">
 <cfproperty name="ui" injectedBean="ui_1_0" type="dependency">
+<cfproperty name="fields" injectedBean="fields_1_0" type="dependency">
 <cfproperty name="wikiTitle" value="Forms_1_1">
 
 <!---
@@ -484,34 +485,12 @@ History:
 	2013-11-14 - DJM - Pulled out from the Custom Element Select Field render file and converted to its own method
 	2013-11-14 - GAC - Moved from the Custom Element Select Field to the Forms_1_1 lib
 --->
+<!--- // Moved to the Fields LIB --->
 <cffunction name="renderDataValueStringfromFieldMask" hint="Returns the string of data values from field mask" access="public" returntype="string">
 	<cfargument name="fieldDataStruct" type="struct" required="true" hint="Struct with the field key/value pair">
 	<cfargument name="fieldMaskStr" type="string" required="true" hint="String mask of <fieldNames> used build the field value display">
 	<cfscript>
-		var displayField = arguments.fieldMaskStr;
-		var startChar = chr(171);
-		var endChar = chr(187);
-		var value = '';
-		var foundIndex = 0;
-		var foundEndIndex = 0;
-		
-		// While we still detect the upper ascii start character loop through
-		while ( Find(startChar,displayField) ) {
-			foundIndex = Find(startChar,displayField);
-			foundEndIndex = Find(endChar,displayField);
-			//Grab the content in between the start and end character
-			value = mid(displayField,foundIndex+1,foundEndIndex-foundIndex-1);
-			if ( StructKeyExists(arguments.fieldDataStruct,value) ) {
-				// We found it. Replace the <value> with the actual value
-				displayField = Replace(displayField,"#startChar##value##endChar#", arguments.fieldDataStruct[value],"ALL");
-			}
-			else {
-				// Something is messed up... tell them so in the field!
-				displayField = Replace(displayField,"#startChar##value##endChar#", "Field '#value#' does not exist!");
-			}
-		}
-		
-		return displayField;
+		return variables.fields.renderDataValueStringfromFieldMask(fieldDataStruct=arguments.fieldDataStruct,fieldMaskStr=arguments.fieldMaskStr);
 	</cfscript>
 </cffunction>
 
