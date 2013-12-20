@@ -176,7 +176,7 @@ History:
 		<cfsavecontent variable="retHTML">	
 			<cfoutput>
 				<!--- Call the UDF function --->
-				#Server.CommonSpot.UDF.UI.RenderSimpleForm(arguments.dataPageID, arguments.formID, APIPostToNewWindow, formResultHTML)#
+				#server.CommonSpot.UDF.UI.RenderSimpleForm(arguments.dataPageID, arguments.formID, APIPostToNewWindow, formResultHTML)#
 			</cfoutput>
 		</cfsavecontent>
 	<cfelse>

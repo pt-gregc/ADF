@@ -23,7 +23,7 @@ Author:
 	PaperThin, Inc.
 	Ryan Kahn
 Name:
-	application.cfc
+	Application.cfc
 Summary:
 	Application.cfc for the file_uplaoder field
 History:

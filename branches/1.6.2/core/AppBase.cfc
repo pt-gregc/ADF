@@ -38,7 +38,7 @@ History:
 <cfcomponent name="AppBase" extends="ADF.core.Base" hint="App Base component for the ADF">
 
 <cfproperty name="version" value="1_6_2">
-<cfproperty name="file-version" value="0">
+<cfproperty name="file-version" value="1">
 
 <cffunction name="init" output="true" returntype="any">
 	<cfscript>
@@ -115,7 +115,7 @@ History:
 				// Create the Application Space for the app bean
 				application[arguments.appBeanName] = StructNew();
 				
-				// Copy the App bean config struct from Server.ADF into Application.ADF
+				// Copy the App bean config struct from server.ADF into application.ADF
 				copyServerBeanToApplication(arguments.appBeanName);
 				// Load the local App components into the object factory
 				loadSiteAppComponents(arguments.appBeanName);
@@ -162,7 +162,7 @@ History:
 		// Load the Apps Configs for CE and XML configs into server.ADF.environment
 		server.ADF.environment[request.site.id][arguments.appBeanName] = StructNew();
 		StructAppend(server.ADF.environment[request.site.id][arguments.appBeanName], getAppCEConfigs(arguments.appBeanName), true);
-		StructAppend(server.ADF.environment[request.site.id][arguments.appBeanName], getAppXMLConfigs(arguments.appBeanName), true);	
+		StructAppend(server.ADF.environment[request.site.id][arguments.appBeanName], getAppXMLConfigs(arguments.appBeanName), true);
 	</cfscript>
 </cffunction>
 
@@ -258,7 +258,7 @@ History:
 						Resolves the issue with the bean and CFC name being different names loaded into the
 						App Bean Config.
 --->
-<cffunction name="loadSiteAppComponents" access="private" returntype="void" hint="Stores the site specific components in '/_cs_apps/components' into application.ADF space."> 
+<cffunction name="loadSiteAppComponents" access="private" returntype="void" hint="Stores the site specific components in '/_cs_apps/components' into application.ADF space.">
 	<cfargument name="appBeanName" type="string" required="true" default="" hint="ADF lightwire bean name.">
 	
 	<cfscript>
@@ -323,8 +323,8 @@ Author: 	M. Carroll
 Name:
 	$copyServerBeanToApplication
 Summary:
-	Recurses the bean in Server.ADF Bean Config and copies the beans to 
-		the Application.ADF Bean Config.
+	Recurses the bean in server.ADF Bean Config and copies the beans to
+		the application.ADF Bean Config.
 		Recurses for the CONSTRUCTORDEPENDENCYSTRUCT, MIXINDEPENDENCYSTRUCT, and 
 			SETTERDEPENDENCYSTRUCT data in the bean.
 Returns:
@@ -348,7 +348,7 @@ History:
 		var sd_keys = "";
 		var appBeanStruct = server.ADF.beanConfig.getConfigStruct();
 		
-		// Check if we are working with a SERVER.ADF bean
+		// Check if we are working with a server.ADF bean
 		if ( StructKeyExists(appBeanStruct, arguments.beanName) ) {
 			appBeanStruct = appBeanStruct[arguments.beanName];
 			// Add the bean to the application ADF

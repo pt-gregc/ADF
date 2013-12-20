@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="api" extends="ADF.core.Base" hint="CCAPI functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_6">
+<cfproperty name="version" value="1_0_7">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
 <cfproperty name="wikiTitle" value="API">
 
@@ -44,7 +44,7 @@ History:
 		// Init the session variables
 		initSession();
 		
-		this.loginComponent = Server.CommonSpot.api.getObject('Login');
+		this.loginComponent = server.CommonSpot.api.getObject('Login');
 		
 		// Init the API Config Settings
 		initAPIConfig();
@@ -272,7 +272,6 @@ History:
 			else {
 				// Login via ColdFusion
 				loginStatus = this.loginComponent.isLoggedIn();	
-				//application.ADF.utils.dodump(loginStatus,"loginStatus - isLoggedIn", false);	
 			}
 		}
 		
@@ -360,7 +359,7 @@ History:
 		// Check if the commands collection is a structure
 		if ( isStruct(arguments.commandStruct)
 				AND StructCount(arguments.commandStruct) GT 0 ){
-			commandXML = Server.CommonSpot.UDF.Util.serializeBean(commandStruct);
+			commandXML = server.CommonSpot.UDF.Util.serializeBean(commandStruct);
 			// Trim off the surrounding "<struct></struct>" tags
 			commandXML = MID(commandXML,9,LEN(commandXML)-17);
 		}
@@ -369,7 +368,7 @@ History:
 		}
 		
 		// Validate if the XML starts with "COMMAND"
-		if ( MID(Server.commonspot.UDF.HTML.escape(TRIM(commandXML)),5, 7) NEQ "Command" ) 
+		if ( MID(server.commonspot.UDF.HTML.escape(TRIM(commandXML)),5, 7) NEQ "Command" ) 
 			commandXML = '<Command>' & commandXML & '</Command>';
 		
 		command_collection = '<CommandCollection class="array">' & #commandXML# & '</CommandCollection>';
@@ -403,7 +402,7 @@ History:
 		<cfscript>
 			//application.ADF.utils.dodump(cfhttp,"cfhttp - runRemote",false);
 			if ( isXML(cfhttp.fileContent) )
-				return Server.Commonspot.UDF.util.deserialize(cfhttp.fileContent);
+				return server.Commonspot.UDF.util.deserialize(cfhttp.fileContent);
 		</cfscript>
 		<cfcatch>
 			<cfdump var="#cfcatch#" label="cfcatch" expand="false">
@@ -583,12 +582,15 @@ History:
 		//application.ADF.utils.dodump(httpSubsiteURL,"buildSubsiteFullURL - httpSubsiteURL", false);	
 		//application.ADF.utils.dodump(subsiteData,"buildSubsiteFullURL - subsiteData", false);	
 		//application.ADF.utils.dodump(request.site.CP_URL,"buildSubsiteFullURL - request.site.CP_URL", false);	
+	
 		// Remove the root subsite from the path
 		httpSubsiteURL = Replace(httpSubsiteURL, request.site.CP_URL, "");
 		//application.ADF.utils.dodump(httpSubsiteURL,"buildSubsiteFullURL - httpSubsiteURL", false);	
+		
 		// Add the subsite path to the string
 		httpSubsiteURL = httpSubsiteURL & subsiteData.SubSiteURL;
 		//application.ADF.utils.dodump(httpSubsiteURL,"buildSubsiteFullURL - httpSubsiteURL", false);		
+		
 		return httpSubsiteURL;
 	</cfscript>
 </cffunction>

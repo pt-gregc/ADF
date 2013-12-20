@@ -79,6 +79,6 @@ History:
 <!--- // Add CS 6.x lightbox Header  --->
 <cfif request.params.addLBHeaderFooter><cfoutput>#application.ADF.ui.lightboxHeader()#</cfoutput></cfif>
 <!--- // 2011-02-16 - Call the Lightbox Proxy to build the HTML, then Output the HTML string --->
-<cfoutput>#TRIM(Application.ADF.lightbox.buildLightboxProxyHTML())#</cfoutput>
+<cfoutput>#TRIM(application.ADF.lightbox.buildLightboxProxyHTML())#</cfoutput>
 <!--- // Add CS 6.x lightbox Footer  --->
 <cfif request.params.addLBHeaderFooter><cfoutput>#application.ADF.ui.lightboxFooter()#</cfoutput></cfif>

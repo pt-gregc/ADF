@@ -42,7 +42,7 @@ History:
 --->
 <cfcomponent displayname="csData_1_1" extends="ADF.lib.csData.csData_1_0" hint="CommonSpot Data Utils functions for the ADF Library">
 	
-<cfproperty name="version" value="1_1_5">
+<cfproperty name="version" value="1_1_6">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_1">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">
@@ -136,7 +136,7 @@ History:
 						taxTermTextList = custMetadata[formKey][fieldkey];    
 						if ( LEN(TRIM(taxTermTextList)) ) {
 							// Convert the List Terms to a List of TermIDs
-							taxTermIDList = Application.ADF.taxonomy.getTermIDs(termList=taxTermTextList);
+							taxTermIDList = application.ADF.taxonomy.getTermIDs(termList=taxTermTextList);
 							// Reset The CustomMetadata to the Term ID List
 							custMetadata[formKey][fieldkey] = taxTermIDList;
 						} 		    
@@ -520,7 +520,7 @@ History:
 			stdMetadata.PublicReleaseDate = getData.PublicReleaseDate;
 			stdMetadata.Confidentiality = getData.Confidentiality;
 			if ( IsNumeric(getData.IsPublic) AND getData.IsPublic gt 0 ) 
-				stdMetadata.IncludeInIndex = Application.CS.site.IsPublicGetOptions(getData.IsPublic);
+				stdMetadata.IncludeInIndex = application.CS.site.IsPublicGetOptions(getData.IsPublic);
 		}
 	</cfscript>
 	<cfreturn stdMetadata>
@@ -571,7 +571,7 @@ History:
 	<cfelse>
 		<cfscript>
 			// If CS 6.x or greater create the Keywords Object
-			keywordObj = Server.CommonSpot.ObjectFactory.getObject("keywords");
+			keywordObj = server.CommonSpot.ObjectFactory.getObject("keywords");
 			// Get the list of global keywords from the keywordObj
 			if ( StructKeyExists(keywordObj,"getDelimitedListForObject") ) 
 				globalKeywordsList = keywordObj.getDelimitedListForObject(objectID=arguments.csPageID);

@@ -75,7 +75,7 @@ History:
 	bMakeCache = 1;
 	bExit = 0;
 	
-	if( NOT StructKeyExists(Application.ADF.cache,"pagerCache") )
+	if( NOT StructKeyExists(application.ADF.cache,"pagerCache") )
 		application.ADF.cache.pagerCache = StructNew();
 </cfscript>
 

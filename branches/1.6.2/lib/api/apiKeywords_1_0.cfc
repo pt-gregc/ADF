@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="apiKeywords" extends="ADF.core.Base" hint="API Keywords functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_1">
+<cfproperty name="version" value="1_0_2">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
 <cfproperty name="wikiTitle" value="API Keywords">
@@ -62,7 +62,7 @@ History:
 	<cfscript>
 		var pageCmdResult = StructNew();
 		// Use the CS 6.x Command API to SET page keywords
-		var kwComponent = Server.CommonSpot.api.getObject('keywords');
+		var kwComponent = server.CommonSpot.api.getObject('keywords');
 		var kwCmdResults = "";
 		try {
 			kwCmdResults = kwComponent.setForObject(arguments.csPageID,arguments.keywordList);

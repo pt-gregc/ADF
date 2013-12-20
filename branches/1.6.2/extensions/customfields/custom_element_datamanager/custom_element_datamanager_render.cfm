@@ -98,7 +98,7 @@ History:
 			else if (StructKeyExists(attributes, 'fields'))
 				ceFormID = attributes.fields.formID[1];
 		
-			customElementObj = Server.CommonSpot.ObjectFactory.getObject('CustomElement');
+			customElementObj = server.CommonSpot.ObjectFactory.getObject('CustomElement');
 			childCustomElementDetails = customElementObj.getList(ID=inputParameters.childCustomElement);
 			parentCustomElementDetails = customElementObj.getInfo(elementID=ceFormID);
 			datamanagerObj = CreateObject("component", "#componentPath#/custom_element_datamanager_base");
@@ -165,13 +165,13 @@ History:
 			<CFOUTPUT><table border="0" cellpadding="4" cellspacing="4" summary="">
 				<tr><td class="cs_dlgLabelError">#childCustomElementDetails.Name# records can only be added once the #parentCustomElementDetails.Name# record is saved.</td></tr>
 				</table>
-				#Server.CommonSpot.UDF.tag.input(type="hidden", name="#fqFieldName#", value="")#</CFOUTPUT>
+				#server.CommonSpot.UDF.tag.input(type="hidden", name="#fqFieldName#", value="")#</CFOUTPUT>
 			</CFIF>
 		</CFIF>
 	</CFIF>
 
 	<CFIF fieldpermission lt 2>
-		<CFOUTPUT>#Server.CommonSpot.UDF.tag.input(type="hidden", name=fqFieldName)#</CFOUTPUT>
+		<CFOUTPUT>#server.CommonSpot.UDF.tag.input(type="hidden", name=fqFieldName)#</CFOUTPUT>
 	</CFIF>
 
 	<cfif attributes.rendermode eq 'standard'>
@@ -323,6 +323,6 @@ History:
 		</cfoutput>
 	</cfif>
 <cfelse>
-	<CFOUTPUT>#Server.CommonSpot.UDF.tag.input(type="hidden", name=fqFieldName)#</CFOUTPUT>
+	<CFOUTPUT>#server.CommonSpot.UDF.tag.input(type="hidden", name=fqFieldName)#</CFOUTPUT>
 </cfif>
 </cfif>

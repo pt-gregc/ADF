@@ -39,7 +39,7 @@ ADF Requirements:
 History:
 	2009-10-28 - MFC - Created
 	2009-12-23 - MFC - Resolved error with loading the current value selected.
-	2010-03-10 - MFC - Updated function call to ADF lib to reference Application.ADF.
+	2010-03-10 - MFC - Updated function call to ADF lib to reference application.ADF.
 						Updated cedata statement to remove filter and get all records.
 	2010-06-10 - MFC - Update to sort the CEDataArray at the start.
 	2010-09-17 - MFC - Updated the Default Value field to add [] to the value 

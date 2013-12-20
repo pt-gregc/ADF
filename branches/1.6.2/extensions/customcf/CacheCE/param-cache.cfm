@@ -89,10 +89,10 @@ History:
 		
 
 	// Handle request to clear the memory, if 'ClearMemCache' is specified in URL params
-	if( StructKeyExists(request.params,'ClearMemCache') AND StructKeyExists(Application.CS_PageParamCache[attributes.ElementType],basename) )
+	if( StructKeyExists(request.params,'ClearMemCache') AND StructKeyExists(application.CS_PageParamCache[attributes.ElementType],basename) )
 	{
-		StructDelete(Application.CS_PageParamCache[attributes.ElementType],basename);
-		Application.CS_PageParamCache[attributes.ElementType][basename] = StructNew();
+		StructDelete(application.CS_PageParamCache[attributes.ElementType],basename);
+		application.CS_PageParamCache[attributes.ElementType][basename] = StructNew();
 	}
 </cfscript>
 
@@ -236,13 +236,13 @@ History:
 	
 	<cfscript>
 		// Create the base memory structure if it does not exist.
-		if( NOT StructKeyExists(Application,"CS_PageParamCache") )
+		if( NOT StructKeyExists(application,"CS_PageParamCache") )
 			application.CS_PageParamCache = StructNew();
 			
-		if( NOT StructKeyExists(Application.CS_PageParamCache, arguments.elementType) )
+		if( NOT StructKeyExists(application.CS_PageParamCache, arguments.elementType) )
 			application.CS_PageParamCache[arguments.elementType] = StructNew();
 			
-		if( NOT StructKeyExists(Application.CS_PageParamCache[arguments.elementType], arguments.basename) )
+		if( NOT StructKeyExists(application.CS_PageParamCache[arguments.elementType], arguments.basename) )
 			application.CS_PageParamCache[arguments.elementType][arguments.basename] = StructNew();
 	</cfscript>
 </cffunction>

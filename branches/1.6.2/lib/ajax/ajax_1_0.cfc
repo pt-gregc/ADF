@@ -34,7 +34,7 @@ History:
 --->
 <cfcomponent displayname="ajax" extends="ADF.core.Base" hint="AJAX functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_5">
+<cfproperty name="version" value="1_0_6">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_2">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
@@ -163,7 +163,7 @@ History:
 						}
 						else if ( returnFormat eq "xml" ) {
 							// convert return data to XML using CS internal serialize function
-							result.reString = Server.CommonSpot.UDF.util.serializeBean(result.reString,"data",0); //Server.CommonSpot.UDF.util.serializeBean(Arguments.bean,Arguments.tagName,JavaCast("boolean",Arguments.forceLCase));
+							result.reString = server.CommonSpot.UDF.util.serializeBean(result.reString,"data",0); //server.CommonSpot.UDF.util.serializeBean(Arguments.bean,Arguments.tagName,JavaCast("boolean",Arguments.forceLCase));
 							// make return is an XML string
 							if ( IsXML(result.reString) ) 
 								result.reString = XmlParse(result.reString);

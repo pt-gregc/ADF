@@ -49,7 +49,7 @@
 		<td>
 			<!--- Display all the available templates in a drop down menu list --->
 			<select name="lstTemplates">
-				#Server.CommonSpot.UDF.tag.optionSetFromQuery(query=rstTemplates, valuesCol="ID", displayCol="Title")#
+				#server.CommonSpot.UDF.tag.optionSetFromQuery(query=rstTemplates, valuesCol="ID", displayCol="Title")#
 			</select>
 		</td>
 	</tr>
@@ -58,19 +58,19 @@
 		<td>
 			<!--- Display the forms and their form fields --->
 			<select name="lstFormFields">
-				<cfloop query="rstFormFields">#Server.CommonSpot.UDF.tag.option(value="#rstFormFields.FormID#,#rstFormFields.FieldID#", display="[#rstFormFields.FormName#][#rstFormFields.FieldName#]")#</cfloop>
+				<cfloop query="rstFormFields">#server.CommonSpot.UDF.tag.option(value="#rstFormFields.FormID#,#rstFormFields.FieldID#", display="[#rstFormFields.FormName#][#rstFormFields.FieldName#]")#</cfloop>
 			</select>
 		</td>
 	</tr>
 	<tr>
 		<!--- Type in the new value for the field --->
 		<td align="left" width="200px">New Form Value:</td>
-		<td align="left">#Server.CommonSpot.UDF.tag.input(type="Text", name="txtValue")#</td>
+		<td align="left">#server.CommonSpot.UDF.tag.input(type="Text", name="txtValue")#</td>
 	</tr>
 	<tr>
 		<td colspan="2">
-			#Server.CommonSpot.UDF.tag.input(type="hidden", name="txtDSN", value=strDSN)#
-			#Server.CommonSpot.UDF.tag.input(type="submit")#
+			#server.CommonSpot.UDF.tag.input(type="hidden", name="txtDSN", value=strDSN)#
+			#server.CommonSpot.UDF.tag.input(type="submit")#
 		</td>
 	</tr>
 	</table>

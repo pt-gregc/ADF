@@ -37,7 +37,7 @@ History:
 						createUniquePageTitle
 						createUniquePageName
 						getCSPageIDByTitle
-	2013-02-20 - SFS - Updated the "data" dependency to data_1_2, updated all references to application.adf.data to variables.data, updated version to 1_2_4.
+	2013-02-20 - SFS - Updated the "data" dependency to data_1_2, updated all references to application.ADF.data to variables.data, updated version to 1_2_4.
 	2013-07-02 - GAC - Updated the version cfproperty since updates were on 2013-05-29 but the version was not incremented
 	2013-10-17 - SFS - Added new function: parse_url_el - Parses URLs passed via data sheets
 	2013-10-22 - GAC - Renamed and Updated the parse_url_el to 
@@ -47,7 +47,7 @@ History:
 --->
 <cfcomponent displayname="csData_1_2" extends="ADF.lib.csData.csData_1_1" hint="CommonSpot Data Utils functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_9">
+<cfproperty name="version" value="1_2_10">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">

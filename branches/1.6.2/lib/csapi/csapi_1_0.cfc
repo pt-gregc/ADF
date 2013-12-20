@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="csapi_1_0" extends="ADF.core.Base" hint="CS API functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_2">
+<cfproperty name="version" value="1_0_3">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
 <cfproperty name="wikiTitle" value="CSAPI_1_0">
 
@@ -144,7 +144,7 @@ History:
 	<!--- Deserialize the return XML to struct --->
 	<cfscript>
 		if ( isXML(cfhttp.fileContent) )
-			return Server.Commonspot.UDF.util.deserialize(cfhttp.fileContent);
+			return server.Commonspot.UDF.util.deserialize(cfhttp.fileContent);
 		else
 			return StructNew();
 	</cfscript>	

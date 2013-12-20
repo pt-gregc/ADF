@@ -36,7 +36,7 @@ History:
 --->
 <cfcomponent displayname="forms_1_1" extends="ADF.lib.forms.forms_1_0" hint="Form functions for the ADF Library">
 
-<cfproperty name="version" value="1_1_6">
+<cfproperty name="version" value="1_1_7">
 <cfproperty name="type" value="transient">
 <cfproperty name="ceData" injectedBean="ceData_2_0" type="dependency">
 <cfproperty name="scripts" injectedBean="scripts_1_2" type="dependency">
@@ -154,7 +154,7 @@ History:
 
 	<!--- HTML for the form --->
 	<cfsavecontent variable="rtnHTML">
-		<cfset udfResults = Server.CommonSpot.UDF.UI.RenderSimpleForm(arguments.dataPageID, arguments.formID, APIPostToNewWindow, formResultHTML)>
+		<cfset udfResults = server.CommonSpot.UDF.UI.RenderSimpleForm(arguments.dataPageID, arguments.formID, APIPostToNewWindow, formResultHTML)>
 		<cfoutput>
 			<cfscript>
 				// ADF Lightbox needs to be forced to load the browser-all.js into

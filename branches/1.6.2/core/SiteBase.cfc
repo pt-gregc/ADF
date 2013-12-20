@@ -28,7 +28,7 @@ Summary:
 	Site Base component for the ADF
 History:
 	2009-08-14 - MFC - Created
-	2011-01-21 - GAC - Added a version variable to Application.ADF
+	2011-01-21 - GAC - Added a version variable to application.ADF
 	2011-01-26 - GAC - Added a method for setLightboxProxyURL
 	2011-04-05 - MFC - Updated the version property.
 	2011-09-27 - GAC - Updated most of the comment blocks to follow the ADF standard
@@ -36,6 +36,7 @@ History:
 <cfcomponent displayname="SiteBase" extends="ADF.core.AppBase">
 
 <cfproperty name="version" value="1_6_5">
+<cfproperty name="file-version" value="1">
 
 <!---
 /* *************************************************************** */
@@ -64,7 +65,7 @@ History:
 		application.ADF.siteComponents = "";
 		application.ADF.library = StructNew(); // Stores library components
 		application.ADF.dependencyStruct = StructNew();  // Stores the bean dependency list
-		application.ADF.siteAppList = ""; // Stores a list of the sites Apps loaded 
+		application.ADF.siteAppList = ""; // Stores a list of the sites Apps loaded
 		application.ADF.version = "";
 		// Set the proxyWhiteList from the Server Apps ProxyWhiteList
 		application.ADF.proxyWhiteList = server.ADF.proxyWhiteList;
@@ -84,7 +85,7 @@ Author:
 Name:
 	$loadSite
 Summary:
-	Load the Application.ADF object factory, site specific components, and 
+	Load the application.ADF object factory, site specific components, and
 		environment variables for the current site.
 Returns:
 	Void
@@ -115,7 +116,7 @@ History:
 		// Load the site API or CCAPI Config
 		loadSiteAPIConfig();
 		
-		// Adds the ADF version to the Application.ADF stuct
+		// Adds the ADF version to the application.ADF stuct
 		application.ADF.version = getADFversion();
 		application.ADF.decimalVersion = getDecimalADFVersion();
 		application.ADF.csVersion = getCSVersion();
@@ -155,7 +156,7 @@ Author:
 Name:
 	$loadSiteComponents
 Summary:
-	Load the site components in the APPLICATION.ADF object factory into APPLICATION.ADF components
+	Load the site components in the application.ADF object factory into application.ADF components
 Returns:
 	Void
 Arguments:
@@ -163,7 +164,7 @@ Arguments:
 History:
 	2009-08-07 - MFC - Created
 --->
-<cffunction name="loadSiteComponents" access="private" returntype="void" hint="Stores the site specific components in '/_cs_apps/components' into application.ADF space."> 
+<cffunction name="loadSiteComponents" access="private" returntype="void" hint="Stores the site specific components in '/_cs_apps/components' into application.ADF space.">
 	<cfscript>
 		var i = 1;
 		var bean = "";
@@ -215,7 +216,7 @@ History:
 		application.ADF.beanConfig.loadADFLibComponents("#request.site.csAppsURL#lib/", "", "application");
 
 		// Refresh the Object Factory
-		application.ADF.objectFactory = createObject("component","ADF.core.lightwire.LightWireExtendedBase").init(application.ADF.beanConfig);		
+		application.ADF.objectFactory = createObject("component","ADF.core.lightwire.LightWireExtendedBase").init(application.ADF.beanConfig);
 
 		// retrieve the libraryComponents to load
 		libVersions = loadLibVersions();
@@ -515,7 +516,7 @@ History:
 					// Build the Error Struct
 					buildError.ADFmethodName = "API Config";
 					buildError.details = "API Configuration CFM (or XML) file is not a valid data format. [#request.site.name# - #request.site.id#].";
-					// Add the errorStruct to the server.ADF.buildErrors Array 
+					// Add the errorStruct to the server.ADF.buildErrors Array
 					ArrayAppend(server.ADF.buildErrors,buildError);
 				}
 				}
@@ -525,8 +526,8 @@ History:
 			buildError.ADFmethodName = "API Config";
 			//buildError.details = "API Configuration CFM (or XML) file is not setup for this site [#request.site.name# - #request.site.id#].";
 			buildError.details = exception;
-			// Add the errorStruct to the server.ADF.buildErrors Array 
-			ArrayAppend(server.ADF.buildErrors, buildError);	
+			// Add the errorStruct to the server.ADF.buildErrors Array
+			ArrayAppend(server.ADF.buildErrors, buildError);
 		}
 	</cfscript>
 </cffunction>

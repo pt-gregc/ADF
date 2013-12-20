@@ -61,8 +61,6 @@ History:
 
 	imageURL = "/ADF/extensions/customfields/file_uploader/v2/handleFileDownload.cfm?subsiteURL=#request.subsite.url#&fieldID=#fieldQuery.inputID#&filename=";
 	concatenator = "";
-	
-	//application.ADF.utils.dodump(currentValue,"currentValue",1);	
 </cfscript>
 <cfoutput>
 	<script>

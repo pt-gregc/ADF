@@ -104,11 +104,11 @@ History:
 		LogIt( "Param Cache Rebuild Job ran. Parameters: Action:[#request.params.action#] RebuildMinutesBeforeExpire:[#request.params.rebuildMinutesBeforeExpire#] RebuildTimeout:[#request.params.rebuildTimeout#] MaxUnusedMinutes:[#request.params.MaxUnusedMinutes#]" );
 	</cfscript>		
 	
-	<cfif StructKeyExists( Application,"CS_PageParamCache" )>
+	<cfif StructKeyExists( application,"CS_PageParamCache" )>
 	
 		<!--- Get list of element types cached --->
 		<cfscript>
-			types = StructKeyList(Application.CS_PageParamCache);
+			types = StructKeyList(application.CS_PageParamCache);
 		</cfscript>
 			
 		<!---// Loop over Element Types //---->	
@@ -131,7 +131,7 @@ History:
 				WriteOutput('<h2>#type# (Last Updated:#dtf(elementLastUpdated)#)</h2>');	
 			
 				// get list of element instances
-				elements = StructKeyList(Application.CS_PageParamCache[type]);
+				elements = StructKeyList(application.CS_PageParamCache[type]);
 			</cfscript>
 	
 			<!---// Loop over Element Instances //---->			
@@ -139,7 +139,7 @@ History:
 		
 				<cfscript>
 					element = ListGetAt(elements,i);
-					caches = StructKeyList(Application.CS_PageParamCache[type][element]);
+					caches = StructKeyList(application.CS_PageParamCache[type][element]);
 		
 					PageID = ListFirst( element, "_" );
 					ControlID = ListLast( element, "_" );
@@ -171,14 +171,14 @@ History:
 					<cfloop index="j" from="1" to="#ListLen(caches)#" step="1">
 						<cfscript>
 							cache = ListGetAt( caches, j );
-							if( StructKeyExists(Application.CS_PageParamCache[type][element], cache) )
+							if( StructKeyExists(application.CS_PageParamCache[type][element], cache) )
 							{
-								expires = Application.CS_PageParamCache[type][element][cache].expires;
+								expires = application.CS_PageParamCache[type][element][cache].expires;
 								rebuildTime = DateAdd('n', -request.params.rebuildMinutesBeforeExpire, expires);
 								secBeforeRebuild = DateDiff( 's', now(), rebuildTime );
-								hitCount = Application.CS_PageParamCache[type][element][cache].hitCount;
-								created = Application.CS_PageParamCache[type][element][cache].created;
-								lastuse = Application.CS_PageParamCache[type][element][cache].lastuse;
+								hitCount = application.CS_PageParamCache[type][element][cache].hitCount;
+								created = application.CS_PageParamCache[type][element][cache].created;
+								lastuse = application.CS_PageParamCache[type][element][cache].lastuse;
 		
 								if( DateCompare( elementLastUpdated, created ) eq 1 )
 									status = 'Stale';
@@ -222,9 +222,9 @@ History:
 								if( DateCompare( elementLastUpdated, created ) neq 1 )
 								{
 									// element has NOT been updated since cache was created. Cache is still good. Extend the expiration date.
-									Application.CS_PageParamCache[type][element][cache].expires = DateAdd( 'n', Application.CS_PageParamCache[type][element][cache].minutesToCache, expires );
-									WriteOutput('<div class="indent">Element not updated. Extending cache to #dtf(Application.CS_PageParamCache[type][element][cache].expires)#</div>');
-									LogIt( "Element Type not updated since #dtf(elementLastUpdated)#.  Extending cache '#cache#' to #dtf(Application.CS_PageParamCache[type][element][cache].expires)#" );
+									application.CS_PageParamCache[type][element][cache].expires = DateAdd( 'n', application.CS_PageParamCache[type][element][cache].minutesToCache, expires );
+									WriteOutput('<div class="indent">Element not updated. Extending cache to #dtf(application.CS_PageParamCache[type][element][cache].expires)#</div>');
+									LogIt( "Element Type not updated since #dtf(elementLastUpdated)#.  Extending cache '#cache#' to #dtf(application.CS_PageParamCache[type][element][cache].expires)#" );
 								}
 							
 								else if( request.params.action eq 'RebuildAlways' OR (request.params.action eq 'RebuildIfHit' AND hitCount gt 0) )
@@ -254,7 +254,7 @@ History:
 								if( request.params.action eq 'Delete' OR (request.params.action eq 'RebuildIfHit' AND hitCount eq 0) )
 								{
 									WriteOutput('<div class="indent">Deleting expired non-hit cache #cache#</div>');
-									StructDelete( Application.CS_PageParamCache[type][element],cache );
+									StructDelete( application.CS_PageParamCache[type][element],cache );
 									LogIt('Deleting expired non-hit cache #cache#');
 								}
 							}
@@ -263,7 +263,7 @@ History:
 							else if( request.params.MaxUnusedMinutes neq 0 AND DateCompare( lastuse, DateAdd( 'n', -1 * request.params.MaxUnusedMinutes, now() ) ) eq -1 )
 							{
 								WriteOutput('<div class="indent">Deleting unused #cache#. Last use: #dtf(lastuse)#</div>');
-								StructDelete( Application.CS_PageParamCache[type][element],cache );
+								StructDelete( application.CS_PageParamCache[type][element],cache );
 								LogIt('Deleting unused #cache#. Last use: #dtf(lastuse)#');
 							}
 							

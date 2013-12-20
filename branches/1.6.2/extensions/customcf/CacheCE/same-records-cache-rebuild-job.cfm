@@ -97,11 +97,11 @@ History:
 		LogIt( "Param Cache Rebuild Job ran. Parameters: RebuildMinutesBeforeExpire:[#request.params.rebuildMinutesBeforeExpire#] RebuildTimeout:[#request.params.rebuildTimeout#] " );
 	</cfscript>		
 	
-	<cfif StructKeyExists( Application,"CS_SameRecordsCache" )>
+	<cfif StructKeyExists( application,"CS_SameRecordsCache" )>
 	
 		<!--- Get list of element types cached --->
 		<cfscript>
-			types = StructKeyList(Application.CS_SameRecordsCache);
+			types = StructKeyList(application.CS_SameRecordsCache);
 		</cfscript>
 			
 		<!---// Loop over Element Types //---->	
@@ -138,7 +138,7 @@ History:
 				WriteOutput('</div>');
 			
 				// get list of element names
-				elements = StructKeyList(Application.CS_SameRecordsCache[type]);
+				elements = StructKeyList(application.CS_SameRecordsCache[type]);
 			
 			</cfscript>
 	
@@ -152,13 +152,13 @@ History:
 				<cfflush>
 					
 				<cfscript>
-					expires = Application.CS_SameRecordsCache[type][elementName].expires;
+					expires = application.CS_SameRecordsCache[type][elementName].expires;
 					rebuildTime = DateAdd('n', -request.params.rebuildMinutesBeforeExpire, expires);
 					secBeforeRebuild = DateDiff( 's', now(), rebuildTime );
-					hitCount = Application.CS_SameRecordsCache[type][elementName].hitCount;
-					created = Application.CS_SameRecordsCache[type][elementName].created;
-					lastuse = Application.CS_SameRecordsCache[type][elementName].lastuse;
-					pageurl = Application.CS_SameRecordsCache[type][elementName].pageurl;
+					hitCount = application.CS_SameRecordsCache[type][elementName].hitCount;
+					created = application.CS_SameRecordsCache[type][elementName].created;
+					lastuse = application.CS_SameRecordsCache[type][elementName].lastuse;
+					pageurl = application.CS_SameRecordsCache[type][elementName].pageurl;
 
 					if( DateCompare( elementLastUpdated, created ) eq 1 )
 						status = 'Stale';
@@ -209,9 +209,9 @@ History:
 						if( DateCompare( elementLastUpdated, created ) neq 1 )
 						{
 							// element has NOT been updated since cache was created. Cache is still good. Extend the expiration date.
-							Application.CS_SameRecordsCache[type][elementName].expires = DateAdd( 'n', Application.CS_SameRecordsCache[type][elementName].minutesToCache, now() );
-							WriteOutput('<div class="indent">Element not updated. Extending cache to #dtf(Application.CS_SameRecordsCache[type][elementName].expires)#</div>');
-							LogIt( "Element Type not updated since #dtf(elementLastUpdated)#.  Extending cache for '#elementName#' to #dtf(Application.CS_SameRecordsCache[type][elementName].expires)#" );
+							application.CS_SameRecordsCache[type][elementName].expires = DateAdd( 'n', application.CS_SameRecordsCache[type][elementName].minutesToCache, now() );
+							WriteOutput('<div class="indent">Element not updated. Extending cache to #dtf(application.CS_SameRecordsCache[type][elementName].expires)#</div>');
+							LogIt( "Element Type not updated since #dtf(elementLastUpdated)#.  Extending cache for '#elementName#' to #dtf(application.CS_SameRecordsCache[type][elementName].expires)#" );
 						}
 					
 						else 
@@ -229,9 +229,9 @@ History:
 						if( DateCompare( elementLastUpdated, created ) neq 1 )
 						{
 							// element has NOT been updated since cache was created. Cache is still good. Extend the expiration date.
-							Application.CS_SameRecordsCache[type][elementName].expires = DateAdd( 'n', Application.CS_SameRecordsCache[type][elementName].minutesToCache, now() );
-							WriteOutput('<div class="indent">Element not updated. Extending cache to #dtf(Application.CS_SameRecordsCache[type][elementName].expires)#</div>');
-							LogIt( "Element Type not updated since #dtf(elementLastUpdated)#.  Extending cache for '#elementName#' to #dtf(Application.CS_SameRecordsCache[type][elementName].expires)#" );
+							application.CS_SameRecordsCache[type][elementName].expires = DateAdd( 'n', application.CS_SameRecordsCache[type][elementName].minutesToCache, now() );
+							WriteOutput('<div class="indent">Element not updated. Extending cache to #dtf(application.CS_SameRecordsCache[type][elementName].expires)#</div>');
+							LogIt( "Element Type not updated since #dtf(elementLastUpdated)#.  Extending cache for '#elementName#' to #dtf(application.CS_SameRecordsCache[type][elementName].expires)#" );
 						}
 						
 						// Rebuild - for some reason we did not get to it

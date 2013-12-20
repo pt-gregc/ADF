@@ -48,12 +48,8 @@ History:
 	jQueryUIurl = "/ADF/thirdParty/jquery/ui";
 	jQueryUIpath = Replace(ExpandPath(jQueryUIurl),"\","/","all");
 
-//application.ADF.utils.doDump(jQueryUIpath);	
-	
 	if( not structKeyExists(currentValues, "uiVersionPath") )
 		currentValues.uiVersionPath = Replace(jQueryUIpath & '/' & defaultVersion,"\","/","all");
-
-//application.ADF.utils.doDump(currentValues,"currentValues",0);				 
 </cfscript>
 
 <!--- // Get a list of jQuery UI versions --->

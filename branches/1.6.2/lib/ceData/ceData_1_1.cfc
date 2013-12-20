@@ -35,7 +35,7 @@ History:
 --->
 <cfcomponent displayname="ceData_1_1" extends="ADF.lib.ceData.ceData_1_0" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="1_1_6">
+<cfproperty name="version" value="1_1_7">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_1">
 <cfproperty name="data" type="dependency" injectedBean="data_1_1">
@@ -335,7 +335,7 @@ History:
 		<cfmodule template="/commonspot/utilities/cp-cffile.cfm" action="MKDIR" directory="#folder#" replicate="false">
 	</cfif>
 	<!---	save the file--->
-    <cffile action = "write"  file ="#folder##fileName#" output="#Server.Commonspot.UDF.util.serializeBean(ceData)#">
+    <cffile action = "write"  file ="#folder##fileName#" output="#server.Commonspot.UDF.util.serializeBean(ceData)#">
     <cfreturn folder&fileName>
 </cffunction>
 
@@ -397,7 +397,7 @@ History:
 			return returnStruct;
 		}
 		// Horray! The file existed and had content
-		ceData = Server.Commonspot.UDF.util.deserialize(dataToImport);
+		ceData = server.Commonspot.UDF.util.deserialize(dataToImport);
 	</cfscript>
 	<cfif !isArray(ceData) && Find(",",dataToImport) && Len(ceName)>
 		<!---	Boo, we didnt deserialize properly which means its probably a csv. Parse the crap out of it--->

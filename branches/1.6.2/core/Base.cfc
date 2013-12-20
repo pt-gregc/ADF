@@ -38,7 +38,7 @@ History:
 <cfcomponent name="Base" hint="Base component for Custom Application Common Framework">
 
 <cfproperty name="version" value="1_6_2">
-<cfproperty name="file-version" value="0">
+<cfproperty name="file-version" value="1">
 	
 <cffunction name="init" output="true" returntype="any">
 	<cfscript>
@@ -144,7 +144,7 @@ History:
 	<cfscript>
 		var rtnData = structNew();
 		if( isXML(arguments.XMLString) )
-			rtnData = Server.CommonSpot.MapFactory.deserialize(arguments.XMLString);
+			rtnData = server.CommonSpot.MapFactory.deserialize(arguments.XMLString);
 	</cfscript>
 	<cfreturn rtnData>
 </cffunction>

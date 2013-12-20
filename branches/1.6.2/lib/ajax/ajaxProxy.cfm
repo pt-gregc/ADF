@@ -78,16 +78,16 @@ History:
 		 * 		the specific subsites application scope.
 		 */
 		if ( LEN(request.params.subsiteURL) )
-			CreateObject("component","ADF.Application").loadSiteAppSpace(request.params.subsiteURL);	
+			CreateObject("component","ADF.Application").loadSiteAppSpace(request.params.subsiteURL);
 	</cfscript>
 	
 	<!--- // reAJAX = ""; //Don't initalize the reAJAX allows for a return: void --->
 	<cfif (NOT request.params.debug)>
 		<cfsilent>
-			<cfset ajaxData = Application.ADF.ajax.buildAjaxProxyString()>
+			<cfset ajaxData = application.ADF.ajax.buildAjaxProxyString()>
 		</cfsilent>
 	<cfelse>
-		<cfset ajaxData = Application.ADF.ajax.buildAjaxProxyString()>
+		<cfset ajaxData = application.ADF.ajax.buildAjaxProxyString()>
 	</cfif>
 	
 	<cfscript>

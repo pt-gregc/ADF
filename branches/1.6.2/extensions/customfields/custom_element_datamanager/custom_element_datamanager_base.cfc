@@ -49,7 +49,7 @@ History:
 	<cffunction name="getGlobalCE" returnformat="json" access="remote" hint="Method to get teh global custom elements">		
         <cfscript>
 			var result = QueryNew('');
-			var customElementObj = Server.CommonSpot.ObjectFactory.getObject('CustomElement');
+			var customElementObj = server.CommonSpot.ObjectFactory.getObject('CustomElement');
 		</cfscript>
 		
 		<cftry>
@@ -74,7 +74,7 @@ History:
 		
         <cfscript>
 			var result = QueryNew('');
-			var customElementObj = Server.CommonSpot.ObjectFactory.getObject('CustomElement');
+			var customElementObj = server.CommonSpot.ObjectFactory.getObject('CustomElement');
 			var resultData = '';
 			var elementDetails = customElementObj.getInfo(elementID=arguments.elementID);
 		</cfscript>
@@ -111,7 +111,7 @@ History:
 		
         <cfscript>
 			var result = QueryNew('');
-			var customElementObj = Server.CommonSpot.ObjectFactory.getObject('CustomElement');
+			var customElementObj = server.CommonSpot.ObjectFactory.getObject('CustomElement');
 			var resultData = '';
 			var elementDetails = customElementObj.getInfo(elementID=arguments.elementID);
 		</cfscript>
@@ -183,7 +183,7 @@ History:
 		</cfscript>
 		
 		<cfsavecontent variable="renderData">
-			<cfoutput>#Server.CommonSpot.UDF.tag.input(type="button", class="clsPushButton", name="addNew", id="addNew", value=getAddNewButtonName(propertiesStruct=arguments.propertiesStruct), onclick="javascript:top.commonspot.lightbox.openDialog('#Request.SubSite.DlgLoader#?csModule=controls/custom/submit-data&controlTypeID=#propertiesStruct.childCustomElement#&formID=#propertiesStruct.childCustomElement#&newData=1&dataPageID=0&dataControlID=0&linkageFieldID=#propertiesStruct.childLinkedField#&linkedFieldValue=#curValuesStruct[linkedIDSelectedName]#&openFrom=datamanager&callbackFunction=loadData_#arguments.fieldID#&#assocParameters#')")#</cfoutput>
+			<cfoutput>#server.CommonSpot.UDF.tag.input(type="button", class="clsPushButton", name="addNew", id="addNew", value=getAddNewButtonName(propertiesStruct=arguments.propertiesStruct), onclick="javascript:top.commonspot.lightbox.openDialog('#Request.SubSite.DlgLoader#?csModule=controls/custom/submit-data&controlTypeID=#propertiesStruct.childCustomElement#&formID=#propertiesStruct.childCustomElement#&newData=1&dataPageID=0&dataControlID=0&linkageFieldID=#propertiesStruct.childLinkedField#&linkedFieldValue=#curValuesStruct[linkedIDSelectedName]#&openFrom=datamanager&callbackFunction=loadData_#arguments.fieldID#&#assocParameters#')")#</cfoutput>
 		</cfsavecontent>
 		<cfoutput>#renderData#</cfoutput>
 	</cffunction>
@@ -209,7 +209,7 @@ History:
 		</cfscript>
 		
 		<cfsavecontent variable="renderData">
-			<cfoutput>#Server.CommonSpot.UDF.tag.input(type="button", class="clsPushButton", name="addExisting", id="addExisting", value=getAddExistingButtonName(propertiesStruct=arguments.propertiesStruct), onclick="javascript:top.commonspot.lightbox.openDialog('#Request.SubSite.DlgLoader#?csModule=controls/custom/submit-data&controlTypeID=#inputPropStruct.assocCustomElement#&formID=#inputPropStruct.assocCustomElement#&newData=1&dataPageID=0&dataControlID=0&linkageFieldID=#inputPropStruct.parentInstanceIDField#&linkedFieldValue=#curValuesStruct[linkedIDSelectedName]#&openFrom=datamanager&callbackFunction=loadData_#arguments.fieldID#')")#</cfoutput>
+			<cfoutput>#server.CommonSpot.UDF.tag.input(type="button", class="clsPushButton", name="addExisting", id="addExisting", value=getAddExistingButtonName(propertiesStruct=arguments.propertiesStruct), onclick="javascript:top.commonspot.lightbox.openDialog('#Request.SubSite.DlgLoader#?csModule=controls/custom/submit-data&controlTypeID=#inputPropStruct.assocCustomElement#&formID=#inputPropStruct.assocCustomElement#&newData=1&dataPageID=0&dataControlID=0&linkageFieldID=#inputPropStruct.parentInstanceIDField#&linkedFieldValue=#curValuesStruct[linkedIDSelectedName]#&openFrom=datamanager&callbackFunction=loadData_#arguments.fieldID#')")#</cfoutput>
 		</cfsavecontent>
 		<cfoutput>#renderData#</cfoutput>
 	</cffunction>
@@ -261,7 +261,7 @@ History:
 			var defaultSortColumn = '';
 			var defaultSortOrder = '';
 			var resultData = QueryNew('');		
-			var ceObj = Server.CommonSpot.ObjectFactory.getObject("CustomElement");
+			var ceObj = server.CommonSpot.ObjectFactory.getObject("CustomElement");
 			var colList = inputPropStruct.displayFields;
 			var colArray = ArrayNew(1);
 			var childFormFields = "";
@@ -646,7 +646,7 @@ History:
 		
 		<cfif paramsData.RecordCount>
 			<cfscript>
-				paramsStruct = Server.CommonSpot.UDF.util.WDDXDecode(paramsData.Params);
+				paramsStruct = server.CommonSpot.UDF.util.WDDXDecode(paramsData.Params);
 			</cfscript>
 			<cfif Len(paramsStruct.customElement)>
 				<cfscript>
@@ -713,7 +713,7 @@ History:
 		
 		<cfif paramsData.RecordCount>
 			<cfscript>
-				paramsStruct = Server.CommonSpot.UDF.util.WDDXDecode(paramsData.Params);
+				paramsStruct = server.CommonSpot.UDF.util.WDDXDecode(paramsData.Params);
 				if (StructKeyExists(paramsStruct, 'displayfieldid'))
 					displayFieldID = paramsStruct.displayfieldid;
 				if (StructKeyExists(paramsStruct, 'valuefieldid'))
@@ -912,7 +912,7 @@ History:
         <cfargument name="movedDataPageID" type="numeric" required="true" hint="The unique data pageid for the record from start pos">
 		<cfargument name="dropAfterDataPageID" type="numeric" required="true" hint="The unique data pageid for the record from end pos">
         <cfscript>
-			var ceObj = Server.CommonSpot.ObjectFactory.getObject("CustomElement");
+			var ceObj = server.CommonSpot.ObjectFactory.getObject("CustomElement");
 			var inputPropStruct = arguments.propertiesStruct;
 			var dataFormID = 0;
 			var getOrderForMovedRec = '';
@@ -982,7 +982,7 @@ History:
 		<cfargument name="maxPos" type="numeric" required="true" hint="The maximum position value to change">
         <cfscript>
 			var reqFormFields = "";
-			var ceObj = Server.CommonSpot.ObjectFactory.getObject("CustomElement");
+			var ceObj = server.CommonSpot.ObjectFactory.getObject("CustomElement");
 			var inputPropStruct = arguments.propertiesStruct;
 			var curValuesStruct = arguments.currentValues;
 			var linkedIDSelectedName = 'fic_#arguments.formID#_#inputPropStruct.parentUniqueField#';

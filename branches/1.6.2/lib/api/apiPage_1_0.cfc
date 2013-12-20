@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="apiPage" extends="ADF.core.Base" hint="API Page functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_5">
+<cfproperty name="version" value="1_0_6">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
 <cfproperty name="wikiTitle" value="API Page">
@@ -61,7 +61,7 @@ History:
 	<cfscript>
 		var pageResult = StructNew();
 		// Use the CS 6.x Command API to SET page Metadata
-		var pageComponent = Server.CommonSpot.api.getObject('Page');
+		var pageComponent = server.CommonSpot.api.getObject('Page');
 		var pageCmdResults = StructNew();
 		var newConfidentialityID = 0;
 		var newShowInList = "PageIndex,SearchResults";
@@ -149,7 +149,7 @@ History:
 	<cfscript>
 		var pageCmdResult = StructNew();
 		// Use the CS 6.x Command API to delete the page whose pageID was passed in
-		var pageComponent = Server.CommonSpot.api.getObject('page');
+		var pageComponent = server.CommonSpot.api.getObject('page');
 		try {
 			pageComponent.delete(arguments.csPageID,0);
 			pageCmdResult["CMDSTATUS"] = true;
@@ -191,7 +191,7 @@ History:
 	<cfscript>
        var pageResult = StructNew();
        // Use the CS 6.x Command API to RENAME the page
-       var pageComponent = Server.CommonSpot.api.getObject('Page');
+       var pageComponent = server.CommonSpot.api.getObject('Page');
        var pageCmdResults = StructNew();
 
        try {
@@ -242,7 +242,7 @@ History:
      <cfscript>
        var pageResult = StructNew();
        // Use the CS 6.x Command API to RENAME the page
-       var pageComponent = Server.CommonSpot.api.getObject('Page');
+       var pageComponent = server.CommonSpot.api.getObject('Page');
        var pageCmdResults = StructNew();
        var newPageTitle = "";
        var newCaption = "";
@@ -301,7 +301,7 @@ History:
 	<cfscript>
 		var pageCmdResult = StructNew();
 		// Use the CS 6.x Command API to SET page keywords
-		var pageComponent = Server.CommonSpot.api.getObject('page');
+		var pageComponent = server.CommonSpot.api.getObject('page');
 		try {
 			pageComponent.saveActivationState(arguments.csPageID, arguments.state);
 			pageCmdResult["CMDSTATUS"] = true;
@@ -359,7 +359,7 @@ History:
 	<cfscript>
 		var pageResult = StructNew();
 		// Use the CS 6.x Command API to SET page Metadata
-		var pageComponent = Server.CommonSpot.api.getObject('Page');
+		var pageComponent = server.CommonSpot.api.getObject('Page');
 		var pageCmdResults = StructNew();
 		var newConfidentialityID = 0;
 		var newShowInList = "PageIndex,SearchResults";

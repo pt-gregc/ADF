@@ -35,7 +35,7 @@ Directions:
 	http://{domainname}/ADF/extensions/customcf/debug/test_mappings.cfm 
 --->
 
-<cfoutput><br /><strong>Success:</strong> The Web server mapping (or virutal directory) for '/adf' is working correctly!<br /></cfoutput>
+<cfoutput><br /><strong>Success:</strong> The Web server mapping (or virutal directory) for '/ADF' is working correctly!<br /></cfoutput>
 <cfflush>
 
 <cfset testVar = StructNew()>

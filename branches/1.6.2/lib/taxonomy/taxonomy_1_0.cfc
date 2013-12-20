@@ -35,7 +35,7 @@ History:
 --->
 <cfcomponent displayname="taxonomy_1_0" extends="ADF.core.Base" hint="Taxonomy functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_1">
+<cfproperty name="version" value="1_0_2">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Taxonomy_1_0">
 
@@ -135,9 +135,9 @@ History:
 	<cfloop list="#arguments.termList#" index="termName">
 
 		<cfif request.cp.versionid EQ "510">
-			<cfset termName = Server.CommonSpot.UDF.data.fromHTML(termName)>
+			<cfset termName = server.CommonSpot.UDF.data.fromHTML(termName)>
 		<cfelseif val(request.cp.versionid) GTE 600>
-			<cfset termName = Server.CommonSpot.api.unescapeHTML(termName)>
+			<cfset termName = server.CommonSpot.api.unescapeHTML(termName)>
 		</cfif>
 
 		<cfquery name="getTermIDList" datasource="#request.site.datasource#">

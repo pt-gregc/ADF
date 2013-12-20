@@ -261,10 +261,10 @@ History:
 	
 	<cfscript>
 		// Create the base memory structure if it does not exist.
-		if( NOT StructKeyExists(Application,"CS_SameRecordsCache") )
+		if( NOT StructKeyExists(application,"CS_SameRecordsCache") )
 			application.CS_SameRecordsCache = StructNew();
 			
-		if( NOT StructKeyExists(Application.CS_SameRecordsCache, arguments.elementType) )
+		if( NOT StructKeyExists(application.CS_SameRecordsCache, arguments.elementType) )
 			application.CS_SameRecordsCache[arguments.elementType] = StructNew();
 	</cfscript>
 </cffunction>

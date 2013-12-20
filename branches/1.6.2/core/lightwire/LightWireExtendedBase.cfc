@@ -32,7 +32,7 @@ History:
 <cfcomponent name="LightWireExtendedBase" extends="ADF.thirdParty.lightwire.LightWire" output="false">
 
 <cfproperty name="version" value="1_6_2">
-<cfproperty name="file-version" value="0">
+<cfproperty name="file-version" value="1">
 
 <!---
 /* *************************************************************** */
@@ -81,7 +81,7 @@ Author:
 Name:
 	doBuildErrorLogging
 Summary:
-	Create a Log file for the given error and add the error struct to the Application.ADF.buildErrors Array
+	Create a Log file for the given error and add the error struct to the application.ADF.buildErrors Array
 Returns:
 	Boolean
 Arguments:
@@ -89,7 +89,7 @@ Arguments:
 History:
 	2011-01-21 - GAC - Created
 --->
-<cffunction name="doBuildErrorLogging" access="public" returntype="void" hint="Create a Log file for the given error and add the error struct to the Application.ADF.buildErrors Array">
+<cffunction name="doBuildErrorLogging" access="public" returntype="void" hint="Create a Log file for the given error and add the error struct to the application.ADF.buildErrors Array">
 	<cfargument name="methodName" type="string" required="false" default="GenericBuild" hint="method that was called that we should log">
 	<cfargument name="errorDetailsStruct" type="struct" required="false" default="#StructNew()#" hint="Error details structure to log">
 	<cfscript>
