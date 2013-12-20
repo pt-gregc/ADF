@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="utils_1_0" extends="ADF.core.Base" hint="Util functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_6">
+<cfproperty name="version" value="1_0_7">
 <cfproperty name="type" value="singleton">
 <cfproperty name="ceData" type="dependency" injectedBean="ceData_1_0">
 <cfproperty name="wikiTitle" value="Utils_1_0">
@@ -92,17 +92,18 @@ History:
 	2012-11-16 - SFS - Added Label argument so that you can individually label each complex object dump
 	2013-02-20 - SFS - Added label name to the cffile so that the passed in label is actually part of the dump
 	2013-11-20 - GAC - Added hints to the msg, addTimeStamp and the label arguments
-	2013-12-06 - GAC - Updated the default log file name to be ADF specific
+	2013-12-05 - DRM - Create formatted UTC timestamp in local code, avoids crash logging ADF startup errors when ADF isn't built yet
+	                   default logFile to adf-debug.log, instead of debug.log
 --->
 <cffunction name="logAppend" access="public" returntype="void">
 	<cfargument name="msg" type="any" required="true" hint="if this value is NOT a simple string then the value gets converted to sting output using CFDUMP">
-	<cfargument name="logFile" type="string" required="false" default="ADF-debug.log">
+	<cfargument name="logFile" type="string" required="false" default="adf-debug.log">
 	<cfargument name="addTimeStamp" type="boolean" required="false" default="true" hint="Adds a date stamp to the file name">
 	<cfargument name="logDir" type="string" required="false" default="#request.cp.commonSpotDir#logs/">
 	<cfargument name="label" type="string" required="false" default="" hint="Adds a text label to the log entry">
 	<cfscript>
 		var logFileName = arguments.logFile;
-		var utcNow = DateConvert('local2utc', now());
+		var utcNow = mid(dateConvert('local2utc', now()), 6, 19);
 		if( arguments.addTimeStamp )
 			logFileName = dateFormat(now(), "yyyymmdd") & "." & request.site.name & "." & logFileName;
 		if( len(arguments.label) )
@@ -116,7 +117,7 @@ History:
 		<cfif NOT isSimpleValue(msg)>
 			<cfset msg = doDump(msg,"#arguments.label#msg-#application.ADF.date.csDateFormat(now(),now())#",0,1)>
 		</cfif>
-		<cffile action="append" file="#arguments.logDir##logFileName#" output="#application.adf.date.csDateFormat(utcNow,utcNow)# (UTC) - #arguments.label# #arguments.msg#" addnewline="true" fixnewline="true">
+		<cffile action="append" file="#arguments.logDir##logFileName#" output="#utcNow# (UTC) - #arguments.label# #arguments.msg#" addnewline="true" fixnewline="true">
 		<cfcatch type="any">
 			<cfdump var="#arguments.logDir##logFileName#" label="Log File: #arguments.logDir##logFileName#" />
 			<cfdump expand="false" label="LogAppend() Error" var="#cfcatch#" />
