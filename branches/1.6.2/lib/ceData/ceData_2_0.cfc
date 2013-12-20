@@ -35,7 +35,7 @@ History:
 --->
 <cfcomponent displayname="ceData_2_0" extends="ADF.lib.ceData.ceData_1_1" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="2_0_15">
+<cfproperty name="version" value="2_0_16">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_2">
 <cfproperty name="wikiTitle" value="CEData_2_0">
@@ -163,18 +163,83 @@ History:
 	2013-01-04 - MFC - Sets the view table name to the "getViewTableName" function if no
 						value passed in.  Calls the SUPER function to create the table.
 	2013-01-29 - GAC - Updated the getViewTableName logic so it creates a view table name if a viewName is NOT passed in
+	2013-12-06 - DRM - Accept and pass fieldTypes for the 'new' buildRealTypeView
 --->
 <cffunction name="buildRealTypeView" access="public" returntype="boolean" hint="Builds ane lement view for the passed in element name">
 	<cfargument name="elementName" type="string" required="true" hint="element name to build the view table off of">
 	<cfargument name="viewName" type="string" required="false" default="" hint="Override the view name that gets generated">
+	<cfargument name="fieldTypes" type="struct" default="#structNew()#" hint="see ceData_1_1.cfc">
 	<cfscript>
 		// Set the view table name from the elementName if a viewName is NOT passed in
-		if ( LEN(TRIM(arguments.viewName)) EQ 0 )
+		arguments.viewName = trim(arguments.viewName);
+		if (len(arguments.viewName) eq 0)
 			arguments.viewName = getViewTableName(customElementName=arguments.elementName);
 		// Call the SUPER function to build the view table
-		return super.buildRealTypeView(elementName=arguments.elementName, viewName=arguments.viewName);
+		return super.buildRealTypeView(argumentCollection=arguments);
 	</cfscript>
 </cffunction>
+
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+	G. Cronkright, D. Merrill
+Name:
+	buildView
+Summary:
+	Rebuilds a requested  View
+Returns:
+	boolean
+Arguments:
+	String - ceName
+	String - viewName
+History: - some carried over from original in ptCalendar app
+	2011-07-11 - GAC - Created
+	2013-12-04 - DRM - Added forceRebuild arg and logic
+	2013-12-06 - DRM - Copied from ptCalendar app, renamed
+		Accept and pass fieldTypes
+		Default viewName to "", use local default if blank
+		Honor Request.Params.adfRebuildSQLViews as well as arguments.forceRebuild
+--->
+<cffunction name="buildView" access="public" returntype="boolean" output="false" hint="Rebuilds the requested View.">
+	<cfargument name="ceName" type="string" required="true" hint="Name of custom element to base view off of.">
+	<cfargument name="viewName" type="string" default="" hint="Optional name of view to create. If blank or not passed, defaults to one calc'd from custom element name.">
+	<cfargument name="fieldTypes" type="struct" default="#structNew()#" hint="Optional struct of field type specs; see hint for this arg in buildRealTypeView().">
+	<cfargument name="forceRebuild" type="boolean" default="false" hint="Pass true to rebuild the view always, even if it already exists.">
+
+	<cfscript>
+		var buildNow = arguments.forceRebuild or (structKeyExists(Request.Params, "adfRebuildSQLViews") and Request.Params.adfRebuildSQLViews eq 1);
+		arguments.viewName = trim(arguments.viewName);
+		if (arguments.viewName eq "" )
+			arguments.viewName = getViewTableName(customElementName=arguments.ceName); // have to calc default name here, to check if view exists; should use same algorithm as buildRealTypeView
+		buildNow = buildNow or not server.ADF.objectFactory.getBean("data_1_2").verifyTableExists(tableName=arguments.viewName);
+
+		if (buildNow)
+			return buildRealTypeView (
+								elementName=arguments.ceName,
+								viewName=arguments.viewName,
+								fieldTypes=arguments.fieldTypes
+							);
+		return true;
+	</cfscript>
+</cffunction>
+
+<!--- // Get View Name from Element Name --->
+<!--- // History
+	2013-12-02 - GAC - Updated to create 30 character or less view names for Oracle
+	2013-12-06 - DRM - Copied from ptCalendar app
+--->
+<cffunction name="getCEViewName" access="public" returntype="string" output="false">
+	<cfargument name="ceName" type="string" required="true">
+
+	<cfscript>
+		arguments.ceName = reReplace(arguments.ceName, "[\s]", "_", "all");
+		if (len(arguments.ceName) gt 26)
+			throw("[ceData.getCEViewName] Custom element name is too long to create a view name that's valid on Oracle."); // TODO: is this really what we should do here
+		return "vCE_" & arguments.ceName;
+	</cfscript>
+</cffunction>
+
 
 <!---
 /* *************************************************************** */
@@ -1226,38 +1291,15 @@ History:
 					 - Added different table schema name for Oracle (thanks DM)
 					 - Added logging to the CFCatch rather than just returning false
 	2013-11-18 - GAC - Converted to use the generic data_1_2.verifyTableExists
+	2013-12-16 - DRM - Updated to call "buildView" which now handles the building or rebuild of the Views
 --->
 <cffunction name="verifyViewTableExists" access="public" returntype="boolean" output="false" hint="Verifies that a CE View Table exists, if one does not exist then it attempt to build one.">
 	<cfargument name="customElementName" type="string" required="true">
 	<cfargument name="viewTableName" type="string" required="false" default="">
+	<cfargument name="fieldTypes" type="struct" default="#structNew()#">
+	<cfargument name="forceRebuild" type="boolean" default="false">
 	<cfscript>
-		var siteDSN = Request.Site.DataSource;
-		var siteDBtype = Request.Site.SiteDBType;
-		var viewTableExists = false;
-		var dataLib = server.ADF.objectFactory.getBean("data_1_2");
-		var utilsLib = server.ADF.objectFactory.getBean("utils_1_2");
-		
-		// Set the view table name if a viewTableName is not passed in
-		if ( LEN(TRIM(arguments.viewTableName)) EQ 0 )
-			arguments.viewTableName = getViewTableName(customElementName=TRIM(arguments.customElementName));
-		
-		// Check to see if table exists
-		viewTableExists = dataLib.verifyTableExists(tableName=TRIM(arguments.viewTableName),datasourseName=siteDSN,databaseType=siteDBtype);
-		
-		// If we don't have the table... build it
-		if ( viewTableExists ) {
-			return true;
-		}
-		else {
-			try {
-				// Create the view from the Element
-				return buildRealTypeView(elementName=TRIM(arguments.customElementName),viewName=TRIM(arguments.viewTableName));
-			}
-			catch (any e) {
-				utilsLib.logAppend(msg="#TRIM(arguments.customElementName)#: #e.message#",logFile="ceData-verifyViewTableExists.log");
-				return false;		
-			}
-		}
+		return buildView(ceName=arguments.customElementName, viewName=arguments.viewTableName, fieldTypes=arguments.fieldTypes, forceRebuild=arguments.forceRebuild);
 	</cfscript>
 </cffunction>
 

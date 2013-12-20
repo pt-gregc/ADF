@@ -45,12 +45,12 @@ History:
 <cfcomponent name="Core" hint="Core component for Application Development Framework">
 
 <cfproperty name="version" value="1_6_2">
-<cfproperty name="file-version" value="2">
+<cfproperty name="file-version" value="3">
 
 <cfscript>
 	variables.ADFversion = "1.6.2"; // use a dot delimited version number
 	// ADF Build Revision Number
-	variables.buildRev = "1135";
+	variables.buildRev = "1136";
 	// ADF Codename
 	variables.buildName = "Spy Hunter";
 	// CS product version, get the decimal value
@@ -199,7 +199,7 @@ History:
 	2011-02-09 - RAK - Fixing typo
 	2011-02-09 - GAC - Removed self-closing slash on cfthrow
 	2011-04-06 - MFC - Changed the ADF reset error log to not append to the file and overwrite the file.
-	2011-05-03 - MFC - Commented out 'Application.ADF' cfdump from the debug log. CFDump was too large and
+	2011-05-03 - MFC - Commented out 'application.ADF' cfdump from the debug log. CFDump was too large and
 						caused performance slowness loading debug html.
 	2011-06-29 - MT - Set a response header indicating if the ADF was reset or not.
 	2011-07-14 - MFC - Renamed cache variable to be under ADF struct, "application.ADF.cache".
@@ -211,7 +211,7 @@ History:
 <cffunction name="reset" access="remote" returnType="Struct">
 	<cfargument name="type" type="string" required="false" default="all" hint="The type of the ADF to reset.  Options are 'Server', 'Site' or 'All'. Defaults to 'All'.">
 	<cfscript>
-		var rtnMsg = "Insufficient security, user not logged in.";
+		var rtnMsg = "ADF Reset Error: User was must be logged in.";
 		var ADFReset = false;
 		var returnStruct = StructNew();
 		var siteName = "";
@@ -271,7 +271,7 @@ History:
 				</cfscript>
 				<!--- // If sever.ADF.buildError Array has any errors... throw an exception (used the cfthrow tag for CF8 compatibility) --->
 				<cfif StructKeyExists(server.ADF,"buildErrors") AND ArrayLen(server.ADF.buildErrors)>
-					<cfthrow type="ADFBuildError" message="ADF Build Errors Occured" detail="Check the Server.ADF.buildErrors for Details.">
+					<cfthrow type="ADFBuildError" message="ADF Build Errors Occured" detail="Check the server.ADF.buildErrors for Details.">
 				</cfif>
 			</cflock>
 			<cfcatch>
@@ -287,7 +287,7 @@ History:
 					</cfif>
 					
 					<!--- Dump the application.ADF --->
-					<!--- 2011-05-03 - MFC - Commented out 'Application.ADF' cfdump from the debug log. --->
+					<!--- 2011-05-03 - MFC - Commented out 'application.ADF' cfdump from the debug log. --->
 					<!--- <cfif NOT StructKeyExists(application, "ADF")>
 						<cfoutput><p>application.ADF Does not exist.</p></cfoutput>
 					<cfelse>

@@ -37,7 +37,7 @@ History:
 --->
 <cfcomponent displayname="ceData_1_0" extends="ADF.core.Base" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_9">
+<cfproperty name="version" value="1_0_10">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_0">
 <cfproperty name="data" type="dependency" injectedBean="data_1_0">
@@ -113,15 +113,14 @@ History:
             sortArray[ii] = arguments.aOfS[ii].values[arguments.key] & delim2 & ii;
 		}
 
-		//Application.ADF.utils.doDump(sortArray,"sortArray",0);
 		//now sort the array
         arraySort(sortArray,sortType2,sortOrder2);
-		//Application.ADF.utils.doDump(sortArray,"sortArray - sorted (#sortType2#,#sortOrder2#)",0);
+
         //now build the return array
         for(ii = 1; ii lte count; ii = ii + 1)
             returnArray[ii] = arguments.aOfS[listLast(sortArray[ii],delim2)];
+            
         //return the array
-		//Application.ADF.utils.doDump(returnArray,"returnArray",0);
         return returnArray;
 	</cfscript>
 </cffunction>
@@ -1059,7 +1058,7 @@ History:
 	<cfargument name="controlID" type="numeric" required="true">
 
 	<cfscript>
-		Application.CacheInfoCache.InvalidateByID("element",0,0,0,arguments.pageID,arguments.controlID);
+		application.CacheInfoCache.InvalidateByID("element",0,0,0,arguments.pageID,arguments.controlID);
 	</cfscript>
 
 </cffunction>
@@ -1491,7 +1490,7 @@ History:
 		var itm = '';
 	</cfscript>
 	<cfset var ceDataList = "">	
-	<cfset var ceData = application.adf.ceData.getCEData(arguments.ceName)>
+	<cfset var ceData = application.ADF.ceData.getCEData(arguments.ceName)>
 	<cfset ceData = application.ADF.ceData.arrayOfCEDataSort(ceData,arguments.fieldName,'asc','textnocase','^')>
 	
 	<cfloop from="1" to="#arrayLen(ceData)#" index="itm">
