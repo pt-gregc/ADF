@@ -236,12 +236,17 @@ History:
 * @author Mike Gillespie (mike@striking.com)
 * @version 1, May 9, 2003
 * FIXED BY 2010-01-20 - GAC
+* 12/30/2013 - DMB - modified to use CHR in the strings to provide compatibility with Railo
+*					For documentation purposes, these are the original strings:	
+*					var bad_chars="/,\,*,&,%,$,¿,Æ,Ç,Ð,Ñ,Ý,Þ,ß,æ,ç,ð,ñ,÷,ø,ý,þ,ÿ";
+*					var good_chars="-,-,-,-,-,-,-,AE,C,D,N,Y,I,B,ae,c,o,n,-,o,y,1,y";
+*
 */ --->
 <cffunction name="filterInternationlChars" access="public" returntype="string" output="false" hint="Will replace chars in a string to be used to create a folder with valid equivalent replacements">
 	<cfargument name="fileName" type="string" required="true" hint="">
 	<cfscript>
-		var bad_chars="/,\,*,&,%,$,¿,Æ,Ç,Ð,Ñ,Ý,Þ,ß,æ,ç,ð,ñ,÷,ø,ý,þ,ÿ";
-		var good_chars="-,-,-,-,-,-,-,AE,C,D,N,Y,I,B,ae,c,o,n,-,o,y,1,y";
+		var bad_chars="#chr(47)#,#chr(92)#,#chr(42)#,#chr(38)#,#chr(37)#,#chr(36)#,#chr(191)#,#chr(198)#,#chr(199)#,#chr(208)#,#chr(209)#,#chr(221)#,#chr(222)#,#chr(223)#,#chr(230)#,#chr(231)#,#chr(240)#,#chr(241)#,#chr(247)#,#chr(248)#,#chr(253)#,#chr(254)#,#chr(255)#";
+		var good_chars="#chr(45)#,#chr(45)#,#chr(45)#,#chr(45)#,#chr(45)#,#chr(45)#,#chr(45)#,#chr(65)#,#chr(67)#,#chr(68)#,#chr(78)#,#chr(89)#,#chr(73)#,#chr(66)#,#chr(97)#,#chr(99)#,#chr(111)#,#chr(110)#,#chr(45)#,#chr(111)#,#chr(121)#,#chr(49)#,#chr(121)#";
 		var scrubbed="";
 		var b = "0";
 		
