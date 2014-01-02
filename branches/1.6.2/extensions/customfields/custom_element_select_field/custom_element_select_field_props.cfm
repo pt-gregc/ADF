@@ -55,7 +55,10 @@ History:
 	2013-11-20 - TP  - Added a isBoolean check to the multipleSelect and the renderSelectOption logic
 	2013-12-05 - GAC - Added standard CS text formatting to the props options 
 	2014-01-02 - GAC - Updated the props option descriptions
+					 - Added the CFSETTING tag to disable CF Debug results in the props module
 --->
+<cfsetting showdebugoutput="false">
+
 <cfscript>
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
