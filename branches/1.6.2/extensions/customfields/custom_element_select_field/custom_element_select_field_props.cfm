@@ -54,6 +54,7 @@ History:
 					 - Updated AJAX calls to use the "ceData_2_0" lib using a ajaxCEDataBean variable
 	2013-11-20 - TP  - Added a isBoolean check to the multipleSelect and the renderSelectOption logic
 	2013-12-05 - GAC - Added standard CS text formatting to the props options 
+	2014-01-02 - GAC - Updated the props option descriptions
 --->
 <cfscript>
 	// initialize some of the attributes variables
@@ -353,14 +354,14 @@ History:
 		<td class="cs_dlgLabelSmall">
 			<label>Active Flag Value:&nbsp; 
 			<input type="text" name="#prefix#activeFlagValue" id="#prefix#activeFlagValue" value="#currentValues.activeFlagValue#" size="20"></label>
-			<br />To denote a ColdFusion Expression, add brackets around the expression (i.e. "[request.user.userid]")
+			<br />To denote a ColdFusion Expression, add brackets around the expression<br />(i.e. "[request.user.userid]")
 		</td>
 	</tr>
 	<tr>
 		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Default Field Value:</td>
 		<td class="cs_dlgLabelSmall">
 			<input type="text" name="#prefix#defaultVal" id="#prefix#defaultVal" value="#currentValues.defaultVal#" size="40">
-			<br />To denote a ColdFusion Expression, add brackets around the expression (i.e. "[request.user.userid]")
+			<br />To denote a ColdFusion Expression, add brackets around the expression<br />(i.e. "[request.user.userid]")
 		</td>
 	</tr>
 	
@@ -408,7 +409,7 @@ History:
 		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Field Name:</td>
 		<td class="cs_dlgLabelSmall">
 			<input type="text" name="#prefix#fldName" id="#prefix#fldName" value="#currentValues.fldName#" size="40">
-			<br/><span>Please enter the field name to be used via JavaScript (case sensitive).  If blank, will use default name.</span>
+			<br/><span>Please enter the field name to be used via JavaScript (case sensitive).<br />If blank, will use default name.</span>
 		</td>
 	</tr>
 	<tr>
