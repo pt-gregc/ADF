@@ -57,7 +57,7 @@ History:
 	2014-01-02 - GAC - Updated the props option descriptions
 					 - Added the CFSETTING tag to disable CF Debug results in the props module
 --->
-<cfsetting showdebugoutput="false">
+<cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <cfscript>
 	// initialize some of the attributes variables
