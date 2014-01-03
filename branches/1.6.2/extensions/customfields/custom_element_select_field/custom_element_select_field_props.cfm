@@ -435,6 +435,7 @@ History:
 	</tr>
 	<tr>
 		<td class="cs_dlgLabelSmall" colspan="2" style="font-size:7pt;">
+			<hr />
 			ADF Custom Field v#fieldVersion#
 		</td>
 	</tr>

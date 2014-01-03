@@ -40,7 +40,6 @@ Version:
 History:
 	2012-04-12 - GAC - Added redirect CFINCLUDE to point to /cs_site_select/cs_site_select_props.cfm
 	2014-01-02 - GAC - Added the CFSETTING tag to disable CF Debug results in the props module
-	2014-01-03 - GAC - Added the fieldVersion variable
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
