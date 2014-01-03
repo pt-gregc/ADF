@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the Starter App directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2013.
+PaperThin, Inc. Copyright(C) 2014.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files
@@ -21,12 +21,14 @@ end user license agreement.
 /* *************************************************************** */
 Author: 	
 	PaperThin Inc.
+Custom Field Type:
+	Element Selector
 Name:
 	element_selector_render.cfm
 Summary:
-	
-Version:
-	1.0.0
+	This field type is designed to allow you to easily get the value/params from another
+	field in the same custom element.  Currently only the csPageURL (CommonSpot Page URL) field type has 
+	been implemented
 History:
 	11-04-2012 - GAC - Added the fieldPermission parameter to the wrapFieldHTML function call
 					 - Added the includeLabel and includeDescription parameters to the wrapFieldHTML function call

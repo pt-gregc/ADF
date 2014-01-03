@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
  
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2013.
+PaperThin, Inc. Copyright(C) 2014.
 All Rights Reserved.
  
 By downloading, modifying, distributing, using and/or accessing any files
@@ -18,13 +18,30 @@ in this directory, you agree to the terms and conditions of the applicable
 end user license agreement.
 --->
 
-<!--- // RLW - 2011-01-30 - this field type is designed to allow you to easily get the value/params from another
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin Inc.
+Custom Field Type:
+	Element Selector
+Name:
+	element_selector_props.cfm
+Summary:
+	This field type is designed to allow you to easily get the value/params from another
 	field in the same custom element.  Currently only the csPageURL (CommonSpot Page URL) field type has 
 	been implemented
-		2011-12-28 - MFC - Force JQuery to "noconflict" mode to resolve issues with CS 6.2.
-	 --->
+History:
+	2011-01-30 - RLW - Created	
+	2011-12-28 - MFC - Force JQuery to "noconflict" mode to resolve issues with CS 6.2.
+	2014-01-02 - GAC - Added the CFSETTING tag to disable CF Debug results in the props module
+	2014-01-03 - GAC - Added the fieldVersion variable
+--->
+<cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <cfscript>
+	// Variable for the version of the field - Display in Props UI.
+	fieldVersion = "1.0.3"; 
+	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
 	prefix = attributes.prefix;
@@ -86,6 +103,12 @@ end user license agreement.
 					</cfloop>
 				</select>
 				<p>Select the CS Element to bind to</p>
+			</td>
+		</tr>
+		<tr>
+			<td class="cs_dlgLabelSmall" colspan="2" style="font-size:7pt;">
+				<hr />
+				ADF Custom Field v#fieldVersion#
 			</td>
 		</tr>
 	</table>

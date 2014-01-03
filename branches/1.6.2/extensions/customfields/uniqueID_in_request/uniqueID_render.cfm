@@ -10,12 +10,24 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
  
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2013.
+PaperThin, Inc. Copyright(C) 2014.
 All Rights Reserved.
  
 By downloading, modifying, distributing, using and/or accessing any files
 in this directory, you agree to the terms and conditions of the applicable
 end user license agreement.
+--->
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin Inc.
+Name:
+	uniqueID_render.cfm
+Version:
+	1.0.0
+History:
+	
 --->
 
 <cfscript>

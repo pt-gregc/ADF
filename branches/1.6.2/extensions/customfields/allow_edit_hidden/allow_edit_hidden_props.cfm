@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
  
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2013.
+PaperThin, Inc. Copyright(C) 2014.
 All Rights Reserved.
  
 By downloading, modifying, distributing, using and/or accessing any files
@@ -36,8 +36,15 @@ ADF Requirements:
 History:
 	2009-06-29 - RLW - Created
 	2010-11-04 - MFC - Updated props for the defaultValue in the paramFields variable.
+	2014-01-02 - GAC - Added the CFSETTING tag to disable CF Debug results in the props module
+	2014-01-03 - GAC - Added the fieldVersion variable
 --->
+<cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
+
 <cfscript>
+	// Variable for the version of the field - Display in Props UI.
+	fieldVersion = "1.0"; 
+	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
 	prefix = attributes.prefix;
@@ -72,5 +79,11 @@ History:
 	</script>
 	<table>
 		<cfinclude template="/commonspot/metadata/form_control/input_control/default_value.cfm">
+		<tr>
+			<td class="cs_dlgLabelSmall" colspan="2" style="font-size:7pt;">
+				<hr />
+				ADF Custom Field v#fieldVersion#
+			</td>
+		</tr>
 	</table>
 </cfoutput>

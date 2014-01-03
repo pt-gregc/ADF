@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
  
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2013.
+PaperThin, Inc. Copyright(C) 2014.
 All Rights Reserved.
  
 By downloading, modifying, distributing, using and/or accessing any files
@@ -40,8 +40,15 @@ History:
 	2012-01-05 - GAC - Created a default 'wrap' variable and added '#prefix#wrap' to JS paramFields
 	2012-04-12 - GAC - Changed the label for the ID of the textarea tag from Field Name to Field ID
 	2012-04-13 - GAC - Added an optional parameter to assign a CSS property to the textarea field resizing handle
+	2014-01-02 - GAC - Added the CFSETTING tag to disable CF Debug results in the props module
+	2014-01-03 - GAC - Added the fieldVersion variable
 --->
+<cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
+
 <cfscript>
+	// Variable for the version of the field - Display in Props UI.
+	fieldVersion = "1.0"; 
+	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
 	prefix = attributes.prefix;

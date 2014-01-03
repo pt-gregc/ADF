@@ -17,7 +17,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2013.
+PaperThin, Inc. Copyright(C) 2014.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files
@@ -29,7 +29,7 @@ end user license agreement.
 /* *********************************************************************** */
 Author:
 	PaperThin, Inc.
-	Ryan Kahn
+	R. Kahn
 Name:
 	customScriptSelector_render.cfm
 Summary:
@@ -38,5 +38,8 @@ History:
 	2011-03-29 - RAK - Created
 	2012-01-06 - GAC - Renamed file and renamed folder
 	2012-04-11 - GAC - Added redirect CFINCLUDE to point to custom_script_selector/custom_script_selector_render.cfm
+	2014-01-02 - GAC - Added the CFSETTING tag to disable CF Debug results in the props module
 --->
+<cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
+
 <cfinclude template="/ADF/extensions/customfields/custom_script_selector/custom_script_selector_render.cfm">

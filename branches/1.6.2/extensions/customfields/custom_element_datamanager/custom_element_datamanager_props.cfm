@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2013.
+PaperThin, Inc. Copyright(C) 2014.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files
@@ -35,10 +35,18 @@ History:
 	2013-11-15 - GAC - Converted to an ADF custom field type
 	2013-11-27 - DJM - Updated code to allow multiple dataManager fields on the same form
 	2013-12-04 - GAC - Added CommonSpot Version check since this feild only runs on CommonSpot v9+
+	2014-01-02 - GAC - Added the CFSETTING tag to disable CF Debug results in the props module
+	2014-01-03 - GAC - Added the fieldVersion variable
+	2014-01-03 - GAC - Added the fieldVersion variable
 --->
+<cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
+
 <cfscript>
-	requiredVersion = 9;
-	productVersion = ListFirst(ListLast(request.cp.productversion," "),".");
+	// Variable for the version of the field - Display in Props UI.
+	fieldVersion = "1.0"; 
+	
+	requiredCSversion = 9;
+	csVersion = ListFirst(ListLast(request.cp.productversion," "),".");
 	
 	// Path to this CFT
 	cftPath = "/ADF/extensions/customfields/custom_element_datamanager";
@@ -47,10 +55,10 @@ History:
 </cfscript>	
 
 <!--- // Make sure we are on CommonSpot 9 or greater --->
-<cfif productVersion LT requiredVersion>
+<cfif csVersion LT requiredCSversion>
 	<CFOUTPUT>
 		<table border="0" cellpadding="3" cellspacing="0" width="100%" summary="">
-			<tr><td class="cs_dlgLabelError">This Custom Field Type requires CommonSpot #requiredVersion# or above.</td></tr>
+			<tr><td class="cs_dlgLabelError">This Custom Field Type requires CommonSpot #requiredCSversion# or above.</td></tr>
 		</table>
 	</CFOUTPUT>
 <cfelse>	
@@ -1128,6 +1136,12 @@ History:
 			<select name="#prefix#inactiveField" id="#prefix#inactiveField" onChange="#prefix#showInactiveValueFld()">
 			</select>&nbsp;
 			<span id="inactiveValueSpan" class="cs_dlgLabelBold"<cfif currentValues.inactiveField EQ ''>style="display:none;"</cfif>>Inactive Value:&nbsp;#server.CommonSpot.udf.tag.input(type="text", id="#prefix#inactiveFieldValue", name="#prefix#inactiveFieldValue", value="#currentValues.inactiveFieldValue#", size="10", class="InputControl")#</span>
+		</td>
+	</tr>
+	<tr>
+		<td class="cs_dlgLabelSmall" colspan="2" style="font-size:7pt;">
+			<hr />
+			ADF Custom Field v#fieldVersion#
 		</td>
 	</tr>
 </table>

@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
  
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2013.
+PaperThin, Inc. Copyright(C) 2014.
 All Rights Reserved.
  
 By downloading, modifying, distributing, using and/or accessing any files
@@ -42,8 +42,15 @@ History:
 						when the form loads.
 	2013-11-21 - TP  - Fixed typos with props option descriptions
 	2013-12-05 - GAC - Added standard CS text formatting to the props options 
+	2014-01-02 - GAC - Added the CFSETTING tag to disable CF Debug results in the props module
+	2014-01-03 - GAC - Added the fieldVersion variable
 --->
+<cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
+
 <cfscript>
+	// Variable for the version of the field - Display in Props UI.
+	fieldVersion = "1.2"; 
+	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
 	prefix = attributes.prefix;
@@ -130,6 +137,12 @@ History:
 				&nbsp;&nbsp;&nbsp;
 				<label style="color:black;font-size:12px;font-weight:normal;">No <input type="radio" id="#prefix#loadAvailable" name="#prefix#loadAvailable" value="0" <cfif defaultValues.loadAvailable EQ "0">checked</cfif>></label>
 				<br />Select 'Yes' to load all the available selections on the form load.
+			</td>
+		</tr>
+		<tr>
+			<td class="cs_dlgLabelSmall" colspan="2" style="font-size:7pt;">
+				<hr />
+				ADF Custom Field v#fieldVersion#
 			</td>
 		</tr>
 	</table>

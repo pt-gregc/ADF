@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
  
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2013.
+PaperThin, Inc. Copyright(C) 2014.
 All Rights Reserved.
  
 By downloading, modifying, distributing, using and/or accessing any files
@@ -44,5 +44,9 @@ History:
 	2013-11-21 - TP  - Fixed typos with props option descriptions
 	2013-12-05 - GAC - Added standard CS text formatting to the props options 
 	2013-12-10 - GAC - Added redirect CFINCLUDE to point to general_chooser/v1_2/general_chooser_1_2_props.cfm
+	2014-01-02 - GAC - Added the CFSETTING tag to disable CF Debug results in the props module
+	2014-01-03 - GAC - Added the fieldVersion variable
 --->
+<cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
+
 <cfinclude template="/ADF/extensions/customfields/general_chooser/v1_2/general_chooser_1_2_props.cfm">

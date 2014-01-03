@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2013.
+PaperThin, Inc. Copyright(C) 2014.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files
@@ -40,8 +40,8 @@ History:
 	2013-12-09 - DJM - Added code to change the cursor for datatable, actions column width and modified path to CFC to allow drag drop
 --->
 <cfscript>
-	requiredVersion = 9;
-	productVersion = ListFirst(ListLast(request.cp.productversion," "),".");
+	requiredCSversion = 9;
+	csVersion = ListFirst(ListLast(request.cp.productversion," "),".");
 	
 	// Path to this CFT
 	cftPath = "/ADF/extensions/customfields/custom_element_datamanager";
@@ -54,9 +54,9 @@ History:
 <cfparam name="attributes.callingElement" default="">
 
 <!--- // Make sure we are on CommonSpot 9 or greater --->
-<cfif productVersion LT requiredVersion>
+<cfif csVersion LT requiredCSversion>
 	<cfscript>
-		inputHTML = '<div class="cs_dlgLabelError">This Custom Field Type requires CommonSpot #requiredVersion# or above.</div>';
+		inputHTML = '<div class="cs_dlgLabelError">This Custom Field Type requires CommonSpot #requiredCSversion# or above.</div>';
 		includeLabel = true;
 		includeDescription = false;
 		if ( NOT StructKeyExists(variables,"fieldPermission") )

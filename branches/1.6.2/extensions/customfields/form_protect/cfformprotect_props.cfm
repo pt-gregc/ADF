@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
  
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2013.
+PaperThin, Inc. Copyright(C) 2014.
 All Rights Reserved.
  
 By downloading, modifying, distributing, using and/or accessing any files
@@ -18,7 +18,28 @@ in this directory, you agree to the terms and conditions of the applicable
 end user license agreement.
 --->
 
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Custom Field Type:
+	cfformprotect
+Name:
+	cfformprotect_props.cfm
+Summary:
+	Gives a text field allowing user to enter file locations. Then verifies them.
+ADF Requirements:
+History:
+	2014-01-02 - GAC - Added comment header block
+					 - Added the CFSETTING tag to disable CF Debug results in the props module
+	2014-01-03 - GAC - Added the fieldVersion variable
+--->
+<cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
+
 <cfscript>
+	// Variable for the version of the field - Display in Props UI.
+	fieldVersion = "1.0"; 
+	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
 	prefix = attributes.prefix;
@@ -57,9 +78,15 @@ end user license agreement.
 	<table>
 		<tr>
 			<td class="cs_dlgLabelSmall">Script Path:</td>
-		<td class="cs_dlgLabelSmall">
-		<input type="text" name="#prefix#cfformprotect" id="#prefix#cfformprotect" class="cs_dlgControl" value="#currentValues.cfformprotect#" size="60"><br/>
-		<span>Please enter the relative path and script to cfinclude (i.e. /ADF/thirdParty/cfformprotect/cffp.cfm)</span></td>
+			<td class="cs_dlgLabelSmall">
+			<input type="text" name="#prefix#cfformprotect" id="#prefix#cfformprotect" class="cs_dlgControl" value="#currentValues.cfformprotect#" size="60"><br/>
+			<span>Please enter the relative path and script to cfinclude (i.e. /ADF/thirdParty/cfformprotect/cffp.cfm)</span></td>
+		</tr>
+		<tr>
+			<td class="cs_dlgLabelSmall" colspan="2" style="font-size:7pt;">
+				<hr />
+				ADF Custom Field v#fieldVersion#
+			</td>
 		</tr>
 	</table>
 </cfoutput>
