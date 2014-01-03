@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="taxonomy_1_1" extends="ADF.lib.taxonomy.taxonomy_1_0" hint="Taxonomy functions for the ADF Library">
 
-<cfproperty name="version" value="1_1_1">
+<cfproperty name="version" value="1_1_2">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Taxonomy_1_1">
 
@@ -186,6 +186,7 @@ History:
 	2011-01-04 - MFC - Created
 	2011-03-02 - RAK - Added sorting on target term as a secondary sort.
 	2011-05-10 - RAK - Added the ability to specify the sourceTermIDList and made targettermIDList optional
+	2014-01-03 - GAC - Updated SQL 'IN' statements to use the CS module 'handle-in-list.cfm'
 --->
 <cffunction name="getTermByRelationships" access="public" returntype="query" output="true" hint="Returns a query of the taxonomy terms that have a reltionship to the target term ID argument.">
 	<cfargument name="taxonomyID" type="numeric" required="true" hint="Taxonomy ID to search in">
@@ -212,9 +213,11 @@ History:
 						Term_Relationship.IdTarget = TaxonomyDataView_1.TermID
 		WHERE 		TaxonomyDataView.TaxonomyID = <cfqueryparam value="#arguments.taxonomyID#" cfsqltype="cf_sql_integer">
 		<cfif Len(targetTermIDList)>
-			AND 		TaxonomyDataView_1.TermID IN (<cfqueryparam value="#arguments.targetTermIDList#" cfsqltype="cf_sql_integer" list="true">)
+			AND <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="TaxonomyDataView_1.TermID" LIST="#arguments.targetTermIDList#">
+			<!--- AND 		TaxonomyDataView_1.TermID IN (<cfqueryparam value="#arguments.targetTermIDList#" cfsqltype="cf_sql_integer" list="true">) --->
 		<cfelseif Len(sourceTermIDList)>
-	      AND 		TaxonomyDataView.TermID IN (<cfqueryparam value="#arguments.sourceTermIDList#" cfsqltype="cf_sql_integer" list="true">)
+			AND <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="TaxonomyDataView.TermID" LIST="#arguments.sourceTermIDList#">
+	        <!--- AND 		TaxonomyDataView.TermID IN (<cfqueryparam value="#arguments.sourceTermIDList#" cfsqltype="cf_sql_integer" list="true">) --->
 		</cfif>
 		<cfif arguments.targetFacetID GT 0>
 			AND		TaxonomyDataView_1.FacetID = <cfqueryparam value="#arguments.targetFacetID#" cfsqltype="cf_sql_integer">

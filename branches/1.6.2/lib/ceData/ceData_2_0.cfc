@@ -35,7 +35,7 @@ History:
 --->
 <cfcomponent displayname="ceData_2_0" extends="ADF.lib.ceData.ceData_1_1" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="2_0_16">
+<cfproperty name="version" value="2_0_17">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_2">
 <cfproperty name="wikiTitle" value="CEData_2_0">
@@ -802,6 +802,7 @@ Arguments:
 	String - overrideViewTableName - Override for the view table to query
 History:
 	2013-01-11 - MFC - Created
+	2014-01-03 - GAC - Updated SQL 'IN' statements to use the CS module 'handle-in-list.cfm'
 --->
 <cffunction name="getCEDataViewNotSelected" access="public" returntype="Query" output="true">
 	<cfargument name="customElementName" type="string" required="true">
@@ -826,7 +827,8 @@ History:
 				FROM   #viewTableName#
 				<!--- Check if the items are a list --->
 				<cfif ListLen(arguments.item) GT 1>
-					WHERE #arguments.customElementFieldName# NOT IN (<cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.item#" list="true">)
+					WHERE <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="#arguments.customElementFieldName#" LIST="#arguments.item#" isNot=1 cfsqltype="cf_sql_varchar">
+					<!--- WHERE #arguments.customElementFieldName# NOT IN (<cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.item#" list="true">) --->
 				<cfelse>
 					WHERE #arguments.customElementFieldName# <> <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.item#">
 				</cfif>
@@ -858,6 +860,7 @@ Arguments:
 	String - overrideViewTableName - Override for the view table to query
 History:
 	2013-01-11 - MFC - Created
+	2014-01-03 - GAC - Updated SQL 'IN' statements to use the CS module 'handle-in-list.cfm'
 --->
 <cffunction name="getCEDataViewSearch" access="public" returntype="Query" output="true">
 	<cfargument name="customElementName" type="string" required="true">
@@ -904,7 +907,8 @@ History:
 				( #ListGetAt(arguments.searchFields, currFieldNum)# LIKE <cfqueryparam cfsqltype="cf_sql_varchar" value="%#arguments.searchValues#%"> )
 			</cfloop>
 			<cfif ListLen(excludePageIDList) GT 0>
-				AND pageid NOT IN (<cfqueryparam cfsqltype="cf_sql_varchar" value="#excludePageIDList#" list="true">)
+				AND <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="pageid" LIST="#excludePageIDList#" isNot=1 cfsqltype="cf_sql_varchar">
+				<!--- AND pageid NOT IN (<cfqueryparam cfsqltype="cf_sql_varchar" value="#excludePageIDList#" list="true">) --->
 			</cfif>
 		</cfquery>
 		<cfcatch>
@@ -987,6 +991,7 @@ Arguments:
 	String - overrideViewTableName - Override for the view table to query
 History:
 	2013-01-11 - MFC - Created
+	2014-01-03 - GAC - Updated SQL 'IN' statements to use the CS module 'handle-in-list.cfm'
 --->
 <cffunction name="getCEDataViewSelected" access="public" returntype="Query" output="true">
 	<cfargument name="customElementName" type="string" required="true">
@@ -1009,7 +1014,8 @@ History:
 			FROM   #viewTableName#
 			<!--- Check if the items are a list --->
 			<cfif ListLen(arguments.item) GT 1>
-				WHERE #arguments.customElementFieldName# IN (<cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.item#" list="true">)
+				WHERE <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="#arguments.customElementFieldName#" LIST="#arguments.item#" cfsqltype="cf_sql_varchar"> 
+				<!--- WHERE #arguments.customElementFieldName# IN (<cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.item#" list="true">) --->
 			<cfelseif ListLen(arguments.item) EQ 1>
 				WHERE #arguments.customElementFieldName# = <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.item#">
 			</cfif>
@@ -1038,6 +1044,7 @@ Arguments:
 	String - overrideViewTableName - Override for the view table to query
 History:
 	2013-07-03 - GAC - Created
+	2014-01-03 - GAC - Updated SQL 'IN' statements to use the CS module 'handle-in-list.cfm'
 --->
 <cffunction name="getCEDataViewList" access="public" returntype="Query" output="true" hint="Queries the CE Data View table for the Query Type of 'List'.">
 	<cfargument name="customElementName" type="string" required="true">
@@ -1059,7 +1066,8 @@ History:
 	<!--- <cfquery name="getListItemIDs" datasource="#request.site.datasource#">
 		SELECT DISTINCT listID
 		FROM data_listItems
-		WHERE strItemValue in (<cfqueryparam cfsqltype="cf_sql_varchar" value="#preserveSingleQuotes(arguments.item)#" list="true">)
+		WHERE <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="strItemValue" LIST="#preserveSingleQuotes(arguments.item)#" cfsqltype="cf_sql_varchar">
+		<!---WHERE strItemValue in (<cfqueryparam cfsqltype="cf_sql_varchar" value="#preserveSingleQuotes(arguments.item)#" list="true">)--->
 	</cfquery> --->
 	
 	<cftry>
@@ -1072,7 +1080,8 @@ History:
 														FROM  Data_ListItems
 														WHERE pageID = dfv.PageID
 														<cfif ListLen(arguments.item) GT 1>
-															AND StrItemValue IN (<cfqueryparam cfsqltype="cf_sql_varchar" value="#preserveSingleQuotes(arguments.item)#" list="true">)
+															AND <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="StrItemValue" LIST="#preserveSingleQuotes(arguments.item)#" cfsqltype="cf_sql_varchar">
+															<!--- AND StrItemValue IN (<cfqueryparam cfsqltype="cf_sql_varchar" value="#preserveSingleQuotes(arguments.item)#" list="true">) --->
 														<cfelseif ListLen(arguments.item) EQ 1>
 															AND StrItemValue = <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.item#">
 														</cfif>
@@ -1106,6 +1115,7 @@ Arguments:
 	String - overrideViewTableName - Override for the view table to query
 History:
 	2013-07-03 - GAC - Created
+	2014-01-03 - GAC - Updated SQL 'IN' statements to use the CS module 'handle-in-list.cfm'
 --->
 <cffunction name="getCEDataViewNumericList" access="public" returntype="Query" output="true" hint="Queries the CE Data View table for the Query Type of 'NumericList'.">
 	<cfargument name="customElementName" type="string" required="true">
@@ -1132,7 +1142,8 @@ History:
 								WHERE dfv.listID IN (	SELECT DISTINCT listID 
 														FROM  Data_ListItems
 														WHERE pageID = dfv.PageID
-														AND   NumItemValue IN (<cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.item#" list="true">)
+														AND <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="NumItemValue" LIST="#arguments.item#">
+														<!--- AND   NumItemValue IN (<cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.item#" list="true">) --->
 													)
 								AND   FormID = dvt.FormID
 								AND   VersionState = 2
@@ -1161,6 +1172,7 @@ Arguments:
 History:
 	2013-01-04 - MFC - Created
 	2013-07-01 - GAC - Added a formID parameter to prevent bad data from being returned by the getDataFieldValueQry query.
+	2014-01-03 - TP - Converted the SQL 'IN' statement to use the CS handle-in-list module
 --->
 <cffunction name="getDataFieldValue" access="public" returntype="query" hint="Returns Page ID Query in Data_FieldValue matching Form ID">
 	<cfargument name="pageID" type="string" required="true">
@@ -1179,7 +1191,7 @@ History:
 		SELECT PageID, FormID, FieldID, fieldValue, memoValue
 		FROM Data_FieldValue
 		<cfif ListLen(arguments.pageID) GT 1>
-			WHERE PageID IN (<cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.pageID#" list="true">)
+			WHERE <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="PageID" LIST="#arguments.pageID#">
 		<cfelse>
 			WHERE PageID = <cfqueryparam cfsqltype="cf_sql_numeric" value="#VAL(arguments.pageID)#">
 		</cfif>
@@ -1322,7 +1334,8 @@ History:
  2010-06-16 - GAC - Modified - Broke original function into two functions  (one to build the VIEW code and one to apply it to the DB )
  2010-06-16 - GAC - Modified - Added viewCMD parameter to ALTER or CREATE(and Drop) the view
 --->
-<cffunction name="buildViewforCE" access="public" returntype="boolean">
+<!--- // TODO: REMOVE BEFORE 1.6.2 RELEASE. NOT NEEDED WITH UPDATES TO buildRealTypeView()--->
+<!--- <cffunction name="buildViewforCE" access="public" returntype="boolean">
 	<cfargument name="elementName" type="string" required="true">
 	<cfargument name="viewName" type="string" required="false" default="ce_#TRIM(arguments.elementName)#View">
 	<cfargument name="viewCMD" type="string" required="false" default="CREATE"> <!--- // ALTER / CREATE  --->
@@ -1367,7 +1380,7 @@ History:
 		
 	</cfif>
 	<cfreturn viewCreated>
-</cffunction>
+</cffunction> --->
 
 <!---
 /* *************************************************************** */
@@ -1388,7 +1401,8 @@ History:
  2010-06-16 - GAC - Modified - Broke original function into two functions (one to build the VIEW code and one to apply it to the DB )
  2010-06-16 - GAC - Modified - Added viewCMD parameter to ALTER or CREATE(and Drop) the view
 --->
-<cffunction name="buildViewCodeforCE" access="public" returntype="string">
+<!--- // TODO: REMOVE BEFORE 1.6.2 RELEASE. NOT NEEDED WITH UPDATES TO buildRealTypeView() --->
+<!--- <cffunction name="buildViewCodeforCE" access="public" returntype="string">
 	<cfargument name="elementName" type="string" required="true">
 	<cfargument name="viewName" type="string" required="false" default="ce_#TRIM(arguments.elementName)#View">
 	<cfargument name="viewCMD" type="string" required="false" default="CREATE"> <!--- // ALTER / CREATE --->
@@ -1494,7 +1508,7 @@ History:
 		</cfsavecontent>
 	</cfif>
 	<cfreturn viewcode>
-</cffunction>
+</cffunction> --->
 
 <!---
 /* *************************************************************** */
