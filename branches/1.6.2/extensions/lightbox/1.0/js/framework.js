@@ -41,6 +41,7 @@ History:
 	2012-10-17 - GAC - Updated the "replaceLB" function to work with commonspot v6.2+ lightbox
 						windows and the opener page is in or out of the LView.
 	2013-02-06 - MFC - Removed JS 'alert' commands for CS 8.0.1 and CS 9 compatibility
+	2013-01-03 - GAC - Added missing semi-colons to the ends of variablized functions
 */
 
 // Set default variables
@@ -220,4 +221,4 @@ lbResizeWindow = function()
 {
 	// We are in CS 6 so resize the LB normally
 	ResizeWindow();
-}
+};

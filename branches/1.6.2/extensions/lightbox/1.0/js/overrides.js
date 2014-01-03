@@ -17,6 +17,7 @@ By downloading, modifying, distributing, using and/or accessing any files
 in this directory, you agree to the terms and conditions of the applicable 
 end user license agreement.
 */
+
 /* *************************************************************** */
 /*
 Author: 	
@@ -31,6 +32,7 @@ Version:
 History:
 	2010-02-19 - MFC - Created
 	2010-04-19 - MFC - Commented out some functions that conflict with CS 5.x styles.
+	2013-01-03 - GAC - Added missing semi-colons to the ends of variablized functions
 */
 
 
@@ -48,22 +50,22 @@ if ((typeof top.commonspot != 'undefined') && (typeof top.commonspot.lightbox !=
 		 */
 		//ResizeWindow();
 		lbResizeWindow();
-	}
+	};
 
 	CloseWindow = function()
 	{
 		top.commonspot.lightbox.closeCurrent();
-	}
+	};
 
 	cs_OpenURLinOpener = function(workUrl)
 	{
 		OpenURLInOpener(workUrl);
-	}
+	};
 
 	doCPOpenInOpener = function(workUrl)
 	{
 		OpenURLInOpener(workUrl);
-	}
+	};
 
 	DoFocus = function(){};
 
@@ -74,7 +76,7 @@ if ((typeof top.commonspot != 'undefined') && (typeof top.commonspot.lightbox !=
 		 */
 		//ResizeWindow();
 		lbResizeWindow();
-	}
+	};
 	
 	
 	
@@ -119,7 +121,7 @@ if ((typeof top.commonspot != 'undefined') && (typeof top.commonspot.lightbox !=
 		{
 			setTimeout('window.close()', 250);
 		}
-	}
+	};
 
 	OpenURLInOpener = function(workUrl)
 	{
@@ -128,14 +130,14 @@ if ((typeof top.commonspot != 'undefined') && (typeof top.commonspot.lightbox !=
 		{
 			openWin.location.href = workUrl;
 		}	
-	}
+	};
 
 	RefreshAndCloseWindow = function()
 	{
 		var openWin = top.commonspot.lightbox.getOpenerWindow();
 		openWin.location.reload();
       CloseWindow();
-	}
+	};
 
 	RefreshParentWindow = function()
 	{
@@ -150,7 +152,7 @@ if ((typeof top.commonspot != 'undefined') && (typeof top.commonspot.lightbox !=
 		openerWin.location.reload();
 		DoFocus(self);
 		DoFocusDone=1;	// not done, but we don't want the focus
-	}
+	};
 
 
 
@@ -210,7 +212,7 @@ if ((typeof top.commonspot != 'undefined') && (typeof top.commonspot.lightbox !=
 	self.close = function()
 	{
 		CloseWindow();
-	}
+	};
 
 	//self.focus = function(){};
 	
@@ -230,7 +232,7 @@ if ((typeof top.commonspot != 'undefined') && (typeof top.commonspot.lightbox !=
 	window.close = function()
 	{
 		CloseWindow();
-	}
+	};
 
 	// window.focus = function(){};
 	
@@ -259,7 +261,7 @@ if ((typeof top.commonspot != 'undefined') && (typeof top.commonspot.lightbox !=
 			doDashboardSetup();
 
 		return false;
-	}
+	};
 	
 	doDashboardSetup = function()
 	{
@@ -272,7 +274,7 @@ if ((typeof top.commonspot != 'undefined') && (typeof top.commonspot.lightbox !=
 		iframeDiv.innerHTML = iframeHTML;
 		var hiddenFrame = iframeDiv.childNodes[0];
 		parent.window.document.body.appendChild(iframeDiv);
-	}
+	};
 	// Overwrite opener window object
 	// This works in IE but fails in FF
 	try 
@@ -290,7 +292,7 @@ if (typeof(onLightboxLoad) == "undefined")
 	onLightboxLoad = function() 
 	{	
 		try{
-			var rootDiv = document.getElementById('cs_commondlg')
+			var rootDiv = document.getElementById('cs_commondlg');
 		}catch(e){ 
 			// $ function is not defined when there is an error. 
 			// in that case, just return so we can show the error msg.
@@ -344,7 +346,7 @@ if (typeof(onLightboxLoad) == "undefined")
 					tableEle.style.display='none';
 			}
 		}
-	}
+	};
 }	
 
 proxyPushButtons = function(targetNode)
@@ -443,7 +445,7 @@ proxyPushButtons = function(targetNode)
 		};
 		cellNode.appendChild(createProxyButton(closeNode,proxyIndex++));
 	} 
-}
+};
 
 cleanRadioAndCheckBoxes = function(buttons)
 {
@@ -456,7 +458,7 @@ cleanRadioAndCheckBoxes = function(buttons)
          buttons[i].className = cName+' clsNoBorderInput';
       }
    }
-}
+};
 proxySpellChecker = function(targetNode)
 {
 	var boxNode = $('OldSpellCheckOn');
@@ -473,14 +475,14 @@ proxySpellChecker = function(targetNode)
 		proxyBox.onclick = function()
 		{
 			$('OldSpellCheckOn').click();
-		}
+		};
 		proxyLabel.appendChild(proxyBox);
 		proxyLabel.appendChild(document.createTextNode('Check Spelling'));
 		targetNode.appendChild(proxyLabel);
 		// Reflect original's status
 		proxyBox.checked = boxNode.checked;
 	}
-}
+};
 			
 /**
  * Helper method. Generate a proxy DOM node out of an original button
@@ -532,7 +534,7 @@ createProxyButton = function(buttonNode,index)
 		}
 		else
 	      top.commonspot.lightbox.closeCurrent();
-	  }
+	  };
 	}   
 	else   
 	{
@@ -543,21 +545,21 @@ createProxyButton = function(buttonNode,index)
 				buttonNode.click();
 			}	
 			return false;
-		}
+		};
 	}		
 	proxyBox.onmouseover = function()
 	{
 		this.style.textDecoration = 'underline';
 		return false;
-	}
+	};
 	proxyBox.onmouseout = function()
 	{
 		this.style.textDecoration = 'none';
 		return false;
-	}	
+	};
 	proxyContainer.appendChild(proxyBox);
 	return proxyContainer;
-}
+};
 /**
 * Helper method.    Return index of an element in an array NOT case-sensitive.
 * @param _this      Required. Array
@@ -572,7 +574,7 @@ arrayIndexOf = function(_this,x)
    		return i;
    }
    return-1;
-}   	
+};	
 		
 
 if (typeof(onLightboxResize) == "undefined")
@@ -603,6 +605,6 @@ if (typeof(onLightboxResize) == "undefined")
 			// Add scrollbars to the main box
 			rootDiv.style.overflow = 'auto';
 		}
-	}
+	};
 
 }

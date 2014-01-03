@@ -18,6 +18,21 @@ in this directory, you agree to the terms and conditions of the applicable
 end user license agreement.
 */
 
+/* *************************************************************** */
+/*
+Author: 	
+	PaperThin Inc.
+Name:
+	windows_ref.js
+Summary:
+	ADF Lightbox Framework JavaScript
+Version:
+	1.0.0
+History:
+	2010-02-19 - MFC - Created
+	2014-01-03 - GAC - Added Comment Headers
+*/
+
 /*
 JavaScript routines to resolve references for windows inside lightbox
 */
