@@ -1,16 +1,36 @@
-<!---
-	$Id: metadata-batchinsert-form.cfm,v 0.1 08-06-2007 11:00:00 paperthin Exp $
+<!--- 
+The contents of this file are subject to the Mozilla Public License Version 1.1
+(the "License"); you may not use this file except in compliance with the
+License. You may obtain a copy of the License at http://www.mozilla.org/MPL/
 
-	Description:
-		Form used to update metadata for multiple pages at once instead of updating each page one by one
-	Parameters:
-		none
-	Usage:
-		none
-	Documentation:
-		08-06-2007 - Documentation added - Queries written for MS SQL Server, will have to rewritten slightly for Oracle and MySQL
-	Based on:
-		none
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+the specific language governing rights and limitations under the License.
+
+The Original Code is comprised of the ADF directory
+
+The Initial Developer of the Original Code is
+PaperThin, Inc. Copyright(C) 2014.
+All Rights Reserved.
+
+By downloading, modifying, distributing, using and/or accessing any files 
+in this directory, you agree to the terms and conditions of the applicable 
+end user license agreement.
+--->
+
+<!---
+$Id: metadata-batchinsert-form.cfm,v 0.1 08-06-2007 11:00:00 paperthin Exp $
+
+Description:
+	Form used to update metadata for multiple pages at once instead of updating each page one by one
+Parameters:
+	none
+Usage:
+	none
+Documentation:
+	08-06-2007 - Documentation added - Queries written for MS SQL Server, will have to rewritten slightly for Oracle and MySQL
+Based on:
+	none
 --->
 
 <cfoutput>
