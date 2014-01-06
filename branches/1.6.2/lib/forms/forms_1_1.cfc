@@ -36,7 +36,7 @@ History:
 --->
 <cfcomponent displayname="forms_1_1" extends="ADF.lib.forms.forms_1_0" hint="Form functions for the ADF Library">
 
-<cfproperty name="version" value="1_1_7">
+<cfproperty name="version" value="1_1_8">
 <cfproperty name="type" value="transient">
 <cfproperty name="ceData" injectedBean="ceData_2_0" type="dependency">
 <cfproperty name="scripts" injectedBean="scripts_1_2" type="dependency">
@@ -294,42 +294,16 @@ History:
 	2012-12-03 - GAC - Fixed the logic when checking the fieldPermission value for CS 6.0+ to only return ReadOnly when the fieldPermission value equals 1
 	2013-12-05 - GAC - Added parameters for the CFTs fqFieldName and the attributes.currentValues struct
 					 - Added the CS 9+ fqFieldName_doReadonly check to see if the field is forces to be read only
+	2014-01-06 - GAC - Moved to the new Field_1_0 LIB
 --->
+<!--- // Moved to the Fields LIB --->
 <cffunction name="isFieldReadOnly" access="public" returntype="boolean" hint="Given xparams determines if the field is readOnly">
 	<cfargument name="xparams" type="struct" required="true" hint="the CFT xparams struct">
 	<cfargument name="fieldPermission" type="string" required="false" default="" hint="fieldPermission attribute for CS 6.x and above: 0 (no rights), 1 (read only), 2 (edit)">
 	<cfargument name="fqfieldName" type="string" required="false" default="" hint="the CFT's fqfieldName">
 	<cfargument name="currentValues" type="struct" required="false" default="#StructNew()#" hint="the CFT attributes.currentValues struct">
 	<cfscript>
-		var readOnly = true;
-		var productVersion = ListFirst(ListLast(request.cp.productversion," "),".");
-		var commonGroups = "";
-		// Determine if this field should be read only due to "Use Explicit Security"
-		
-		// Check the CS version
-		if ( productVersion GTE 6 ) {
-			// Check to see if this field is FORCED to be READ ONLY by looking for the CS 9+ fqFieldName_doReadonly struct key
-			if ( LEN(TRIM(arguments.fqFieldName)) AND StructKeyExists(arguments.currentValues,"#TRIM(arguments.fqFieldName)#_doReadonly") ) 
-				readOnly = true;
-			else {
-				// For CS 6.x and above
-				// - If the user has ready only rights (fieldPermission = 1) readOnly will be true
-				if ( LEN(TRIM(arguments.fieldPermission)) AND arguments.fieldPermission EQ 1 ) 
-					readOnly = true;
-				else
-					readOnly = false;
-			}				
-		}
-		else {
-			// For CS 5.x 
-			// Get the list permissions and compare
-			commonGroups = application.ADF.data.ListInCommon(request.user.grouplist, arguments.xparams.pedit);
-			// Check if the user does have edit permissions
-			if ( (arguments.xparams.UseSecurity EQ 0) OR ( (arguments.xparams.UseSecurity EQ 1) AND (ListLen(commonGroups)) ) )
-				readOnly = false;	
-		}
-		
-		return readOnly;
+		return variables.fields.renderDataValueStringfromFieldMask(xparams=arguments.xparams,fieldPermission=arguments.fieldPermission,fqfieldName=arguments.fqfieldName,currentValues=arguments.currentValues);
 	</cfscript>
 </cffunction>
 
@@ -360,6 +334,7 @@ History:
 	2011-11-22 - GAC - Added a fieldPermission argument and logic to handle 6.x field security
 	2013-12-06 - GAC - Added nowrap="nowrap" to the Label table cell
 					 - Added a TRIM to the label variable
+	2014-01-06 - GAC - Added the labelClass variable the Field Label to specify optional or required class to the label tag
 --->
 <cffunction name="wrapFieldHTML" access="public" returntype="String" hint="Wraps the given information with valid html for the current commonspot and configuration">
 	<cfargument name="fieldInputHTML" type="string" required="true" default="" hint="HTML for the field input, do a cfSaveContent on the input field and pass that in here">
@@ -377,6 +352,7 @@ History:
 		var fieldName = arguments.fieldQuery.fieldName[row];
 		var xparams = arguments.attr.parameters[arguments.fieldQuery.inputID[row]];
 		var currentValue = arguments.attr.currentValues[fqFieldName];
+		var labelClass = "cs_dlgLabelOptional";
 		var labelStart = arguments.attr.itemBaselineParamStart;
 		var labelEnd = arguments.attr.itemBaseLineParamEnd;
 		var renderMode =  arguments.attr.rendermode;
@@ -388,6 +364,7 @@ History:
 		//If the fields are required change the label start and end
 		if ( xparams.req eq "Yes" )
 		{
+			labelClass = "cs_dlgLabelRequired";
 			labelStart = arguments.attr.reqItemBaselineParamStart;
 			labelEnd = arguments.attr.reqItemBaseLineParamEnd;
 		}
@@ -433,7 +410,7 @@ History:
 					<cfif arguments.includeLabel>
 						<td valign="top" nowrap="nowrap">
 							#labelStart#
-							<label for="#fqFieldName#" id="#fqFieldName#_LABEL">#TRIM(xParams.label)#:</label>
+							<label for="#fqFieldName#" id="#fqFieldName#_LABEL" class="#labelClass#">#TRIM(xParams.label)#:</label>
 							#labelEnd#
 						</td>
 					</cfif>
@@ -484,6 +461,7 @@ History:
  	2010-12-06 - RAK - Created
 	2013-11-14 - DJM - Pulled out from the Custom Element Select Field render file and converted to its own method
 	2013-11-14 - GAC - Moved from the Custom Element Select Field to the Forms_1_1 lib
+	2013-12-18 - GAC - Moved to the fields_1_0 lib
 --->
 <!--- // Moved to the Fields LIB --->
 <cffunction name="renderDataValueStringfromFieldMask" hint="Returns the string of data values from field mask" access="public" returntype="string">
