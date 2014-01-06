@@ -296,14 +296,14 @@ History:
 					 - Added the CS 9+ fqFieldName_doReadonly check to see if the field is forces to be read only
 	2014-01-06 - GAC - Moved to the new Field_1_0 LIB
 --->
-<!--- // Moved to the Fields LIB --->
+<!--- // Moved to the Fields LIB for v1.6.2 --->
 <cffunction name="isFieldReadOnly" access="public" returntype="boolean" hint="Given xparams determines if the field is readOnly">
 	<cfargument name="xparams" type="struct" required="true" hint="the CFT xparams struct">
 	<cfargument name="fieldPermission" type="string" required="false" default="" hint="fieldPermission attribute for CS 6.x and above: 0 (no rights), 1 (read only), 2 (edit)">
 	<cfargument name="fqfieldName" type="string" required="false" default="" hint="the CFT's fqfieldName">
 	<cfargument name="currentValues" type="struct" required="false" default="#StructNew()#" hint="the CFT attributes.currentValues struct">
 	<cfscript>
-		return variables.fields.renderDataValueStringfromFieldMask(xparams=arguments.xparams,fieldPermission=arguments.fieldPermission,fqfieldName=arguments.fqfieldName,currentValues=arguments.currentValues);
+		return variables.fields.isFieldReadOnly(xparams=arguments.xparams,fieldPermission=arguments.fieldPermission,fqfieldName=arguments.fqfieldName,currentValues=arguments.currentValues);
 	</cfscript>
 </cffunction>
 
@@ -335,7 +335,9 @@ History:
 	2013-12-06 - GAC - Added nowrap="nowrap" to the Label table cell
 					 - Added a TRIM to the label variable
 	2014-01-06 - GAC - Added the labelClass variable the Field Label to specify optional or required class to the label tag
+	2014-01-06 - GAC - Moved to the new Field_1_0 LIB
 --->
+<!--- // Moved to the Fields LIB for v1.6.2 --->
 <cffunction name="wrapFieldHTML" access="public" returntype="String" hint="Wraps the given information with valid html for the current commonspot and configuration">
 	<cfargument name="fieldInputHTML" type="string" required="true" default="" hint="HTML for the field input, do a cfSaveContent on the input field and pass that in here">
 	<cfargument name="fieldQuery" type="query" required="true" default="" hint="fieldQuery value">
@@ -344,103 +346,8 @@ History:
 	<cfargument name="includeLabel" type="boolean" required="false" default="true" hint="Set to false to remove the label on the left">
 	<cfargument name="includeDescription" type="boolean" required="false" default="true" hint="Set to false to remove the description under the field">
 	<cfscript>
-		var returnHTML = '';
-		var productVersion = ListFirst(ListLast(request.cp.productversion," "),".");
-		var row = arguments.fieldQuery.currentRow;
-		var fqFieldName = "fic_#arguments.fieldQuery.ID[row]#_#arguments.fieldQuery.INPUTID[row]#";
-		var description = arguments.fieldQuery.DESCRIPTION[row];
-		var fieldName = arguments.fieldQuery.fieldName[row];
-		var xparams = arguments.attr.parameters[arguments.fieldQuery.inputID[row]];
-		var currentValue = arguments.attr.currentValues[fqFieldName];
-		var labelClass = "cs_dlgLabelOptional";
-		var labelStart = arguments.attr.itemBaselineParamStart;
-		var labelEnd = arguments.attr.itemBaseLineParamEnd;
-		var renderMode =  arguments.attr.rendermode;
-		var renderSimpleFormField = false;
-		var doHiddenFieldSecurity = false; // No Edit / No Readonly ... just a hidden field
-		var editGroups = "";
-		var viewGroups = "";
-		
-		//If the fields are required change the label start and end
-		if ( xparams.req eq "Yes" )
-		{
-			labelClass = "cs_dlgLabelRequired";
-			labelStart = arguments.attr.reqItemBaselineParamStart;
-			labelEnd = arguments.attr.reqItemBaseLineParamEnd;
-		}
-
-		// Determine if this is rendererd in a simple form or the standard custom element interface
-		if ( (StructKeyExists(request, "simpleformexists")) AND (request.simpleformexists EQ 1) )
-		{
-			renderSimpleFormField = true;
-		}
-		
-		// Determine if this field should be hidden due to "Use Explicit Security"
-		// - Check the CS version
-		if ( productVersion GTE 6 )
-		{
-			// For CS 6.x and above
-			// - If the user has no rights (fieldSecurity = 0) to the field then doHiddenSecurity should be true
-			if ( LEN(TRIM(arguments.fieldPermission)) AND arguments.fieldPermission LTE 0 ) 
-			{
-				doHiddenFieldSecurity = true;		
-			}	
-			
-			// TODO: determine if this conditional logic is needed to display the description or not (fieldPermission is new to CS6.x)
-			//if ( renderMode NEQ 'standard' OR fieldpermission LTE 0 )
-				//arguments.includeDescription = false;
-		}
-		else
-		{
-			// For CS 5.x 
-			// Get the list permissions and compare for security
-			editGroups = application.ADF.data.ListInCommon(request.user.grouplist, xparams.pedit);
-			viewGroups = application.ADF.data.ListInCommon(request.user.grouplist, xparams.pread);
-			// - If user is part for the edit or view groups doHiddenSecurity should remain false
-			if ( xparams.UseSecurity AND ListLen(viewGroups) EQ 0 AND ListLen(editGroups) EQ 0 )
-			{
-				doHiddenFieldSecurity = true;
-			}
-		}
+		return variables.fields.wrapFieldHTML(fieldInputHTML=arguments.fieldInputHTML,fieldQuery=arguments.fieldQuery,attr=arguments.attr,fieldPermission=arguments.fieldPermission,includeLabel=arguments.includeLabel,includeDescription=arguments.includeDescription);
 	</cfscript>
-	<cfsavecontent variable="returnHTML">
-		<cfoutput>
-			<cfif NOT doHiddenFieldSecurity>
-				<tr id="#fqFieldName#_FIELD_ROW">
-					<cfif arguments.includeLabel>
-						<td valign="top" nowrap="nowrap">
-							#labelStart#
-							<label for="#fqFieldName#" id="#fqFieldName#_LABEL" class="#labelClass#">#TRIM(xParams.label)#:</label>
-							#labelEnd#
-						</td>
-					</cfif>
-					<td<cfif NOT arguments.includeLabel> colspan="2"</cfif>>
-						#arguments.fieldInputHTML#
-					</td>
-				</tr>
-				<cfif Len(description) AND arguments.includeDescription>
-					<!--- // If there is a description print out a new row and the description --->
-					<tr id="#fqFieldName#_DESCRIPTION_ROW">
-						<cfif arguments.includeLabel>
-						<td></td>
-						</cfif>
-						<td<cfif NOT arguments.includeLabel> colspan="2"</cfif>>
-							#arguments.attr.descParamStart#
-							#description#
-							<br/><br/>
-							#arguments.attr.descParamEnd#
-						</td>
-					</tr>
-				</cfif>
-			<cfelse>
-				<input type="hidden" name="#fqFieldName#" id="#fqFieldName#" value="#currentValue#">
-			</cfif>
-			<cfif renderSimpleFormField>
-				<input type="hidden" name="#fqFieldName#_FIELDNAME" id="#fqFieldName#_FIELDNAME" value="#ReplaceNoCase(fieldName, 'fic_','')#">
-			</cfif>
-		</cfoutput>
-	</cfsavecontent>
-	<cfreturn returnHTML>
 </cffunction>
 
 <!---
@@ -463,7 +370,7 @@ History:
 	2013-11-14 - GAC - Moved from the Custom Element Select Field to the Forms_1_1 lib
 	2013-12-18 - GAC - Moved to the fields_1_0 lib
 --->
-<!--- // Moved to the Fields LIB --->
+<!--- // Moved to the Fields LIB for v1.6.2 --->
 <cffunction name="renderDataValueStringfromFieldMask" hint="Returns the string of data values from field mask" access="public" returntype="string">
 	<cfargument name="fieldDataStruct" type="struct" required="true" hint="Struct with the field key/value pair">
 	<cfargument name="fieldMaskStr" type="string" required="true" hint="String mask of <fieldNames> used build the field value display">

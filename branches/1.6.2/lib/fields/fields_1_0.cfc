@@ -25,18 +25,16 @@ Author:
 Name:
 	fields_1_0.cfc
 Summary:
-	CFT Fields functions for the ADF Library
+	Custom Field Type functions for the ADF Library
 Version:
 	1.0
 History:
 	2013-12-09 - MFC - Created
 --->
-<cfcomponent displayname="fields_1_0" extends="ADF.core.Base" hint="CFT Fields functions for the ADF Library">
+<cfcomponent displayname="fields_1_0" extends="ADF.core.Base" hint="Custom Field Type functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_1">
+<cfproperty name="version" value="1_0_2">
 <cfproperty name="type" value="transient">
-<!--- <cfproperty name="ceData" injectedBean="ceData_1_0" type="dependency">
-<cfproperty name="scripts" injectedBean="scripts_1_0" type="dependency"> --->
 <cfproperty name="wikiTitle" value="Fields_1_0">
 
 <!---
@@ -57,6 +55,7 @@ History:
  	2010-12-06 - RAK - Created
 	2013-11-14 - DJM - Pulled out from the Custom Element Select Field render file and converted to its own method
 	2013-11-14 - GAC - Moved from the Custom Element Select Field to the Forms_1_1 lib
+	2013-12-18 - GAC - Moved from the Forms_1_1 LIB to the new Field_1_0 LIB
 --->
 <cffunction name="renderDataValueStringfromFieldMask" hint="Returns the string of data values from field mask" access="public" returntype="string">
 	<cfargument name="fieldDataStruct" type="struct" required="true" hint="Struct with the field key/value pair">
