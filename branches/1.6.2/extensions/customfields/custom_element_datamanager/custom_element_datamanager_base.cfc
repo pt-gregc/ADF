@@ -69,6 +69,27 @@ History:
         <cfreturn result>
     </cffunction>
 	
+	<cffunction name="getCEName" access="private" returntype="string" hint="Get the Custom Element Name">
+        <cfargument name="elementID" type="numeric" required="true" hint="Custom element ID">
+        <cfscript>
+			var result = "";
+			var customElementObj = Server.CommonSpot.ObjectFactory.getObject('CustomElement');
+			var elementDetails = customElementObj.getInfo(elementID=arguments.elementID);
+		</cfscript>
+		<cftry>
+			<cfscript>
+				result = elementDetails.Name;
+			</cfscript>
+			<cfcatch>
+				<CFMODULE TEMPLATE="/commonspot/utilities/log-append.cfm" comment="Error while trying to retrieve the global custom element name: #cfcatch.message# :: #cfcatch.detail#">
+				<cfscript>
+					result = 'Error';
+				</cfscript>
+			</cfcatch>
+		</cftry>
+		<cfreturn result>
+    </cffunction>
+	
 	<cffunction name="getFields" returnformat="json" access="remote" hint="Get the fields for a custom elemnt">
         <cfargument name="elementID" type="numeric" required="true" hint="Custom element ID">
 		
@@ -192,6 +213,14 @@ History:
 		<cfargument name="propertiesStruct" type="struct" required="true" hint="Properties structure for the field">
 		<cfscript>
 			var buttonLabel = 'Add New...';
+			var ceName = "";
+			
+			if ( StructKeyExists(arguments.propertiesStruct,"childCustomElement") AND IsNumeric(arguments.propertiesStruct.childCustomElement) ) {
+				ceName = getCEName(elementID=arguments.propertiesStruct.childCustomElement);
+				if ( LEN(TRIM(ceName)) )
+					buttonLabel = "Add New #ceName#";
+			}
+			
 			return buttonLabel;
 		</cfscript>
 	</cffunction>
@@ -218,6 +247,14 @@ History:
 		<cfargument name="propertiesStruct" type="struct" required="true" hint="Properties structure for the field">
 		<cfscript>
 			var buttonLabel = 'Add Existing...';
+			var ceName = "";
+			
+			if ( StructKeyExists(arguments.propertiesStruct,"assocCustomElement") AND IsNumeric(arguments.propertiesStruct.assocCustomElement) ) {
+				ceName = getCEName(elementID=arguments.propertiesStruct.assocCustomElement);
+				if ( LEN(TRIM(ceName)) )
+					buttonLabel = "Add New #ceName#";
+			}
+				
 			return buttonLabel;
 		</cfscript>
 	</cffunction>
