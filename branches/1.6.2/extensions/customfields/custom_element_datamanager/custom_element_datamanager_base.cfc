@@ -49,7 +49,7 @@ History:
 	<cffunction name="getGlobalCE" returnformat="json" access="remote" hint="Method to get teh global custom elements">		
         <cfscript>
 			var result = QueryNew('');
-			var customElementObj = server.CommonSpot.ObjectFactory.getObject('CustomElement');
+			var customElementObj = Server.CommonSpot.ObjectFactory.getObject('CustomElement');
 		</cfscript>
 		
 		<cftry>
@@ -74,7 +74,7 @@ History:
 		
         <cfscript>
 			var result = QueryNew('');
-			var customElementObj = server.CommonSpot.ObjectFactory.getObject('CustomElement');
+			var customElementObj = Server.CommonSpot.ObjectFactory.getObject('CustomElement');
 			var resultData = '';
 			var elementDetails = customElementObj.getInfo(elementID=arguments.elementID);
 		</cfscript>
@@ -111,7 +111,7 @@ History:
 		
         <cfscript>
 			var result = QueryNew('');
-			var customElementObj = server.CommonSpot.ObjectFactory.getObject('CustomElement');
+			var customElementObj = Server.CommonSpot.ObjectFactory.getObject('CustomElement');
 			var resultData = '';
 			var elementDetails = customElementObj.getInfo(elementID=arguments.elementID);
 		</cfscript>
@@ -183,7 +183,7 @@ History:
 		</cfscript>
 		
 		<cfsavecontent variable="renderData">
-			<cfoutput>#server.CommonSpot.UDF.tag.input(type="button", class="clsPushButton", name="addNew", id="addNew", value=getAddNewButtonName(propertiesStruct=arguments.propertiesStruct), onclick="javascript:top.commonspot.lightbox.openDialog('#Request.SubSite.DlgLoader#?csModule=controls/custom/submit-data&controlTypeID=#propertiesStruct.childCustomElement#&formID=#propertiesStruct.childCustomElement#&newData=1&dataPageID=0&dataControlID=0&linkageFieldID=#propertiesStruct.childLinkedField#&linkedFieldValue=#curValuesStruct[linkedIDSelectedName]#&openFrom=datamanager&callbackFunction=loadData_#arguments.fieldID#&#assocParameters#')")#</cfoutput>
+			<cfoutput>#Server.CommonSpot.UDF.tag.input(type="button", class="clsPushButton", name="addNew", id="addNew", value=getAddNewButtonName(propertiesStruct=arguments.propertiesStruct), onclick="javascript:top.commonspot.lightbox.openDialog('#Request.SubSite.DlgLoader#?csModule=controls/custom/submit-data&controlTypeID=#propertiesStruct.childCustomElement#&formID=#propertiesStruct.childCustomElement#&newData=1&dataPageID=0&dataControlID=0&linkageFieldID=#propertiesStruct.childLinkedField#&linkedFieldValue=#curValuesStruct[linkedIDSelectedName]#&openFrom=datamanager&callbackFunction=loadData_#arguments.fieldID#&#assocParameters#')")#</cfoutput>
 		</cfsavecontent>
 		<cfoutput>#renderData#</cfoutput>
 	</cffunction>
@@ -209,7 +209,7 @@ History:
 		</cfscript>
 		
 		<cfsavecontent variable="renderData">
-			<cfoutput>#server.CommonSpot.UDF.tag.input(type="button", class="clsPushButton", name="addExisting", id="addExisting", value=getAddExistingButtonName(propertiesStruct=arguments.propertiesStruct), onclick="javascript:top.commonspot.lightbox.openDialog('#Request.SubSite.DlgLoader#?csModule=controls/custom/submit-data&controlTypeID=#inputPropStruct.assocCustomElement#&formID=#inputPropStruct.assocCustomElement#&newData=1&dataPageID=0&dataControlID=0&linkageFieldID=#inputPropStruct.parentInstanceIDField#&linkedFieldValue=#curValuesStruct[linkedIDSelectedName]#&openFrom=datamanager&callbackFunction=loadData_#arguments.fieldID#')")#</cfoutput>
+			<cfoutput>#Server.CommonSpot.UDF.tag.input(type="button", class="clsPushButton", name="addExisting", id="addExisting", value=getAddExistingButtonName(propertiesStruct=arguments.propertiesStruct), onclick="javascript:top.commonspot.lightbox.openDialog('#Request.SubSite.DlgLoader#?csModule=controls/custom/submit-data&controlTypeID=#inputPropStruct.assocCustomElement#&formID=#inputPropStruct.assocCustomElement#&newData=1&dataPageID=0&dataControlID=0&linkageFieldID=#inputPropStruct.parentInstanceIDField#&linkedFieldValue=#curValuesStruct[linkedIDSelectedName]#&openFrom=datamanager&callbackFunction=loadData_#arguments.fieldID#')")#</cfoutput>
 		</cfsavecontent>
 		<cfoutput>#renderData#</cfoutput>
 	</cffunction>
@@ -222,32 +222,44 @@ History:
 		</cfscript>
 	</cffunction>
 	
-	<cffunction name="renderGrid" access="remote" returntype="void" hint="Method to render the datamanger grid">		
-        <cfargument name="formID" type="numeric" required="true" hint="ID of the form or control type">
+	<cffunction name="renderGrid" access="remote" output="Yes" returntype="void" hint="Method to render the datamanger grid">		
+      <cfargument name="formID" type="numeric" required="true" hint="ID of the form or control type">
 		<cfargument name="propertiesStruct" type="string" required="true" hint="Properties structure for the field in json format">
 		<cfargument name="currentValues" type="string" required="true" hint="Current values structure for the field in json format">
 		<cfargument name="fieldID" type="numeric" required="true" hint="ID of the field">
-		<cfscript>
-			var inputPropStruct = StructNew();
-			var curValuesStruct = StructNew();
-			var dataRecords = QueryNew('');
-			var displayData = QueryNew('');
-			
-			if (IsJSON(arguments.propertiesStruct))
-			{
-				inputPropStruct = DeserializeJSON(arguments.propertiesStruct);
-			}
-			if (IsJSON(arguments.currentValues))
-			{
-				curValuesStruct = DeserializeJSON(arguments.currentValues);
-			}
-			
-			dataRecords = queryData(formID=arguments.formID,propertiesStruct=inputPropStruct,currentValues=curValuesStruct);
-			
-			if (NOT StructKeyExists(dataRecords, 'errorMsg'))
-				displayData = getDisplayData(fieldID=arguments.fieldID,propertiesStruct=inputPropStruct,dataRecords=dataRecords.qry,fieldMapStruct=dataRecords.fieldMapStruct,fieldOrderList=dataRecords.fieldOrderList);
-		</cfscript>
-		<cfoutput>#SerializeJSON(displayData)#</cfoutput>
+		
+		<!--- <cfmodule template="/commonspot/utilities/log-append.cfm" comment="in custom_element_datamanager_base.cfc RenderGrid()"> --->
+		<cftry>
+			<cfscript>
+				var inputPropStruct = StructNew();
+				var curValuesStruct = StructNew();
+				var dataRecords = QueryNew('');
+				var displayData = QueryNew('');
+				
+				if (IsJSON(arguments.propertiesStruct))
+				{
+					inputPropStruct = DeserializeJSON(arguments.propertiesStruct);
+				}
+				if (IsJSON(arguments.currentValues))
+				{
+					curValuesStruct = DeserializeJSON(arguments.currentValues);
+				}
+				
+				dataRecords = queryData(formID=arguments.formID,propertiesStruct=inputPropStruct,currentValues=curValuesStruct);
+				
+				if (NOT StructKeyExists(dataRecords, 'errorMsg'))
+					displayData = getDisplayData(fieldID=arguments.fieldID, 
+															propertiesStruct=inputPropStruct,
+															dataRecords=dataRecords.qry,
+															fieldMapStruct=dataRecords.fieldMapStruct,
+															fieldOrderList=dataRecords.fieldOrderList);
+			</cfscript>
+			<cfoutput>#SerializeJSON(displayData)#</cfoutput>
+		
+			<cfcatch>
+				<cfmodule template="/commonspot/utilities/log-append.cfm" comment="Error in custom_element_datamanager_base.cfc RenderGrid() #cfcatch.message# #cfcatch.detail#">
+			</cfcatch>
+		</cftry>
     </cffunction>
 	
 	<cffunction name="queryData" returntype="struct" access="private" hint="Get the data for the fields">
@@ -261,7 +273,7 @@ History:
 			var defaultSortColumn = '';
 			var defaultSortOrder = '';
 			var resultData = QueryNew('');		
-			var ceObj = server.CommonSpot.ObjectFactory.getObject("CustomElement");
+			var ceObj = Server.CommonSpot.ObjectFactory.getObject("CustomElement");
 			var colList = inputPropStruct.displayFields;
 			var colArray = ArrayNew(1);
 			var childFormFields = "";
@@ -554,6 +566,13 @@ History:
 			var formFieldID = 0;
 			var formFieldValue = '';
 			var returnStruct = StructNew();
+			var convertedCols = StructNew();
+			var converted = 0;
+			var convertedColumnList = '';
+			var pos = 0;
+			var str = '';
+			var col = '';
+			
 			dataColumnArray = ListToArray(dataColumnList);
 		</cfscript>
 		
@@ -567,6 +586,7 @@ History:
 						actionColumnArray[childData.currentRow] = renderData;
 						for(i=1;i LTE ArrayLen(dataColumnArray);i=i+1)
 						{
+							col = dataColumnArray[i];
 							if (StructKeyExists(mappingStruct, dataColumnArray[i]))
 							{
 								formFieldType = mappingStruct[dataColumnArray[i]].fieldType;
@@ -578,37 +598,75 @@ History:
 									{
 										case 'Custom Element Select Field':
 											fieldUpdValue = getContent_ceSelect(fieldID=formFieldID,fieldValue='#formFieldValue#');
+											if( NOT StructKeyExists(convertedCols, col) )
+											{
+												QueryAddColumn(childData, '#col#_converted', 'varchar', ArrayNew(1) );				
+												convertedCols[col] = StructNew();
+											}	
+											QuerySetCell(childData, '#col#_converted', fieldUpdValue, childData.CurrentRow);
 											break;
 										case 'select':
 											fieldUpdValue = getContent_select(fieldID=formFieldID,fieldValue='#formFieldValue#');
+											if( NOT StructKeyExists(convertedCols, col) )
+											{
+												QueryAddColumn(childData, '#col#_converted', 'varchar', ArrayNew(1) );				
+												convertedCols[col] = StructNew();
+											}	
+											QuerySetCell(childData, '#col#_converted', fieldUpdValue, childData.CurrentRow);
 											break;
 										case 'csextendedurl':
 										case 'cs_url':
 											fieldUpdValue = getContent_csurl(fieldID=formFieldID,fieldValue='#formFieldValue#');
+											QuerySetCell(childData, col, fieldUpdValue, childData.CurrentRow);
 											break;
 										default:
 											fieldUpdValue = formFieldValue;
+											QuerySetCell(childData, col, fieldUpdValue, childData.CurrentRow);
 											break;
 									}
+									
+									/*
+									try 
+									{
 									QuerySetCell(childData, dataColumnArray[i], fieldUpdValue, childData.CurrentRow);
+									}  
+									catch (any e) 
+									{ 
+										// QuerySetCell(childData, dataColumnArray[i], '', childData.CurrentRow);									
+										logit('Error updating column:[#dataColumnArray[i]#] Row:[#childData.CurrentRow#] formFieldType:[#formFieldType#] fieldUpdValue:[#fieldUpdValue#] Message:[#e.message#] detail:[#e.detail#]'); 
+									}
+									*/
 								}
 							}
 						}
 					</cfscript>
 					<cfset actionColumnArray[childData.currentRow] = renderData>
 				</cfloop>
+				
 				<cfscript>
+					convertedColumnList = StructKeyList( convertedCols ); 
+					dataColumnList_new = dataColumnList;
+					for( i=1; i lte ListLen(convertedColumnList); i=i+1 )
+					{
+						str = ListGetAt( convertedColumnList, i );
+						pos = ListFindNoCase( dataColumnList, str );
+						if( pos )
+							dataColumnList_new = ListSetAt( dataColumnList_new, pos, str & '_converted' );
+					}
 					QueryAddColumn(childData, 'Actions', 'varchar', actionColumnArray);
-					dataColumnList = ListPrepend(dataColumnList, 'Actions');
+					dataColumnList_new = ListPrepend(dataColumnList_new, 'Actions');
+					
+					// Logit('datacolumnlist:[#dataColumnList_new#]');					
 				</cfscript>
 			</cfif>						
 			<cfquery name="returnData" dbtype="query">
-				SELECT #dataColumnList#
+				SELECT #dataColumnList_new#
 				  FROM childData
 			</cfquery>
 			<cfscript>
-				returnStruct['aoColumns'] = '#dataColumnList#';
-				returnStruct['aaData'] = QueryToArray(queryData=returnData,fieldOrderList=dataColumnList);
+				returnStruct['aoColumns'] = '#dataColumnList_new#';
+				returnStruct['aoColumns'] = '#ReplaceNoCase(dataColumnList_new,'_converted','','ALL')#';
+				returnStruct['aaData'] = QueryToArray(queryData=returnData, fieldOrderList=dataColumnList_new);
   			</cfscript>
 		<cfcatch>
 			<CFMODULE TEMPLATE="/commonspot/utilities/log-append.cfm" comment="Error while trying to set the display data for the child element: #cfcatch.message# :: #cfcatch.detail#">
@@ -646,7 +704,7 @@ History:
 		
 		<cfif paramsData.RecordCount>
 			<cfscript>
-				paramsStruct = server.CommonSpot.UDF.util.WDDXDecode(paramsData.Params);
+				paramsStruct = Server.CommonSpot.UDF.util.WDDXDecode(paramsData.Params);
 			</cfscript>
 			<cfif Len(paramsStruct.customElement)>
 				<cfscript>
@@ -713,7 +771,7 @@ History:
 		
 		<cfif paramsData.RecordCount>
 			<cfscript>
-				paramsStruct = server.CommonSpot.UDF.util.WDDXDecode(paramsData.Params);
+				paramsStruct = Server.CommonSpot.UDF.util.WDDXDecode(paramsData.Params);
 				if (StructKeyExists(paramsStruct, 'displayfieldid'))
 					displayFieldID = paramsStruct.displayfieldid;
 				if (StructKeyExists(paramsStruct, 'valuefieldid'))
@@ -912,7 +970,7 @@ History:
         <cfargument name="movedDataPageID" type="numeric" required="true" hint="The unique data pageid for the record from start pos">
 		<cfargument name="dropAfterDataPageID" type="numeric" required="true" hint="The unique data pageid for the record from end pos">
         <cfscript>
-			var ceObj = server.CommonSpot.ObjectFactory.getObject("CustomElement");
+			var ceObj = Server.CommonSpot.ObjectFactory.getObject("CustomElement");
 			var inputPropStruct = arguments.propertiesStruct;
 			var dataFormID = 0;
 			var getOrderForMovedRec = '';
@@ -982,7 +1040,7 @@ History:
 		<cfargument name="maxPos" type="numeric" required="true" hint="The maximum position value to change">
         <cfscript>
 			var reqFormFields = "";
-			var ceObj = server.CommonSpot.ObjectFactory.getObject("CustomElement");
+			var ceObj = Server.CommonSpot.ObjectFactory.getObject("CustomElement");
 			var inputPropStruct = arguments.propertiesStruct;
 			var curValuesStruct = arguments.currentValues;
 			var linkedIDSelectedName = 'fic_#arguments.formID#_#inputPropStruct.parentUniqueField#';
@@ -1047,7 +1105,7 @@ History:
 			<cfscript>
 				getRecsToChg = QueryNew('ErrorMsg');
 				QueryAddRow(getRecsToChg, 1);
-				QuerySetCell(getRecsToChg, 'ErrorMsg', "Error occurred while trying to retrieve range records.");
+				QuerySetCell(getRecsToChg, 'ErrorMsg', "Error occurred while trying to retrieve range records. #cfcatch.message# #cfcatch.detail#");
 			</cfscript>
 		</cfcatch>
 		</cftry>
@@ -1114,5 +1172,14 @@ History:
 
 			return returnString;
 		</cfscript>
+	</cffunction>
+	
+	<cffunction name="logit" access="private" output="No" returntype="void">
+		<cfargument name="comment" required="Yes" type="string">
+		
+		<cffile action="APPEND" 
+					file="#Request.CP.LogDir#datamanager-#DateFormat(now(),'yyyy-mm-dd')#" 
+					output="#arguments.comment#" 
+					addnewline="Yes">
 	</cffunction>
 </cfcomponent>

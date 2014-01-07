@@ -26,6 +26,9 @@ Custom Field Type:
 	App Config Page
 Name:
 	app_config_page_props.cfm
+ADF Requirements:
+	csData_1_0
+	forms_1_1
 History:
 	RLW - Created
 	2011-08-11 - GAC - Updated - Set to use the application.ADF.scripts instead of the objectFactory.getBean

@@ -72,7 +72,7 @@ History:
 	if ( NOT StructKeyExists(xparams, "cfDateMask") OR LEN(xparams.cfDateMask) LTE 0 )
 		xparams.cfDateMask = "M/D/YYYY";
 		
-		//-- App Override Variables --//
+	//-- App Override Variables --//
 	if ( NOT StructKeyExists(xparams, "appBeanName") OR LEN(xparams.appBeanName) LTE 0 )
 		xparams.appBeanName = "";
 	if ( NOT StructKeyExists(xparams, "appPropsVarName") OR LEN(xparams.appPropsVarName) LTE 0 )
@@ -239,13 +239,7 @@ History:
 		}
 	</style>
 	</cfif>
-	<!---
-		This version is using the wrapFieldHTML functionality, what this does is it takes
-		the HTML that you want to put into the TD of the right section of the display, you
-		can optionally disable this by adding the includeLabel = false (fourth parameter)
-		when false it simply creates a TD and puts your content inside it. This wrapper handles
-		everything from description to simple form field handling.
-	--->
+	
 	<cfsavecontent variable="inputHTML">
 		<cfoutput>
 			<div>
@@ -264,5 +258,14 @@ History:
 			</cfif>
 		</cfoutput>
 	</cfsavecontent>
+	
+	<!---
+		This CFT is using the forms lib wrapFieldHTML functionality. The wrapFieldHTML takes
+		the Form Field HTML that you want to put into the TD of the right section of the CFT 
+		table row and helps with display formatting, adds the hidden simple form fields (if needed) 
+		and handles field permissions (other than read-only).
+		Optionally you can disable the field label and the field discription by setting 
+		the includeLabel and/or the includeDescription variables (found above) to false.  
+	--->
 	#application.ADF.forms.wrapFieldHTML(inputHTML,fieldQuery,attributes,variables.fieldPermission,includeLabel,includeDescription)#
 </cfoutput>

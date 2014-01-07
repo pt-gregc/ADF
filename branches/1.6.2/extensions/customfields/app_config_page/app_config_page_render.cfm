@@ -26,6 +26,10 @@ Custom Field Type:
 	App Config Page
 Name:
 	app_config_page_render.cfm
+ADF Requirements:
+	scripts_1_0
+	ceData_1_0
+	forms_1_1
 History:
 	RLW - Created
 	2010-11-29 - GAC - Added conditional logic inside the select box cfloop to check 

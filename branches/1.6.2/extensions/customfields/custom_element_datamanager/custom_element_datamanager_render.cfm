@@ -98,7 +98,7 @@ History:
 			else if (StructKeyExists(attributes, 'fields'))
 				ceFormID = attributes.fields.formID[1];
 		
-			customElementObj = server.CommonSpot.ObjectFactory.getObject('CustomElement');
+			customElementObj = Server.CommonSpot.ObjectFactory.getObject('CustomElement');
 			childCustomElementDetails = customElementObj.getList(ID=inputParameters.childCustomElement);
 			parentCustomElementDetails = customElementObj.getInfo(elementID=ceFormID);
 			datamanagerObj = CreateObject("component", "#componentPath#/custom_element_datamanager_base");
@@ -150,7 +150,7 @@ History:
 						<span id="errorMsgSpan"></span>
 					</td></tr>
 					<tr><td>
-					<table id="customElementData_#uniqueTableAppend#" class="display" style="min-width:#widthVal#px;">
+					<table id="customElementData_#uniqueTableAppend#" class="display" style="min-width:#widthVal#;">
 					<thead><tr></tr></thead>
 					<tbody>
 						<tr>
@@ -165,13 +165,13 @@ History:
 			<CFOUTPUT><table border="0" cellpadding="4" cellspacing="4" summary="">
 				<tr><td class="cs_dlgLabelError">#childCustomElementDetails.Name# records can only be added once the #parentCustomElementDetails.Name# record is saved.</td></tr>
 				</table>
-				#server.CommonSpot.UDF.tag.input(type="hidden", name="#fqFieldName#", value="")#</CFOUTPUT>
+				#Server.CommonSpot.UDF.tag.input(type="hidden", name="#fqFieldName#", value="")#</CFOUTPUT>
 			</CFIF>
 		</CFIF>
 	</CFIF>
 
 	<CFIF fieldpermission lt 2>
-		<CFOUTPUT>#server.CommonSpot.UDF.tag.input(type="hidden", name=fqFieldName)#</CFOUTPUT>
+		<CFOUTPUT>#Server.CommonSpot.UDF.tag.input(type="hidden", name=fqFieldName)#</CFOUTPUT>
 	</CFIF>
 
 	<cfif attributes.rendermode eq 'standard'>
@@ -204,11 +204,52 @@ History:
 					}
 			}
 			
+			function onSuccess_#uniqueTableAppend#(data)
+			{
+				onSuccess(data, '#uniqueTableAppend#' );
+			}
+
+			function onSuccess(data, uniqueTable )
+			{
+				if(data == 'Success')
+				{
+					// call the loadData function for the table that the drop occurred in.
+					window['loadData_' + uniqueTable]();	
+					// console.log('loadData_' + uniqueTable);			
+				}
+				else
+				{
+					document.getElementById('errorMsgSpan').innerHTML = data;
+					document.getElementById('customElementData_#uniqueTableAppend#').style.display = "none";
+					ResizeWindow();
+				}
+			}
 		
 			function loadData_#uniqueTableAppend#()
 			{
 				var res#uniqueTableAppend# = '';
-				jQuery.when(jQuery.getJSON("#ajaxComURL#/custom_element_datamanager_base.cfc?method=renderGrid&returnformat=json&formID=#ceFormID#&fieldID=#fieldQuery.inputID#&" + "&propertiesStruct=" + JSON.stringify(<cfoutput>#SerializeJSON(inputParameters)#</cfoutput>) + "&currentValues=" + JSON.stringify(<cfoutput>#SerializeJSON(attributes.currentvalues)#</cfoutput>))).done(function(res#uniqueTableAppend#) {
+				
+				dataToBeSent = { 
+						method: 'renderGrid',
+						returnformat: 'json',
+						formID : #ceFormID#,
+						fieldID : #fieldQuery.inputID#, 
+						propertiesStruct : JSON.stringify(<cfoutput>#SerializeJSON(inputParameters)#</cfoutput>),
+						currentValues : JSON.stringify(<cfoutput>#SerializeJSON(attributes.currentvalues)#</cfoutput>)						
+				 };
+
+				jQuery.when(
+					
+							jQuery.post( '#ajaxComURL#/custom_element_datamanager_base.cfc', 
+										dataToBeSent, 
+										null, 
+										"json")
+				
+/*				 
+	jQuery.getJSON("#ajaxComURL#/custom_element_datamanager_base.cfc?method=renderGrid&returnformat=json&formID=#ceFormID#&fieldID=#fieldQuery.inputID#&" + "&propertiesStruct=" + JSON.stringify(<cfoutput>#SerializeJSON(inputParameters)#</cfoutput>) + "&currentValues=" + JSON.stringify(<cfoutput>#SerializeJSON(attributes.currentvalues)#</cfoutput>))
+*/
+
+				).done(function(res#uniqueTableAppend#) {
 				
 					var columns = [];
 					var columnsList = res#uniqueTableAppend#.aoColumns;
@@ -274,55 +315,60 @@ History:
 								var startVal;
 								var endVal;
 								var tableData;
-								jQuery("##customElementData_#uniqueTableAppend# tbody").sortable({
+								jQuery("##customElementData_#uniqueTableAppend# tbody").sortable(
+									{
 									cursor: "move",
-									start:function(event, ui){
-									startPosition = ui.item.prevAll().length + 1;
-									},
-									update: function(event, ui) {
+									start:function(event, ui)
+										{
+										startPosition = ui.item.prevAll().length + 1;
+										},
+									update: function(event, ui) 
+										{
 										endPosition = ui.item.prevAll().length + 1;
 										startVal = ui.item.attr("id");
 										tableData = oTable#uniqueTableAppend#.fnGetNodes()[endPosition-1];
 										endVal = jQuery(tableData).attr("id");
-										jQuery.ajax({
-											"url": "#ajaxComURL#/custom_element_datamanager_base.cfc?method=onDrop&formID=#ceFormID#&movedDataPageID=" + startVal + "&dropAfterDataPageID=" + endVal + "&propertiesStruct=" + JSON.stringify(<cfoutput>#SerializeJSON(inputParameters)#</cfoutput>) + "&currentValues=" + JSON.stringify(<cfoutput>#SerializeJSON(attributes.currentvalues)#</cfoutput>),
-											"dataType": "json",
-											"method": "POST",
-											"success": function(data) {
-														if(data == 'Success')
-														{
-															loadData_#uniqueTableAppend#();
-														}
-														else
-														{
-															document.getElementById('errorMsgSpan').innerHTML = data;
-															document.getElementById('customElementData_#uniqueTableAppend#').style.display = "none";
-														}
-													}
-										});
-									}
-								});
+										
+										dataToBeSent = 
+											{ 
+												method: 'onDrop',
+												returnformat: 'json',
+												formID: #ceFormID#,
+												movedDataPageID: startVal, 
+												dropAfterDataPageID: endVal,
+												propertiesStruct : JSON.stringify(<cfoutput>#SerializeJSON(inputParameters)#</cfoutput>),
+												currentValues : JSON.stringify(<cfoutput>#SerializeJSON(attributes.currentvalues)#</cfoutput>)						
+										 	};
+										
+										jQuery.post( '#ajaxComURL#/custom_element_datamanager_base.cfc', 
+																dataToBeSent, 
+																onSuccess_#uniqueTableAppend#, 
+																"json");
+										}
+									});
 							</CFIF>
 						}
 					}
 					else
 					{
 						document.getElementById('errorMsgSpan').innerHTML = res#uniqueTableAppend#.aaData[1];
-					
 						document.getElementById('customElementData_#uniqueTableAppend#').style.display = "none";
+						ResizeWindow();
 					}
 				})
-				.fail(function() {
+				.fail(function() 
+				{
 					document.getElementById('errorMsgSpan').innerHTML = 'An error occurred while trying to perform the operation.';
 					document.getElementById('customElementData_#uniqueTableAppend#').style.display = "none";
+					ResizeWindow();
 				});
-				ResizeWindow();
+				// ResizeWindow();
 			}
 			// -->
 		</script>
 		</cfoutput>
 	</cfif>
 <cfelse>
-	<CFOUTPUT>#server.CommonSpot.UDF.tag.input(type="hidden", name=fqFieldName)#</CFOUTPUT>
+	<CFOUTPUT>#Server.CommonSpot.UDF.tag.input(type="hidden", name=fqFieldName)#</CFOUTPUT>
 </cfif>
 </cfif>

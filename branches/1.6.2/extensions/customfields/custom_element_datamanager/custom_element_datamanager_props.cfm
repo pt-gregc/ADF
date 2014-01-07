@@ -37,7 +37,6 @@ History:
 	2013-12-04 - GAC - Added CommonSpot Version check since this feild only runs on CommonSpot v9+
 	2014-01-02 - GAC - Added the CFSETTING tag to disable CF Debug results in the props module
 	2014-01-03 - GAC - Added the fieldVersion variable
-	2014-01-03 - GAC - Added the fieldVersion variable
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
@@ -45,13 +44,9 @@ History:
 	// Variable for the version of the field - Display in Props UI.
 	fieldVersion = "1.0"; 
 	
+	// CS version and required Version variables
 	requiredCSversion = 9;
 	csVersion = ListFirst(ListLast(request.cp.productversion," "),".");
-	
-	// Path to this CFT
-	cftPath = "/ADF/extensions/customfields/custom_element_datamanager";
-	// Ajax path to the proxy component in the context of the site
-	ajaxComURL = "#request.site.url#_cs_apps/components";
 </cfscript>	
 
 <!--- // Make sure we are on CommonSpot 9 or greater --->
@@ -69,6 +64,11 @@ History:
 	formname = attributes.formname;
 	formID = attributes.formID;
 	currentValues = attributes.currentValues;
+	
+	// Path to this CFT
+	cftPath = "/ADF/extensions/customfields/custom_element_datamanager";
+	// Ajax path to the proxy component in the context of the site
+	ajaxComURL = "#request.site.url#_cs_apps/components";
 
 	if( not structKeyExists(currentValues, "childCustomElement") )
 		currentValues.childCustomElement = "";
@@ -113,7 +113,7 @@ History:
 	if( not structKeyExists(currentValues, "childInstanceIDField") )
 		currentValues.childInstanceIDField = "";
 		
-	customElementObj = server.CommonSpot.ObjectFactory.getObject('CustomElement');
+	customElementObj = Server.CommonSpot.ObjectFactory.getObject('CustomElement');
 	allCustomElements = customElementObj.getList(type="All", state="Active");
 	parentCustomElementDetails = customElementObj.getInfo(elementID=formID);
 	selectedTypeFields = customElementObj.getFields(elementID=formID);
@@ -984,8 +984,8 @@ History:
 		<tr id="refersParentTr" <cfif selectedCEType EQ 'local'>style="display:none;"</cfif>>
 			<td valign="baseline" align="right">&nbsp;</td>
 			<td valign="baseline" align="left">
-				#server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", name="#prefix#refersParentCheckbox", value="1", label="The child element contains the reference to the parent instance", checked=(currentValues.refersParent EQ 1), labelClass="cs_dlgLabelSmall", onchange="#prefix#toggleAssocFld()")#
-				#server.CommonSpot.udf.tag.input(type="hidden", id="#prefix#refersParent", name="#prefix#refersParent", value="#currentValues.refersParent#")#
+				#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", name="#prefix#refersParentCheckbox", value="1", label="The child element contains the reference to the parent instance", checked=(currentValues.refersParent EQ 1), labelClass="cs_dlgLabelSmall", onchange="#prefix#toggleAssocFld()")#
+				#Server.CommonSpot.udf.tag.input(type="hidden", id="#prefix#refersParent", name="#prefix#refersParent", value="#currentValues.refersParent#")#
 			</td>
 		</tr>
 		<tr id="assocCETr" <cfif currentValues.refersParent EQ 1>style="display:none;"</cfif>>
@@ -1012,10 +1012,10 @@ History:
 		<tr>
 			<th valign="baseline" class="cs_dlgLabelBold" nowrap="nowrap">Interface Options:</th>
 			<td valign="baseline">
-				<span id="newOption" <cfif selectedCEType EQ 'local'>style="display:none;"</cfif>>#server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", id="#prefix#interfaceOptionsCbox", name="#prefix#interfaceOptionsCbox", value="new", label="Allow 'Add New'", checked=(ListFindNoCase(currentValues.interfaceOptions,'new')), labelClass="cs_dlgLabelSmall")#<br/></span>
-				<span id="existingOption" <cfif currentValues.refersParent EQ 1>style="display:none;"</cfif>>#server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", id="#prefix#interfaceOptionsCbox", name="#prefix#interfaceOptionsCbox", value="existing", label="Allow 'Add Existing'", checked=(ListFindNoCase(currentValues.interfaceOptions,'existing')), labelClass="cs_dlgLabelSmall")#<br/></span>
-				#server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", id="#prefix#interfaceOptionsCbox", name="#prefix#interfaceOptionsCbox", value="edit", label="Allow 'Edit'", checked=(ListFindNoCase(currentValues.interfaceOptions,'edit')), labelClass="cs_dlgLabelSmall")#<br/>
-				#server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", id="#prefix#interfaceOptionsCbox", name="#prefix#interfaceOptionsCbox", value="delete", label="Allow 'Delete'", checked=(ListFindNoCase(currentValues.interfaceOptions,'delete')), labelClass="cs_dlgLabelSmall")#
+				<span id="newOption" <cfif selectedCEType EQ 'local'>style="display:none;"</cfif>>#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", id="#prefix#interfaceOptionsCbox", name="#prefix#interfaceOptionsCbox", value="new", label="Allow 'Add New'", checked=(ListFindNoCase(currentValues.interfaceOptions,'new')), labelClass="cs_dlgLabelSmall")#<br/></span>
+				<span id="existingOption" <cfif currentValues.refersParent EQ 1>style="display:none;"</cfif>>#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", id="#prefix#interfaceOptionsCbox", name="#prefix#interfaceOptionsCbox", value="existing", label="Allow 'Add Existing'", checked=(ListFindNoCase(currentValues.interfaceOptions,'existing')), labelClass="cs_dlgLabelSmall")#<br/></span>
+				#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", id="#prefix#interfaceOptionsCbox", name="#prefix#interfaceOptionsCbox", value="edit", label="Allow 'Edit'", checked=(ListFindNoCase(currentValues.interfaceOptions,'edit')), labelClass="cs_dlgLabelSmall")#<br/>
+				#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", id="#prefix#interfaceOptionsCbox", name="#prefix#interfaceOptionsCbox", value="delete", label="Allow 'Delete'", checked=(ListFindNoCase(currentValues.interfaceOptions,'delete')), labelClass="cs_dlgLabelSmall")#
 			</td>
 		</tr>
 		<tr>
@@ -1033,13 +1033,13 @@ History:
 			<th class="cs_dlgLabelBold" nowrap="nowrap">Grid Dimensions:</th>
 			<td valign="baseline" nowrap="nowrap">
 				<table><tr><td class="cs_dlgLabelSmall">Width:
-				#server.CommonSpot.udf.tag.input(type="text", id="#prefix#widthValue", name="#prefix#widthValue", value="#currentValues.widthValue#", size="5", class="InputControl")#
+				#Server.CommonSpot.udf.tag.input(type="text", id="#prefix#widthValue", name="#prefix#widthValue", value="#currentValues.widthValue#", size="5", class="InputControl")#
 				<select name="#prefix#widthUnit" id="#prefix#widthUnit">
 					<option value="percent" <cfif currentValues.widthUnit EQ 'percent'>selected</cfif>>%</option>
 					<option value="pixel" <cfif currentValues.widthUnit EQ 'pixel'>selected</cfif>>px</option>
 				</select></td>
 				<td class="cs_dlgLabelSmall">Height:
-				#server.CommonSpot.udf.tag.input(type="text", id="#prefix#heightValue", name="#prefix#heightValue", value="#currentValues.heightValue#", size="5", class="InputControl")#
+				#Server.CommonSpot.udf.tag.input(type="text", id="#prefix#heightValue", name="#prefix#heightValue", value="#currentValues.heightValue#", size="5", class="InputControl")#
 				<select name="#prefix#heightUnit" id="#prefix#heightUnit">
 					<option value="pixel" <cfif currentValues.heightUnit EQ 'pixel'>selected</cfif>>px</option>
 				</select></td></td></tr></table>
@@ -1050,7 +1050,7 @@ History:
 			<td valign="baseline" nowrap="nowrap">
 				<table border="0" cellpadding="3" cellspacing="0" width="100%" summary="">
 				<tr><td nowrap="nowrap">
-					#server.CommonSpot.udf.tag.checkboxRadio(type="radio", name="#prefix#sortByType", value="auto", label="Sort By", checked=(currentValues.sortByType EQ '' OR currentValues.sortByType EQ 'auto'), labelClass="cs_dlgLabelSmall", onchange="#prefix#selectRadio(0)")#&nbsp;
+					#Server.CommonSpot.udf.tag.checkboxRadio(type="radio", name="#prefix#sortByType", value="auto", label="Sort By", checked=(currentValues.sortByType EQ '' OR currentValues.sortByType EQ 'auto'), labelClass="cs_dlgLabelSmall", onchange="#prefix#selectRadio(0)")#&nbsp;
 					<select name="#prefix#sortByField" id="#prefix#sortByField" onchange="#prefix#selectRadio(0)">
 					</select>&nbsp;
 					<select name="#prefix#sortByDir" id="#prefix#sortByDir" onchange="#prefix#selectRadio(0)">
@@ -1059,7 +1059,7 @@ History:
 					</select>
 				</td></tr>
 				<tr><td>
-					#server.CommonSpot.udf.tag.checkboxRadio(type="radio", name="#prefix#sortByType", value="manual", label="Order Manually", checked=(currentValues.sortByType EQ 'manual'), labelClass="cs_dlgLabelSmall", onchange="#prefix#selectRadio(1)")#&nbsp;
+					#Server.CommonSpot.udf.tag.checkboxRadio(type="radio", name="#prefix#sortByType", value="manual", label="Order Manually", checked=(currentValues.sortByType EQ 'manual'), labelClass="cs_dlgLabelSmall", onchange="#prefix#selectRadio(1)")#&nbsp;
 				</td></tr>
 				<tr><td>
 					<span id="positionFieldSpan" <cfif currentValues.sortByType EQ 'auto' OR currentValues.sortByType EQ ''>style="display:none;margin-left:40px;"<cfelse>style="margin-left:40px;"</cfif> class="cs_dlgLabelSmall">Position Field:&nbsp;<select name="#prefix#positionField" id="#prefix#positionField" onchange="#prefix#selectRadio(1)">
@@ -1073,7 +1073,7 @@ History:
 		<tr>
 			<th valign="baseline" class="cs_dlgLabelBold" nowrap="nowrap">Component Override:</th>
 			<td valign="baseline">
-				#server.CommonSpot.udf.tag.input(type="text", id="#prefix#compOverride", name="#prefix#compOverride", value="#currentValues.compOverride#", size="30", class="InputControl")#
+				#Server.CommonSpot.udf.tag.input(type="text", id="#prefix#compOverride", name="#prefix#compOverride", value="#currentValues.compOverride#", size="30", class="InputControl")#
 			</td>
 		</tr>
 		<tr>
@@ -1135,7 +1135,7 @@ History:
 		<td valign="baseline" nowrap="nowrap">
 			<select name="#prefix#inactiveField" id="#prefix#inactiveField" onChange="#prefix#showInactiveValueFld()">
 			</select>&nbsp;
-			<span id="inactiveValueSpan" class="cs_dlgLabelBold"<cfif currentValues.inactiveField EQ ''>style="display:none;"</cfif>>Inactive Value:&nbsp;#server.CommonSpot.udf.tag.input(type="text", id="#prefix#inactiveFieldValue", name="#prefix#inactiveFieldValue", value="#currentValues.inactiveFieldValue#", size="10", class="InputControl")#</span>
+			<span id="inactiveValueSpan" class="cs_dlgLabelBold"<cfif currentValues.inactiveField EQ ''>style="display:none;"</cfif>>Inactive Value:&nbsp;#Server.CommonSpot.udf.tag.input(type="text", id="#prefix#inactiveFieldValue", name="#prefix#inactiveFieldValue", value="#currentValues.inactiveFieldValue#", size="10", class="InputControl")#</span>
 		</td>
 	</tr>
 	<tr>
@@ -1145,8 +1145,8 @@ History:
 		</td>
 	</tr>
 </table>
-#server.CommonSpot.UDF.tag.input(type="hidden", name="#prefix#displayFields", value=currentValues.displayFields)#
-#server.CommonSpot.UDF.tag.input(type="hidden", name="#prefix#childCustomElement", value=currentValues.childCustomElement)#
-#server.CommonSpot.UDF.tag.input(type="hidden", name="#prefix#interfaceOptions", value=currentValues.interfaceOptions)#
+#Server.CommonSpot.UDF.tag.input(type="hidden", name="#prefix#displayFields", value=currentValues.displayFields)#
+#Server.CommonSpot.UDF.tag.input(type="hidden", name="#prefix#childCustomElement", value=currentValues.childCustomElement)#
+#Server.CommonSpot.UDF.tag.input(type="hidden", name="#prefix#interfaceOptions", value=currentValues.interfaceOptions)#
 </cfoutput>
 </cfif>

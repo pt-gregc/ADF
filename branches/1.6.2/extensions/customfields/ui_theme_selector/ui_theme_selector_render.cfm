@@ -155,6 +155,5 @@ History:
 		Optionally you can disable the field label and the field discription by setting 
 		the includeLabel and/or the includeDescription variables (found above) to false.  
 	--->
-	
 	#application.ADF.forms.wrapFieldHTML(inputHTML,fieldQuery,attributes,variables.fieldPermission,includeLabel,includeDescription)#
 </cfoutput>

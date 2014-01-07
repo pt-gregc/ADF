@@ -34,7 +34,7 @@ History:
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "1.0"; 
+	fieldVersion = "1.1"; 
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
@@ -44,6 +44,10 @@ History:
 
 	// Setup the default values
 	defaultValues = StructNew();
+	defaultValues.uniqueIDtype = "cfuuid"; //cfuuid or csid
+	defaultValues.varName = "";
+	defaultValues.renderField = "no";
+	defaultValues.renderRequestVar = "no";
 	
 	// This will override the current values with the default values.
 	// In normal use this should not need to be modified.
@@ -63,7 +67,7 @@ History:
 <cfoutput>
 	<script language="JavaScript" type="text/javascript">
 		// register the fields with global props object, this uses the name of the field
-		fieldProperties['#typeid#'].paramFields = '';
+		fieldProperties['#typeid#'].paramFields = '#prefix#uniqueIDtype,#prefix#varName,#prefix#renderField,#prefix#renderRequestVar';
 		// allows this field to support the orange icon (copy down to label from field name)
 		fieldProperties['#typeid#'].jsLabelUpdater = '#prefix#doLabel';
 		// allows this field to have a common onSubmit Validator
@@ -85,8 +89,39 @@ History:
 	</script>
 	<table>
 		<tr>
-			<td class="cs_dlgLabelSmall" colspan="2">
-				No Properties
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Unique ID Type:</td>
+			<td class="cs_dlgLabelSmall">
+				<label style="color:black;font-size:12px;font-weight:normal;">ColdFusion UUID <input type="radio" id="#prefix#uniqueIDtype" name="#prefix#uniqueIDtype" value="cfuuid" <cfif currentValues.uniqueIDtype EQ "cfuuid">checked</cfif>></label>
+				&nbsp;&nbsp;&nbsp;
+				<label style="color:black;font-size:12px;font-weight:normal;">CommonSpot Numeric ID <input type="radio" id="#prefix#uniqueIDtype" name="#prefix#uniqueIDtype" value="csid" <cfif currentValues.uniqueIDtype EQ "csid">checked</cfif>></label>
+			</td>
+		</tr>
+		<tr>
+			<td class="cs_dlgLabelBold" valign="top">Request Variable Name:</td>
+			<td class="cs_dlgLabelSmall">
+				<input type="text" name="#prefix#varName" id="#prefix#varName" class="cs_dlgControl" value="#currentValues.varName#" size="40">
+				<br /><span>Please enter a variable name for the uniqueID request variable.
+				<br />If blank, will use 'uniqueID' (request.uniqueID).</span>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2"><hr /></td>
+		</tr>
+		<tr>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Field Display Type:</td>
+			<td class="cs_dlgLabelSmall">
+				<label style="color:black;font-size:12px;font-weight:normal;">Hidden <input type="radio" name="#prefix#renderField" id="#prefix#renderField_no" value="no" <cfif currentValues.renderField eq 'no'>checked</cfif>></label>
+				<label style="color:black;font-size:12px;font-weight:normal;">Visible <input type="radio" name="#prefix#renderField" id="#prefix#renderField_yes" value="yes" <cfif currentValues.renderField eq 'yes'>checked</cfif>></label>
+				<!--- <br /><span>('Visible' is generally used for developement or debugging.)</span --->
+			</td>
+		</tr>
+		<!--- <input type="hidden" name="#prefix#renderRequestVar" id="#prefix#renderRequestVar" value="#currentValues.renderRequestVar#"> --->
+		<tr>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Render Request Variable:</td>
+			<td class="cs_dlgLabelSmall">
+				<label style="color:black;font-size:12px;font-weight:normal;">No <input type="radio" name="#prefix#renderRequestVar" id="#prefix#renderRequestVar_no" value="no" <cfif currentValues.renderRequestVar eq 'no'>checked</cfif>></label>
+				<label style="color:black;font-size:12px;font-weight:normal;">Yes <input type="radio" name="#prefix#renderRequestVar" id="#prefix#renderRequestVar_yes" value="yes" <cfif currentValues.renderRequestVar eq 'yes'>checked</cfif>></label>
+				<!--- <br /><span>('Yes' is generally used for developement or debugging.)</span> --->
 			</td>
 		</tr>
 		<tr>
