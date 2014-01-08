@@ -381,10 +381,12 @@ History:
 		// If child is not selected then just return
 		if (selectedChild == "")
 		{
+			document.getElementById("addNewOpt").innerHTML = "Allow 'Add New'";
 			return;
 		}
 		else
 		{
+			document.getElementById("addNewOpt").innerHTML = "Allow 'Add New " + jQuery("option:selected",jQuery("###prefix#childCustomElementSelect")).text() + "'";
 			var selectedDisplayFieldIDs = "#currentValues.displayFields#";
 			var selectedDisplayFieldIDArray = selectedDisplayFieldIDs.split(',');
 			var replaceArrayForSelected = selectedDisplayFieldIDs.split(',');
@@ -458,10 +460,13 @@ History:
 					if (selectedAssoc == "")
 					{
 						document.getElementById('assocElementInputs').style.display = "none";
+						document.getElementById('existingOption').style.display = "none";
 						return;
 					}
 					else
 					{
+						document.getElementById('existingOption').style.display = "";
+						document.getElementById("addExistingOpt").innerHTML = "Allow 'Add New " + jQuery("option:selected",jQuery("###prefix#assocCustomElement")).text() + "'";
 						document.getElementById('assocElementInputs').style.display = "";
 						document.getElementById('assocCENameSpan').innerHTML = jQuery("option:selected",jQuery("###prefix#assocCustomElement")).text();
 						
@@ -632,6 +637,7 @@ History:
 		
 		if (selectedAssoc == "")
 		{
+			document.getElementById('existingOption').style.display = "none";
 			document.getElementById('assocElementInputs').style.display = "none";
 			
 			if (selectedChild != "")
@@ -682,6 +688,8 @@ History:
 		}
 		else
 		{
+			document.getElementById('existingOption').style.display = "";
+			document.getElementById("addExistingOpt").innerHTML = "Allow 'Add New " + jQuery("option:selected",jQuery("###prefix#assocCustomElement")).text() + "'";
 			document.getElementById('assocElementInputs').style.display = "";
 			document.getElementById('inactiveFieldTr').style.display = "";
 			document.getElementById('assocCENameSpan').innerHTML = jQuery("option:selected",jQuery("###prefix#assocCustomElement")).text();
@@ -827,6 +835,7 @@ History:
 		
 		if (selectedChild == "")
 		{
+			document.getElementById("addNewOpt").innerHTML = "Allow 'Add New'";
 			document.getElementById('childElementInputs').style.display = "none";
 			document.getElementById('inactiveFieldTr').style.display = "none";
 			document.getElementById('assocElementInputs').style.display = "none";
@@ -836,6 +845,7 @@ History:
 		}
 		else
 		{
+			document.getElementById("addNewOpt").innerHTML = "Allow 'Add New " + jQuery("option:selected",jQuery("###prefix#childCustomElementSelect")).text() + "'";
 			document.getElementById('childElementInputs').style.display = "";
 			if (selectedType == 'local')
 			{
@@ -1012,8 +1022,8 @@ History:
 		<tr>
 			<th valign="baseline" class="cs_dlgLabelBold" nowrap="nowrap">Interface Options:</th>
 			<td valign="baseline">
-				<span id="newOption" <cfif selectedCEType EQ 'local'>style="display:none;"</cfif>>#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", id="#prefix#interfaceOptionsCbox", name="#prefix#interfaceOptionsCbox", value="new", label="Allow 'Add New'", checked=(ListFindNoCase(currentValues.interfaceOptions,'new')), labelClass="cs_dlgLabelSmall")#<br/></span>
-				<span id="existingOption" <cfif currentValues.refersParent EQ 1>style="display:none;"</cfif>>#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", id="#prefix#interfaceOptionsCbox", name="#prefix#interfaceOptionsCbox", value="existing", label="Allow 'Add Existing'", checked=(ListFindNoCase(currentValues.interfaceOptions,'existing')), labelClass="cs_dlgLabelSmall")#<br/></span>
+				<span id="newOption" <cfif selectedCEType EQ 'local'>style="display:none;"</cfif>>#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", id="#prefix#interfaceOptionsCbox", name="#prefix#interfaceOptionsCbox", value="new", label="<span id='addNewOpt'>Allow 'Add New'</span>", labelIsHTML=1, checked=(ListFindNoCase(currentValues.interfaceOptions,'new')), labelClass="cs_dlgLabelSmall")#<br/></span>
+				<span id="existingOption" <cfif currentValues.refersParent EQ 1>style="display:none;"</cfif>>#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", id="#prefix#interfaceOptionsCbox", name="#prefix#interfaceOptionsCbox", value="existing", label="<span id='addExistingOpt'>Allow 'Add Existing'</span>", labelIsHTML=1, checked=(ListFindNoCase(currentValues.interfaceOptions,'existing')), labelClass="cs_dlgLabelSmall")#<br/></span>
 				#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", id="#prefix#interfaceOptionsCbox", name="#prefix#interfaceOptionsCbox", value="edit", label="Allow 'Edit'", checked=(ListFindNoCase(currentValues.interfaceOptions,'edit')), labelClass="cs_dlgLabelSmall")#<br/>
 				#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", id="#prefix#interfaceOptionsCbox", name="#prefix#interfaceOptionsCbox", value="delete", label="Allow 'Delete'", checked=(ListFindNoCase(currentValues.interfaceOptions,'delete')), labelClass="cs_dlgLabelSmall")#
 			</td>

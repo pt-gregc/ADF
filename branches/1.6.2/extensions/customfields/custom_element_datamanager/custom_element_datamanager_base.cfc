@@ -175,14 +175,13 @@ History:
 		</cfscript>
 		<cfif ListFindNoCase(inputPropStruct.interfaceOptions,'new') OR ListFindNoCase(inputPropStruct.interfaceOptions,'existing')>
 			<cfsavecontent variable="renderData">
-				<cfoutput><tr><td></cfoutput>
 				<cfif ListFindNoCase(inputPropStruct.interfaceOptions,'new')>
 					<cfoutput>#renderAddNewButton(argumentCollection=arguments)#</cfoutput>
 				</cfif>
 				<cfif ListFindNoCase(inputPropStruct.interfaceOptions,'existing')>
 					<cfoutput>#renderAddExistingButton(argumentCollection=arguments)#</cfoutput>
 				</cfif>
-				<cfoutput></td></tr></cfoutput>
+				<cfoutput><br/></cfoutput>
 			</cfsavecontent>
 		</cfif>
 		<cfoutput>#renderData#</cfoutput>

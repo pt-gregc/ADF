@@ -144,7 +144,7 @@ History:
 			<CFIF newData EQ 0>
 				<CFOUTPUT>
 					#datamanagerObj.renderStyles(propertiesStruct=inputParameters)#
-					<table border="0" cellpadding="4" cellspacing="4" summary="">
+					<table border="0" cellpadding="4" cellspacing="4" summary="" id="parentTable_#uniqueTableAppend#">
 					#datamanagerObj.renderButtons(propertiesStruct=inputParameters,currentValues=attributes.currentvalues,formID=ceFormID,fieldID=fieldQuery.inputID)#
 					<tr><td>
 						<span id="errorMsgSpan"></span>
@@ -297,16 +297,23 @@ History:
 									jQuery(nRow).attr("id", aData[2]);
 									return nRow;
 							}
-						});
+						});						
 						
-						jQuery('.dataTables_scrollHead').css('width', "#widthVal#");								
-						jQuery('.dataTables_scrollHead.dataTables_scrollHeadInner.dataTable').css('width', "#widthVal#");
-						jQuery('.dataTables_scrollHeadInner').css('width', "#widthVal#");
-						jQuery('.dataTables_scrollBody').css('height', "#heightVal#");
-						jQuery('.dataTables_scrollBody').css('width', "#widthVal#");
-						jQuery('.dataTables_scrollBody.dataTable').css('width', "#widthVal#");
-						// jQuery('.dataTables_scrollBody').css('width', ResizeWindow());
-						
+						if (res#uniqueTableAppend#.aaData.length > 0)
+						{
+							jQuery("##parentTable_#uniqueTableAppend#").find('.dataTables_scrollHead').css('width', "#widthVal#");								
+							jQuery("##parentTable_#uniqueTableAppend#").find('.dataTables_scrollHead.dataTables_scrollHeadInner.dataTable').css('width', "#widthVal#");
+							jQuery("##parentTable_#uniqueTableAppend#").find('.dataTables_scrollHeadInner').css('width', "#widthVal#");
+							jQuery("##parentTable_#uniqueTableAppend#").find('.dataTables_scrollBody').css('height', "#heightVal#");
+							jQuery("##parentTable_#uniqueTableAppend#").find('.dataTables_scrollBody').css('width', "#widthVal#");
+							jQuery("##parentTable_#uniqueTableAppend#").find('.dataTables_scrollBody.dataTable').css('width', "#widthVal#");
+							// jQuery("##parentTable_#uniqueTableAppend#").find('.dataTables_scrollBody').css('width', ResizeWindow());
+						}
+						else
+						{
+							jQuery("##parentTable_#uniqueTableAppend#").find('.dataTables_scrollBody').css('height', "30px");
+						}
+					
 						if (res#uniqueTableAppend#.aaData.length > 1)
 						{
 							<CFIF inputParameters.sortByType EQ 'manual'>
