@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="utils_1_0" extends="ADF.core.Base" hint="Util functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_7">
+<cfproperty name="version" value="1_0_8">
 <cfproperty name="type" value="singleton">
 <cfproperty name="ceData" type="dependency" injectedBean="ceData_1_0">
 <cfproperty name="wikiTitle" value="Utils_1_0">
@@ -176,38 +176,40 @@ Arguments:
 	Numeric returnInVar [optional] = Flag for return dump in a variable
 History:
 	2008-06-22 - MFC - Created
-	2009-12-01 - GAC - Updated - Added label option for simple values
-	2010-08-20 - GAC - Updated - Label on simple values is now controlled by the expand argument
-	2010-08-20 - GAC - Updated - Added the output=true as a cffunction parameter
-	2010-08-30 - GAC - Updated - Added arguments scope to the returnInVar variable
+	2009-12-01 - GAC - Added label option for simple values
+	2010-08-20 - GAC - Label on simple values is now controlled by the expand argument
+	2010-08-20 - GAC - Added the output=true as a cffunction parameter
+	2010-08-30 - GAC - Added arguments scope to the returnInVar variable
 								 Set return value of 'foo' equal to an empty string 
+	2014-01-13 - GAC - Updated the return variable name and simplified the dump output logic
 --->
 <cffunction name="doDump" access="public" returntype="string" output="true" hint="ColdFusion dump of the variable argument.">
 	<cfargument name="var" required="Yes" type="any">
 	<cfargument name="label" required="no" type="string" default="no label">
 	<cfargument name="expand" required="no" type="boolean" default="true">
 	<cfargument name="returnInVar" type="numeric" required="No" default="0">
-
-	<CFSCRIPT>
-		var foo = "";
-	</CFSCRIPT>
-
-	<cfif arguments.returnInVar eq 1>
-		<cfsavecontent variable="foo">
-			<cfif IsSimpleValue(arguments.var)>
-				<cfoutput><div><cfif LEN(TRIM(arguments.label)) AND arguments.expand EQ true><strong>#arguments.label#:</strong> </cfif>#arguments.var#</div></cfoutput>
-			<cfelse>
-				<cfdump var="#arguments.var#" label="#arguments.label#" expand="#arguments.expand#">
-			</cfif>
-		</cfsavecontent>
-	<cfelse>
+	
+	<cfscript>
+		var resultHTML = "";
+	</cfscript>
+	
+	<!--- // process the dump and save it to the return variable --->
+	<cfsavecontent variable="resultHTML">
 		<cfif IsSimpleValue(arguments.var)>
 			<cfoutput><div><cfif LEN(TRIM(arguments.label)) AND arguments.expand EQ true><strong>#arguments.label#:</strong> </cfif>#arguments.var#</div></cfoutput>
 		<cfelse>
 			<cfdump var="#arguments.var#" label="#arguments.label#" expand="#arguments.expand#">
 		</cfif>
+	</cfsavecontent>
+
+	<!--- // output the dump in place or pass to the return of the function --->
+	<cfif arguments.returnInVar neq 1>
+		<!--- // outputing the dump in place so set the return to an empty string to avoid duplicate output --->
+		<cfoutput>#resultHTML#</cfoutput>
+		<cfreturn "">
+	<cfelse>
+		<cfreturn resultHTML>	
 	</cfif>
-	<cfreturn foo>
 </cffunction>
 
 <!---

@@ -89,7 +89,8 @@ History:
 		<cfoutput>
 			<cfif !force>
 				<!--- // 2012-01-10 - MFC - Added span tag with ID around the reset message. --->
-				<span id='ADF-Reset-Message'><b>#resetResults.message#</b></span>
+				<!--- // 2014-01-08 - DRM - Moved msg to cfhtmlhead, otherwise it's before doctype tag, browser reverts to quirks mode, can look funny --->
+				<cfhtmlhead text="<span id='ADF-Reset-Message'><b>#resetResults.message#</b></span>">
 			</cfif>
 		</cfoutput>
 	</cfif>
@@ -98,20 +99,27 @@ History:
 	<cfif request.user.id gt 0>
 		<!--- // The following is unchanged during the 2010-10-29 refractor --->
 		<cfscript>
+			adfDumpMsg = "";
 			if ( StructKeyExists(url,"ADFDumpVar")) {
 				// Verify if the ADF dump var exists
 				// [MFC] - Changed "isDefined" to "LEN"
 				// [RAK] - 2010-11-01 - Fixing security issue with cfscript code being passed into the evaluate from any logged in user
 				// [RAK] - 2011-06-02 - Added * to end of regular expression because it was only validating the first character instead of every character in the string
+				// [DRM] = 2014-01-08 - Moved msg to cfhtmlhead, same reasoning as with reset msg above
 				//Anything that is not a-z or 0-9 or '.' or '[' or ']'
 				regularExpression = '[^a-z0-9\.\[\]]]*';
-				if ( LEN(url.ADFDumpVar) GT 0 and !ReFindNoCase(regularExpression,url.ADFDumpVar)){
-					CreateObject("component","ADF.lib.utils.Utils_1_0").dodump(evaluate(url.ADFDumpVar), #url.ADFDumpVar#, false);
-				}else{
+				if (Len(url.ADFDumpVar) GT 0 and !ReFindNoCase(regularExpression,url.ADFDumpVar)) {
+					utilsObj = CreateObject("component","ADF.lib.utils.utils_1_0");
+					adfDumpMsg = utilsObj.dodump(evaluate(url.ADFDumpVar), #url.ADFDumpVar#, false, true);
+				}
+				else {
 					// 2012-01-10 - MFC - Added span tag with ID around the reset message.
-					WriteOutput("<span id='ADF-Reset-Message'><strong>ADFDumpVar Failed</strong> : Variable '#url.ADFDumpVar#' does not exist.</span>");
+					adfDumpMsg = "<span id='ADF-Reset-Message'><strong>ADFDumpVar Failed</strong> : Variable '#url.ADFDumpVar#' does not exist.</span>";
 				}
 			}
 		</cfscript>
+		<cfif adfDumpMsg neq "">
+			<cfhtmlhead text="#adfDumpMsg#">
+		</cfif>
 	</cfif>
 </cflock>

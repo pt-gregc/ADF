@@ -45,12 +45,12 @@ History:
 <cfcomponent name="Core" hint="Core component for Application Development Framework">
 
 <cfproperty name="version" value="1_6_2">
-<cfproperty name="file-version" value="3">
+<cfproperty name="file-version" value="4">
 
 <cfscript>
 	variables.ADFversion = "1.6.2"; // use a dot delimited version number
 	// ADF Build Revision Number
-	variables.buildRev = "1152";
+	variables.buildRev = "1153";
 	// ADF Codename
 	variables.buildName = "Spy Hunter";
 	// CS product version, get the decimal value
@@ -211,7 +211,7 @@ History:
 <cffunction name="reset" access="remote" returnType="Struct">
 	<cfargument name="type" type="string" required="false" default="all" hint="The type of the ADF to reset.  Options are 'Server', 'Site' or 'All'. Defaults to 'All'.">
 	<cfscript>
-		var rtnMsg = "ADF Reset Error: User was must be logged in.";
+		var rtnMsg = "ADF Reset Error: You must be logged in to perform this operation.";
 		var ADFReset = false;
 		var returnStruct = StructNew();
 		var siteName = "";
