@@ -37,7 +37,7 @@ History:
 --->
 <cfcomponent displayname="ceData_1_0" extends="ADF.core.Base" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_11">
+<cfproperty name="version" value="1_0_12">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_0">
 <cfproperty name="data" type="dependency" injectedBean="data_1_0">
@@ -1742,7 +1742,7 @@ History:
 					 - Added a parameter to allow removal other selected top level keys that could conflict data fields when converting RenderMode Custom Element Array to a query 
 	2013-10-18 - GAC - Updated the "FIC_" field detect logic to be more specific
 --->
-<cffunction name="arrayOfCEDataToQuery" returntype="query" output="true" access="public" hint="">
+<cffunction name="arrayOfCEDataToQuery" returntype="query" output="false" access="public" hint="">
 	<cfargument name="theArray" type="array" required="true">
 	<cfargument name="excludeFICfields" type="boolean" required="false" default="false">
 	<cfargument name="excludeTopLevelFieldList" type="string" required="false" default=""> 
