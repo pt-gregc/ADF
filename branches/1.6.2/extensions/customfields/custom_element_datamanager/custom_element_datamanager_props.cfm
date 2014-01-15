@@ -263,6 +263,9 @@ History:
 		}
 		document.#formname#.#prefix#interfaceOptions.value = interfaceOptionsList;
 		
+		var compOverrideValue = trim(document.#formname#.#prefix#compOverride.value);
+		document.#formname#.#prefix#compOverride.value = compOverrideValue;
+		
 		return true;
 	}
 	

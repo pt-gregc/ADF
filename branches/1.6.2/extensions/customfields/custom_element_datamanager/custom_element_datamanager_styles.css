@@ -1,5 +1,7 @@
 /* custom_element_datamanager_styles.css */
 
+.cs_data_manager { font-size: 9pt; }
+
 .dataTables_wrapper {
 	position: relative;
 	clear: both;
@@ -18,7 +20,7 @@
 	border: 1px solid #ddd;
 	text-align: center;
 	color: #999;
-	font-size: 14px;
+	font-size: 9pt;
 	background-color: white;
 }
 
@@ -43,31 +45,24 @@ table.display thead th {
 	border-bottom: 1px solid black;
 	font-weight: bold;
 	* cursor: pointer;
-
-	/* 2013-12-13 - gac - merged in changes from r&c - r&c wins */
-	/* 	
-		padding: 3px 18px 3px 10px;
-		border-bottom: 1px solid black;
-		font-weight: bold;
-		cursor: pointer;
-		* cursor: hand; 
-	*/
+	font-size: 9pt;
 }
 
 table.display tfoot th {
 	padding: 3px 18px 3px 10px;
 	border-top: 1px solid black;
 	font-weight: bold;
+	font-size: 9pt;
 }
 
 table.display tr.heading2 td {
 	border-bottom: 1px solid #aaa;
+	font-size: 9pt;
 }
 
 table.display td {
 	padding: 3px;
-	/* 2013-12-13 - gac - merged in changes from r&c - r&c wins */
-	/* padding: 3px 10px; */
+	font-size: 9pt;
 }
 
 table.display td.center {
@@ -117,6 +112,7 @@ tr.even {
 td.details {
 	background-color: #d1cfd0;
 	border: 2px solid #A19B9E;
+	font-size: 9pt;
 }
 
 div.box {
@@ -129,6 +125,5 @@ div.box {
 
 .actionIcon {
     cursor: pointer;
-    padding-right: 3px;
-    float: left;
+    padding-right: 1px;
 }

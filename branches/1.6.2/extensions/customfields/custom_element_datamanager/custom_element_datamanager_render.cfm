@@ -144,7 +144,7 @@ History:
 			<CFIF newData EQ 0>
 				<CFOUTPUT>
 					#datamanagerObj.renderStyles(propertiesStruct=inputParameters)#
-					<table border="0" cellpadding="4" cellspacing="4" summary="" id="parentTable_#uniqueTableAppend#">
+					<table class="cs_data_manager" border="0" cellpadding="2" cellspacing="2" summary="" id="parentTable_#uniqueTableAppend#">
 					#datamanagerObj.renderButtons(propertiesStruct=inputParameters,currentValues=attributes.currentvalues,formID=ceFormID,fieldID=fieldQuery.inputID)#
 					<tr><td>
 						<span id="errorMsgSpan"></span>
@@ -162,7 +162,7 @@ History:
 					</table>
 				</CFOUTPUT>
 			<CFELSE>
-			<CFOUTPUT><table border="0" cellpadding="4" cellspacing="4" summary="">
+			<CFOUTPUT><table class="cs_data_manager" border="0" cellpadding="2" cellspacing="2" summary="">
 				<tr><td class="cs_dlgLabelError">#childCustomElementDetails.Name# records can only be added once the #parentCustomElementDetails.Name# record is saved.</td></tr>
 				</table>
 				#Server.CommonSpot.UDF.tag.input(type="hidden", name="#fqFieldName#", value="")#</CFOUTPUT>

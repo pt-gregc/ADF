@@ -181,7 +181,7 @@ History:
 				<cfif ListFindNoCase(inputPropStruct.interfaceOptions,'existing')>
 					<cfoutput>#renderAddExistingButton(argumentCollection=arguments)#</cfoutput>
 				</cfif>
-				<cfoutput><br/></cfoutput>
+				<!--- <cfoutput><br/></cfoutput> --->
 			</cfsavecontent>
 		</cfif>
 		<cfoutput>#renderData#</cfoutput>
@@ -217,7 +217,7 @@ History:
 			if ( StructKeyExists(arguments.propertiesStruct,"childCustomElement") AND IsNumeric(arguments.propertiesStruct.childCustomElement) ) {
 				ceName = getCEName(elementID=arguments.propertiesStruct.childCustomElement);
 				if ( LEN(TRIM(ceName)) )
-					buttonLabel = "Add New #ceName#";
+					buttonLabel = "Add New #ceName#...";
 			}
 			
 			return buttonLabel;
@@ -251,7 +251,7 @@ History:
 			if ( StructKeyExists(arguments.propertiesStruct,"assocCustomElement") AND IsNumeric(arguments.propertiesStruct.assocCustomElement) ) {
 				ceName = getCEName(elementID=arguments.propertiesStruct.assocCustomElement);
 				if ( LEN(TRIM(ceName)) )
-					buttonLabel = "Add New #ceName#";
+					buttonLabel = "Add New #ceName#...";
 			}
 				
 			return buttonLabel;
@@ -298,7 +298,7 @@ History:
 		</cftry>
     </cffunction>
 	
-	<cffunction name="queryData" returntype="struct" access="private" hint="Get the data for the fields">
+	<cffunction name="queryData" returntype="struct" access="public" hint="Get the data for the fields" output="yes">
         <cfargument name="formID" type="numeric" required="true" hint="ID of the form or control type">
 		<cfargument name="propertiesStruct" type="struct" required="true" hint="Properties structure for the field">
 		<cfargument name="currentValues" type="struct" required="true" hint="Current values structure for the field">
@@ -352,6 +352,7 @@ History:
 			var childFormFieldsDetailedStruct = StructNew();
 			var formFieldsStruct = StructNew();
 			var returnData = QueryNew('');
+			var data = '';
 			
 			if (inputPropStruct.sortByType EQ 'auto')
 			{
@@ -482,8 +483,8 @@ History:
 			
 				}
 			</cfscript>
-			
-			<cfif parentData.RecordCount>
+
+			<cfif parentData.resultQuery.RecordCount>
 				<cfscript>
 					if(NOT IsNumeric(inputPropStruct.assocCustomElement))
 					{
@@ -517,7 +518,8 @@ History:
 						else
 							assocColumnList = assocReqFieldName;
 						
-						assocData = ceObj.getRecordsFromSavedFilter(elementID=inputPropStruct.assocCustomElement,queryEngineFilter=assocFilterArray,columnList=assocColumnList,orderBy=assocReqFieldName, orderByDirection="ASC");
+						data = ceObj.getRecordsFromSavedFilter(elementID=inputPropStruct.assocCustomElement,queryEngineFilter=assocFilterArray,columnList=assocColumnList,orderBy=assocReqFieldName, orderByDirection="ASC");
+						assocData = data.resultQuery;
 						
 						if (assocData.RecordCount)
 						{
@@ -528,7 +530,8 @@ History:
 					}
 					childFilterArray = ceObj.createQueryEngineFilter(filterStatementArray=statementsArray,filterExpression=childFilterExpression);
 					childColumnList = '#childColNameList#,#valueFieldName#';
-					filteredData = ceObj.getRecordsFromSavedFilter(elementID=inputPropStruct.childCustomElement,queryEngineFilter=childFilterArray,columnList=childColumnList);					
+					data = ceObj.getRecordsFromSavedFilter(elementID=inputPropStruct.childCustomElement,queryEngineFilter=childFilterArray,columnList=childColumnList);					
+					filteredData = data.resultQuery;
 				</cfscript>
 				
 				<cfquery name="returnData" dbtype="query">
