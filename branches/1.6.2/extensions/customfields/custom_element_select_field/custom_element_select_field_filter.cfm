@@ -207,7 +207,20 @@ History:
 	
 		for( i=1; i lte ArrayLen(recs); i=i+1 )
 		{
-			display = recs[i].values[cfmlInputParams.DisplayField];
+		
+			if( StructKeyExists(recs[i].values, cfmlInputParams.DisplayField) )
+				display = recs[i].values[cfmlInputParams.DisplayField];
+			else	
+			{
+				if( cfmlInputParams.DisplayField eq '--Other--' AND cfmlInputParams.DisplayFieldBuilder neq '' )
+				{
+					// evaluate the fields in the string (i.e. «lname», «fname» )
+					display = getEvaluated( cfmlInputParams.DisplayFieldBuilder, recs[i].values );
+				}	
+				else
+					display = recs[i].values[cfmlInputParams.ValueField];
+			}	
+			
 			value = recs[i].values[cfmlInputParams.ValueField];
 		
 			if( NOT StructKeyExists( optionsStruct, display ) )
@@ -218,4 +231,47 @@ History:
 	</cfscript>	
 	
 	<cfreturn optionsStruct>
+</cffunction>
+
+<cffunction name="getEvaluated" access="private" output="Yes" returntype="string">
+	<cfargument name="str" type="string" required="yes">
+	<cfargument name="values" type="struct" required="yes">
+
+	<cfscript>
+		var retString = arguments.str;
+		var tmp = '';
+		var j = 0;
+		var StartPos = 1;
+		var endPos = 0;
+		var replacement = '';
+		var fld = '';
+		
+		for( j=1; j lte 10; j=j+1 )
+		{
+			startPos = FindNoCase( Chr('171'), retString, 1 );
+
+			if( startPos )
+			{
+				endPos = FindNoCase( Chr('187'), retString, startPos );
+				if( endPos )
+				{
+					str = Mid( retString, startPos, EndPos - StartPos + 1);
+				
+					fld = str;
+					fld = Replace( fld, Chr('171'), '' );
+					fld = Replace( fld, Chr('187'), '' );
+					if( StructKeyExists( arguments.values, fld ) )
+						replacement = arguments.values[fld];
+					else
+						replacement = '??';	
+					
+					retString = ReplaceNoCase( retString, str, replacement, 'ALL' );
+				}	
+			}
+			else
+				break;
+		}
+	</cfscript>
+	
+	<cfreturn retString>
 </cffunction>
