@@ -1015,6 +1015,62 @@ History:
 <!---
 /* *************************************************************** */
 Author:
+	PaperThin, Inc.
+	Ryan Kahn
+Name:
+	$loadJSTree
+Summary:
+	Loads the jsTree plugin
+	
+	NOTE: jsTree 3.0 requires 1.9.0 or greater in your webpage.
+Returns:
+	void
+Arguments:
+	Boolean - force
+	String - version
+	Boolean- loadStyles
+	String - theme
+History:
+	2014-01-22- GAC - Created new method for jsTree 3.0
+--->
+<cffunction name="loadJSTree" access="public" output="true" returntype="void" hint="Loads the JQuery Headers if not loaded.">
+	<cfargument name="version" type="string" required="false" default="3.0" hint="Version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces script header to load.">
+	<cfargument name="loadStyles" type="boolean" required="false" default="true" hint="Boolean flag incicating if we need to load styles">
+	<cfargument name="theme" type="string" required="false" default="default" hint="Sets the jsTree theme name.">
+	<cfscript>
+		var outputHTML = "";
+		var thirdPartyLibPath = "/ADF/thirdParty/jquery/jsTree";
+		// Make the version backwards compatiable to remove minor build numbers.
+		arguments.version = variables.scriptsService.getMajorMinorVersion(arguments.version);
+	</cfscript>
+	<cfif arguments.version LT 3>
+		<cfscript> 
+			// Call the super function
+			super.loadJSTree(version='1.0',force=arguments.force);
+		</cfscript>
+	<cfelse>
+		<cfsavecontent variable="outputHTML">
+			<cfoutput>
+				<cfif arguments.loadStyles AND LEN(TRIM(arguments.theme)) NEQ 0>
+				<link type="text/css" rel="stylesheet" href="#thirdPartyLibPath#/#arguments.version#/themes/#arguments.theme#/style.min.css" />
+				</cfif>
+				<script type="text/javascript" src="#thirdPartyLibPath#/#arguments.version#/jstree.min.js"></script>
+			</cfoutput>
+		</cfsavecontent>
+		<cfoutput>
+			<cfif arguments.force>
+				#outputHTML#
+			<cfelse>
+				#variables.scriptsService.renderScriptOnce("jstree",outputHTML)#
+			</cfif>
+		</cfoutput>
+	</cfif>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author:
 	Fig Leaf Software
 	Mike Tangorre (mtangorre@figleaf.com)
 Name:
@@ -1219,8 +1275,12 @@ History:
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces script header to load.">
 	<!--- <cfargument name="useImagesLoaded" type="boolean" required="false" default="0" hint="Loads optional imagesLoaded header add-on.">
 	<cfargument name="ImagesLoadedVersion" type="string" required="false" default="3.0" hint="Version of imagesLoaded to load."> --->
-	<cfset var outputHTML = "">
-	<cfset var thirdPartyLibPath = "/ADF/thirdParty/jquery/qtip">
+	<cfscript>
+		var outputHTML = "";
+		var thirdPartyLibPath = "/ADF/thirdParty/jquery/qtip";
+		// Make the version backwards compatiable to remove minor build numbers.
+		arguments.version = variables.scriptsService.getMajorMinorVersion(arguments.version);
+	</cfscript>
 	<cfif arguments.version LT 2>
 		<cfscript> 
 			// Call the super function

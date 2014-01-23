@@ -915,9 +915,11 @@ History:
 				<link rel='stylesheet' href='/ADF/thirdParty/jquery/datatables/#arguments.version#/css/demo_page.css' type='text/css' media='screen' />
 				<link rel='stylesheet' href='/ADF/thirdParty/jquery/datatables/#arguments.version#/css/demo_table_jui.css' type='text/css' media='screen' />
 				<link rel='stylesheet' href='/ADF/thirdParty/jquery/datatables/#arguments.version#/css/demo_table.css' type='text/css' media='screen' />
+				<!--- // Only available in v1.9 and up --->
 				<cfif FileExists(expandPath("/ADF/thirdParty/jquery/datatables/#arguments.version#/css/jquery.dataTables.css"))>
 					<link rel='stylesheet' href='/ADF/thirdParty/jquery/datatables/#arguments.version#/css/jquery.dataTables.css' type='text/css' media='screen' />
 				</cfif>
+				<!--- // Only available in v1.9 and up --->
 				<cfif FileExists(expandPath("/ADF/thirdParty/jquery/datatables/#arguments.version#/css/jquery.dataTables_themeroller.css"))>
 					<link rel='stylesheet' href='/ADF/thirdParty/jquery/datatables/#arguments.version#/css/jquery.dataTables_themeroller.css' type='text/css' media='screen' />
 				</cfif>
@@ -1452,27 +1454,30 @@ Returns:
 	void
 Arguments:
 	Boolean - force
+	String  - version
+	Boolean - loadJQueryCookie
+	Boolean - loadJQueryHotkeys
 History:
  	2011-05-31 - RAK - Created
  	2011-06-13 - RAK - removed a bug where I was defining a var after a output was opened
 	2012-08-16 - GAC - Added the force parameter
+	2014-01-22 - GAC - Added a version parameter
+					 - Updated the dependencies to push through the force parameter
 --->
 <cffunction name="loadJSTree" access="public" returntype="void" hint="Loads the jsTree plugin">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
+	<cfargument name="version" type="string" required="false" default="1.0" hint="Script version to load.">
 	<cfscript>
 		var outputHTML = "";
+		var thirdPartyLibPath = "/ADF/thirdParty/jquery/jsTree"
+		//Dependencies
+		loadJQuery(force=arguments.force);
+		loadJQueryCookie(force=arguments.force);
+		loadJQueryHotkeys(force=arguments.force);
 	</cfscript>
-	<cfoutput>
-		<cfscript>
-			//Dependencies
-			loadJQuery();
-			loadJQueryCookie();
-			loadJQueryHotkeys();
-		</cfscript>
-	</cfoutput>
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
-			<script type='text/javascript' src='/ADF/thirdParty/jquery/jsTree/jquery.jstree.js'></script>
+			<script type='text/javascript' src='#thirdPartyLibPath#/#arguments.version#/jquery.jstree.js'></script>
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
@@ -1536,6 +1541,7 @@ Arguments:
 History:
 	2009-03-12 - RLW - Created
 	2012-08-16 - GAC - Added the force parameter
+	2014-01-22 - GAC - Replaced the '$' with the jQuery alias
 --->
 <cffunction name="loadNiceForms" access="public" returntype="void">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
@@ -1544,16 +1550,16 @@ History:
 		<cfoutput>
 			<script language="javascript" type="text/javascript" src="/ADF/thirdParty/prettyForms/prettyForms.js"></script>
 			<script type="text/javascript">
-				jQuery(document).ready(function($) {
-					$("input[name='submitbutton']").attr("value", "Save");
-					$("span[id^='tabDlg'] > table").addClass("csForms");
-					$("form[name='dlgform']").addClass("csForms");
+				jQuery(document).ready(function(){
+					jQuery("input[name='submitbutton']").attr("value", "Save");
+					jQuery("span[id^='tabDlg'] > table").addClass("csForms");
+					jQuery("form[name='dlgform']").addClass("csForms");
 					//jQuery(".cs_default_form").attr("class", "niceform");
 					prettyForms();
-					//$(".clsPushButton").addClass("blue-pill");
+					//jQuery(".clsPushButton").addClass("blue-pill");
 					<cfif find("login.cfm", cgi.script_name)>
 						// change the login button text
-						$(".clsPushButton").attr("value", "Login");
+						jQuery(".clsPushButton").attr("value", "Login");
 					</cfif>
 				});
 			</script>

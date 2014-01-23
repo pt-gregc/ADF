@@ -103,22 +103,23 @@ Arguments:
 	void
 History:
 	2009-03-12 - RLW - Created
+	2014-01-22 - GAC - Replaced the '$' with the jQuery alias
 --->
 <cffunction name="loadNiceForms" access="public" returntype="void">
 <cfif not variables.scriptsService.isScriptLoaded("niceForms")>
 	<cfoutput>
 		<script language="javascript" type="text/javascript" src="/ADF/thirdParty/prettyForms/prettyForms.js"></script>
 		<script type="text/javascript">
-			jQuery(document).ready(function($) {
-				$("input[name='submitbutton']").attr("value", "Save");
-				$("span[id^='tabDlg'] > table").addClass("csForms");
-				$("form[name='dlgform']").addClass("csForms");
+			jQuery(document).ready(function(){
+				jQuery("input[name='submitbutton']").attr("value", "Save");
+				jQuery("span[id^='tabDlg'] > table").addClass("csForms");
+				jQuery("form[name='dlgform']").addClass("csForms");
 				//jQuery(".cs_default_form").attr("class", "niceform");
 				prettyForms();
-				//$(".clsPushButton").addClass("blue-pill");
+				//jQuery(".clsPushButton").addClass("blue-pill");
 				<cfif find("login.cfm", cgi.script_name)>
 					// change the login button text
-					$(".clsPushButton").attr("value", "Login");
+					jQuery(".clsPushButton").attr("value", "Login");
 				</cfif>
 			});
 		</script>
