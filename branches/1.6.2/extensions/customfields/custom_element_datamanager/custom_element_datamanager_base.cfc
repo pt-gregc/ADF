@@ -484,6 +484,7 @@ History:
 				}
 			</cfscript>
 
+<!--- // CHECK --->
 			<cfif parentData.resultQuery.RecordCount>
 				<cfscript>
 					if(NOT IsNumeric(inputPropStruct.assocCustomElement))
@@ -517,7 +518,8 @@ History:
 							assocColumnList = '#assocReqFieldName#,#assocColNameList#';
 						else
 							assocColumnList = assocReqFieldName;
-						
+
+// CHECK 						
 						data = ceObj.getRecordsFromSavedFilter(elementID=inputPropStruct.assocCustomElement,queryEngineFilter=assocFilterArray,columnList=assocColumnList,orderBy=assocReqFieldName, orderByDirection="ASC");
 						assocData = data.resultQuery;
 						
@@ -530,7 +532,8 @@ History:
 					}
 					childFilterArray = ceObj.createQueryEngineFilter(filterStatementArray=statementsArray,filterExpression=childFilterExpression);
 					childColumnList = '#childColNameList#,#valueFieldName#';
-					data = ceObj.getRecordsFromSavedFilter(elementID=inputPropStruct.childCustomElement,queryEngineFilter=childFilterArray,columnList=childColumnList);					
+					data = ceObj.getRecordsFromSavedFilter(elementID=inputPropStruct.childCustomElement,queryEngineFilter=childFilterArray,columnList=childColumnList);									
+// CHECK 	
 					filteredData = data.resultQuery;
 				</cfscript>
 				

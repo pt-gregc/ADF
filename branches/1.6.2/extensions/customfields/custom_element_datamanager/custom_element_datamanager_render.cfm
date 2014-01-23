@@ -101,8 +101,46 @@ History:
 			customElementObj = Server.CommonSpot.ObjectFactory.getObject('CustomElement');
 			childCustomElementDetails = customElementObj.getList(ID=inputParameters.childCustomElement);
 			parentCustomElementDetails = customElementObj.getInfo(elementID=ceFormID);
-			datamanagerObj = CreateObject("component", "#componentPath#/custom_element_datamanager_base");
-		
+			
+			if (Len(inputParameters.compOverride))
+			{
+				ext = ListLast(inputParameters.compOverride,'.');
+				if (ext EQ 'cfc')
+				{
+					fileName = Mid(inputParameters.compOverride, 1, Len(inputParameters.compOverride)-Len(ext)-1);
+					fileNamewithExt = inputParameters.compOverride;
+				}
+				else
+				{
+					fileName = inputParameters.compOverride;
+					fileNamewithExt = inputParameters.compOverride & '.cfc';
+				}
+				
+				try
+				{
+					if (FileExists(ExpandPath('#componentPath#/#fileNamewithExt#')))
+					{
+						datamanagerObj = CreateObject("component", "#componentPath#/#fileName#");
+						componentName = fileName;
+					}
+					else
+					{
+						datamanagerObj = CreateObject("component", "#componentPath#/custom_element_datamanager_base");
+						componentName = 'custom_element_datamanager_base';
+					}
+				}
+				catch(Any e)
+				{
+					datamanagerObj = CreateObject("component", "#componentPath#/custom_element_datamanager_base");
+					componentName = 'custom_element_datamanager_base';
+				}
+			}
+			else
+			{
+				datamanagerObj = CreateObject("component", "#componentPath#/custom_element_datamanager_base");
+				componentName = 'custom_element_datamanager_base';
+			}	
+	
 			widthVal = "600px";
 			if (IsNumeric(inputParameters.widthValue))
 			{
@@ -237,16 +275,15 @@ History:
 						propertiesStruct : JSON.stringify(<cfoutput>#SerializeJSON(inputParameters)#</cfoutput>),
 						currentValues : JSON.stringify(<cfoutput>#SerializeJSON(attributes.currentvalues)#</cfoutput>)						
 				 };
-
 				jQuery.when(
-					
-							jQuery.post( '#ajaxComURL#/custom_element_datamanager_base.cfc', 
+
+							jQuery.post( '#ajaxComURL#/#componentName#.cfc', 
 										dataToBeSent, 
 										null, 
 										"json")
 				
 /*				 
-	jQuery.getJSON("#ajaxComURL#/custom_element_datamanager_base.cfc?method=renderGrid&returnformat=json&formID=#ceFormID#&fieldID=#fieldQuery.inputID#&" + "&propertiesStruct=" + JSON.stringify(<cfoutput>#SerializeJSON(inputParameters)#</cfoutput>) + "&currentValues=" + JSON.stringify(<cfoutput>#SerializeJSON(attributes.currentvalues)#</cfoutput>))
+	jQuery.getJSON("#ajaxComURL#/#componentName#.cfc?method=renderGrid&returnformat=json&formID=#ceFormID#&fieldID=#fieldQuery.inputID#&" + "&propertiesStruct=" + JSON.stringify(<cfoutput>#SerializeJSON(inputParameters)#</cfoutput>) + "&currentValues=" + JSON.stringify(<cfoutput>#SerializeJSON(attributes.currentvalues)#</cfoutput>))
 */
 
 				).done(function(res#uniqueTableAppend#) {
@@ -347,7 +384,7 @@ History:
 												currentValues : JSON.stringify(<cfoutput>#SerializeJSON(attributes.currentvalues)#</cfoutput>)						
 										 	};
 										
-										jQuery.post( '#ajaxComURL#/custom_element_datamanager_base.cfc', 
+										jQuery.post( '#ajaxComURL#/#componentName#.cfc', 
 																dataToBeSent, 
 																onSuccess_#uniqueTableAppend#, 
 																"json");
