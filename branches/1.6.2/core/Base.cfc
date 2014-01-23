@@ -38,7 +38,7 @@ History:
 <cfcomponent name="Base" hint="Base component for Custom Application Common Framework">
 
 <cfproperty name="version" value="1_6_2">
-<cfproperty name="file-version" value="1">
+<cfproperty name="file-version" value="2">
 	
 <cffunction name="init" output="true" returntype="any">
 	<cfscript>
@@ -147,6 +147,39 @@ History:
 			rtnData = server.CommonSpot.MapFactory.deserialize(arguments.XMLString);
 	</cfscript>
 	<cfreturn rtnData>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+	D. Merrill
+Name:
+	$siteDBIsUnicode
+Summary:
+	Returns the a boolean value indicating whether the site db is unicode or not.
+Returns:
+	boolean
+Arguments:
+	none
+History:
+	2014-01-15 - DRM - Created
+--->
+<cffunction name="siteDBIsUnicode" output="no" returntype="boolean">
+	<cfset var qry = "">
+
+	<cfquery name="qry" datasource="#Request.Site.Datasource#">
+		SELECT nativeDataType
+		  FROM Commonspot_Schema
+		 WHERE tableName = <cfqueryparam value="DATA_FIELDVALUE" cfsqltype="CF_SQL_VARCHAR">
+			AND columnName = <cfqueryparam value="MEMOVALUE" cfsqltype="CF_SQL_VARCHAR">
+	</cfquery>
+
+	<cfscript>
+		if (left(qry.nativeDataType, 1) eq "N")
+			return true;
+		return false;
+	</cfscript>
 </cffunction>
 
 </cfcomponent>

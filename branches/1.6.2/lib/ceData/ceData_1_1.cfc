@@ -35,7 +35,7 @@ History:
 --->
 <cfcomponent displayname="ceData_1_1" extends="ADF.lib.ceData.ceData_1_0" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="1_1_7">
+<cfproperty name="version" value="1_1_8">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_1">
 <cfproperty name="data" type="dependency" injectedBean="data_1_1">
@@ -335,7 +335,7 @@ History:
 		<cfmodule template="/commonspot/utilities/cp-cffile.cfm" action="MKDIR" directory="#folder#" replicate="false">
 	</cfif>
 	<!---	save the file--->
-    <cffile action = "write"  file ="#folder##fileName#" output="#server.Commonspot.UDF.util.serializeBean(ceData)#">
+    <cffile action = "write"  file ="#folder##fileName#" output="#Server.Commonspot.UDF.util.serializeBean(ceData)#">
     <cfreturn folder&fileName>
 </cffunction>
 
@@ -706,7 +706,7 @@ History:
 		var defaultFieldType = "";
 		var fieldParams = "";
 		var fieldMaxLength = 0;
-		var isUnicode = false;
+		var isUnicode = siteDBIsUnicode();
 		var fieldTypeIndex = structNew();
 		var fieldsArray = "";
 		var selectSyntax = "";
@@ -737,18 +737,6 @@ History:
 
 		if (structKeyExists(Request.Constants, "dfvFieldvalueColumnMax"))
 			maxFieldValueLen = Request.Constants.dfvFieldvalueColumnMax;
-	</cfscript>
-
-	<!--- find out if MemoValue col is ntext or text type --->
-	<cfquery name="qryMemoColType" datasource="#Request.Site.Datasource#">
-		SELECT nativeDataType
-		  FROM Commonspot_Schema
-		 WHERE tableName = <cfqueryparam value="DATA_FIELDVALUE" cfsqltype="CF_SQL_VARCHAR">
-			AND columnName = <cfqueryparam value="MEMOVALUE" cfsqltype="CF_SQL_VARCHAR">
-	</cfquery>
-
-	<cfscript>
-		isUnicode = (left(qryMemoColType.nativeDataType, 1) eq "N");
 
 		// build struct of types for each field alias out of arguments.fieldTypes, which is a list of columns for each spec'd type
 		for (fieldType in arguments.fieldTypes)
