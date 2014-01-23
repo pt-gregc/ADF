@@ -165,6 +165,7 @@ History:
 				}
 				div###arguments.fieldName#-gc-top-area-instructions{
 					margin-bottom: 8px;
+					width: #variables.MAIN_WIDTH#px;
 				}
 				
 				/* Item box inner html classes */
