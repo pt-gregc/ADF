@@ -56,11 +56,12 @@ History:
 	2014-01-02 - GAC - Updated the props option descriptions
 					 - Added the CFSETTING tag to disable CF Debug results in the props module
 	2014-01-03 - GAC - Added the fieldVersion variable
+	2014-01-17 - TP  - Aded the abiltiy to render checkboxes, radio buttons as well as a selection list
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <cfscript>
-	fieldVersion = "1.0.14"; // Variable for the version of the field - Display in Props UI
+	fieldVersion = "1.0.15"; // Variable for the version of the field - Display in Props UI
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
@@ -82,19 +83,25 @@ History:
 	defaultValues.activeFlagValue = "";
 	defaultValues.addButton = 0;
 	defaultValues.multipleSelect = 0;
-	defaultValues.multipleSelectSize = "1";
+	defaultValues.multipleSelectSize = "3";
+	defaultValues.widthValue = "200";
+	defaultValues.heightValue = "150";
 	defaultValues.sortByField = "";
+	defaultValues.fieldtype = "select";
+	defaultValues.renderClearSelectionLink = 0; 
 	
 	// This will override the current values with the default values.
 	// In normal use this should not need to be modified.
 	defaultValueArray = StructKeyArray(defaultValues);
-	for(i=1;i<=ArrayLen(defaultValueArray);i++){
+	for(i=1;i lte ArrayLen(defaultValueArray); i++)
+	{
 		// If there is a default value to exists in the current values
 		//	AND the current value is an empty string
 		//	OR the default value does not exist in the current values
 		if( ( StructKeyExists(currentValues, defaultValueArray[i]) 
 				AND (NOT LEN(currentValues[defaultValueArray[i]])) )
-				OR (NOT StructKeyExists(currentValues, defaultValueArray[i])) ){
+				OR (NOT StructKeyExists(currentValues, defaultValueArray[i])) )
+		{
 			currentValues[defaultValueArray[i]] = defaultValues[defaultValueArray[i]];
 		}
 	}
@@ -103,11 +110,19 @@ History:
 	// - when using a Single Select the render Select Option must be explicity TURNED OFF to be disabled
 	// - but for a Multi Select the render Select Option must be explicity TURNED ON to be enabled 
 	// - and we must leave this as an available option Multi Select dropdowns
-	if ( !StructKeyExists(currentValues,"renderSelectOption") OR !IsBoolean(currentValues.renderSelectOption) ) {
+	if ( !StructKeyExists(currentValues,"renderSelectOption") OR !IsBoolean(currentValues.renderSelectOption) ) 
+	{
 		currentValues.renderSelectOption = true;
 		 if ( isBoolean(currentValues.multipleSelect) AND currentValues.multipleSelect )
 			currentValues.renderSelectOption = false;
 	}
+	
+	if( currentValues.multipleSelectSize lt 3 )
+		currentValues.multipleSelectSize = 3;
+		
+	multipleSelectType = "single";
+	if ( isBoolean(currentValues.multipleSelect) AND currentValues.multipleSelect)
+		multipleSelectType = "multi";
 	
 	// Query to get the Custom Element List
 	customElements = application.ADF.ceData.getAllCustomElements();
@@ -120,24 +135,43 @@ History:
 
 <cfoutput>
 <script type="text/javascript">
-	fieldProperties['#typeid#'].paramFields = "#prefix#customElement,#prefix#valueField,#prefix#displayField,#prefix#renderField,#prefix#defaultVal,#prefix#fldName,#prefix#forceScripts,#prefix#displayFieldBuilder,#prefix#activeFlagField,#prefix#activeFlagValue,#prefix#addButton,#prefix#multipleSelect,#prefix#multipleSelectSize,#prefix#sortByField,#prefix#renderSelectOption";
+	fieldProperties['#typeid#'].paramFields = "#prefix#customElement,#prefix#valueField,#prefix#displayField,#prefix#renderField,#prefix#defaultVal,#prefix#fldName,#prefix#forceScripts,#prefix#displayFieldBuilder,#prefix#activeFlagField,#prefix#activeFlagValue,#prefix#addButton,#prefix#multipleSelect,#prefix#sortByField,#prefix#renderSelectOption,#prefix#fieldtype,#prefix#multipleSelectSize,#prefix#widthValue,#prefix#heightValue,#prefix#renderClearSelectionLink";
 	// allows this field to support the orange icon (copy down to label from field name)
 	fieldProperties['#typeid#'].jsLabelUpdater = '#prefix#doLabel';
 	// allows this field to have a common onSubmit Validator
-	//fieldProperties['#typeid#'].jsValidator = '#prefix#doValidate';
+	fieldProperties['#typeid#'].jsValidator = '#prefix#doValidate';
 	// handling the copy label function
-	function #prefix#doLabel(str) {
+	function #prefix#doLabel(str) 
+	{
 		document.#formname#.#prefix#label.value = str;
 	}
 	
-	jQuery(document).ready(function(){
+	function #prefix#doValidate()
+	{
+		if ( document.#formname#.#prefix#widthValue.value.length > 0 && !checkinteger(document.#formname#.#prefix#widthValue.value) ) 
+		{
+			showMsg('Please enter a valid integer as width value.');
+			setFocus(document.#formname#.#prefix#widthValue);
+			return false;
+		}
+		if ( document.#formname#.#prefix#heightValue.value.length > 0 && !checkinteger(document.#formname#.#prefix#heightValue.value) )
+		{
+			showMsg('Please enter a valid integer as height value.');
+			setFocus(document.#formname#.#prefix#heightValue);
+			return false;
+		}
+		return true;
+	}
+	
+	jQuery(document).ready(function()
+	{
+		// Hide all Field Type options
+		//#prefix#renderSelectionListOptions('hide',0);
+		//#prefix#renderCheckRadioOptions('hide');
 		
-		<cfif isBoolean(currentValues.multipleSelect) AND currentValues.multipleSelect>
-		jQuery("tr###prefix#multipleSelectSizeRow").show();
-		<cfelse>
-		jQuery("tr###prefix#multipleSelectSizeRow").hide();
-		</cfif>
-		
+		// Render the initial Field Type display Options
+		#prefix#renderFieldTypeOptions('#currentValues.fieldtype#','#currentValues.multipleSelect#');
+	
 		<cfif LEN(TRIM(currentValues.activeFlagField)) AND currentValues.activeFlagField NEQ "--">
 		jQuery("tr###prefix#activeFlagValueRow").show();
 		<cfelse>
@@ -167,7 +201,8 @@ History:
 		jQuery("###prefix#fieldBuilder").change(function(){
 			var fieldBuilderVal = jQuery("###prefix#fieldBuilder").val();
 			//If the selected value is not -- and its the "build your own" add to the end of the string
-			if(fieldBuilderVal != "--" && jQuery('###prefix#displayField').val() == "--Other--"){
+			if(fieldBuilderVal != "--" && jQuery('###prefix#displayField').val() == "--Other--")
+			{
 				var tempVal = jQuery("###prefix#displayFieldBuilder").val();
 				tempVal = tempVal + String.fromCharCode(171) + fieldBuilderVal + String.fromCharCode(187);
 				jQuery("###prefix#displayFieldBuilder").val(tempVal);
@@ -176,36 +211,152 @@ History:
 			}
 		});
 		
+		jQuery("###prefix#fieldtype").change(function(){
+			var fieldtypeVal = jQuery("###prefix#fieldtype").val();
+			var multipleSelectVal = jQuery("input[name=#prefix#multipleSelect]:checked").val();
+          	
+          	#prefix#renderFieldTypeOptions(fieldtypeVal,multipleSelectVal);
+          	
+          	/* 
+			if ( fieldtypeVal != 'select' ) 
+          	   jQuery("tr###prefix#checkRadioSizeRow").show();       	
+          	else 
+			{
+          	   	if ( multipleSelectVal == 1 ) 
+	          	   jQuery("tr###prefix#multipleSelectSizeRow").show();       	
+	          	else 
+				{
+	          	   jQuery("tr###prefix#multipleSelectSizeRow").hide();
+	          	   jQuery("###prefix#multipleSelectSize").val("#defaultValues.multipleSelectSize#");       	
+	          	}
+			  
+			  
+			   jQuery("tr###prefix#checkRadioSizeRow").hide();
+          	   jQuery("###prefix#widthValue").val("#defaultValues.widthValue#");
+          	   jQuery("###prefix#heightValue").val("#defaultValues.heightValue#");
+          	}  
+          	*/
+		});
+		
+		jQuery("input[name=#prefix#multipleSelect]:radio").on('change', function() {
+			var fieldtypeVal = jQuery("###prefix#fieldtype").val();
+			var multipleSelectVal = jQuery("input[name=#prefix#multipleSelect]:checked").val();
+			
+			#prefix#renderFieldTypeOptions(fieldtypeVal,multipleSelectVal);
+			
+			/*
+          	if ( fieldtypeVal == 'select' )
+			{
+				if ( multipleSelectVal == 1 ) 
+	          	   jQuery("tr###prefix#multipleSelectSizeRow").show();       	
+	          	else 
+					{
+	          	   jQuery("tr###prefix#multipleSelectSizeRow").hide();
+	          	   jQuery("###prefix#multipleSelectSize").val("#defaultValues.multipleSelectSize#");       	
+	          	}
+            } 
+            */ 
+		});
+		
+		
+		/*
 		jQuery("input[name=#prefix#multipleSelect]:radio").on('change', function() {
 			var multipleSelectVal = jQuery("input[name=#prefix#multipleSelect]:checked").val();
-          	if ( multipleSelectVal == 1 ) {
-          	   jQuery("tr###prefix#multipleSelectSizeRow").show();       	
-          	}
-          	else {
-          	   jQuery("tr###prefix#multipleSelectSizeRow").hide();
-          	   jQuery("###prefix#multipleSelectSize").val("#defaultValues.multipleSelectSize#");       	
+          	if ( multipleSelectVal == 1 ) 
+          	   jQuery("tr###prefix#checkRadioSizeRow").show();       	
+          	else 
+				{
+          	   jQuery("tr###prefix#checkRadioSizeRow").hide();
+          	   jQuery("###prefix#widthValue").val("#defaultValues.widthValue#");
+          	   jQuery("###prefix#heightValue").val("#defaultValues.heightValue#");
           	}
                
 		});	
+		*/
 		
 		jQuery("select[name=#prefix#activeFlagField]").change(function(){
 			var activeFlagFieldVal = jQuery("###prefix#activeFlagField").val();
-			if ( activeFlagFieldVal != "--" ){
+			if ( activeFlagFieldVal != "--" )
           		jQuery("tr###prefix#activeFlagValueRow").show();   
-			}
-			else {
+			else 
+			{
 				 jQuery("tr###prefix#activeFlagValueRow").hide();	
 				 jQuery("###prefix#activeFlagValue").val("#defaultValues.activeFlagValue#"); 
 			}
 		});		
 	});
+	
+	<!--- 
+	#prefix#multipleSelectSizeRow
+	#prefix#selectOptionRow
+	
+	#prefix#checkRadioSizeRow
+	#prefix#clearSelectionLinkRow
+	 --->
+	
+	// Show/Hide Options for Check/Radio and Selection lists
+	function #prefix#renderFieldTypeOptions(fieldType,multi)
+	{
+		fieldType = typeof fieldType !== 'undefined' ? fieldType : 'select';
+		multi = typeof multi !== 'undefined' ? multi : 0;
+	
+		if ( fieldType == 'select' ) 
+		{
+			#prefix#renderSelectionListOptions('show',multi);
+			#prefix#renderCheckRadioOptions('hide');
+		}
+		else
+		{
+			#prefix#renderCheckRadioOptions('show');
+			#prefix#renderSelectionListOptions('hide',0);	
+		}
+	}
+	// Show/Hide Options for Selection lists
+	function #prefix#renderSelectionListOptions(state,multi)
+	{
+		state = typeof state !== 'undefined' ? state : 'show';
+		multi = typeof multi !== 'undefined' ? multi : 0;
 
-	function #prefix#handleDisplayFieldChange(){
-		if (jQuery('###prefix#displayField').val() == "--Other--"){
+		if ( state == 'show' )
+		{
+			jQuery("tr###prefix#selectOptionRow").show();
+			if ( multi == 1 )	
+				jQuery("tr###prefix#multipleSelectSizeRow").show();	
+			else
+				jQuery("tr###prefix#multipleSelectSizeRow").hide();	
+			
+		} 
+		else
+		{
+			jQuery("tr###prefix#selectOptionRow").hide();	
+			jQuery("tr###prefix#multipleSelectSizeRow").hide();		
+		}
+	}
+	// Show/Hide Options for Check/Radio
+	function #prefix#renderCheckRadioOptions(state){
+		state = typeof state !== 'undefined' ? state : 'show';
+		if ( state == 'show' )
+		{
+			jQuery("tr###prefix#checkRadioSizeRow").show();
+			jQuery("tr###prefix#clearSelectionLinkRow").show();		
+		} 
+		else
+		{
+			jQuery("tr###prefix#checkRadioSizeRow").hide();
+			jQuery("tr###prefix#clearSelectionLinkRow").hide();	
+		}
+	}
+	
+
+	function #prefix#handleDisplayFieldChange()
+	{
+		if (jQuery('###prefix#displayField').val() == "--Other--")
+		{
 			jQuery(".other").show();
 			jQuery(".otherMsg").hide();
 		}
-		else {
+		else 
+		{
 			jQuery(".other").hide();
 			jQuery(".otherMsg").show();
 			jQuery("###prefix#displayFieldBuilder").val("");
@@ -213,10 +364,11 @@ History:
 	}
 
 	//When the element name gets updated begin the process for updating the select fields
-	function #prefix#setElementFields(elementName){
-		if (elementName.length <= 0){
+	function #prefix#setElementFields(elementName)
+	{
+		if (elementName.length <= 0)
 			return;
-		}
+
 		// 2011-03-18 - MFC - Updated to the 'ceData_1_1'
 		// 2013-11-15 - GAC - Updated to use ajaxCEDataBean variable
 		jQuery.ajax({
@@ -232,8 +384,10 @@ History:
 	}
 
 	//Given a formID get the tabs and pass it off to the next step
-	function #prefix#handleFormIDPost(results){
-		if (results != 0){
+	function #prefix#handleFormIDPost(results)
+	{
+		if (results != 0)
+		{
 			// 2011-03-18 - MFC - Updated to the 'ceData_1_1'
 			// 2013-11-15 - GAC - Updated to use ajaxCEDataBean variable
 			jQuery.ajax({
@@ -251,7 +405,8 @@ History:
 	}
 
 	//Handle getting the tab data and populate the select boxes.
-	function  #prefix#handleTabsFromFormIDPost(results){
+	function #prefix#handleTabsFromFormIDPost(results)
+	{
 		var fields = new Object();
 		if (typeof results === "string"){
 			results = jQuery.parseJSON(results);
@@ -316,14 +471,14 @@ History:
 		</td>
 	</tr>
 	<tr>
-		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Select Value Field:</td>
+		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Value Field:</td>
 		<td class="cs_dlgLabelSmall">
 			<select name="#prefix#valueField" id="#prefix#valueField">
 			</select>
 		</td>
 	</tr>
 	<tr>
-		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Select Display Field:</td>
+		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Display Field:</td>
 		<td class="cs_dlgLabelSmall">
 			<select  name="#prefix#displayField" id="#prefix#displayField">
 			</select>
@@ -359,14 +514,14 @@ History:
 		<td class="cs_dlgLabelSmall">
 			<label>Active Flag Value:&nbsp; 
 			<input type="text" name="#prefix#activeFlagValue" id="#prefix#activeFlagValue" value="#currentValues.activeFlagValue#" size="20"></label>
-			<br />To denote a ColdFusion Expression, add brackets around the expression<br />(i.e. "[request.user.userid]")
+			<br />To denote a ColdFusion Expression, add brackets around the expression (i.e. "[request.user.userid]")
 		</td>
 	</tr>
 	<tr>
 		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Default Field Value:</td>
 		<td class="cs_dlgLabelSmall">
 			<input type="text" name="#prefix#defaultVal" id="#prefix#defaultVal" value="#currentValues.defaultVal#" size="40">
-			<br />To denote a ColdFusion Expression, add brackets around the expression<br />(i.e. "[request.user.userid]")
+			<br />To denote a ColdFusion Expression, add brackets around the expression (i.e. "[request.user.userid]")
 		</td>
 	</tr>
 	
@@ -374,39 +529,76 @@ History:
 		<td colspan="2"><hr /></td>
 	</tr>
 	<tr>
-		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Select Option:</td>
+		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Field Type:</td>
 		<td class="cs_dlgLabelSmall">
-			<label style="color:black;font-size:12px;font-weight:normal;">Yes <input type="radio" id="#prefix#renderSelectOption" name="#prefix#renderSelectOption" value="1" <cfif currentValues.renderSelectOption EQ "1">checked</cfif>></label>
-			&nbsp;&nbsp;&nbsp;
-			<label style="color:black;font-size:12px;font-weight:normal;">No <input type="radio" id="#prefix#renderSelectOption" name="#prefix#renderSelectOption" value="0" <cfif currentValues.renderSelectOption EQ "0">checked</cfif>></label>
-			<br />Places a '--Select--' option at the top of the list. <!--- // Should not be used with a multiple selection list. ---> 
-			<!--- // Must leave this option available for multiple selections lists for backwards compatiblity --->
+			<select id="#prefix#fieldtype" name="#prefix#fieldtype" size="1">
+				<option value="select">Selection List</option>
+				<option value="check_radio"<cfif currentValues.fieldtype neq "select"> selected="selected"</cfif>>Checkboxes / Radio Buttons</option>
+			</select>
 		</td>
 	</tr>
 	<tr>
 		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Multiple Select:</td>
 		<td class="cs_dlgLabelSmall" valign="baseline">
+			<!--- <label>Multiple Select:<label>&nbsp; --->
 			<label style="color:black;font-size:12px;font-weight:normal;">Yes <input type="radio" id="#prefix#multipleSelect" name="#prefix#multipleSelect" value="1" <cfif currentValues.multipleSelect EQ "1">checked</cfif>></label>
 			&nbsp;&nbsp;&nbsp;
 			<label style="color:black;font-size:12px;font-weight:normal;">No <input type="radio" id="#prefix#multipleSelect" name="#prefix#multipleSelect" value="0" <cfif currentValues.multipleSelect EQ "0">checked</cfif>></label>
 		</td>
 	</tr>
+	
+	<!--- // Selection List Options --->
 	<tr id="#prefix#multipleSelectSizeRow">
 		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap"><!--- Multiple Select Size: ---></td>
 		<td class="cs_dlgLabelSmall">
-			<label>Multiple Select Size:&nbsp; 
-			<input id="#prefix#multipleSelectSize" name="#prefix#multipleSelectSize" value="#currentValues.multipleSelectSize#" size="3"></label>
+			<label>Multiple Select Size:</label>&nbsp;
+			<input id="#prefix#multipleSelectSize" name="#prefix#multipleSelectSize" value="#currentValues.multipleSelectSize#" size="3">
 		</td>
 	</tr>	
+	<tr id="#prefix#selectOptionRow">
+		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Select Option:</td>
+		<td class="cs_dlgLabelSmall">
+			<!--- <label>Select Option:</label>&nbsp; --->
+			<label style="color:black;font-size:12px;font-weight:normal;">Yes <input type="radio" id="#prefix#renderSelectOption" name="#prefix#renderSelectOption" value="1" <cfif currentValues.renderSelectOption EQ "1">checked</cfif>></label>
+			&nbsp;&nbsp;&nbsp;
+			<label style="color:black;font-size:12px;font-weight:normal;">No <input type="radio" id="#prefix#renderSelectOption" name="#prefix#renderSelectOption" value="0" <cfif currentValues.renderSelectOption EQ "0">checked</cfif>></label>
+			<br />Places a '--Select--' option in the list. <!--- Cannot be used with a multiple selection list. ---> 
+			<!--- // Must leave this option available for multiple selections lists for backwards compatiblity --->
+		</td>
+	</tr>
+	
+	<!--- // Check Radio Options --->
+	<tr id="#prefix#checkRadioSizeRow">
+		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap"></td>
+		<td class="cs_dlgLabelSmall">
+			<label>Width:&nbsp; 
+			<input id="#prefix#widthValue" name="#prefix#widthValue" value="#currentValues.widthValue#" size="5"></label>&nbsp;
+			<label>Height:&nbsp; 
+			<input id="#prefix#heightValue" name="#prefix#heightValue" value="#currentValues.heightValue#" size="5"></label>
+		</td>
+	</tr>	
+	<tr id="#prefix#clearSelectionLinkRow">
+		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Clear Selections Link:</td>
+		<td class="cs_dlgLabelSmall">
+			<!--- <label>Clear Selections Link:</label>&nbsp; --->
+			<label style="color:black;font-size:12px;font-weight:normal;">Yes <input type="radio" id="#prefix#renderClearSelectionLink" name="#prefix#renderClearSelectionLink" value="1" <cfif currentValues.renderClearSelectionLink EQ "1">checked</cfif>></label>
+			&nbsp;&nbsp;&nbsp;
+			<label style="color:black;font-size:12px;font-weight:normal;">No <input type="radio" id="#prefix#renderClearSelectionLink" name="#prefix#renderClearSelectionLink" value="0" <cfif currentValues.renderClearSelectionLink EQ "0">checked</cfif>></label>
+			<br />Places a 'clear selections' link under the checkbox/radio box. 
+		</td>
+	</tr>
+	
 	<tr>
-		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Add Button:</td>
+		<td colspan="2"><hr /></td>
+	</tr>
+	<tr>
+		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Add Record Button:</td>
 		<td class="cs_dlgLabelSmall">
 			<label style="color:black;font-size:12px;font-weight:normal;">Yes <input type="radio" id="#prefix#addButton" name="#prefix#addButton" value="1" <cfif currentValues.addButton EQ "1">checked</cfif>></label>
 			&nbsp;&nbsp;&nbsp;
 			<label style="color:black;font-size:12px;font-weight:normal;">No <input type="radio" id="#prefix#addButton" name="#prefix#addButton" value="0" <cfif currentValues.addButton EQ "0">checked</cfif>></label>
 		</td>
 	</tr>
-	
 	<tr>
 		<td colspan="2"><hr /></td>
 	</tr>
@@ -414,7 +606,7 @@ History:
 		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Field Name:</td>
 		<td class="cs_dlgLabelSmall">
 			<input type="text" name="#prefix#fldName" id="#prefix#fldName" value="#currentValues.fldName#" size="40">
-			<br/><span>Please enter the field name to be used via JavaScript (case sensitive).<br />If blank, will use default name.</span>
+			<br/><span>Please enter the field name to be used via JavaScript (case sensitive).  If blank, will use default name.</span>
 		</td>
 	</tr>
 	<tr>

@@ -35,7 +35,7 @@ History:
 --->
 <cfcomponent displayname="data_1_2" extends="ADF.lib.data.data_1_1" hint="Data Utils component functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_6">
+<cfproperty name="version" value="1_2_7">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Data_1_2">
 
@@ -388,7 +388,7 @@ History:
 		var qResult = queryNew("null");
 		var qColumnsList = arguments.query.columnList;
 		var orderCol = "";
-		var orderItem = "";
+		var orderItem = '';
 		
 		if ( ListFindNoCase(qColumnsList,arguments.columnName) )
 			orderCol = arguments.columnName;
@@ -399,21 +399,22 @@ History:
 			<cfloop from="1" to="#listLen(arguments.orderList)#" index="orderItem">
 				SELECT #qColumnsList#, #orderItem# AS #arguments.orderColumnName#
 				FROM arguments.query
-				WHERE #arguments.columnName# = <cfqueryparam value="#listGetAt(arguments.orderList, orderItem)#" cfsqltype="cf_sql_#arguments.columnType#">
+				WHERE LOWER(#arguments.columnName#) = <cfqueryparam value="#lcase(listGetAt(arguments.orderList, orderItem))#" cfsqltype="cf_sql_#arguments.columnType#">
 				<!--- WHERE #arguments.columnName# = '#listGetAt(arguments.orderList, orderItem)#' --->
 				<cfif orderItem LT listLen(arguments.orderList)>
-					
 					UNION
-					 
 				</cfif>
 			</cfloop>
+			
 			<cfif LEN(TRIM(arguments.orderColumnName))>
 			ORDER BY #arguments.orderColumnName#
 			</cfif>
 		</cfquery>
     	<cfreturn qResult>
+		
 		<cfcatch>
-			<cfdump var="#cfcatch#" label="cfcatch" expand="false">
+			<cfset application.ADF.utils.logAppend("Error in ADF method QuerySortByOrderedList Message:#cfcatch.message# Detail:#cfcatch.detail#")> 
+			<!--- <cfdump var="#cfcatch#" label="cfcatch" expand="false"> --->
 			<cfreturn arguments.query>
 		</cfcatch>
 	</cftry>    
