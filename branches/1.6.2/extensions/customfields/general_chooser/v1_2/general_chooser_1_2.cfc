@@ -45,7 +45,7 @@ History:
 --->
 <cfcomponent name="general_chooser" extends="ADF.lib.ceData.ceData_2_0">
 
-<cfproperty name="version" value="1_2_0">
+<cfproperty name="version" value="1_2_1">
 
 <cfscript>
 	// CUSTOM ELEMENT INFO
@@ -282,6 +282,7 @@ History:
 				
 				/* SEARCH BUTTON */
 				div###arguments.fieldName#-gc-section1 a.#arguments.fieldName#-ui-buttons {
+					font-size: 11px;
 					padding: 1px 10px;
 					text-decoration: none;
 					margin-left: 5px;
@@ -317,6 +318,7 @@ History:
 						ColdFusion considers variables with a "-" as invalid. Removed "-".
 	2011-04-28 - GAC - Added a check to see if the old "SHOW_SECTION1" variable was being used 
 						via site or app level override file. If so, then it will pass the value to the SHOW_SEARCH variable
+	2014-01-24 - TP - Updated to allow the the enter key to tigger the submit.
 --->
 <cffunction name="loadSearchBox" access="public" returntype="string" hint="General Chooser - Search box HTML content.">
 	<cfargument name="fieldName" type="String" required="true">
@@ -344,6 +346,20 @@ History:
 					</div>	
 					</cfif>
 				</div>
+				<script type="text/javascript">
+					jQuery('###arguments.fieldName#-searchFld').keydown( function(e) 
+						{
+							if(e.keyCode == 13)
+							{
+								// stop from submitting form
+    							e.preventDefault();
+								
+								// do the search
+								jQuery('###arguments.fieldName#-searchBtn').click();
+								return false;
+							}		
+						});
+				</script>
 			</cfoutput>
 		</cfsavecontent>
 	</cfif>
