@@ -60,7 +60,7 @@ History:
     				 - Moved the Field to Data Mask code out to an new ADF from_1_1 function
 	2013-11-14 - GAC - Updated the selected value to be an empty string if the stored value or the default value does not match available records from the bound element
 	2013-11-15 - GAC - Converted the CFT to the ADF standard CFT format using the forms.wrapFieldHTML method
-	2014-01-17 - TP  - Added with the abiltiy to render checkboxes, radio buttons as well as a selection list
+	2014-01-17 - TP  - Added the abiltiy to render checkboxes, radio buttons as well as a selection list
 --->
 <cfscript>
 	// the fields current value
