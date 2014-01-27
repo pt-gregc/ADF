@@ -88,7 +88,7 @@ History:
 				#fqFieldName#.id = '#fqFieldName#';
 				#fqFieldName#.tid = #rendertabindex#;
 				#fqFieldName#.validator = "hasValue(document.#attributes.formname#.#fqFieldName#, 'TEXT')";
-				#fqFieldName#.msg = "#msg#";
+				#fqFieldName#.msg = "Please select a value for the #xparams.label# field.";
 				// push on to validation array
 				vobjects_#attributes.formname#[vobjects_#attributes.formname#.length] = #fqFieldName#;
 				</CFOUTPUT>
@@ -129,7 +129,7 @@ History:
 			
 			application.ADF.scripts.loadJQuery(noConflict=true);
 			// Here we need to have a function call to load jsTree
-			application.ADF.scripts.loadJSTree();
+			application.ADF.scripts.loadJSTree(loadStyles=false);
 			
 			// Set the width and height value
 			widthVal = "400px";
@@ -151,6 +151,17 @@ History:
 				triState = true;
 			else
 				triState = false;
+			
+			// Prepend the current values with fieldID
+			fldCurValArray = ListToArray(attributes.currentvalues[fqFieldName]);
+			fldCurValWithFldID = '';
+			if (ArrayLen(fldCurValArray))
+			{
+				for (i=1; i LTE ArrayLen(fldCurValArray);i=i+1)
+				{
+					fldCurValWithFldID = ListAppend(fldCurValWithFldID, '#fieldQuery.inputID#_#fldCurValArray[i]#');
+				}
+			}
 		</CFSCRIPT>
 		<CFIF inputParameters.customElement neq ''>
 			<CFOUTPUT>
@@ -181,11 +192,14 @@ History:
 		<cfoutput>
 		<script type="text/javascript">
 			<!--	
-			var #toScript(resultCEData, "#fqFieldName#_jsResultCEData")#
+			var #toScript(resultCEData, "#fqFieldName#_jsResultCEData")#		
+
+			jQuery( function () {
+				loadJSTreeData_#fqFieldName#();
+			});
 			
-			function loadJSTreeData_#fqFieldName#(currentValue)
-			{
-				jQuery( function () {
+			function loadJSTreeData_#fqFieldName#()
+			{					
 				    jQuery('##jstree_#fqFieldName#').jstree({
 						"core" : {
 							"multiple" : #bMult#, 
@@ -201,62 +215,59 @@ History:
 						"plugins" : [ "checkbox" ]
 						</cfif>
 					});
-				});
 				
 				// set current selection
-				var tmp = currentValue;
-				var arr = tmp.split(",");
-				jQuery('##jstree_#fqFieldName#').jstree( "select_node", arr );
-				for( var i=0; i < arr.length; i++ )
+				var tmp = '#fldCurValWithFldID#';
+				if ( tmp != '' ) 
 				{
-					var node = arr[i];
-					MakeOpen_#fqFieldName#(node);
-				}			
-					
-				jQuery('##jstree_#fqFieldName#').jstree( "open_node", #inputParameters.rootValue# );
-			}
-			
-			if (functionCallList.length)
-				functionCallList += "||loadJSTreeData_#fqFieldName#('#attributes.currentvalues[fqFieldName]#');";
-			else
-				functionCallList = "loadJSTreeData_#fqFieldName#('#attributes.currentvalues[fqFieldName]#');";
-			
-			function addLoadEvent()
-			{				
-				var functionCallArray = functionCallList.split('||');
-				for(var i=0;i < functionCallArray.length;i=i+1)
-				{
-					eval(functionCallArray[i]);
-				}				
-			}
-			
-			if (isCalled == 0)
-			{
-				isCalled = 1;
-				top.commonspot.util.event.addEvent(window,'load',addLoadEvent);
+					var arr = tmp.split(",");
+					jQuery('##jstree_#fqFieldName#').jstree( "select_node", arr );
+					for( var i=0; i < arr.length; i++ )
+					{
+						var node = arr[i];
+						MakeOpen_#fqFieldName#(node);
+					}			
+				}	
+				jQuery('##jstree_#fqFieldName#').jstree( "open_node", '#inputParameters.rootValue#' );
 			}
 			
 			jQuery('##jstree_#fqFieldName#').on("changed.jstree", function (e, data) 
 			{
-				document.getElementById('#fqFieldName#').value = data.selected;
+				// Loop over values and remove the prefix from each value
+				var selectedNodesList = data.selected;
+				var selectedNodesArray = selectedNodesList.toString().split(",");
+				var selectedNodesIDList = '';
+				var fieldID = '#fieldQuery.inputID#';
+				for (var valIndex=0; valIndex < selectedNodesArray.length; valIndex++)
+				{
+					var fieldIDIndex = selectedNodesArray[valIndex].indexOf('#fieldQuery.inputID#_');
+					if (fieldIDIndex != -1)
+						selectedNode = selectedNodesArray[valIndex].substr(fieldID.length + 1, selectedNodesArray[valIndex].length);
+					else
+						selectedNode = selectedNodesArray[valIndex];
+						
+					if (selectedNodesIDList.length)
+						selectedNodesIDList += ',' + selectedNode;
+					else
+						selectedNodesIDList = selectedNode;
+				}
+				document.getElementById('#fqFieldName#').value = selectedNodesIDList;
 			});
 
 			function MakeOpen_#fqFieldName#(node)
 			{
 				var parent = 0;
 			
-				while( true )
+				parent  = jQuery('##jstree_#fqFieldName#').jstree( "get_parent", node );
+				
+				if ( parent == false ) 
+					return;
+					
+				if( parent != '##' )
 				{
-					parent  = jQuery('##jstree_#fqFieldName#').jstree( "get_parent", node );
-					if( parent != '##' )
-					{
-						jQuery('##jstree_#fqFieldName#').jstree( "open_node", parent );
-						MakeOpen_#fqFieldName#(parent);
-						break;
-					}	
-					else
-						break;	
-				}
+					jQuery('##jstree_#fqFieldName#').jstree( "open_node", parent );
+					MakeOpen_#fqFieldName#(parent);
+				}	
 			}
 			// -->
 		</script>

@@ -335,7 +335,7 @@ History:
 					{
 						arrayIndex = 1;
 						dataArray[arrayIndex] = StructNew();
-						dataArray[arrayIndex]['id'] = inputPropStruct.rootValue;
+						dataArray[arrayIndex]['id'] = '#arguments.fieldID#_#inputPropStruct.rootValue#';
 						dataArray[arrayIndex]['text'] = inputPropStruct.rootNodeText;
 						dataArray[arrayIndex]['parent'] = '##';
 					}						
@@ -353,22 +353,21 @@ History:
 
 								arrayIndex = ArrayLen(dataArray) + 1;
 								dataArray[arrayIndex] = StructNew();
-								dataArray[arrayIndex]['id'] = getFormattedData.ValueField;
-								dataArray[arrayIndex]['text'] = "#getFormattedData.DisplayField# [#getFormattedData.ValueField#]";
+								dataArray[arrayIndex]['id'] = '#arguments.fieldID#_#getFormattedData.ValueField#';
+								dataArray[arrayIndex]['text'] = "#getFormattedData.DisplayField#";
 								
 								if( getFormattedData.ParentField EQ inputPropStruct.rootValue )
 								{
 									if( inputPropStruct.RootNodeText neq '' )
-										dataArray[arrayIndex]['parent'] = inputPropStruct.rootValue;
+										dataArray[arrayIndex]['parent'] = '#arguments.fieldID#_#inputPropStruct.rootValue#';
 									else
 										dataArray[arrayIndex]['parent'] = '##';
 								}	
 								else
-									dataArray[arrayIndex]['parent'] = getFormattedData.ParentField;
+									dataArray[arrayIndex]['parent'] = '#arguments.fieldID#_#getFormattedData.ParentField#';
 							}
 						</cfscript>
 					</cfloop>
-
 				</cfif>
 			<cfelse>
 				<cfscript>
