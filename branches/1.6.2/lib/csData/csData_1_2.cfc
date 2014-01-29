@@ -799,12 +799,41 @@ Returns:
 Arguments:
 	String str
 History:
-	2013-03-06 - HI - Created
+	2013-03-06 - HI  - Created
 	2013-10-17 - SFS - Added
 	2013-10-21 - GAC - Renamed the function 
 					 - Var'ing un-var'd variables
 					 - Fixed the function to be backward compatible with ACF8
+	2014-01-14 - TP  - Updated to use the CommonSpot ct-decipher-linkurl module call
 --->
+<cffunction name="parseCSURL" access="public" returntype="string" output="false" displayname="parseDatasheetURL" hint="Converts a CommonSpot URL that contain a pageID url parameter to a standard URL">
+     <cfargument name="str" type="string" required="true" hint="Provide a string value that is a CommonSpot URL that contains a pageid key/value pair">
+     <cfscript>
+          var targetURL = '';
+          var matchArray = REMatchNoCase("PAGEID=[\d]+", arguments.str);
+          var PageID = 0;
+
+          // If str is a pageID use it
+          if( isNumeric(str) )
+              PageID = int(str);
+          // Check to see if the string contains a 'PAGEID='
+          else if ( arrayLen(matchArray) GT 0 )
+              pageID = int( ReReplaceNoCase(matchArray[1],"PAGEID=","") );         
+     </cfscript>  
+
+     <cfif PageID neq 0>
+          <CFMODULE TEMPLATE="/commonspot/utilities/ct-decipher-linkurl.cfm"
+	          PageID="#PageID#"
+	          VarName="targetURL">
+     <cfelse>     
+          <CFMODULE TEMPLATE="/commonspot/utilities/ct-decipher-linkurl.cfm"
+	          URL="#arguments.str#"
+	          VarName="targetURL">
+     </cfif>      
+
+     <cfreturn targetURL>
+</cffunction>
+<!---
 <cffunction name="parseCSURL" access="public" returntype="string" output="false" displayname="parseDatasheetURL" hint="Converts a CommonSpot URL that contain a pageID url parameter to a standard URL">
 	<cfargument name="str" type="string" required="true" hint="Provide a string value that is a CommonSpot URL that contains a pageid key/value pair">
 	<cfscript>
@@ -842,7 +871,7 @@ History:
 		}
 		return full_url;
 	</cfscript>
-</cffunction>
+</cffunction> --->
 
 <!---
 /* *************************************************************** */
