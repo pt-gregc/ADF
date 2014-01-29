@@ -37,6 +37,9 @@ History:
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <cfscript>
+	// Variable for the version of the field - Display in Props UI.
+	fieldVersion = "1.0"; 
+	
 	requiredVersion = 9;
 	productVersion = ListFirst(ListLast(request.cp.productversion," "),".");
 </cfscript>	
@@ -72,6 +75,8 @@ History:
 		currentValues.valueField = "";
 	if( not structKeyExists(currentValues, "selectionType") )
 		currentValues.selectionType = "single";
+	if( not structKeyExists(currentValues, "cookieField") )
+		currentValues.cookieField = "";
 	if( not structKeyExists(currentValues, "defaultValue") )
 		currentValues.defaultValue = "";	
 	if ( not StructKeyExists(attributes.currentValues, 'useUdef') )
@@ -139,7 +144,7 @@ History:
 <!--
 	jQuery.noConflict();
 	
-	fieldProperties['#typeid#'].paramFields = "#prefix#customElement,#prefix#parentField,#prefix#displayField,#prefix#valueField,#prefix#selectionType,#prefix#widthValue,#prefix#rootValue,#prefix#rootNodeText,#prefix#heightValue,#prefix#filterCriteria,#prefix#useUdef";
+	fieldProperties['#typeid#'].paramFields = "#prefix#customElement,#prefix#parentField,#prefix#displayField,#prefix#valueField,#prefix#selectionType,#prefix#widthValue,#prefix#rootValue,#prefix#rootNodeText,#prefix#heightValue,#prefix#cookieField,#prefix#filterCriteria,#prefix#useUdef";
 	fieldProperties['#typeid#'].defaultValueField = '#prefix#defaultValue';
 	fieldProperties['#typeid#'].jsLabelUpdater = '#prefix#doLabel';
 	fieldProperties['#typeid#'].jsValidator = '#prefix#doValidate';
@@ -215,7 +220,7 @@ History:
 		jQuery("###prefix#displayField").children().remove().end().append("<option value=\"\"> - Select -</option>");
 		jQuery("###prefix#valueField").children().remove().end().append("<option value=\"\"> - Select -</option>");
 		
-		var regex = new RegExp("controlTypeID=[0-9]?", "g");
+		var regex = new RegExp("controlTypeID=[0-9]*", "g");
 		jQuery('###prefix#filterBtn[onclick]').attr('onclick', function(i, v){
 			return v.replace(regex, "controlTypeID=" + selectedChild);
 		});
@@ -228,6 +233,8 @@ History:
 		else
 		{
 			document.getElementById('childElementInputs').style.display = "";
+			//jQuery.getJSON("#componentPath#/custom_element_hierarchy_selector_base.cfc?method=getFields&returnformat=json",{"elementid":selectedChild})
+			
 			jQuery.getJSON("#componentPath#/custom_element_hierarchy_selector_base.cfc?method=getFields&returnformat=json",{"elementid":selectedChild})
 			.done(function(res) {
 				if (res.COLUMNS[0] != 'ERRORMSG')
@@ -369,7 +376,7 @@ History:
 			<th valign="top" class="cs_dlgLabelBold" nowrap="nowrap">Filter Criteria:</th>
 			<td valign="baseline">
 			#Server.CommonSpot.UDF.tag.input(type="hidden", id="#prefix#filterCriteria", name="#prefix#filterCriteria", value=currentValues.filterCriteria, style="font-family:#Request.CP.Font#;font-size:10")#
-			#Server.CommonSpot.UDF.tag.input(type="button", class="clsPushButton", id="#prefix#filterBtn", name="#prefix#filterBtn", value="Filter...", onclick="javascript:top.commonspot.dialog.server.show('csmodule=controls/custom/select-data-filters&isAdminUI=1&editRights=1&adminRights=1&openFrom=fieldProps&controlTypeID=#currentValues.customElement#&persistentUniqueID=#persistentUniqueID#&prefixStr=#prefix#&hasFilter=1');")#
+			#Server.CommonSpot.UDF.tag.input(type="button", class="clsPushButton", id="#prefix#filterBtn", name="#prefix#filterBtn", value="Filter", onclick="javascript:top.commonspot.dialog.server.show('csmodule=controls/custom/select-data-filters&isAdminUI=1&editRights=1&adminRights=1&openFrom=fieldProps&controlTypeID=#currentValues.customElement#&persistentUniqueID=#persistentUniqueID#&prefixStr=#prefix#&hasFilter=1');")#
 			<cfif Len(currentValues.filterCriteria)>
 				#Server.CommonSpot.UDF.tag.input(type="button", class="clsPushButton", id="#prefix#clearBtn", name="#prefix#clearBtn", value="Clear", onclick="#prefix#clearFilter()")#
 			<cfelse>
@@ -379,10 +386,24 @@ History:
 			<div class="cs_dlgLabelSmall">Specify the filter to be applied while retrieving data.</div>
 			</td>
 		</tr>
+		</tr>
+		<tr>
+			<th valign="baseline" class="cs_dlgLabelBold" nowrap="nowrap">Cookie Field:</th>
+			<td valign="baseline">#Server.CommonSpot.UDF.tag.input(type="text", name="#prefix#cookieField", value=currentValues.cookieField, size="30", maxlength="255", style="font-family:#Request.CP.Font#;font-size:10")#
+			<br />
+			<div class="cs_dlgLabelSmall">Enter the name of the cookie field to use to populate this field. Leave empty to not use a cookie to populate.</div>
+			</td>
+		</tr>
 		</CFOUTPUT>
 		<CFSET caption="Enter the option from your option list that you want selected by default.">
 		<CFINCLUDE template="/commonspot/metadata/form_control/input_control/default_value.cfm">
 		<CFOUTPUT>
+		<tr>
+			<td class="cs_dlgLabelSmall" colspan="2" style="font-size:7pt;">
+				<hr />
+				ADF Custom Field v#fieldVersion#
+			</td>
+		</tr>
 	</tbody>
 </table>
 </cfoutput>
