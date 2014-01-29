@@ -35,19 +35,14 @@ History:
 1) Install the Custom Element DataManager Field 
 	- Import the custom_element_datamanager.zip file via the CommonSpot Site Admin 'Elements & Forms > Field Types and Masks'
 
-2) Copy the 'custom_element_datamanager_base.cfc' component file from the '/ADF/extensions/customfields/custom_element_datamanager/site-files/_cs_apps/components/' directory to the site level '/{site}/_cs_apps/components/' directory.
-	- If you already have a 'custom_element_datamanager_base.cfc' file in your site's '/{site}/_cs_apps/components/' directory DO NOT overwrite it. 
-		There may be override fuctions and/or custom code in that site level version of this file. 
-		Confrim that the site level version EXTENDS to the base component file up in the ADF CustomField folder "ADF.extensions.customfields.custom_element_datamanager.custom_element_datamanager_base".
-
-3) Copy the 'post-save-form-hook.cfm' file from the '/ADF/extensions/customfields/custom_element_datamanager/site-files/' directory to the root of your site.
+2) Copy the 'post-save-form-hook.cfm' file from the '/ADF/extensions/customfields/custom_element_datamanager/site-files/' directory to the root of your site.
 	- If you already have a 'post-save-form-hook.cfm' file in the root of your site DO NOT overwrite it. 
 		There may be override fuctions and/or custom code in that site level version of this file.
 		Copy the <cfinclude> code from the Custom Element DataManager's 
 		/custom_element_datamanager/site-files/post-save-form-hook.cfm file
 		into your sites existing post-save-form-hook.cfm file.
 			
-4) Restart CF or Reset ADF 
+3) Restart CF or Reset ADF 
 	-  If you already had a post-save-form-hook.cfm file in place in your site root then 
 	   only an ADF reset '?resetADF=1' is required and a CF restart would NOT be needed.
 	   
