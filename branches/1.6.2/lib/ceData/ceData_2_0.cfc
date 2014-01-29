@@ -23,7 +23,7 @@ end user license agreement.
 Author: 	
 	PaperThin, Inc. 
 Name:
-	ceData_1_2.cfc
+	ceData_2_0.cfc
 Summary:
 	Custom Element Data functions for the ADF Library
 Version
@@ -358,6 +358,7 @@ History:
 	<cfargument name="queryType" type="string" required="false" default="selected">
 	<cfargument name="searchValues" type="string" required="false" default="">
 	<cfargument name="searchFields" type="string" required="false" default="">
+	<cfargument name="itemListDelimiter" type="string" required="false" default=",">	<!--- only valid for 'selected' and 'notselected' --->
 
 	<cfscript>
 		// initialize the variables
@@ -406,8 +407,8 @@ History:
 		if ( arguments.queryType eq "versions" )
 			pageIDValueQry = getPageIDForElement(ceFormID, ceFieldID, arguments.item, "selected", arguments.searchValues, searchCEFieldID);
 		else
-			pageIDValueQry = getPageIDForElement(ceFormID, ceFieldID, arguments.item, arguments.queryType, arguments.searchValues, searchCEFieldID);
-		
+			pageIDValueQry = getPageIDForElement(ceFormID, ceFieldID, arguments.item, arguments.queryType, arguments.searchValues, searchCEFieldID, arguments.itemListDelimiter);
+
 		// Get the default structure for the element fields
 		// Build the query row for the default field values
 		ceDefaultFieldQry = defaultFieldQuery(ceFormID=ceFormID);
@@ -469,14 +470,17 @@ History:
 	
 	<cfscript>
 		// Check if we are processing the selected list
-		if ( arguments.queryType EQ "selected" and len(arguments.customElementFieldName) and len(arguments.item) ) {
+		if ( arguments.queryType EQ "selected" and len(arguments.customElementFieldName) and len(arguments.item) ) 
+		{
 			// Order the return data by the order the list was passed in
 			// --IMPORTANT: We CAN NOT use the local 'variables.data.QuerySortByOrderedList' since this LIB is extended by the general_chooser.cfc
 			ceDataQry = server.ADF.objectFactory.getBean("data_1_2").QuerySortByOrderedList(query=ceDataQry, 
 																							   columnName=arguments.customElementFieldName, 
 																							   columnType="varchar",
-																							   orderList=arguments.item);
+																							   orderList=arguments.item,
+																								orderListDelimiter = arguments.ItemListDelimiter);
 		} 
+
 		// Flip the query back into the CE Data Array Format
 		return buildCEDataArrayFromQuery(ceDataQuery=ceDataQry);
 	</cfscript>

@@ -384,6 +384,8 @@ History:
     <cfargument name="columnType" type="string" required="no" default="numeric" hint="The column type. Possible values: numeric, varchar">
     <cfargument name="orderList" type="string" required="yes" hint="The list used to sort the query">
 	<cfargument name="orderColumnName" type="string" required="no" default="recSortCol" hint="The name of the column containing the order number"> 
+	<cfargument name="orderListDelimiter" type="string" required="no" default=",">
+	
     <cfscript>
 		var qResult = queryNew("null");
 		var qColumnsList = arguments.query.columnList;
@@ -396,12 +398,11 @@ History:
     <!--- // Make the order list unique to avoid duplicating query records --->
     <cftry>
 		<cfquery name="qResult" dbtype="query">
-			<cfloop from="1" to="#listLen(arguments.orderList)#" index="orderItem">
+			<cfloop from="1" to="#listLen(arguments.orderList, arguments.orderListDelimiter)#" index="orderItem">
 				SELECT #qColumnsList#, #orderItem# AS #arguments.orderColumnName#
 				FROM arguments.query
-				WHERE LOWER(#arguments.columnName#) = <cfqueryparam value="#lcase(listGetAt(arguments.orderList, orderItem))#" cfsqltype="cf_sql_#arguments.columnType#">
-				<!--- WHERE #arguments.columnName# = '#listGetAt(arguments.orderList, orderItem)#' --->
-				<cfif orderItem LT listLen(arguments.orderList)>
+				WHERE LOWER(#arguments.columnName#) = <cfqueryparam value="#lcase(listGetAt(arguments.orderList, orderItem, arguments.orderListDelimiter))#" cfsqltype="cf_sql_#arguments.columnType#">
+				<cfif orderItem LT listLen(arguments.orderList, arguments.orderListDelimiter)>
 					UNION
 				</cfif>
 			</cfloop>
@@ -656,7 +657,7 @@ History:
 					 - Added different table schema name for Oracle (thanks DM)
 					 - Added logging to the CFCatch rather than just returning false
 	2013-11-18 - GAC - Fixed issue with logAppend() method call		
-	2013-11-19 - DM - Adding compatiblity of ORACLE	
+	2013-11-19 - DM  - Adding compatiblity of ORACLE	
 	2013-12-05 - GAC - Removed the table name check logic around the verifyDB query
 --->
 <cffunction name="verifyTableExists" access="public" returntype="boolean" output="false" hint="Verifies that a Tables and View Table exist for various db types.">
