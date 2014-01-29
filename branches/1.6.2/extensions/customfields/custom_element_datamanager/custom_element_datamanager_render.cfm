@@ -45,10 +45,21 @@ History:
 	
 	// Path to this CFT
 	cftPath = "/ADF/extensions/customfields/custom_element_datamanager";
+	
 	// Path to proxy component in the context of the site
-	componentPath = "#request.site.csAppsURL#components";
+	componentPath = "/ADF/lib/fields/";
+	componentOverridePath = "#request.site.csAppsURL#components";
+	componentName = "customElementDataManager_1_0";
+	
 	// Ajax URL to the proxy component in the context of the site
-	ajaxComURL = "#request.site.URL#_cs_apps/components";
+	ajaxComURL = application.ADF.ajaxProxy;
+	ajaxBeanName = 'customElementDataManager';
+	
+	// OLD STUFF 
+	// TODO: DELETE
+	componentName_OLD = "custom_element_datamanager_base";
+	componentPath_OLD = "#request.site.csAppsURL#components";
+	ajaxComURL_OLD = "#request.site.URL#_cs_apps/components";
 </cfscript>
 
 <cfparam name="attributes.callingElement" default="">
@@ -63,7 +74,7 @@ History:
 			variables.fieldPermission = "";
 	</cfscript>
 	<cfoutput>
-	#application.ADF.forms.wrapFieldHTML(inputHTML,fieldQuery,attributes,variables.fieldPermission,includeLabel,includeDescription)#
+	#application.ADF.fields.wrapFieldHTML(inputHTML,fieldQuery,attributes,variables.fieldPermission,includeLabel,includeDescription)#
 	</cfoutput>
 <cfelse>
 <cfif attributes.callingElement NEQ 'simpleform' AND (attributes.callingElement NEQ 'datasheet' OR (attributes.callingElement EQ 'datasheet' AND Request.User.ID NEQ 0))>
@@ -118,27 +129,33 @@ History:
 				
 				try
 				{
-					if (FileExists(ExpandPath('#componentPath#/#fileNamewithExt#')))
+					if ( StructKeyExists(application.ADF,fileName) )
 					{
-						datamanagerObj = CreateObject("component", "#componentPath#/#fileName#");
+						datamanagerObj = application.ADF[fileName];
+						componentName = fileName;
+					}
+					else if ( FileExists(ExpandPath('#componentOverridePath#/#fileNamewithExt#')) )
+					{
+						datamanagerObj = CreateObject("component", "#componentOverridePath#/#fileName#");
 						componentName = fileName;
 					}
 					else
 					{
-						datamanagerObj = CreateObject("component", "#componentPath#/custom_element_datamanager_base");
-						componentName = 'custom_element_datamanager_base';
+						datamanagerObj = application.ADF.customElementDataManager;
 					}
 				}
 				catch(Any e)
 				{
-					datamanagerObj = CreateObject("component", "#componentPath#/custom_element_datamanager_base");
-					componentName = 'custom_element_datamanager_base';
+					//datamanagerObj = CreateObject("component", "#componentPath#/#componentName#");
+					//componentName = 'custom_element_datamanager_base';
+					datamanagerObj = application.ADF.customElementDataManager;
 				}
 			}
 			else
 			{
-				datamanagerObj = CreateObject("component", "#componentPath#/custom_element_datamanager_base");
-				componentName = 'custom_element_datamanager_base';
+				//datamanagerObj = CreateObject("component", "#componentPath#/#componentName#");
+				//componentName = 'custom_element_datamanager_base';
+				datamanagerObj = application.ADF.customElementDataManager;
 			}	
 	
 			widthVal = "600px";
@@ -226,7 +243,6 @@ History:
 			var oTable#uniqueTableAppend# = '';
 			
 			jQuery.ajaxSetup({ cache: false, async: false });	
-		
 			
 			// setTimeout( 'loadData_#uniqueTableAppend#()', 7000 );
 			
@@ -268,26 +284,41 @@ History:
 				var res#uniqueTableAppend# = '';
 				
 				dataToBeSent = { 
+						bean: '#ajaxBeanName#',
 						method: 'renderGrid',
+						query2array: 0,
 						returnformat: 'json',
 						formID : #ceFormID#,
 						fieldID : #fieldQuery.inputID#, 
 						propertiesStruct : JSON.stringify(<cfoutput>#SerializeJSON(inputParameters)#</cfoutput>),
 						currentValues : JSON.stringify(<cfoutput>#SerializeJSON(attributes.currentvalues)#</cfoutput>)						
 				 };
+
+/* -- Updated to use AjaxProxy -- */
+/* jQuery.post( '#ajaxComURL_OLD#/#componentName_OLD#.cfc', 
+			dataToBeSent, 
+			null, 
+			"json")
+*/
+				 
 				jQuery.when(
 
-							jQuery.post( '#ajaxComURL#/#componentName#.cfc', 
-										dataToBeSent, 
-										null, 
-										"json")
-				
-/*				 
-	jQuery.getJSON("#ajaxComURL#/#componentName#.cfc?method=renderGrid&returnformat=json&formID=#ceFormID#&fieldID=#fieldQuery.inputID#&" + "&propertiesStruct=" + JSON.stringify(<cfoutput>#SerializeJSON(inputParameters)#</cfoutput>) + "&currentValues=" + JSON.stringify(<cfoutput>#SerializeJSON(attributes.currentvalues)#</cfoutput>))
-*/
+							jQuery.post( '#ajaxComURL#', 
+													dataToBeSent, 
+													null, 
+													"json" )
 
-				).done(function(res#uniqueTableAppend#) {
+
+/*				 
+	jQuery.getJSON("#ajaxComURL_OLD#/#componentName#.cfc?method=renderGrid&returnformat=json&formID=#ceFormID#&fieldID=#fieldQuery.inputID#&" + "&propertiesStruct=" + JSON.stringify(<cfoutput>#SerializeJSON(inputParameters)#</cfoutput>) + "&currentValues=" + JSON.stringify(<cfoutput>#SerializeJSON(attributes.currentvalues)#</cfoutput>))
+*/
+							
+
+				).done(function(retData#uniqueTableAppend#) {
 				
+					// Convert the JSON String from the AjaxProxy to JSON Object
+					var res#uniqueTableAppend# = jQuery.parseJSON( retData#uniqueTableAppend# );	
+
 					var columns = [];
 					var columnsList = res#uniqueTableAppend#.aoColumns;
 					var columnsArray = columnsList.split(',');
@@ -375,7 +406,9 @@ History:
 										
 										dataToBeSent = 
 											{ 
+												bean: '#ajaxBeanName#',
 												method: 'onDrop',
+												query2array: 0,
 												returnformat: 'json',
 												formID: #ceFormID#,
 												movedDataPageID: startVal, 
@@ -384,10 +417,11 @@ History:
 												currentValues : JSON.stringify(<cfoutput>#SerializeJSON(attributes.currentvalues)#</cfoutput>)						
 										 	};
 										
-										jQuery.post( '#ajaxComURL#/#componentName#.cfc', 
+											jQuery.post( '#ajaxComURL#', 
 																dataToBeSent, 
 																onSuccess_#uniqueTableAppend#, 
-																"json");
+																"json"); 
+											
 										}
 									});
 							</CFIF>

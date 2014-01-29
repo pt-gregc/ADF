@@ -15,4 +15,7 @@
 	<ccapiConfig_1_0>loadPanel</ccapiConfig_1_0>
 	<!-- This determines what Custom Elements you can get from getCEData, acts as a whitelist. -->
 	<getCEDataSecurity></getCEDataSecurity>
+	<!-- ADF Custom Field Types -->
+	<customElementDataManager_1_0>getFields,getFieldIDList,getGlobalCE,renderGrid,onDrop</customElementDataManager_1_0>
+	<customElementHierarchySelector_1_0></customElementHierarchySelector_1_0>
 </settings>

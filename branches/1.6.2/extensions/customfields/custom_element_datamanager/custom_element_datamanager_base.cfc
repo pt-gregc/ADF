@@ -258,10 +258,10 @@ History:
 		</cfscript>
 	</cffunction>
 	
-	<cffunction name="renderGrid" access="remote" output="Yes" returntype="void" hint="Method to render the datamanger grid">		
+	<cffunction name="renderGrid" access="remote" output="Yes" returntype="any" hint="Method to render the datamanger grid">	<!--- // TODO: Update to type="string" --->	
       <cfargument name="formID" type="numeric" required="true" hint="ID of the form or control type">
-		<cfargument name="propertiesStruct" type="string" required="true" hint="Properties structure for the field in json format">
-		<cfargument name="currentValues" type="string" required="true" hint="Current values structure for the field in json format">
+		<cfargument name="propertiesStruct" type="any" required="true" hint="Properties structure for the field in json format"> <!--- // TODO: Update to type="struct" --->
+		<cfargument name="currentValues" type="any" required="true" hint="Current values structure for the field in json format"> <!--- // TODO: Update to type="struct" --->
 		<cfargument name="fieldID" type="numeric" required="true" hint="ID of the field">
 		
 		<!--- <cfmodule template="/commonspot/utilities/log-append.cfm" comment="in custom_element_datamanager_base.cfc RenderGrid()"> --->
@@ -276,9 +276,17 @@ History:
 				{
 					inputPropStruct = DeserializeJSON(arguments.propertiesStruct);
 				}
+				else
+				{
+					inputPropStruct = arguments.propertiesStruct;
+				}
 				if (IsJSON(arguments.currentValues))
 				{
 					curValuesStruct = DeserializeJSON(arguments.currentValues);
+				}
+				else
+				{
+					curValuesStruct = arguments.currentValues;
 				}
 				
 				dataRecords = queryData(formID=arguments.formID,propertiesStruct=inputPropStruct,currentValues=curValuesStruct);
@@ -289,9 +297,14 @@ History:
 															dataRecords=dataRecords.qry,
 															fieldMapStruct=dataRecords.fieldMapStruct,
 															fieldOrderList=dataRecords.fieldOrderList);
+															
+															
+				//application.ADF.utils.doDUMP(displayData,"displayData",1);											
 			</cfscript>
-			<cfoutput>#SerializeJSON(displayData)#</cfoutput>
-		
+			<!--- <cfoutput>#SerializeJSON(displayData)#</cfoutput> --->
+			
+			<cfreturn SerializeJSON(displayData)>
+			
 			<cfcatch>
 				<cfmodule template="/commonspot/utilities/log-append.cfm" comment="Error in custom_element_datamanager_base.cfc RenderGrid() #cfcatch.message# #cfcatch.detail#">
 			</cfcatch>
@@ -774,7 +787,7 @@ History:
 							{
 								if (paramsStruct.displayField eq "--Other--" and Len(paramsStruct.displayFieldBuilder))
 								{
-									displayString = application.ADF.forms.renderDataValueStringfromFieldMask(ceDataArray[i].Values, paramsStruct.displayFieldBuilder);
+									displayString = renderDataValueStringfromFieldMask(ceDataArray[i].Values, paramsStruct.displayFieldBuilder);
 								}
 								else
 									displayString = ceDataArray[i].Values['#paramsStruct.displayField#'];
@@ -920,8 +933,8 @@ History:
 	
 	<cffunction name="onDrop" returnformat="json" access="remote" hint="Method to reorder the values fo a custom element">
 		<cfargument name="formID" type="numeric" required="true" hint="ID of the form or control type">
-		<cfargument name="propertiesStruct" type="string" required="true" hint="Properties structure for the field in json format">
-		<cfargument name="currentValues" type="string" required="true" hint="Current values structure for the field in json format">
+		<cfargument name="propertiesStruct" type="any" required="true" hint="Properties structure for the field in json format"><!--- TODO: Update to type="struct" --->
+		<cfargument name="currentValues" type="any" required="true" hint="Current values structure for the field in json format"><!--- TODO: Update to type="struct" --->
         <cfargument name="movedDataPageID" type="numeric" required="true" hint="The unique data pageid for the record from start pos">
 		<cfargument name="dropAfterDataPageID" type="numeric" required="true" hint="The unique data pageid for the record from end pos">
         <cfscript>
@@ -944,10 +957,18 @@ History:
 			{
 				inputPropStruct = DeserializeJSON(arguments.propertiesStruct);
 			}
+			else
+			{
+				inputPropStruct = arguments.propertiesStruct;
+			}
 			
 			if (IsJSON(arguments.currentValues))
 			{
 				curValuesStruct = DeserializeJSON(arguments.currentValues);
+			}
+			else
+			{
+				curValuesStruct = arguments.currentValues;
 			}
 			
 			if (IsNumeric(inputPropStruct.assocCustomElement))

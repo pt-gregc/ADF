@@ -34,7 +34,7 @@ History:
 --->
 <cfcomponent displayname="ajax" extends="ADF.core.Base" hint="AJAX functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_6">
+<cfproperty name="version" value="1_0_7">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_2">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
@@ -84,6 +84,7 @@ History:
 		var appName = "";
 		var returnFormat = "";
 		var debug = 0;
+		var query2array = 1; //default is true for backwards compatiblity
 		var params = StructNew();
 		var args = StructNew();
 		var debugRaw = "";
@@ -110,6 +111,8 @@ History:
 				returnFormat = request.params.returnFormat;
 			if ( StructKeyExists(request.params,"debug") ) 
 				debug = request.params.debug;
+			if ( StructKeyExists(request.params,"query2array") ) 
+				query2array = request.params.query2array;
 		}
 		if ( arguments.proxyFile NEQ callingFileName ) {
 			// Verify if the bean and method combo are allowed to be accessed through the ajax proxy
@@ -138,7 +141,7 @@ History:
 					// Check to see if result.reString was destroyed by a method that returns void before attempting to process the return
 					if ( StructKeyExists(result,"reString") ) {
 						// Convert Query to an Array of Structs for Processing
-						if ( IsQuery(result.reString) ) {
+						if ( IsQuery(result.reString) AND query2array EQ 1 ) {
 							result.reString = variables.data.queryToArrayOfStructures(result.reString,true);
 							if ( !isArray(result.reString) ) {
 								hasProcessingError = 1; 

@@ -71,6 +71,7 @@ History:
 	<cfparam name="request.params.appName" default="" type="string">
 	<!--- Default the subsiteURL param --->
 	<cfparam name="request.params.subsiteURL" default="" type="string">
+	<cfparam name="request.params.query2array" default="1" type="boolean">
 	
 	<cfscript>
 		/*	Check if the subsiteURL is defined.

@@ -25,7 +25,7 @@ Author:
 Custom Field Type:
 	Custom Element DataManager 
 Name:
-	custom_element_datamanager_props.cfc
+	custom_element_datamanager_props.cfm
 Summary:
 	This the props file for the Custom Element Data Manager field
 ADF Requirements:
@@ -37,6 +37,7 @@ History:
 	2013-12-04 - GAC - Added CommonSpot Version check since this feild only runs on CommonSpot v9+
 	2014-01-02 - GAC - Added the CFSETTING tag to disable CF Debug results in the props module
 	2014-01-03 - GAC - Added the fieldVersion variable
+	2014-01-28 - GAC - Converted to use AjaxProxy.cfm instead of calling the base.cfc directly
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
@@ -68,7 +69,12 @@ History:
 	// Path to this CFT
 	cftPath = "/ADF/extensions/customfields/custom_element_datamanager";
 	// Ajax path to the proxy component in the context of the site
-	ajaxComURL = "#request.site.url#_cs_apps/components";
+	
+/* -- Updated to use AjaxProxy -- */	
+ajaxComURL_OLD = "#request.site.url#_cs_apps/components";
+
+	ajaxComURL = application.ADF.ajaxProxy;
+	ajaxBeanName = 'customElementDataManager';
 
 	if( not structKeyExists(currentValues, "childCustomElement") )
 		currentValues.childCustomElement = "";
@@ -332,6 +338,66 @@ History:
 		}
 	}
 	
+	// Function to Convert AjaxProxy data to CF Query data object
+	function #prefix#convertAjaxProxyObj2CFqueryObj(objData)
+	{
+		
+		var results = {};
+		results.COLUMNS = [];
+		results.DATA = [];
+		
+		// Look for the 'columnlist' key
+		if ( objData.hasOwnProperty('columnlist') )
+		{ 	
+			// Convert the 'columnlist' key to results.COLUMNS
+			var colsArray = objData.columnlist.split(',');
+			jQuery.each( colsArray,function( rowNum,rowValue ){
+				var temp;
+				if (colsArray.hasOwnProperty(rowValue)) 
+				{
+					temp = colsArray[rowValue].toUpperCase();
+					delete colsArray[rowValue];
+					colsArray[rowValue.charAt(0).toUpperCase() + rowValue.substring(1)] = temp;
+				}
+			});
+			// Convert the colsArray to UPPERCASE
+			var upperCasedArray = jQuery.map(colsArray, function(item, index) {
+			    return item.toUpperCase();
+			});
+			// Set the res.COLUMNS value
+			results.COLUMNS = upperCasedArray;
+	   }
+	   
+	   // Look for the 'data' key
+	   if ( objData.hasOwnProperty('data') )
+	   {	
+		   // Convert the 'data' key to results.DATA
+		   var rowData = [];
+		   var cellPos = 0;
+		   jQuery.each( objData.data,function( colName,colValues ){
+	           // console.log('colName: ' + colName);
+			   // console.log('colValues: ' + colValues);
+					
+	            jQuery.each( colValues,function( rowPos,cellValue ){
+						
+	                //console.log('rowPos: ' + rowPos);
+					//console.log('cellPos: ' + cellPos);
+					//console.log('cellValue: ' + cellValue);
+						
+					if ( !rowData.hasOwnProperty(rowPos) ) 
+					{ 
+						rowData[rowPos] = [];
+					}
+					rowData[rowPos][cellPos] = cellValue; 
+				});
+	            cellPos++;
+	        });
+			results.DATA = rowData;
+		}
+				
+		return results;
+	}
+	
 	jQuery(document).ready(function()
 	{
 		onLoadFunction();
@@ -404,8 +470,24 @@ History:
 			jQuery("###prefix#childLinkedField").children().remove().end().append("<option value=\"\"> - Select -</option>");
 			jQuery("###prefix#inactiveField").children().remove().end().append("<option value=\"\"> - Select -</option>");
 			
-			jQuery.getJSON("#ajaxComURL#/custom_element_datamanager_base.cfc?method=getFields&returnformat=json",{"elementid":selectedChild})
-			.done(function(res) {
+/* -- Updated to use AjaxProxy -- */
+//jQuery.getJSON("#ajaxComURL_OLD#/custom_element_datamanager_base.cfc?method=getFields&returnformat=json",{"elementid":selectedChild})
+
+/*
+jQuery.getJSON("#ajaxComURL_OLD#/custom_element_datamanager_base.cfc?method=getFields&returnformat=json",{"elementid":selectedChild})
+.done(function(resOld) { 
+	console.log('resOld');
+	console.log(resOld);
+});
+console.log('---');
+*/
+
+			jQuery.getJSON("#ajaxComURL#?bean=#ajaxBeanName#&method=getFields&query2array=0&returnformat=json",{"elementid":selectedChild})
+			.done(function(retData) {
+				
+				// Convert the Data from the AjaxProxy to CF Object
+				var res = #prefix#convertAjaxProxyObj2CFqueryObj(retData);
+			
 				if (res.COLUMNS[0] != 'ERRORMSG')
 				{
 					var newOptions = "";
@@ -474,8 +556,16 @@ History:
 						document.getElementById('assocCENameSpan').innerHTML = jQuery("option:selected",jQuery("###prefix#assocCustomElement")).text();
 						
 						// jQuery call to populate the Parent FormID, Parent Instance ID, Child Form ID, Child Instance ID and Sort By Fields
-						jQuery.getJSON("#ajaxComURL#/custom_element_datamanager_base.cfc?method=getFields&returnformat=json",{"elementid":selectedAssoc})
-						.done(function(res) {
+						
+/* -- Updated to use AjaxProxy -- */
+/* jQuery.getJSON("#ajaxComURL_OLD#/custom_element_datamanager_base.cfc?method=getFields&returnformat=json",{"elementid":selectedAssoc}) */
+						
+						jQuery.getJSON("#ajaxComURL#?bean=#ajaxBeanName#&method=getFields&query2array=0&returnformat=json",{"elementid":selectedAssoc}) 
+						.done(function(retData) {
+						
+						    // Convert the Data from the AjaxProxy to CF Object
+							var res = #prefix#convertAjaxProxyObj2CFqueryObj(retData);
+						
 							if (res.COLUMNS[0] != 'ERRORMSG')
 							{
 								var newOptions = "";
@@ -578,8 +668,16 @@ History:
 		
 		if (selectedChild != "")
 		{
-			jQuery.getJSON("#ajaxComURL#/custom_element_datamanager_base.cfc?method=getFieldIDList&returnformat=json",{"elementid":selectedChild})
-			.done(function(res) {
+
+/* -- Updated to use AjaxProxy -- */		
+//jQuery.getJSON("#ajaxComURL_OLD#/custom_element_datamanager_base.cfc?method=getFieldIDList&returnformat=json",{"elementid":selectedChild}) 
+
+			jQuery.getJSON("#ajaxComURL#?bean=#ajaxBeanName#&method=getFieldIDList&returnformat=json",{"elementid":selectedChild})
+			.done(function(retData) {
+			
+				// trim the retData
+				var res = jQuery.trim(retData);
+			
 				if (res != 'ERROR')
 				{
 					var IDListArray = res.split(',');
@@ -647,8 +745,16 @@ History:
 			{
 				if(document.#formname#.#prefix#refersParentCheckbox.checked == true)
 				{
-					jQuery.getJSON("#ajaxComURL#/custom_element_datamanager_base.cfc?method=getFields&returnformat=json",{"elementid":selectedChild})
-					.done(function(res) {
+						
+/* -- Updated to use AjaxProxy -- */
+/* jQuery.getJSON("#ajaxComURL_OLD#/custom_element_datamanager_base.cfc?method=getFields&returnformat=json",{"elementid":selectedChild}) */
+					
+					jQuery.getJSON("#ajaxComURL#?bean=#ajaxBeanName#&method=getFields&query2array=0&returnformat=json",{"elementid":selectedChild})
+					.done(function(retData) {
+					
+					 // Convert the Data from the AjaxProxy to CF Object
+					 var res = #prefix#convertAjaxProxyObj2CFqueryObj(retData);
+					
 						if (res.COLUMNS[0] != 'ERRORMSG')
 						{
 							var newOptions = "";
@@ -696,9 +802,16 @@ History:
 			document.getElementById('assocElementInputs').style.display = "";
 			document.getElementById('inactiveFieldTr').style.display = "";
 			document.getElementById('assocCENameSpan').innerHTML = jQuery("option:selected",jQuery("###prefix#assocCustomElement")).text();
+
+/* -- Updated to use AjaxProxy -- */			
+/* jQuery.getJSON("#ajaxComURL_OLD#/custom_element_datamanager_base.cfc?method=getFields&returnformat=json",{"elementid":selectedAssoc}) */
 			
-			jQuery.getJSON("#ajaxComURL#/custom_element_datamanager_base.cfc?method=getFields&returnformat=json",{"elementid":selectedAssoc})
-			.done(function(res) {
+			jQuery.getJSON("#ajaxComURL#?bean=#ajaxBeanName#&method=getFields&query2array=0&returnformat=json",{"elementid":selectedAssoc}) 
+			.done(function(retData) {
+			
+			     // Convert the Data from the AjaxProxy to CF Object
+				 var res = #prefix#convertAjaxProxyObj2CFqueryObj(retData);
+			
 				if (res.COLUMNS[0] != 'ERRORMSG')
 				{
 					var newOptions = "";
@@ -776,8 +889,18 @@ History:
 		
 		if (selectedAssoc != "")
 		{
-			jQuery.getJSON("#ajaxComURL#/custom_element_datamanager_base.cfc?method=getFieldIDList&returnformat=json",{"elementid":selectedAssoc})
-			.done(function(res) {
+			
+/* -- Updated to use AjaxProxy -- */
+// jQuery.getJSON("#ajaxComURL_OLD#/custom_element_datamanager_base.cfc?method=getFieldIDList&returnformat=json",{"elementid":selectedAssoc}) 
+
+//returns a list (not a query)
+			
+			jQuery.getJSON("#ajaxComURL#?bean=#ajaxBeanName#&method=getFieldIDList&returnformat=json",{"elementid":selectedAssoc})
+			.done(function(retData) {
+				
+				// trim the retData
+				var res = jQuery.trim(retData);
+			
 				if (res != 'ERROR')
 				{
 					var IDListArray = res.split(',');
@@ -882,9 +1005,16 @@ History:
 			document.getElementById('assocChildCENameSpan').innerHTML = childCustomElementName;
 			
 			jQuery("###prefix#assocCustomElement").children().remove().end().append("<option value=\"\"> - Select -</option>");
+
+/* -- Updated to use AjaxProxy -- */			
+/* 	jQuery.getJSON("#ajaxComURL#/custom_element_datamanager_base.cfc?method=getGlobalCE&returnformat=json") */
 			
-			jQuery.getJSON("#ajaxComURL#/custom_element_datamanager_base.cfc?method=getGlobalCE&returnformat=json")
-			.done(function(res) {
+			jQuery.getJSON("#ajaxComURL#?bean=#ajaxBeanName#&method=getGlobalCE&query2array=0&returnformat=json")
+			.done(function(retData) {
+			
+				// Convert the Data from the AjaxProxy to CF Object
+				var res = #prefix#convertAjaxProxyObj2CFqueryObj(retData);
+			
 				if (res.COLUMNS[0] != 'ERRORMSG')
 				{
 					var newOptions = "";
@@ -909,9 +1039,16 @@ History:
 			.fail(function() {
 				document.getElementById('errorMsgSpan').innerHTML = '#errorMsgCustom#';
 			});
+
+/* -- Updated to use AjaxProxy -- */			
+/* jQuery.getJSON("#ajaxComURL#/custom_element_datamanager_base.cfc?method=getFields&returnformat=json",{"elementid":selectedChild}) */
 			
-			jQuery.getJSON("#ajaxComURL#/custom_element_datamanager_base.cfc?method=getFields&returnformat=json",{"elementid":selectedChild})
-			.done(function(res) {
+			jQuery.getJSON("#ajaxComURL#?bean=#ajaxBeanName#&method=getFields&query2array=0&returnformat=json",{"elementid":selectedChild})
+			.done(function(retData) {
+			
+				// Convert the Data from the AjaxProxy to CF Object
+				var res = #prefix#convertAjaxProxyObj2CFqueryObj(retData);
+			
 				if (res.COLUMNS[0] != 'ERRORMSG')
 				{
 					var newOptions = "";
