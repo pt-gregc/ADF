@@ -33,7 +33,7 @@ History:
 --->
 
 1) Install the Custom Element DataManager Field 
-	- Import the custom_element_datamanager.zip file via the CommonSpot Site Admin 'Elements & Forms > Field Types and Masks'
+	- Import the Custom-Element-Data-Manager-Custom-Field-Type.zip file via the CommonSpot Site Admin 'Elements & Forms > Field Types and Masks'
 
 2) Copy the 'post-save-form-hook.cfm' file from the '/ADF/extensions/customfields/custom_element_datamanager/site-files/' directory to the root of your site.
 	- If you already have a 'post-save-form-hook.cfm' file in the root of your site DO NOT overwrite it. 

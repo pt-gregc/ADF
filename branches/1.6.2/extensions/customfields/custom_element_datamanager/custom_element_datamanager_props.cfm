@@ -43,7 +43,7 @@ History:
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "1.0"; 
+	fieldVersion = "1.0.1"; 
 	
 	// CS version and required Version variables
 	requiredCSversion = 9;
@@ -73,6 +73,7 @@ History:
 /* -- Updated to use AjaxProxy -- */	
 ajaxComURL_OLD = "#request.site.url#_cs_apps/components";
 
+	// AjaxProxy Path to make ajax call in context of the site
 	ajaxComURL = application.ADF.ajaxProxy;
 	ajaxBeanName = 'customElementDataManager';
 
@@ -341,7 +342,6 @@ ajaxComURL_OLD = "#request.site.url#_cs_apps/components";
 	// Function to Convert AjaxProxy data to CF Query data object
 	function #prefix#convertAjaxProxyObj2CFqueryObj(objData)
 	{
-		
 		var results = {};
 		results.COLUMNS = [];
 		results.DATA = [];

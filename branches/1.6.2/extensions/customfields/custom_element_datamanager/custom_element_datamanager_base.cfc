@@ -258,10 +258,10 @@ History:
 		</cfscript>
 	</cffunction>
 	
-	<cffunction name="renderGrid" access="remote" output="Yes" returntype="any" hint="Method to render the datamanger grid">	<!--- // TODO: Update to type="string" --->	
+	<cffunction name="renderGrid" access="remote" output="false" returntype="string" hint="Method to render the datamanger grid">	<!--- // TODO: Update to type="string" --->	
       <cfargument name="formID" type="numeric" required="true" hint="ID of the form or control type">
-		<cfargument name="propertiesStruct" type="any" required="true" hint="Properties structure for the field in json format"> <!--- // TODO: Update to type="struct" --->
-		<cfargument name="currentValues" type="any" required="true" hint="Current values structure for the field in json format"> <!--- // TODO: Update to type="struct" --->
+		<cfargument name="propertiesStruct" type="struct" required="true" hint="Properties structure for the field in json format"> <!--- // TODO: Update to type="struct" --->
+		<cfargument name="currentValues" type="struct" required="true" hint="Current values structure for the field in json format"> <!--- // TODO: Update to type="struct" --->
 		<cfargument name="fieldID" type="numeric" required="true" hint="ID of the field">
 		
 		<!--- <cfmodule template="/commonspot/utilities/log-append.cfm" comment="in custom_element_datamanager_base.cfc RenderGrid()"> --->
@@ -272,34 +272,21 @@ History:
 				var dataRecords = QueryNew('');
 				var displayData = QueryNew('');
 				
-				if (IsJSON(arguments.propertiesStruct))
-				{
-					inputPropStruct = DeserializeJSON(arguments.propertiesStruct);
-				}
-				else
-				{
-					inputPropStruct = arguments.propertiesStruct;
-				}
-				if (IsJSON(arguments.currentValues))
-				{
-					curValuesStruct = DeserializeJSON(arguments.currentValues);
-				}
-				else
-				{
-					curValuesStruct = arguments.currentValues;
-				}
+				inputPropStruct = arguments.propertiesStruct;
+				curValuesStruct = arguments.currentValues;
 				
 				dataRecords = queryData(formID=arguments.formID,propertiesStruct=inputPropStruct,currentValues=curValuesStruct);
+//application.ADF.utils.doDUMP(dataRecords,"dataRecords",1);
 				
-				if (NOT StructKeyExists(dataRecords, 'errorMsg'))
+				if (NOT StructKeyExists(dataRecords, 'errorMsg')) 
 					displayData = getDisplayData(fieldID=arguments.fieldID, 
 															propertiesStruct=inputPropStruct,
 															dataRecords=dataRecords.qry,
 															fieldMapStruct=dataRecords.fieldMapStruct,
 															fieldOrderList=dataRecords.fieldOrderList);
 															
-															
-				//application.ADF.utils.doDUMP(displayData,"displayData",1);											
+														
+//application.ADF.utils.doDUMP(displayData,"displayData",1);											
 			</cfscript>
 			<!--- <cfoutput>#SerializeJSON(displayData)#</cfoutput> --->
 			
@@ -532,7 +519,6 @@ History:
 						else
 							assocColumnList = assocReqFieldName;
 
-// CHECK 						
 						data = ceObj.getRecordsFromSavedFilter(elementID=inputPropStruct.assocCustomElement,queryEngineFilter=assocFilterArray,columnList=assocColumnList,orderBy=assocReqFieldName, orderByDirection="ASC");
 						assocData = data.resultQuery;
 						
@@ -546,7 +532,7 @@ History:
 					childFilterArray = ceObj.createQueryEngineFilter(filterStatementArray=statementsArray,filterExpression=childFilterExpression);
 					childColumnList = '#childColNameList#,#valueFieldName#';
 					data = ceObj.getRecordsFromSavedFilter(elementID=inputPropStruct.childCustomElement,queryEngineFilter=childFilterArray,columnList=childColumnList);									
-// CHECK 	
+
 					filteredData = data.resultQuery;
 				</cfscript>
 				

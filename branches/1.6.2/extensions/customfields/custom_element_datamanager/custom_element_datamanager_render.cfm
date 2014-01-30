@@ -43,23 +43,14 @@ History:
 	requiredCSversion = 9;
 	csVersion = ListFirst(ListLast(request.cp.productversion," "),".");
 	
-	// Path to this CFT
-	cftPath = "/ADF/extensions/customfields/custom_element_datamanager";
 	
-	// Path to proxy component in the context of the site
-	componentPath = "/ADF/lib/fields/";
+	// Path to component in the ADF
 	componentOverridePath = "#request.site.csAppsURL#components";
 	componentName = "customElementDataManager_1_0";
 	
 	// Ajax URL to the proxy component in the context of the site
 	ajaxComURL = application.ADF.ajaxProxy;
 	ajaxBeanName = 'customElementDataManager';
-	
-	// OLD STUFF 
-	// TODO: DELETE
-	componentName_OLD = "custom_element_datamanager_base";
-	componentPath_OLD = "#request.site.csAppsURL#components";
-	ajaxComURL_OLD = "#request.site.URL#_cs_apps/components";
 </cfscript>
 
 <cfparam name="attributes.callingElement" default="">
@@ -141,21 +132,21 @@ History:
 					}
 					else
 					{
-						datamanagerObj = application.ADF.customElementDataManager;
+						datamanagerObj = application.ADF[ajaxBeanName];
 					}
 				}
 				catch(Any e)
 				{
 					//datamanagerObj = CreateObject("component", "#componentPath#/#componentName#");
 					//componentName = 'custom_element_datamanager_base';
-					datamanagerObj = application.ADF.customElementDataManager;
+					datamanagerObj = application.ADF[ajaxBeanName];
 				}
 			}
 			else
 			{
 				//datamanagerObj = CreateObject("component", "#componentPath#/#componentName#");
 				//componentName = 'custom_element_datamanager_base';
-				datamanagerObj = application.ADF.customElementDataManager;
+				datamanagerObj = application.ADF[ajaxBeanName];
 			}	
 	
 			widthVal = "600px";
@@ -282,8 +273,9 @@ History:
 			function loadData_#uniqueTableAppend#()
 			{
 				var res#uniqueTableAppend# = '';
+				var retData#uniqueTableAppend# = '';
 				
-				dataToBeSent = { 
+				dataToBeSent#uniqueTableAppend# = { 
 						bean: '#ajaxBeanName#',
 						method: 'renderGrid',
 						query2array: 0,
@@ -296,28 +288,35 @@ History:
 
 /* -- Updated to use AjaxProxy -- */
 /* jQuery.post( '#ajaxComURL_OLD#/#componentName_OLD#.cfc', 
-			dataToBeSent, 
+			dataToBeSent#uniqueTableAppend#, 
 			null, 
 			"json")
 */
+
 				 
 				jQuery.when(
 
 							jQuery.post( '#ajaxComURL#', 
-													dataToBeSent, 
+													dataToBeSent#uniqueTableAppend#, 
 													null, 
 													"json" )
 
 
-/*				 
-	jQuery.getJSON("#ajaxComURL_OLD#/#componentName#.cfc?method=renderGrid&returnformat=json&formID=#ceFormID#&fieldID=#fieldQuery.inputID#&" + "&propertiesStruct=" + JSON.stringify(<cfoutput>#SerializeJSON(inputParameters)#</cfoutput>) + "&currentValues=" + JSON.stringify(<cfoutput>#SerializeJSON(attributes.currentvalues)#</cfoutput>))
-*/
+
 							
 
 				).done(function(retData#uniqueTableAppend#) {
 				
 					// Convert the JSON String from the AjaxProxy to JSON Object
-					var res#uniqueTableAppend# = jQuery.parseJSON( retData#uniqueTableAppend# );	
+					res#uniqueTableAppend# = jQuery.parseJSON( retData#uniqueTableAppend# );	
+					
+					// USE THIS TO NOT display an error and make sure we return aoColumns and aaData
+					/*if ( !res#uniqueTableAppend#.hasOwnProperty('aoColumns') )  
+					{
+						res#uniqueTableAppend# = {};
+						res#uniqueTableAppend#.aoColumns = '';
+						res#uniqueTableAppend#.aaData = [];
+					}*/
 
 					var columns = [];
 					var columnsList = res#uniqueTableAppend#.aoColumns;
@@ -404,7 +403,7 @@ History:
 										tableData = oTable#uniqueTableAppend#.fnGetNodes()[endPosition-1];
 										endVal = jQuery(tableData).attr("id");
 										
-										dataToBeSent = 
+										dataToBeSent#uniqueTableAppend# = 
 											{ 
 												bean: '#ajaxBeanName#',
 												method: 'onDrop',
@@ -418,7 +417,7 @@ History:
 										 	};
 										
 											jQuery.post( '#ajaxComURL#', 
-																dataToBeSent, 
+																dataToBeSent#uniqueTableAppend#, 
 																onSuccess_#uniqueTableAppend#, 
 																"json"); 
 											
