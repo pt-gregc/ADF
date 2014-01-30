@@ -32,16 +32,19 @@ ADF Requirements:
 	
 History:
 	2014-01-16 - DJM - Created
+	2014-01-29 - GAC - Converted to use AjaxProxy and the ADF Lib
 --->
 
 <cfscript>
 	requiredVersion = 9;
 	productVersion = ListFirst(ListLast(request.cp.productversion," "),".");
 	
-	// Path to this CFT
-	cftPath = "/ADF/extensions/customfields/custom_element_hierarchy_selector";
-	// Path to proxy component in the context of the site
-	componentPath = "#request.site.csAppsURL#components";
+	// ADF Bean Name
+	ajaxBeanName = 'customElementHierarchySelector';
+	
+	// OLD STUFF 
+	// TODO: DELETE
+	componentPath_OLD = "#request.site.csAppsURL#components";
 </cfscript>
 
 <cfparam name="attributes.callingElement" default="">
@@ -113,7 +116,8 @@ History:
 				ceFormID = attributes.fields.formID[1];
 		
 			customElementObj = Server.CommonSpot.ObjectFactory.getObject('CustomElement');
-			selectorObj = CreateObject("component", "#componentPath#/custom_element_hierarchy_selector_base");
+			//selectorObj = CreateObject("component", "#componentPath#/custom_element_hierarchy_selector_base");
+			selectorObj = application.ADF[ajaxBeanName];
 			bMemory = selectorObj.isMemoryStructureGood(propertiesStruct=inputParameters,elementID=ceFormID,fieldID=fieldQuery.inputID);
 			
 			if (bMemory EQ 0)

@@ -32,6 +32,7 @@ ADF Requirements:
 	
 History:
 	2014-01-16 - DJM - Created
+	2014-01-29 - GAC - Converted to use AjaxProxy and the ADF Lib
 --->
 <cfcomponent output="false" displayname="custom_element_hierarchy_selector_base" extends="ADF.core.Base" hint="Contains base functions to handle hierarchy selector">
 	

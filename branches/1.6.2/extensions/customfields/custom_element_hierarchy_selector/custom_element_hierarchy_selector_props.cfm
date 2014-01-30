@@ -32,13 +32,14 @@ ADF Requirements:
 	
 History:
 	2014-01-16 - DJM - Created
+	2014-01-29 - GAC - Converted to use AjaxProxy and the ADF Lib
 --->
 
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "1.0"; 
+	fieldVersion = "1.0.1"; 
 	
 	requiredVersion = 9;
 	productVersion = ListFirst(ListLast(request.cp.productversion," "),".");
@@ -60,10 +61,10 @@ History:
 	formID = attributes.formID;
 	currentValues = attributes.currentValues;
 	
-	// Path to this CFT
-	cftPath = "/ADF/extensions/customfields/custom_element_hierarchy_selector";
-	// Call the proxy component in the context of the site
-	componentPath = "#request.site.URL#_cs_apps/components";
+	
+	// AjaxProxy Path to make ajax call in context of the site
+	ajaxComURL = application.ADF.ajaxProxy;
+	ajaxBeanName = 'customElementDataManager';
 
 	if( not structKeyExists(currentValues, "customElement") )
 		currentValues.customElement = "";
@@ -207,6 +208,65 @@ History:
 		return true;
 	}
 	
+	// Function to Convert AjaxProxy data to CF Query data object
+	function #prefix#convertAjaxProxyObj2CFqueryObj(objData)
+	{
+		var results = {};
+		results.COLUMNS = [];
+		results.DATA = [];
+		
+		// Look for the 'columnlist' key
+		if ( objData.hasOwnProperty('columnlist') )
+		{ 	
+			// Convert the 'columnlist' key to results.COLUMNS
+			var colsArray = objData.columnlist.split(',');
+			jQuery.each( colsArray,function( rowNum,rowValue ){
+				var temp;
+				if (colsArray.hasOwnProperty(rowValue)) 
+				{
+					temp = colsArray[rowValue].toUpperCase();
+					delete colsArray[rowValue];
+					colsArray[rowValue.charAt(0).toUpperCase() + rowValue.substring(1)] = temp;
+				}
+			});
+			// Convert the colsArray to UPPERCASE
+			var upperCasedArray = jQuery.map(colsArray, function(item, index) {
+			    return item.toUpperCase();
+			});
+			// Set the res.COLUMNS value
+			results.COLUMNS = upperCasedArray;
+	   }
+	   
+	   // Look for the 'data' key
+	   if ( objData.hasOwnProperty('data') )
+	   {	
+		   // Convert the 'data' key to results.DATA
+		   var rowData = [];
+		   var cellPos = 0;
+		   jQuery.each( objData.data,function( colName,colValues ){
+	           // console.log('colName: ' + colName);
+			   // console.log('colValues: ' + colValues);
+					
+	            jQuery.each( colValues,function( rowPos,cellValue ){
+						
+	                //console.log('rowPos: ' + rowPos);
+					//console.log('cellPos: ' + cellPos);
+					//console.log('cellValue: ' + cellValue);
+						
+					if ( !rowData.hasOwnProperty(rowPos) ) 
+					{ 
+						rowData[rowPos] = [];
+					}
+					rowData[rowPos][cellPos] = cellValue; 
+				});
+	            cellPos++;
+	        });
+			results.DATA = rowData;
+		}
+				
+		return results;
+	}
+	
 	jQuery(document).ready(function()
 	{
 		jQuery("###prefix#customElement").change(childOptionFunction);
@@ -233,10 +293,14 @@ History:
 		else
 		{
 			document.getElementById('childElementInputs').style.display = "";
-			//jQuery.getJSON("#componentPath#/custom_element_hierarchy_selector_base.cfc?method=getFields&returnformat=json",{"elementid":selectedChild})
+
+			/* -- Updated to use AjaxProxy -- */
+			jQuery.getJSON("#ajaxComURL#?bean=#ajaxBeanName#&method=getFields&query2array=0&returnformat=json",{"elementid":selectedChild})
+			.done(function(retData) {
 			
-			jQuery.getJSON("#componentPath#/custom_element_hierarchy_selector_base.cfc?method=getFields&returnformat=json",{"elementid":selectedChild})
-			.done(function(res) {
+				// Convert the Data from the AjaxProxy to CF Object
+				var res = #prefix#convertAjaxProxyObj2CFqueryObj(retData);
+			
 				if (res.COLUMNS[0] != 'ERRORMSG')
 				{
 					var allOptions = "";
