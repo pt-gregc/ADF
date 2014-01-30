@@ -26,10 +26,12 @@ Name:
 Summary:
 	This module should be used for the ADF Custom Element Select field type.
 	
-	(See Summary comments in the specific version of the field_filter.cfm file for input/output parameters)						
+	(See Summary comments in the version 1.0 field_filter.cfm file for input/output parameters)						
 History:
 	2014-01-14 - TP - Created						
-	2014-01-30 - GAC - Added redirect CFINCLUDE to point to custom_element_select_field/v1_1/custom_element_select_field_filter.cfm
+	2014-01-30 - GAC - Moved into a v1_1 version subfolder
+	2014-01-30 - GAC - Added redirect CFINCLUDE to point to custom_element_select_field/v1_0/custom_element_select_field_filter.cfm
 --->
-<cfset useCFTversion = "v1_1">
+<!--- // Pass-through to get the v1.0 field_filter.cfm file --->
+<cfset useCFTversion = "v1_0">
 <cfinclude template="/ADF/extensions/customfields/custom_element_select_field/#useCFTversion#/custom_element_select_field_filter.cfm">
