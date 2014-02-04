@@ -844,11 +844,11 @@ History:
 		var page_id_ext = 0;
 		var mailto = "";
 		
-		// Check to seeif the string contains a 'PAGEID='
+		// Check to see if the string contains a 'PAGEID='
 		if ( arrayLen(REMatch("PAGEID=[\d]+", arguments.str)) GT 0 )
 			page_id_ext = int(ReReplace(page_id[1],"PAGEID=",""));
 		
-		if ( list_len GTE 2 AND (list_len EQ 2 OR int(list[3]) EQ 1)) { // REGISTERED URLs AND IMAGES
+		if ( list_len GTE 2 AND (list_len EQ 2 OR int(list[3]) GTE 1)) { // REGISTERED URLs AND IMAGES
 		    full_url = list[2];
 		}
 		else if ( list_len EQ 3 AND page_id_ext ) {   // INTERNAL PAGES
