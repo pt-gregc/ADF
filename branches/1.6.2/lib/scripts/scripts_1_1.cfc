@@ -40,7 +40,7 @@ History:
 --->
 <cfcomponent displayname="scripts_1_1" extends="ADF.lib.scripts.scripts_1_0" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" value="1_1_20">
+<cfproperty name="version" value="1_1_21">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_1" type="dependency">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Scripts_1_1">
@@ -1463,14 +1463,16 @@ History:
 	2012-08-16 - GAC - Added the force parameter
 	2014-01-22 - GAC - Added a version parameter
 					 - Updated the dependencies to push through the force parameter
+	2014-02-04 - MS  - Added a missing semi-colon to the thirdPartyLibPath statement
 --->
 <cffunction name="loadJSTree" access="public" returntype="void" hint="Loads the jsTree plugin">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfargument name="version" type="string" required="false" default="1.0" hint="Script version to load.">
 	<cfscript>
 		var outputHTML = "";
-		var thirdPartyLibPath = "/ADF/thirdParty/jquery/jsTree"
-		//Dependencies
+		var thirdPartyLibPath = "/ADF/thirdParty/jquery/jsTree";
+		
+		// Dependencies
 		loadJQuery(force=arguments.force);
 		loadJQueryCookie(force=arguments.force);
 		loadJQueryHotkeys(force=arguments.force);
