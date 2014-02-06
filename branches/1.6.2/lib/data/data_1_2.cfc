@@ -35,7 +35,7 @@ History:
 --->
 <cfcomponent displayname="data_1_2" extends="ADF.lib.data.data_1_1" hint="Data Utils component functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_7">
+<cfproperty name="version" value="1_2_8">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Data_1_2">
 
@@ -324,6 +324,7 @@ Arguments:
 	string - orderType
 History:
 	2013-10-23 - GAC - Created
+	2014-02-05 - GAC - Removed the requirement for an orderType in the order by statement. 
 --->
 <cffunction name="QuerySort" displayname="QuerySort" access="public" hint="Sort a query based on a custom list" returntype="query" output="false">
     <cfargument name="query" type="query" required="yes" hint="The query to be sorted">
@@ -344,7 +345,7 @@ History:
 		<cfquery name="qResult" dbtype="query">
 			SELECT #qColumnsList#
 			FROM arguments.query
-			<cfif LEN(TRIM(orderCol)) AND LEN(TRIM(orderTypeOption))>
+			<cfif LEN(TRIM(orderCol))>
 			ORDER BY #orderCol# #orderTypeOption#
 			</cfif>
 		</cfquery>
@@ -377,11 +378,13 @@ History:
 	2013-01-10 - MFC - Created
 	2013-10-23 - GAC - Renamed and cleaned up debug code in the method  
 					   Added null value protection logic around the ORDER BY statement
+	2014-02-05 - GAC - Updated to handle reserved words
+					 - Updated to auto-detect numeric and date comparisons. So now passing a column type is not needed unless forcing a specific type.
 --->
 <cffunction name="QuerySortByOrderedList" displayname="QuerySortByOrderedList" access="public" hint="Sort a query based on a custom ordered list" returntype="query" output="false">
     <cfargument name="query" type="query" required="yes" hint="The query to be sorted">
     <cfargument name="columnName" type="string" required="yes" hint="The name of the column to be sorted">
-    <cfargument name="columnType" type="string" required="no" default="numeric" hint="The column type. Possible values: numeric, varchar">
+    <cfargument name="columnType" type="string" required="no" default="" hint="The column type. Not needed will auto-detect. But possible override values: numeric, varchar, date">
     <cfargument name="orderList" type="string" required="yes" hint="The list used to sort the query">
 	<cfargument name="orderColumnName" type="string" required="no" default="recSortCol" hint="The name of the column containing the order number"> 
 	<cfargument name="orderListDelimiter" type="string" required="no" default=",">
@@ -389,34 +392,91 @@ History:
     <cfscript>
 		var qResult = queryNew("null");
 		var qColumnsList = arguments.query.columnList;
-		var orderCol = "";
-		var orderItem = '';
+		var orderItem = "";
+		var columnTypesAllowed = "varchar,numeric,date";
+		var columnTypeOverride = "";
+		var n = 1;
+		var newCol = ""
+		var newColList = "";
+		var criteriaValue = "";
+		var logSQL = (structKeyExists(Request.Params,"adfLogQuerySQL") and Request.Params.adfLogQuerySQL eq 1);
+		var logMsg = "";
 		
-		if ( ListFindNoCase(qColumnsList,arguments.columnName) )
-			orderCol = arguments.columnName;
+		// If a columnType is passed in set it as the override Column Type
+		if ( ListFindNoCase(columnTypesAllowed,arguments.columnType) )
+			columnTypeOverride = arguments.columnType;
+		
+		// Protect against reserved words or columns with spaces query column names	
+		for ( n=1; n LTE ListLen(qColumnsList); n=n+1 ) {
+			newCol = "[" & ListGetAt(qColumnsList,n) & "]";
+			newColList = ListAppend(newColList,newCol);
+		}
 	</cfscript>
+		
     <!--- // Make the order list unique to avoid duplicating query records --->
     <cftry>
-		<cfquery name="qResult" dbtype="query">
+		
+		<cfquery name="qResult" dbtype="query" result="createQueryResult">
 			<cfloop from="1" to="#listLen(arguments.orderList, arguments.orderListDelimiter)#" index="orderItem">
-				SELECT #qColumnsList#, #orderItem# AS #arguments.orderColumnName#
+				SELECT #newColList#, #orderItem# AS [#arguments.orderColumnName#]
 				FROM arguments.query
-				WHERE LOWER(#arguments.columnName#) = <cfqueryparam value="#lcase(listGetAt(arguments.orderList, orderItem, arguments.orderListDelimiter))#" cfsqltype="cf_sql_#arguments.columnType#">
+				
+				<cfset criteriaValue = listGetAt(arguments.orderList, orderItem, arguments.orderListDelimiter)>
+				<cfif columnTypeOverride EQ "date" OR columnTypeOverride EQ "numeric">
+					<!--- // If the columnType is FORCED then obey the passed in Type even if it is WRONG --->
+					WHERE [#arguments.columnName#] = <cfqueryparam value="#criteriaValue#" cfsqltype="cf_sql_#columnTypeOverride#">
+				<cfelseif LEN(TRIM(columnTypeOverride)) EQ 0 AND IsDate(criteriaValue)>
+					<!--- // For CS dates compare as strings... so use VARCHAR instead of Date
+					      // But don't do LOWER() on the column and LCASE() on the value --->
+					WHERE [#arguments.columnName#] = <cfqueryparam value="#criteriaValue#" cfsqltype="cf_sql_varchar">
+				<cfelseif LEN(TRIM(columnTypeOverride)) EQ 0 AND IsNumeric(criteriaValue)>
+					<!--- // For if a numeric value is detected compare as numeric  --->
+					WHERE [#arguments.columnName#] = <cfqueryparam value="#criteriaValue#" cfsqltype="cf_sql_numeric">	
+				<cfelse>
+					WHERE LOWER([#arguments.columnName#]) = <cfqueryparam value="#lcase(criteriaValue)#" cfsqltype="cf_sql_varchar">
+				</cfif>
+				
 				<cfif orderItem LT listLen(arguments.orderList, arguments.orderListDelimiter)>
 					UNION
 				</cfif>
 			</cfloop>
 			
 			<cfif LEN(TRIM(arguments.orderColumnName))>
-			ORDER BY #arguments.orderColumnName#
+			ORDER BY [#arguments.orderColumnName#]
 			</cfif>
 		</cfquery>
+		
+		<!--- // If requested... log the generated SQL --->
+		<cfif logSQL>
+			<cfsavecontent variable="logMsg">
+				<cfoutput>[data_1_2.QuerySortByOrderedList] generated SQL syntax:
+				<cfif StructKeyExists(createQueryResult,"sql")>
+					#createQueryResult.sql#
+				</cfif>
+				<cfif StructKeyExists(createQueryResult,"sqlparameters")>
+					PARAMS: #ArrayToList(createQueryResult.sqlparameters)#
+				</cfif>
+				#repeatString("-", 50)#</cfoutput>
+			</cfsavecontent> 
+			<cfset application.ADF.utils.logAppend(logMsg,"ADFlogQuerySQL.log")>
+		</cfif>
+		
+		<!--- // Everything seems good... so return the results --->
     	<cfreturn qResult>
 		
 		<cfcatch>
-			<cfset application.ADF.utils.logAppend("Error in ADF method QuerySortByOrderedList Message:#cfcatch.message# Detail:#cfcatch.detail#")> 
+			<!--- // Build an Error Log entry --->
+			<cfset logMsg = "[data_1_2.QuerySortByOrderedList] Error building query: #cfcatch.message##chr(10)#Detail: #cfcatch.detail#">
+			<cfif StructKeyExists(cfcatch,"sql")>
+				<!--- // Include the generated sql in the error log --->
+				<cfset logMsg = logMsg & "#chr(10)#QUERY SQL:#chr(10)##cfcatch.sql#">
+			</cfif>
+			<cfset application.ADF.utils.logAppend(logMsg)> 
+			<!--- <cfset application.ADF.utils.logAppend("Error in ADF method QuerySortByOrderedList Message:#cfcatch.message# Detail:#cfcatch.detail#")> --->
 			<!--- <cfdump var="#cfcatch#" label="cfcatch" expand="false"> --->
-			<cfreturn arguments.query>
+			
+			<!--- // If there was a problem don't return any results... returning incorrect results just masks the issue --->
+			<cfreturn QueryNew("#qColumnsList#")>
 		</cfcatch>
 	</cftry>    
 </cffunction>
