@@ -192,6 +192,8 @@ History:
 </cfsavecontent>
 <cfset caller.jsSetValueFunction = jsSetValue>
 
+
+
 <cffunction name="createOptionsStructure" returntype="struct" hint="Creates the data-display pair for the options of the selection list" output="Yes">
 	<cfargument name="propertiesStruct" type="struct" required="yes" hint="Input the properties values">
 		
@@ -208,26 +210,28 @@ History:
 	
 		for( i=1; i lte ArrayLen(recs); i=i+1 )
 		{
-		
-			if( StructKeyExists(recs[i].values, cfmlInputParams.DisplayField) )
-				display = recs[i].values[cfmlInputParams.DisplayField];
-			else	
+			if( StructKeyExists(recs[i].values, cfmlInputParams.ValueField) )	
 			{
-				if( cfmlInputParams.DisplayField eq '--Other--' AND cfmlInputParams.DisplayFieldBuilder neq '' )
+				if( StructKeyExists(recs[i].values, cfmlInputParams.DisplayField) )
+					display = recs[i].values[cfmlInputParams.DisplayField];
+				else	
 				{
-					// evaluate the fields in the string (i.e. «lname», «fname» )
-					display = getEvaluated( cfmlInputParams.DisplayFieldBuilder, recs[i].values );
+					if( cfmlInputParams.DisplayField eq '--Other--' AND cfmlInputParams.DisplayFieldBuilder neq '' )
+					{
+						// evaluate the fields in the string (i.e. «lname», «fname» )
+						display = getEvaluated( cfmlInputParams.DisplayFieldBuilder, recs[i].values );
+					}	
+					else
+						display = recs[i].values[cfmlInputParams.ValueField];
 				}	
-				else
-					display = recs[i].values[cfmlInputParams.ValueField];
-			}	
+				
+				value = recs[i].values[cfmlInputParams.ValueField];
 			
-			value = recs[i].values[cfmlInputParams.ValueField];
-		
-			if( NOT StructKeyExists( optionsStruct, display ) )
-			{
-				optionsStruct[ display ] = value;
-			}	
+				if( NOT StructKeyExists( optionsStruct, display ) )
+				{
+					optionsStruct[ display ] = value;
+				}	
+			}
 		}
 	</cfscript>	
 	
