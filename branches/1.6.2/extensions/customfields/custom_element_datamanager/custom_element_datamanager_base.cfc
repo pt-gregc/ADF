@@ -174,8 +174,7 @@ History:
 			var ceObj = Server.CommonSpot.ObjectFactory.getObject("CustomElement");
 			var colList = inputPropStruct.displayFields;
 			var colArray = ArrayNew(1);
-			var childFormFields = "";
-			var childFormFields = QUeryNew('');
+			var childFormFields = QueryNew('');
 			var fldName = "";
 			var allChildColList = "";
 			var allChildColNameList = '';
@@ -456,28 +455,28 @@ History:
 	<cfargument name="fieldOrderList" type="string" required="true" hint="Order in which the fields need to be returned">
 		
 	<cfscript>
-			var inputPropStruct = arguments.propertiesStruct;
-			var returnData = QueryNew('');
-			var childData = arguments.dataRecords;
-			var dataColumnList = ListPrepend(arguments.fieldOrderList,'AssocDataPageID,ChildDataPageID');
-			var actionColumnArray = ArrayNew(1);
-			var renderData = '';
-			var mappingStruct = arguments.fieldMapStruct;
-			var dataColumnArray = ArrayNew(1);
-			var i = 0;
-			var formFieldType = '';
-			var formFieldID = 0;
-			var formFieldValue = '';
-			var returnStruct = StructNew();
-			var convertedCols = StructNew();
-			var converted = 0;
-			var convertedColumnList = '';
-			var pos = 0;
-			var str = '';
-			var col = '';
-			
-			dataColumnArray = ListToArray(dataColumnList);
-		</cfscript>
+		var inputPropStruct = arguments.propertiesStruct;
+		var returnData = QueryNew('');
+		var childData = arguments.dataRecords;
+		var dataColumnList = ListPrepend(arguments.fieldOrderList,'AssocDataPageID,ChildDataPageID');
+		var actionColumnArray = ArrayNew(1);
+		var renderData = '';
+		var mappingStruct = arguments.fieldMapStruct;
+		var dataColumnArray = ArrayNew(1);
+		var i = 0;
+		var formFieldType = '';
+		var formFieldID = 0;
+		var formFieldValue = '';
+		var returnStruct = StructNew();
+		var convertedCols = StructNew();
+		var converted = 0;
+		var convertedColumnList = '';
+		var pos = 0;
+		var str = '';
+		var col = '';
+		
+		dataColumnArray = ListToArray(dataColumnList);
+	</cfscript>
 		
 		<cftry>			
 			<cfloop query="childData">			
@@ -1033,15 +1032,15 @@ History:
 		<cfargument name="propertiesStruct" type="any" required="true" hint="Properties structure for the field in json format"> <!--- // TODO: Update to type="struct" --->
 		<cfargument name="currentValues" type="any" required="true" hint="Current values structure for the field in json format"> <!--- // TODO: Update to type="struct" --->
 		<cfargument name="fieldID" type="numeric" required="true" hint="ID of the field">
+
+		<cfscript>
+			var inputPropStruct = StructNew();
+			var curValuesStruct = StructNew();
+			var dataRecords = QueryNew('');
+			var displayData = QueryNew('');
+			var logError = false;
 		
-		<!--- <cfmodule template="/commonspot/utilities/log-append.cfm" comment="in custom_element_datamanager_base.cfc RenderGrid()"> --->
-		<cftry>
-			<cfscript>
-				var inputPropStruct = StructNew();
-				var curValuesStruct = StructNew();
-				var dataRecords = QueryNew('');
-				var displayData = QueryNew('');
-				
+			try {
 				if (IsJSON(arguments.propertiesStruct))
 				{
 					inputPropStruct = DeserializeJSON(arguments.propertiesStruct);
@@ -1050,6 +1049,7 @@ History:
 				{
 					inputPropStruct = arguments.propertiesStruct;
 				}
+				
 				if (IsJSON(arguments.currentValues))
 				{
 					curValuesStruct = DeserializeJSON(arguments.currentValues);
@@ -1058,6 +1058,7 @@ History:
 				{
 					curValuesStruct = arguments.currentValues;
 				}
+			
 				
 				dataRecords = queryData(formID=arguments.formID,propertiesStruct=inputPropStruct,currentValues=curValuesStruct);
 				
@@ -1069,16 +1070,20 @@ History:
 															fieldOrderList=dataRecords.fieldOrderList);
 															
 															
-				//application.ADF.utils.doDUMP(displayData,"displayData",1);											
-			</cfscript>
-			<!--- <cfoutput>#SerializeJSON(displayData)#</cfoutput> --->
-			
-			<cfreturn SerializeJSON(displayData)>
-			
-			<cfcatch>
-				<cfmodule template="/commonspot/utilities/log-append.cfm" comment="Error in custom_element_datamanager_base.cfc RenderGrid() #cfcatch.message# #cfcatch.detail#">
-			</cfcatch>
-		</cftry>
+				//application.ADF.utils.doDUMP(displayData,"displayData",1);
+				
+				return SerializeJSON(displayData);
+			} 
+			catch (any e) 
+			{
+				logError = true;	
+			}										
+		</cfscript>		
+		<!-- // If error is generated log it --->
+		<cfif logError>
+			<cfmodule template="/commonspot/utilities/log-append.cfm" comment="Error in custom_element_datamanager_base.cfc RenderGrid() #e.message# #e.detail#">
+			<cfreturn "">
+		</cfif>	
     </cffunction>
 	
 	<cffunction name="onDrop" returnformat="json" access="remote" hint="Method to reorder the values fo a custom element">
