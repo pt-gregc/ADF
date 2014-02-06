@@ -380,13 +380,16 @@ History:
 					   Added null value protection logic around the ORDER BY statement
 	2014-02-05 - GAC - Updated to handle reserved words
 					 - Updated to auto-detect numeric and date comparisons. So now passing a column type is not needed unless forcing a specific type.
+	2013-02-06 - GAC - Updated the FORCE and AUT0-DETECT columnTpye logic. 
+					 - Updated the generated SQL output and error logging.
+					 - Added safety checks for the custom sort column name
 --->
 <cffunction name="QuerySortByOrderedList" displayname="QuerySortByOrderedList" access="public" hint="Sort a query based on a custom ordered list" returntype="query" output="false">
     <cfargument name="query" type="query" required="yes" hint="The query to be sorted">
     <cfargument name="columnName" type="string" required="yes" hint="The name of the column to be sorted">
     <cfargument name="columnType" type="string" required="no" default="" hint="The column type. Not needed will auto-detect. But possible override values: numeric, varchar, date">
     <cfargument name="orderList" type="string" required="yes" hint="The list used to sort the query">
-	<cfargument name="orderColumnName" type="string" required="no" default="recSortCol" hint="The name of the column containing the order number"> 
+	<cfargument name="orderColumnName" type="string" required="no" default="recSortCol" hint="The name of the column containing the order number. Must be unique and not a column the orginal query"> 
 	<cfargument name="orderListDelimiter" type="string" required="no" default=",">
 	
     <cfscript>
@@ -396,7 +399,7 @@ History:
 		var columnTypesAllowed = "varchar,numeric,date";
 		var columnTypeOverride = "";
 		var n = 1;
-		var newCol = ""
+		var newCol = "";
 		var newColList = "";
 		var criteriaValue = "";
 		var logSQL = (structKeyExists(Request.Params,"adfLogQuerySQL") and Request.Params.adfLogQuerySQL eq 1);
@@ -411,6 +414,13 @@ History:
 			newCol = "[" & ListGetAt(qColumnsList,n) & "]";
 			newColList = ListAppend(newColList,newCol);
 		}
+		
+		// A saftey catch so there is always a custom sort ORDERCOLUMNNAME defined
+		if ( LEN(TRIM(arguments.orderColumnName)) EQ 0 )
+			arguments.orderColumnName = "recSortCol";
+		// Also make sure the ORDERCOLUMNNAME is unique and not one of the query columns
+		if ( ListFindNoCase(qColumnsList,arguments.orderColumnName) )
+			arguments.orderColumnName = "xNew" & arguments.orderColumnName;
 	</cfscript>
 		
     <!--- // Make the order list unique to avoid duplicating query records --->
@@ -420,18 +430,15 @@ History:
 			<cfloop from="1" to="#listLen(arguments.orderList, arguments.orderListDelimiter)#" index="orderItem">
 				SELECT #newColList#, #orderItem# AS [#arguments.orderColumnName#]
 				FROM arguments.query
-				
+				<!--- // Set the Criteria Value for the WHERE clause --->
 				<cfset criteriaValue = listGetAt(arguments.orderList, orderItem, arguments.orderListDelimiter)>
-				<cfif columnTypeOverride EQ "date" OR columnTypeOverride EQ "numeric">
+				<!--- // Build the WHERE clause --->
+				<cfif columnTypeOverride EQ "numeric" OR (IsNumeric(criteriaValue) AND LEN(TRIM(columnTypeOverride)) EQ 0)>
 					<!--- // If the columnType is FORCED then obey the passed in Type even if it is WRONG --->
-					WHERE [#arguments.columnName#] = <cfqueryparam value="#criteriaValue#" cfsqltype="cf_sql_#columnTypeOverride#">
-				<cfelseif LEN(TRIM(columnTypeOverride)) EQ 0 AND IsDate(criteriaValue)>
-					<!--- // For CS dates compare as strings... so use VARCHAR instead of Date
-					      // But don't do LOWER() on the column and LCASE() on the value --->
-					WHERE [#arguments.columnName#] = <cfqueryparam value="#criteriaValue#" cfsqltype="cf_sql_varchar">
-				<cfelseif LEN(TRIM(columnTypeOverride)) EQ 0 AND IsNumeric(criteriaValue)>
-					<!--- // For if a numeric value is detected compare as numeric  --->
-					WHERE [#arguments.columnName#] = <cfqueryparam value="#criteriaValue#" cfsqltype="cf_sql_numeric">	
+					WHERE [#arguments.columnName#] = <cfqueryparam value="#criteriaValue#" cfsqltype="cf_sql_numeric">
+				<cfelseif columnTypeOverride EQ "date" OR (IsDate(criteriaValue) AND LEN(TRIM(columnTypeOverride)) EQ 0)>
+					<!--- // If the columnType is FORCED then obey the passed in Type even if it is WRONG --->
+					WHERE CAST([#arguments.columnName#] AS DATE) = CAST(<cfqueryparam value="#criteriaValue#" cfsqltype="cf_sql_date"> AS DATE)
 				<cfelse>
 					WHERE LOWER([#arguments.columnName#]) = <cfqueryparam value="#lcase(criteriaValue)#" cfsqltype="cf_sql_varchar">
 				</cfif>
@@ -441,23 +448,19 @@ History:
 				</cfif>
 			</cfloop>
 			
-			<cfif LEN(TRIM(arguments.orderColumnName))>
 			ORDER BY [#arguments.orderColumnName#]
-			</cfif>
 		</cfquery>
 		
 		<!--- // If requested... log the generated SQL --->
 		<cfif logSQL>
-			<cfsavecontent variable="logMsg">
-				<cfoutput>[data_1_2.QuerySortByOrderedList] generated SQL syntax:
-				<cfif StructKeyExists(createQueryResult,"sql")>
-					#createQueryResult.sql#
-				</cfif>
-				<cfif StructKeyExists(createQueryResult,"sqlparameters")>
-					PARAMS: #ArrayToList(createQueryResult.sqlparameters)#
-				</cfif>
-				#repeatString("-", 50)#</cfoutput>
-			</cfsavecontent> 
+			<cfset logMsg = "[data_1_2.QuerySortByOrderedList] generated Query SQL:">
+			<cfif StructKeyExists(createQueryResult,"sql")>
+				<cfset logMsg = logMsg & "#chr(10)#SQL:#chr(10)##createQueryResult.sql#">
+			</cfif>
+			<cfif StructKeyExists(createQueryResult,"sqlparameters")>
+				<cfset logMsg = logMsg & "#chr(10)#PARAMS:#chr(10)##ArrayToList(createQueryResult.sqlparameters)#">
+			</cfif>
+			<cfset logMsg = logMsg & "#repeatString("-", 50)#">
 			<cfset application.ADF.utils.logAppend(logMsg,"ADFlogQuerySQL.log")>
 		</cfif>
 		
@@ -469,10 +472,13 @@ History:
 			<cfset logMsg = "[data_1_2.QuerySortByOrderedList] Error building query: #cfcatch.message##chr(10)#Detail: #cfcatch.detail#">
 			<cfif StructKeyExists(cfcatch,"sql")>
 				<!--- // Include the generated sql in the error log --->
-				<cfset logMsg = logMsg & "#chr(10)#QUERY SQL:#chr(10)##cfcatch.sql#">
+				<cfset logMsg = logMsg & "#chr(10)#SQL:#chr(10)##cfcatch.sql#">
 			</cfif>
+			<cfif StructKeyExists(cfcatch,"where")>
+				<cfset logMsg = logMsg & "#chr(10)#PARAMS:#chr(10)##cfcatch.where#">
+			</cfif>
+			<cfset logMsg = logMsg & "#repeatString("-", 50)#">
 			<cfset application.ADF.utils.logAppend(logMsg)> 
-			<!--- <cfset application.ADF.utils.logAppend("Error in ADF method QuerySortByOrderedList Message:#cfcatch.message# Detail:#cfcatch.detail#")> --->
 			<!--- <cfdump var="#cfcatch#" label="cfcatch" expand="false"> --->
 			
 			<!--- // If there was a problem don't return any results... returning incorrect results just masks the issue --->
