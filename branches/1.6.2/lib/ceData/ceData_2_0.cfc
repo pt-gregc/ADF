@@ -36,7 +36,7 @@ History:
 --->
 <cfcomponent displayname="ceData_2_0" extends="ADF.lib.ceData.ceData_1_1" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="2_0_18">
+<cfproperty name="version" value="2_0_19">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_2">
 <cfproperty name="wikiTitle" value="CEData_2_0">
@@ -350,8 +350,10 @@ History:
 	2013-09-27 - GAC - Added the ORDER BY statement to the Query Of Queries for RAILO to obey the DISTINCT keyword in a QoQs (prevents railo for returning too many records)
 					 - Added a cfqueryparam in the currPageIDDataQry QofQs
 	2013-10-23 - GAC - Removed the local dependency for the data_1_2 Lib which was causing errors being extended by the general_chooser.cfc
+	2013-01-31 - JTP - Optimized function for larger data sets
 --->
-<cffunction name="getCEData" access="public" returntype="array" hint="Returns array of structs for all data matching the Custom Element.">
+
+<cffunction name="getCEData" access="public" returntype="array" hint="Returns array of structs for all data matching the Custom Element." output="false">
 	<cfargument name="customElementName" type="string" required="true">
 	<cfargument name="customElementFieldName" type="string" required="false" default="">
 	<cfargument name="item" type="any" required="false" default="">
@@ -370,6 +372,8 @@ History:
 		var ceFieldName = "";
 		var pageIDValueQry = QueryNew("temp");
 		var ceFieldIDNameMap = StructNew();
+		var sFldsLen = 0;
+		var prevPageID = 0;
 		
 		// sdhardesty fixes 03-27-13
 		var i = 1;
@@ -383,11 +387,15 @@ History:
 		var currPageIDDataQry = QueryNew("temp"); 
 		// end sdhardesty fixes 03-27-13
 		
-		if (LEN(arguments.customElementFieldName) OR Len(arguments.searchFields)) {
+		if (LEN(arguments.customElementFieldName) OR Len(arguments.searchFields)) 
+		{
 			// check if queryType is Search
-			if ( arguments.queryType EQ "search" OR arguments.queryType EQ "multi" ) {
+			if ( arguments.queryType EQ "search" OR arguments.queryType EQ "multi" ) 
+			{
 				// get the id's for each item in the list and create a new list of id's
-				for (data_i=1; data_i LTE ListLen(arguments.searchFields); data_i=data_i+1){
+				sFldsLen = ListLen(arguments.searchFields);
+				for (data_i=1; data_i LTE sFldsLen; data_i=data_i+1)
+				{
 					searchCEFieldName = "FIC_" & TRIM(ListGetAt(arguments.searchFields,data_i));
 					searchCEFieldID = ListAppend(searchCEFieldID, getElementFieldID(ceFormID, searchCEFieldName));
 				}
@@ -403,12 +411,13 @@ History:
 				ceFieldID = getElementFieldID(ceFormID, ceFieldName);
 			}
 		}
+		
 		// special case for versions
 		if ( arguments.queryType eq "versions" )
 			pageIDValueQry = getPageIDForElement(ceFormID, ceFieldID, arguments.item, "selected", arguments.searchValues, searchCEFieldID);
 		else
 			pageIDValueQry = getPageIDForElement(ceFormID, ceFieldID, arguments.item, arguments.queryType, arguments.searchValues, searchCEFieldID, arguments.itemListDelimiter);
-
+			
 		// Get the default structure for the element fields
 		// Build the query row for the default field values
 		ceDefaultFieldQry = defaultFieldQuery(ceFormID=ceFormID);
@@ -417,56 +426,52 @@ History:
 		// Get the mapping of field ID's to Field Names
 		//	Example: ceFieldIDNameMap[1011] = "myFieldName"
 		ceFieldIDNameMap = StructNew();
-		for ( i=1; i LTE ceFieldQuery.recordCount; i++ ){
+		for ( i=1; i LTE ceFieldQuery.recordCount; i++ )
 			ceFieldIDNameMap[ceFieldQuery.fieldID[i]] = Replace(ceFieldQuery.fieldName[i], "FIC_", "");
-		}
-	
+
 		// Build in the initial query for the CE Data storage
 		ceDataQry = duplicate(ceDefaultFieldQry);
 		getDataPageValueQry = getDataFieldValue(pageID=ValueList(pageIDValueQry.pageID),formid=ceFormID);
 	</cfscript>
 	
-	<!--- // 2013-09-27 - GAC - Added the ORDER BY statement to the Query Of Query for RAILO to obey the DISTINCT keyword in a QoQs --->
-	<!--- // https://issues.jboss.org/browse/RAILO-2252 --->
-	<cfquery name="distinctPageIDQry" dbtype="query">
-		SELECT 	DISTINCT PageID
+	<!--- // order by pageid so all records are next to each other --->
+	<cfquery name="getDataPageValueQrySORTED" dbtype="query">
+		SELECT *
 		FROM 	getDataPageValueQry
 		ORDER BY PageID 
 	</cfquery>
 	
-	<cfif distinctPageIDQry.RecordCount gt 0 >
+	<cfif getDataPageValueQrySORTED.RecordCount gt 0 >
+		
 		<!--- Loop over the query of page ids --->
-		<cfloop query="distinctPageIDQry">
-			<cfset currPageIDDataQry = "">
-			<cfquery name="currPageIDDataQry" dbtype="query">
-				SELECT *
-				FROM   getDataPageValueQry
-				WHERE  pageid = <cfqueryparam cfsqltype="cf_sql_integer" value="#distinctPageIDQry.pageid#">
-			</cfquery>
-			<cfif currPageIDDataQry.recordCount>
+		<cfloop query="getDataPageValueQrySORTED">
+			
+			<cfif getDataPageValueQrySORTED.PageID neq prevPageID>
+				<cfset prevPageID = getDataPageValueQrySORTED.PageID>
+				
 				<!--- Create the data set to be added back in --->
 				<!--- Add a new row --->
 				<cfset newRow = QueryAddRow(ceDataQry)>
-				
-				<!--- Loop over the sub query and set the data into the query row --->
-				<cfloop query="currPageIDDataQry">
-					<!--- Set the PageID and FormID --->
-					<cfset QuerySetCell(ceDataQry, "pageID", currPageIDDataQry.pageID, newRow)>
-					<cfset QuerySetCell(ceDataQry, "formID", currPageIDDataQry.formID, newRow)>
-					<!--- Check if the value is in the Field ID Name Map --->
-					<cfif StructKeyExists(ceFieldIDNameMap, currPageIDDataQry.fieldID)>
-						<!--- Get the field ID to the set the column field name --->
-						<cfset currFieldName = ceFieldIDNameMap[currPageIDDataQry.fieldID]>
-						<cfif LEN(currPageIDDataQry.memoValue)>
-							<cfset QuerySetCell(ceDataQry, currFieldName, currPageIDDataQry.memoValue, newRow)>
-						<cfelse>
-							<cfset QuerySetCell(ceDataQry, currFieldName, currPageIDDataQry.fieldValue, newRow)>
-						</cfif>
-					</cfif>
-				</cfloop>
 			</cfif>
+				
+			<!--- Set the PageID and FormID --->
+			<cfset QuerySetCell(ceDataQry, "pageID", getDataPageValueQrySORTED.pageID, newRow)>
+			<cfset QuerySetCell(ceDataQry, "formID", getDataPageValueQrySORTED.formID, newRow)>
+				
+			<!--- Check if the value is in the Field ID Name Map --->
+			<cfif StructKeyExists(ceFieldIDNameMap, getDataPageValueQrySORTED.fieldID)>
+				<!--- Get the field ID to the set the column field name --->
+				<cfset currFieldName = ceFieldIDNameMap[getDataPageValueQrySORTED.fieldID]>
+				<cfif LEN(getDataPageValueQrySORTED.memoValue)>
+					<cfset QuerySetCell(ceDataQry, currFieldName, getDataPageValueQrySORTED.memoValue, newRow)>
+				<cfelse>
+					<cfset QuerySetCell(ceDataQry, currFieldName, getDataPageValueQrySORTED.fieldValue, newRow)>
+				</cfif>
+			</cfif>
+			
 		</cfloop>
-	</cfif>
+		
+	</cfif>	
 	
 	<cfscript>
 		// Check if we are processing the selected list
@@ -484,6 +489,70 @@ History:
 		// Flip the query back into the CE Data Array Format
 		return buildCEDataArrayFromQuery(ceDataQuery=ceDataQry);
 	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$getCEDataCore
+Summary:
+	 A worker function that processes the query data from the 
+	 getCEData function and returns a query
+Returns:
+	Query
+Arguments:
+	Query - qry
+	Query - qry2
+	Query - ceFieldIDNameMap
+History:
+	2014-01-31 - JTP - Created
+--->
+<cffunction name="getCEDataCore" access="private" output="No" returntype="query" hint=" A worker function that processes the query data from the getCEData function and returns a query">
+	<cfargument name="qry" required="Yes" type="query">
+	<cfargument name="qry2" required="Yes" type="query">
+	<cfargument name="ceFieldIDNameMap" required="Yes" type="struct">
+	
+	<cfscript>
+		var getDataPageValueQrySORTED = arguments.qry;
+		var ceDataQry = arguments.qry2;
+		var newrow = '';
+		var currPageIDDataQry = '';
+		var prevPageID = 0;
+	</cfscript>
+
+	<cfif getDataPageValueQrySORTED.RecordCount gt 0 >
+		<!--- // Loop over the query of page ids --->
+		<cfloop query="getDataPageValueQrySORTED">
+			
+			<cfif getDataPageValueQrySORTED.PageID neq prevPageID>
+				<cfset prevPageID = getDataPageValueQrySORTED.PageID>
+				
+				<!--- // Create the data set to be added back in --->
+				<!--- // Add a new row --->
+				<cfset newRow = QueryAddRow(ceDataQry)>
+			</cfif>
+				
+			<!--- // Set the PageID and FormID --->
+			<cfset QuerySetCell(ceDataQry, "pageID", getDataPageValueQrySORTED.pageID, newRow)>
+			<cfset QuerySetCell(ceDataQry, "formID", getDataPageValueQrySORTED.formID, newRow)>
+				
+			<!--- // Check if the value is in the Field ID Name Map --->
+			<cfif StructKeyExists(ceFieldIDNameMap, getDataPageValueQrySORTED.fieldID)>
+				<!--- Get the field ID to the set the column field name --->
+				<cfset currFieldName = ceFieldIDNameMap[getDataPageValueQrySORTED.fieldID]>
+				<cfif LEN(getDataPageValueQrySORTED.memoValue)>
+					<cfset QuerySetCell(ceDataQry, currFieldName, getDataPageValueQrySORTED.memoValue, newRow)>
+				<cfelse>
+					<cfset QuerySetCell(ceDataQry, currFieldName, getDataPageValueQrySORTED.fieldValue, newRow)>
+				</cfif>
+			</cfif>
+			
+		</cfloop>
+	</cfif>
+	
+	<cfreturn ceDataQry>
 </cffunction>
 
 <!---
