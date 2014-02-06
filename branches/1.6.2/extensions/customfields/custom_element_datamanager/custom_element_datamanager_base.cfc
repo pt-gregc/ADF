@@ -45,113 +45,12 @@ History:
 		// Path to this CFT
 		variables.cftPath = "/ADF/extensions/customfields/custom_element_datamanager";
 	</cfscript>
+
+
+	<!------------------------------------------------------>	
+	<!---// PUBLIC FUNCTIONS //----------------------------->	
+	<!------------------------------------------------------>		
 	
-	<cffunction name="getGlobalCE" returnformat="json" access="remote" hint="Method to get teh global custom elements">		
-        <cfscript>
-			var result = QueryNew('');
-			var customElementObj = Server.CommonSpot.ObjectFactory.getObject('CustomElement');
-		</cfscript>
-		
-		<cftry>
-			<cfscript>
-				result = customElementObj.getList(type="Global", state="Active");
-			</cfscript>
-		<cfcatch>
-			<CFMODULE TEMPLATE="/commonspot/utilities/log-append.cfm" comment="Error while trying to retrieve the fields: #cfcatch.message# :: #cfcatch.detail#">
-			<cfscript>
-				result = QueryNew('ErrorMsg');
-				QueryAddRow(result, 1);
-				QuerySetCell(result, 'ErrorMsg', "Error occurred while trying to retrieve the global custom elements.");
-			</cfscript>
-		</cfcatch>
-		</cftry>
-		
-        <cfreturn result>
-    </cffunction>
-	
-	<cffunction name="getCEName" access="private" returntype="string" hint="Get the Custom Element Name">
-        <cfargument name="elementID" type="numeric" required="true" hint="Custom element ID">
-        <cfscript>
-			var result = "";
-			var customElementObj = Server.CommonSpot.ObjectFactory.getObject('CustomElement');
-			var elementDetails = customElementObj.getInfo(elementID=arguments.elementID);
-		</cfscript>
-		<cftry>
-			<cfscript>
-				result = elementDetails.Name;
-			</cfscript>
-			<cfcatch>
-				<CFMODULE TEMPLATE="/commonspot/utilities/log-append.cfm" comment="Error while trying to retrieve the global custom element name: #cfcatch.message# :: #cfcatch.detail#">
-				<cfscript>
-					result = 'Error';
-				</cfscript>
-			</cfcatch>
-		</cftry>
-		<cfreturn result>
-    </cffunction>
-	
-	<cffunction name="getFields" returnformat="json" access="remote" hint="Get the fields for a custom elemnt">
-        <cfargument name="elementID" type="numeric" required="true" hint="Custom element ID">
-		
-        <cfscript>
-			var result = QueryNew('');
-			var customElementObj = Server.CommonSpot.ObjectFactory.getObject('CustomElement');
-			var resultData = '';
-			var elementDetails = customElementObj.getInfo(elementID=arguments.elementID);
-		</cfscript>
-		
-		<cftry>
-			<cfscript>
-				resultData = customElementObj.getFields(elementID=arguments.elementID);
-			</cfscript>
-			<cfquery name="result" dbtype="query">
-				SELECT ID, Label AS Name, Name AS FieldName, Type, '#elementDetails.Name#' AS CustomElementName
-				  FROM resultData
-			</cfquery>
-			<cfloop query="result">
-				<cfscript>
-					if (Len(result.Name) EQ 0)
-						result.Name = ReplaceNoCase(result.FieldName,'FIC_','');
-				</cfscript>
-			</cfloop>
-		<cfcatch>
-			<CFMODULE TEMPLATE="/commonspot/utilities/log-append.cfm" comment="Error while trying to retrieve the fields: #cfcatch.message# :: #cfcatch.detail#">
-			<cfscript>
-				result = QueryNew('ErrorMsg');
-				QueryAddRow(result, 1);
-				QuerySetCell(result, 'ErrorMsg', "Error occurred while trying to retrieve data the fields for the element.");
-			</cfscript>
-		</cfcatch>
-		</cftry>
-		
-        <cfreturn result>
-    </cffunction>
-	
-	<cffunction name="getFieldIDList" returnformat="json" access="remote" hint="Get the fields for a custom elemnt">
-        <cfargument name="elementID" type="numeric" required="true" hint="Custom element ID">
-		
-        <cfscript>
-			var result = QueryNew('');
-			var customElementObj = Server.CommonSpot.ObjectFactory.getObject('CustomElement');
-			var resultData = '';
-			var elementDetails = customElementObj.getInfo(elementID=arguments.elementID);
-		</cfscript>
-		
-		<cftry>
-			<cfscript>
-				resultData = customElementObj.getFields(elementID=arguments.elementID);
-				result = ValueList(resultData.ID);
-			</cfscript>
-		<cfcatch>
-			<CFMODULE TEMPLATE="/commonspot/utilities/log-append.cfm" comment="Error while trying to retrieve the fields: #cfcatch.message# :: #cfcatch.detail#">
-			<cfscript>
-				result = 'Error';
-			</cfscript>
-		</cfcatch>
-		</cftry>
-		
-        <cfreturn result>
-    </cffunction>
 	
 	<cffunction name="renderStyles" access="public" returntype="void" hint="Method to render the styles for datamanager">		
         <cfargument name="propertiesStruct" type="struct" required="true" hint="Properties structure for the field">
@@ -187,7 +86,7 @@ History:
 		<cfoutput>#renderData#</cfoutput>
     </cffunction>
 	
-	<cffunction name="renderAddNewButton" access="private" returntype="void" hint="Method to render the add new button">
+	<cffunction name="renderAddNewButton" access="public" returntype="void" hint="Method to render the add new button">
 		<cfargument name="propertiesStruct" type="struct" required="true" hint="Properties structure for the field">
 		<cfargument name="currentValues" type="struct" required="true" hint="Current values structure for the field">
 		<cfargument name="formID" type="numeric" required="true" hint="ID of the form or control type">
@@ -208,7 +107,7 @@ History:
 		<cfoutput>#renderData#</cfoutput>
 	</cffunction>
 	
-	<cffunction name="getAddNewButtonName" access="private" returntype="string" hint="Method to get the label displayed for add new button">
+	<cffunction name="getAddNewButtonName" access="public" returntype="string" hint="Method to get the label displayed for add new button">
 		<cfargument name="propertiesStruct" type="struct" required="true" hint="Properties structure for the field">
 		<cfscript>
 			var buttonLabel = 'Add New...';
@@ -224,7 +123,7 @@ History:
 		</cfscript>
 	</cffunction>
 	
-	<cffunction name="renderAddExistingButton" access="private" returntype="void" hint="Method to render the add existing button">
+	<cffunction name="renderAddExistingButton" access="public" returntype="void" hint="Method to render the add existing button">
 		<cfargument name="propertiesStruct" type="struct" required="true" hint="Properties structure for the field">
 		<cfargument name="currentValues" type="struct" required="true" hint="Current values structure for the field">
 		<cfargument name="formID" type="numeric" required="true" hint="ID of the form or control type">
@@ -242,7 +141,7 @@ History:
 		<cfoutput>#renderData#</cfoutput>
 	</cffunction>
 	
-	<cffunction name="getAddExistingButtonName" access="private" returntype="string" hint="Method to get the label displayed for add existing button">
+	<cffunction name="getAddExistingButtonName" access="public" returntype="string" hint="Method to get the label displayed for add existing button">
 		<cfargument name="propertiesStruct" type="struct" required="true" hint="Properties structure for the field">
 		<cfscript>
 			var buttonLabel = 'Add Existing...';
@@ -258,51 +157,14 @@ History:
 		</cfscript>
 	</cffunction>
 	
-	<cffunction name="renderGrid" access="remote" output="false" returntype="string" hint="Method to render the datamanger grid">	<!--- // TODO: Update to type="string" --->	
-      <cfargument name="formID" type="numeric" required="true" hint="ID of the form or control type">
-		<cfargument name="propertiesStruct" type="struct" required="true" hint="Properties structure for the field in json format"> <!--- // TODO: Update to type="struct" --->
-		<cfargument name="currentValues" type="struct" required="true" hint="Current values structure for the field in json format"> <!--- // TODO: Update to type="struct" --->
-		<cfargument name="fieldID" type="numeric" required="true" hint="ID of the field">
-		
-		<!--- <cfmodule template="/commonspot/utilities/log-append.cfm" comment="in custom_element_datamanager_base.cfc RenderGrid()"> --->
-		<cftry>
-			<cfscript>
-				var inputPropStruct = StructNew();
-				var curValuesStruct = StructNew();
-				var dataRecords = QueryNew('');
-				var displayData = QueryNew('');
-				
-				inputPropStruct = arguments.propertiesStruct;
-				curValuesStruct = arguments.currentValues;
-				
-				dataRecords = queryData(formID=arguments.formID,propertiesStruct=inputPropStruct,currentValues=curValuesStruct);
-//application.ADF.utils.doDUMP(dataRecords,"dataRecords",1);
-				
-				if (NOT StructKeyExists(dataRecords, 'errorMsg')) 
-					displayData = getDisplayData(fieldID=arguments.fieldID, 
-															propertiesStruct=inputPropStruct,
-															dataRecords=dataRecords.qry,
-															fieldMapStruct=dataRecords.fieldMapStruct,
-															fieldOrderList=dataRecords.fieldOrderList);
-															
-														
-//application.ADF.utils.doDUMP(displayData,"displayData",1);											
-			</cfscript>
-			<!--- <cfoutput>#SerializeJSON(displayData)#</cfoutput> --->
-			
-			<cfreturn SerializeJSON(displayData)>
-			
-			<cfcatch>
-				<cfmodule template="/commonspot/utilities/log-append.cfm" comment="Error in custom_element_datamanager_base.cfc RenderGrid() #cfcatch.message# #cfcatch.detail#">
-			</cfcatch>
-		</cftry>
-    </cffunction>
+
 	
-	<cffunction name="queryData" returntype="struct" access="public" hint="Get the data for the fields" output="yes">
-        <cfargument name="formID" type="numeric" required="true" hint="ID of the form or control type">
-		<cfargument name="propertiesStruct" type="struct" required="true" hint="Properties structure for the field">
-		<cfargument name="currentValues" type="struct" required="true" hint="Current values structure for the field">
-        <cfscript>
+<cffunction name="queryData" returntype="struct" access="public" hint="Get the data for the fields" output="yes">
+	<cfargument name="formID" type="numeric" required="true" hint="ID of the form or control type">
+	<cfargument name="propertiesStruct" type="struct" required="true" hint="Properties structure for the field">
+	<cfargument name="currentValues" type="struct" required="true" hint="Current values structure for the field">
+   
+	<cfscript>
 			var inputPropStruct = arguments.propertiesStruct;
 			var curValuesStruct = arguments.currentValues;
 			var linkedIDSelectedName = 'fic_#arguments.formID#_#inputPropStruct.parentUniqueField#';
@@ -405,6 +267,7 @@ History:
 						valueFieldName = fldName;
 				</cfscript>
 			</cfloop>
+			
 			<cfif IsNumeric(inputPropStruct.assocCustomElement)>
 				<cfset assocFormFields = ceObj.getFields(elementid=inputPropStruct.assocCustomElement)>
 
@@ -469,7 +332,7 @@ History:
 					}
 				}
 				
-				returnData = QueryNew('DataPageID,#displayColNames#');
+				returnData = QueryNew('AssocDataPageID,ChildDataPageID,#displayColNames#');
 				
 				getParentLinkedField = ceObj.getFields(elementID=arguments.formID,fieldID=inputPropStruct.parentUniqueField);
 				
@@ -484,7 +347,6 @@ History:
 				}
 			</cfscript>
 
-<!--- // CHECK --->
 			<cfif parentData.resultQuery.RecordCount>
 				<cfscript>
 					if(NOT IsNumeric(inputPropStruct.assocCustomElement))
@@ -518,7 +380,7 @@ History:
 							assocColumnList = '#assocReqFieldName#,#assocColNameList#';
 						else
 							assocColumnList = assocReqFieldName;
-
+						
 						data = ceObj.getRecordsFromSavedFilter(elementID=inputPropStruct.assocCustomElement,queryEngineFilter=assocFilterArray,columnList=assocColumnList,orderBy=assocReqFieldName, orderByDirection="ASC");
 						assocData = data.resultQuery;
 						
@@ -531,18 +393,18 @@ History:
 					}
 					childFilterArray = ceObj.createQueryEngineFilter(filterStatementArray=statementsArray,filterExpression=childFilterExpression);
 					childColumnList = '#childColNameList#,#valueFieldName#';
-					data = ceObj.getRecordsFromSavedFilter(elementID=inputPropStruct.childCustomElement,queryEngineFilter=childFilterArray,columnList=childColumnList);									
-
+					data = ceObj.getRecordsFromSavedFilter(elementID=inputPropStruct.childCustomElement,queryEngineFilter=childFilterArray,columnList=childColumnList);					
 					filteredData = data.resultQuery;
 				</cfscript>
 				
 				<cfquery name="returnData" dbtype="query">
 					SELECT 
 					<cfif IsNumeric(inputPropStruct.assocCustomElement)>
-						assocData.PageID AS DataPageID, assocData.ControlID AS DataControlID
+						assocData.PageID AS AssocDataPageID, assocData.ControlID AS AssocDataControlID,
 					<cfelse>
-						filteredData.PageID AS DataPageID, filteredData.ControlID AS DataControlID
+						0 AS AssocDataPageID, 0 AS AssocDataControlID,
 					</cfif>
+						filteredData.PageID AS ChildDataPageID, filteredData.ControlID AS ChildDataControlID
 					<cfif ListLen(displayColNames)>
 						,
 					</cfif>
@@ -584,20 +446,20 @@ History:
 		</cfcatch>
 		</cftry>
 		<cfreturn returnStruct>
-	</cffunction>
+</cffunction>
 	
-	<cffunction name="getDisplayData" returntype="struct" access="private" hint="Get the data for the fields">
-		<cfargument name="fieldID" type="numeric" required="true" hint="ID of the field">
-		<cfargument name="propertiesStruct" type="struct" required="true" hint="Properties structure for the field">
-		<cfargument name="dataRecords" type="query" required="true" hint="Query containing the data records">
-		<cfargument name="fieldMapStruct" type="struct" required="true" hint="Structure containing the field types mapping details for the fields">
-		<cfargument name="fieldOrderList" type="string" required="true" hint="Order in which the fields need to be returned">
+<cffunction name="getDisplayData" returntype="struct" access="public" hint="Get the data for the fields">
+	<cfargument name="fieldID" type="numeric" required="true" hint="ID of the field">
+	<cfargument name="propertiesStruct" type="struct" required="true" hint="Properties structure for the field">
+	<cfargument name="dataRecords" type="query" required="true" hint="Query containing the data records">
+	<cfargument name="fieldMapStruct" type="struct" required="true" hint="Structure containing the field types mapping details for the fields">
+	<cfargument name="fieldOrderList" type="string" required="true" hint="Order in which the fields need to be returned">
 		
-		<cfscript>
+	<cfscript>
 			var inputPropStruct = arguments.propertiesStruct;
 			var returnData = QueryNew('');
 			var childData = arguments.dataRecords;
-			var dataColumnList = ListPrepend(arguments.fieldOrderList,'DataPageID');
+			var dataColumnList = ListPrepend(arguments.fieldOrderList,'AssocDataPageID,ChildDataPageID');
 			var actionColumnArray = ArrayNew(1);
 			var renderData = '';
 			var mappingStruct = arguments.fieldMapStruct;
@@ -617,89 +479,96 @@ History:
 			dataColumnArray = ListToArray(dataColumnList);
 		</cfscript>
 		
-		<cftry>
-			<cfif ListFindNoCase(inputPropStruct.interfaceOptions,'edit') OR ListFindNoCase(inputPropStruct.interfaceOptions,'delete')>
-				<cfloop query="childData">
+		<cftry>			
+			<cfloop query="childData">			
+				<cfif ListFindNoCase(inputPropStruct.interfaceOptions,'editAssoc') OR ListFindNoCase(inputPropStruct.interfaceOptions,'editChild') OR ListFindNoCase(inputPropStruct.interfaceOptions,'delete')>	
 					<cfsavecontent variable="renderData">
-						<cfoutput>#renderActionColumns(fieldID=arguments.fieldID,propertiesStruct=inputPropStruct,dataPageID=childData.DataPageID,dataControlID=ChildData.DataControlID)#</cfoutput>
+						<cfoutput>#renderActionColumns(fieldID=arguments.fieldID,propertiesStruct=inputPropStruct,assocDataPageID=childData.AssocDataPageID,assocDataControlID=ChildData.AssocDataControlID,childDataPageID=childData.ChildDataPageID,childDataControlID=ChildData.ChildDataControlID)#</cfoutput>
 					</cfsavecontent>
 					<cfscript>
 						actionColumnArray[childData.currentRow] = renderData;
-						for(i=1;i LTE ArrayLen(dataColumnArray);i=i+1)
-						{
-							col = dataColumnArray[i];
-							if (StructKeyExists(mappingStruct, dataColumnArray[i]))
-							{
-								formFieldType = mappingStruct[dataColumnArray[i]].fieldType;
-								formFieldID = mappingStruct[dataColumnArray[i]].fieldID;
-								formFieldValue = childData[dataColumnArray[i]];
-								if(Len(formFieldValue))
-								{
-									switch (formFieldType)
-									{
-										case 'Custom Element Select Field':
-											fieldUpdValue = getContent_ceSelect(fieldID=formFieldID,fieldValue='#formFieldValue#');
-											if( NOT StructKeyExists(convertedCols, col) )
-											{
-												QueryAddColumn(childData, '#col#_converted', 'varchar', ArrayNew(1) );				
-												convertedCols[col] = StructNew();
-											}	
-											QuerySetCell(childData, '#col#_converted', fieldUpdValue, childData.CurrentRow);
-											break;
-										case 'select':
-											fieldUpdValue = getContent_select(fieldID=formFieldID,fieldValue='#formFieldValue#');
-											if( NOT StructKeyExists(convertedCols, col) )
-											{
-												QueryAddColumn(childData, '#col#_converted', 'varchar', ArrayNew(1) );				
-												convertedCols[col] = StructNew();
-											}	
-											QuerySetCell(childData, '#col#_converted', fieldUpdValue, childData.CurrentRow);
-											break;
-										case 'csextendedurl':
-										case 'cs_url':
-											fieldUpdValue = getContent_csurl(fieldID=formFieldID,fieldValue='#formFieldValue#');
-											QuerySetCell(childData, col, fieldUpdValue, childData.CurrentRow);
-											break;
-										default:
-											fieldUpdValue = formFieldValue;
-											QuerySetCell(childData, col, fieldUpdValue, childData.CurrentRow);
-											break;
-									}
-									
-									/*
-									try 
-									{
-									QuerySetCell(childData, dataColumnArray[i], fieldUpdValue, childData.CurrentRow);
-									}  
-									catch (any e) 
-									{ 
-										// QuerySetCell(childData, dataColumnArray[i], '', childData.CurrentRow);									
-										logit('Error updating column:[#dataColumnArray[i]#] Row:[#childData.CurrentRow#] formFieldType:[#formFieldType#] fieldUpdValue:[#fieldUpdValue#] Message:[#e.message#] detail:[#e.detail#]'); 
-									}
-									*/
-								}
-							}
-						}
 					</cfscript>
-					<cfset actionColumnArray[childData.currentRow] = renderData>
-				</cfloop>
+				</cfif>	
 				
 				<cfscript>
-					convertedColumnList = StructKeyList( convertedCols ); 
-					dataColumnList_new = dataColumnList;
-					for( i=1; i lte ListLen(convertedColumnList); i=i+1 )
+					for(i=1;i LTE ArrayLen(dataColumnArray);i=i+1)
 					{
-						str = ListGetAt( convertedColumnList, i );
-						pos = ListFindNoCase( dataColumnList, str );
-						if( pos )
-							dataColumnList_new = ListSetAt( dataColumnList_new, pos, str & '_converted' );
+						col = dataColumnArray[i];
+						if (StructKeyExists(mappingStruct, dataColumnArray[i]))
+						{
+							formFieldType = mappingStruct[dataColumnArray[i]].fieldType;
+							formFieldID = mappingStruct[dataColumnArray[i]].fieldID;
+							formFieldValue = childData[dataColumnArray[i]];
+							if(Len(formFieldValue))
+							{
+								switch (formFieldType)
+								{
+									case 'Custom Element Select Field':
+										fieldUpdValue = getContent_ceSelect(fieldID=formFieldID,fieldValue='#formFieldValue#');
+										if( NOT StructKeyExists(convertedCols, col) )
+										{
+											QueryAddColumn(childData, '#col#_converted', 'varchar', ArrayNew(1) );				
+											convertedCols[col] = StructNew();
+										}	
+										QuerySetCell(childData, '#col#_converted', fieldUpdValue, childData.CurrentRow);
+										break;
+									case 'select':
+										fieldUpdValue = getContent_select(fieldID=formFieldID,fieldValue='#formFieldValue#');
+										if( NOT StructKeyExists(convertedCols, col) )
+										{
+											QueryAddColumn(childData, '#col#_converted', 'varchar', ArrayNew(1) );				
+											convertedCols[col] = StructNew();
+										}	
+										QuerySetCell(childData, '#col#_converted', fieldUpdValue, childData.CurrentRow);
+										break;
+									case 'csextendedurl':
+									case 'cs_url':
+										fieldUpdValue = getContent_csurl(fieldID=formFieldID,fieldValue='#formFieldValue#');
+										QuerySetCell(childData, col, fieldUpdValue, childData.CurrentRow);
+										break;
+									default:
+										fieldUpdValue = formFieldValue;
+										QuerySetCell(childData, col, fieldUpdValue, childData.CurrentRow);
+										break;
+								}
+								
+								/*
+								try 
+								{
+								QuerySetCell(childData, dataColumnArray[i], fieldUpdValue, childData.CurrentRow);
+								}  
+								catch (any e) 
+								{ 
+									// QuerySetCell(childData, dataColumnArray[i], '', childData.CurrentRow);									
+									logit('Error updating column:[#dataColumnArray[i]#] Row:[#childData.CurrentRow#] formFieldType:[#formFieldType#] fieldUpdValue:[#fieldUpdValue#] Message:[#e.message#] detail:[#e.detail#]'); 
+								}
+								*/
+							}
+						}
 					}
+				</cfscript>					
+			</cfloop>
+			
+			<cfscript>
+				convertedColumnList = StructKeyList( convertedCols ); 
+				dataColumnList_new = dataColumnList;
+				for( i=1; i lte ListLen(convertedColumnList); i=i+1 )
+				{
+					str = ListGetAt( convertedColumnList, i );
+					pos = ListFindNoCase( dataColumnList, str );
+					if( pos )
+						dataColumnList_new = ListSetAt( dataColumnList_new, pos, str & '_converted' );
+				}
+				
+				if( ListFindNoCase(inputPropStruct.interfaceOptions,'editAssoc') OR ListFindNoCase(inputPropStruct.interfaceOptions,'editChild') OR ListFindNoCase(inputPropStruct.interfaceOptions,'delete') )
+				{					
 					QueryAddColumn(childData, 'Actions', 'varchar', actionColumnArray);
 					dataColumnList_new = ListPrepend(dataColumnList_new, 'Actions');
-					
-					// Logit('datacolumnlist:[#dataColumnList_new#]');					
-				</cfscript>
-			</cfif>						
+				}	
+				
+				// Logit('datacolumnlist:[#dataColumnList_new#]');	Actions,AssocDataPageID,ChildDataPageID,ID,Name,ParentID 				
+			</cfscript>
+
 			<cfquery name="returnData" dbtype="query">
 				SELECT #dataColumnList_new#
 				  FROM childData
@@ -724,6 +593,617 @@ History:
 		<cfreturn returnStruct>
 	</cffunction>
 	
+	
+	<cffunction name="renderActionColumns" returntype="void" access="public" hint="Get the data for the fields">
+		<cfargument name="propertiesStruct" type="struct" required="true" hint="Properties structure for the field">
+		<cfargument name="assocDataPageID" type="numeric" required="true" hint="Data page id for the association element record">
+		<cfargument name="assocDataControlID" type="numeric" required="true" hint="Data control id for the association element record">
+		<cfargument name="childDataPageID" type="numeric" required="true" hint="Data page id for the child element record">
+		<cfargument name="childDataControlID" type="numeric" required="true" hint="Data control id for the child element record">
+		<cfargument name="fieldID" type="numeric" required="true" hint="ID of the field">
+		<cfscript>
+			var inputPropStruct = arguments.propertiesStruct;
+			var renderData = '';
+		</cfscript>
+		<cfsavecontent variable="renderData">
+		<cfif ListFindNoCase(inputPropStruct.interfaceOptions,'editAssoc') OR ListFindNoCase(inputPropStruct.interfaceOptions,'editChild') OR ListFindNoCase(inputPropStruct.interfaceOptions,'delete')>
+			<cfif ListFindNoCase(inputPropStruct.interfaceOptions,'editAssoc') AND ListFindNoCase(inputPropStruct.interfaceOptions,'editChild') AND ListFindNoCase(inputPropStruct.interfaceOptions,'delete')>
+				<cfoutput><div style="width:65px;white-space:no-wrap;"></cfoutput>
+			<cfelse>
+				<cfoutput><div style="width:42px;white-space:no-wrap;"></cfoutput>
+			</cfif>
+			<cfif ListFindNoCase(inputPropStruct.interfaceOptions,'editAssoc')>
+				<cfoutput>#renderEditAssocIcon(propertiesStruct=arguments.propertiesStruct,dataPageID=arguments.assocDataPageID,dataControlID=arguments.assocDataControlID,fieldID=arguments.fieldID)#</cfoutput>
+			</cfif>
+			<cfif ListFindNoCase(inputPropStruct.interfaceOptions,'editChild')>
+				<cfoutput>#renderEditChildIcon(propertiesStruct=arguments.propertiesStruct,dataPageID=arguments.childDataPageID,dataControlID=arguments.childDataControlID,fieldID=arguments.fieldID)#</cfoutput>
+			</cfif>
+			<cfif ListFindNoCase(inputPropStruct.interfaceOptions,'delete')>
+				<cfoutput>#renderDeleteIcon(propertiesStruct=arguments.propertiesStruct,assocDataPageID=arguments.assocDataPageID,childDataPageID=arguments.childDataPageID,fieldID=arguments.fieldID)#</cfoutput>
+			</cfif>
+			<cfoutput></div></cfoutput>
+		</cfif>
+		</cfsavecontent>
+		<cfoutput>#renderData#</cfoutput>
+	</cffunction>
+	
+	<cffunction name="renderEditAssocIcon" returntype="void" access="public" hint="Render the edit assoc action">
+		<cfargument name="propertiesStruct" type="struct" required="true" hint="Properties structure for the field">
+		<cfargument name="dataPageID" type="numeric" required="true" hint="Data page id for the record">
+		<cfargument name="dataControlID" type="numeric" required="true" hint="Data control id for the record">
+		<cfargument name="fieldID" type="numeric" required="true" hint="ID of the field">
+		<cfscript>
+			var inputPropStruct = arguments.propertiesStruct;
+			var renderData = '';
+			var qryString = '';
+		</cfscript>
+		
+		<cfif IsNumeric(inputPropStruct.assocCustomElement)>
+			<cfscript>
+				qryString = 'formID=#inputPropStruct.assocCustomElement#&linkageFieldID=#inputPropStruct.parentInstanceIDField#';
+			</cfscript>
+			<cfsavecontent variable="renderData">
+				<cfoutput><img onclick="javascript:top.commonspot.lightbox.openDialog(&##39;#Request.SubSite.DlgLoader#?csModule=controls/custom/submit-data&newData=0&dataPageID=#arguments.dataPageID#&dataControlID=#arguments.dataControlID#&openFrom=datamanager&callbackFunction=loadData_#arguments.fieldID#&#qryString#&##39;);" class="actionIcon" title="Edit Association Element" alt="Edit Association Element" src="/commonspot/dashboard/icons/application_form_edit.png"></cfoutput>
+			</cfsavecontent>
+		</cfif>
+		<cfoutput>#renderData#</cfoutput>
+	</cffunction>
+	
+	<cffunction name="renderEditChildIcon" returntype="void" access="public" hint="Render the edit child action">
+		<cfargument name="propertiesStruct" type="struct" required="true" hint="Properties structure for the field">
+		<cfargument name="dataPageID" type="numeric" required="true" hint="Data page id for the record">
+		<cfargument name="dataControlID" type="numeric" required="true" hint="Data control id for the record">
+		<cfargument name="fieldID" type="numeric" required="true" hint="ID of the field">
+		<cfscript>
+			var inputPropStruct = arguments.propertiesStruct;
+			var renderData = '';
+			var qryString = '';
+		</cfscript>
+		
+		<cfif IsNumeric(inputPropStruct.childCustomElement)>
+			<cfscript>
+				qryString = 'formID=#inputPropStruct.childCustomElement#&linkageFieldID=#inputPropStruct.childLinkedField#';
+			</cfscript>
+			<cfsavecontent variable="renderData">
+				<cfoutput><img onclick="javascript:top.commonspot.lightbox.openDialog(&##39;#Request.SubSite.DlgLoader#?csModule=controls/custom/submit-data&newData=0&dataPageID=#arguments.dataPageID#&dataControlID=#arguments.dataControlID#&openFrom=datamanager&callbackFunction=loadData_#arguments.fieldID#&#qryString#&##39;);" class="actionIcon" title="Edit Child Element" alt="Edit Child Element" src="/commonspot/dashboard/icons/edit.png"></cfoutput>
+			</cfsavecontent>
+		</cfif>
+		<cfoutput>#renderData#</cfoutput>
+	</cffunction>
+	
+	<cffunction name="renderDeleteIcon" returntype="void" access="public" hint="Render the delete action">
+		<cfargument name="propertiesStruct" type="struct" required="true" hint="Properties structure for the field">
+		<cfargument name="assocDataPageID" type="numeric" required="true" hint="Data page id for the association element record">
+		<cfargument name="childDataPageID" type="numeric" required="true" hint="Data page id for the child element record">
+		<cfargument name="fieldID" type="numeric" required="true" hint="ID of the field">
+		<cfscript>
+			var inputPropStruct = arguments.propertiesStruct;
+			var renderData = '';
+			var deleteFormID = 0;
+			var dataPageID = 0;
+			
+			if(NOT IsNumeric(inputPropStruct.assocCustomElement))
+			{
+				deleteFormID = inputPropStruct.childCustomElement;
+				dataPageID = arguments.childDataPageID;
+			}
+			else
+			{
+				deleteFormID = inputPropStruct.assocCustomElement;
+				dataPageID = arguments.assocDataPageID;
+			}
+		</cfscript>
+		<cfsavecontent variable="renderData">
+			<cfoutput><img onclick="javascript:top.commonspot.lightbox.openDialog(&##39;#Request.SubSite.DlgLoader#?csModule=controls/datasheet/cs-delete-form-data&mode=results&callbackFunction=loadData_#arguments.fieldID#&realTargetModule=controls/datasheet/cs-delete-form-data&formID=#deleteFormID#&pageID=#dataPageID#&##39;);" class="actionIcon" title="Delete" alt="Delete" src="/commonspot/dashboard/icons/bin.png"></cfoutput>
+		</cfsavecontent>
+		<cfoutput>#renderData#</cfoutput>
+	</cffunction>
+	
+	<cffunction name="getReorderRange" returntype="struct" access="public" hint="Method to get the reorder range for the values fo a custom element">
+		<cfargument name="propertiesStruct" type="struct" required="true" hint="Properties structure for the field">
+        <cfargument name="movedDataPageID" type="numeric" required="true" hint="The unique data pageid for the record from start pos">
+		<cfargument name="dropAfterDataPageID" type="numeric" required="true" hint="The unique data pageid for the record from end pos">
+        <cfscript>
+			var ceObj = Server.CommonSpot.ObjectFactory.getObject("CustomElement");
+			var inputPropStruct = arguments.propertiesStruct;
+			var dataFormID = 0;
+			var getOrderForMovedRec = '';
+			var getOrderForEndRec = '';
+			var minPosValue = 0;
+			var maxPosValue = 0;
+			var returnStruct = StructNew();
+			
+			if (IsNumeric(inputPropStruct.assocCustomElement))
+				dataFormID = inputPropStruct.assocCustomElement;
+			else
+				dataFormID = inputPropStruct.childCustomElement;
+		</cfscript>
+		
+		<cftry>
+			<cfquery name="getOrderForMovedRec" datasource="#Request.Site.Datasource#">
+				SELECT FieldValue AS OrderPosition, PageID
+				  FROM Data_FieldValue
+				 WHERE PageID = <cfqueryparam value="#arguments.movedDataPageID#" cfsqltype="cf_sql_integer">
+				 	AND FormID = <cfqueryparam value="#dataFormID#" cfsqltype="cf_sql_integer">
+					AND FieldID = <cfqueryparam value="#inputPropStruct.positionField#" cfsqltype="cf_sql_integer">
+					AND VersionState = <cfqueryparam value="#request.constants.stateCURRENT#" cfsqltype="cf_sql_integer">
+					AND PageID > 0
+			</cfquery>
+			
+			<cfquery name="getOrderForEndRec" datasource="#Request.Site.Datasource#">
+				SELECT FieldValue AS OrderPosition, PageID
+				  FROM Data_FieldValue
+				 WHERE PageID = <cfqueryparam value="#arguments.dropAfterDataPageID#" cfsqltype="cf_sql_integer">
+				 	AND FormID = <cfqueryparam value="#dataFormID#" cfsqltype="cf_sql_integer">
+					AND FieldID = <cfqueryparam value="#inputPropStruct.positionField#" cfsqltype="cf_sql_integer">
+					AND VersionState = <cfqueryparam value="#request.constants.stateCURRENT#" cfsqltype="cf_sql_integer">
+					AND PageID > 0
+			</cfquery>
+			
+			<cfscript>
+				if (getOrderForMovedRec.OrderPosition GT getOrderForEndRec.OrderPosition)
+				{
+					minPosValue = getOrderForEndRec.OrderPosition;
+					maxPosValue = getOrderForMovedRec.OrderPosition;
+				}
+				else
+				{
+					minPosValue = getOrderForMovedRec.OrderPosition;
+					maxPosValue = getOrderForEndRec.OrderPosition;
+				}
+			</cfscript>
+		<cfcatch>
+			<cfscript>
+				minPosValue = 0;
+				maxPosValue = 0;
+			</cfscript>
+		</cfcatch>
+		</cftry>
+		<cfscript>
+			returnStruct['minPos'] = minPosValue;
+			returnStruct['maxPos'] = maxPosValue;
+			return returnStruct;
+		</cfscript>
+	</cffunction>
+	
+	<cffunction name="getRangeRecords" returntype="query" access="public" hint="Method to get the reorder range for the values fo a custom element">
+		<cfargument name="formID" type="numeric" required="true" hint="ID of the form or control type">
+		<cfargument name="propertiesStruct" type="struct" required="true" hint="Properties structure for the field">
+		<cfargument name="currentValues" type="struct" required="true" hint="Current values structure for the field">
+        <cfargument name="minPos" type="numeric" required="true" hint="The minimum position value to change">
+		<cfargument name="maxPos" type="numeric" required="true" hint="The maximum position value to change">
+        <cfscript>
+			var reqFormFields = "";
+			var ceObj = Server.CommonSpot.ObjectFactory.getObject("CustomElement");
+			var inputPropStruct = arguments.propertiesStruct;
+			var curValuesStruct = arguments.currentValues;
+			var linkedIDSelectedName = 'fic_#arguments.formID#_#inputPropStruct.parentUniqueField#';
+			var dataFormID = 0;
+			var dataFieldID = 0;
+			var getPageIDs = '';
+			var getRecsToChg = QueryNew('DataPageID,Pos');
+			var dbType = Request.Site.SiteDBType;
+			var intType = '';
+			switch (dbtype)
+			{
+				case 'Oracle':
+					intType = 'number(12)';
+					break;
+				case 'MySQL':
+					intType = 'UNSIGNED';
+					break;
+				case 'SQLServer':
+					intType = 'int';
+					break;
+			}
+			
+			if (IsNumeric(inputPropStruct.assocCustomElement))
+			{
+				dataFormID = inputPropStruct.assocCustomElement;
+				dataFieldID = inputPropStruct.parentInstanceIDField;
+			}
+			else
+			{
+				dataFormID = inputPropStruct.childCustomElement;
+				dataFieldID = inputPropStruct.childLinkedField;
+			}
+		</cfscript>
+		
+		<cftry>
+			<cfquery name="getPageIDs" datasource="#Request.Site.Datasource#">
+				SELECT PageID
+				  FROM Data_FieldValue
+				 WHERE FormID = <cfqueryparam value="#dataFormID#" cfsqltype="cf_sql_integer">
+					AND FieldID = <cfqueryparam value="#dataFieldID#" cfsqltype="cf_sql_integer">
+					AND FieldValue = <cfqueryparam value="#curValuesStruct[linkedIDSelectedName]#" cfsqltype="cf_sql_varchar">
+					AND VersionState = <cfqueryparam value="#request.constants.stateCURRENT#" cfsqltype="cf_sql_integer">
+					AND PageID > 0
+			</cfquery>
+			
+			<cfif getPageIDs.RecordCount>
+				<cfquery name="getRecsToChg" datasource="#Request.Site.Datasource#">
+					SELECT CAST(FieldValue AS #intType#) AS Pos, PageID AS DataPageID
+					  FROM Data_FieldValue
+					 WHERE FormID = <cfqueryparam value="#dataFormID#" cfsqltype="cf_sql_integer">
+						AND FieldID = <cfqueryparam value="#inputPropStruct.positionField#" cfsqltype="cf_sql_integer">
+						AND <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="PageID" LIST="#ValueList(getPageIDs.PageID)#">
+						AND VersionState = <cfqueryparam value="#request.constants.stateCURRENT#" cfsqltype="cf_sql_integer">
+						AND FieldValue >= <cfqueryparam value="#arguments.minPos#" cfsqltype="cf_sql_integer">
+						AND FieldValue <= <cfqueryparam value="#arguments.maxPos#" cfsqltype="cf_sql_integer">
+						AND PageID > 0
+				 ORDER BY Pos
+				</cfquery>
+			</cfif>
+		<cfcatch>
+			<CFMODULE TEMPLATE="/commonspot/utilities/log-append.cfm" comment="Error while trying to retrieve the fields: #cfcatch.message# :: #cfcatch.detail#">
+			<cfscript>
+				getRecsToChg = QueryNew('ErrorMsg');
+				QueryAddRow(getRecsToChg, 1);
+				QuerySetCell(getRecsToChg, 'ErrorMsg', "Error occurred while trying to retrieve range records. #cfcatch.message# #cfcatch.detail#");
+			</cfscript>
+		</cfcatch>
+		</cftry>
+		
+		<cfscript>
+			return getRecsToChg;
+		</cfscript>
+	</cffunction>
+	
+	<cffunction name="changePosition" returntype="void" access="public" hint="Method to get the change the position of the record with the new position provided">
+		<cfargument name="propertiesStruct" type="struct" required="true" hint="Properties structure for the field">
+        <cfargument name="dataPageID" type="numeric" required="true" hint="The unique data pageid for the records">
+		<cfargument name="newPos" type="numeric" required="true" hint="The position value to update">
+        <cfscript>
+			var inputPropStruct = arguments.propertiesStruct;
+			var updateRec = '';
+		</cfscript>
+		
+		<!--- update the sort order field --->	
+		<cfquery name="updateRec" datasource="#request.site.datasource#">
+			UPDATE Data_FieldValue
+				SET FieldValue = <CFQUERYPARAM VALUE="#arguments.newPos#" CFSQLTYPE="CF_SQL_INTEGER">
+			 WHERE PageID = <CFQUERYPARAM VALUE="#arguments.dataPageID#" CFSQLTYPE="CF_SQL_INTEGER">
+				AND FieldID = <CFQUERYPARAM VALUE="#inputPropStruct.PositionField#" CFSQLTYPE="CF_SQL_INTEGER">
+				AND VersionState = <CFQUERYPARAM VALUE="#request.constants.stateCURRENT#" CFSQLTYPE="CF_SQL_INTEGER">
+				AND PageID > 0
+		</cfquery>
+		
+		<!--- Get the form ID --->		
+		<cfquery name="qry" datasource="#request.site.datasource#">
+			Select FormID from Data_FieldValue
+			 WHERE PageID = <CFQUERYPARAM VALUE="#arguments.dataPageID#" CFSQLTYPE="CF_SQL_INTEGER">
+				AND FieldID = <CFQUERYPARAM VALUE="#inputPropStruct.PositionField#" CFSQLTYPE="CF_SQL_INTEGER">
+				AND VersionState = <CFQUERYPARAM VALUE="#request.constants.stateCURRENT#" CFSQLTYPE="CF_SQL_INTEGER">
+		</cfquery>
+		
+		<cfif qry.recordCount eq 1>
+
+			<!--- update the last modified timestamp for all version state 2 records --->
+			<cfquery name="updateRec" datasource="#request.site.datasource#">
+				UPDATE Data_FieldValue
+					SET DateApproved = <CFQUERYPARAM VALUE="#request.formattedTimestamp#" cfsqltype="CF_SQL_VARCHAR">
+				 WHERE PageID = <CFQUERYPARAM VALUE="#arguments.dataPageID#" CFSQLTYPE="CF_SQL_INTEGER">
+				 	AND FormID = qry.formID
+					AND VersionState = <CFQUERYPARAM VALUE="#request.constants.stateCURRENT#" CFSQLTYPE="CF_SQL_INTEGER">
+					AND PageID > 0
+			</cfquery>
+			
+			<cfscript>
+				request.site.availControls[qry.formID].lastUpdateSinceRestart = request.formattedTimestamp;
+				name = request.site.availControls[qry.formID].shortDesc;
+				request.site.availControlsByName['custom:#name#'].lastUpdateSinceRestart = request.formattedTimestamp;			
+			</cfscript>
+		
+		<cfelse>
+			<cfmodule template="/commonspot/utilities/log-append.cfm" comment="Corrupted Data. Could not find form for pageID:#arguments.dataPageID# FieldID:#inputPropStruct.PositionField#">
+		</cfif>
+	</cffunction>
+	
+
+	<cffunction name="QueryToArray" access="public" returntype="array" output="false" hint="This turns a query into an array of structures with each key being a number.">
+    	<cfargument name="queryData" type="query" required="yes" hint="Query to be converted to array">
+		<cfargument name="fieldOrderList" type="string" required="true" hint="Order in which the fields need to be returned">
+
+	    <cfscript>
+		    var columnArray = ListToArray(arguments.fieldOrderList);
+			var queryArray = ArrayNew(1);
+			var i = 0;
+			var rowStruct = StructNew();
+			var j = 0;
+			var columnName = '';
+			
+		    for (i=1; i LTE arguments.queryData.RecordCount; i=i + 1)
+		    {
+				rowStruct = StructNew();
+		   		for (j=1; j LTE ArrayLen(columnArray); j=j + 1)
+		   		{
+					columnName = columnArray[j];
+					rowStruct[j] = arguments.queryData[columnName][i];
+		   		}
+		  	  	ArrayAppend(queryArray, rowStruct);
+		    }
+		    return queryArray;	
+		</cfscript>
+	</cffunction>
+	
+	
+	<cffunction name="logit" access="public" output="No" returntype="void">
+		<cfargument name="comment" required="Yes" type="string">
+		
+		<cffile action="APPEND" 
+					file="#Request.CP.LogDir#datamanager-#DateFormat(now(),'yyyy-mm-dd')#" 
+					output="#arguments.comment#" 
+					addnewline="Yes">
+	</cffunction>
+	
+	
+	<!------------------------------------------------------>	
+	<!---// REMOTE FUNCTIONS //----------------------------->	
+	<!------------------------------------------------------>		
+	
+	<cffunction name="getGlobalCE" returnformat="json" access="remote" hint="Method to get teh global custom elements">		
+        <cfscript>
+			var result = QueryNew('');
+			var customElementObj = Server.CommonSpot.ObjectFactory.getObject('CustomElement');
+		</cfscript>
+		
+		<cftry>
+			<cfscript>
+				result = customElementObj.getList(type="Global", state="Active");
+			</cfscript>
+		<cfcatch>
+			<CFMODULE TEMPLATE="/commonspot/utilities/log-append.cfm" comment="Error while trying to retrieve the fields: #cfcatch.message# :: #cfcatch.detail#">
+			<cfscript>
+				result = QueryNew('ErrorMsg');
+				QueryAddRow(result, 1);
+				QuerySetCell(result, 'ErrorMsg', "Error occurred while trying to retrieve the global custom elements.");
+			</cfscript>
+		</cfcatch>
+		</cftry>
+   		<cfreturn result>
+	</cffunction>
+	
+	
+	<cffunction name="getFields" returnformat="json" access="remote" hint="Get the fields for a custom elemnt">
+        <cfargument name="elementID" type="numeric" required="true" hint="Custom element ID">
+		
+        <cfscript>
+			var result = QueryNew('');
+			var customElementObj = Server.CommonSpot.ObjectFactory.getObject('CustomElement');
+			var resultData = '';
+			var elementDetails = customElementObj.getInfo(elementID=arguments.elementID);
+		</cfscript>
+		
+		<cftry>
+			<cfscript>
+				resultData = customElementObj.getFields(elementID=arguments.elementID);
+			</cfscript>
+			<cfquery name="result" dbtype="query">
+				SELECT ID, Label AS Name, Name AS FieldName, Type, '#elementDetails.Name#' AS CustomElementName
+				  FROM resultData
+			</cfquery>
+			<cfloop query="result">
+				<cfscript>
+					if (Len(result.Name) EQ 0)
+						result.Name = ReplaceNoCase(result.FieldName,'FIC_','');
+				</cfscript>
+			</cfloop>
+		<cfcatch>
+			<CFMODULE TEMPLATE="/commonspot/utilities/log-append.cfm" comment="Error while trying to retrieve the fields: #cfcatch.message# :: #cfcatch.detail#">
+			<cfscript>
+				result = QueryNew('ErrorMsg');
+				QueryAddRow(result, 1);
+				QuerySetCell(result, 'ErrorMsg', "Error occurred while trying to retrieve data the fields for the element.");
+			</cfscript>
+		</cfcatch>
+		</cftry>
+		
+        <cfreturn result>
+    </cffunction>
+	
+	
+	<cffunction name="getFieldIDList" returnformat="json" access="remote" hint="Get the fields for a custom elemnt">
+        <cfargument name="elementID" type="numeric" required="true" hint="Custom element ID">
+		
+        <cfscript>
+			var result = QueryNew('');
+			var customElementObj = Server.CommonSpot.ObjectFactory.getObject('CustomElement');
+			var resultData = '';
+			var elementDetails = customElementObj.getInfo(elementID=arguments.elementID);
+		</cfscript>
+		
+		<cftry>
+			<cfscript>
+				resultData = customElementObj.getFields(elementID=arguments.elementID);
+				result = ValueList(resultData.ID);
+			</cfscript>
+		<cfcatch>
+			<CFMODULE TEMPLATE="/commonspot/utilities/log-append.cfm" comment="Error while trying to retrieve the fields: #cfcatch.message# :: #cfcatch.detail#">
+			<cfscript>
+				result = 'Error';
+			</cfscript>
+		</cfcatch>
+		</cftry>
+		
+        <cfreturn result>
+    </cffunction>
+	
+	<cffunction name="renderGrid" access="remote" output="Yes" returntype="any" hint="Method to render the datamanger grid">	<!--- // TODO: Update to type="string" --->	
+      <cfargument name="formID" type="numeric" required="true" hint="ID of the form or control type">
+		<cfargument name="propertiesStruct" type="any" required="true" hint="Properties structure for the field in json format"> <!--- // TODO: Update to type="struct" --->
+		<cfargument name="currentValues" type="any" required="true" hint="Current values structure for the field in json format"> <!--- // TODO: Update to type="struct" --->
+		<cfargument name="fieldID" type="numeric" required="true" hint="ID of the field">
+		
+		<!--- <cfmodule template="/commonspot/utilities/log-append.cfm" comment="in custom_element_datamanager_base.cfc RenderGrid()"> --->
+		<cftry>
+			<cfscript>
+				var inputPropStruct = StructNew();
+				var curValuesStruct = StructNew();
+				var dataRecords = QueryNew('');
+				var displayData = QueryNew('');
+				
+				if (IsJSON(arguments.propertiesStruct))
+				{
+					inputPropStruct = DeserializeJSON(arguments.propertiesStruct);
+				}
+				else
+				{
+					inputPropStruct = arguments.propertiesStruct;
+				}
+				if (IsJSON(arguments.currentValues))
+				{
+					curValuesStruct = DeserializeJSON(arguments.currentValues);
+				}
+				else
+				{
+					curValuesStruct = arguments.currentValues;
+				}
+				
+				dataRecords = queryData(formID=arguments.formID,propertiesStruct=inputPropStruct,currentValues=curValuesStruct);
+				
+				if (NOT StructKeyExists(dataRecords, 'errorMsg'))
+					displayData = getDisplayData(fieldID=arguments.fieldID, 
+															propertiesStruct=inputPropStruct,
+															dataRecords=dataRecords.qry,
+															fieldMapStruct=dataRecords.fieldMapStruct,
+															fieldOrderList=dataRecords.fieldOrderList);
+															
+															
+				//application.ADF.utils.doDUMP(displayData,"displayData",1);											
+			</cfscript>
+			<!--- <cfoutput>#SerializeJSON(displayData)#</cfoutput> --->
+			
+			<cfreturn SerializeJSON(displayData)>
+			
+			<cfcatch>
+				<cfmodule template="/commonspot/utilities/log-append.cfm" comment="Error in custom_element_datamanager_base.cfc RenderGrid() #cfcatch.message# #cfcatch.detail#">
+			</cfcatch>
+		</cftry>
+    </cffunction>
+	
+	<cffunction name="onDrop" returnformat="json" access="remote" hint="Method to reorder the values fo a custom element">
+		<cfargument name="formID" type="numeric" required="true" hint="ID of the form or control type">
+		<cfargument name="propertiesStruct" type="any" required="true" hint="Properties structure for the field in json format"><!--- TODO: Update to type="struct" --->
+		<cfargument name="currentValues" type="any" required="true" hint="Current values structure for the field in json format"><!--- TODO: Update to type="struct" --->
+        <cfargument name="movedDataPageID" type="numeric" required="true" hint="The unique data pageid for the record from start pos">
+		<cfargument name="dropAfterDataPageID" type="numeric" required="true" hint="The unique data pageid for the record from end pos">
+        <cfscript>
+			var orderOp = '';
+			var qOrderedResults = QueryNew('');
+			var loopStart = 0;
+			var loopEnd = 0;
+			var newOrderValue = 0;
+			var newOrderValueForSelected = 0;
+			var updateRec = '';
+			var updateCurRec = '';
+			var sResult = 'Success';
+			var inputPropStruct = StructNew();
+			var curValuesStruct = StructNew();
+			var dataFormID = 0;
+			var posStruct = StructNew();
+			var rangeRecords = QueryNew('');
+			
+			if (IsJSON(arguments.propertiesStruct))
+			{
+				inputPropStruct = DeserializeJSON(arguments.propertiesStruct);
+			}
+			else
+			{
+				inputPropStruct = arguments.propertiesStruct;
+			}
+			
+			if (IsJSON(arguments.currentValues))
+			{
+				curValuesStruct = DeserializeJSON(arguments.currentValues);
+			}
+			else
+			{
+				curValuesStruct = arguments.currentValues;
+			}
+			
+			if (IsNumeric(inputPropStruct.assocCustomElement))
+				dataFormID = inputPropStruct.assocCustomElement;
+			else
+				dataFormID = inputPropStruct.childCustomElement;
+				
+			posStruct = getReorderRange(propertiesStruct=inputPropStruct,movedDataPageID=arguments.movedDataPageID,dropAfterDataPageID=arguments.dropAfterDataPageID);
+		</cfscript>
+		
+		<cfif posStruct.minPos GT 0 AND posStruct.maxPos GT 0>	
+			<cfscript>
+				rangeRecords = getRangeRecords(formID=arguments.formID,currentValues=curValuesStruct,propertiesStruct=inputPropStruct,minPos=posStruct.minPos,maxPos=posStruct.maxPos);
+			</cfscript>
+			
+			<cfif rangeRecords.RecordCount AND NOT ListFindNoCase(rangeRecords.ColumnList, "ErrorMsg" )>
+				<cfscript>
+					if (rangeRecords.DataPageID[1] EQ arguments.movedDataPageID)
+					{
+						loopStart = 2;
+						loopEnd = rangeRecords.RecordCount;
+						newOrderValueForSelected = rangeRecords.Pos[rangeRecords.RecordCount];
+						orderOp = '-';
+					}
+					else if (rangeRecords.DataPageID[rangeRecords.RecordCount] EQ arguments.movedDataPageID)
+					{
+						loopStart = 1;
+						loopEnd = rangeRecords.RecordCount - 1;
+						newOrderValueForSelected = rangeRecords.Pos[1];
+						orderOp = '+';
+					}
+				</cfscript>	
+				
+				<cfif loopStart GT 0 AND loopEnd GT 0>
+					<cfloop from="#loopStart#" to="#loopEnd#" index="i">
+						<cfscript>
+							newOrderValue = Evaluate('#rangeRecords['Pos'][i]# #orderOp# 1');
+							changePosition(propertiesStruct=inputPropStruct,dataPageID=rangeRecords['DataPageID'][i],newPos=newOrderValue);
+						</cfscript>
+					</cfloop>
+					<cfscript>
+						changePosition(propertiesStruct=inputPropStruct,dataPageID=arguments.movedDataPageID,newPos=newOrderValueForSelected);
+					</cfscript>
+				</cfif>
+			<cfelse>
+				<CFMODULE TEMPLATE="/commonspot/utilities/log-append.cfm" comment="Error while trying to reorder the records: Could not retrieve the range records for modifying the order">
+				<cfscript>
+					sResult = rangeRecords.ErrorMsg[1];
+				</cfscript>				
+			</cfif>
+		<cfelse>
+			<CFMODULE TEMPLATE="/commonspot/utilities/log-append.cfm" comment="Error while trying to reorder the records: Calculated minimum and maximum positions value are not numeric value greater than zero">
+			<cfscript>
+				sResult = 'Could not determine the position range for the moved element.';
+			</cfscript>
+		</cfif>
+		<cfreturn sResult>
+    </cffunction>
+
+	 
+	<!------------------------------------------------------->
+	<!---// PRIVATE FUNCTIONS //----------------------------->
+	<!------------------------------------------------------->	
+	
+	<cffunction name="getCEName" access="private" returntype="string" hint="Get the Custom Element Name">
+        <cfargument name="elementID" type="numeric" required="true" hint="Custom element ID">
+        <cfscript>
+			var result = "";
+			var customElementObj = Server.CommonSpot.ObjectFactory.getObject('CustomElement');
+			var elementDetails = customElementObj.getInfo(elementID=arguments.elementID);
+		</cfscript>
+		<cftry>
+			<cfscript>
+				result = elementDetails.Name;
+			</cfscript>
+			<cfcatch>
+				<CFMODULE TEMPLATE="/commonspot/utilities/log-append.cfm" comment="Error while trying to retrieve the global custom element name: #cfcatch.message# :: #cfcatch.detail#">
+				<cfscript>
+					result = 'Error';
+				</cfscript>
+			</cfcatch>
+		</cftry>
+		<cfreturn result>
+    </cffunction>
+	 
 	<cffunction name="getContent_ceSelect" returntype="string" access="private" hint="Function to get the content of the custom element select element">
 		<cfargument name="fieldID" type="numeric" required="true" hint="ID of the field">
 		<cfargument name="fieldValue" type="string" required="true" hint="Value of the field">
@@ -851,364 +1331,7 @@ History:
 		</cfif>
 		<cfreturn returnString>
 	</cffunction>
-	
-	<cffunction name="renderActionColumns" returntype="void" access="private" hint="Get the data for the fields">
-		<cfargument name="propertiesStruct" type="struct" required="true" hint="Properties structure for the field">
-		<cfargument name="dataPageID" type="numeric" required="true" hint="Data page id for the record">
-		<cfargument name="dataControlID" type="numeric" required="true" hint="Data control id for the record">
-		<cfargument name="fieldID" type="numeric" required="true" hint="ID of the field">
-		<cfscript>
-			var inputPropStruct = arguments.propertiesStruct;
-			var renderData = '';
-		</cfscript>
-		<cfsavecontent variable="renderData">
-		<cfif ListFindNoCase(inputPropStruct.interfaceOptions,'edit') OR ListFindNoCase(inputPropStruct.interfaceOptions,'delete')>
-			<cfoutput><div style="width:42px;white-space:no-wrap;"></cfoutput>
-			<cfif ListFindNoCase(inputPropStruct.interfaceOptions,'edit')>
-				<cfoutput>#renderEditIcon(argumentCollection=arguments)#</cfoutput>
-			</cfif>
-			<cfif ListFindNoCase(inputPropStruct.interfaceOptions,'delete')>
-				<cfoutput>#renderDeleteIcon(argumentCollection=arguments)#</cfoutput>
-			</cfif>
-			<cfoutput></div></cfoutput>
-		</cfif>
-		</cfsavecontent>
-		<cfoutput>#renderData#</cfoutput>
-	</cffunction>
-	
-	<cffunction name="renderEditIcon" returntype="void" access="private" hint="Render the edit action">
-		<cfargument name="propertiesStruct" type="struct" required="true" hint="Properties structure for the field">
-		<cfargument name="dataPageID" type="numeric" required="true" hint="Data page id for the record">
-		<cfargument name="dataControlID" type="numeric" required="true" hint="Data control id for the record">
-		<cfargument name="fieldID" type="numeric" required="true" hint="ID of the field">
-		<cfscript>
-			var inputPropStruct = arguments.propertiesStruct;
-			var renderData = '';
-			var qryString = '';
-			
-			if(NOT IsNumeric(inputPropStruct.assocCustomElement))
-				qryString = 'formID=#inputPropStruct.childCustomElement#&linkageFieldID=#inputPropStruct.childLinkedField#';
-			else
-				qryString = 'formID=#inputPropStruct.assocCustomElement#&linkageFieldID=#inputPropStruct.parentInstanceIDField#';
-		</cfscript>
-		<cfsavecontent variable="renderData">
-			<cfoutput><img onclick="javascript:top.commonspot.lightbox.openDialog(&##39;#Request.SubSite.DlgLoader#?csModule=controls/custom/submit-data&newData=0&dataPageID=#arguments.dataPageID#&dataControlID=#arguments.dataControlID#&openFrom=datamanager&callbackFunction=loadData_#arguments.fieldID#&#qryString#&##39;);" class="actionIcon" title="Edit" alt="Edit" src="/commonspot/dashboard/icons/edit.png"></cfoutput>
-		</cfsavecontent>
-		<cfoutput>#renderData#</cfoutput>
-	</cffunction>
-	
-	<cffunction name="renderDeleteIcon" returntype="void" access="private" hint="Render the delete action">
-		<cfargument name="propertiesStruct" type="struct" required="true" hint="Properties structure for the field">
-		<cfargument name="dataPageID" type="numeric" required="true" hint="Data page id for the record">
-		<cfargument name="fieldID" type="numeric" required="true" hint="ID of the field">
-		<cfscript>
-			var inputPropStruct = arguments.propertiesStruct;
-			var renderData = '';
-			var deleteFormID = 0;
-			
-			if(NOT IsNumeric(inputPropStruct.assocCustomElement))
-				deleteFormID = inputPropStruct.childCustomElement;
-			else
-				deleteFormID = inputPropStruct.assocCustomElement;
-		</cfscript>
-		<cfsavecontent variable="renderData">
-			<cfoutput><img onclick="javascript:top.commonspot.lightbox.openDialog(&##39;#Request.SubSite.DlgLoader#?csModule=controls/datasheet/cs-delete-form-data&mode=results&callbackFunction=loadData_#arguments.fieldID#&realTargetModule=controls/datasheet/cs-delete-form-data&formID=#deleteFormID#&pageID=#arguments.dataPageID#&##39;);" class="actionIcon" title="Delete" alt="Delete" src="/commonspot/dashboard/icons/bin.png"></cfoutput>
-		</cfsavecontent>
-		<cfoutput>#renderData#</cfoutput>
-	</cffunction>
-	
-	<cffunction name="onDrop" returnformat="json" access="remote" hint="Method to reorder the values fo a custom element">
-		<cfargument name="formID" type="numeric" required="true" hint="ID of the form or control type">
-		<cfargument name="propertiesStruct" type="any" required="true" hint="Properties structure for the field in json format"><!--- TODO: Update to type="struct" --->
-		<cfargument name="currentValues" type="any" required="true" hint="Current values structure for the field in json format"><!--- TODO: Update to type="struct" --->
-        <cfargument name="movedDataPageID" type="numeric" required="true" hint="The unique data pageid for the record from start pos">
-		<cfargument name="dropAfterDataPageID" type="numeric" required="true" hint="The unique data pageid for the record from end pos">
-        <cfscript>
-			var orderOp = '';
-			var qOrderedResults = QueryNew('');
-			var loopStart = 0;
-			var loopEnd = 0;
-			var newOrderValue = 0;
-			var newOrderValueForSelected = 0;
-			var updateRec = '';
-			var updateCurRec = '';
-			var sResult = 'Success';
-			var inputPropStruct = StructNew();
-			var curValuesStruct = StructNew();
-			var dataFormID = 0;
-			var posStruct = StructNew();
-			var rangeRecords = QueryNew('');
-			
-			if (IsJSON(arguments.propertiesStruct))
-			{
-				inputPropStruct = DeserializeJSON(arguments.propertiesStruct);
-			}
-			else
-			{
-				inputPropStruct = arguments.propertiesStruct;
-			}
-			
-			if (IsJSON(arguments.currentValues))
-			{
-				curValuesStruct = DeserializeJSON(arguments.currentValues);
-			}
-			else
-			{
-				curValuesStruct = arguments.currentValues;
-			}
-			
-			if (IsNumeric(inputPropStruct.assocCustomElement))
-				dataFormID = inputPropStruct.assocCustomElement;
-			else
-				dataFormID = inputPropStruct.childCustomElement;
-				
-			posStruct = getReorderRange(propertiesStruct=inputPropStruct,movedDataPageID=arguments.movedDataPageID,dropAfterDataPageID=arguments.dropAfterDataPageID);
-		</cfscript>
-		
-		<cfif posStruct.minPos GT 0 AND posStruct.maxPos GT 0>	
-			<cfscript>
-				rangeRecords = getRangeRecords(formID=arguments.formID,currentValues=curValuesStruct,propertiesStruct=inputPropStruct,minPos=posStruct.minPos,maxPos=posStruct.maxPos);
-			</cfscript>
-			
-			<cfif rangeRecords.RecordCount AND NOT ListFindNoCase(rangeRecords.ColumnList, "ErrorMsg" )>
-				<cfscript>
-					if (rangeRecords.DataPageID[1] EQ arguments.movedDataPageID)
-					{
-						loopStart = 2;
-						loopEnd = rangeRecords.RecordCount;
-						newOrderValueForSelected = rangeRecords.Pos[rangeRecords.RecordCount];
-						orderOp = '-';
-					}
-					else if (rangeRecords.DataPageID[rangeRecords.RecordCount] EQ arguments.movedDataPageID)
-					{
-						loopStart = 1;
-						loopEnd = rangeRecords.RecordCount - 1;
-						newOrderValueForSelected = rangeRecords.Pos[1];
-						orderOp = '+';
-					}
-				</cfscript>	
-				
-				<cfif loopStart GT 0 AND loopEnd GT 0>
-					<cfloop from="#loopStart#" to="#loopEnd#" index="i">
-						<cfscript>
-							newOrderValue = Evaluate('#rangeRecords['Pos'][i]# #orderOp# 1');
-							changePosition(propertiesStruct=inputPropStruct,dataPageID=rangeRecords['DataPageID'][i],newPos=newOrderValue);
-						</cfscript>
-					</cfloop>
-					<cfscript>
-						changePosition(propertiesStruct=inputPropStruct,dataPageID=arguments.movedDataPageID,newPos=newOrderValueForSelected);
-					</cfscript>
-				</cfif>
-			<cfelse>
-				<CFMODULE TEMPLATE="/commonspot/utilities/log-append.cfm" comment="Error while trying to reorder the records: Could not retrieve the range records for modifying the order">
-				<cfscript>
-					sResult = rangeRecords.ErrorMsg[1];
-				</cfscript>				
-			</cfif>
-		<cfelse>
-			<CFMODULE TEMPLATE="/commonspot/utilities/log-append.cfm" comment="Error while trying to reorder the records: Calculated minimum and maximum positions value are not numeric value greater than zero">
-			<cfscript>
-				sResult = 'Could not determine the position range for the moved element.';
-			</cfscript>
-		</cfif>
-		<cfreturn sResult>
-    </cffunction>
-	
-	<cffunction name="getReorderRange" returntype="struct" access="private" hint="Method to get the reorder range for the values fo a custom element">
-		<cfargument name="propertiesStruct" type="struct" required="true" hint="Properties structure for the field">
-        <cfargument name="movedDataPageID" type="numeric" required="true" hint="The unique data pageid for the record from start pos">
-		<cfargument name="dropAfterDataPageID" type="numeric" required="true" hint="The unique data pageid for the record from end pos">
-        <cfscript>
-			var ceObj = Server.CommonSpot.ObjectFactory.getObject("CustomElement");
-			var inputPropStruct = arguments.propertiesStruct;
-			var dataFormID = 0;
-			var getOrderForMovedRec = '';
-			var getOrderForEndRec = '';
-			var minPosValue = 0;
-			var maxPosValue = 0;
-			var returnStruct = StructNew();
-			
-			if (IsNumeric(inputPropStruct.assocCustomElement))
-				dataFormID = inputPropStruct.assocCustomElement;
-			else
-				dataFormID = inputPropStruct.childCustomElement;
-		</cfscript>
-		
-		<cftry>
-			<cfquery name="getOrderForMovedRec" datasource="#Request.Site.Datasource#">
-				SELECT FieldValue AS OrderPosition, PageID
-				  FROM Data_FieldValue
-				 WHERE PageID = <cfqueryparam value="#arguments.movedDataPageID#" cfsqltype="cf_sql_integer">
-				 	AND FormID = <cfqueryparam value="#dataFormID#" cfsqltype="cf_sql_integer">
-					AND FieldID = <cfqueryparam value="#inputPropStruct.positionField#" cfsqltype="cf_sql_integer">
-					AND VersionState = <cfqueryparam value="#request.constants.stateCURRENT#" cfsqltype="cf_sql_integer">
-					AND PageID > 0
-			</cfquery>
-			
-			<cfquery name="getOrderForEndRec" datasource="#Request.Site.Datasource#">
-				SELECT FieldValue AS OrderPosition, PageID
-				  FROM Data_FieldValue
-				 WHERE PageID = <cfqueryparam value="#arguments.dropAfterDataPageID#" cfsqltype="cf_sql_integer">
-				 	AND FormID = <cfqueryparam value="#dataFormID#" cfsqltype="cf_sql_integer">
-					AND FieldID = <cfqueryparam value="#inputPropStruct.positionField#" cfsqltype="cf_sql_integer">
-					AND VersionState = <cfqueryparam value="#request.constants.stateCURRENT#" cfsqltype="cf_sql_integer">
-					AND PageID > 0
-			</cfquery>
-			
-			<cfscript>
-				if (getOrderForMovedRec.OrderPosition GT getOrderForEndRec.OrderPosition)
-				{
-					minPosValue = getOrderForEndRec.OrderPosition;
-					maxPosValue = getOrderForMovedRec.OrderPosition;
-				}
-				else
-				{
-					minPosValue = getOrderForMovedRec.OrderPosition;
-					maxPosValue = getOrderForEndRec.OrderPosition;
-				}
-			</cfscript>
-		<cfcatch>
-			<cfscript>
-				minPosValue = 0;
-				maxPosValue = 0;
-			</cfscript>
-		</cfcatch>
-		</cftry>
-		<cfscript>
-			returnStruct['minPos'] = minPosValue;
-			returnStruct['maxPos'] = maxPosValue;
-			return returnStruct;
-		</cfscript>
-	</cffunction>
-	
-	<cffunction name="getRangeRecords" returntype="query" access="private" hint="Method to get the reorder range for the values fo a custom element">
-		<cfargument name="formID" type="numeric" required="true" hint="ID of the form or control type">
-		<cfargument name="propertiesStruct" type="struct" required="true" hint="Properties structure for the field">
-		<cfargument name="currentValues" type="struct" required="true" hint="Current values structure for the field">
-        <cfargument name="minPos" type="numeric" required="true" hint="The minimum position value to change">
-		<cfargument name="maxPos" type="numeric" required="true" hint="The maximum position value to change">
-        <cfscript>
-			var reqFormFields = "";
-			var ceObj = Server.CommonSpot.ObjectFactory.getObject("CustomElement");
-			var inputPropStruct = arguments.propertiesStruct;
-			var curValuesStruct = arguments.currentValues;
-			var linkedIDSelectedName = 'fic_#arguments.formID#_#inputPropStruct.parentUniqueField#';
-			var dataFormID = 0;
-			var dataFieldID = 0;
-			var getPageIDs = '';
-			var getRecsToChg = QueryNew('DataPageID,Pos');
-			var dbType = Request.Site.SiteDBType;
-			var intType = '';
-			switch (dbtype)
-			{
-				case 'Oracle':
-					intType = 'number(12)';
-					break;
-				case 'MySQL':
-					intType = 'UNSIGNED';
-					break;
-				case 'SQLServer':
-					intType = 'int';
-					break;
-			}
-			
-			if (IsNumeric(inputPropStruct.assocCustomElement))
-			{
-				dataFormID = inputPropStruct.assocCustomElement;
-				dataFieldID = inputPropStruct.parentInstanceIDField;
-			}
-			else
-			{
-				dataFormID = inputPropStruct.childCustomElement;
-				dataFieldID = inputPropStruct.childLinkedField;
-			}
-		</cfscript>
-		
-		<cftry>
-			<cfquery name="getPageIDs" datasource="#Request.Site.Datasource#">
-				SELECT PageID
-				  FROM Data_FieldValue
-				 WHERE FormID = <cfqueryparam value="#dataFormID#" cfsqltype="cf_sql_integer">
-					AND FieldID = <cfqueryparam value="#dataFieldID#" cfsqltype="cf_sql_integer">
-					AND FieldValue = <cfqueryparam value="#curValuesStruct[linkedIDSelectedName]#" cfsqltype="cf_sql_varchar">
-					AND VersionState = <cfqueryparam value="#request.constants.stateCURRENT#" cfsqltype="cf_sql_integer">
-					AND PageID > 0
-			</cfquery>
-			
-			<cfif getPageIDs.RecordCount>
-				<cfquery name="getRecsToChg" datasource="#Request.Site.Datasource#">
-					SELECT CAST(FieldValue AS #intType#) AS Pos, PageID AS DataPageID
-					  FROM Data_FieldValue
-					 WHERE FormID = <cfqueryparam value="#dataFormID#" cfsqltype="cf_sql_integer">
-						AND FieldID = <cfqueryparam value="#inputPropStruct.positionField#" cfsqltype="cf_sql_integer">
-						AND <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="PageID" LIST="#ValueList(getPageIDs.PageID)#">
-						AND VersionState = <cfqueryparam value="#request.constants.stateCURRENT#" cfsqltype="cf_sql_integer">
-						AND FieldValue >= <cfqueryparam value="#arguments.minPos#" cfsqltype="cf_sql_integer">
-						AND FieldValue <= <cfqueryparam value="#arguments.maxPos#" cfsqltype="cf_sql_integer">
-						AND PageID > 0
-				 ORDER BY Pos
-				</cfquery>
-			</cfif>
-		<cfcatch>
-			<CFMODULE TEMPLATE="/commonspot/utilities/log-append.cfm" comment="Error while trying to retrieve the fields: #cfcatch.message# :: #cfcatch.detail#">
-			<cfscript>
-				getRecsToChg = QueryNew('ErrorMsg');
-				QueryAddRow(getRecsToChg, 1);
-				QuerySetCell(getRecsToChg, 'ErrorMsg', "Error occurred while trying to retrieve range records. #cfcatch.message# #cfcatch.detail#");
-			</cfscript>
-		</cfcatch>
-		</cftry>
-		
-		<cfscript>
-			return getRecsToChg;
-		</cfscript>
-	</cffunction>
-	
-	<cffunction name="changePosition" returntype="void" access="private" hint="Method to get the change the position of the record with the new position provided">
-		<cfargument name="propertiesStruct" type="struct" required="true" hint="Properties structure for the field">
-        <cfargument name="dataPageID" type="numeric" required="true" hint="The unique data pageid for the records">
-		<cfargument name="newPos" type="numeric" required="true" hint="The position value to update">
-        <cfscript>
-			var inputPropStruct = arguments.propertiesStruct;
-			var updateRec = '';
-		</cfscript>
-		
-		<cfquery name="updateRec" datasource="#request.site.datasource#">
-			UPDATE Data_FieldValue
-				SET FieldValue = <CFQUERYPARAM VALUE="#arguments.newPos#" CFSQLTYPE="CF_SQL_INTEGER">
-			 WHERE PageID = <CFQUERYPARAM VALUE="#arguments.dataPageID#" CFSQLTYPE="CF_SQL_INTEGER">
-				AND FieldID = <CFQUERYPARAM VALUE="#inputPropStruct.PositionField#" CFSQLTYPE="CF_SQL_INTEGER">
-				AND VersionState = <CFQUERYPARAM VALUE="#request.constants.stateCURRENT#" CFSQLTYPE="CF_SQL_INTEGER">
-				AND PageID > 0
-		</cfquery>
-	</cffunction>
 
-	<cffunction name="QueryToArray" access="public" returntype="array" output="false" hint="This turns a query into an array of structures with each key being a number.">
-    	<cfargument name="queryData" type="query" required="yes" hint="Query to be converted to array">
-		<cfargument name="fieldOrderList" type="string" required="true" hint="Order in which the fields need to be returned">
-
-	    <cfscript>
-		    var columnArray = ListToArray(arguments.fieldOrderList);
-			var queryArray = ArrayNew(1);
-			var i = 0;
-			var rowStruct = StructNew();
-			var j = 0;
-			var columnName = '';
-			
-		    for (i=1; i LTE arguments.queryData.RecordCount; i=i + 1)
-		    {
-				rowStruct = StructNew();
-		   		for (j=1; j LTE ArrayLen(columnArray); j=j + 1)
-		   		{
-					columnName = columnArray[j];
-					rowStruct[j] = arguments.queryData[columnName][i];
-		   		}
-		  	  	ArrayAppend(queryArray, rowStruct);
-		    }
-		    return queryArray;	
-	    </cfscript>
-    </cffunction>
-	
 	<cffunction name="getContent_csurl" returntype="string" access="private" hint="Get the content of the commonspot page url and extended url element">
 		<cfargument name="fieldID" type="numeric" required="true" hint="ID of the field">
 		<cfargument name="fieldValue" type="string" required="true" hint="Value of the field">
@@ -1223,12 +1346,4 @@ History:
 		</cfscript>
 	</cffunction>
 	
-	<cffunction name="logit" access="private" output="No" returntype="void">
-		<cfargument name="comment" required="Yes" type="string">
-		
-		<cffile action="APPEND" 
-					file="#Request.CP.LogDir#datamanager-#DateFormat(now(),'yyyy-mm-dd')#" 
-					output="#arguments.comment#" 
-					addnewline="Yes">
-	</cffunction>
 </cfcomponent>

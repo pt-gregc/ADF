@@ -43,7 +43,6 @@ History:
 	requiredCSversion = 9;
 	csVersion = ListFirst(ListLast(request.cp.productversion," "),".");
 	
-	
 	// Path to component in the ADF
 	componentOverridePath = "#request.site.csAppsURL#components";
 	componentName = "customElementDataManager_1_0";
@@ -200,7 +199,7 @@ History:
 					<thead><tr></tr></thead>
 					<tbody>
 						<tr>
-							<td class="dataTables_empty">Loading data from server</td>
+							<td class="dataTables_empty"><img src="/commonspot/dashboard/images/dialog/loading.gif" />&nbsp;Loading data from server</td>
 						</tr>
 					</tbody>
 					</table>
@@ -234,8 +233,6 @@ History:
 			var oTable#uniqueTableAppend# = '';
 			
 			jQuery.ajaxSetup({ cache: false, async: false });	
-			
-			// setTimeout( 'loadData_#uniqueTableAppend#()', 7000 );
 			
 			top.commonspot.util.event.addEvent(window, "load", loadData_#uniqueTableAppend#);
 			top.commonspot.util.event.addEvent(window, "resize", resize_#uniqueTableAppend#);
@@ -272,6 +269,11 @@ History:
 		
 			function loadData_#uniqueTableAppend#()
 			{
+				setTimeout( loadDataCore_#uniqueTableAppend#, 500 );
+			}
+			
+			function loadDataCore_#uniqueTableAppend#()
+			{
 				var res#uniqueTableAppend# = '';
 				var retData#uniqueTableAppend# = '';
 				
@@ -285,14 +287,6 @@ History:
 						propertiesStruct : JSON.stringify(<cfoutput>#SerializeJSON(inputParameters)#</cfoutput>),
 						currentValues : JSON.stringify(<cfoutput>#SerializeJSON(attributes.currentvalues)#</cfoutput>)						
 				 };
-
-/* -- Updated to use AjaxProxy -- */
-/* jQuery.post( '#ajaxComURL_OLD#/#componentName_OLD#.cfc', 
-			dataToBeSent#uniqueTableAppend#, 
-			null, 
-			"json")
-*/
-
 				 
 				jQuery.when(
 
@@ -301,37 +295,32 @@ History:
 													null, 
 													"json" )
 
-
-
-							
-
 				).done(function(retData#uniqueTableAppend#) {
 				
 					// Convert the JSON String from the AjaxProxy to JSON Object
-					res#uniqueTableAppend# = jQuery.parseJSON( retData#uniqueTableAppend# );	
-					
-					// USE THIS TO NOT display an error and make sure we return aoColumns and aaData
-					/*if ( !res#uniqueTableAppend#.hasOwnProperty('aoColumns') )  
-					{
-						res#uniqueTableAppend# = {};
-						res#uniqueTableAppend#.aoColumns = '';
-						res#uniqueTableAppend#.aaData = [];
-					}*/
+					var res#uniqueTableAppend# = jQuery.parseJSON( retData#uniqueTableAppend# );	
 
 					var columns = [];
 					var columnsList = res#uniqueTableAppend#.aoColumns;
 					var columnsArray = columnsList.split(',');
+					var hasActionColumn = 0;
 				
 					if (columnsList != 'ERRORMSG')
 					{
-						for(var i=0; i < columnsArray.length; i=i+1){
-							if(columnsArray[i] == "DataPageID")
+						for(var i=0; i < columnsArray.length; i=i+1)
+						{
+							if(columnsArray[i] == "AssocDataPageID" || columnsArray[i] == "ChildDataPageID")
 							{
 								var obj = {"bVisible": false, "mDataProp": i+1};
 							}
 							else if (columnsArray[i] == "Actions")
 							{
-								var obj = { "sTitle": columnsArray[i], "mDataProp": i+1, "sWidth": "42px" };
+								<CFIF ListFindNoCase(inputParameters.interfaceOptions, 'editAssoc') AND ListFindNoCase(inputParameters.interfaceOptions, 'editChild') AND ListFindNoCase(inputParameters.interfaceOptions, 'delete')>
+									var obj = { "sTitle": columnsArray[i], "mDataProp": i+1, "sWidth": "65px" };
+								<CFELSE>
+									var obj = { "sTitle": columnsArray[i], "mDataProp": i+1, "sWidth": "42px" };
+								</CFIF>
+								hasActionColumn = 1;
 							}
 							else
 							{
@@ -361,7 +350,20 @@ History:
 							"aaData": res#uniqueTableAppend#.aaData,
 							"aoColumns": columns,
 							"fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-									jQuery(nRow).attr("id", aData[2]);
+									if( hasActionColumn == 1 )
+									{
+										if (aData[2] == 0)
+											jQuery(nRow).attr("id", aData[3]);
+										else
+											jQuery(nRow).attr("id", aData[2]);
+									}
+									else
+									{
+										if (aData[1] == 0)
+											jQuery(nRow).attr("id", aData[2]);
+										else
+											jQuery(nRow).attr("id", aData[1]);
+									}
 									return nRow;
 							}
 						});						

@@ -66,13 +66,6 @@ History:
 	formID = attributes.formID;
 	currentValues = attributes.currentValues;
 	
-	// Path to this CFT
-	cftPath = "/ADF/extensions/customfields/custom_element_datamanager";
-	// Ajax path to the proxy component in the context of the site
-	
-/* -- Updated to use AjaxProxy -- */	
-ajaxComURL_OLD = "#request.site.url#_cs_apps/components";
-
 	// AjaxProxy Path to make ajax call in context of the site
 	ajaxComURL = application.ADF.ajaxProxy;
 	ajaxBeanName = 'customElementDataManager';
@@ -112,7 +105,7 @@ ajaxComURL_OLD = "#request.site.url#_cs_apps/components";
 	if( not structKeyExists(currentValues, "assocCustomElement") )
 		currentValues.assocCustomElement = "";
 	if( not structKeyExists(currentValues, "interfaceOptions") )
-		currentValues.interfaceOptions = "new,edit,delete";
+		currentValues.interfaceOptions = "new,editChild,delete";
 	if( not structKeyExists(currentValues, "compOverride") )
 		currentValues.compOverride = "";
 	if( not structKeyExists(currentValues, "parentInstanceIDField") )
@@ -322,6 +315,8 @@ ajaxComURL_OLD = "#request.site.url#_cs_apps/components";
 			document.getElementById('inactiveFieldTr').style.display = "";
 			document.#formname#.#prefix#interfaceOptionsCbox[1].checked = false;
 			document.getElementById('existingOption').style.display = "none";
+			document.#formname#.#prefix#interfaceOptionsCbox[2].checked = false;
+			document.getElementById('editAssocOption').style.display = "none";
 			assocOptionFunction();
 		}
 		else
@@ -334,6 +329,7 @@ ajaxComURL_OLD = "#request.site.url#_cs_apps/components";
 			document.#formname#.#prefix#childLinkedField.selectedIndex = 0;
 			document.getElementById('inactiveFieldTr').style.display = "none";
 			document.getElementById('existingOption').style.display = "";
+			document.getElementById('editAssocOption').style.display = "";
 			
 			assocOptionFunction();
 		}
@@ -342,6 +338,7 @@ ajaxComURL_OLD = "#request.site.url#_cs_apps/components";
 	// Function to Convert AjaxProxy data to CF Query data object
 	function #prefix#convertAjaxProxyObj2CFqueryObj(objData)
 	{
+		
 		var results = {};
 		results.COLUMNS = [];
 		results.DATA = [];
@@ -456,6 +453,7 @@ ajaxComURL_OLD = "#request.site.url#_cs_apps/components";
 		else
 		{
 			document.getElementById("addNewOpt").innerHTML = "Allow 'Add New " + jQuery("option:selected",jQuery("###prefix#childCustomElementSelect")).text() + "'";
+			document.getElementById("editChildOpt").innerHTML = "Allow 'Edit' of " + jQuery("option:selected",jQuery("###prefix#childCustomElementSelect")).text();
 			var selectedDisplayFieldIDs = "#currentValues.displayFields#";
 			var selectedDisplayFieldIDArray = selectedDisplayFieldIDs.split(',');
 			var replaceArrayForSelected = selectedDisplayFieldIDs.split(',');
@@ -470,18 +468,6 @@ ajaxComURL_OLD = "#request.site.url#_cs_apps/components";
 			jQuery("###prefix#childLinkedField").children().remove().end().append("<option value=\"\"> - Select -</option>");
 			jQuery("###prefix#inactiveField").children().remove().end().append("<option value=\"\"> - Select -</option>");
 			
-/* -- Updated to use AjaxProxy -- */
-//jQuery.getJSON("#ajaxComURL_OLD#/custom_element_datamanager_base.cfc?method=getFields&returnformat=json",{"elementid":selectedChild})
-
-/*
-jQuery.getJSON("#ajaxComURL_OLD#/custom_element_datamanager_base.cfc?method=getFields&returnformat=json",{"elementid":selectedChild})
-.done(function(resOld) { 
-	console.log('resOld');
-	console.log(resOld);
-});
-console.log('---');
-*/
-
 			jQuery.getJSON("#ajaxComURL#?bean=#ajaxBeanName#&method=getFields&query2array=0&returnformat=json",{"elementid":selectedChild})
 			.done(function(retData) {
 				
@@ -546,20 +532,19 @@ console.log('---');
 					{
 						document.getElementById('assocElementInputs').style.display = "none";
 						document.getElementById('existingOption').style.display = "none";
+						document.getElementById('editAssocOption').style.display = "none";
 						return;
 					}
 					else
 					{
 						document.getElementById('existingOption').style.display = "";
+						document.getElementById('editAssocOption').style.display = "";
 						document.getElementById("addExistingOpt").innerHTML = "Allow 'Add New " + jQuery("option:selected",jQuery("###prefix#assocCustomElement")).text() + "'";
+						document.getElementById("editAssocOpt").innerHTML = "Allow 'Edit' of " + jQuery("option:selected",jQuery("###prefix#assocCustomElement")).text();
 						document.getElementById('assocElementInputs').style.display = "";
 						document.getElementById('assocCENameSpan').innerHTML = jQuery("option:selected",jQuery("###prefix#assocCustomElement")).text();
 						
 						// jQuery call to populate the Parent FormID, Parent Instance ID, Child Form ID, Child Instance ID and Sort By Fields
-						
-/* -- Updated to use AjaxProxy -- */
-/* jQuery.getJSON("#ajaxComURL_OLD#/custom_element_datamanager_base.cfc?method=getFields&returnformat=json",{"elementid":selectedAssoc}) */
-						
 						jQuery.getJSON("#ajaxComURL#?bean=#ajaxBeanName#&method=getFields&query2array=0&returnformat=json",{"elementid":selectedAssoc}) 
 						.done(function(retData) {
 						
@@ -668,10 +653,6 @@ console.log('---');
 		
 		if (selectedChild != "")
 		{
-
-/* -- Updated to use AjaxProxy -- */		
-//jQuery.getJSON("#ajaxComURL_OLD#/custom_element_datamanager_base.cfc?method=getFieldIDList&returnformat=json",{"elementid":selectedChild}) 
-
 			jQuery.getJSON("#ajaxComURL#?bean=#ajaxBeanName#&method=getFieldIDList&returnformat=json",{"elementid":selectedChild})
 			.done(function(retData) {
 			
@@ -739,16 +720,13 @@ console.log('---');
 		if (selectedAssoc == "")
 		{
 			document.getElementById('existingOption').style.display = "none";
+			document.getElementById('editAssocOption').style.display = "none";
 			document.getElementById('assocElementInputs').style.display = "none";
 			
 			if (selectedChild != "")
 			{
 				if(document.#formname#.#prefix#refersParentCheckbox.checked == true)
 				{
-						
-/* -- Updated to use AjaxProxy -- */
-/* jQuery.getJSON("#ajaxComURL_OLD#/custom_element_datamanager_base.cfc?method=getFields&returnformat=json",{"elementid":selectedChild}) */
-					
 					jQuery.getJSON("#ajaxComURL#?bean=#ajaxBeanName#&method=getFields&query2array=0&returnformat=json",{"elementid":selectedChild})
 					.done(function(retData) {
 					
@@ -798,14 +776,13 @@ console.log('---');
 		else
 		{
 			document.getElementById('existingOption').style.display = "";
+			document.getElementById('editAssocOption').style.display = "";
 			document.getElementById("addExistingOpt").innerHTML = "Allow 'Add New " + jQuery("option:selected",jQuery("###prefix#assocCustomElement")).text() + "'";
+			document.getElementById("editAssocOpt").innerHTML = "Allow 'Edit' of " + jQuery("option:selected",jQuery("###prefix#assocCustomElement")).text();
 			document.getElementById('assocElementInputs').style.display = "";
 			document.getElementById('inactiveFieldTr').style.display = "";
 			document.getElementById('assocCENameSpan').innerHTML = jQuery("option:selected",jQuery("###prefix#assocCustomElement")).text();
 
-/* -- Updated to use AjaxProxy -- */			
-/* jQuery.getJSON("#ajaxComURL_OLD#/custom_element_datamanager_base.cfc?method=getFields&returnformat=json",{"elementid":selectedAssoc}) */
-			
 			jQuery.getJSON("#ajaxComURL#?bean=#ajaxBeanName#&method=getFields&query2array=0&returnformat=json",{"elementid":selectedAssoc}) 
 			.done(function(retData) {
 			
@@ -889,12 +866,6 @@ console.log('---');
 		
 		if (selectedAssoc != "")
 		{
-			
-/* -- Updated to use AjaxProxy -- */
-// jQuery.getJSON("#ajaxComURL_OLD#/custom_element_datamanager_base.cfc?method=getFieldIDList&returnformat=json",{"elementid":selectedAssoc}) 
-
-//returns a list (not a query)
-			
 			jQuery.getJSON("#ajaxComURL#?bean=#ajaxBeanName#&method=getFieldIDList&returnformat=json",{"elementid":selectedAssoc})
 			.done(function(retData) {
 				
@@ -977,21 +948,40 @@ console.log('---');
 			{
 				document.#formname#.#prefix#refersParentCheckbox.checked = false;
 				document.#formname#.#prefix#refersParent.value = 0;
-				document.getElementById('refersParentTr').style.display = "none";
+
+				// special cases if selected Child is same as current element
+				if( selectedChild == #attributes.formID# )
+					document.getElementById('refersParentTr').style.display = "";
+				else	
+					document.getElementById('refersParentTr').style.display = "none";
+					
 				document.getElementById('assocCETr').style.display = "";
-				
+	
 				document.getElementById('childLinkedFldSpan').style.display = "none";
 				document.#formname#.#prefix#childLinkedField.selectedIndex = 0;
 				document.getElementById('inactiveFieldTr').style.display = "none";
 				document.#formname#.#prefix#refersParent.value = 0;
-				document.getElementById('existingOption').style.display = "";
 				document.#formname#.#prefix#interfaceOptionsCbox[0].checked = false;
 				document.getElementById('newOption').style.display = "none";
+				document.#formname#.#prefix#interfaceOptionsCbox[3].checked = false;
+				document.getElementById('editChildOption').style.display = "none";
+				
+				if (selectedAssoc != "")
+				{
+					document.getElementById('existingOption').style.display = "";
+					document.getElementById('editAssocOption').style.display = "";
+				}
+				else
+				{
+					document.getElementById('existingOption').style.display = "none";
+					document.getElementById('editAssocOption').style.display = "none";
+				}
 			}
 			else
 			{
 				document.getElementById('refersParentTr').style.display = "";
 				document.getElementById('newOption').style.display = "";
+				document.getElementById('editChildOption').style.display = "";
 			}
 			
 			if (selectedAssoc != "")
@@ -1119,9 +1109,9 @@ console.log('---');
 			<select id="#prefix#childCustomElementSelect" name="#prefix#childCustomElementSelect" size="1">
 				<option value=""> - Select - </option>
 				<cfloop query="allCustomElements">
-					<cfif allCustomElements.ID NEQ attributes.FormID>
+					<!---<cfif allCustomElements.ID NEQ attributes.FormID>--->
 						<option value="#LCase(allCustomElements.Type)#||#allCustomElements.ID#" <cfif currentValues.childCustomElement EQ allCustomElements.ID>selected</cfif>>#allCustomElements.Name#</option>
-					</cfif>
+					<!---</cfif>--->
 					<cfif currentValues.childCustomElement EQ allCustomElements.ID>
 						<cfset selectedCEName = allCustomElements.Name>
 						<cfset selectedCEType = allCustomElements.Type>
@@ -1131,7 +1121,7 @@ console.log('---');
 		</td>
 	</tr>
 	<tbody id="childElementInputs" <cfif NOT IsNumeric(currentValues.childCustomElement)>style="display:none;"</cfif>>
-		<tr id="refersParentTr" <cfif selectedCEType EQ 'local'>style="display:none;"</cfif>>
+		<tr id="refersParentTr" <cfif selectedCEType EQ 'local' AND currentValues.childCustomElement NEQ attributes.formID>style="display:none;"</cfif>>
 			<td valign="baseline" align="right">&nbsp;</td>
 			<td valign="baseline" align="left">
 				#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", name="#prefix#refersParentCheckbox", value="1", label="The child element contains the reference to the parent instance", checked=(currentValues.refersParent EQ 1), labelClass="cs_dlgLabelSmall", onchange="#prefix#toggleAssocFld()")#
@@ -1164,7 +1154,8 @@ console.log('---');
 			<td valign="baseline">
 				<span id="newOption" <cfif selectedCEType EQ 'local'>style="display:none;"</cfif>>#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", id="#prefix#interfaceOptionsCbox", name="#prefix#interfaceOptionsCbox", value="new", label="<span id='addNewOpt'>Allow 'Add New'</span>", labelIsHTML=1, checked=(ListFindNoCase(currentValues.interfaceOptions,'new')), labelClass="cs_dlgLabelSmall")#<br/></span>
 				<span id="existingOption" <cfif currentValues.refersParent EQ 1>style="display:none;"</cfif>>#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", id="#prefix#interfaceOptionsCbox", name="#prefix#interfaceOptionsCbox", value="existing", label="<span id='addExistingOpt'>Allow 'Add Existing'</span>", labelIsHTML=1, checked=(ListFindNoCase(currentValues.interfaceOptions,'existing')), labelClass="cs_dlgLabelSmall")#<br/></span>
-				#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", id="#prefix#interfaceOptionsCbox", name="#prefix#interfaceOptionsCbox", value="edit", label="Allow 'Edit'", checked=(ListFindNoCase(currentValues.interfaceOptions,'edit')), labelClass="cs_dlgLabelSmall")#<br/>
+				<span id="editAssocOption" <cfif currentValues.refersParent EQ 1>style="display:none;"</cfif>>#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", id="#prefix#interfaceOptionsCbox", name="#prefix#interfaceOptionsCbox", value="editAssoc", label="<span id='editAssocOpt'>Allow 'Edit'</span>", labelIsHTML=1, checked=(ListFindNoCase(currentValues.interfaceOptions,'editAssoc')), labelClass="cs_dlgLabelSmall")#<br/></span>
+				<span id="editChildOption" <cfif selectedCEType EQ 'local'>style="display:none;"</cfif>>#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", id="#prefix#interfaceOptionsCbox", name="#prefix#interfaceOptionsCbox", value="editChild", label="<span id='editChildOpt'>Allow 'Edit'</span>", labelIsHTML=1, checked=(ListFindNoCase(currentValues.interfaceOptions,'editChild')), labelClass="cs_dlgLabelSmall")#<br/></span>
 				#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", id="#prefix#interfaceOptionsCbox", name="#prefix#interfaceOptionsCbox", value="delete", label="Allow 'Delete'", checked=(ListFindNoCase(currentValues.interfaceOptions,'delete')), labelClass="cs_dlgLabelSmall")#
 			</td>
 		</tr>
