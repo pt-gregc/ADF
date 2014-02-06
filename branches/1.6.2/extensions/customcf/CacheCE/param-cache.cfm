@@ -89,10 +89,10 @@ History:
 		
 
 	// Handle request to clear the memory, if 'ClearMemCache' is specified in URL params
-	if( StructKeyExists(request.params,'ClearMemCache') AND StructKeyExists(application.CS_PageParamCache[attributes.ElementType],basename) )
+	if( StructKeyExists(request.params,'ClearMemCache') AND StructKeyExists(Application.CS_PageParamCache[attributes.ElementType],basename) )
 	{
-		StructDelete(application.CS_PageParamCache[attributes.ElementType],basename);
-		application.CS_PageParamCache[attributes.ElementType][basename] = StructNew();
+		StructDelete(Application.CS_PageParamCache[attributes.ElementType],basename);
+		Application.CS_PageParamCache[attributes.ElementType][basename] = StructNew();
 	}
 </cfscript>
 
@@ -134,6 +134,8 @@ History:
 	</cfoutput>
 </cfif>
 
+<cfset lockName = "#attributes.ElementType#_#basename#_#paramStr#">			
+
 <cfif StructKeyExists(application.CS_PageParamCache[attributes.ElementType][basename],paramStr)>
 
 	<cfif DateCompare( now(), application.CS_PageParamCache[attributes.ElementType][basename][paramStr].expires) eq -1 
@@ -144,14 +146,31 @@ History:
 				<cfoutput><br>---Rendered from cache. Expires in #DateDiff( 's', now(), application.CS_PageParamCache[attributes.ElementType][basename][paramStr].expires)# second at #application.CS_PageParamCache[attributes.ElementType][basename][paramStr].expires# ----</cfoutput>
 			</cfif>
 			
+			
 			<!--- Output what is in the cache --->
-			<cfoutput>#application.CS_PageParamCache[attributes.ElementType][basename][paramStr].data#</cfoutput>
+			<cflock name="#lockName#" type="READONLY" timeout="30">
+			
+				<cfif FindNoCase( "<CPMODULE", application.CS_PageParamCache[attributes.ElementType][basename][paramStr].data ) eq 0>
+					<cfoutput>#application.CS_PageParamCache[attributes.ElementType][basename][paramStr].data#</cfoutput>
+					<cfset newcache = ''>
+				<cfelse>
+					<!--- we cached something dynamic, execute it and then recache the results --->
+					<cfsavecontent variable="newcache">
+						<cfoutput>#application.CS_PageParamCache[attributes.ElementType][basename][paramStr].data#</cfoutput>
+					</cfsavecontent>
+				</cfif>	
+				
+			</cflock> 
 			
 			<!--- increment hit count & last use --->
-			<cfscript>
-				application.CS_PageParamCache[attributes.ElementType][basename][paramStr].hitCount = application.CS_PageParamCache[attributes.ElementType][basename][paramStr].hitCount + 1;
-				application.CS_PageParamCache[attributes.ElementType][basename][paramStr].lastuse = now();
-			</cfscript>	
+			<cflock type="EXCLUSIVE" name="#lockName#" timeout="30">
+				<cfscript>
+					if( newcache neq '' )
+						application.CS_PageParamCache[attributes.ElementType][basename][paramStr].data = newCache;
+					application.CS_PageParamCache[attributes.ElementType][basename][paramStr].hitCount = application.CS_PageParamCache[attributes.ElementType][basename][paramStr].hitCount + 1;
+					application.CS_PageParamCache[attributes.ElementType][basename][paramStr].lastuse = now();
+				</cfscript>	
+			</cflock>
 			
 			<!--- Stop further Processing --->
 			<cfexit>
@@ -175,26 +194,28 @@ History:
 </cfsavecontent>			
 <cfoutput>#theOutput#</cfoutput>
 
-<cfscript>
-	if( bMakeCache )
-	{
-		// Make sure we don't cache more than the max specified. If attributes.MaxItemsToCache = 0, then unlimited
-		// If the item already exist in mem cache allow.
-		alreadyExists = StructKeyExists( application.CS_PageParamCache[attributes.ElementType][basename],'#paramStr#' );
-		curItemCount = ListLen( StructKeyList(application.CS_PageParamCache[attributes.ElementType][basename]) );
 
-		if( alreadyExists OR attributes.MaxItemsToCache eq 0 OR curItemCount LT attributes.MaxItemsToCache )
-		{
-			application.CS_PageParamCache[attributes.ElementType][basename][paramStr] = StructNew();
-			application.CS_PageParamCache[attributes.ElementType][basename][paramStr].expires = DateAdd( "n", minToCache, now() );
-			application.CS_PageParamCache[attributes.ElementType][basename][paramStr].data = theOutput;
-			application.CS_PageParamCache[attributes.ElementType][basename][paramStr].hitCount = 0;
-			application.CS_PageParamCache[attributes.ElementType][basename][paramStr].created = now();
-			application.CS_PageParamCache[attributes.ElementType][basename][paramStr].lastuse = now();			
-			application.CS_PageParamCache[attributes.ElementType][basename][paramStr].minutesToCache = minToCache;
-		}
-	}
-</cfscript>
+<cfif bMakeCache>
+	<cflock name="#lockName#" type="EXCLUSIVE" timeout="30">
+		<cfscript>
+			// Make sure we don't cache more than the max specified. If attributes.MaxItemsToCache = 0, then unlimited
+			// If the item already exist in mem cache allow.
+			alreadyExists = StructKeyExists( application.CS_PageParamCache[attributes.ElementType][basename],'#paramStr#' );
+			curItemCount = ListLen( StructKeyList(application.CS_PageParamCache[attributes.ElementType][basename]) );
+	
+			if( alreadyExists OR attributes.MaxItemsToCache eq 0 OR curItemCount LT attributes.MaxItemsToCache )
+			{
+				application.CS_PageParamCache[attributes.ElementType][basename][paramStr] = StructNew();
+				application.CS_PageParamCache[attributes.ElementType][basename][paramStr].expires = DateAdd( "n", minToCache, now() );
+				application.CS_PageParamCache[attributes.ElementType][basename][paramStr].data = theOutput;
+				application.CS_PageParamCache[attributes.ElementType][basename][paramStr].hitCount = 0;
+				application.CS_PageParamCache[attributes.ElementType][basename][paramStr].created = now();
+				application.CS_PageParamCache[attributes.ElementType][basename][paramStr].lastuse = now();			
+				application.CS_PageParamCache[attributes.ElementType][basename][paramStr].minutesToCache = minToCache;
+			}
+		</cfscript>
+	</cflock>
+</cfif>	
 
 <!--- Debug: Dump the Memory Cache Structure --->
 <cfif attributes.debug eq 1 AND StructCount(application.CS_PageParamCache[attributes.ElementType][basename]) gt 0>
@@ -236,13 +257,13 @@ History:
 	
 	<cfscript>
 		// Create the base memory structure if it does not exist.
-		if( NOT StructKeyExists(application,"CS_PageParamCache") )
+		if( NOT StructKeyExists(Application,"CS_PageParamCache") )
 			application.CS_PageParamCache = StructNew();
 			
-		if( NOT StructKeyExists(application.CS_PageParamCache, arguments.elementType) )
+		if( NOT StructKeyExists(Application.CS_PageParamCache, arguments.elementType) )
 			application.CS_PageParamCache[arguments.elementType] = StructNew();
 			
-		if( NOT StructKeyExists(application.CS_PageParamCache[arguments.elementType], arguments.basename) )
+		if( NOT StructKeyExists(Application.CS_PageParamCache[arguments.elementType], arguments.basename) )
 			application.CS_PageParamCache[arguments.elementType][arguments.basename] = StructNew();
 	</cfscript>
 </cffunction>
