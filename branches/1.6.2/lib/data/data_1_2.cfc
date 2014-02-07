@@ -369,11 +369,12 @@ Summary:
 Returns:
 	query 
 Arguments:
-	query
-	string
-	string
-	string
-	string
+	query - query
+	String - columnName
+	String - columnType
+	String - orderList
+	String - orderColumnName
+	String - orderListDelimiter
 History:
 	2013-01-10 - MFC - Created
 	2013-10-23 - GAC - Renamed and cleaned up debug code in the method  
@@ -418,6 +419,7 @@ History:
 		// A saftey catch so there is always a custom sort ORDERCOLUMNNAME defined
 		if ( LEN(TRIM(arguments.orderColumnName)) EQ 0 )
 			arguments.orderColumnName = "recSortCol";
+			
 		// Also make sure the ORDERCOLUMNNAME is unique and not one of the query columns
 		if ( ListFindNoCase(qColumnsList,arguments.orderColumnName) )
 			arguments.orderColumnName = "xNew" & arguments.orderColumnName;
