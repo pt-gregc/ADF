@@ -120,9 +120,10 @@ History:
 	
 	if ( NOT StructKeyExists(xparams, "fldName") OR (LEN(xparams.fldName) LTE 0) )
 		xparams.fldName = fqFieldName;	
-		
-	if ( NOT StructKeyExists(xparams, "sortByField") OR (LEN(xparams.sortByField) LTE 0) )
-		xparams.sortByField = "--";
+	
+	// TODO: Remove when the new Filter Criteria works correctly	
+	//if ( NOT StructKeyExists(xparams, "sortByField") OR (LEN(xparams.sortByField) LTE 0) )
+	//	xparams.sortByField = "--";
 	
 	if ( NOT StructKeyExists(xparams,"addButton") OR !IsBoolean(xparams.addButton) )
 		xparams.addButton = 0;
@@ -151,18 +152,61 @@ History:
 	filterArray = ArrayNew(1);
 	ceFieldsArray = ArrayNew(1);
 	index = 1;
+	valueWithoutParens = '';
+	hasParens = 0;
 	
+	if (StructKeyExists(xparams,"customElement") and Len(xparams.customElement))
+		ceFormID = application.ADF.cedata.getFormIDByCEName(xparams.customElement);
+	
+	flagValueWithoutExp = '';
+	
+	if ( StructKeyExists(xparams,"activeFlagField") and Len(xparams.activeFlagField) and StructKeyExists(xparams,"activeFlagValue") and Len(xparams.activeFlagValue) ) 
+	{
+		if ( (TRIM(LEFT(xparams.activeFlagValue,1)) EQ "[") AND (TRIM(RIGHT(xparams.activeFlagValue,1)) EQ "]"))
+		{
+			valueWithoutParens = MID(xparams.activeFlagValue, 2, LEN(xparams.activeFlagValue)-2);
+			hasParens = 1;
+		}
+		else
+		{
+			valueWithoutParens = xparams.activeFlagValue;
+		}
+		
+		statementsArray[1] = ceObj.createStandardFilterStatement(customElementID=ceFormID,fieldIDorName=xparams.activeFlagField,operator='Equals',value=valueWithoutParens);
+				
+		filterArray = ceObj.createQueryEngineFilter(filterStatementArray=statementsArray,filterExpression='1');
+		
+		if (hasParens)
+		{
+			filterArray[1] = ReplaceNoCase(filterArray[1], '| #valueWithoutParens#| |', '#valueWithoutParens#| ###valueWithoutParens###| |');
+		}
+		
+		cfmlFilterCriteria.filter = StructNew();
+		cfmlFilterCriteria.filter.serSrchArray = filterArray;
+		cfmlFilterCriteria.defaultSortColumn = xparams.activeFlagField & '|asc';
+	}
+	
+	if ( StructKeyExists(xparams,"sortByField") and xparams.sortByField NEQ '--')
+	{
+		cfmlFilterCriteria.defaultSortColumn = xparams.sortByField & '|asc';
+	}
+	
+	if (NOT StructIsEmpty(cfmlFilterCriteria))
+		xparams.filterCriteria = Server.CommonSpot.UDF.util.WDDXEncode(cfmlFilterCriteria);
+
 	if (StructKeyExists(xparams, 'filterCriteria') AND IsWDDX(xparams.filterCriteria))
 	{
-		cfmlFilterCriteria = Server.CommonSpot.UDF.util.WDDXDecode(xparams.filterCriteria);			
-		filterArray = cfmlFilterCriteria.filter.serSrchArray;
+		cfmlFilterCriteria = Server.CommonSpot.UDF.util.WDDXDecode(xparams.filterCriteria);	
+		if ( StructKeyExists(cfmlFilterCriteria,"filter") )		
+			filterArray = cfmlFilterCriteria.filter.serSrchArray;
 		sortColumn = ListFirst(cfmlFilterCriteria.defaultSortColumn,'|');
 		sortDir = ListLast(cfmlFilterCriteria.defaultSortColumn,'|');
 	}
 	
 	if (StructKeyExists(xparams,"customElement") and Len(xparams.customElement))
 	{
-		ceFormID = application.ADF.cedata.getFormIDByCEName(xparams.customElement);
+		// TODO: Remove when the new Filter Criteria works correctly
+		//ceFormID = application.ADF.cedata.getFormIDByCEName(xparams.customElement);
 	
 		ceFieldsArray = application.ADF.cedata.getTabsFromFormID(formID=ceFormID,recurse=true);
 		if (ArrayLen(ceFieldsArray) AND StructKeyExists(ceFieldsArray[1],'fields') AND IsArray(ceFieldsArray[1].fields) AND ArrayLen(ceFieldsArray[1].fields))
@@ -195,11 +239,13 @@ History:
 	ceDataArray = application.ADF.cedata.buildCEDataArrayFromQuery(ceData.ResultQuery);
 
 	// Sort the list by the display field value, if its other.. all bets are off we sort via jquery... 
-	if( xparams.sortByField neq "--" ) 
-		ceDataArray = application.ADF.cedata.arrayOfCEDataSort(ceDataArray, xparams.sortByField);
-	else if( StructKeyExists(xparams, "displayField") AND LEN(xparams.displayField) AND xparams.displayField neq "--Other--" ) 
+	// TODO: Remove when the new Filter Criteria works correctly
+	//if( xparams.sortByField neq "--" ) 
+	//	ceDataArray = application.ADF.cedata.arrayOfCEDataSort(ceDataArray, xparams.sortByField);
+	//else 
+	
+	if( StructKeyExists(xparams, "displayField") AND LEN(xparams.displayField) AND xparams.displayField neq "--Other--" ) 
 		ceDataArray = application.ADF.cedata.arrayOfCEDataSort(ceDataArray, xparams.displayField);
-
 
 	// Check if we do not have a current value then set to the default
 	if ( (LEN(currentValue) LTE 0) OR (currentValue EQ "") ) 

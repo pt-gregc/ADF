@@ -63,7 +63,7 @@ History:
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <cfscript>
-	fieldVersion = "1.1.0"; // Variable for the version of the field - Display in Props UI
+	fieldVersion = "1.1.1"; // Variable for the version of the field - Display in Props UI
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
@@ -81,15 +81,12 @@ History:
 	defaultValues.fldName = "";
 	defaultValues.forceScripts = "0";
 	defaultValues.displayFieldBuilder = "";
-	defaultValues.activeFlagField = "";  // TODO: Remove when the new Filter Criteria works correctly
-	defaultValues.activeFlagValue = "";	 // TODO: Remove when the new Filter Criteria works correctly
 	defaultValues.filterCriteria = "";
 	defaultValues.addButton = 0;
 	defaultValues.multipleSelect = 0;
 	defaultValues.multipleSelectSize = "3";
 	defaultValues.widthValue = "200";
 	defaultValues.heightValue = "150";
-	defaultValues.sortByField = "";
 	defaultValues.fieldtype = "select";
 	defaultValues.renderClearSelectionLink = 0; 
 	
@@ -141,6 +138,8 @@ History:
 	
 	// Create the unique id
 	persistentUniqueID = '';
+	valueWithoutParens = '';
+	hasParens = 0;
 	cfmlFilterCriteria = StructNew();
 	if (NOT Len(persistentUniqueID))
 		persistentUniqueID = CreateUUID();
@@ -153,16 +152,35 @@ History:
 	{
 		if ( (TRIM(LEFT(currentValues.activeFlagValue,1)) EQ "[") AND (TRIM(RIGHT(currentValues.activeFlagValue,1)) EQ "]"))
 		{
-			currentValues.activeFlagValue = '{' & MID(currentValues.activeFlagValue, 2, LEN(currentValues.activeFlagValue)-2) & '}';
+			valueWithoutParens = MID(currentValues.activeFlagValue, 2, LEN(currentValues.activeFlagValue)-2);
+			hasParens = 1;
 		}
-		statementsArray[1] = ceObj.createStandardFilterStatement(customElementID=ceFormID,fieldIDorName=currentValues.activeFlagField,operator='Equals',value=currentValues.activeFlagValue);
+		else
+		{
+			valueWithoutParens = currentValues.activeFlagValue;
+		}
+		
+		statementsArray[1] = ceObj.createStandardFilterStatement(customElementID=ceFormID,fieldIDorName=currentValues.activeFlagField,operator='Equals',value=valueWithoutParens);
 				
 		filterArray = ceObj.createQueryEngineFilter(filterStatementArray=statementsArray,filterExpression='1');
+		
+		if (hasParens)
+		{
+			filterArray[1] = ReplaceNoCase(filterArray[1], '| #valueWithoutParens#| |', '#valueWithoutParens#| ###valueWithoutParens###| |');
+		}
 		
 		cfmlFilterCriteria.filter = StructNew();
 		cfmlFilterCriteria.filter.serSrchArray = filterArray;
 		cfmlFilterCriteria.defaultSortColumn = currentValues.activeFlagField & '|asc';
 	}
+	
+	if ( StructKeyExists(currentValues,"sortByField") and currentValues.sortByField NEQ '--')
+	{
+		cfmlFilterCriteria.defaultSortColumn = currentValues.sortByField & '|asc';
+	}
+	
+	if (NOT StructIsEmpty(cfmlFilterCriteria))
+		currentValues.filterCriteria = Server.CommonSpot.UDF.util.WDDXEncode(cfmlFilterCriteria);
 	
 	if (IsWDDX(currentValues.filterCriteria))
 		cfmlFilterCriteria = Server.CommonSpot.UDF.util.WDDXDecode(currentValues.filterCriteria);
@@ -179,8 +197,7 @@ History:
 
 <cfoutput>
 <script type="text/javascript">
-	<!--- // TODO: Remove when the new Filter Criteria works correctly (,#prefix#activeFlagField,#prefix#activeFlagValue) --->
-	fieldProperties['#typeid#'].paramFields = "#prefix#customElement,#prefix#valueField,#prefix#displayField,#prefix#renderField,#prefix#defaultVal,#prefix#fldName,#prefix#forceScripts,#prefix#displayFieldBuilder,#prefix#filterCriteria,#prefix#activeFlagField,#prefix#activeFlagValue,#prefix#addButton,#prefix#multipleSelect,#prefix#sortByField,#prefix#renderSelectOption,#prefix#fieldtype,#prefix#multipleSelectSize,#prefix#widthValue,#prefix#heightValue,#prefix#renderClearSelectionLink";
+	fieldProperties['#typeid#'].paramFields = "#prefix#customElement,#prefix#valueField,#prefix#displayField,#prefix#renderField,#prefix#defaultVal,#prefix#fldName,#prefix#forceScripts,#prefix#displayFieldBuilder,#prefix#filterCriteria,#prefix#addButton,#prefix#multipleSelect,#prefix#renderSelectOption,#prefix#fieldtype,#prefix#multipleSelectSize,#prefix#widthValue,#prefix#heightValue,#prefix#renderClearSelectionLink";
 	// allows this field to support the orange icon (copy down to label from field name)
 	fieldProperties['#typeid#'].jsLabelUpdater = '#prefix#doLabel';
 	// allows this field to have a common onSubmit Validator
@@ -210,20 +227,9 @@ History:
 	
 	jQuery(document).ready(function()
 	{
-		// Hide all Field Type options
-		//#prefix#renderSelectionListOptions('hide',0);
-		//#prefix#renderCheckRadioOptions('hide');
-		
 		// Render the initial Field Type display Options
 		#prefix#renderFieldTypeOptions('#currentValues.fieldtype#','#currentValues.multipleSelect#');
 	
-		<!--- // TODO: Remove when the new Filter Criteria works correctly --->
-		<cfif LEN(TRIM(currentValues.activeFlagField)) AND currentValues.activeFlagField NEQ "--">
-		jQuery("tr###prefix#activeFlagValueRow").show();
-		<cfelse>
-		jQuery("tr###prefix#activeFlagValueRow").hide();
-		</cfif>
-		<!--- // --->
 		
 		var customElement = "###prefix#customElement";
 		var customElementValue = "###prefix#valueField";
@@ -232,11 +238,6 @@ History:
 		#prefix#setElementFields("#currentValues.customElement#");
 		jQuery("###prefix#valueField").selectOptions("#currentValues.valueField#");
 		jQuery("###prefix#displayField").selectOptions("#currentValues.displayField#");
-		
-		// TODO: Remove when the new Filter Criteria works correctly
-		jQuery("###prefix#activeFlagField").selectOptions("#currentValues.activeFlagField#");
-		
-		jQuery("###prefix#sortByField").selectOptions("#currentValues.sortByField#");
 		
 		#prefix#handleDisplayFieldChange();
 		</cfif>
@@ -266,27 +267,6 @@ History:
 			var multipleSelectVal = jQuery("input[name=#prefix#multipleSelect]:checked").val();
           	
           	#prefix#renderFieldTypeOptions(fieldtypeVal,multipleSelectVal);
-          	
-          	// TODO: REMOVE
-          	/* 
-			if ( fieldtypeVal != 'select' ) 
-          	   jQuery("tr###prefix#checkRadioSizeRow").show();       	
-          	else 
-			{
-          	   	if ( multipleSelectVal == 1 ) 
-	          	   jQuery("tr###prefix#multipleSelectSizeRow").show();       	
-	          	else 
-				{
-	          	   jQuery("tr###prefix#multipleSelectSizeRow").hide();
-	          	   jQuery("###prefix#multipleSelectSize").val("#defaultValues.multipleSelectSize#");       	
-	          	}
-			  
-			  
-			   jQuery("tr###prefix#checkRadioSizeRow").hide();
-          	   jQuery("###prefix#widthValue").val("#defaultValues.widthValue#");
-          	   jQuery("###prefix#heightValue").val("#defaultValues.heightValue#");
-          	}  
-          	*/
 		});
 		
 		jQuery("input[name=#prefix#multipleSelect]:radio").on('change', function() {
@@ -294,51 +274,7 @@ History:
 			var multipleSelectVal = jQuery("input[name=#prefix#multipleSelect]:checked").val();
 			
 			#prefix#renderFieldTypeOptions(fieldtypeVal,multipleSelectVal);
-			
-			// TODO: REMOVE
-			/*
-          	if ( fieldtypeVal == 'select' )
-			{
-				if ( multipleSelectVal == 1 ) 
-	          	   jQuery("tr###prefix#multipleSelectSizeRow").show();       	
-	          	else 
-					{
-	          	   jQuery("tr###prefix#multipleSelectSizeRow").hide();
-	          	   jQuery("###prefix#multipleSelectSize").val("#defaultValues.multipleSelectSize#");       	
-	          	}
-            } 
-            */ 
 		});
-		
-		
-		// TODO: REMOVE
-		/*
-		jQuery("input[name=#prefix#multipleSelect]:radio").on('change', function() {
-			var multipleSelectVal = jQuery("input[name=#prefix#multipleSelect]:checked").val();
-          	if ( multipleSelectVal == 1 ) 
-          	   jQuery("tr###prefix#checkRadioSizeRow").show();       	
-          	else 
-				{
-          	   jQuery("tr###prefix#checkRadioSizeRow").hide();
-          	   jQuery("###prefix#widthValue").val("#defaultValues.widthValue#");
-          	   jQuery("###prefix#heightValue").val("#defaultValues.heightValue#");
-          	}
-               
-		});	
-		*/
-		
-		<!--- // TODO: Remove when the new Filter Criteria works correctly --->
-		jQuery("select[name=#prefix#activeFlagField]").change(function(){
-			var activeFlagFieldVal = jQuery("###prefix#activeFlagField").val();
-			if ( activeFlagFieldVal != "--" )
-          		jQuery("tr###prefix#activeFlagValueRow").show();   
-			else 
-			{
-				 jQuery("tr###prefix#activeFlagValueRow").hide();	
-				 jQuery("###prefix#activeFlagValue").val("#defaultValues.activeFlagValue#"); 
-			}
-		});	
-		<!--- // --->	
 	});
 	
 	// Show/Hide Options for Check/Radio and Selection lists
@@ -437,7 +373,11 @@ History:
 		{
 			var regex = new RegExp("controlTypeID=[0-9]*", "g");
 			jQuery('###prefix#filterBtn[onclick]').attr('onclick', function(i, urlVal){
-				var oldSelectedCEStr = urlVal.match(regex, "controlTypeID=");
+				// TODO: Remove when the new Filter Criteria works correctly
+				//var oldSelectedCEStr = urlVal.match(regex, "controlTypeID=");
+				
+				var oldSelectedCEStr = urlVal.match(regex);
+				
 				oldSelectedCEStr = oldSelectedCEStr.toString();
 				var oldSelectedCEID = '';
 				if (oldSelectedCEStr.length > 14)
@@ -495,27 +435,10 @@ History:
 		jQuery("###prefix#valueField").removeOption(/./);
 		jQuery("###prefix#displayField").removeOption(/./);
 		jQuery("###prefix#fieldBuilder").removeOption(/./);
-		
-		<!--- // TODO: Remove when the new Filter Criteria works correctly --->
-		jQuery("###prefix#activeFlagField").removeOption(/./);
-		<!--- // --->
-		
-		jQuery("###prefix#sortByField").removeOption(/./);
-
 
 		//Add new options
 		jQuery("###prefix#valueField").addOption(fields);
-
-		<!--- // TODO: Remove when the new Filter Criteria works correctly --->
-		jQuery("###prefix#activeFlagField").addOption({"--":'--'});
-		jQuery("###prefix#activeFlagField").addOption(fields);
-		jQuery("###prefix#activeFlagField").selectOptions('--');
-		<!--- // --->
-
-		jQuery("###prefix#sortByField").addOption({"--":'--'});
-		jQuery("###prefix#sortByField").addOption(fields);
-		jQuery("###prefix#sortByField").selectOptions('--');
-
+		
 		jQuery("###prefix#fieldBuilder").addOption({"--":'--'});
 		jQuery("###prefix#fieldBuilder").addOption(fields);
 		jQuery("###prefix#fieldBuilder").selectOptions('--');
@@ -576,44 +499,19 @@ History:
 			<input type="text" name="#prefix#displayFieldBuilder" value="#currentValues.displayFieldBuilder#" id="#prefix#displayFieldBuilder" size="40">
 		</td>
 	</tr>
-	<tr>
-		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Sort By Field:</td>
-		<td class="cs_dlgLabelSmall">
-			<select name="#prefix#sortByField" id="#prefix#sortByField">
-			</select>
-			<br /><span>Leave blank to sort by the Select Display Field or Custom Display Text.</span>
-		</td>
-	</tr>
-	
-	<!--- // TODO: Remove when the new Filter Criteria works correctly --->
-	<tr>
-		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Active Flag Field:</td>
-		<td class="cs_dlgLabelSmall">
-			<select name="#prefix#activeFlagField" id="#prefix#activeFlagField"></select>
-		</td>
-	</tr>
-	<tr id="#prefix#activeFlagValueRow">
-		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap"><!--- Active Flag Value: ---></td>
-		<td class="cs_dlgLabelSmall">
-			<label>Active Flag Value:&nbsp; 
-			<input type="text" name="#prefix#activeFlagValue" id="#prefix#activeFlagValue" value="#currentValues.activeFlagValue#" size="20"></label>
-			<br />To denote a ColdFusion Expression, add brackets around the expression (i.e. "[request.user.userid]")
-		</td>
-	</tr>
-	<!--- // --->
 	
 	<tr>
-		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Filter Criteria:</td>
+		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Sort/Filter Criteria:</td>
 		<td valign="cs_dlgLabelSmall">
 		#Server.CommonSpot.UDF.tag.input(type="hidden", id="#prefix#filterCriteria", name="#prefix#filterCriteria", value=currentValues.filterCriteria, style="font-family:#Request.CP.Font#;font-size:10")#
-		#Server.CommonSpot.UDF.tag.input(type="button", class="clsPushButton", id="#prefix#filterBtn", name="#prefix#filterBtn", value="Filter...", onclick="javascript:top.commonspot.dialog.server.show('csmodule=controls/custom/select-data-filters&isAdminUI=1&editRights=1&adminRights=1&openFrom=fieldProps&controlTypeID=#ceFormID#&persistentUniqueID=#persistentUniqueID#&prefixStr=#prefix#&hasFilter=1');")#
+		#Server.CommonSpot.UDF.tag.input(type="button", class="clsPushButton", id="#prefix#filterBtn", name="#prefix#filterBtn", value="Sort/Filter Criteria", onclick="javascript:top.commonspot.dialog.server.show('csmodule=controls/custom/select-data-filters&isAdminUI=1&editRights=1&adminRights=1&openFrom=fieldProps&controlTypeID=#ceFormID#&persistentUniqueID=#persistentUniqueID#&prefixStr=#prefix#&hasFilter=1');")#
 		<cfif Len(currentValues.filterCriteria)>
 			#Server.CommonSpot.UDF.tag.input(type="button", class="clsPushButton", id="#prefix#clearBtn", name="#prefix#clearBtn", value="Clear", onclick="#prefix#clearFilter()")#
 		<cfelse>
 			#Server.CommonSpot.UDF.tag.input(type="button", class="clsPushButton", id="#prefix#clearBtn", name="#prefix#clearBtn", value="Clear", onclick="#prefix#clearFilter()", style="display:none;")#
 		</cfif>
 		<br />
-		<div class="cs_dlgLabelSmall">Specify the filter to be applied while retrieving data.</div>
+		<div class="cs_dlgLabelSmall">Specify the sort/filter criteria to be applied while retrieving data.</div>
 		</td>
 	</tr>
 	<tr>
@@ -732,4 +630,9 @@ History:
 	</tr>
 </table>
 <!--- <span class="cs_dlgLabelBoldNoAlign"></span> --->
+
+<!--- #currentValues.activeFlagField# --->
+<!--- #currentValues.activeFlagValue# --->
+<!--- #currentValues.sortByField# --->
+<!--- <cfdump var="#attributes.currentValues#"> --->
 </cfoutput>
