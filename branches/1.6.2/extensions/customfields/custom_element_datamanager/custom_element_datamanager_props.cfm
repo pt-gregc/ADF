@@ -43,7 +43,7 @@ History:
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "1.0.1"; 
+	fieldVersion = "1.0.2"; 
 	
 	// CS version and required Version variables
 	requiredCSversion = 9;

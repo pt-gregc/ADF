@@ -232,11 +232,10 @@ History:
 			<!--	
 			var oTable#uniqueTableAppend# = '';
 			
-			jQuery.ajaxSetup({ cache: false, async: false });	
-			
+			jQuery.ajaxSetup({ cache: false, async: true });	
+		
 			top.commonspot.util.event.addEvent(window, "load", loadData_#uniqueTableAppend#);
 			top.commonspot.util.event.addEvent(window, "resize", resize_#uniqueTableAppend#);
-			
 			
 			function resize_#uniqueTableAppend#()
 			{
@@ -266,7 +265,7 @@ History:
 					ResizeWindow();
 				}
 			}
-		
+
 			function loadData_#uniqueTableAppend#()
 			{
 				setTimeout( loadDataCore_#uniqueTableAppend#, 500 );
@@ -390,39 +389,62 @@ History:
 								var endPosition;
 								var startVal;
 								var endVal;
-								var tableData;
+								var rowData;
+								var movedDataPageID = 0;
+								var prevItemsLenBeforeDrop = 0;
+								var prevItemsLenAfterDrop = 0;
+								var dropAfterDataPageID = 0;
+								
 								jQuery("##customElementData_#uniqueTableAppend# tbody").sortable(
 									{
 									cursor: "move",
 									start:function(event, ui)
 										{
-										startPosition = ui.item.prevAll().length + 1;
+											prevItemsLenBeforeDrop = ui.item.prevAll().length;										
 										},
-									update: function(event, ui) 
+									stop:function(event, ui)
 										{
-										endPosition = ui.item.prevAll().length + 1;
-										startVal = ui.item.attr("id");
-										tableData = oTable#uniqueTableAppend#.fnGetNodes()[endPosition-1];
-										endVal = jQuery(tableData).attr("id");
-										
-										dataToBeSent#uniqueTableAppend# = 
-											{ 
-												bean: '#ajaxBeanName#',
-												method: 'onDrop',
-												query2array: 0,
-												returnformat: 'json',
-												formID: #ceFormID#,
-												movedDataPageID: startVal, 
-												dropAfterDataPageID: endVal,
-												propertiesStruct : JSON.stringify(<cfoutput>#SerializeJSON(inputParameters)#</cfoutput>),
-												currentValues : JSON.stringify(<cfoutput>#SerializeJSON(attributes.currentvalues)#</cfoutput>)						
-										 	};
-										
-											jQuery.post( '#ajaxComURL#', 
-																dataToBeSent#uniqueTableAppend#, 
-																onSuccess_#uniqueTableAppend#, 
-																"json"); 
+											prevItemsLenAfterDrop = ui.item.prevAll().length;
+											movedDataPageID = ui.item.attr("id");
+											prevItemsLenAfterDrop = ui.item.prevAll().length;
+											if (prevItemsLenAfterDrop == 0)
+											{
+												dropAfterDataPageID = 0;
+											}
+											else 
+											{
+												if (prevItemsLenBeforeDrop < prevItemsLenAfterDrop)
+												{
+													rowData = oTable#uniqueTableAppend#.fnGetNodes()[ui.item.prevAll().length];
+												}
+												else if (prevItemsLenBeforeDrop > prevItemsLenAfterDrop)
+												{
+													rowData = oTable#uniqueTableAppend#.fnGetNodes()[ui.item.prevAll().length-1];
+												}
+												dropAfterDataPageID = jQuery(rowData).attr("id");
+											}
 											
+											if (movedDataPageID != null && dropAfterDataPageID != null)
+											{
+												dataToBeSent#uniqueTableAppend# = 
+													{ 
+														bean: '#ajaxBeanName#',
+														method: 'onDrop',
+														query2array: 0,
+														returnformat: 'json',
+														formID: #ceFormID#,
+														movedDataPageID: movedDataPageID, 
+														dropAfterDataPageID: dropAfterDataPageID,
+														propertiesStruct : JSON.stringify(<cfoutput>#SerializeJSON(inputParameters)#</cfoutput>),
+														currentValues : JSON.stringify(<cfoutput>#SerializeJSON(attributes.currentvalues)#</cfoutput>)						
+												 	};
+										
+												jQuery.post( '#ajaxComURL#', 
+																	dataToBeSent#uniqueTableAppend#, 
+																	onSuccess_#uniqueTableAppend#, 
+																	"json"); 
+												
+											}
 										}
 									});
 							</CFIF>
