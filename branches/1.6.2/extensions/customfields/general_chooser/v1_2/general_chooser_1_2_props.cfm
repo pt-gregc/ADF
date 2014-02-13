@@ -49,7 +49,7 @@ History:
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "1.2"; 
+	fieldVersion = "1.2.2"; 
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
@@ -104,7 +104,7 @@ History:
 			<td class="cs_dlgLabelSmall">
 				<input type="text" id="#prefix#chooserCFCName" name="#prefix#chooserCFCName" value="#defaultValues.chooserCFCName#" size="50"><br />
 				Name of the Object Factory Bean that will be rendering and populating the chooser data.
-				<br />(i.e. profileGC). Note: Do NOT include ".cfc" in the name
+				<br />(i.e. profileGC). Note: Do NOT include ".cfc" in the name.
 			</td>
 		</tr>
 		<tr valign="top">

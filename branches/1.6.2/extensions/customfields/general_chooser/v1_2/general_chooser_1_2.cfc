@@ -45,7 +45,7 @@ History:
 --->
 <cfcomponent name="general_chooser" extends="ADF.lib.ceData.ceData_2_0">
 
-<cfproperty name="version" value="1_2_1">
+<cfproperty name="version" value="1_2_2">
 
 <cfscript>
 	// CUSTOM ELEMENT INFO
@@ -80,6 +80,7 @@ History:
 	variables.NEW_ITEM_LABEL = "Add New Item";
 	variables.SHOW_EDIT_LINKS = false;  			// Boolean - SHOW_EDIT_DELETE_LINKS must be true to enable this option 
 	variables.SHOW_DELETE_LINKS = false;  		// Boolean - SHOW_EDIT_DELETE_LINKS must be true to enable this option
+	variables.SHOW_INSTRUCTIONS = true;			// Boolean
 </cfscript>
 
 <!---
@@ -108,7 +109,8 @@ History:
 		// loop through request.params parameters to get arguments
 		for( itm=1; itm lte listLen(structKeyList(arguments)); itm=itm+1 ) {
 			thisParam = listGetAt(structKeyList(arguments), itm);
-			if( thisParam neq "method" and thisParam neq "bean" and thisParam neq "chooserMethod" ) {
+			if( thisParam neq "method" and thisParam neq "bean" and thisParam neq "chooserMethod" ) 
+			{
 				argStr = listAppend(argStr, "#thisParam#='#arguments[thisParam]#'");
 			}
 		}
@@ -119,7 +121,6 @@ History:
 			
 		return reHTML;
 	</cfscript>
-	<cfreturn reHTML>
 </cffunction>
 
 <!---
@@ -605,7 +606,7 @@ History:
 	</cfscript>
 	<cfsavecontent variable="retLabelHTML">
 		<cfoutput>
-				#aLabel#:<cfif arguments.readonly> (DISABLED)</cfif>
+				<strong>#aLabel#:</strong><cfif arguments.readonly> (DISABLED)</cfif>
 		</cfoutput>
 	</cfsavecontent>
 	<cfreturn retLabelHTML>
@@ -637,7 +638,7 @@ History:
 	</cfscript>
 	<cfsavecontent variable="retLabelHTML">
 		<cfoutput>
-				#sLabel#:<cfif arguments.readonly> (READ ONLY)</cfif>
+				<strong>#sLabel#:</strong><cfif arguments.readonly> (DISABLED)</cfif>
 		</cfoutput>
 	</cfsavecontent>
 	<cfreturn retLabelHTML>
@@ -665,15 +666,22 @@ History:
 		var retInstructionsHTML = "";
 		var aLabel = variables.AVAILABLE_LABEL;
 		var sLabel = variables.SELECTED_LABEL;
+		var renderInstructions = true;
+		
+		if ( StructKeyExists(variables,"SHOW_INSTRUCTIONS") AND variables.SHOW_INSTRUCTIONS )
+			variables.SHOW_INSTRUCTIONS = false;
 	</cfscript>
-	<!--- // Instructions text --->
-	<cfsavecontent variable="retInstructionsHTML">
-		<cfoutput>
-				Select the records you want to include in the selections by dragging 
-				items into or out of the '#aLabel#' list. Order the columns 
-				within the datasheet by dragging items within the '#sLabel#' field.
-		</cfoutput>
-	</cfsavecontent>
+	<!--- // Check if we want to display the instructions --->
+	<cfif renderInstructions>
+		<!--- // Instructions text --->
+		<cfsavecontent variable="retInstructionsHTML">
+			<cfoutput>
+					Select the records you want to include in the selections by dragging 
+					items into or out of the '#aLabel#' list. Order the columns 
+					within the datasheet by dragging items within the '#sLabel#' field.
+			</cfoutput>
+		</cfsavecontent>
+	</cfif>
 	<cfreturn retInstructionsHTML>
 </cffunction>
 

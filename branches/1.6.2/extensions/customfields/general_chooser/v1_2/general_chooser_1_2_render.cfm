@@ -373,10 +373,14 @@ History:
 				
 					<!--- Select Boxes --->
 					<div id="#xParams.fieldID#-gc-select-left-box-label">
-						<strong>Available Items:<cfif readonly> (DISABLED)</cfif></strong>
+						#TRIM(application.ADF.utils.runCommand(beanName=xParams.chooserCFCName,
+															methodName="loadAvailableLabel",
+															args=initArgs))#
 					</div>
 					<div id="#xParams.fieldID#-gc-select-right-box-label">
-						<strong>Selected Items:</strong>
+						#TRIM(application.ADF.utils.runCommand(beanName=xParams.chooserCFCName,
+															methodName="loadSelectedLabel",
+															args=initArgs))#
 					</div>
 					<div id="#xParams.fieldID#-gc-select-left-box">
 						<ul id="#xParams.fieldID#-sortable1" class="connectedSortable">
