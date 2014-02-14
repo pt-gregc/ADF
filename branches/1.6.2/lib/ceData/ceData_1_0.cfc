@@ -37,7 +37,7 @@ History:
 --->
 <cfcomponent displayname="ceData_1_0" extends="ADF.core.Base" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_12">
+<cfproperty name="version" value="1_0_13">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_0">
 <cfproperty name="data" type="dependency" injectedBean="data_1_0">
@@ -1499,22 +1499,25 @@ History:
 	2009-10-25 - SFS - Created
 	2011-02-09 - RAK - Var'ing un-var'd variables
 	2011-05-17 - RAK - Replaced evaluate with a more direct efficient expression
+	2012-04-16 - GAC - Removed the circular references to application.ADF.cedata
+					 - Updated to use cfscript notation
 --->
 <cffunction name="getCEFieldValues" access="public" returntype="string" hint="Returns all values for a particular field in a particular custom element.">
 	<cfargument name="ceName" type="string" required="true" hint="Custom element name.">
 	<cfargument name="fieldName" type="string" required="true" hint="Custom element field name to return data.">
 	<cfscript>
 		var itm = '';
+		var ceDataList = "";
+		var ceData = getCEData(arguments.ceName);
+		
+		ceData = arrayOfCEDataSort(ceData,arguments.fieldName,'asc','textnocase','^');
+		
+		for ( itm=1; itm LTE arrayLen(ceData); itm=itm+1 ) {
+			ceDataList = ListAppend(ceDataList,StructFind(ceData[itm].values,arguments.fieldname));
+		}
+		
+		return ceDataList;
 	</cfscript>
-	<cfset var ceDataList = "">	
-	<cfset var ceData = application.ADF.ceData.getCEData(arguments.ceName)>
-	<cfset ceData = application.ADF.ceData.arrayOfCEDataSort(ceData,arguments.fieldName,'asc','textnocase','^')>
-	
-	<cfloop from="1" to="#arrayLen(ceData)#" index="itm">
-		<cfset ceDataList = ListAppend(ceDataList,StructFind(ceData[itm].values,arguments.fieldname))>
-	</cfloop>
-
-	<cfreturn ceDataList>
 </cffunction>
 
 <!---
