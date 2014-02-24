@@ -37,13 +37,17 @@ Summary:
 	URL or Post Parameters:
 		clearmemcache - clear all memory caches for this element
 		ForceRender - causes element to render and then cache.
+		ClearType - causes cache clear of all instances for this element type
+		ClearALL - causes cache clear of all instances		
 Version:
-	1.0
+	1.0.1
 History:
-	2013-12-09 - TP - Created
+	2013-12-09 - JTP - Created
+	2014-02-18 - JTP - Added ClearType and ClearAll url parameters
 --->
 
 <cfscript>
+	stc = GetTickCount();
 	// this element should always be dynamic	
 	request.element.isStatic = 0;
 	
@@ -69,6 +73,20 @@ History:
 	// default forceRender to 0 if not specified		
 	if( NOT StructKeyExists(request.params,"ForceRender") )
 		request.params.ForceRender = 0;
+
+		
+	// Clear memory cache for this type of element is specified		
+	if( StructKeyExists(request.params,"ClearType") AND request.params.ClearType eq 1 )		
+	{
+		if( StructKeyExists( application.CS_SameRecordsCache, attributes.ElementType ) )
+			StructDelete( application.CS_SameRecordsCache, attributes.ElementType );
+	}	
+	// Clear memory cache for All types if specified		
+	if( StructKeyExists(request.params,"ClearAll") AND request.params.ClearAll eq 1 ) 		
+	{
+		if( StructKeyExists( application, 'CS_SameRecordsCache' ) )
+			StructDelete( application, 'CS_SameRecordsCache' );
+	}	
 </cfscript>
 
 <!--- if not in read mode, display link to clear the mem cache & render element normally --->
@@ -80,7 +98,9 @@ History:
 		<cfif attributes.ShowClearLink eq 1>
 			<cfoutput>
 			<div style="font-size: 12px; padding-left: 25px; background-color: ##FFFFC0; border: 1px solid ##c0c0c0; padding: 5px; margin: 10px;">
-				<strong>Same Records Cache:</strong> CacheName:#attributes.cacheName# [<a href="#cgi.script_name#?ForceRender=1" title="Clicking this link will rebuild the memory cache for this element.">Rebuild Memory Cache</a>]
+				<strong>Custom Element Records Cache:</strong> 
+				CacheName:#attributes.cacheName# 
+				[<a href="#cgi.script_name#?ClearType=1" title="Clicking this link will clear the memory cache for this type of element.">Clear Type</a>]
 				&nbsp; Cache Duration: [#attributes.MinutesToCache# minutes] 
 			</div>
 			</cfoutput> 
@@ -98,16 +118,7 @@ History:
 	bMakeCache = 1;
 </cfscript>
 
-<cfif attributes.debug eq 1>
-	<cfoutput>
-			<div style="font-size: 12px; padding-left: 25px; background-color: ##FFFFC0; border: 1px solid ##c0c0c0; padding: 5px; margin: 10px;">
-				<strong>Same Records Cache:</strong> CacheName:#attributes.cacheName# [<a href="#cgi.script_name#?ForceRender=1" title="Clicking this link will rebuild the memory cache for this element.">Rebuild Memory Cache</a>]
-				&nbsp; Cache Duration: [#attributes.MinutesToCache# minutes] 
-			</div>
-	</cfoutput>
-</cfif>
-
-<cfif StructKeyExists(application.CS_SameRecordsCache[attributes.ElementType],attributes.cacheName)>
+<cfif StructKeyExists(application.CS_SameRecordsCache, attributes.ElementType) AND StructKeyExists(application.CS_SameRecordsCache[attributes.ElementType],attributes.cacheName)>
 
 	<cfif attributes.debug eq 1>
 		<cfoutput><br>Expires: #application.CS_SameRecordsCache[attributes.ElementType][attributes.cacheName].expires#</cfoutput>
@@ -120,12 +131,21 @@ History:
 			
 			<cfif attributes.debug eq 1>
 				<cfoutput><br><strong>Rendered from cache.</strong> Expires in #DateDiff( 's', now(), application.CS_SameRecordsCache[attributes.ElementType][attributes.cacheName].expires)# seconds at #application.CS_SameRecordsCache[attributes.ElementType][attributes.cacheName].expires# 
-				<br><strong>Render Handler:</strong> #application.CS_SameRecordsCache[attributes.ElementType][attributes.cacheName][pageIDControlID].renderhandler#</cfoutput>
-				<cfset tc = GetTickcount()>
+				<br><strong>Render Handler:</strong> #application.CS_SameRecordsCache[attributes.ElementType][attributes.cacheName][pageIDControlID].renderhandler#
+				<br><strong>ClassNames:</strong> #application.CS_SameRecordsCache[attributes.ElementType][attributes.cacheName][pageIDControlID].classNames#</cfoutput>
+				<cfset xtc = GetTickcount()>
 			</cfif>
 
 			<!--- render div to simulate the div that the element would have rendered, as we are bypassing calling the real element --->
-			<cfoutput><div></cfoutput>			
+			<cfscript>
+				classNames = 'zz ';
+				if( structKeyExists( application.CS_SameRecordsCache[attributes.ElementType][attributes.cacheName][PageIDControlID], 'ClassNames' ) )
+				{
+					classNames = application.CS_SameRecordsCache[attributes.ElementType][attributes.cacheName][PageIDControlID].classNames;
+					application.CS_SameRecordsCache[attributes.ElementType][attributes.cacheName].ElementInfo.ClassNames.element = classNames;
+				}	
+			</cfscript>
+			<cfoutput><div <cfif classNames neq ''>class='#classNames#'</cfif>></cfoutput>			
 			
 			<!--- Call render handler and pass it the cached data --->
 			<cfmodule template="#application.CS_SameRecordsCache[attributes.ElementType][attributes.cacheName][PageIDControlID].renderhandler#"
@@ -134,7 +154,7 @@ History:
 			<cfoutput></div></cfoutput>						
 			
 			<cfif attributes.debug eq 1>
-				<cfoutput><br>#GetTickcount() - tc#ms to render element from cached data.</cfoutput>
+				<cfoutput><br>#GetTickcount() - xtc#ms to render element from cached data.</cfoutput>
 			</cfif>
 					
 			
@@ -164,6 +184,7 @@ History:
 	request.CS_SameRecordsInfo = StructNew();
 	request.CS_SameRecordsInfo.elementInfo = '';
 	request.CS_SameRecordsInfo.renderhandler = '';
+	request.CS_SameRecordsInfo.ClassNames = '';
 
 	tc = GetTickcount();
 </cfscript>
@@ -172,6 +193,7 @@ History:
 	Invoke the element.  It will set the following variables:
 		request.CS_SameRecordsInfo.elementInfo 
 		request.CS_SameRecordsInfo.RenderHandler
+		request.CS_SameRecordsInfo.ClassNames
 --->
 <cftry>
 	<CFMODULE TEMPLATE="/commonspot/utilities/ct-render-named-element.cfm"
@@ -187,6 +209,7 @@ History:
 	<cfoutput>
 	<br>Element Execution Time: #GetTickcount() - tc# ms &nbsp;
 	renderHandler:#request.CS_SameRecordsInfo.renderhandler# &nbsp;
+	ClassNames:#request.CS_SameRecordsInfo.ClassNames# &nbsp;
 	Items: 
 	<cfif isStruct(request.CS_SameRecordsInfo.elementInfo) and structKeyExists(request.CS_SameRecordsInfo.elementInfo,"elementdata")>
 		#arraylen(request.CS_SameRecordsInfo.elementInfo.elementdata.PropertyValues)#
@@ -200,11 +223,14 @@ History:
 	{
 		if( FindNoCase( 'loader.cfm', cgi.script_name ) eq 0 )
 		{
+			if( NOT StructKeyExists( application.CS_SameRecordsCache, attributes.ElementType ) )
+				application.CS_SameRecordsCache[attributes.ElementType] = StructNew();
 			if( NOT StructKeyExists( application.CS_SameRecordsCache[attributes.ElementType], attributes.cacheName ) )
 				application.CS_SameRecordsCache[attributes.ElementType][attributes.cacheName] = StructNew();
 			application.CS_SameRecordsCache[attributes.ElementType][attributes.cacheName].elementInfo = Duplicate(request.CS_SameRecordsInfo.elementInfo);
 			application.CS_SameRecordsCache[attributes.ElementType][attributes.cacheName][pageIDControlID] = StructNew();
 			application.CS_SameRecordsCache[attributes.ElementType][attributes.cacheName][pageIDControlID].renderhandler = request.CS_SameRecordsInfo.renderHandler;
+			application.CS_SameRecordsCache[attributes.ElementType][attributes.cacheName][pageIDControlID].classNames = request.CS_SameRecordsInfo.classNames;
 			application.CS_SameRecordsCache[attributes.ElementType][attributes.cacheName].hitCount = 0;
 			application.CS_SameRecordsCache[attributes.ElementType][attributes.cacheName].created = now();
 			application.CS_SameRecordsCache[attributes.ElementType][attributes.cacheName].lastuse = now();			
@@ -261,10 +287,10 @@ History:
 	
 	<cfscript>
 		// Create the base memory structure if it does not exist.
-		if( NOT StructKeyExists(application,"CS_SameRecordsCache") )
+		if( NOT StructKeyExists(Application,"CS_SameRecordsCache") )
 			application.CS_SameRecordsCache = StructNew();
 			
-		if( NOT StructKeyExists(application.CS_SameRecordsCache, arguments.elementType) )
+		if( NOT StructKeyExists(Application.CS_SameRecordsCache, arguments.elementType) )
 			application.CS_SameRecordsCache[arguments.elementType] = StructNew();
 	</cfscript>
 </cffunction>
