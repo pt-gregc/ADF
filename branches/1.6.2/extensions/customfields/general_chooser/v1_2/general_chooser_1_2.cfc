@@ -42,6 +42,7 @@ History:
 	2013-01-30 - GAC - Updated to use the ceData 2.0 lib component
 	2013-10-22 - GAC - Updated to inject the data_1_2 lib in to the variables.data scope since we are extending ceData_2_0
 	2013-10-23 - GAC - Removed data_1_2 injection due to ADF reset errors on startup
+	2014-02-24 - JTP - Fixed the Search button class
 --->
 <cfcomponent name="general_chooser" extends="ADF.lib.ceData.ceData_2_0">
 
@@ -339,7 +340,7 @@ History:
 			<cfoutput>
 				<div id="search-chooser">
 					<input type="text" class="searchFld-chooser" id="#arguments.fieldName#-searchFld" name="searchbox" tabindex="1" onblur="this.value = this.value || this.defaultValue;" onfocus="this.value='';" value="Search" />
-					<a href="javascript:;" id="#arguments.fieldName#-searchBtn" class="ui-state-default ui-corner-all #arguments.fieldName#-ui-buttons">Search</a>
+					<a href="javascript:;" id="#arguments.fieldName#-searchBtn" class="ui-state-default ui-corner-all #arguments.fieldName#-ui-buttons clsPushButton">Search</a>
 					<cfif variables.SHOW_ALL_LINK EQ true>
 					<!--- Render out the show all link to the field type --->
 					<div id="show-all-items">
