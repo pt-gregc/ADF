@@ -38,6 +38,7 @@ History:
 	2013-11-28 - DJM - Updated to correct issue with 3 element configuration
 	2013-12-04 - GAC - Added CommonSpot Version check since this field only runs on CommonSpot v9+
 	2013-12-09 - DJM - Added code to change the cursor for datatable, actions column width and modified path to CFC to allow drag drop
+	2014-02-20 - JTP - Added the AjazBeanName variable for the override function 
 --->
 <cfscript>
 	requiredCSversion = 9;
@@ -123,11 +124,13 @@ History:
 					{
 						datamanagerObj = application.ADF[fileName];
 						componentName = fileName;
+						ajaxBeanName = fileName;
 					}
 					else if ( FileExists(ExpandPath('#componentOverridePath#/#fileNamewithExt#')) )
 					{
 						datamanagerObj = CreateObject("component", "#componentOverridePath#/#fileName#");
 						componentName = fileName;
+						ajaxBeanName = fileName;
 					}
 					else
 					{
