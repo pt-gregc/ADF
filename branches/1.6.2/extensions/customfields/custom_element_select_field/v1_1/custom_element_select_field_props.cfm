@@ -350,7 +350,13 @@ History:
 	function #prefix#setElementFields(elementName)
 	{
 		if (elementName.length <= 0)
+		{
+			document.getElementById('childInputs').style.display = "none";
 			return;
+		}
+		
+		document.getElementById('childInputs').style.display = "";
+		checkFrameSize();
 
 		// 2011-03-18 - MFC - Updated to the 'ceData_1_1'
 		// 2013-11-15 - GAC - Updated to use ajaxCEDataBean variable
@@ -474,154 +480,156 @@ History:
 			<!--- <input type="text" name="#prefix#customElement" id="#prefix#customElement" value="#currentValues.customElement#" size="40"> --->
 		</td>
 	</tr>
-	<tr>
-		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Value Field:</td>
-		<td class="cs_dlgLabelSmall">
-			<select name="#prefix#valueField" id="#prefix#valueField">
-			</select>
-		</td>
-	</tr>
-	<tr>
-		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Display Field:</td>
-		<td class="cs_dlgLabelSmall">
-			<select  name="#prefix#displayField" id="#prefix#displayField">
-			</select>
-			<br /><span class="otherMsg">Select '--Other--' to build Custom Display Text from the available fields.</span>
-		</td>
-	</tr>
-	<tr class="other" style="display:none">
-		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Custom Display Text:</td>
-		<td class="cs_dlgLabelSmall">
-			<span>Build your own display. Select a field from the drop down to have it added to the Custom Display Text field.</span>
-			<br/>
-			<select id="#prefix#fieldBuilder"></select>
-			<br/>
-			<input type="text" name="#prefix#displayFieldBuilder" value="#currentValues.displayFieldBuilder#" id="#prefix#displayFieldBuilder" size="40">
-		</td>
-	</tr>
-	
-	<tr>
-		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Sort/Filter Criteria:</td>
-		<td valign="cs_dlgLabelSmall">
-		#Server.CommonSpot.UDF.tag.input(type="hidden", id="#prefix#filterCriteria", name="#prefix#filterCriteria", value=currentValues.filterCriteria, style="font-family:#Request.CP.Font#;font-size:10")#
-		#Server.CommonSpot.UDF.tag.input(type="button", class="clsPushButton", id="#prefix#filterBtn", name="#prefix#filterBtn", value="Sort/Filter Criteria", onclick="javascript:top.commonspot.dialog.server.show('csmodule=controls/custom/select-data-filters&isAdminUI=1&editRights=1&adminRights=1&openFrom=fieldProps&controlTypeID=#ceFormID#&persistentUniqueID=#persistentUniqueID#&prefixStr=#prefix#&hasFilter=1');")#
-		<cfif Len(currentValues.filterCriteria)>
-			#Server.CommonSpot.UDF.tag.input(type="button", class="clsPushButton", id="#prefix#clearBtn", name="#prefix#clearBtn", value="Clear", onclick="#prefix#clearFilter()")#
-		<cfelse>
-			#Server.CommonSpot.UDF.tag.input(type="button", class="clsPushButton", id="#prefix#clearBtn", name="#prefix#clearBtn", value="Clear", onclick="#prefix#clearFilter()", style="display:none;")#
-		</cfif>
-		<br />
-		<div class="cs_dlgLabelSmall">Specify the sort/filter criteria to be applied while retrieving data.</div>
-		</td>
-	</tr>
-	<tr>
-		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Default Field Value:</td>
-		<td class="cs_dlgLabelSmall">
-			<input type="text" name="#prefix#defaultVal" id="#prefix#defaultVal" value="#currentValues.defaultVal#" size="40">
-			<br />To denote a ColdFusion Expression, add brackets around the expression (i.e. "[request.user.userid]")
-		</td>
-	</tr>
-	
-	<tr>
-		<td colspan="2"><hr /></td>
-	</tr>
-	<tr>
-		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Field Type:</td>
-		<td class="cs_dlgLabelSmall">
-			<select id="#prefix#fieldtype" name="#prefix#fieldtype" size="1">
-				<option value="select">Selection List</option>
-				<option value="check_radio"<cfif currentValues.fieldtype neq "select"> selected="selected"</cfif>>Checkboxes / Radio Buttons</option>
-			</select>
-		</td>
-	</tr>
-	<tr>
-		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Multiple Select:</td>
-		<td class="cs_dlgLabelSmall" valign="baseline">
-			<!--- <label>Multiple Select:<label>&nbsp; --->
-			<label style="color:black;font-size:12px;font-weight:normal;">Yes <input type="radio" id="#prefix#multipleSelect" name="#prefix#multipleSelect" value="1" <cfif currentValues.multipleSelect EQ "1">checked</cfif>></label>
-			&nbsp;&nbsp;&nbsp;
-			<label style="color:black;font-size:12px;font-weight:normal;">No <input type="radio" id="#prefix#multipleSelect" name="#prefix#multipleSelect" value="0" <cfif currentValues.multipleSelect EQ "0">checked</cfif>></label>
-		</td>
-	</tr>
-	
-	<!--- // Selection List Options --->
-	<tr id="#prefix#multipleSelectSizeRow">
-		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap"><!--- Multiple Select Size: ---></td>
-		<td class="cs_dlgLabelSmall">
-			<label>Multiple Select Size:</label>&nbsp;
-			<input id="#prefix#multipleSelectSize" name="#prefix#multipleSelectSize" value="#currentValues.multipleSelectSize#" size="3">
-		</td>
-	</tr>	
-	<tr id="#prefix#selectOptionRow">
-		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Select Option:</td>
-		<td class="cs_dlgLabelSmall">
-			<!--- <label>Select Option:</label>&nbsp; --->
-			<label style="color:black;font-size:12px;font-weight:normal;">Yes <input type="radio" id="#prefix#renderSelectOption" name="#prefix#renderSelectOption" value="1" <cfif currentValues.renderSelectOption EQ "1">checked</cfif>></label>
-			&nbsp;&nbsp;&nbsp;
-			<label style="color:black;font-size:12px;font-weight:normal;">No <input type="radio" id="#prefix#renderSelectOption" name="#prefix#renderSelectOption" value="0" <cfif currentValues.renderSelectOption EQ "0">checked</cfif>></label>
-			<br />Places a '--Select--' option in the list. <!--- Cannot be used with a multiple selection list. ---> 
-			<!--- // Must leave this option available for multiple selections lists for backwards compatiblity --->
-		</td>
-	</tr>
-	
-	<!--- // Check Radio Options --->
-	<tr id="#prefix#checkRadioSizeRow">
-		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap"></td>
-		<td class="cs_dlgLabelSmall">
-			<label>Width:&nbsp; 
-			<input id="#prefix#widthValue" name="#prefix#widthValue" value="#currentValues.widthValue#" size="5"></label>&nbsp;
-			<label>Height:&nbsp; 
-			<input id="#prefix#heightValue" name="#prefix#heightValue" value="#currentValues.heightValue#" size="5"></label>
-		</td>
-	</tr>	
-	<tr id="#prefix#clearSelectionLinkRow">
-		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Clear Selections Link:</td>
-		<td class="cs_dlgLabelSmall">
-			<!--- <label>Clear Selections Link:</label>&nbsp; --->
-			<label style="color:black;font-size:12px;font-weight:normal;">Yes <input type="radio" id="#prefix#renderClearSelectionLink" name="#prefix#renderClearSelectionLink" value="1" <cfif currentValues.renderClearSelectionLink EQ "1">checked</cfif>></label>
-			&nbsp;&nbsp;&nbsp;
-			<label style="color:black;font-size:12px;font-weight:normal;">No <input type="radio" id="#prefix#renderClearSelectionLink" name="#prefix#renderClearSelectionLink" value="0" <cfif currentValues.renderClearSelectionLink EQ "0">checked</cfif>></label>
-			<br />Places a 'clear selections' link under the checkbox/radio box. 
-		</td>
-	</tr>
-	
-	<tr>
-		<td colspan="2"><hr /></td>
-	</tr>
-	<tr>
-		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Add Record Button:</td>
-		<td class="cs_dlgLabelSmall">
-			<label style="color:black;font-size:12px;font-weight:normal;">Yes <input type="radio" id="#prefix#addButton" name="#prefix#addButton" value="1" <cfif currentValues.addButton EQ "1">checked</cfif>></label>
-			&nbsp;&nbsp;&nbsp;
-			<label style="color:black;font-size:12px;font-weight:normal;">No <input type="radio" id="#prefix#addButton" name="#prefix#addButton" value="0" <cfif currentValues.addButton EQ "0">checked</cfif>></label>
-		</td>
-	</tr>
-	<tr>
-		<td colspan="2"><hr /></td>
-	</tr>
-	<tr>
-		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Field Name:</td>
-		<td class="cs_dlgLabelSmall">
-			<input type="text" name="#prefix#fldName" id="#prefix#fldName" value="#currentValues.fldName#" size="40">
-			<br/><span>Please enter the field name to be used via JavaScript (case sensitive).  If blank, will use default name.</span>
-		</td>
-	</tr>
-	<tr>
-		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Field Display Type:</td>
-		<td class="cs_dlgLabelSmall">
-			<label style="color:black;font-size:12px;font-weight:normal;">Visible <input type="radio" name="#prefix#renderField" id="#prefix#renderField" value="yes" <cfif currentValues.renderField eq 'yes'>checked</cfif>></label>
-			<label style="color:black;font-size:12px;font-weight:normal;">Hidden <input type="radio" name="#prefix#renderField" id="#prefix#renderField" value="no" <cfif currentValues.renderField eq 'no'>checked</cfif>></label>
-		</td>
-	</tr>
-	<tr>
-		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Force Loading Scripts:</td>
-		<td class="cs_dlgLabelSmall">
-			<label style="color:black;font-size:12px;font-weight:normal;">Yes <input type="radio" id="#prefix#forceScripts" name="#prefix#forceScripts" value="1" <cfif currentValues.forceScripts EQ "1">checked</cfif>></label>
-			&nbsp;&nbsp;&nbsp;
-			<label style="color:black;font-size:12px;font-weight:normal;">No <input type="radio" id="#prefix#forceScripts" name="#prefix#forceScripts" value="0" <cfif currentValues.forceScripts EQ "0">checked</cfif>></label>
-			<br />Force the JQuery script to load.
-		</td>
-	</tr>
+	<tbody id="childInputs" <cfif NOT IsNumeric(currentValues.customElement)>style="display:none;"</cfif>>
+		<tr>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Value Field:</td>
+			<td class="cs_dlgLabelSmall">
+				<select name="#prefix#valueField" id="#prefix#valueField">
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Display Field:</td>
+			<td class="cs_dlgLabelSmall">
+				<select  name="#prefix#displayField" id="#prefix#displayField">
+				</select>
+				<br /><span class="otherMsg">Select '--Other--' to build Custom Display Text from the available fields.</span>
+			</td>
+		</tr>
+		<tr class="other" style="display:none">
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Custom Display Text:</td>
+			<td class="cs_dlgLabelSmall">
+				<span>Build your own display. Select a field from the drop down to have it added to the Custom Display Text field.</span>
+				<br/>
+				<select id="#prefix#fieldBuilder"></select>
+				<br/>
+				<input type="text" name="#prefix#displayFieldBuilder" value="#currentValues.displayFieldBuilder#" id="#prefix#displayFieldBuilder" size="40">
+			</td>
+		</tr>
+		
+		<tr>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Sort/Filter Criteria:</td>
+			<td valign="cs_dlgLabelSmall">
+			#Server.CommonSpot.UDF.tag.input(type="hidden", id="#prefix#filterCriteria", name="#prefix#filterCriteria", value=currentValues.filterCriteria, style="font-family:#Request.CP.Font#;font-size:10")#
+			#Server.CommonSpot.UDF.tag.input(type="button", class="clsPushButton", id="#prefix#filterBtn", name="#prefix#filterBtn", value="Sort/Filter Criteria...", onclick="javascript:top.commonspot.dialog.server.show('csmodule=controls/custom/select-data-filters&isAdminUI=1&editRights=1&adminRights=1&openFrom=fieldProps&controlTypeID=#ceFormID#&persistentUniqueID=#persistentUniqueID#&prefixStr=#prefix#&hasFilter=1');")#
+			<cfif Len(currentValues.filterCriteria)>
+				#Server.CommonSpot.UDF.tag.input(type="button", class="clsPushButton", id="#prefix#clearBtn", name="#prefix#clearBtn", value="Clear", onclick="#prefix#clearFilter()")#
+			<cfelse>
+				#Server.CommonSpot.UDF.tag.input(type="button", class="clsPushButton", id="#prefix#clearBtn", name="#prefix#clearBtn", value="Clear", onclick="#prefix#clearFilter()", style="display:none;")#
+			</cfif>
+			<br />
+			<div class="cs_dlgLabelSmall">Specify the sort/filter criteria to be applied while retrieving data.</div>
+			</td>
+		</tr>
+		<tr>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Default Field Value:</td>
+			<td class="cs_dlgLabelSmall">
+				<input type="text" name="#prefix#defaultVal" id="#prefix#defaultVal" value="#currentValues.defaultVal#" size="40">
+				<br />To denote a ColdFusion Expression, add brackets around the expression (i.e. "[request.user.userid]")
+			</td>
+		</tr>
+		
+		<tr>
+			<td colspan="2"><hr /></td>
+		</tr>
+		<tr>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Field Type:</td>
+			<td class="cs_dlgLabelSmall">
+				<select id="#prefix#fieldtype" name="#prefix#fieldtype" size="1">
+					<option value="select">Selection List</option>
+					<option value="check_radio"<cfif currentValues.fieldtype neq "select"> selected="selected"</cfif>>Checkboxes / Radio Buttons</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Multiple Select:</td>
+			<td class="cs_dlgLabelSmall" valign="baseline">
+				<!--- <label>Multiple Select:<label>&nbsp; --->
+				<label style="color:black;font-size:12px;font-weight:normal;">Yes <input type="radio" id="#prefix#multipleSelect" name="#prefix#multipleSelect" value="1" <cfif currentValues.multipleSelect EQ "1">checked</cfif>></label>
+				&nbsp;&nbsp;&nbsp;
+				<label style="color:black;font-size:12px;font-weight:normal;">No <input type="radio" id="#prefix#multipleSelect" name="#prefix#multipleSelect" value="0" <cfif currentValues.multipleSelect EQ "0">checked</cfif>></label>
+			</td>
+		</tr>
+		
+		<!--- // Selection List Options --->
+		<tr id="#prefix#multipleSelectSizeRow">
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap"><!--- Multiple Select Size: ---></td>
+			<td class="cs_dlgLabelSmall">
+				<label>Multiple Select Size:</label>&nbsp;
+				<input id="#prefix#multipleSelectSize" name="#prefix#multipleSelectSize" value="#currentValues.multipleSelectSize#" size="3">
+			</td>
+		</tr>	
+		<tr id="#prefix#selectOptionRow">
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Select Option:</td>
+			<td class="cs_dlgLabelSmall">
+				<!--- <label>Select Option:</label>&nbsp; --->
+				<label style="color:black;font-size:12px;font-weight:normal;">Yes <input type="radio" id="#prefix#renderSelectOption" name="#prefix#renderSelectOption" value="1" <cfif currentValues.renderSelectOption EQ "1">checked</cfif>></label>
+				&nbsp;&nbsp;&nbsp;
+				<label style="color:black;font-size:12px;font-weight:normal;">No <input type="radio" id="#prefix#renderSelectOption" name="#prefix#renderSelectOption" value="0" <cfif currentValues.renderSelectOption EQ "0">checked</cfif>></label>
+				<br />Places a '--Select--' option in the list. <!--- Cannot be used with a multiple selection list. ---> 
+				<!--- // Must leave this option available for multiple selections lists for backwards compatiblity --->
+			</td>
+		</tr>
+		
+		<!--- // Check Radio Options --->
+		<tr id="#prefix#checkRadioSizeRow">
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap"></td>
+			<td class="cs_dlgLabelSmall">
+				<label>Width:&nbsp; 
+				<input id="#prefix#widthValue" name="#prefix#widthValue" value="#currentValues.widthValue#" size="5"></label>&nbsp;
+				<label>Height:&nbsp; 
+				<input id="#prefix#heightValue" name="#prefix#heightValue" value="#currentValues.heightValue#" size="5"></label>
+			</td>
+		</tr>	
+		<tr id="#prefix#clearSelectionLinkRow">
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Clear Selections Link:</td>
+			<td class="cs_dlgLabelSmall">
+				<!--- <label>Clear Selections Link:</label>&nbsp; --->
+				<label style="color:black;font-size:12px;font-weight:normal;">Yes <input type="radio" id="#prefix#renderClearSelectionLink" name="#prefix#renderClearSelectionLink" value="1" <cfif currentValues.renderClearSelectionLink EQ "1">checked</cfif>></label>
+				&nbsp;&nbsp;&nbsp;
+				<label style="color:black;font-size:12px;font-weight:normal;">No <input type="radio" id="#prefix#renderClearSelectionLink" name="#prefix#renderClearSelectionLink" value="0" <cfif currentValues.renderClearSelectionLink EQ "0">checked</cfif>></label>
+				<br />Places a 'clear selections' link under the checkbox/radio box. 
+			</td>
+		</tr>
+		
+		<tr>
+			<td colspan="2"><hr /></td>
+		</tr>
+		<tr>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Add Record Button:</td>
+			<td class="cs_dlgLabelSmall">
+				<label style="color:black;font-size:12px;font-weight:normal;">Yes <input type="radio" id="#prefix#addButton" name="#prefix#addButton" value="1" <cfif currentValues.addButton EQ "1">checked</cfif>></label>
+				&nbsp;&nbsp;&nbsp;
+				<label style="color:black;font-size:12px;font-weight:normal;">No <input type="radio" id="#prefix#addButton" name="#prefix#addButton" value="0" <cfif currentValues.addButton EQ "0">checked</cfif>></label>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2"><hr /></td>
+		</tr>
+		<tr>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Field Name:</td>
+			<td class="cs_dlgLabelSmall">
+				<input type="text" name="#prefix#fldName" id="#prefix#fldName" value="#currentValues.fldName#" size="40">
+				<br/><span>Please enter the field name to be used via JavaScript (case sensitive).  If blank, will use default name.</span>
+			</td>
+		</tr>
+		<tr>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Field Display Type:</td>
+			<td class="cs_dlgLabelSmall">
+				<label style="color:black;font-size:12px;font-weight:normal;">Visible <input type="radio" name="#prefix#renderField" id="#prefix#renderField" value="yes" <cfif currentValues.renderField eq 'yes'>checked</cfif>></label>
+				<label style="color:black;font-size:12px;font-weight:normal;">Hidden <input type="radio" name="#prefix#renderField" id="#prefix#renderField" value="no" <cfif currentValues.renderField eq 'no'>checked</cfif>></label>
+			</td>
+		</tr>
+		<tr>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Force Loading Scripts:</td>
+			<td class="cs_dlgLabelSmall">
+				<label style="color:black;font-size:12px;font-weight:normal;">Yes <input type="radio" id="#prefix#forceScripts" name="#prefix#forceScripts" value="1" <cfif currentValues.forceScripts EQ "1">checked</cfif>></label>
+				&nbsp;&nbsp;&nbsp;
+				<label style="color:black;font-size:12px;font-weight:normal;">No <input type="radio" id="#prefix#forceScripts" name="#prefix#forceScripts" value="0" <cfif currentValues.forceScripts EQ "0">checked</cfif>></label>
+				<br />Force the JQuery script to load.
+			</td>
+		</tr>
+	</tbody>
 	<tr>
 		<td class="cs_dlgLabelSmall" colspan="2" style="font-size:7pt;">
 			<hr />

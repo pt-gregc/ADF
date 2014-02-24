@@ -154,6 +154,7 @@ History:
 	index = 1;
 	valueWithoutParens = '';
 	hasParens = 0;
+	statementsArray = ArrayNew(1);
 	
 	if (StructKeyExists(xparams,"customElement") and Len(xparams.customElement))
 		ceFormID = application.ADF.cedata.getFormIDByCEName(xparams.customElement);
@@ -286,7 +287,7 @@ History:
 </cfscript>
 
 <cfoutput>
-	<script>
+	<script type="text/javascript">
 		// javascript validation to make sure they have text to be converted
 		#fqFieldName# = new Object();
 		#fqFieldName#.id = '#fqFieldName#';
@@ -383,7 +384,7 @@ History:
 	
 	<cfsavecontent variable="inputHTML">
 		<cfoutput>
-			<table border=0><tr><td>
+			<table border=0 cellspacing="0" cellpadding="0"><tr><td>
 			
 			<div id="#fqFieldName#_renderSelect">
 		</cfoutput>
