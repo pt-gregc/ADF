@@ -38,12 +38,13 @@ History:
 	2014-01-02 - GAC - Added the CFSETTING tag to disable CF Debug results in the props module
 	2014-01-03 - GAC - Added the fieldVersion variable
 	2014-01-28 - GAC - Converted to use AjaxProxy.cfm instead of calling the base.cfc directly
+	2014-02-24 - DJM - Fix for the problem of fields not loading up in available fields grid occasionally on change of association CE.
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "1.0.2"; 
+	fieldVersion = "1.0.4"; 
 	
 	// CS version and required Version variables
 	requiredCSversion = 9;
@@ -708,6 +709,9 @@ History:
 			})
 			.fail(function() {
 				document.getElementById('errorMsgSpan').innerHTML = '#errorMsgCustom#';
+			})
+			.then(function() {
+				updateFieldsOnAssocCEChange(selectedAssoc,selectedChild);
 			});
 		}
 		else
@@ -719,8 +723,12 @@ History:
 			jQuery("###prefix#sortByField").children().remove().end().append("<option value=\"\"> - Select -</option>");;
 			
 			document.#formname#.#prefix#displayFields.value = "";
+			updateFieldsOnAssocCEChange(selectedAssoc,selectedChild);
 		}
-		
+		checkFrameSize();
+	}
+	
+	updateFieldsOnAssocCEChange = function(selectedAssoc,selectedChild){
 		if (selectedAssoc == "")
 		{
 			document.getElementById('existingOption').style.display = "none";
@@ -827,9 +835,7 @@ History:
 			.fail(function() {
 				document.getElementById('errorMsgSpan').innerHTML = '#errorMsgCustom#';
 			});
-
 		}
-		checkFrameSize();
 	}
 	
 	childOptionFunction = function(){
@@ -923,6 +929,9 @@ History:
 			})
 			.fail(function() {
 				document.getElementById('errorMsgSpan').innerHTML = '#errorMsgCustom#';
+			})
+			.then(function() {
+				updateFieldsOnChildCEChange(selectedChild,selectedType,selectedAssoc);
 			});
 		}
 		else
@@ -934,8 +943,12 @@ History:
 			jQuery("###prefix#sortByField").children().remove().end().append("<option value=\"\"> - Select -</option>");
 			
 			document.#formname#.#prefix#displayFields.value = "";
-		}
-		
+			updateFieldsOnChildCEChange(selectedChild,selectedType,selectedAssoc);
+		}		
+		checkFrameSize();
+	}
+	
+	updateFieldsOnChildCEChange = function(selectedChild,selectedType,selectedAssoc){
 		if (selectedChild == "")
 		{
 			document.getElementById("addNewOpt").innerHTML = "Allow 'Add New'";
@@ -1095,8 +1108,6 @@ History:
 		
 			#prefix#showInactiveValueFld();
 		}
-		
-		checkFrameSize();
 	}
 	
 	displayDeleteBtnText = function(){
