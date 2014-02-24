@@ -210,7 +210,10 @@ History:
 		var formFieldsStruct = StructNew();
 		var returnData = QueryNew('');
 		var data = '';
-			
+		var childColPos = 0;
+		var assocColPos = 0;
+		var displayColsArray = ArrayNew(1);
+		
 		if (inputPropStruct.sortByType EQ 'auto')
 		{
 			defaultSortColumn = inputPropStruct.sortByField;
@@ -298,23 +301,51 @@ History:
 					{
 						childColNameList = ListAppend(childColNameList, childFormFieldsStruct[colArray[i]]);
 						if (ListFindNoCase(inputPropStruct.displayFields, colArray[i]))
-						{
-							displayColNames = ListAppend(displayColNames, childFormFieldsStruct[colArray[i]]);
-							childDisplayColNames = ListAppend(childDisplayColNames, childFormFieldsStruct[colArray[i]]);
+						{								
+							if (ListFindNoCase(assocDisplayColNames, childFormFieldsStruct[colArray[i]]))
+							{
+								displayColNames = ListAppend(displayColNames, '#childFormFieldsStruct[colArray[i]]#_child');
+								childDisplayColNames = ListAppend(childDisplayColNames, '#childFormFieldsStruct[colArray[i]]#_child');
+								formFieldsStruct['#childFormFieldsStruct[colArray[i]]#_child'] = childFormFieldsDetailedStruct[childFormFieldsStruct[colArray[i]]];
 								
-							formFieldsStruct[childFormFieldsStruct[colArray[i]]] = childFormFieldsDetailedStruct[childFormFieldsStruct[colArray[i]]];
+								childColPos = ListFindNoCase(displayColNames, childFormFieldsStruct[colArray[i]]);
+								displayColNames = ListSetAt(displayColNames, childColPos, '#childFormFieldsStruct[colArray[i]]#_assoc');
+								
+								assocColPos = ListFindNoCase(assocDisplayColNames, childFormFieldsStruct[colArray[i]]);
+								assocDisplayColNames = ListSetAt(assocDisplayColNames, assocColPos, '#childFormFieldsStruct[colArray[i]]#_assoc');
+								
+								formFieldsStruct['#childFormFieldsStruct[colArray[i]]#_assoc'] = formFieldsStruct['#childFormFieldsStruct[colArray[i]]#'];
+								StructDelete(formFieldsStruct, childFormFieldsStruct[colArray[i]]);
+							}
+							else
+							{
+								displayColNames = ListAppend(displayColNames, childFormFieldsStruct[colArray[i]]);
+								childDisplayColNames = ListAppend(childDisplayColNames, childFormFieldsStruct[colArray[i]]);
+								formFieldsStruct[childFormFieldsStruct[colArray[i]]] = childFormFieldsDetailedStruct[childFormFieldsStruct[colArray[i]]];
+							}
 						}
+						
 					}
+					
 					if (ListFindNoCase(allAssocColList, colArray[i]))
 					{
 						assocColNameList = ListAppend(assocColNameList, assocFormFieldsStruct[colArray[i]]);
 						if (ListFindNoCase(inputPropStruct.displayFields, colArray[i]))
 						{
-							if (ListFindNoCase(displayColNames, assocFormFieldsStruct[colArray[i]]))
+							if (ListFindNoCase(childDisplayColNames, assocFormFieldsStruct[colArray[i]]))
 							{
 								displayColNames = ListAppend(displayColNames, '#assocFormFieldsStruct[colArray[i]]#_assoc');
 								assocDisplayColNames = ListAppend(assocDisplayColNames, '#assocFormFieldsStruct[colArray[i]]#_assoc');
 								formFieldsStruct['#assocFormFieldsStruct[colArray[i]]#_assoc'] = assocFormFieldsDetailedStruct[assocFormFieldsStruct[colArray[i]]];
+								
+								assocColPos = ListFindNoCase(displayColNames, assocFormFieldsStruct[colArray[i]]);
+								displayColNames = ListSetAt(displayColNames, assocColPos, '#assocFormFieldsStruct[colArray[i]]#_child');
+								
+								childColPos = ListFindNoCase(childDisplayColNames, assocFormFieldsStruct[colArray[i]]);
+								childDisplayColNames = ListSetAt(childDisplayColNames, childColPos, '#assocFormFieldsStruct[colArray[i]]#_child');
+								
+								formFieldsStruct['#assocFormFieldsStruct[colArray[i]]#_child'] = formFieldsStruct['#assocFormFieldsStruct[colArray[i]]#'];
+								StructDelete(formFieldsStruct, assocFormFieldsStruct[colArray[i]]);
 							}
 							else
 							{
@@ -338,7 +369,6 @@ History:
 				parentFilterArray = ceObj.createQueryEngineFilter(filterStatementArray=parentStatementsArray,filterExpression='1');
 				
 				parentData = ceObj.getRecordsFromSavedFilter(elementID=arguments.formID,queryEngineFilter=parentFilterArray,columnList=getParentLinkedField.Name,orderBy=ReplaceNoCase(getParentLinkedField.Name,'FIC_',''),orderByDirection="ASC");
-			
 			}
 		</cfscript>
 
@@ -390,6 +420,7 @@ History:
 				childColumnList = '#childColNameList#,#valueFieldName#';
 				data = ceObj.getRecordsFromSavedFilter(elementID=inputPropStruct.childCustomElement,queryEngineFilter=childFilterArray,columnList=childColumnList);					
 				filteredData = data.resultQuery;
+				displayColsArray = ListToArray(displayColNames);
 			</cfscript>
 				
 			<cfquery name="returnData" dbtype="query">
@@ -400,20 +431,24 @@ History:
 					0 AS AssocDataPageID, 0 AS AssocDataControlID,
 				</cfif>
 					filteredData.PageID AS ChildDataPageID, filteredData.ControlID AS ChildDataControlID
-				<cfif ListLen(displayColNames)>
+				<cfif ArrayLen(displayColsArray)>
 					,
 				</cfif>
-				<cfloop from="1" to="#ListLen(displayColNames)#" index="i">
-						<cfif ListFindNoCase(childDisplayColNames, ListGetAt(displayColNames,i))>
-							filteredData.[#ListGetAt(displayColNames,i)#]
-						<cfelseif ListFindNoCase(assocDisplayColNames, ListGetAt(displayColNames,i))>
-							<cfif ListFindNoCase(assocColumnList, ListGetAt(displayColNames,i))>
-								assocData.[#ListGetAt(displayColNames,i)#]
-							<cfelseif ListLast(ListGetAt(displayColNames,i), '_') EQ 'assoc' AND ListFindNoCase(assocColumnList, Mid(ListGetAt(displayColNames,i),1,ListLast(ListGetAt(displayColNames,i), '_')))>
-								assocData.[#Mid(ListGetAt(displayColNames,i),1,ListLast(ListGetAt(displayColNames,i), '_'))#] AS [#ListGetAt(displayColNames,i)#]
+				<cfloop from="1" to="#ArrayLen(displayColsArray)#" index="i">
+						<cfif ListFindNoCase(childDisplayColNames, displayColsArray[i])>
+							<cfif ListFindNoCase(childColumnList, displayColsArray[i])>
+								filteredData.[#displayColsArray[i]#]
+							<cfelseif ListLast(displayColsArray[i], '_') EQ 'child' AND ListFindNoCase(childColumnList, Mid(displayColsArray[i],1,Len(displayColsArray[i])-6))>
+								filteredData.[#Mid(displayColsArray[i],1,Len(displayColsArray[i])-6)#] AS #displayColsArray[i]#
+							</cfif>
+						<cfelseif ListFindNoCase(assocDisplayColNames, displayColsArray[i])>
+							<cfif ListFindNoCase(assocColumnList, displayColsArray[i])>
+								assocData.[#displayColsArray[i]#]
+							<cfelseif ListLast(displayColsArray[i], '_') EQ 'assoc' AND ListFindNoCase(assocColumnList, Mid(displayColsArray[i],1,Len(displayColsArray[i])-6))>
+								assocData.[#Mid(displayColsArray[i],1,Len(displayColsArray[i])-6)#] AS #displayColsArray[i]#
 							</cfif>
 						</cfif>
-					<cfif ListLen(displayColNames) GT 1 AND i NEQ ListLen(displayColNames)>
+					<cfif ArrayLen(displayColsArray) GT 1 AND i NEQ ArrayLen(displayColsArray)>
 					,
 					</cfif>
 				</cfloop>
@@ -470,6 +505,9 @@ History:
 		var pos = 0;
 		var str = '';
 		var col = '';
+		var fieldUpdValue = '';
+		var dataColumnList_new = '';
+		var theListLen = 0;
 		
 		dataColumnArray = ListToArray(dataColumnList);
 	</cfscript>
@@ -547,7 +585,8 @@ History:
 		<cfscript>
 			convertedColumnList = StructKeyList( convertedCols ); 
 			dataColumnList_new = dataColumnList;
-			for( i=1; i lte ListLen(convertedColumnList); i=i+1 )
+			theListLen = ListLen(convertedColumnList);
+			for( i=1; i lte theListLen; i=i+1 )
 			{
 				str = ListGetAt( convertedColumnList, i );
 				pos = ListFindNoCase( dataColumnList, str );
@@ -568,6 +607,7 @@ History:
 			SELECT #dataColumnList_new#
 			  FROM childData
 		</cfquery>
+		
 		<cfscript>
 			returnStruct['aoColumns'] = '#dataColumnList_new#';
 			returnStruct['aoColumns'] = '#ReplaceNoCase(dataColumnList_new,'_converted','','ALL')#';
@@ -922,7 +962,7 @@ History:
 </cffunction>
 
 <cffunction name="QueryToArray" access="public" returntype="array" output="false" hint="This turns a query into an array of structures with each key being a number.">
-   	<cfargument name="queryData" type="query" required="yes" hint="Query to be converted to array">
+    <cfargument name="queryData" type="query" required="yes" hint="Query to be converted to array">
 	<cfargument name="fieldOrderList" type="string" required="true" hint="Order in which the fields need to be returned">
 
     <cfscript>
@@ -932,12 +972,14 @@ History:
 		var rowStruct = StructNew();
 		var j = 0;
 		var columnName = '';
+		var theArrayLen = 0;
 		
-	    for (i=1; i LTE arguments.queryData.RecordCount; i=i + 1)
+	    for ( i=1; i LTE arguments.queryData.RecordCount; i=i + 1 )
 	    {
 			rowStruct = StructNew();
-	   		for (j=1; j LTE ArrayLen(columnArray); j=j + 1)
-	   		{
+			theArrayLen = ArrayLen(columnArray);
+		   	for (j=1; j LTE theArrayLen; j=j + 1)
+		   	{
 				columnName = columnArray[j];
 				rowStruct[j] = arguments.queryData[columnName][i];
 	   		}
@@ -1236,59 +1278,149 @@ History:
 		var paramsStruct = StructNew();
 		var returnString = arguments.fieldValue;
 		var ceDataArray = ArrayNew(1);
+		var ceDataArrayLen = 0;
 		var valueIndex = 0;
 		var i = 0;
 		var displayString = '';
+		var key = '#fieldID#';
+		var build = 1;
+		var theArrayLen = 0;
+		var valueFld = 0;
+		var displayFld = 0;
+		
+		
+		if( NOT StructKeyExists(request,'getContent_ceSelect') )
+			request['getContent_ceSelect'] = structNew();
+		if( NOT StructKeyExists(request['getContent_ceSelect'],fieldID ) )
+		{
+			request['getContent_ceSelect'][fieldID] = structNew();
+			build = 1;
+		}	
+		else
+			build = 0;
 	</cfscript>
-		
-	<cfquery name="paramsData" datasource="#Request.Site.Datasource#">
-		SELECT Params
-		  FROM FormInputControl
-		 WHERE ID = <cfqueryparam value="#arguments.fieldID#" cfsqltype="cf_sql_integer">
-	</cfquery>
-		
-	<cfif paramsData.RecordCount>
-		<cfscript>
-			paramsStruct = Server.CommonSpot.UDF.util.WDDXDecode(paramsData.Params);
-		</cfscript>
-		<cfif Len(paramsStruct.customElement)>
+
+	<!--- 
+		if first time through do the following:
+			- get parameters of custom element select field
+			- determine if filter is being used
+			- get all records
+			- store in results and other parameters in request	( request['getContent_ceSelect'][fieldID] )
+	--->
+	<cfif build eq 1>
+		<cfquery name="paramsData" datasource="#Request.Site.Datasource#">
+			SELECT Params
+			  FROM FormInputControl
+			 WHERE ID = <cfqueryparam value="#arguments.fieldID#" cfsqltype="cf_sql_integer">
+		</cfquery>
+			
+		<cfif paramsData.RecordCount>
 			<cfscript>
-				if(StructKeyExists(paramsStruct,"activeFlagField") and Len(paramsStruct.activeFlagField)
-						and StructKeyExists(paramsStruct,"activeFlagValue") and Len(paramsStruct.activeFlagValue))
-				{
-					if((TRIM(LEFT(paramsStruct.activeFlagValue,1)) EQ "[") AND (TRIM(RIGHT(paramsStruct.activeFlagValue,1)) EQ "]"))
-					{
-						paramsStruct.activeFlagValue = MID(paramsStruct.activeFlagValue, 2, LEN(paramsStruct.activeFlagValue)-2);
-						paramsStruct.activeFlagValue = Evaluate(paramsStruct.activeFlagValue);
-					}
-					ceDataArray = application.ADF.ceData.getCEData(paramsStruct.customElement,paramsStruct.activeFlagField,paramsStruct.activeFlagValue);
-				}
-				else
-				{
-					ceDataArray = application.ADF.ceData.getCEData(paramsStruct.customElement);
-				}
-					
-				if (ArrayLen(ceDataArray))
-				{
-					for (i=1; i LTE ArrayLen(ceDataArray); i=i+1)
-					{
-						valueIndex = ListFindNoCase(returnString,ceDataArray[i].Values['#paramsStruct.valueField#']);
-						if(valueIndex)
-						{
-							if (paramsStruct.displayField eq "--Other--" and Len(paramsStruct.displayFieldBuilder))
-							{
-								displayString = renderDataValueStringfromFieldMask(ceDataArray[i].Values, paramsStruct.displayFieldBuilder);
-							}
-							else
-								displayString = ceDataArray[i].Values['#paramsStruct.displayField#'];
-								
-							returnString = ListSetAt(returnString, valueIndex, displayString);
-						}
-					}
-				}
+				paramsStruct = Server.CommonSpot.UDF.util.WDDXDecode(paramsData.Params);
 			</cfscript>
+			<cfif Len(paramsStruct.customElement)>
+				<cfscript>
+					// build structures to cache the ceDataArray results
+					request['getContent_ceSelect'][fieldID] = StructNew();
+					request['getContent_ceSelect'][fieldID].valueField = paramsStruct.valueField;
+					request['getContent_ceSelect'][fieldID].displayField = paramsStruct.displayField;
+					request['getContent_ceSelect'][fieldID].displayFieldBuilder = paramsStruct.displayFieldBuilder;
+
+					
+					// If Multi-select - no display value look up
+					if( StructKeyExists(paramsStruct,"MultipleSelect") AND paramsStruct.MultipleSelect eq 1 )
+					{
+						request['getContent_ceSelect'][fieldID].assocArray = '';
+					}
+					// single select. Display Value can be returned
+					else	
+					{
+						//
+						// Get Results of ALL applicable records.
+						//
+							
+						// TODO: NEED TO HANDLE FILTER CASE
+						
+						if( StructKeyExists(paramsStruct,"activeFlagField") 
+								AND Len(paramsStruct.activeFlagField)
+								AND StructKeyExists(paramsStruct,"activeFlagValue") 
+								AND Len(paramsStruct.activeFlagValue)
+						  )
+						{
+							if((TRIM(LEFT(paramsStruct.activeFlagValue,1)) EQ "[") AND (TRIM(RIGHT(paramsStruct.activeFlagValue,1)) EQ "]"))
+							{
+								paramsStruct.activeFlagValue = MID(paramsStruct.activeFlagValue, 2, LEN(paramsStruct.activeFlagValue)-2);
+								paramsStruct.activeFlagValue = Evaluate(paramsStruct.activeFlagValue);
+							}
+							ceDataArray = application.ADF.ceData.getCEData(paramsStruct.customElement,paramsStruct.activeFlagField,paramsStruct.activeFlagValue);
+						}
+						else
+						{
+							// No filter, get all records
+							ceDataArray = application.ADF.ceData.getCEData(paramsStruct.customElement);
+						}
+	
+						// cache the results					
+						ceDataArrayLen = ArrayLen(ceDataArray);
+						request['getContent_ceSelect'][fieldID].ceDataArray = ceDataArray;					
+					
+					
+						// Custom element selects can 'Build' the display value.  Handle that case
+						if( paramsStruct.displayField eq "--Other--" and Len(paramsStruct.displayFieldBuilder) )
+						{
+							// store the offset into the ceDataArray
+							request['getContent_ceSelect'][fieldID].assocArray = StructNew();
+							for(i=1; i LTE ceDataArrayLen; i=i+1 )
+							{
+								valueFld = ceDataArray[i].Values['#paramsStruct.valueField#'];
+								request['getContent_ceSelect'][fieldID].assocArray[valueFld] = i;
+							}	
+						}	
+						// Normal case - display value is just another field, no building display value from multiple fields. 
+						// 	So store name value pairs.
+						else if( paramsStruct.displayField neq ""	)
+						{
+							// store value and display field
+							request['getContent_ceSelect'][fieldID].assocArray = StructNew();
+							for(i=1; i LTE ceDataArrayLen; i=i+1 )
+							{
+								valueFld = ceDataArray[i].Values['#paramsStruct.valueField#'];
+								displayFld = ceDataArray[i].Values['#paramsStruct.displayField#'];
+								request['getContent_ceSelect'][fieldID].assocArray[valueFld] = displayFld;
+							}	
+						}
+						// No display value, just return the value
+						else
+						{
+							request['getContent_ceSelect'][fieldID].assocArray = '';						
+						}
+					}	
+				</cfscript>
+			</cfif>
 		</cfif>
-	</cfif>
+	</cfif>		
+	
+	<cfscript>
+		// the Structure request['getContent_ceSelect'][fieldID] is built at this point.
+	
+		// Display Value is built from one or more fields
+		if( request['getContent_ceSelect'][fieldID].displayField eq "--Other--" and Len(request['getContent_ceSelect'][fieldID].displayFieldBuilder))
+		{
+			i = request['getContent_ceSelect'][fieldID].assocArray[arguments.fieldValue];
+			returnString = application.ADF.forms.renderDataValueStringfromFieldMask( request['getContent_ceSelect'][fieldID].ceDataArray[i].Values, request['getContent_ceSelect'][fieldID].displayFieldBuilder );
+		}
+		// Display Value is another field, simple lookup
+		else if( isStruct( request['getContent_ceSelect'][fieldID].assocArray ) )
+		{
+			returnString = request['getContent_ceSelect'][fieldID].assocArray[arguments.fieldValue];
+		}
+		// Fall back, just pass back the value.
+		else
+		{
+			returnString = arguments.fieldValue;
+		}
+	</cfscript>
+	
 	<cfreturn returnString>
 </cffunction>
 	
@@ -1300,59 +1432,101 @@ History:
 		var paramsStruct = StructNew();
 		var selectOptions = StructNew();
 		var returnString = arguments.fieldValue;
-		var fieldValueArray = ListToArray(Arguments.fieldValue);
 		var i = 0;
-		var optionValuesString = '';
-		var valueIndex = 0;
-		var displayFieldID = '';
-		var valueFieldID = '';
+		var theArrayLen = 0;
+		var build = 1;
+		var valueText = '';
+		var displayText = '';
+
+		if( NOT StructKeyExists(request,'getContent_select') )
+			request['getContent_select'] = structNew();
+		if( NOT StructKeyExists(request['getContent_select'],fieldID ) )
+		{
+			request['getContent_select'][fieldID] = structNew();
+			build = 1;
+		}	
+		else
+			build = 0;
 	</cfscript>
 		
-	<cfquery name="paramsData" datasource="#Request.Site.Datasource#">
-		SELECT Params
-		  FROM FormInputControl
-		 WHERE ID = <cfqueryparam value="#arguments.fieldID#" cfsqltype="cf_sql_integer">
-	</cfquery>
-		
-	<cfif paramsData.RecordCount>
-		<cfscript>
-			paramsStruct = Server.CommonSpot.UDF.util.WDDXDecode(paramsData.Params);
-			if (StructKeyExists(paramsStruct, 'displayfieldid'))
-				displayFieldID = paramsStruct.displayfieldid;
-			if (StructKeyExists(paramsStruct, 'valuefieldid'))
-				valueFieldID = paramsStruct.valuefieldid;
-		</cfscript>
-		<cfmodule template="/commonspot/metadata/form_control/input_control/resolve_optionlist.cfm"
-				valsource="#paramsStruct.valSource#"
-				valuelist="#paramsStruct.valList#"
-				querystring="#paramsStruct.query#"
-				queryDSN="#paramsStruct.queryDSN#"
-				displaycolumn="#paramsStruct.dispCol#"
-				valuecolumn="#paramsStruct.valCol#"
-				userdefinedexpression="#paramsStruct.udef#"
-				elementid="#paramsStruct.elementid#"
-				fieldid="#paramsStruct.fieldid#"
-				displayfieldid="#displayFieldID#"
-				valuefieldid="#valueFieldID#"	
-				filter="#paramsStruct.filter#"
-				sortcolumn="#paramsStruct.sortcol#"
-				return="selectOptions">
-		<cfscript>
-			if (ArrayLen(selectOptions.optionValues) AND ArrayLen(selectOptions.optionText))
-			{
-				optionValuesString = ArrayToList(selectOptions.optionValues);
-				returnString = '';
-				for (i=1; i LTE ArrayLen(fieldValueArray); i=i+1)
-				{
-					valueIndex = ListFindNoCase(optionValuesString, fieldValueArray[i]);
-					if (valueIndex)					
-						returnString = ListAppend(returnString, selectOptions.optionText[valueIndex]);
-					else
-						returnString = ListAppend(returnString, fieldValueArray[i]);
-				}
-			}
-		</cfscript>
+	<!--- 
+		if first time through do the following:
+			- get parameters of custom element select field
+			- determine if filter is being used
+			- get all records
+			- store in results and other parameters in request	( request['getContent_select'][fieldID] )
+	--->
+	<cfif build eq 1>
+		<cfquery name="paramsData" datasource="#Request.Site.Datasource#">
+			SELECT Params
+			  FROM FormInputControl
+			 WHERE ID = <cfqueryparam value="#arguments.fieldID#" cfsqltype="cf_sql_integer">
+		</cfquery>
+			
+		<cfif paramsData.RecordCount>
+			<cfscript>
+				paramsStruct = Server.CommonSpot.UDF.util.WDDXDecode(paramsData.Params);
+			</cfscript>
+	
+			<cfif StructKeyExists(paramsStruct, 'ElementID') AND paramsStruct.ElementID gt 0>
+				<!--- selection list is configured to point to a CE --->
+
+				<cfif StructKeyExists(paramsStruct,"Mult") 
+						AND paramsStruct.Mult eq 'no' 
+						AND StructKeyExists(paramsStruct,"displayFieldID")
+						AND paramsStruct.displayFieldID neq "">
+						
+					<!--- Normal case. Display value is just another field. So store name value pairs. --->
+						
+					<cfmodule template="/commonspot/metadata/form_control/input_control/resolve_optionlist.cfm"
+							valsource="#paramsStruct.valSource#"
+							valuelist="#paramsStruct.valList#"
+							querystring="#paramsStruct.query#"
+							queryDSN="#paramsStruct.queryDSN#"
+							displaycolumn="#paramsStruct.dispCol#"
+							valuecolumn="#paramsStruct.valCol#"
+							usedefinedexpression="#paramsStruct.udef#"
+							elementid="#paramsStruct.elementid#"
+							fieldid="#paramsStruct.fieldid#"
+							displayfieldid="#paramsStruct.displayFieldID#"
+							valuefieldid="#paramsStruct.valueFieldID#"	
+							filter="#paramsStruct.filter#"
+							sortcolumn="#paramsStruct.sortcol#"
+							return="selectOptions">
+					
+					<cfscript>
+						request['getContent_select'][fieldID].assocArray = StructNew();
+
+						theArrayLen = ArrayLen(selectOptions.optionValues);
+						for( i=1; i lte theArrayLen; i=i+1 )
+						{
+							valueText = selectOptions.optionValues[i];
+							displayText = selectOptions.optionText[i];
+							request['getContent_select'][fieldID].assocArray[valueText] = displayText;
+						}	
+					</cfscript>
+				</cfif>
+			</cfif>	
+		</cfif>
 	</cfif>
+	
+	<cfscript>
+		// the Structure request['getContent_select'][fieldID] is built at this point.
+	
+		// Display Value is another field, simple lookup
+		if( StructKeyExists(request['getContent_select'][fieldID],'assocArray') 
+				AND isStruct( request['getContent_select'][fieldID].assocArray )
+		   )
+		{
+			returnString = request['getContent_select'][fieldID].assocArray[arguments.fieldValue];
+		}
+		// Fall back, just pass back the value.
+		else
+		{
+			returnString = arguments.fieldValue;
+		}
+	</cfscript>		
+	
 	<cfreturn returnString>
 </cffunction>
 

@@ -439,6 +439,8 @@ History:
 			selectedChild = selectedChildWithTypeArray[1];
 		var selectedAssoc = jQuery("option:selected",jQuery("###prefix#assocCustomElement")).val();
 		document.#formname#.#prefix#childCustomElement.value = selectedChild;
+		
+		displayDeleteBtnText();
 
 		// Processing of fields related to association elements
 		jQuery("###prefix#parentInstanceIDField").children().remove().end().append("<option value=\"\"> - Select -</option>");
@@ -630,6 +632,8 @@ History:
 		var selectedChild = selectedChildWithTypeArray[0];
 		if (selectedChildWithTypeArray.length == 2)
 			selectedChild = selectedChildWithTypeArray[1];
+			
+		displayDeleteBtnText();
 		
 		document.#formname#.#prefix#childCustomElement.value = selectedChild;
 		
@@ -840,6 +844,8 @@ History:
 			selectedType = selectedChildWithTypeArray[0];
 		}
 		
+		displayDeleteBtnText();
+		
 		document.#formname#.#prefix#childCustomElement.value = selectedChild;
 		
 		var selectedAssoc = jQuery("option:selected",jQuery("###prefix#assocCustomElement")).val();
@@ -943,6 +949,7 @@ History:
 		else
 		{
 			document.getElementById("addNewOpt").innerHTML = "Allow 'Add New " + jQuery("option:selected",jQuery("###prefix#childCustomElementSelect")).text() + "'";
+			document.getElementById("editChildOpt").innerHTML = "Allow 'Edit' of " + jQuery("option:selected",jQuery("###prefix#childCustomElementSelect")).text();
 			document.getElementById('childElementInputs').style.display = "";
 			if (selectedType == 'local')
 			{
@@ -1092,6 +1099,27 @@ History:
 		checkFrameSize();
 	}
 	
+	displayDeleteBtnText = function(){
+		var selectedChildWithType = jQuery("option:selected",jQuery("###prefix#childCustomElementSelect")).val();
+		var selectedChildWithTypeArray = selectedChildWithType.split('||');
+		var selectedChild = selectedChildWithTypeArray[0];
+		if (selectedChildWithTypeArray.length == 2)
+			selectedChild = selectedChildWithTypeArray[1];
+		var selectedAssoc = jQuery("option:selected",jQuery("###prefix#assocCustomElement")).val();
+		
+		if (selectedChild == "" && selectedAssoc == "")
+		{
+			document.getElementById("deleteOpt").innerHTML = "Allow 'Delete'";
+		}
+		else if (selectedAssoc == "")
+		{
+			document.getElementById("deleteOpt").innerHTML = "Allow 'Delete' of " + jQuery("option:selected",jQuery("###prefix#childCustomElementSelect")).text();
+		}
+		else
+		{
+			document.getElementById("deleteOpt").innerHTML = "Allow 'Delete' of " + jQuery("option:selected",jQuery("###prefix#assocCustomElement")).text();
+		}
+	}
 // -->
 </script>
 </cfoutput>
@@ -1156,11 +1184,11 @@ History:
 				<span id="existingOption" <cfif currentValues.refersParent EQ 1>style="display:none;"</cfif>>#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", id="#prefix#interfaceOptionsCbox", name="#prefix#interfaceOptionsCbox", value="existing", label="<span id='addExistingOpt'>Allow 'Add Existing'</span>", labelIsHTML=1, checked=(ListFindNoCase(currentValues.interfaceOptions,'existing')), labelClass="cs_dlgLabelSmall")#<br/></span>
 				<span id="editAssocOption" <cfif currentValues.refersParent EQ 1>style="display:none;"</cfif>>#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", id="#prefix#interfaceOptionsCbox", name="#prefix#interfaceOptionsCbox", value="editAssoc", label="<span id='editAssocOpt'>Allow 'Edit'</span>", labelIsHTML=1, checked=(ListFindNoCase(currentValues.interfaceOptions,'editAssoc')), labelClass="cs_dlgLabelSmall")#<br/></span>
 				<span id="editChildOption" <cfif selectedCEType EQ 'local'>style="display:none;"</cfif>>#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", id="#prefix#interfaceOptionsCbox", name="#prefix#interfaceOptionsCbox", value="editChild", label="<span id='editChildOpt'>Allow 'Edit'</span>", labelIsHTML=1, checked=(ListFindNoCase(currentValues.interfaceOptions,'editChild')), labelClass="cs_dlgLabelSmall")#<br/></span>
-				#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", id="#prefix#interfaceOptionsCbox", name="#prefix#interfaceOptionsCbox", value="delete", label="Allow 'Delete'", checked=(ListFindNoCase(currentValues.interfaceOptions,'delete')), labelClass="cs_dlgLabelSmall")#
+				#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", id="#prefix#interfaceOptionsCbox", name="#prefix#interfaceOptionsCbox", value="delete", label="<span id='deleteOpt'>Allow 'Delete'</span>", labelIsHTML=1, checked=(ListFindNoCase(currentValues.interfaceOptions,'delete')), labelClass="cs_dlgLabelSmall")#
 			</td>
 		</tr>
 		<tr>
-			<th class="cs_dlgLabelBold" nowrap="nowrap">Display Fields:</th>
+			<th class="cs_dlgLabelBold" nowrap="nowrap" valign="top">Display Fields:</th>
 			<td valign="baseline" nowrap="nowrap">
 				<table><tr><td class="cs_dlgLabelSmall">Available Fields:<br/>
 				<ul name="#prefix#allFields" id="#prefix#allFields" class="connectedSortable">

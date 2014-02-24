@@ -53,6 +53,26 @@ History:
 	ajaxBeanName = 'customElementDataManager';
 </cfscript>
 
+<!--- can not trust 'newdata' form variable being passed in for local custom elements --->
+<cfif StructKeyExists(request.params,'pageid') 
+			AND StructKeyExists(request.params,'controlid') 
+			AND StructKeyExists(request.params,'controlTypeID')
+			AND request.params.controlID gt 0>
+	<cfquery name="qry" datasource="#request.site.datasource#">
+		select count(*) as CNT 
+			from data_fieldValue
+		where FormID = <cfqueryparam cfsqltype="CF_SQL_INTEGER" value="#request.params.controlTypeID#">
+			AND PageID = <cfqueryparam cfsqltype="CF_SQL_INTEGER" value="#request.params.PageID#">
+			AND ControlID = <cfqueryparam cfsqltype="CF_SQL_INTEGER" value="#request.params.controlID#">
+	</cfquery>
+	<cfscript>
+		if( qry.cnt eq 0 )
+			newData = 1;
+		else
+			newData = 0;	
+	</cfscript>
+</cfif>
+
 <cfparam name="attributes.callingElement" default="">
 
 <!--- // Make sure we are on CommonSpot 9 or greater --->
@@ -117,7 +137,7 @@ History:
 					fileName = inputParameters.compOverride;
 					fileNamewithExt = inputParameters.compOverride & '.cfc';
 				}
-				
+			
 				try
 				{
 					if ( StructKeyExists(application.ADF,fileName) )
@@ -139,6 +159,7 @@ History:
 				}
 				catch(Any e)
 				{
+					Server.CommonSpot.UDF.mx.doLog("DataManager: Could not load override component '#inputParameters.compOverride#'");
 					//datamanagerObj = CreateObject("component", "#componentPath#/#componentName#");
 					//componentName = 'custom_element_datamanager_base';
 					datamanagerObj = application.ADF[ajaxBeanName];
@@ -210,7 +231,7 @@ History:
 					</table>
 				</CFOUTPUT>
 			<CFELSE>
-			<CFOUTPUT><table class="cs_data_manager" border="0" cellpadding="2" cellspacing="2" summary="">
+			<CFOUTPUT><table class="cs_data_manager" border="0" cellpadding="0" cellspacing="0" summary="">
 				<tr><td class="cs_dlgLabelError">#childCustomElementDetails.Name# records can only be added once the #parentCustomElementDetails.Name# record is saved.</td></tr>
 				</table>
 				#Server.CommonSpot.UDF.tag.input(type="hidden", name="#fqFieldName#", value="")#</CFOUTPUT>
