@@ -36,7 +36,7 @@ History:
 --->
 <cfcomponent displayname="ceData_2_0" extends="ADF.lib.ceData.ceData_1_1" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="2_0_21">
+<cfproperty name="version" value="2_0_22">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_2">
 <cfproperty name="wikiTitle" value="CEData_2_0">
@@ -423,6 +423,7 @@ History:
 					 - Added a cfqueryparam in the currPageIDDataQry QofQs
 	2013-10-23 - GAC - Removed the local dependency for the data_1_2 Lib which was causing errors being extended by the general_chooser.cfc
 	2013-01-31 - JTP - Optimized function for larger data sets
+	2014-02-24 - JTP - Var'ing the local getDataPageValueQrySORTED variable
 --->
 
 <cffunction name="getCEData" access="public" returntype="array" hint="Returns array of structs for all data matching the Custom Element." output="false">
@@ -446,6 +447,7 @@ History:
 		var ceFieldIDNameMap = StructNew();
 		var sFldsLen = 0;
 		var prevPageID = 0;
+		var getDataPageValueQrySORTED = "";
 		
 		// sdhardesty fixes 03-27-13
 		var i = 1;
