@@ -35,7 +35,7 @@ History:
 --->
 <cfcomponent displayname="ceData_1_1" extends="ADF.lib.ceData.ceData_1_0" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="1_1_8">
+<cfproperty name="version" value="1_1_9">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_1">
 <cfproperty name="data" type="dependency" injectedBean="data_1_1">
@@ -645,7 +645,7 @@ Arguments:
 				?adfLogViewSQL=1
 			The SQL used to create the view will be written to a file named {date}.{site}.ADFlogViewSQL.log, in the CommonSpot logs directory.
 			If an error occurs, view sql will still be written to that file, with an indication that there was an error.
-
+			
 CODING PATTERNS
 	Ideally, direct calls to this method should be replaced by calls to ceData_2_0.buildView().
 		That lets you explicitly force the view to rebuild always, even if it already exists.
@@ -689,6 +689,8 @@ History:
 						honor ntext vs text type of MemoValue col
 						log error if there is one (was only a comment there before)
 						some cleanup, including removing query names where result is ignored
+	2014-02-19 - GAC - Added local variables for the VersionState Operator and Value
+	2014-02-19 - GAC - Added escape characters for reserverd words in custom element field names
 --->
 <cffunction name="buildRealTypeView" access="public" returntype="boolean" hint="Builds an element view for the passed in element name">
 	<cfargument name="elementName" type="string" required="true" hint="element name to build the view table off of">
@@ -720,6 +722,8 @@ History:
 		var logMsg = "";
 		var i = 0;
 		var createViewResult = QueryNew('temp');
+		var versionStateOpr = "=";
+		var versionStateValue = 2;
 
 		// make sure that we actually have a form ID
 		if (formID eq "" or formID LTE 0)
@@ -750,7 +754,7 @@ History:
 					fieldTypeIndex[fieldsArray[i]] = fieldType;
 			}
 		}
-
+		
 		// Set datatypes and select exprs for different db types
 		switch (dbtype)
 		{
@@ -775,8 +779,10 @@ History:
 					selectSyntax = replace(selectSyntax, "VARCHAR(MAX)", "VARCHAR(4000)"); // MSSQL 2000 and below don't have VARCHAR(MAX); this truncates data, no choice
 				break;
 		}
+		
 		if (isUnicode)
 			selectSyntax = replace(selectSyntax, "VARCHAR", "NVARCHAR");
+			
 		if (selectSyntaxLong eq "") // only Oracle has different longText syntax
 			selectSyntaxLong = selectSyntax;
 	</cfscript>
@@ -857,8 +863,14 @@ SELECT
 				selectExpr = selectSyntax;
 		}
 		selectExpr = replaceList(selectExpr, "FieldValue,MemoValue", "#table#.FieldValue,#table#.MemoValue");
+		
 		if (dbtype eq "SQLServer")
-			colAlias = "[#colAlias#]";
+			colAlias = '[#colAlias#]';
+		else if (dbtype eq "MySQL")
+			colAlias = '`#colAlias#`';
+		else if (dbtype eq "Oracle")
+			colAlias = '"#colAlias#"';	
+			
 		selectExpr = "#selectExpr# AS #colAlias#,#chr(10)#";
 		writeOutput(selectExpr);
 	</cfscript>
@@ -867,11 +879,11 @@ SELECT
 <cfloop query="fieldInfo">
 <cfset table = "dfv_#FieldID#">
 <cfif CurrentRow eq 1>FROM Data_FieldValue #table#<cfelse>
-LEFT OUTER JOIN Data_FieldValue #table# ON #table#.FormID = #FormID# AND #table#.FieldID = #FieldID# AND #table#.VersionState = 2 AND #table#.PageID = #firstTableName#.PageID</cfif>
+LEFT OUTER JOIN Data_FieldValue #table# ON #table#.FormID = #FormID# AND #table#.FieldID = #FieldID# AND #table#.VersionState #versionStateOpr# #versionStateValue# AND #table#.PageID = #firstTableName#.PageID</cfif>
 </cfloop>
 <cfloop query="fieldInfo" startrow="1" endrow="1">
 <cfset table = "dfv_#FieldID#"><!--- this WHERE clause is the first table's equivalent of the JOIN constraints for other tables --->
-WHERE #table#.FormID = #FormID# AND #table#.FieldID = #FieldID# AND #table#.VersionState = 2 AND #table#.PageID > 0
+WHERE #table#.FormID = #FormID# AND #table#.FieldID = #FieldID# AND #table#.VersionState #versionStateOpr# #versionStateValue# AND #table#.PageID > 0
 </cfloop>
 		</cfquery>
 

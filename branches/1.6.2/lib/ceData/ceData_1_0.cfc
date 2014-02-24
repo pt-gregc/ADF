@@ -37,7 +37,7 @@ History:
 --->
 <cfcomponent displayname="ceData_1_0" extends="ADF.core.Base" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_13">
+<cfproperty name="version" value="1_0_14">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_0">
 <cfproperty name="data" type="dependency" injectedBean="data_1_0">
@@ -920,6 +920,9 @@ History:
 					 - Removed the brackets around the MemoValue field name both updates for MySQL compatibility 
 	2012-07-12 - GAC - Removed the MSSQL specific concatenation (+) in the LIKE statements in the SEARCHINLIST queryType
 	2014-01-03 - GAC - Updated SQL 'IN' statements to use the CS module 'handle-in-list.cfm'
+	2014-02-20 - JTP - Updated 'searchInList' with better handling of non-UUID lists
+	2014-02-21 - GAC - Added itemListDelimiter parameter
+					 - Added logic is a searchFields is passed but no Item value then look of null or empty strings
 --->
 <cffunction name="getPageIDForElement" access="public" returntype="query" hint="Returns Page ID Query in Data_FieldValue matching Form ID">
 	<cfargument name="formid" type="numeric" required="true">
@@ -928,12 +931,16 @@ History:
 	<cfargument name="queryType" type="string" required="false" default="selected">
 	<cfargument name="searchValues" type="string" required="false" default="">
 	<cfargument name="searchFields" type="string" required="false" default="">
+	<cfargument name="itemListDelimiter" type="string" required="false" default="," hint="Only valid for the 'selected','notselected', 'list', 'numericList' and 'searchInList' queryTypes">
 
 	<cfscript>
 		// Initialize the variables
 		var itm = 0;
 		var getListItemIDs = queryNew("temp");
 		var getPageIDForFormID = queryNew("temp");
+		var theListLen = 0;
+		var theItem = "";
+		
 		// Make the search case to lowercase
 		arguments.searchValues = LCASE(arguments.searchValues);
 	</cfscript>
@@ -946,10 +953,10 @@ History:
 			FROM data_listItems
 			WHERE
 				<cfif arguments.queryType eq "numericList">
-					<CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="numItemValue" LIST="#arguments.item#">
+					<CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="numItemValue" LIST="#arguments.item#" SEPARATOR="#arguments.itemListDelimiter#">
 					<!--- numItemValue in (<cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.item#" list="true">) --->
 				<cfelse>
-					<CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="strItemValue" LIST="#preserveSingleQuotes(arguments.item)#" cfsqltype="cf_sql_varchar">
+					<CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="strItemValue" LIST="#preserveSingleQuotes(arguments.item)#" cfsqltype="cf_sql_varchar" SEPARATOR="#arguments.itemListDelimiter#">
 					<!--- strItemValue in (<cfqueryparam cfsqltype="cf_sql_varchar" value="#preserveSingleQuotes(arguments.item)#" list="true">) --->
 				</cfif>
 		</cfquery>
@@ -965,7 +972,7 @@ History:
 			<cfif arguments.queryType eq "selected">
 				<!--- Check if we have a list of values --->
 				<cfif ListLen(arguments.item) gt 1>
-					AND <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="fieldValue" LIST="#arguments.item#" cfsqltype="cf_sql_varchar">
+					AND <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="fieldValue" LIST="#arguments.item#" cfsqltype="cf_sql_varchar" SEPARATOR="#arguments.itemListDelimiter#">
 					<!--- AND		fieldValue IN (<cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.item#" list="true">) --->
 				<cfelse>
 					AND		fieldValue = <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.item#">
@@ -974,7 +981,7 @@ History:
 			<!--- // Build the where clause for the NOT SELECTED --->
 			<cfelseif arguments.queryType eq "notselected">
 				<cfif ListLen(arguments.item) gt 1>
-					AND <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="fieldValue" LIST="#arguments.item#" isNot=1 cfsqltype="cf_sql_varchar">
+					AND <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="fieldValue" LIST="#arguments.item#" isNot=1 cfsqltype="cf_sql_varchar" SEPARATOR="#arguments.itemListDelimiter#">
 					<!--- AND		fieldValue NOT IN (<cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.item#" list="true">) --->
 				<cfelse>
 					AND		fieldValue <> <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.item#">
@@ -983,13 +990,13 @@ History:
 			<!--- // Build the where clause for the SEARCH --->
 			<cfelseif arguments.queryType eq "search">
 				<cfif LEN(arguments.item)>
-					AND PageID NOT IN (SELECT DISTINCT PageID
-										FROM Data_FieldValue
-										WHERE <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="fieldValue" LIST="#arguments.item#" cfsqltype="cf_sql_varchar">
-										<!--- WHERE ( fieldValue IN (<cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.item#" list="true">) ) --->
-										AND <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="FieldID" LIST="#arguments.fieldid#">
-										<!--- AND ( FieldID IN (<cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.fieldid#" list="true">) ) --->
-										AND VersionState = 2
+					AND PageID NOT IN ( SELECT DISTINCT PageID
+											FROM Data_FieldValue
+											WHERE <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="fieldValue" LIST="#arguments.item#" cfsqltype="cf_sql_varchar" SEPARATOR="#arguments.itemListDelimiter#">
+											<!--- WHERE ( fieldValue IN (<cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.item#" list="true">) ) --->
+											AND <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="FieldID" LIST="#arguments.fieldid#">
+											<!--- AND ( FieldID IN (<cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.fieldid#" list="true">) ) --->
+											AND VersionState = 2
 										)
 				</cfif>
 				AND <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="FieldID" LIST="#arguments.searchFields#">
@@ -1039,10 +1046,33 @@ History:
 			<cfelseif arguments.queryType EQ "searchInList">
 				AND fieldID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.fieldID#">
 				<!--- // Filter down the result set with a search --->
-				<!--- // 2012-07-12 - GAC - Removed the MSSQL specific concatenation (+) in the LIKE statement --->
-				<cfloop from="1" to="#ListLen(arguments.item)#" index="itm">
-					AND	LOWER(fieldValue) LIKE <cfqueryparam cfsqltype="cf_sql_varchar" value="%#ListGetAt(arguments.item, itm)#%">
+				AND 
+				<cfif LEN(arguments.item)>
+				(
+				<!--- // 2014-02-21 - JTP - Updated for better handling of non-UUID lists --->
+				<cfset theListLen = ListLen(arguments.item,arguments.itemListDelimiter)>
+				<cfloop from="1" to="#theListLen#" index="itm">
+					<cfset theItem = LCASE(ListGetAt(arguments.item,itm,arguments.itemListDelimiter))>
+					LOWER(fieldValue) = <cfqueryparam cfsqltype="cf_sql_varchar" value="#theItem#">
+					OR
+					LOWER(fieldValue) LIKE <cfqueryparam cfsqltype="cf_sql_varchar" value="%#arguments.itemListDelimiter##theItem##arguments.itemListDelimiter#%">
+					OR
+					LOWER(fieldValue) LIKE <cfqueryparam cfsqltype="cf_sql_varchar" value="#theItem##arguments.itemListDelimiter#%">
+					OR
+					LOWER(fieldValue) LIKE <cfqueryparam cfsqltype="cf_sql_varchar" value="%#arguments.itemListDelimiter##theItem#">
+					<cfif itm lt theListLen>
+					OR
+					</cfif>
 				</cfloop>
+				)
+				<cfelse>
+				(
+				  <!--- // 2014-02-22 - GAC - If no Item value is passed look of null or empty strings --->
+				  LOWER(fieldValue) IS <cfqueryparam cfsqltype="cf_sql_varchar" null="true"> 
+				  OR  
+				  LOWER(fieldValue) = <cfqueryparam cfsqltype="cf_sql_varchar" value=""> 
+				)
+				</cfif>
 			</cfif>
 		</cfif>
 		AND VersionState = 2

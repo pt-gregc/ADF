@@ -36,7 +36,7 @@ History:
 --->
 <cfcomponent displayname="ceData_2_0" extends="ADF.lib.ceData.ceData_1_1" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="2_0_19">
+<cfproperty name="version" value="2_0_21">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_2">
 <cfproperty name="wikiTitle" value="CEData_2_0">
@@ -158,15 +158,16 @@ Summary:
 Returns:
 	Boolean viewCreated
 Arguments:
-	String ceName
-	String viewName
+	String  ceName
+	String  viewName
+	Struct  fieldTypes
 History:
 	2013-01-04 - MFC - Sets the view table name to the "getViewTableName" function if no
 						value passed in.  Calls the SUPER function to create the table.
 	2013-01-29 - GAC - Updated the getViewTableName logic so it creates a view table name if a viewName is NOT passed in
 	2013-12-06 - DRM - Accept and pass fieldTypes for the 'new' buildRealTypeView
 --->
-<cffunction name="buildRealTypeView" access="public" returntype="boolean" hint="Builds ane lement view for the passed in element name">
+<cffunction name="buildRealTypeView" access="public" returntype="boolean" hint="Builds an element view for the passed in element name">
 	<cfargument name="elementName" type="string" required="true" hint="element name to build the view table off of">
 	<cfargument name="viewName" type="string" required="false" default="" hint="Override the view name that gets generated">
 	<cfargument name="fieldTypes" type="struct" default="#structNew()#" hint="see ceData_1_1.cfc">
@@ -192,8 +193,10 @@ Summary:
 Returns:
 	boolean
 Arguments:
-	String - ceName
-	String - viewName
+	String  ceName
+	String  viewName
+	Struct  fieldTypes
+	Boolean forceRebuild
 History: - some carried over from original in ptCalendar app
 	2011-07-11 - GAC - Created
 	2013-12-04 - DRM - Added forceRebuild arg and logic
@@ -210,12 +213,15 @@ History: - some carried over from original in ptCalendar app
 
 	<cfscript>
 		var buildNow = arguments.forceRebuild or (structKeyExists(Request.Params, "adfRebuildSQLViews") and Request.Params.adfRebuildSQLViews eq 1);
+		
 		arguments.viewName = trim(arguments.viewName);
+		
 		if (arguments.viewName eq "" )
 			arguments.viewName = getViewTableName(customElementName=arguments.ceName); // have to calc default name here, to check if view exists; should use same algorithm as buildRealTypeView
+		
 		buildNow = buildNow or not server.ADF.objectFactory.getBean("data_1_2").verifyTableExists(tableName=arguments.viewName);
 
-		if (buildNow)
+		if ( buildNow )
 			return buildRealTypeView (
 								elementName=arguments.ceName,
 								viewName=arguments.viewName,
@@ -225,22 +231,88 @@ History: - some carried over from original in ptCalendar app
 	</cfscript>
 </cffunction>
 
-<!--- // Get View Name from Element Name --->
-<!--- // History
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+	D. Merrill
+Name:
+	getCEViewName
+Summary:
+	Rebuilds a requested  View
+Returns:
+	boolean
+Arguments:
+	String  ceName
+History:
 	2013-12-02 - GAC - Updated to create 30 character or less view names for Oracle
 	2013-12-06 - DRM - Copied from ptCalendar app
+	2014-02-18 - GAC - Updated logic to test for Oracle DB before testing character limit of the view name 
 --->
 <cffunction name="getCEViewName" access="public" returntype="string" output="false">
 	<cfargument name="ceName" type="string" required="true">
-
 	<cfscript>
+		var charLimit = 30; // Oracle VIEW table name character limitation
+		var vNamePrefix = "vCE_";
+		var vNameSuffix = "";
+		var dbType = Request.Site.SiteDBType;
+
+		// Convert space in element to underscores
 		arguments.ceName = reReplace(arguments.ceName, "[\s]", "_", "all");
-		if (len(arguments.ceName) gt 26)
-			throw("[ceData.getCEViewName] Custom element name is too long to create a view name that's valid on Oracle."); // TODO: is this really what we should do here
-		return "vCE_" & arguments.ceName;
+		
+		if ( dbType EQ "Oracle" ) 
+		{
+			// Set the Oracle character limit by subtracking the VIEW prefix length
+			charLimit = charLimit - LEN(vNamePrefix);
+			
+			// Set the Oracle character limit by subtracking the VIEW suffix length
+			charLimit = charLimit - LEN(vNameSuffix);
+	
+			if ( len(arguments.ceName) gt charLimit )
+				throw("[ceData.getCEViewName] Custom element name is too long to create a view name that's valid on Oracle."); // TODO: is this really what we should do here
+		}
+		
+		return vNamePrefix & arguments.ceName & vNameSuffix;
 	</cfscript>
 </cffunction>
 
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$getCEViewTableName
+Summary:
+	Returns a string for the view table name.
+	The table name is prefixed with "ce_view_" and based on the CE form ID.
+	Sample = "ce_view_#CUSTOM-ELEMENT-FORM-ID#"
+	
+	The arguments allow to either pass in the CE Form ID or the CE Form Name.	
+Returns:
+	string
+Arguments:
+	numeric - customElementFormID
+	string - customElementName
+History:
+	2013-01-04 - MFC - Created
+--->
+<cffunction name="getViewTableName" access="public" returntype="string" output="true">
+	<cfargument name="customElementFormID" type="numeric" required="false" default="0">
+	<cfargument name="customElementName" type="string" required="false" default="">
+	<cfscript>
+		var ceFormID = 0;
+		// Check the arguments that are passed in
+		if ( arguments.customElementFormID GT 0 )
+			ceFormID = arguments.customElementFormID;
+		else if ( LEN(arguments.customElementName) )
+			ceFormID = getFormIDByCEName(CEName=arguments.customElementName);
+		// Check that we have a form ID before hand
+		if ( ceFormID GT 0 )
+			return "ce_view_#ceFormID#";
+		else 
+			return "";
+	</cfscript>
+</cffunction>
 
 <!---
 /* *************************************************************** */
@@ -360,7 +432,7 @@ History:
 	<cfargument name="queryType" type="string" required="false" default="selected">
 	<cfargument name="searchValues" type="string" required="false" default="">
 	<cfargument name="searchFields" type="string" required="false" default="">
-	<cfargument name="itemListDelimiter" type="string" required="false" default=",">	<!--- only valid for 'selected' and 'notselected' --->
+	<cfargument name="itemListDelimiter" type="string" required="false" default="," hint="Only valid for the 'selected','notselected', 'list', 'numericList' and 'searchInList' queryTypes">
 
 	<cfscript>
 		// initialize the variables
@@ -414,7 +486,7 @@ History:
 		
 		// special case for versions
 		if ( arguments.queryType eq "versions" )
-			pageIDValueQry = getPageIDForElement(ceFormID, ceFieldID, arguments.item, "selected", arguments.searchValues, searchCEFieldID);
+			pageIDValueQry = getPageIDForElement(ceFormID, ceFieldID, arguments.item, "selected", arguments.searchValues, searchCEFieldID, arguments.itemListDelimiter);
 		else
 			pageIDValueQry = getPageIDForElement(ceFormID, ceFieldID, arguments.item, arguments.queryType, arguments.searchValues, searchCEFieldID, arguments.itemListDelimiter);
 			
@@ -574,11 +646,15 @@ Arguments:
 				[selected,notSelected,search,searchInList,multi,list,numericList,greaterThan,between]
 	String - Search Values
 	String - Search Fields
+	Boolean - Force Rebuild
+	String - itemListDelimiter 
 History:
 	2013-01-04 - MFC - Created
 	2013-04-02 - MFC - Added call to verify if the view table exists and create the view.
 	2013-07-03 - GAC - Added support for the "list" and "numericList" queryTypes 
 	2013-10-23 - GAC - Removed the local dependency for the data_1_2 Lib which was causing errors being extended by the general_chooser.cfc
+	2014-02-21 - JTP - Updated 'searchInList' with better handling of non-UUID lists
+	2014-02-21 - GAC - Added itemListDelimiter parameter
 --->
 <cffunction name="getCEDataView" access="public" returntype="array" output="true">
 	<cfargument name="customElementName" type="string" required="true">
@@ -587,6 +663,9 @@ History:
 	<cfargument name="queryType" type="string" required="false" default="selected">
 	<cfargument name="searchValues" type="string" required="false" default="">
 	<cfargument name="searchFields" type="string" required="false" default="">
+	<cfargument name="forceRebuild" type="boolean" default="false">
+	<cfargument name="itemListDelimiter" type="string" required="false" default="," hint="Only valid for the 'selected','notselected', 'list', 'numericList' and 'searchInList' queryTypes">
+	
 	<cfscript>
 		var viewTableName = getViewTableName(customElementName=arguments.customElementName);
 		var ceViewQry = QueryNew("null");
@@ -596,28 +675,33 @@ History:
 		try {
 			
 			// Verify if the view table exists, create if doesn't exists
-			viewTableExists = verifyViewTableExists(customElementName=arguments.customElementName,
-													viewTableName=viewTableName);
+			viewTableExists = buildView(ceName=arguments.customElementName,
+													viewName=viewTableName,
+													forceRebuild=arguments.forceRebuild);
 			
 			// TIMER START
 			//a2 = GetTickCount();
-			
-			if ( viewTableExists ) {
+
+			if ( viewTableExists ) 
+			{
 				
 				// Switch Case based on the query type
-				switch (arguments.queryType){
+				switch (arguments.queryType)
+				{
 				
 					case "selected":
 						ceViewQry = getCEDataViewSelected(customElementName=arguments.customElementName,
 														  customElementFieldName=arguments.customElementFieldName,
 														  item=arguments.item,
-														  overrideViewTableName=viewTableName);
+														  overrideViewTableName=viewTableName,
+														  itemListDelimiter=arguments.itemListDelimiter);
 						break;
 					case "notSelected":
 						ceViewQry = getCEDataViewNotSelected(customElementName=arguments.customElementName,
 														     customElementFieldName=arguments.customElementFieldName,
 														  	 item=arguments.item,
-														     overrideViewTableName=viewTableName);
+														     overrideViewTableName=viewTableName,
+														     itemListDelimiter=arguments.itemListDelimiter);
 						break;	
 					
 					case "search":
@@ -630,16 +714,17 @@ History:
 						break;	
 					case "searchInList":
 						// To make backwards compatiable, check if the "searchFields" are passed in the "customElementFieldName" arg.
-						if ( LEN(arguments.searchFields) EQ 0 AND LEN(arguments.customElementFieldName) GT 0 )
+						if ( LEN(TRIM(arguments.searchFields)) EQ 0 AND LEN(arguments.customElementFieldName) )
 							arguments.searchFields = arguments.customElementFieldName;
 						// To make backwards compatiable, check if the "searchValues" are passed in the "items" arg.
-						if ( LEN(arguments.searchValues) EQ 0 AND LEN(arguments.item) GT 0 )
+						if ( LEN(TRIM(arguments.searchValues)) EQ 0 AND LEN(arguments.item) )
 							arguments.searchValues = arguments.item;
 					
 						ceViewQry = getCEDataViewSearchInList(customElementName=arguments.customElementName,
 															  searchFields=arguments.searchFields,
 															  searchValues=arguments.searchValues,
-														  	  overrideViewTableName=viewTableName);
+															  overrideViewTableName=viewTableName,
+															  searchValuesDelimiter=arguments.itemListDelimiter);
 						break;	
 					case "multi":
 						ceViewQry = getCEDataViewMulti(customElementName=arguments.customElementName,
@@ -651,13 +736,15 @@ History:
 						ceViewQry = getCEDataViewList(customElementName=arguments.customElementName,
 													   customElementFieldName=arguments.customElementFieldName,
 													   item=arguments.item,
-												  	   overrideViewTableName=viewTableName);
+												  	   overrideViewTableName=viewTableName,
+												  	   itemListDelimiter=arguments.itemListDelimiter);
 						break;	
 					case "numericList":
 						ceViewQry = getCEDataViewNumericList(customElementName=arguments.customElementName,
 													  		 customElementFieldName=arguments.customElementFieldName,
 													  		 item=arguments.item,
-												  	   		 overrideViewTableName=viewTableName);
+												  	   		 overrideViewTableName=viewTableName,
+														 	 itemListDelimiter=arguments.itemListDelimiter);
 						break;
 					case "greaterThan":
 						ceViewQry = getCEDataViewGreaterThan(customElementName=arguments.customElementName,
@@ -669,7 +756,8 @@ History:
 						ceViewQry = getCEDataViewBetween(customElementName=arguments.customElementName,
 														 customElementFieldName=arguments.customElementFieldName,
 														 item=arguments.item,
-														 overrideViewTableName=viewTableName);
+														 overrideViewTableName=viewTableName,
+														 itemListDelimiter=arguments.itemListDelimiter);
 						break;
 				}
 				
@@ -679,7 +767,8 @@ History:
 				//application.ADF.utils.dodump(ceViewQry, "ceViewQry", false);	
 				
 			}
-			else {
+			else 
+			{
 				throw(message="View Table Does Not Exist", detail="View Table Does Not Exist");	
 			}
 		}
@@ -689,13 +778,16 @@ History:
 		
 		if ( ceViewQry.recordCount ) {
 			// Check if we are processing the selected list
-			if ( arguments.queryType EQ "selected" and len(arguments.customElementFieldName) and len(arguments.item) ) {
+			if ( arguments.queryType EQ "selected" and len(arguments.customElementFieldName) and len(arguments.item) ) 
+			{
 				// Order the return data by the order the list was passed in
 				// --IMPORTANT: We CAN NOT use the local 'variables.data.QuerySortByOrderedList' since this LIB is extended by the general_chooser.cfc
-				ceDataQry = server.ADF.objectFactory.getBean("data_1_2").QuerySortByOrderedList(query=ceViewQry, 
+				ceViewQry = server.ADF.objectFactory.getBean("data_1_2").QuerySortByOrderedList(query=ceViewQry, 
 																								   columnName=arguments.customElementFieldName, 
 																								   columnType="varchar",
-																								   orderList=arguments.item);
+																								   orderList=arguments.item,
+																								   orderListDelimiter=arguments.itemListDelimiter);
+				//application.ADF.utils.dodump(ceViewQry, "ceViewQry", false);
 			}
 			// Flip the query back into the CE Data Array Format
 			dataArray = buildCEDataArrayFromQuery(ceDataQuery=ceViewQry);
@@ -720,17 +812,39 @@ Arguments:
 	String - customElementFieldName - Element Field Name
 	String - item - Item Values find the records containing this values
 	String - overrideViewTableName - Override for the view table to query
+	String - itemListDelimiter - delimiter for the item values if a list is passed in
 History:
 	2013-01-11 - MFC - Created
+	2014-02-21 - GAC - Added itemList delimiter option
 --->
 <cffunction name="getCEDataViewBetween" access="public" returntype="Query" output="true">
 	<cfargument name="customElementName" type="string" required="true">
 	<cfargument name="customElementFieldName" type="string" required="false" default="">
 	<cfargument name="item" type="string" required="false" default="">
 	<cfargument name="overrideViewTableName" type="string" required="false" default="" hint="Override for the view table to query.">
+	<cfargument name="itemListDelimiter" type="string" required="false" default=",">
+	
 	<cfscript>
 		var viewTableName = "";
 		var ceViewQry = QueryNew("null");
+		var dbType = Request.Site.SiteDBType;
+		
+		// Set the escape characters for reserverd words
+		switch (dbType)
+		{
+			case 'Oracle':
+				rwPre = '"';
+				rwPost = '"';
+				break;
+			case 'MySQL':
+				rwPre = '`';
+				rwPost = '`';
+				break;
+			case 'SQLServer':
+				rwPre = '[';
+				rwPost = ']';
+				break;	
+		}	
 				
 		// Set the override for the view table name if defined
 		if ( LEN(arguments.overrideViewTableName) )
@@ -740,15 +854,15 @@ History:
 	</cfscript>
 	<cftry>
 		<!--- Check the ITEMS arg is correct with 2 values for the span --->
-		<cfif ListLen(arguments.item) EQ 2>
+		<cfif ListLen(arguments.item,arguments.itemListDelimiter) EQ 2>
 			<cfquery name="ceViewQry" datasource="#request.site.datasource#">
 				SELECT *
 				FROM   #viewTableName#
-				<cfif ListLen(arguments.item) EQ 2>
-					WHERE  #arguments.customElementFieldName# > <cfqueryparam cfsqltype="cf_sql_varchar" value="#ListFirst(arguments.item)#">
-					AND    #arguments.customElementFieldName# < <cfqueryparam cfsqltype="cf_sql_varchar" value="#ListLast(arguments.item)#">
-				</cfif>
+				WHERE  #rwPre##arguments.customElementFieldName##rwPost# >= <cfqueryparam cfsqltype="cf_sql_varchar" value="#ListFirst(arguments.item,arguments.itemListDelimiter)#">
+				AND    #rwPre##arguments.customElementFieldName##rwPost# <= <cfqueryparam cfsqltype="cf_sql_varchar" value="#ListLast(arguments.item,arguments.itemListDelimiter)#">
 			</cfquery>
+		<cfelse>
+			<cfthrow message="Only pass in a delimited list of 2 values for the 'item' for the queryType 'between'">
 		</cfif>
 		<cfcatch>
 			<cfdump var="#cfcatch#" label="cfcatch" expand="false">
@@ -783,6 +897,24 @@ History:
 	<cfscript>
 		var viewTableName = "";
 		var ceViewQry = QueryNew("null");
+		var dbType = Request.Site.SiteDBType;
+		
+		// Set the escape characters for reserverd words
+		switch (dbType)
+		{
+			case 'Oracle':
+				rwPre = '"';
+				rwPost = '"';
+				break;
+			case 'MySQL':
+				rwPre = '`';
+				rwPost = '`';
+				break;
+			case 'SQLServer':
+				rwPre = '[';
+				rwPost = ']';
+				break;	
+		}	
 				
 		// Set the override for the view table name if defined
 		if ( LEN(arguments.overrideViewTableName) )
@@ -794,7 +926,7 @@ History:
 		<cfquery name="ceViewQry" datasource="#request.site.datasource#">
 			SELECT *
 			FROM   #viewTableName#
-			WHERE  #arguments.customElementFieldName# > <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.item#">
+			WHERE  #rwPre##arguments.customElementFieldName##rwPost# > <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.item#">
 		</cfquery>
 		<cfcatch>
 			<cfdump var="#cfcatch#" label="cfcatch" expand="false">
@@ -874,18 +1006,40 @@ Arguments:
 	String - customElementFieldName - Element Field Name
 	String - item - Item Values find the records containing this values
 	String - overrideViewTableName - Override for the view table to query
+	String - itemListDelimiter - delimiter for the item values if a list is passed in
 History:
 	2013-01-11 - MFC - Created
 	2014-01-03 - GAC - Updated SQL 'IN' statements to use the CS module 'handle-in-list.cfm'
+	2014-02-21 - GAC - Added itemListDelimiter parameter
 --->
 <cffunction name="getCEDataViewNotSelected" access="public" returntype="Query" output="true">
 	<cfargument name="customElementName" type="string" required="true">
 	<cfargument name="customElementFieldName" type="string" required="false" default="">
 	<cfargument name="item" type="string" required="false" default="">
 	<cfargument name="overrideViewTableName" type="string" required="false" default="" hint="Override for the view table to query.">
+	<cfargument name="itemListDelimiter" type="string" required="false" default=",">
+
 	<cfscript>
 		var viewTableName = "";
 		var ceViewQry = QueryNew("null");
+		var dbType = Request.Site.SiteDBType;
+		
+		// Set the escape characters for reserverd words
+		switch (dbType)
+		{
+			case 'Oracle':
+				rwPre = '"';
+				rwPost = '"';
+				break;
+			case 'MySQL':
+				rwPre = '`';
+				rwPost = '`';
+				break;
+			case 'SQLServer':
+				rwPre = '[';
+				rwPost = ']';
+				break;	
+		}	
 				
 		// Set the override for the view table name if defined
 		if ( LEN(arguments.overrideViewTableName) )
@@ -900,11 +1054,11 @@ History:
 				SELECT *
 				FROM   #viewTableName#
 				<!--- Check if the items are a list --->
-				<cfif ListLen(arguments.item) GT 1>
-					WHERE <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="#arguments.customElementFieldName#" LIST="#arguments.item#" isNot=1 cfsqltype="cf_sql_varchar">
+				<cfif ListLen(arguments.item,arguments.itemListDelimiter) GT 1>
+					WHERE <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD='#rwPre##arguments.customElementFieldName##rwPost#' LIST="#arguments.item#" isNot=1 CFSQLTYPE="cf_sql_varchar" SEPARATOR="#arguments.itemListDelimiter#">
 					<!--- WHERE #arguments.customElementFieldName# NOT IN (<cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.item#" list="true">) --->
 				<cfelse>
-					WHERE #arguments.customElementFieldName# <> <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.item#">
+					WHERE #rwPre##arguments.customElementFieldName##rwPost# <> <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.item#">
 				</cfif>
 			</cfquery>
 		</cfif>
@@ -1007,19 +1161,47 @@ Arguments:
 	String - searchFields - Single field name to search
 	String - searchValues - List of values to search
 	String - overrideViewTableName - Override for the view table to query
+	String - itemListDelimiter - delimiter for the item values if a list is passed in
 History:
 	2013-01-11 - MFC - Created
+	2014-02-20 - JTP - Updated 'searchInList' with better handling of non-UUID lists
+	2014-02-21 - GAC - Added itemListDelimiter parameter
+					 - Added escape characters for reserverd words in the criteria column
+					 - Added logic is a searchFields is passed but no Item value then look of null or empty strings
 --->
 <cffunction name="getCEDataViewSearchInList" access="public" returntype="Query" output="true">
 	<cfargument name="customElementName" type="string" required="true">
-	<cfargument name="searchFields" type="string" required="false" default="">
+	<cfargument name="searchFields" type="string" required="false" default="" hint="Currently only support one search field">
 	<cfargument name="searchValues" type="string" required="false" default="">
 	<cfargument name="overrideViewTableName" type="string" required="false" default="" hint="Override for the view table to query.">
+	<cfargument name="searchValuesDelimiter" type="string" required="false" default=",">
+	
 	<cfscript>
 		var viewTableName = "";
 		var ceViewQry = QueryNew("null");
 		var currFieldNum = 1;
-					
+		var theItem = "";
+		var rwPre = "";
+		var rwPost = "";
+		var dbType = Request.Site.SiteDBType;
+		
+		// Set the escape characters for reserverd words
+		switch (dbType)
+		{
+			case 'Oracle':
+				rwPre = '"';
+				rwPost = '"';
+				break;
+			case 'MySQL':
+				rwPre = '`';
+				rwPost = '`';
+				break;
+			case 'SQLServer':
+				rwPre = '[';
+				rwPost = ']';
+				break;	
+		}		
+		
 		// Set the override for the view table name if defined
 		if ( LEN(arguments.overrideViewTableName) )
 			viewTableName = arguments.overrideViewTableName;
@@ -1030,16 +1212,32 @@ History:
 		<cfquery name="ceViewQry" datasource="#request.site.datasource#">
 			SELECT *
 			FROM   #viewTableName#
-			<!--- Loop over the list of fields to build search cases --->
-			<cfloop from="1" to="#ListLen(arguments.searchValues)#" index="currFieldNum">
-				<!--- Check if the first condition, or just adding on --->
-				<cfif currFieldNum EQ 1>
-					WHERE
+			<cfif LEN(arguments.searchFields)> 
+				<cfif LEN(arguments.searchValues)>
+					<!--- // Loop over the list of fields to build search cases --->
+					<cfset theListLen = ListLen(arguments.searchValues,arguments.searchValuesDelimiter)>
+					<cfloop from="1" to="#theListLen#" index="currFieldNum">
+						<cfset theItem = LCASE(ListGetAt(arguments.searchValues,currFieldNum,arguments.searchValuesDelimiter))>
+						<!--- // Check if the first condition, or just adding on --->
+						<cfif currFieldNum EQ 1>
+							WHERE
+						<cfelse>
+							OR
+						</cfif>
+						LOWER(#rwPre##arguments.searchFields##rwPost#) = <cfqueryparam cfsqltype="cf_sql_varchar" value="#theItem#"> 
+						OR
+						LOWER(#rwPre##arguments.searchFields##rwPost#) LIKE <cfqueryparam cfsqltype="cf_sql_varchar" value="%,#theItem#,%"> 
+						OR
+						LOWER(#rwPre##arguments.searchFields##rwPost#) LIKE <cfqueryparam cfsqltype="cf_sql_varchar" value="#theItem#,%"> 
+						OR
+						LOWER(#rwPre##arguments.searchFields##rwPost#) LIKE <cfqueryparam cfsqltype="cf_sql_varchar" value="%,#theItem#"> 
+					</cfloop>
 				<cfelse>
-					AND
+					<!--- // If no Item value is passed look of null or empty strings --->
+					WHERE LOWER(#rwPre##arguments.searchFields##rwPost#) IS <cfqueryparam cfsqltype="cf_sql_varchar" null="true"> 
+					   OR LOWER(#rwPre##arguments.searchFields##rwPost#) = <cfqueryparam cfsqltype="cf_sql_varchar" value=""> 
 				</cfif>
-				( #arguments.searchFields# LIKE <cfqueryparam cfsqltype="cf_sql_varchar" value="%#ListGetAt(arguments.searchValues,currFieldNum)#%"> )
-			</cfloop>
+			</cfif>
 		</cfquery>
 		<cfcatch>
 			<cfdump var="#cfcatch#" label="cfcatch" expand="false">
@@ -1063,18 +1261,40 @@ Arguments:
 	String - customElementFieldName - Element Field Name
 	String - item - Item Values find the records containing this values
 	String - overrideViewTableName - Override for the view table to query
+	String - itemListDelimiter - delimiter for the item values if a list is passed in
 History:
 	2013-01-11 - MFC - Created
 	2014-01-03 - GAC - Updated SQL 'IN' statements to use the CS module 'handle-in-list.cfm'
+	2014-02-21 - GAC - Added itemListDelimiter parameter
 --->
 <cffunction name="getCEDataViewSelected" access="public" returntype="Query" output="true">
 	<cfargument name="customElementName" type="string" required="true">
 	<cfargument name="customElementFieldName" type="string" required="false" default="">
 	<cfargument name="item" type="string" required="false" default="">
 	<cfargument name="overrideViewTableName" type="string" required="false" default="" hint="Override for the view table to query.">
+	<cfargument name="itemListDelimiter" type="string" required="false" default=",">
+	
 	<cfscript>
 		var viewTableName = "";
 		var ceViewQry = QueryNew("null");
+		var dbType = Request.Site.SiteDBType;
+		
+		// Set the escape characters for reserverd words
+		switch (dbType)
+		{
+			case 'Oracle':
+				rwPre = '"';
+				rwPost = '"';
+				break;
+			case 'MySQL':
+				rwPre = '`';
+				rwPost = '`';
+				break;
+			case 'SQLServer':
+				rwPre = '[';
+				rwPost = ']';
+				break;	
+		}	
 				
 		// Set the override for the view table name if defined
 		if ( LEN(arguments.overrideViewTableName) )
@@ -1086,14 +1306,17 @@ History:
 		<cfquery name="ceViewQry" datasource="#request.site.datasource#">
 			SELECT *
 			FROM   #viewTableName#
-			<!--- Check if the items are a list --->
-			<cfif ListLen(arguments.item) GT 1>
-				WHERE <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="#arguments.customElementFieldName#" LIST="#arguments.item#" cfsqltype="cf_sql_varchar"> 
-				<!--- WHERE #arguments.customElementFieldName# IN (<cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.item#" list="true">) --->
-			<cfelseif ListLen(arguments.item) EQ 1>
-				WHERE #arguments.customElementFieldName# = <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.item#">
+			<cfif LEN(TRIM(customElementFieldName))>
+				<!--- // Check if the items are a list --->
+				<cfif ListLen(arguments.item,arguments.itemListDelimiter) GT 1>
+					WHERE <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD='#rwPre##arguments.customElementFieldName##rwPost#' LIST="#arguments.item#" CFSQLTYPE="cf_sql_varchar" SEPARATOR="#arguments.itemListDelimiter#"> 
+					<!--- WHERE #arguments.customElementFieldName# IN (<cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.item#" list="true">) --->
+				<cfelse>
+					WHERE #rwPre##arguments.customElementFieldName##rwPost# = <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.item#">
+				</cfif>
 			</cfif>
 		</cfquery>
+	
 		<cfcatch>
 			<cfdump var="#cfcatch#" label="cfcatch" expand="false">
 		</cfcatch>
@@ -1116,15 +1339,19 @@ Arguments:
 	String - customElementFieldName - Element Field Name
 	String - item - Item Values find the records containing this values
 	String - overrideViewTableName - Override for the view table to query
+	String - itemListDelimiter - delimiter for the item values if a list is passed in
 History:
 	2013-07-03 - GAC - Created
 	2014-01-03 - GAC - Updated SQL 'IN' statements to use the CS module 'handle-in-list.cfm'
+	2014-02-21 - GAC - Added itemListDelimiter parameter
 --->
 <cffunction name="getCEDataViewList" access="public" returntype="Query" output="true" hint="Queries the CE Data View table for the Query Type of 'List'.">
 	<cfargument name="customElementName" type="string" required="true">
 	<cfargument name="customElementFieldName" type="string" required="false" default="">
 	<cfargument name="item" type="string" required="false" default="">
 	<cfargument name="overrideViewTableName" type="string" required="false" default="" hint="Override for the view table to query.">
+	<cfargument name="itemListDelimiter" type="string" required="false" default=",">
+	
 	<cfscript>
 		var viewTableName = "";
 		var ceViewQry = QueryNew("null");
@@ -1153,8 +1380,8 @@ History:
 								WHERE dfv.listID IN (	SELECT DISTINCT listID 
 														FROM  Data_ListItems
 														WHERE pageID = dfv.PageID
-														<cfif ListLen(arguments.item) GT 1>
-															AND <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="StrItemValue" LIST="#preserveSingleQuotes(arguments.item)#" cfsqltype="cf_sql_varchar">
+														<cfif ListLen(arguments.item,arguments.itemListDelimiter) GT 1>
+															AND <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="StrItemValue" LIST="#preserveSingleQuotes(arguments.item)#" CFSQLTYPE="cf_sql_varchar" SEPARATOR="#arguments.itemListDelimiter#">
 															<!--- AND StrItemValue IN (<cfqueryparam cfsqltype="cf_sql_varchar" value="#preserveSingleQuotes(arguments.item)#" list="true">) --->
 														<cfelseif ListLen(arguments.item) EQ 1>
 															AND StrItemValue = <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.item#">
@@ -1187,15 +1414,19 @@ Arguments:
 	String - customElementFieldName - Element Field Name
 	String - item - Item Values find the records containing this values
 	String - overrideViewTableName - Override for the view table to query
+	String - itemListDelimiter - delimiter for the item values if a list is passed in
 History:
 	2013-07-03 - GAC - Created
 	2014-01-03 - GAC - Updated SQL 'IN' statements to use the CS module 'handle-in-list.cfm'
+	2014-02-21 - GAC - Added itemListDelimiter parameter
 --->
 <cffunction name="getCEDataViewNumericList" access="public" returntype="Query" output="true" hint="Queries the CE Data View table for the Query Type of 'NumericList'.">
 	<cfargument name="customElementName" type="string" required="true">
 	<cfargument name="customElementFieldName" type="string" required="false" default="">
 	<cfargument name="item" type="string" required="false" default="">
 	<cfargument name="overrideViewTableName" type="string" required="false" default="" hint="Override for the view table to query.">
+	<cfargument name="itemListDelimiter" type="string" required="false" default=",">
+	
 	<cfscript>
 		var viewTableName = "";
 		var ceViewQry = QueryNew("null");
@@ -1216,7 +1447,7 @@ History:
 								WHERE dfv.listID IN (	SELECT DISTINCT listID 
 														FROM  Data_ListItems
 														WHERE pageID = dfv.PageID
-														AND <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="NumItemValue" LIST="#arguments.item#">
+														AND <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="NumItemValue" LIST="#arguments.item#" SEPARATOR="#arguments.itemListDelimiter#">
 														<!--- AND   NumItemValue IN (<cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.item#" list="true">) --->
 													)
 								AND   FormID = dvt.FormID
@@ -1243,6 +1474,7 @@ Returns:
 	Query
 Arguments:
 	String - pageID
+	String - formID
 History:
 	2013-01-04 - MFC - Created
 	2013-07-01 - GAC - Added a formID parameter to prevent bad data from being returned by the getDataFieldValueQry query.
@@ -1319,78 +1551,6 @@ History:
 
 <!---
 /* *************************************************************** */
-Author: 	
-	PaperThin, Inc.
-Name:
-	$getCEViewTableName
-Summary:
-	Returns a string for the view table name.
-	The table name is prefixed with "ce_view_" and based on the CE form ID.
-	Sample = "ce_view_#CUSTOM-ELEMENT-FORM-ID#"
-	
-	The arguments allow to either pass in the CE Form ID or the CE Form Name.	
-Returns:
-	string
-Arguments:
-	numeric - customElementFormID
-	string - customElementName
-History:
-	2013-01-04 - MFC - Created
---->
-<cffunction name="getViewTableName" access="public" returntype="string" output="true">
-	<cfargument name="customElementFormID" type="numeric" required="false" default="0">
-	<cfargument name="customElementName" type="string" required="false" default="">
-	<cfscript>
-		var ceFormID = 0;
-		// Check the arguments that are passed in
-		if ( arguments.customElementFormID GT 0 )
-			ceFormID = arguments.customElementFormID;
-		else if ( LEN(arguments.customElementName) )
-			ceFormID = getFormIDByCEName(CEName=arguments.customElementName);
-		// Check that we have a form ID before hand
-		if ( ceFormID GT 0 )
-			return "ce_view_#ceFormID#";
-		else 
-			return "";
-	</cfscript>
-</cffunction>
-
-<!---
-/* *************************************************************** */
-Author: 	
-	PaperThin, Inc.
-	G. Cronkright
-Name:
-	$verifyViewTableExists
-Summary:
-	Verifies that a CE View Table exists, if one does not exist then it attempt to build one.
-	
-	--Tested with MySQL and MSSQL
-Returns:
-	boolean
-Arguments:
-	String - customElementName
-	String - viewTableName
-History:
-	2013-01-29 - GAC - Created
-	2013-11-18 - GAC - Added a dbType logic to add additional 'table_schema' criteria for MySQL
-					 - Added different table schema name for Oracle (thanks DM)
-					 - Added logging to the CFCatch rather than just returning false
-	2013-11-18 - GAC - Converted to use the generic data_1_2.verifyTableExists
-	2013-12-16 - DRM - Updated to call "buildView" which now handles the building or rebuild of the Views
---->
-<cffunction name="verifyViewTableExists" access="public" returntype="boolean" output="false" hint="Verifies that a CE View Table exists, if one does not exist then it attempt to build one.">
-	<cfargument name="customElementName" type="string" required="true">
-	<cfargument name="viewTableName" type="string" required="false" default="">
-	<cfargument name="fieldTypes" type="struct" default="#structNew()#">
-	<cfargument name="forceRebuild" type="boolean" default="false">
-	<cfscript>
-		return buildView(ceName=arguments.customElementName, viewName=arguments.viewTableName, fieldTypes=arguments.fieldTypes, forceRebuild=arguments.forceRebuild);
-	</cfscript>
-</cffunction>
-
-<!---
-/* *************************************************************** */
 Author:
 	PaperThin, Inc.
 	G. Cronkright
@@ -1416,6 +1576,41 @@ History:
 	<cfargument name="excludeTopLevelFieldList" type="string" required="false" default="id,recordcount"> 
 	<cfscript>
 		return super.arrayOfCEDataToQuery(theArray=arguments.theArray, excludeFICfields=arguments.excludeFICfields, excludeTopLevelFieldList=arguments.excludeTopLevelFieldList);
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	G. Cronkright
+Name:
+	$verifyViewTableExists
+Summary:
+	Verifies that a CE View Table exists, if one does not exist then it attempt to build one.
+Returns:
+	boolean
+Arguments:
+	String - customElementName
+	String - viewTableName
+	Struct - fieldTypes
+	Boolean - forceRebuild
+History:
+	2013-01-29 - GAC - Created
+	2013-11-18 - GAC - Added a dbType logic to add additional 'table_schema' criteria for MySQL
+					 - Added different table schema name for Oracle (thanks DM)
+					 - Added logging to the CFCatch rather than just returning false
+	2013-11-18 - GAC - Converted to use the generic data_1_2.verifyTableExists
+	2013-12-16 - DRM - Updated to call "buildView" which now handles the building or rebuild of the Views
+--->
+<!--- // DEPRECATED - please use buildView() --->
+<cffunction name="verifyViewTableExists" access="public" returntype="boolean" output="false" hint="Verifies that a CE View Table exists, if one does not exist then it attempt to build one.">
+	<cfargument name="customElementName" type="string" required="true">
+	<cfargument name="viewTableName" type="string" required="false" default="">
+	<cfargument name="fieldTypes" type="struct" default="#structNew()#">
+	<cfargument name="forceRebuild" type="boolean" default="false">
+	<cfscript>
+		return buildView(ceName=arguments.customElementName, viewName=arguments.viewTableName, fieldTypes=arguments.fieldTypes, forceRebuild=arguments.forceRebuild);
 	</cfscript>
 </cffunction>
 
