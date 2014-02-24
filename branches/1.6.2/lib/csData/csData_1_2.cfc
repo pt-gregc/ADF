@@ -43,11 +43,11 @@ History:
 	2013-10-22 - GAC - Renamed and Updated the parse_url_el to 
 	2013-10-22 - GAC - Added new functions: csPageExistsByTitle,getCSPageIDlistByTitle,getCSPageQueryByTitle, getCSPageQueryByName,getCSPageIDlistByName
 					 - Updated the createUniquePageTitle,getCSPageIDByTitle functions
-
+	2014-02-24 - GAC - Added getCSFileURL function based on the old getCSPageURL function
 --->
 <cfcomponent displayname="csData_1_2" extends="ADF.lib.csData.csData_1_1" hint="CommonSpot Data Utils functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_10">
+<cfproperty name="version" value="1_2_11">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">
@@ -804,7 +804,7 @@ History:
 	2013-10-21 - GAC - Renamed the function 
 					 - Var'ing un-var'd variables
 					 - Fixed the function to be backward compatible with ACF8
-	2014-01-14 - TP  - Updated to use the CommonSpot ct-decipher-linkurl module call
+	2014-01-14 - JTP - Updated to use the CommonSpot ct-decipher-linkurl module call
 --->
 <cffunction name="parseCSURL" access="public" returntype="string" output="false" displayname="parseDatasheetURL" hint="Converts a CommonSpot URL that contain a pageID url parameter to a standard URL">
      <cfargument name="str" type="string" required="true" hint="Provide a string value that is a CommonSpot URL that contains a pageid key/value pair">
@@ -833,45 +833,6 @@ History:
 
      <cfreturn targetURL>
 </cffunction>
-<!---
-<cffunction name="parseCSURL" access="public" returntype="string" output="false" displayname="parseDatasheetURL" hint="Converts a CommonSpot URL that contain a pageID url parameter to a standard URL">
-	<cfargument name="str" type="string" required="true" hint="Provide a string value that is a CommonSpot URL that contains a pageid key/value pair">
-	<cfscript>
-		var list = listToArray(arguments.str, ","); // first try to parse as list
-		var list_len = arrayLen(list);
-		var full_url = CGI.http_host & CGI.script_name & "?" & CGI.query_string;    // set default
-		var page_id = REMatch("PAGEID=[\d]+", arguments.str);
-		var page_id_ext = 0;
-		var mailto = "";
-		
-		// Check to see if the string contains a 'PAGEID='
-		if ( arrayLen(REMatch("PAGEID=[\d]+", arguments.str)) GT 0 )
-			page_id_ext = int(ReReplace(page_id[1],"PAGEID=",""));
-		
-		if ( list_len GTE 2 AND (list_len EQ 2 OR int(list[3]) GTE 1)) { // REGISTERED URLs AND IMAGES
-		    full_url = list[2];
-		}
-		else if ( list_len EQ 3 AND page_id_ext ) {   // INTERNAL PAGES
-		    full_url = getCSPageURL( page_id_ext);
-		}
-		else {  // MAILTO, UNREGISTERED URLS, DOCUMENTS
-		    full_url = REMatch("@.*", arguments.str);
-		    mailto = REMatch("mailto:", arguments.str);
-		
-		    if ( arrayLen(full_url) GT 0 AND arrayLen(mailto) EQ 0) {
-		        full_url = ReReplace(full_url[1], "@", ""); // MIXED TYPE URLS (WITH TARGET BLANK AND OTHER PROPERTIES)
-		    } 
-		    else {
-		        full_url = arguments.str;   // MAILTO AND UNREGISTERED URLS
-		    }
-		
-		    if ( page_id_ext ) {   // DOCUMENTS
-		        full_url = getCSPageURL(page_id_ext);
-		    }
-		}
-		return full_url;
-	</cfscript>
-</cffunction> --->
 
 <!---
 /* *************************************************************** */
@@ -903,6 +864,52 @@ History:
 		}
 		return strURL;
 	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
+Name:
+	$getCSFileURL
+Summary:
+	given a CS PageID build a URL to that page
+	
+	NOTE: If you want the CSPageURL use getCSPageURL() or parseCSURL().
+	Also this function will return loader.cfm the secure file string for documents.
+Returns:
+	String csFileURL
+Arguments:
+	Numeric pageID
+History:
+	2008-06-20 - RLW - Created
+	2009-10-22 - MFC - Updated: Added IF block to get the uploaded doc page url.
+	2013-08-23 - GAC - Update to return template URLs as well as page URLs.
+	2014-02-24 - GAC - Moved and renamed based on what this function actually returns.
+--->
+<cffunction name="getCSFileURL" access="public" returntype="string">
+	<cfargument name="pageID" type="numeric" required="true">
+	<cfscript>
+		var csFileURL = "";
+		var getPageData = queryNew("test");
+	</cfscript>
+	<cfquery name="getPageData" datasource="#request.site.datasource#">
+		SELECT 	fileName, subsiteID, PageType, DocType 
+		FROM 	sitePages
+		WHERE 	ID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.pageID#">
+	</cfquery>
+	<cfif getPageData.recordCount>
+		<!--- // Check the doctype AND pagetype --->
+		<cfif (getPageData.DocType EQ 0  OR getPageData.DocType EQ "") AND ListFind("0,1,2",getPageData.PageType)>
+			<!--- We are working with a CS page --->
+			<cfset csFileURL = request.subsiteCache[getPageData.subsiteID].url & getPageData.fileName>
+		<cfelse>
+			<!--- We are working with an uploaded file --->
+			<cfset csFileURL = getUploadedDocPageURL(arguments.pageID, getPageData.subsiteID)>
+		</cfif>
+	</cfif>
+	<cfreturn csFileURL>
 </cffunction>
 
 </cfcomponent>

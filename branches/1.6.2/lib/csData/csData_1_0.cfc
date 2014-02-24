@@ -40,7 +40,7 @@ History:
 --->
 <cfcomponent displayname="csData_1_0" extends="ADF.core.Base" hint="CommonSpot Data Utils functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_6">
+<cfproperty name="version" value="1_0_7">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_0">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_0">
@@ -107,28 +107,18 @@ History:
 	2008-06-20 - RLW - Created
 	2009-10-22 - MFC - Updated: Added IF block to get the uploaded doc page url.
 	2013-08-23 - GAC - Update to return template URLs as well as page URLs
+	2014-01-14 - JTP - Updated to use the CommonSpot ct-decipher-linkurl module call
 --->
 <cffunction name="getCSPageURL" access="public" returntype="string">
 	<cfargument name="pageID" type="numeric" required="true">
 	<cfscript>
 		var csPageURL = "";
-		var getPageData = queryNew("test");
 	</cfscript>
-	<cfquery name="getPageData" datasource="#request.site.datasource#">
-		SELECT 	fileName, subsiteID, PageType, DocType 
-		FROM 	sitePages
-		WHERE 	ID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.pageID#">
-	</cfquery>
-	<cfif getPageData.recordCount>
-		<!--- // Check the doctype AND pagetype --->
-		<cfif (getPageData.DocType EQ 0  OR getPageData.DocType EQ "") AND ListFind("0,1,2",getPageData.PageType)>
-			<!--- We are working with a CS page --->
-			<cfset csPageURL = request.subsiteCache[getPageData.subsiteID].url & getPageData.fileName>
-		<cfelse>
-			<!--- We are working with an uploaded file --->
-			<cfset csPageURL = getUploadedDocPageURL(arguments.pageID, getPageData.subsiteID)>
-		</cfif>
-	</cfif>
+	 <cfif arguments.PageID neq 0>
+          <CFMODULE TEMPLATE="/commonspot/utilities/ct-decipher-linkurl.cfm"
+	          PageID="#arguments.PageID#"
+	          VarName="csPageURL">
+     </cfif> 
 	<cfreturn csPageURL>
 </cffunction>
 
