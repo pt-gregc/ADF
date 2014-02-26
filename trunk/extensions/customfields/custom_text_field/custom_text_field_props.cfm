@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
  
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2010.
+PaperThin, Inc. Copyright(C) 2014.
 All Rights Reserved.
  
 By downloading, modifying, distributing, using and/or accessing any files
@@ -19,11 +19,10 @@ end user license agreement.
 --->
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	
 	PaperThin, Inc.
-	Michael Carroll 
+	M. Carroll 
 Custom Field Type:
 	Custom Text Field
 Name:
@@ -37,8 +36,15 @@ History:
 	2009-07-06 - MFC - Created
 	2010-11-29 - MFC - Removed typo in the script tag.
 	2011-02-08 - MFC - Changed the field Name prop to have the title "Field ID".
+	2014-01-02 - GAC - Added the CFSETTING tag to disable CF Debug results in the props module
+	2014-01-03 - GAC - Added the fieldVersion variable
 --->
+<cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
+
 <cfscript>
+	// Variable for the version of the field - Display in Props UI.
+	fieldVersion = "1.0"; 
+	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
 	prefix = attributes.prefix;
@@ -71,42 +77,48 @@ History:
 			document.#formname#.#prefix#label.value = str;
 		}
 	</script>
-<table>
-	<tr>
-		<td class="cs_dlgLabelSmall">Field ID:</td>
-		<td class="cs_dlgLabelSmall">
-			<input type="text" name="#prefix#fldName" id="#prefix#fldName" class="cs_dlgControl" value="#currentValues.fldName#" size="40">
-			<br/><span>Please enter the field ID to be used via JavaScript.  If blank, will use default field name.</span>
-		</td>
-	</tr>
-	<tr>
-		<td class="cs_dlgLabelSmall">Class Name:</td>
-		<td class="cs_dlgLabelSmall">
-			<input type="text" name="#prefix#fldClass" id="#prefix#fldClass" class="cs_dlgControl" value="#currentValues.fldClass#" size="40">
-			<br/><span>Please enter a class name to be used via JavaScript or CSS.  If blank, a class attribute will not be added.</span>
-		</td>
-	</tr>
-	<tr>
-		<td class="cs_dlgLabelSmall">Field Size:</td>
-		<td class="cs_dlgLabelSmall">
-			<input type="text" name="#prefix#fldSize" id="#prefix#fldSize" class="cs_dlgControl" value="#currentValues.fldSize#" size="40">
-			<br/><span>Enter a display size for this field.</span>
-		</td>
-	</tr>
-		<cfinclude template="/commonspot/metadata/form_control/input_control/default_value.cfm">
-	<tr>
-		<td colspan="2" class="cs_dlgLabelSmall">
-			<strong>Action Properties:</strong>
-		</td>
-	</tr>
-	<tr>
-		<td class="cs_dlgLabelSmall">Edit Once:</td>
-		<td class="cs_dlgLabelSmall">
-			<input type="radio" name="#prefix#editOnce" id="#prefix#editOnce" value="0" <cfif currentValues.editOnce EQ 0>checked</cfif>>False
-			<input type="radio" name="#prefix#editOnce" id="#prefix#editOnce" value="1" <cfif currentValues.editOnce EQ 1>checked</cfif>>True
-			<br/><span>Select the True to allow the field to only be edited once on creation of the record.  
-				This will lock the value in and make the field disabled.</span>
-		</td>
-	</tr>
-</table>
+	<table>
+		<tr>
+			<td class="cs_dlgLabelSmall">Field ID:</td>
+			<td class="cs_dlgLabelSmall">
+				<input type="text" name="#prefix#fldName" id="#prefix#fldName" class="cs_dlgControl" value="#currentValues.fldName#" size="40">
+				<br/><span>Please enter the field ID to be used via JavaScript.  If blank, will use default field name.</span>
+			</td>
+		</tr>
+		<tr>
+			<td class="cs_dlgLabelSmall">Class Name:</td>
+			<td class="cs_dlgLabelSmall">
+				<input type="text" name="#prefix#fldClass" id="#prefix#fldClass" class="cs_dlgControl" value="#currentValues.fldClass#" size="40">
+				<br/><span>Please enter a class name to be used via JavaScript or CSS.  If blank, a class attribute will not be added.</span>
+			</td>
+		</tr>
+		<tr>
+			<td class="cs_dlgLabelSmall">Field Size:</td>
+			<td class="cs_dlgLabelSmall">
+				<input type="text" name="#prefix#fldSize" id="#prefix#fldSize" class="cs_dlgControl" value="#currentValues.fldSize#" size="40">
+				<br/><span>Enter a display size for this field.</span>
+			</td>
+		</tr>
+			<cfinclude template="/commonspot/metadata/form_control/input_control/default_value.cfm">
+		<tr>
+			<td colspan="2" class="cs_dlgLabelSmall">
+				<strong>Action Properties:</strong>
+			</td>
+		</tr>
+		<tr>
+			<td class="cs_dlgLabelSmall">Edit Once:</td>
+			<td class="cs_dlgLabelSmall">
+				<input type="radio" name="#prefix#editOnce" id="#prefix#editOnce" value="0" <cfif currentValues.editOnce EQ 0>checked</cfif>>False
+				<input type="radio" name="#prefix#editOnce" id="#prefix#editOnce" value="1" <cfif currentValues.editOnce EQ 1>checked</cfif>>True
+				<br/><span>Select the True to allow the field to only be edited once on creation of the record.  
+					This will lock the value in and make the field disabled.</span>
+			</td>
+		</tr>
+		<tr>
+			<td class="cs_dlgLabelSmall" colspan="2" style="font-size:7pt;">
+				<hr />
+				ADF Custom Field v#fieldVersion#
+			</td>
+		</tr>
+	</table>
 </cfoutput>

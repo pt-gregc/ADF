@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2010.
+PaperThin, Inc. Copyright(C) 2014.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -33,14 +33,15 @@ History:
 	2011-01-21 - GAC - Moved in the lightbox wrapper function from forms_1_1
 						Segmented out the lightbox header and footer in independant functions
 	2011-02-09 - GAC - Removed self-closing CF tag slashes
+	2013-11-18 - GAC - Updated the lib dependencies to scripts_1_2, csData_1_2, ceData_2_0
 --->
 <cfcomponent displayname="ui_1_0" extends="ADF.core.Base" hint="UI functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_0">
+<cfproperty name="version" value="1_0_2">
 <cfproperty name="type" value="singleton">
-<cfproperty name="ceData" injectedBean="ceData_1_1" type="dependency">
-<cfproperty name="csData" injectedBean="csData_1_1" type="dependency">
-<cfproperty name="scripts" injectedBean="scripts_1_1" type="dependency">
+<cfproperty name="ceData" injectedBean="ceData_2_0" type="dependency">
+<cfproperty name="csData" injectedBean="csData_1_2" type="dependency">
+<cfproperty name="scripts" injectedBean="scripts_1_2" type="dependency">
 <cfproperty name="wikiTitle" value="UI_1_0">
 
 <!---

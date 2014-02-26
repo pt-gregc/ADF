@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2012.
+PaperThin, Inc. Copyright(C) 2014.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -35,7 +35,7 @@ History:
 --->
 <cfcomponent displayname="ceData_1_1" extends="ADF.lib.ceData.ceData_1_0" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="1_1_5">
+<cfproperty name="version" value="1_1_9">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_1">
 <cfproperty name="data" type="dependency" injectedBean="data_1_1">
@@ -397,7 +397,7 @@ History:
 			return returnStruct;
 		}
 		// Horray! The file existed and had content
-		ceData = Server.Commonspot.UDF.util.deserialize(dataToImport);
+		ceData = server.Commonspot.UDF.util.deserialize(dataToImport);
 	</cfscript>
 	<cfif !isArray(ceData) && Find(",",dataToImport) && Len(ceName)>
 		<!---	Boo, we didnt deserialize properly which means its probably a csv. Parse the crap out of it--->
@@ -456,7 +456,6 @@ History:
 			//Add the item to the schedule
 			ArrayAppend(scheduleArray,scheduleStruct);
 		}
-//Application.ADF.utils.doDump(scheduleArray,"scheduleArray",0);
 
 		//Setup the schedule params
 		scheduleParams = StructNew();
@@ -617,6 +616,49 @@ Returns:
 Arguments:
 	String ceName
 	String viewName
+	Struct fieldTypes
+		FIELD TYPE DETERMINATION
+			arguments.fieldTypes is a struct keyed by field type, whose values are a list of fields (without 'fic_') that should be forced to that type.
+				It can also contain the key defaultTextType, whose value will be used as the type for fields not explicitly spec'd that aren't integer or float.
+			Supported types are integer, float, shortText, and longText; anything else is treated as longText, meaning memo/CLOB.
+			If no spec is provided:
+				The following field types are automatically inferred to be shortText:
+					calendar, checkbox, date, email, img, text
+				Other fields with a MaxLength given that's short enough for CommonSpot to store values in FieldValue will also be automatically assumed to be shortText.
+				Certain expressions in the field's default value are also assumed to be shortText; see code for the list of them.
+		BEHAVIOR OF DIFFERENT FIELD TYPES
+			Integer and float types CAST FieldValue to the appropriate type for the db.
+			Fields spec'd as shortText use FieldValue only, ignoring MemoValue.
+				Where possible that's good, because it avoids a SQL expressions, and because memo-style columns typically support only LIKE queries, so they also can't be joined against.
+				However, with shortText, values longer than 425 characters will be returned by the view as NULL, because CommonSpot stores values that size in MemoText, not FieldValue.
+		ORACLE COMPATIBILITY
+			Oracle can't combine FieldValue and MemoValue in any way that supports comparisons other than LIKE, and therefor joins, without truncating data at 4000 characters.
+				For that reason, fieldTypes customized for the view's specific usage may be required if Oracle compatibility is needed.
+			Default here is to truncate, assuming that those comparisons are more likely than needing to get the whole MemoValue from these views.
+				Declaring a field as longText uses the LIKE-only non-truncating version instead.
+		THE OPTIMAL STRATEGY
+			Pass defaultTextType="shortText", and list all longText fields explicitly.
+			That uses the simple FieldValue-only definition for all text columns except ones explicitly made longText, which use the LIKE-only non-truncating syntax.
+			This approach is fully compatible with Oracle.
+		CAPTURING VIEW SQL
+			If you want to capture the view creation SQL, append this to the URL of a request that will attempt to create the views you want to capture:
+				?adfLogViewSQL=1
+			The SQL used to create the view will be written to a file named {date}.{site}.ADFlogViewSQL.log, in the CommonSpot logs directory.
+			If an error occurs, view sql will still be written to that file, with an indication that there was an error.
+			
+CODING PATTERNS
+	Ideally, direct calls to this method should be replaced by calls to ceData_2_0.buildView().
+		That lets you explicitly force the view to rebuild always, even if it already exists.
+	Where custom view specs or view names are required (which is common), one approach is to use the following pattern in your App.cfc:
+		Create a getCEViewSpecs(customElementName) method, which returns the appropriate fieldTypes struct for each custom element the app creates views for.
+		If desired, override the inherited getCEViewName(customElementName), with one that returns the view names you want to use.
+		Override the buildView method inherited from ceData_2_0, calling those getCEViewSpecs and getCEViewName methods, then calling cedata's buildView method.
+		See the PT Calendar app for an example.
+	An alternative is for each DAO in an app to own its own view specs, and for App.cfc to call each of them in postInit.
+	Bottom line:
+		You should think about what code should be creating views, and related, what code owns view specs.
+		Make sure that all code that might build or rebuild views has access to view specs.
+
 History:
 	2010-04-07 - RLW - Created
 	2010-06-18 - SF - [Steve Farwell] Bug fix for building the view for MySQL
@@ -634,137 +676,232 @@ History:
 	2012-06-20 - GAC - Updated the SQL to allow CE Field names with underscores (_). Changed the 'AS {FIELDNAME}' to strip the "FIC_" instead of using a ListGetAt with an underscore delimiter.
 					 - Also added brackets [] around the {FIELDNAME} to allow for field names that might be reserved or non-standard SQL field names.
 	2012-08-03 - DMB - Added check for db type around the square brackets Greg added and rendered single quotes instead if under mySQL.
-	2012-10-16 - DMB - Updated to use the memovalue field for fields longer than 850 characters.
+	2012-10-16 - DMB - Updated to use the memovalue field for fields longer than 425 characters.
 	2012-10-24 - GAC - Added a db type version check to uncomment the fix for using nvarchar(4000) instead of nvarchar(max) for older versions of MSSQL.
 					 - Moved the memovalue field fix into the conditional logic for MySQL. In the old position the syntax caused MSSQL view table creation to fail. 
 	2013-01-08 - MFC - Added TRY-CATCH for error handling when generating the view table.
-	2013-02-04 - MFC - Added IF statement to check that the view table name has a length.				 
+	2013-02-04 - MFC - Added IF statement to check that the view table name has a length.
+	2013-11-19 - DRM - Major rework of how the generated view combines FieldValue and MemoValue
+						part of Oracle case was never written
+						allow passing of fieldTypes struct, docs above about its use
+						various ways to auto-detect if a field can be short text
+						don't truncate data on recent SQL Server
+						honor ntext vs text type of MemoValue col
+						log error if there is one (was only a comment there before)
+						some cleanup, including removing query names where result is ignored
+	2014-02-19 - GAC - Added local variables for the VersionState Operator and Value
+	2014-02-19 - GAC - Added escape characters for reserverd words in custom element field names
 --->
-<cffunction name="buildRealTypeView" access="public" returntype="boolean" hint="Builds ane lement view for the passed in element name">
+<cffunction name="buildRealTypeView" access="public" returntype="boolean" hint="Builds an element view for the passed in element name">
 	<cfargument name="elementName" type="string" required="true" hint="element name to build the view table off of">
-	<cfargument name="viewName" type="string" required="false" default="ce_#arguments.elementName#View" hint="Override the view name that gets generated">
+	<cfargument name="viewName" type="string" default="" hint="Override the view name that gets generated">
+	<cfargument name="fieldTypes" type="struct" default="#structNew()#" hint="See notes above.">
 	<cfscript>
-		var deleteView = '';
 		var viewCreated = false;
 		var formID = getFormIDByCEName(arguments.elementName);
 		var dbType = Request.Site.SiteDBType;
-		var dbInfo = server.commonspot.datasources[request.site.datasource];
+		var dbInfo = server.commonspot.datasources[Request.Site.Datasource];
 		var dbVersion = "";
-		var realTypeView = '';
-		var fieldsSQL = '';
-		var fldqry = '';
-		var intType = '';
+		var fieldsSQL = "";
+		var fieldInfo = "";
+		var fieldType = "";
+		var defaultFieldType = "";
+		var fieldParams = "";
+		var fieldMaxLength = 0;
+		var isUnicode = siteDBIsUnicode();
+		var fieldTypeIndex = structNew();
+		var fieldsArray = "";
+		var selectSyntax = "";
+		var selectSyntaxLong = "";
+		var selectExpr = "";
+		var intType = "";
+		var qryMemoColType = "";
+		var colAlias = "";
+		var maxFieldValueLen = 425;
+		var logSQL = (structKeyExists(Request.Params, "adfLogViewSQL") and Request.Params.adfLogViewSQL eq 1);
+		var logMsg = "";
+		var i = 0;
+		var createViewResult = QueryNew('temp');
+		var versionStateOpr = "=";
+		var versionStateValue = 2;
+
+		// make sure that we actually have a form ID
+		if (formID eq "" or formID LTE 0)
+			return false;
+
+		if (arguments.viewName eq "")
+			arguments.viewName = "ce_#arguments.elementName#View";
+
 		// Remove the spaces in the name
 		arguments.viewName = Replace(arguments.viewName, " ", "_", "all");
-		// Set the db version if available 
-		if ( StructKeyExists(dbInfo,"version") )
+
+		// Set the db version if available
+		if (StructKeyExists(dbInfo,"version"))
 			dbVersion = ListFirst(dbInfo.version,".");
-		// Set datatypes for different db types
+
+		if (structKeyExists(Request.Constants, "dfvFieldvalueColumnMax"))
+			maxFieldValueLen = Request.Constants.dfvFieldvalueColumnMax;
+
+		// build struct of types for each field alias out of arguments.fieldTypes, which is a list of columns for each spec'd type
+		for (fieldType in arguments.fieldTypes)
+		{
+			fieldsArray = listToArray(arguments.fieldTypes[fieldType]);
+			for (i = 1; i lte arrayLen(fieldsArray); i = i + 1)
+			{
+				if (fieldType eq "defaultTextType")
+					defaultFieldType = arguments.fieldTypes[fieldType];
+				else
+					fieldTypeIndex[fieldsArray[i]] = fieldType;
+			}
+		}
+		
+		// Set datatypes and select exprs for different db types
 		switch (dbtype)
 		{
 			case 'Oracle':
 				intType = 'number(12)';
+				// see notes above for fieldSpecs argument
+				selectSyntax = "CASE WHEN FieldValue IS NOT NULL THEN FieldValue ELSE CAST(MemoValue AS VARCHAR(4000)) END"; // truncates data, no choice
+				selectSyntaxLong = "CASE WHEN FieldValue IS NOT NULL THEN TO_CLOB(FieldValue) ELSE MemoValue END"; // supports LIKE comparison only, no choice
+				if (isUnicode)
+					selectSyntaxLong = replace(selectSyntaxLong, "TO_CLOB", "TO_NCLOB");
 				break;
+
 			case 'MySQL':
 				intType = 'UNSIGNED';
+				selectSyntax = "CASE WHEN FieldValue IS NOT NULL AND FieldValue <> '' THEN FieldValue ELSE MemoValue END"; // tolerates implicit cast between the two cols
 				break;
+
 			case 'SQLServer':
 				intType = 'int';
+				selectSyntax = "CAST(CASE WHEN FieldValue IS NOT NULL AND FieldValue <> '' THEN FieldValue ELSE MemoValue END AS VARCHAR(MAX))";
+				if (dbVersion LT 9) // 9 = MSSQL 2005
+					selectSyntax = replace(selectSyntax, "VARCHAR(MAX)", "VARCHAR(4000)"); // MSSQL 2000 and below don't have VARCHAR(MAX); this truncates data, no choice
 				break;
 		}
+		
+		if (isUnicode)
+			selectSyntax = replace(selectSyntax, "VARCHAR", "NVARCHAR");
+			
+		if (selectSyntaxLong eq "") // only Oracle has different longText syntax
+			selectSyntaxLong = selectSyntax;
 	</cfscript>
 
-	<!--- // make sure that we actually have a form ID --->
-	<cfif len(formID) and formID GT 0>
-		<!--- // delete the view if it exsists already delete it --->
-		<cftry>
-			<cfquery name="deleteView" datasource="#request.site.dataSource#">
-				Drop view #arguments.viewName#
-			</cfquery>
-			<cfcatch></cfcatch>
-		</cftry>
-		
-		<cftry>
-			<cfif LEN(arguments.viewName)>
-				<cfquery name="fldqry" datasource="#Request.Site.DataSource#">
-					select fic.ID, fic.type, fic.fieldName
-					  from formINputControl fic, forminputcontrolMap
-					 where forminputcontrolMap.fieldID  = fic.ID
-						and forminputcontrolMap.formID = <cfqueryparam value="#formID#" cfsqltype="cf_sql_integer">
-				</cfquery>
-				<cfquery name="realTypeView" datasource="#Request.Site.DataSource#">
-					CREATE VIEW #arguments.viewName# AS
-					SELECT
-					<cfloop query="fldqry">
-						max(
-						<cfswitch expression="#fldqry.type#">
-							<cfcase value="integer">
-								CASE
-									WHEN FieldID = #ID# THEN CAST(fieldvalue as #intType#)
-									ELSE 0
-								END
-								</cfcase>
-								<cfcase value="float">
-								CASE
-									WHEN FieldID = #ID# THEN CAST(fieldvalue as DECIMAL(7,2))
-									ELSE 0.0
-								END
-							</cfcase>
-							<cfdefaultcase> <!--- NEEDSWORK fieldtype like List, should add ListID column, fieldtype like email, could add 'lower case' function to avoid case sensitive issue --->
-								CASE
-									WHEN FieldID = #ID# THEN
-										CASE
-											WHEN fieldValue <> '' THEN fieldvalue
-											<cfif dbtype is 'oracle'>
-												<!--- TODO
-													Issue with Oracle DB and casting the 'memovalue' field.
-													Commented out to make this work in Oracle, but still needs to be resolved.
-												--->
-												<!--- WHEN length(memovalue) < 4000 THEN CAST(memovalue as varchar2(4000)) --->
-												<!--- ELSE CAST([memovalue] AS nvarchar2(2000)) --->
-											<cfelseif dbtype is 'SQLServer' AND dbVersion LT 9><!--- // 9 = MSSQL 2005 --->
-												<!--- // nvarchar(max) FIX FOR MSSQL 2000 and below --->
-												ELSE CAST([memovalue] AS nvarchar(4000))
-											<cfelseif dbtype is 'SQLServer'>
-												ELSE CAST([memovalue] AS nvarchar(max))
-											<cfelse>
-												<!--- // MySQL fix for when memovalue (instead of fieldvalue) is used up due to the data being over 850 characters --->
-												WHEN memoValue <> '' THEN memovalue
-												<!--- Don't CAST if using MySQL --->
-											</cfif>
-										END
-									ELSE null
-								END
-							</cfdefaultcase>
-						</cfswitch>
-						<!--- ) as FieldID#ID#, --->
-						<!--- ) as #listGetAt(fieldName, 2, "_")#, --->
-						<!--- // Remove the "FIC_" from the CS field name when creating the column alias so this works with CE field names with underscores --->
-						) <cfif dbtype is 'MySQL'> as '#ReplaceNoCase(fieldName, "FIC_", "")#'<cfelse> as [#ReplaceNoCase(fieldName, "FIC_", "")#]</cfif>,
-						<!--- ) <cfif dbtype is 'MySQL'> as '#fieldName#'<cfelse> as [#fieldName#]</cfif>, --->
-					</cfloop>
-				   			PageID, controlID, formID<!--- , dateApproved, dateAdded --->
-					  FROM data_fieldvalue
-					 where formID = #formID#
-						and versionstate >= 2
-						and PageID > 0
-				 GROUP BY PageID, ControlID, formID<!--- , dateApproved, dateAdded --->
-				</cfquery>
-				<cfset viewCreated = true>
-			<cfelse>
-				<cfreturn false>
-			</cfif>
-			<cfcatch>
-				<!--- <cfdump var="#cfcatch#" label="cfcatch" expand="false"> --->
-				<cfscript>
-					// Log the error creating the view table
-					
-					// Failed to create view table
-					return false;
-				</cfscript>
-			</cfcatch>
-		</cftry>
+	<!--- delete the view if it exists already --->
+	<cftry>
+		<cfquery datasource="#Request.Site.Datasource#">
+			DROP VIEW #arguments.viewName#
+		</cfquery>
+		<cfcatch><!--- assume it's because view didn't exist, we're good ---></cfcatch>
+	</cftry>
+
+	<cftry>
+		<cfquery name="fieldInfo" datasource="#Request.Site.Datasource#">
+			SELECT fic.FieldName, fic.Type, fic.Params, ficm.FormID, fic.ID AS FieldID, dv.FieldValue AS FieldDefaultValue
+			  FROM FormInputControl fic
+			  JOIN FormInputControlMap ficm ON ficm.FieldID = fic.ID
+			  LEFT OUTER JOIN Data_FieldValue dv ON dv.FormID = ficm.FormID AND dv.FieldID = fic.ID AND PageID = 0 <!--- default value spec, if there is one --->
+			 WHERE ficm.FormID = <cfqueryparam value="#formID#" cfsqltype="CF_SQL_INTEGER">
+			 ORDER BY ID <!--- should be recs for all fields, but just in case, put oldest one first, as main table in the join, avoiding missing pseudo-rows from fields that aren't there --->
+		</cfquery>
+		<cfscript>
+			firstTableName = "dfv_#fieldInfo.FieldID#";
+		</cfscript>
+
+		<cfquery datasource="#Request.Site.Datasource#" result="createViewResult" >
+CREATE VIEW #arguments.viewName# AS
+SELECT
+<cfloop query="fieldInfo">
+	<cfscript>
+		table = "dfv_#FieldID#";
+		colAlias = ReplaceNoCase(FieldName, "FIC_", "");
+		fieldType = Type;
+		fieldMaxLength = 0;
+		if (structKeyExists(fieldTypeIndex, colAlias))
+			fieldType = fieldTypeIndex[colAlias];
+		else if (listFindNoCase("calendar,checkbox,date,email,img,text", Type)) // CommonSpot field types we know can't be too long to fit in FieldValue
+			fieldType = "shortText";
+		else if (listFindNoCase("request.formattedTimeStamp,request.user.id,request.user.userid,request.page.id,request.subsite.id,createUUID(),now()", FieldDefaultValue)) // default value expressions implying short text
+			fieldType = "shortText";
+		else if (fieldType neq "integer" and fieldType neq "float")
+			fieldType = ""; // flag to check max length
+	</cfscript>
+	<cfif fieldType eq ""><!--- no decision yet, need to check max length --->
+		<cfset fieldType = defaultFieldType><!--- use spec'd default if nothing else is definitive --->
+		<cfif isWDDX(Params)>
+			<cfwddx action="WDDX2CFML" input="#Params#" output="fieldParams">
+			<cfscript>
+				if (structKeyExists(fieldParams, "maxLength"))
+				{
+					fieldMaxLength = val(fieldParams.maxLength);
+					if (fieldMaxLength gt maxFieldValueLen) // too long for FieldValue
+						fieldType = "longText";
+					else if (fieldMaxLength gt 0) // max length spec'd and not too long
+						fieldType = "shortText";
+				}
+			</cfscript>
+		</cfif>
 	</cfif>
+	<cfscript>
+		// next line writes field type debug info into the query if enabled (doesn't break anything)
+		//writeOutput("	/* fieldType=#fieldType# haveTypeSpec=#structKeyExists(fieldTypeIndex, colAlias)# Type=#Type# MaxLength=#fieldMaxLength# DefaultValue=#FieldDefaultValue# */#chr(10)#");
+		switch(fieldType)
+		{
+			case "integer":
+				selectExpr = "CAST(FieldValue as #intType#)";
+				break;
+			case "float":
+				selectExpr = "CAST(FieldValue as DECIMAL(7,2))";
+				break;
+			case "shortText":
+				selectExpr = "FieldValue";
+				break;
+			case "longText":
+				selectExpr = selectSyntaxLong;
+				break;
+			default:
+				selectExpr = selectSyntax;
+		}
+		selectExpr = replaceList(selectExpr, "FieldValue,MemoValue", "#table#.FieldValue,#table#.MemoValue");
+		
+		if (dbtype eq "SQLServer")
+			colAlias = '[#colAlias#]';
+		else if (dbtype eq "MySQL")
+			colAlias = '`#colAlias#`';
+		else if (dbtype eq "Oracle")
+			colAlias = '"#colAlias#"';	
+			
+		selectExpr = "#selectExpr# AS #colAlias#,#chr(10)#";
+		writeOutput(selectExpr);
+	</cfscript>
+</cfloop>
+#firstTableName#.FormID, #firstTableName#.ControlID, #firstTableName#.PageID
+<cfloop query="fieldInfo">
+<cfset table = "dfv_#FieldID#">
+<cfif CurrentRow eq 1>FROM Data_FieldValue #table#<cfelse>
+LEFT OUTER JOIN Data_FieldValue #table# ON #table#.FormID = #FormID# AND #table#.FieldID = #FieldID# AND #table#.VersionState #versionStateOpr# #versionStateValue# AND #table#.PageID = #firstTableName#.PageID</cfif>
+</cfloop>
+<cfloop query="fieldInfo" startrow="1" endrow="1">
+<cfset table = "dfv_#FieldID#"><!--- this WHERE clause is the first table's equivalent of the JOIN constraints for other tables --->
+WHERE #table#.FormID = #FormID# AND #table#.FieldID = #FieldID# AND #table#.VersionState #versionStateOpr# #versionStateValue# AND #table#.PageID > 0
+</cfloop>
+		</cfquery>
+
+		<cfscript>
+			viewCreated = true;
+			if ( logSQL and StructKeyExists(createViewResult,"sql") )
+				server.ADF.objectFactory.getBean("utils_1_2").logAppend("#arguments.viewName##Chr(10)##createViewResult.sql##repeatString("-", 50)#", "ADFlogViewSQL.log");
+		</cfscript>
+
+		<cfcatch>
+			<cfscript>
+				logMsg = "[ceData_1_1.buildRealTypeView] Error building view: #arguments.viewName##Chr(10)##cfcatch.message# #cfcatch.detail#";
+				logMsg = "#logMsg##chr(10)#QUERY SQL:#chr(10)##cfcatch.sql#";
+				server.ADF.objectFactory.getBean("utils_1_2").logAppend(logMsg);
+			</cfscript>
+		</cfcatch>
+	</cftry>
+
 	<cfreturn viewCreated>
 </cffunction>
 

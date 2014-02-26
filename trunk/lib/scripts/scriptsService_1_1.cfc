@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2012.
+PaperThin, Inc. Copyright(C) 2014.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="scriptsService_1_1" extends="ADF.lib.scripts.scriptsService_1_0" hint="Scripts Service functions for the ADF Library">
 
-<cfproperty name="version" value="1_1_2">
+<cfproperty name="version" value="1_1_4">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="ScriptsService_1_1">
 
@@ -140,6 +140,7 @@ History:
  	2011-05-10 - RAK - Modified findScript to trim out the min prior to checking to see if there is anything other than 0-9 and .
 	2011-07-14 - MFC - Renamed cache variable to be under ADF struct, "application.ADF.cache".
 	2012-07-13 - MFC - Added the "allowoverwrite" flag to "true" on the StructInsert commands to avoid errors.
+	2013-10-29 - GAC - Added a check to make sure the application.ADF.cache is available
 --->
 <cffunction name="findScript" access="public" returntype="struct" hint="Finds the closest matching script to the version number in the filesystem">
 	<cfargument name="version" type="string" required="true" default="1.0" hint="version number to search for (only accepts 0-9 and periods)">
@@ -172,9 +173,15 @@ History:
 			return rtn;
 		}
 		rtn.success=true;
-		if(!StructKeyExists(application.ADF.cache,"scriptsCache")){
+		
+		// Make sure the application.ADF.cache is available
+		if ( !StructKeyExists(application.ADF,"cache") )
+			application.ADF.cache = StructNew();
+			
+		if( !StructKeyExists(application.ADF.cache,"scriptsCache") ) {
 			application.ADF.cache.scriptsCache = StructNew();
-		}else if(StructKeyExists(application.ADF.cache.scriptsCache,cacheString) and Len(StructFind(application.ADF.cache.scriptsCache,cacheString))){
+		}
+		else if ( StructKeyExists(application.ADF.cache.scriptsCache,cacheString) and Len(StructFind(application.ADF.cache.scriptsCache,cacheString)) ) {
 			rtn.message =  StructFind(application.ADF.cache.scriptsCache,cacheString);
 			return rtn;
 		}

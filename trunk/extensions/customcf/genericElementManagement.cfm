@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2013.
+PaperThin, Inc. Copyright(C) 2014.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files
@@ -37,6 +37,10 @@ Attributes:
 	// App Level Override Parameters
 	appBeanName - the AppBeanName of the app from the appBeanConfig.cfm file
 	appParamsVarName - a variable name of a struct that contains key/values for the custom script attrubutes
+	
+	/* NOTE: When both of the  App Level Override Params (appBeanName and appParamsVarName) are defined in the Custom Script Parameters and together they can be evaluated to create a data structure 
+	that defines key/value pairs, then the keys that match the standard Attributes will be used to OVERRIDE any additional attributes passed in. */
+
 Custom Script Parameters Tab Examples:
 	elementName=My Element One,My Element Two,My Element Three
 	themeName=redmond
@@ -70,9 +74,12 @@ History:
 	2013-02-13 - GAC - Added a hook to override the Attributes passed in from the Custom Script Parameters tab with a structure from an App 
 					 - Updated to use a UTILS lib function to process the override 
 	2013-02-22 - MFC - Added the "formBeanName" into the attributes.
+	2013-10-15 - GAC - Updated the App Level Override Parameters comments
+					 - Removed 'themeName' value from the paramsExceptionList in the appOverrideCSParams function. 
 --->
 
 <!--- // Optional ADF App Override Attributes for the Custom Script Parameters tab --->
+<!--- // !!!! DO NOT MODIFY THIS OVERRIDE LOGIC to force changes via the Custom Script Parameters from the CommonSpot UI!!! --->
 <cfscript>
 	if ( StructKeyExists(attributes,"appBeanName") AND LEN(TRIM(attributes.appBeanName)) AND StructKeyExists(attributes,"appParamsVarName") AND LEN(TRIM(attributes.appParamsVarName)) ) {
 		attributes = application.ADF.utils.appOverrideCSParams(

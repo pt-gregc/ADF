@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2012.
+PaperThin, Inc. Copyright(C) 2014.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="scripts_1_0" extends="ADF.core.Base" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_7">
+<cfproperty name="version" value="1_0_9">
 <cfproperty name="type" value="singleton">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_0" type="dependency">
 <cfproperty name="wikiTitle" value="Scripts_1_0">
@@ -103,22 +103,23 @@ Arguments:
 	void
 History:
 	2009-03-12 - RLW - Created
+	2014-01-22 - GAC - Replaced the '$' with the jQuery alias
 --->
 <cffunction name="loadNiceForms" access="public" returntype="void">
 <cfif not variables.scriptsService.isScriptLoaded("niceForms")>
 	<cfoutput>
 		<script language="javascript" type="text/javascript" src="/ADF/thirdParty/prettyForms/prettyForms.js"></script>
 		<script type="text/javascript">
-			jQuery(document).ready(function($) {
-				$("input[name='submitbutton']").attr("value", "Save");
-				$("span[id^='tabDlg'] > table").addClass("csForms");
-				$("form[name='dlgform']").addClass("csForms");
+			jQuery(document).ready(function(){
+				jQuery("input[name='submitbutton']").attr("value", "Save");
+				jQuery("span[id^='tabDlg'] > table").addClass("csForms");
+				jQuery("form[name='dlgform']").addClass("csForms");
 				//jQuery(".cs_default_form").attr("class", "niceform");
 				prettyForms();
-				//$(".clsPushButton").addClass("blue-pill");
+				//jQuery(".clsPushButton").addClass("blue-pill");
 				<cfif find("login.cfm", cgi.script_name)>
 					// change the login button text
-					$(".clsPushButton").attr("value", "Login");
+					jQuery(".clsPushButton").attr("value", "Login");
 				</cfif>
 			});
 		</script>
@@ -536,14 +537,16 @@ Arguments:
 	Boolean - force - Forces QTip script header to load.
 History:
 	2009-09-26 - MFC - Created
+	2013-09-04 - GAC - Updated to use folder versioning
 --->
 <cffunction name="loadQTip" access="public" output="true" returntype="void" hint="Loads the JQuery Headers if not loaded.">
 <cfargument name="version" type="string" required="false" default="1.0" hint="JQuery version to load.">
 <cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
+<cfset var thirdPartyLibPath = "/ADF/thirdParty/jquery/qtip">
 <!--- Check if the header is out yet, or we want to force rendering --->
 <cfif (not variables.scriptsService.isScriptLoaded("qtip")) OR (arguments.force)>
 	<cfoutput>
-		<script type="text/javascript" src="/ADF/thirdParty/jquery/qtip/jquery.qtip-#arguments.version#.min.js"></script>
+		<script type="text/javascript" src="#thirdPartyLibPath#/#arguments.version#/jquery.qtip.min.js"></script>
 	</cfoutput>
 	<!--- If we force, then don't record the loaded script --->
 	<cfif NOT arguments.force>
@@ -572,8 +575,7 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author: 	Ron West
 Name:
 	$loadJCycle

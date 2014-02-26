@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2012.
+PaperThin, Inc. Copyright(C) 2014.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="api" extends="ADF.core.Base" hint="CCAPI functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_6">
+<cfproperty name="version" value="1_0_7">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
 <cfproperty name="wikiTitle" value="API">
 
@@ -44,7 +44,7 @@ History:
 		// Init the session variables
 		initSession();
 		
-		this.loginComponent = Server.CommonSpot.api.getObject('Login');
+		this.loginComponent = server.CommonSpot.api.getObject('Login');
 		
 		// Init the API Config Settings
 		initAPIConfig();
@@ -56,22 +56,37 @@ History:
 <cffunction name="initSession" access="private">
 	<cfscript>
 		// Check if the session space does NOT exist, then setup the variables
-		if ( NOT StructKeyExists(session.ADF, "API")
-				OR NOT isStruct(session.ADF.API) ) {
-			// Init the session variables
+		
+		if ( NOT StructKeyExists(session.ADF,"API") ) {
 			session.ADF.API = StructNew();
-			session.ADF.API.csSession = StructNew();
-			session.ADF.API.csSession.cfID = "";
-			session.ADF.API.csSession.cfToken = "";
-			session.ADF.API.csSession.jSessionID = "";
-			session.ADF.API.token = "";
-			session.ADF.API.siteURL = "";
-			session.ADF.API.subsiteID = 1;
-			session.ADF.API.remote = false;
-			
 			// Init the API Config Settings
 			initAPIConfig();
-		}	
+		}
+
+		// - Init the session variables if they don't exist
+		if ( NOT StructKeyExists(session.ADF.API, "token") )	
+			session.ADF.API.token = "";
+			
+		if ( NOT StructKeyExists(session.ADF.API, "siteURL") )	
+			session.ADF.API.siteURL = "";
+			
+		if ( NOT StructKeyExists(session.ADF.API, "subsiteID") )	
+			session.ADF.API.subsiteID = 1;
+			
+		if ( NOT StructKeyExists(session.ADF.API, "remote") )	
+			session.ADF.API.remote = false;	
+				
+		if ( NOT StructKeyExists(session.ADF.API, "csSession") )
+			session.ADF.API.csSession = StructNew();
+
+		if ( NOT StructKeyExists(session.ADF.API.csSession, "cfID") )	
+			session.ADF.API.csSession.cfID = "";
+			
+		if ( NOT StructKeyExists(session.ADF.API.csSession, "cfToken") )		
+			session.ADF.API.csSession.cfToken = "";
+			
+		if ( NOT StructKeyExists(session.ADF.API.csSession, "jSessionID") )
+			session.ADF.API.csSession.jSessionID = "";
 	</cfscript>
 </cffunction>
 
@@ -86,8 +101,6 @@ History:
 		}
 	</cfscript>
 </cffunction>
-
-
 
 <cffunction name="login" access="public" output="true">
 	<cfargument name="remote" type="boolean" required="false" default="false">
@@ -156,9 +169,10 @@ History:
 							</Args>
 						</Command>';
 					 */
+					 
 					// Run command and return Array
 					retDataCmd = runRemote(commandStruct=command, authCommand=false);
-					//application.ADF.utils.dodump(retDataCmd,"retDataCmd - LOGIN",false);
+					
 					// Validate the return array and set the login data return
 					if ( isArray(retDataCmd)
 						 AND ArrayLen(retDataCmd) 
@@ -170,11 +184,7 @@ History:
 					loginCmd = this.loginComponent.doLogin(userName=apiConfig.wsVars.csuserid,
 														   password=apiConfig.wsVars.cspassword);
 				}
-				//application.ADF.utils.dodump(loginCmd,"loginCmd",false);
-				
-				
-		
-				
+
 				if ( isStruct(loginCmd)
 						AND StructKeyExists(loginCmd, "LoginResult") EQ 1
 						AND StructKeyExists(loginCmd, "SessionCookies")
@@ -219,8 +229,10 @@ History:
 			</cfscript> --->
 		</cfcatch>
 	</cftry>
+	<cfreturn this>
 </cffunction>
 
+<!--- // 2013-10-25 - GAC - Updated to check login status local or remote --->
 <cffunction name="isLoggedIn" access="public">
 	<cfscript>
 		//var command = StructNew();
@@ -234,69 +246,98 @@ History:
 		// Check if the session token is defined
 		if ( LEN(getAPIToken()) ) {
 		
-			// Login via ColdFusion
-			command = StructNew();
-			command['Target'] = "Login";
-			command['Method'] = "isLoggedIn";
-			/* 
-			command = '
-				<Command>
-			      <Target>Login</Target>
-			      <Method>isLoggedIn</Method>
-			   </Command>';
-			 */
-			// Run command and return Array
-			retDataCmd = runRemote(commandStruct=command, authCommand=false);
-			//application.ADF.utils.dodump(retDataCmd,"retDataCmd - isLoggedIn", false);
-			// Validate the return array and set the login data return
-			if ( isArray(retDataCmd)
-				 AND ArrayLen(retDataCmd) 
-				 AND StructKeyExists(retDataCmd[1], "data") )
-				loginStatus = retDataCmd[1].data;
+			if ( getRemoteFlag() ){
+				// Login via ColdFusion
+				command = StructNew();
+				command['Target'] = "Login";
+				command['Method'] = "isLoggedIn";
+				/* 
+				command = '
+					<Command>
+				      <Target>Login</Target>
+				      <Method>isLoggedIn</Method>
+				   </Command>';
+				 */
+				// Run command and return Array
+				retDataCmd = runRemote(commandStruct=command, authCommand=false);
+				//application.ADF.utils.dodump(retDataCmd,"retDataCmd - isLoggedIn", false);
+				
+				// Validate the return array and set the login data return
+				if ( isArray(retDataCmd)
+					 AND ArrayLen(retDataCmd) 
+					 AND StructKeyExists(retDataCmd[1], "data") )
+					loginStatus = retDataCmd[1].data;
+
+			}
+			else {
+				// Login via ColdFusion
+				loginStatus = this.loginComponent.isLoggedIn();	
+			}
 		}
 		
 		return loginStatus;
 	</cfscript>
 </cffunction>
 
+<!--- // 2013-10-25 - GAC - Updated to return a logout status --->
+<!--- // 				  - Updated to logout local or remote --->
 <cffunction name="logout" access="public">
 	<cfscript>
 		// Get the user account from the CCAPI Config
 		var apiConfig = getAPIConfig();
 		var command = '';
 		var retDataCmd = "";
+		var logoutMsg = "Success:1";
+		var logoutStatus = true;
 		
-		// Setup the Session space
-		initSession();
+		try {
+			// Setup the Session space
+			initSession();
+			
+			if ( getRemoteFlag() ){
+				// Login via ColdFusion
+				command = StructNew();
+				command['Target'] = "Login";
+				command['Method'] = "doLogout";
+				/* 
+				command = '
+					<Command>
+						<Target>Users</Target>
+						<Method>doLogout</Method>
+					</Command>';
+				 */ 
+				
+				// Run command and return Array
+				retDataCmd = runRemote(commandStruct=command, authCommand=false);
+			}	
+			else {
+				// logout via ColdFusion
+				this.loginComponent.doLogout();	// Returns VOID
+			}
+			
+			// Clear the session variables
+			session.ADF.API.csSession = StructNew();
+			session.ADF.API.csSession.cfID = "";
+			session.ADF.API.csSession.cfToken = "";
+			session.ADF.API.csSession.jSessionID = "";
+			clearAPIToken();
+			
+		}
+		catch (any e) {
+			logoutMsg = "Error:" & e.message;
+			logoutStatus = false;
+		}
 		
-		// Login via ColdFusion
-		command = StructNew();
-		command['Target'] = "Login";
-		command['Method'] = "doLogout";
-		/* 
-		command = '
-			<Command>
-				<Target>Users</Target>
-				<Method>doLogout</Method>
-			</Command>';
-		 */
-		// Run command and return Array
-		retDataCmd = runRemote(commandStruct=command, authCommand=false);
-		//application.ADF.utils.dodump(retDataCmd,"retDataCmd - logout", false);
+		if( apiConfig.logging.enabled ) {
+			if ( logoutStatus )
+				variables.utils.logAppend("#request.formattedTimestamp# - API Logout Success.", "API_Login.log");
+			else			
+				variables.utils.logAppend("#request.formattedTimestamp# - API Logout Failed. #e.message#", "API_Login.log");
+		}
 		
-		// Clear the session variables
-		session.ADF.API.csSession = StructNew();
-		session.ADF.API.csSession.cfID = "";
-		session.ADF.API.csSession.cfToken = "";
-		session.ADF.API.csSession.jSessionID = "";
-		clearAPIToken();
-		
-		if( apiConfig.logging.enabled )
-			variables.utils.logAppend("#request.formattedTimestamp# - API Logout Success.", "API_Login.log");
+		return logoutMsg;
 	</cfscript>	
 </cffunction>
-
-
 
 <cffunction name="runRemote" access="public" returntype="any" output="true" hint="Runs the Command API locally via HTML/XML.">
 	<cfargument name="commandStruct" type="struct" required="false" hint="Command collection as Structure.">
@@ -318,7 +359,7 @@ History:
 		// Check if the commands collection is a structure
 		if ( isStruct(arguments.commandStruct)
 				AND StructCount(arguments.commandStruct) GT 0 ){
-			commandXML = Server.CommonSpot.UDF.Util.serializeBean(commandStruct);
+			commandXML = server.CommonSpot.UDF.Util.serializeBean(commandStruct);
 			// Trim off the surrounding "<struct></struct>" tags
 			commandXML = MID(commandXML,9,LEN(commandXML)-17);
 		}
@@ -327,7 +368,7 @@ History:
 		}
 		
 		// Validate if the XML starts with "COMMAND"
-		if ( MID(Server.commonspot.UDF.HTML.escape(TRIM(commandXML)),5, 7) NEQ "Command" ) 
+		if ( MID(server.commonspot.UDF.HTML.escape(TRIM(commandXML)),5, 7) NEQ "Command" ) 
 			commandXML = '<Command>' & commandXML & '</Command>';
 		
 		command_collection = '<CommandCollection class="array">' & #commandXML# & '</CommandCollection>';
@@ -361,7 +402,7 @@ History:
 		<cfscript>
 			//application.ADF.utils.dodump(cfhttp,"cfhttp - runRemote",false);
 			if ( isXML(cfhttp.fileContent) )
-				return Server.Commonspot.UDF.util.deserialize(cfhttp.fileContent);
+				return server.Commonspot.UDF.util.deserialize(cfhttp.fileContent);
 		</cfscript>
 		<cfcatch>
 			<cfdump var="#cfcatch#" label="cfcatch" expand="false">
@@ -442,7 +483,6 @@ History:
 
 <!--- CCAPI FUNCTIONS --->
 <cffunction name="ccapiLogin" access="public" returntype="void">
-	
 	<cfscript>
 		// Get the user account from the CCAPI Config
 		var apiConfig = getAPIConfig();
@@ -474,7 +514,6 @@ History:
 </cffunction>
 
 <cffunction name="ccapiLogout" access="public" returntype="void">
-	
 	<cfscript>
 		// Get the user account from the CCAPI Config
 		var apiConfig = getAPIConfig();
@@ -543,12 +582,15 @@ History:
 		//application.ADF.utils.dodump(httpSubsiteURL,"buildSubsiteFullURL - httpSubsiteURL", false);	
 		//application.ADF.utils.dodump(subsiteData,"buildSubsiteFullURL - subsiteData", false);	
 		//application.ADF.utils.dodump(request.site.CP_URL,"buildSubsiteFullURL - request.site.CP_URL", false);	
+	
 		// Remove the root subsite from the path
 		httpSubsiteURL = Replace(httpSubsiteURL, request.site.CP_URL, "");
 		//application.ADF.utils.dodump(httpSubsiteURL,"buildSubsiteFullURL - httpSubsiteURL", false);	
+		
 		// Add the subsite path to the string
 		httpSubsiteURL = httpSubsiteURL & subsiteData.SubSiteURL;
 		//application.ADF.utils.dodump(httpSubsiteURL,"buildSubsiteFullURL - httpSubsiteURL", false);		
+		
 		return httpSubsiteURL;
 	</cfscript>
 </cffunction>
@@ -567,39 +609,43 @@ Arguments:
 	Void
 History:
 	2012-12-26 - MFC - Created
+	2013-10-15 - GAC - Updated to handle the cs_remote for 7.0.1+, 8.0.1+ and 9+
 --->
 <cffunction name="getWebService" access="private" returntype="any">
 	<cfscript>
-		var apiConfig = "";
-		if ( getRemoteFlag() ){
-			// Get the config
-			apiConfig = getAPIConfig();
-			if( isStruct(apiConfig) 
-				AND structKeyExists(apiConfig, "wsVars")
-				AND structKeyExists(apiConfig.wsVars, "webserviceURL")
-				AND LEN(apiConfig.wsVars.webserviceURL) ) {
-				
-				// Call the remote Web Service
-				return createObject("webService", apiConfig.wsVars.webserviceURL);
-			}
+		var apiConfig = getAPIConfig();
+		var wsURL = "";
+		var wsPath = "commonspot.webservice.cs_service";
+		
+		// Set the wsURL from the apiConfig
+		if( isStruct(apiConfig) AND structKeyExists(apiConfig, "wsVars") AND structKeyExists(apiConfig.wsVars,"webserviceURL") AND LEN(apiConfig.wsVars.webserviceURL) ) 
+			wsURL = apiConfig.wsVars.webserviceURL;
+
+		if ( getRemoteFlag() AND LEN(TRIM(wsURL)) ) {
+			// Call the remote Web Service
+			return createObject("webService", wsURL);
 		}
-		else {
+		else {	
+		
+			// Use the config webservice URL value to determine the correct wsPath
+			if ( FindNoCase(wsURL,"cs_remote") )
+				wsPath = "commonspot.webservice.cs_remote";	
+		
 			// Create the local object directly on the server
-			return createObject("component", "commonspot.webservice.cs_service");				
+			return createObject("component", wsPath);				
 		}
-		// Else return nothing
-		return "";
 	</cfscript>
 </cffunction>
 
-
-
 <!--- // Private GETTERS/SETTERS --->
-<cffunction name="setSubsiteID" access="private" returntype="void" hint="Set the subsiteID">
+<!--- // 10-25-2013 - can NOT be private since we are being injected in to ccapi_2_0 --->
+<cffunction name="setSubsiteID" access="public" returntype="void" hint="Set the subsiteID"> 
 	<cfargument name="subsiteID" type="numeric" required="true" hint="subsiteID to set">
 	<cfset session.ADF.API.subsiteID = arguments.subsiteID>
 </cffunction>
-<cffunction name="getSubsiteID" access="private" returntype="numeric" hint="Get the subsiteID">
+
+<!--- // - can NOT be private since we are being injected in to ccapi_2_0 --->
+<cffunction name="getSubsiteID" access="public" returntype="numeric" hint="Get the subsiteID">
 	<cfreturn session.ADF.API.subsiteID>
 </cffunction>
 
@@ -624,6 +670,7 @@ History:
 			session.ADF.API.siteURL = session.ADF.API.siteURL & "/";
 	</cfscript>
 </cffunction>
+
 <cffunction name="getSiteURL" access="private" returntype="string" hint="Get the Site URL for Remote Commands.">
 	<cfreturn session.ADF.API.siteURL>
 </cffunction>
@@ -636,10 +683,13 @@ History:
 		session.ADF.API.token = session.ADF.API.token & " #getSiteURL()#";
 	</cfscript>
 </cffunction>
+
 <cffunction name="clearAPIToken" access="private" returntype="void">
 	<cfset session.ADF.API.token = "">
 </cffunction>
-<cffunction name="getAPIToken" access="private" returntype="string" hint="get the ccapi token">
+
+<!--- // 10-25-2013 - Set to public to be able to access the current users login token  --->
+<cffunction name="getAPIToken" access="public" returntype="string" hint="get the ccapi token">
 	<cfreturn session.ADF.API.token>
 </cffunction>
 
@@ -647,6 +697,7 @@ History:
 	<cfargument name="remoteFlag" type="boolean" required="true">
 	<cfset session.ADF.API.remote = arguments.remoteFlag>
 </cffunction>
+
 <cffunction name="getRemoteFlag" access="private" returntype="boolean" hint="Get the Remote Flag">
 	<cfreturn session.ADF.API.remote>
 </cffunction>

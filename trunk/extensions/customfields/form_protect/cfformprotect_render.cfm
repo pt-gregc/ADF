@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the Starter App directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2010.
+PaperThin, Inc. Copyright(C) 2014.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files
@@ -18,7 +18,20 @@ in this directory, you agree to the terms and conditions of the applicable
 end user license agreement.
 --->
  
-
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Custom Field Type:
+	cfformprotect
+Name:
+	cfformprotect_render.cfm
+Summary:
+	Gives a text field allowing user to enter file locations. Then verifies them.
+ADF Requirements:
+History:
+	2014-01-02 - GAC - Added comment header block
+--->
 
 <cfscript>
 	// the fields current value

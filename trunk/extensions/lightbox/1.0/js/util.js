@@ -10,12 +10,28 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2010.
+PaperThin, Inc. Copyright(C) 2014.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
 in this directory, you agree to the terms and conditions of the applicable 
 end user license agreement.
+*/
+
+/* *************************************************************** */
+/*
+Author: 	
+	PaperThin Inc.
+Name:
+	util.js
+Summary:
+	ADF Lightbox Framework JavaScript
+Version:
+	1.0.0
+History:
+	2010-02-19 - MFC - Created
+	2014-01-03 - GAC - Added Comment Headers
+					 - Added missing semi-colons to the ends of variablized functions
 */
 
 /*
@@ -184,11 +200,11 @@ var commonspot = window.commonspot || parent.commonspot || {};
 	commonspot.util.isDate = function(obj)
 	{
 		return obj && (Object.prototype.toString.apply(obj) === "[object Date]");
-	}
+	};
 	commonspot.util.isValidDate = function(obj)
 	{
 		return obj && commonspot.util.isDate(obj) && !(isNaN(obj));
-	}
+	};
 	commonspot.util.getObjectClass = function(obj)
 	{
 		var classStr = Object.prototype.toString.apply(obj); // "[object Array]", "[object String]", etc
@@ -272,7 +288,7 @@ var commonspot = window.commonspot || parent.commonspot || {};
 	
 		var imgProp = {width: newW,
 							height: newH,
-							isScaled: isScaled}
+							isScaled: isScaled};
 								
 		return imgProp;
 	};
@@ -284,9 +300,9 @@ var commonspot = window.commonspot || parent.commonspot || {};
 	{
 		var html = "";
 		if(obj == undefined)
-			html = "Object is undefined."
+			html = "Object is undefined.";
 		else if(obj == null)
-			html = "Object is null."
+			html = "Object is null.";
 		else if(typeof obj == "function")
 			html = "[function]";
 		else if(typeof obj !== "object" || commonspot.util.isDate(obj))
@@ -325,7 +341,7 @@ var commonspot = window.commonspot || parent.commonspot || {};
 	
 	commonspot.util.jsSafe = function(str) // escape same chars as cf's JSStringFormat function
 	{
-		return str.replace(/(['"\\\b\t\n\f\r])/g, function(chr){return "\\" + commonspot.util.jsSafe.chars[chr.charCodeAt(0)];})
+		return str.replace(/(['"\\\b\t\n\f\r])/g, function(chr){return "\\" + commonspot.util.jsSafe.chars[chr.charCodeAt(0)];});
 	};
 	commonspot.util.jsSafe.chars = 
 	{
@@ -529,7 +545,7 @@ var commonspot = window.commonspot || parent.commonspot || {};
 			dObj[type+fn] = function() 
 			{ 
 				dObj["e"+type+fn]( window.event ); 
-			}
+			};
 			dObj.attachEvent( "on"+type, dObj[type+fn] );
 			//EventCache.add(dObj, type, fn);
 		}
@@ -668,7 +684,7 @@ var commonspot = window.commonspot || parent.commonspot || {};
 				firstByIndex = elements.findAll(function(element) 
 				{
 				  return element.hasAttribute('tabIndex') && element.tabIndex >= 0;
-				}).sortBy(function(element) { return element.tabIndex }).first();
+				}).sortBy(function(element) { return element.tabIndex; }).first();
 			}
 		}
 		catch(e){}
@@ -720,7 +736,7 @@ var commonspot = window.commonspot || parent.commonspot || {};
 	      show = commonspot.util.arrayTest(aData,fld,0) ? 1 : 0;
 			
 			selector = '.cs_' + fld + '_hide';
-			commonspot.util.showHideElements(show, $$(selector), dspType)
+			commonspot.util.showHideElements(show, $$(selector), dspType);
 		} 
 	};
 	commonspot.util.enableFromMenuFields = function(enabledMenuClassList, fieldsList, dspType)
@@ -738,7 +754,7 @@ var commonspot = window.commonspot || parent.commonspot || {};
 	      enable = commonspot.util.arrayTest(aData,fld,0) ? 1 : 0;
 			
 			selector = '.cs_' + fld + '_disable';
-			commonspot.util.enableDisableElements(enable, $$(selector))
+			commonspot.util.enableDisableElements(enable, $$(selector));
 		} 
 	};
 	
@@ -751,7 +767,7 @@ var commonspot = window.commonspot || parent.commonspot || {};
 			return false;			
 			
 		permissionList = ',' + permissionList.toLowerCase() + ',';
-		return (permissionList.indexOf(',' + permission.toLowerCase() + ',') != -1)
+		return (permissionList.indexOf(',' + permission.toLowerCase() + ',') != -1);
 	};
 	
 	// return true if any item in permissionNeededList is in permissionList

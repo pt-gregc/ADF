@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2012.
+PaperThin, Inc. Copyright(C) 2014.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -37,7 +37,7 @@ History:
 --->
 <cfcomponent displayname="ceData_1_0" extends="ADF.core.Base" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_5">
+<cfproperty name="version" value="1_0_14">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_0">
 <cfproperty name="data" type="dependency" injectedBean="data_1_0">
@@ -113,15 +113,14 @@ History:
             sortArray[ii] = arguments.aOfS[ii].values[arguments.key] & delim2 & ii;
 		}
 
-		//Application.ADF.utils.doDump(sortArray,"sortArray",0);
 		//now sort the array
         arraySort(sortArray,sortType2,sortOrder2);
-		//Application.ADF.utils.doDump(sortArray,"sortArray - sorted (#sortType2#,#sortOrder2#)",0);
+
         //now build the return array
         for(ii = 1; ii lte count; ii = ii + 1)
             returnArray[ii] = arguments.aOfS[listLast(sortArray[ii],delim2)];
+            
         //return the array
-		//Application.ADF.utils.doDump(returnArray,"returnArray",0);
         return returnArray;
 	</cfscript>
 </cffunction>
@@ -189,6 +188,7 @@ Arguments:
 	String ceName
 History:
 	2009-03-24 - MFC - Created
+	2014-01-03 - GAC - Updated SQL 'IN' statements to use the CS module 'handle-in-list.cfm'
 --->
 <cffunction name="deleteCacheInstances" access="public" returntype="void">
 	<cfargument name="ceName" type="string" required="true">
@@ -212,17 +212,20 @@ History:
 		<!--- delete from TypedCacheQueries --->
 		<cfquery name="deleteCacheQueries" datasource="#request.site.datasource#">
 			DELETE FROM TypedCacheQueries
-			WHERE     	QueryID IN ( <cfqueryparam cfsqltype="cf_sql_integer" value="#queryIDList#" list="true"> )
+			WHERE <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="QueryID" LIST="#queryIDList#">
+			<!--- WHERE     	QueryID IN ( <cfqueryparam cfsqltype="cf_sql_integer" value="#queryIDList#" list="true"> ) --->
 		</cfquery>
 		<!--- delete from TypedCacheQueries --->
 		<cfquery name="deleteCacheHits" datasource="#request.site.datasource#">
 			DELETE FROM TypedCacheHits
-			WHERE     	QueryID IN ( <cfqueryparam cfsqltype="cf_sql_integer" value="#queryIDList#" list="true"> )
+			WHERE <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="QueryID" LIST="#queryIDList#">
+			<!--- WHERE     	QueryID IN ( <cfqueryparam cfsqltype="cf_sql_integer" value="#queryIDList#" list="true"> ) --->
 		</cfquery>
 		<!--- delete from TypedCacheInstances --->
 		<cfquery name="deleteCacheInstances" datasource="#request.site.datasource#">
 			DELETE FROM TypedCacheInstances
-			WHERE     	QueryID IN ( <cfqueryparam cfsqltype="cf_sql_integer" value="#queryIDList#" list="true"> )
+			WHERE <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="QueryID" LIST="#queryIDList#">
+			<!--- WHERE     	QueryID IN ( <cfqueryparam cfsqltype="cf_sql_integer" value="#queryIDList#" list="true"> ) --->
 		</cfquery>
 	</cfif>
 </cffunction>
@@ -916,6 +919,10 @@ History:
 	2012-04-11 - GAC - Removed the MSSQL specific concatenation (+) in the LIKE statements in the SEARCH queryType for MySQL compatibility 
 					 - Removed the brackets around the MemoValue field name both updates for MySQL compatibility 
 	2012-07-12 - GAC - Removed the MSSQL specific concatenation (+) in the LIKE statements in the SEARCHINLIST queryType
+	2014-01-03 - GAC - Updated SQL 'IN' statements to use the CS module 'handle-in-list.cfm'
+	2014-02-20 - JTP - Updated 'searchInList' with better handling of non-UUID lists
+	2014-02-21 - GAC - Added itemListDelimiter parameter
+					 - Added logic is a searchFields is passed but no Item value then look of null or empty strings
 --->
 <cffunction name="getPageIDForElement" access="public" returntype="query" hint="Returns Page ID Query in Data_FieldValue matching Form ID">
 	<cfargument name="formid" type="numeric" required="true">
@@ -924,12 +931,16 @@ History:
 	<cfargument name="queryType" type="string" required="false" default="selected">
 	<cfargument name="searchValues" type="string" required="false" default="">
 	<cfargument name="searchFields" type="string" required="false" default="">
+	<cfargument name="itemListDelimiter" type="string" required="false" default="," hint="Only valid for the 'selected','notselected', 'list', 'numericList' and 'searchInList' queryTypes">
 
 	<cfscript>
 		// Initialize the variables
 		var itm = 0;
 		var getListItemIDs = queryNew("temp");
 		var getPageIDForFormID = queryNew("temp");
+		var theListLen = 0;
+		var theItem = "";
+		
 		// Make the search case to lowercase
 		arguments.searchValues = LCASE(arguments.searchValues);
 	</cfscript>
@@ -942,9 +953,11 @@ History:
 			FROM data_listItems
 			WHERE
 				<cfif arguments.queryType eq "numericList">
-					numItemValue in (<cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.item#" list="true">)
+					<CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="numItemValue" LIST="#arguments.item#" SEPARATOR="#arguments.itemListDelimiter#">
+					<!--- numItemValue in (<cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.item#" list="true">) --->
 				<cfelse>
-					strItemValue in (<cfqueryparam cfsqltype="cf_sql_varchar" value="#preserveSingleQuotes(arguments.item)#" list="true">)
+					<CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="strItemValue" LIST="#preserveSingleQuotes(arguments.item)#" cfsqltype="cf_sql_varchar" SEPARATOR="#arguments.itemListDelimiter#">
+					<!--- strItemValue in (<cfqueryparam cfsqltype="cf_sql_varchar" value="#preserveSingleQuotes(arguments.item)#" list="true">) --->
 				</cfif>
 		</cfquery>
 	</cfif>
@@ -953,45 +966,51 @@ History:
 		SELECT DISTINCT PageID
 		FROM Data_FieldValue
 		WHERE	FormID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.formid#">
-		<!--- Check if we have a fieldid --->
+		<!--- // Check if we have a fieldid --->
 		<cfif LEN(arguments.fieldid)>
-			<!--- Build the where clause for the SELECTED --->
+			<!--- // Build the where clause for the SELECTED --->
 			<cfif arguments.queryType eq "selected">
 				<!--- Check if we have a list of values --->
 				<cfif ListLen(arguments.item) gt 1>
-					AND		fieldValue IN (<cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.item#" list="true">)
+					AND <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="fieldValue" LIST="#arguments.item#" cfsqltype="cf_sql_varchar" SEPARATOR="#arguments.itemListDelimiter#">
+					<!--- AND		fieldValue IN (<cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.item#" list="true">) --->
 				<cfelse>
 					AND		fieldValue = <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.item#">
 				</cfif>
 				AND			FieldID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.fieldid#">
-			<!--- Build the where clause for the NOT SELECTED --->
+			<!--- // Build the where clause for the NOT SELECTED --->
 			<cfelseif arguments.queryType eq "notselected">
 				<cfif ListLen(arguments.item) gt 1>
-					AND		fieldValue NOT IN (<cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.item#" list="true">)
+					AND <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="fieldValue" LIST="#arguments.item#" isNot=1 cfsqltype="cf_sql_varchar" SEPARATOR="#arguments.itemListDelimiter#">
+					<!--- AND		fieldValue NOT IN (<cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.item#" list="true">) --->
 				<cfelse>
 					AND		fieldValue <> <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.item#">
 				</cfif>
 				AND			FieldID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.fieldid#">
-			<!--- Build the where clause for the SEARCH --->
+			<!--- // Build the where clause for the SEARCH --->
 			<cfelseif arguments.queryType eq "search">
 				<cfif LEN(arguments.item)>
-					AND PageID NOT IN (SELECT DISTINCT PageID
-										FROM Data_FieldValue
-										WHERE ( fieldValue IN (<cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.item#" list="true">) )
-										AND ( FieldID IN (<cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.fieldid#" list="true">) )
-										AND VersionState = 2
+					AND PageID NOT IN ( SELECT DISTINCT PageID
+											FROM Data_FieldValue
+											WHERE <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="fieldValue" LIST="#arguments.item#" cfsqltype="cf_sql_varchar" SEPARATOR="#arguments.itemListDelimiter#">
+											<!--- WHERE ( fieldValue IN (<cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.item#" list="true">) ) --->
+											AND <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="FieldID" LIST="#arguments.fieldid#">
+											<!--- AND ( FieldID IN (<cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.fieldid#" list="true">) ) --->
+											AND VersionState = 2
 										)
 				</cfif>
-				AND		FieldID IN (<cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.searchFields#" list="true">)
-				<!--- 2011-05-03 - RAK - Added the ability to search the memo field also --->
-				<!--- 2012-04-11 - GAC - Removed the MSSQL specific concatenation (+) in the LIKE statements 
+				AND <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="FieldID" LIST="#arguments.searchFields#">
+				<!--- AND		FieldID IN (<cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.searchFields#" list="true">) --->
+				
+				<!--- // 2011-05-03 - RAK - Added the ability to search the memo field also --->
+				<!--- // 2012-04-11 - GAC - Removed the MSSQL specific concatenation (+) in the LIKE statements 
 										and removed the brackets around the MemoValue field name both updates for MySQL compatibility --->
 				AND (
 					LOWER(fieldValue) LIKE <cfqueryparam cfsqltype="cf_sql_varchar" value="%#arguments.searchValues#%">
 					OR
 					MemoValue LIKE <cfqueryparam cfsqltype="cf_sql_varchar" value="%#arguments.searchValues#%">
 				)
-			<!--- Build the where clause for the MULTI --->
+			<!--- // Build the where clause for the MULTI --->
 			<cfelseif arguments.queryType EQ "multi">
 				<cfif ListLen(arguments.searchFields)>
 					<cfloop from="1" to="#ListLen(arguments.searchFields)#" index="itm">
@@ -1004,16 +1023,18 @@ History:
 							)
 					</cfloop>
 				</cfif>
-			<!--- Build the where clause for the LIST --->
+			<!--- // Build the where clause for the LIST --->
 			<!--- <cfelseif arguments.queryType contains "list"> --->
 			<cfelseif (arguments.queryType EQ "list") OR (arguments.queryType EQ "numericList")>
 				<cfif listLen(valueList(getListItemIds.listID))>
 					AND fieldID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.fieldID#">
-					AND listID in (<cfqueryparam cfsqltype="cf_sql_integer" value="#valueList(getListItemIDs.listID)#" list="true">)
-				<cfelse><!--- // should return zero results --->
+					AND <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="listID" LIST="#valueList(getListItemIDs.listID)#">
+					<!--- AND listID in (<cfqueryparam cfsqltype="cf_sql_integer" value="#valueList(getListItemIDs.listID)#" list="true">) --->
+				<cfelse>
+					<!--- // should return zero results --->
 					AND fieldID = 0
 				</cfif>
-			<!--- Build the where clause for the GREATERTHAN --->
+			<!--- // Build the where clause for the GREATERTHAN --->
 			<cfelseif arguments.queryType EQ "greaterThan">
 				AND fieldID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.fieldID#">
 				AND fieldValue > <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.item#">
@@ -1024,11 +1045,34 @@ History:
 			<!--- /* 2010-09-17 - MFC - Updated */ --->
 			<cfelseif arguments.queryType EQ "searchInList">
 				AND fieldID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.fieldID#">
-				<!--- Filter down the result set with a search --->
-				<!--- 2012-07-12 - GAC - Removed the MSSQL specific concatenation (+) in the LIKE statement --->
-				<cfloop from="1" to="#ListLen(arguments.item)#" index="itm">
-					AND	LOWER(fieldValue) LIKE <cfqueryparam cfsqltype="cf_sql_varchar" value="%#ListGetAt(arguments.item, itm)#%">
+				<!--- // Filter down the result set with a search --->
+				AND 
+				<cfif LEN(arguments.item)>
+				(
+				<!--- // 2014-02-21 - JTP - Updated for better handling of non-UUID lists --->
+				<cfset theListLen = ListLen(arguments.item,arguments.itemListDelimiter)>
+				<cfloop from="1" to="#theListLen#" index="itm">
+					<cfset theItem = LCASE(ListGetAt(arguments.item,itm,arguments.itemListDelimiter))>
+					LOWER(fieldValue) = <cfqueryparam cfsqltype="cf_sql_varchar" value="#theItem#">
+					OR
+					LOWER(fieldValue) LIKE <cfqueryparam cfsqltype="cf_sql_varchar" value="%#arguments.itemListDelimiter##theItem##arguments.itemListDelimiter#%">
+					OR
+					LOWER(fieldValue) LIKE <cfqueryparam cfsqltype="cf_sql_varchar" value="#theItem##arguments.itemListDelimiter#%">
+					OR
+					LOWER(fieldValue) LIKE <cfqueryparam cfsqltype="cf_sql_varchar" value="%#arguments.itemListDelimiter##theItem#">
+					<cfif itm lt theListLen>
+					OR
+					</cfif>
 				</cfloop>
+				)
+				<cfelse>
+				(
+				  <!--- // 2014-02-22 - GAC - If no Item value is passed look of null or empty strings --->
+				  LOWER(fieldValue) IS <cfqueryparam cfsqltype="cf_sql_varchar" null="true"> 
+				  OR  
+				  LOWER(fieldValue) = <cfqueryparam cfsqltype="cf_sql_varchar" value=""> 
+				)
+				</cfif>
 			</cfif>
 		</cfif>
 		AND VersionState = 2
@@ -1059,7 +1103,7 @@ History:
 	<cfargument name="controlID" type="numeric" required="true">
 
 	<cfscript>
-		Application.CacheInfoCache.InvalidateByID("element",0,0,0,arguments.pageID,arguments.controlID);
+		application.CacheInfoCache.InvalidateByID("element",0,0,0,arguments.pageID,arguments.controlID);
 	</cfscript>
 
 </cffunction>
@@ -1082,6 +1126,7 @@ History:
 	2010-04-13 - MFC - Removed ownerid where clause.
 	2010-12-17 - GAC - Changed the query get the data from the AvailableControls table to get active Custom Elements
 	2010-12-17 - GAC - Added an argument to pass in a value or a list of values to get CEs with a specific or a combination of states
+	2014-01-03 - GAC - Updated SQL 'IN' statements to use the CS module 'handle-in-list.cfm'
 --->
 <cffunction name="getAllCustomElements" access="public" returntype="query" hint="Returns all the Custom Elements for the site.">
 	<cfargument name="stateList" type="string" required="false" default="0" hint="Use a value or a list of values to display Available custom elements. Options: 0-active,1-inactive,2-deleted">
@@ -1100,7 +1145,8 @@ History:
 		SELECT 		ID, ShortDesc AS FormName, ElementState AS state
 		FROM 		AvailableControls
 		WHERE 		Name = <cfqueryparam cfsqltype="cf_sql_varchar" value="#controlType#">
-		AND 		ElementState IN (<cfqueryparam cfsqltype="cf_sql_numeric" value="#stList#" list="true" separator=",">)
+		AND <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="ElementState" LIST="#stList#" cfsqltype="cf_sql_numeric">
+		<!--- AND 		ElementState IN (<cfqueryparam cfsqltype="cf_sql_numeric" value="#stList#" list="true" separator=",">) --->
 		ORDER BY 	ShortDesc
 	</cfquery>
 	<!--- TODO: Remove before launch ... after the above query has be verified --->
@@ -1224,6 +1270,7 @@ Arguments:
 	Numeric Form ID
 History:
 	2009-08-25 - MFC - Created
+	2013-09-18 - MLS - Updated: added action = 'custom_form_element' to the filter in the query, to make work with standard simple form elements
 --->
 <cffunction name="getCENameByFormID" access="public" returntype="string">
 	<cfargument name="FormID" type="numeric" required="true">
@@ -1236,7 +1283,7 @@ History:
 		SELECT 	FormName
 		FROM 	FormControl
 		WHERE 	ID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.FormID#">
-		AND 	(FormControl.action = '' OR FormControl.action is null)
+		AND 	(action = '' OR action is null OR action = 'custom_form_element')
 	</cfquery>
 
 	<cfif getFormID.RecordCount>
@@ -1482,22 +1529,25 @@ History:
 	2009-10-25 - SFS - Created
 	2011-02-09 - RAK - Var'ing un-var'd variables
 	2011-05-17 - RAK - Replaced evaluate with a more direct efficient expression
+	2012-04-16 - GAC - Removed the circular references to application.ADF.cedata
+					 - Updated to use cfscript notation
 --->
 <cffunction name="getCEFieldValues" access="public" returntype="string" hint="Returns all values for a particular field in a particular custom element.">
 	<cfargument name="ceName" type="string" required="true" hint="Custom element name.">
 	<cfargument name="fieldName" type="string" required="true" hint="Custom element field name to return data.">
 	<cfscript>
 		var itm = '';
+		var ceDataList = "";
+		var ceData = getCEData(arguments.ceName);
+		
+		ceData = arrayOfCEDataSort(ceData,arguments.fieldName,'asc','textnocase','^');
+		
+		for ( itm=1; itm LTE arrayLen(ceData); itm=itm+1 ) {
+			ceDataList = ListAppend(ceDataList,StructFind(ceData[itm].values,arguments.fieldname));
+		}
+		
+		return ceDataList;
 	</cfscript>
-	<cfset var ceDataList = "">	
-	<cfset var ceData = application.adf.ceData.getCEData(arguments.ceName)>
-	<cfset ceData = application.ADF.ceData.arrayOfCEDataSort(ceData,arguments.fieldName,'asc','textnocase','^')>
-	
-	<cfloop from="1" to="#arrayLen(ceData)#" index="itm">
-		<cfset ceDataList = ListAppend(ceDataList,StructFind(ceData[itm].values,arguments.fieldname))>
-	</cfloop>
-
-	<cfreturn ceDataList>
 </cffunction>
 
 <!---
@@ -1713,26 +1763,62 @@ Summary:
 Returns:
 	Query
 Arguments:
-	Array
+	Array - theArray
+	Boolean - excludeFICfields
+	String - excludeTopLevelFieldList
 History:
-	2010-07-27 - SFS - 	Created based upon the arrayOfStructuresToQuery function in data_1_0.cfc
-	2011-06-28 - MT  - 	Modified the query returned to include the following fields: dateadded, 
-						dateapproved, formid, formname, and pageid fields from the CE data array that is 
-						passed in instead of just the values from the values structure.
+	2010-07-27 - SFS - Created based upon the arrayOfStructuresToQuery function in data_1_0.cfc
+	2011-06-28 - MT  - Modified the query returned to include the following fields: dateadded, 
+					   dateapproved, formid, formname, and pageid fields from the CE data array that is 
+					    passed in instead of just the values from the values structure.		
+	2013-10-10 - GAC - Added a boolean flag to remove FIC keys from the RenderMode Custom Element data
+					 - Added a parameter to allow removal other selected top level keys that could conflict data fields when converting RenderMode Custom Element Array to a query 
+	2013-10-18 - GAC - Updated the "FIC_" field detect logic to be more specific
 --->
 <cffunction name="arrayOfCEDataToQuery" returntype="query" output="false" access="public" hint="">
-	<cfargument name="theArray" type="array" required="true" />
+	<cfargument name="theArray" type="array" required="true">
+	<cfargument name="excludeFICfields" type="boolean" required="false" default="false">
+	<cfargument name="excludeTopLevelFieldList" type="string" required="false" default=""> 
 	<cfscript>
 		var data = arguments.theArray;
+		var colTempArray = arrayNew(1);
 		var qColumns = arrayNew(1);
 		var qData = "";
 		var columns = "";
 		var i = 0;
 		var x = 0;
 		var y = 0;
+		var currFormid = "";
+		var currFormName = "";
+		var addTopLevelKey = true;
+		
+		// init the qColumns Arrays
+		qColumns[1] = arrayNew(1);
+		qColumns[2] = arrayNew(1);
+		
+		// Get the FormID for the element if one does not exist in the data array
+		if ( ArrayLen(data) AND !StructKeyExists(data[1],"formID") AND StructKeyExists(data[1],"pageid") AND IsNumeric(data[1].pageid) ) {
+			currFormID = getFormIDFromPageID(data[1].pageid);
+			if ( IsNumeric(currFormID) )
+				currFormName = getCENameByFormID(currFormID);
+		}
 		
 		// store all the top level keys
-		qColumns[1] = structKeyArray(data[1]);
+		colTempArray = structKeyArray(data[1]);	
+		// Build the List of Query Columns form the Top level Struct Keys 
+		// Remove any "fic_" keys and any of the excluded keys
+		for ( c=1; c LTE ArrayLen(colTempArray); c=c+1 ) {
+			addTopLevelKey = true;
+			if ( arguments.excludeFICfields AND LEFT(colTempArray[c],4) EQ "fic_"  ) 
+				addTopLevelKey = false;
+			if ( addTopLevelKey AND LEN(TRIM(arguments.excludeTopLevelFieldList)) AND ListFindNoCase(arguments.excludeTopLevelFieldList,colTempArray[c]) )
+				addTopLevelKey = false;
+				
+			// Do we Add the current Key Field to the Key array
+			if ( addTopLevelKey )
+				arrayAppend(qColumns[1],colTempArray[c]);	
+		}				
+		
 		// store all the values sub structure keys
 		qColumns[2] = structKeyArray(data[1].values);
 		// add all the top level keys to the list
@@ -1741,6 +1827,13 @@ History:
 		columns = listDeleteAt(columns,listFindNoCase(columns,"values"));
 		// add all the values sub structure keys to the list
 		columns = listAppend(columns,arrayToList(qColumns[2]));
+		
+		// add in the FormID and FormName to the query column list if needed
+		if ( LEN(TRIM(currFormID)) )
+			columns = listAppend(columns,"formID");
+		if ( LEN(TRIM(currFormName)) )
+			columns = listAppend(columns,"formName");
+
 		// create new query object with our column list
 		qData = queryNew(columns);
 		// size the query based on the size of the data array passed in
@@ -1748,16 +1841,22 @@ History:
 		
 		// loop over the data array passed in
 		for( i=1; i lte arrayLen(data); i++) {
+			// Add in the FormID value and FromName value if needed
+			if ( LEN(TRIM(currFormID)) )
+				querySetCell(qData,"formID",currFormID,i);		
+			if ( LEN(TRIM(currFormName)) )
+				querySetCell(qData,"formName",currFormName,i);	
+			
 			// loop over the keys
 			for( x=1; x lte arrayLen(qColumns[1]); x++ ) {
 				// if the key is "values"
 				if( qColumns[1][x] eq "values" ) {
 					// loop over the values sub-structure
 					for( y=1; y lte arrayLen(qColumns[2]); y++ ) {
-						querySetCell(qData,qColumns[2][y],data[i]["#qColumns[1][x]#"]["#qColumns[2][y]#"],i);
+						querySetCell(qData,qColumns[2][y],data[i][qColumns[1][x]][qColumns[2][y]],i);
 					}
 				} else {
-					querySetCell(qData,qColumns[1][x],data[i]["#qColumns[1][x]#"],i);
+					querySetCell(qData,qColumns[1][x],data[i][qColumns[1][x]],i);
 				}
 			}
 		}

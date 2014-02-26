@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2011.
+PaperThin, Inc. Copyright(C) 2014.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -27,9 +27,10 @@ Name:
 Summary:
 	ADF Component for loading the ADF, ADF apps, proxys, and Library into the site.
 Version:
-	1.5.0
+	1.6.2
 History:
 	2011-07-11 - MFC - Updated for ADF V1.5.
+	2013-10-21 - GAC - Added the enable/disable Development Mode function call
 --->
 <cfcomponent name="ADF" extends="ADF.core.SiteBase">
 
@@ -53,6 +54,14 @@ History:
 		 *	By default this file will be located in your sites /_cs_apps/ directory
 		 */
 		setLightboxProxyURL("#request.site.csAppsWebURL#lightboxProxy.cfm");	
+		
+		/*
+		 *	Set the sites enableADFsiteDevMode status
+		 *	By default the ADF runs with development mode disabled (false) to enable set to (true)
+		 *  (Note: if this line is commented, removed or if no value is passed development mode will disabled)
+		 *  options: true or false 
+		 */
+		enableADFsiteDevMode(false);
 		
 		/*
 		 *	Load the ADF Application into application space

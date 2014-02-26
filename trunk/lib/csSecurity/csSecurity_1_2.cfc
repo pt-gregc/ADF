@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2012.
+PaperThin, Inc. Copyright(C) 2014.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -35,7 +35,7 @@ History:
 
 <cfproperty name="version" value="1_2_1">
 <cfproperty name="type" value="singleton">
-<cfproperty name="data" type="dependency" injectedBean="data_1_1">
+<cfproperty name="data" type="dependency" injectedBean="data_1_2">
 <cfproperty name="wikiTitle" value="CSSecurity_1_2">
 
 <!---
