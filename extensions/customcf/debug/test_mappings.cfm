@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2010.
+PaperThin, Inc. Copyright(C) 2014.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -35,7 +35,7 @@ Directions:
 	http://{domainname}/ADF/extensions/customcf/debug/test_mappings.cfm 
 --->
 
-<cfoutput><br /><strong>Success:</strong> The Web server mapping (or virutal directory) for '/adf' is working correctly!<br /></cfoutput>
+<cfoutput><br /><strong>Success:</strong> The Web server mapping (or virutal directory) for '/ADF' is working correctly!<br /></cfoutput>
 <cfflush>
 
 <cfset testVar = StructNew()>

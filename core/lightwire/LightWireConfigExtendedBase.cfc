@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2013.
+PaperThin, Inc. Copyright(C) 2014.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -23,17 +23,19 @@ end user license agreement.
 Author: 	
 	PaperThin, Inc. 
 Name:
-	LightWireConfigExtendedBase,cfc
+	LightWireConfigExtendedBase.cfc
 Summary:
 	LightWire Configuration component extended from the Base.cfc.
 History:
 	2009-08-14 - MFC - Created
 	2011-07-11 - MFC/AW - Updated Init and loadADFAppBeanConfig for performance improvements.
 	2012-12-26 - MFC - Updated the logging for the v1.6.
+	2013-10-21 - GAC - Added 'file-version' property for ADF core files 
 --->
 <cfcomponent name="LightWireConfigBase" extends="ADF.thirdParty.lightwire.BaseConfigObject" output="false">
 
 <cfproperty name="version" value="1_6_2">
+<cfproperty name="file-version" value="1">
 
 <cffunction name="init" returntype="any" hint="I initialize default LightWire config properties." output=false access="public">
 	<cfscript>
@@ -294,8 +296,8 @@ History:
 		appLibDirQry = directoryFiles(cfcPath, "true");
 		// filter the app lib directory query for CFC files
 		CFCFilesQry = filterQueryByCFCFile(appLibDirQry,'%.cfc');
-		// filter the app lib directory to remove any Application.cfc files
-		CFCFilesQry = filterQueryByCFCFile(CFCFilesQry, "Application.cfc", "!=");
+		// filter the app lib directory to remove any application.cfc files
+		CFCFilesQry = filterQueryByCFCFile(CFCFilesQry, "application.cfc", "!=");
 		// loop over the query and build the bean objects
 		for (loop_i = 1; loop_i LTE CFCFilesQry.RecordCount; loop_i = loop_i + 1) {
 			// get the current records sub directory name
@@ -690,7 +692,7 @@ History:
 	Name:
 		doBuildErrorLogging
 	Summary:
-		Create a Log file for the given error and add the error struct to the Application.ADF.buildErrors Array
+		Create a Log file for the given error and add the error struct to the application.ADF.buildErrors Array
 	Returns:
 		Boolean
 	Arguments:
@@ -698,7 +700,7 @@ History:
 	History:
 		2011-01-21 - GAC - Created
 --->
-<cffunction name="doConfigBuildErrorLogging" access="public" returntype="void" hint="Create a Log file for the given error and add the error struct to the Application.ADF.buildErrors Array">
+<cffunction name="doConfigBuildErrorLogging" access="public" returntype="void" hint="Create a Log file for the given error and add the error struct to the application.ADF.buildErrors Array">
 	<cfargument name="methodName" type="string" required="false" default="GenericBuild" hint="methodName to log">
 	<cfargument name="errorDetailsStruct" type="struct" required="false" default="#StructNew()#" hint="Error details to log">
 	<cfscript>
@@ -714,7 +716,7 @@ History:
 	</cfsavecontent>
 	<cffile action="append" file="#request.cp.commonSpotDir#logs/#logFileName#" output="#request.formattedtimestamp# - #dump#" addnewline="true">
 	<cfscript>
-		// Add the errorStruct to the server.ADF.buildErrors Array 
+		// Add the errorStruct to the server.ADF.buildErrors Array
 		ArrayAppend(server.ADF.buildErrors,errorStruct);
 	</cfscript>
 </cffunction>

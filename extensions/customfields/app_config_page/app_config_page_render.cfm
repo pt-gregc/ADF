@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
  
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2010.
+PaperThin, Inc. Copyright(C) 2014.
 All Rights Reserved.
  
 By downloading, modifying, distributing, using and/or accessing any files
@@ -26,6 +26,10 @@ Custom Field Type:
 	App Config Page
 Name:
 	app_config_page_render.cfm
+ADF Requirements:
+	scripts_1_0
+	ceData_1_0
+	forms_1_1
 History:
 	RLW - Created
 	2010-11-29 - GAC - Added conditional logic inside the select box cfloop to check 

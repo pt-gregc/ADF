@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2013.
+PaperThin, Inc. Copyright(C) 2014.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -31,10 +31,12 @@ Version:
 History:
 	2012-12-07 - RAK - Created - New v1.2
 	2013-03-01 - GAC - Updated jQuery iCalendar comment headers
+	2013-09-05 - GAC - Updated with functions for and jQuery qTip2 JQuery ImagesLoaded
+	2013-09-27 - DMB - Added a function to load jQuery Cycle2 lib 
 --->
 <cfcomponent displayname="scripts_1_2" extends="ADF.lib.scripts.scripts_1_1" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" value="1_2_13">
+<cfproperty name="version" value="1_2_18">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_1" type="dependency">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Scripts_1_2">
@@ -218,12 +220,10 @@ History:
 		arguments.version = variables.scriptsService.getMajorMinorVersion(arguments.version);
 
 		// Check that we are loading v1.9 or greater
-		if ( (arguments.version EQ 1.9)
-				OR (LEN(ListLast(arguments.version, ".")) GTE 2) ) {
+		if ( (arguments.version EQ 1.9) OR (LEN(ListLast(arguments.version, ".")) GTE 2) ) {
 			// If forcing, then load migrate plugin
 			//	OR the jquery script is NOT loaded yet
-			if ( arguments.force
-					OR NOT variables.scriptsService.isScriptLoaded("jQuery") )
+			if ( arguments.force OR NOT variables.scriptsService.isScriptLoaded("jQuery") )
 				loadMigratePlugin = true;	
 		}
 				
@@ -298,6 +298,62 @@ History:
 
 <!---
 /* *************************************************************** */
+Author: 
+	PaperThin, Inc.	
+	Dave Beckstrom
+Name:
+	$loadJCycle2
+Summary:	
+	Loads the jCycle2 responsive plugin for jQuery
+	
+	Note: Console logging is globally disabled by default. To enable on slide show by slide show 
+		  basis set the loadJCycle2(enablelog=true) and add 'data-cycle-log="false"' to your slide show 
+		  html parent element or control vian your cycle2 js configuration options
+		  
+		 <div class="cycle-slideshow" data-cycle-log="false"></div>
+		 OR
+		 jQuery('.cycle-slideshow').cycle({
+		 		speed: 600,
+			    log: false
+		 });
+Returns:
+	Void
+Arguments:
+	String version
+History:
+ 	2013-09-25 - DMB - Created
+	2013-10-17 - GAC - Updated the script name passed to the renderScriptOnce function
+	2013-10-25 - GAC - Updated to globally disable Cycle2 console logging by default with a parameter to re-enable
+--->
+<cffunction name="loadJCycle2" access="public" output="true" returntype="void" hint="Loads the jCycle2 responsive plugin for jQuery"> 
+	<cfargument name="version" type="string" required="false" default="20130909" hint="jCycle version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces jCycle2 script header to load.">
+	<cfargument name="enablelog" type="boolean" required="false" default="false" hint="Set to true to enable console logging.">
+	<cfscript>
+		var outputHTML = "";
+		// safety check to make sure atleast the min version is loaded
+		if ( !IsNumeric(arguments.version) OR arguments.version LT 20130909) 
+			arguments.version = 20130909;
+	</cfscript>	
+	<cfsavecontent variable="outputHTML">
+		<cfoutput>
+			<script type='text/javascript' src='/ADF/thirdParty/jquery/jcycle2/#arguments.version#/jquery.cycle2.min.js'></script>
+			<cfif NOT arguments.enablelog>
+			<script>jQuery.fn.cycle.log = jQuery.noop</script>
+			</cfif>
+		</cfoutput>
+	</cfsavecontent>
+	<cfoutput>
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("jcycle2",outputHTML)#
+		</cfif>
+	</cfoutput>
+</cffunction>
+
+<!---
+/* *************************************************************** */
 Author: 	
 	PaperThin, Inc.
 Name:
@@ -315,12 +371,14 @@ History:
 	2013-01-16 - MFC - Restructured the thirdparty folders & versions. Set to default load JQuery Data Tables 1.9.
 	2013-02-06 - MFC - Moved the "Restructured the thirdparty folders & versions" support code to
 						the Scripts 1.1 to make backwards compatibable.
+	2013-11-14 - DJM - Added a loadStyle parameter
 --->
 <cffunction name="loadJQueryDataTables" access="public" output="true" returntype="void" hint="Loads the JQuery DataTables Headers if not loaded.">
 	<cfargument name="version" type="string" required="false" default="1.9" hint="JQuery DataTables version to load.">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery DataTables script header to load.">
+	<cfargument name="loadStyles" type="boolean" required="false" default="true" hint="Boolean flag incicating if we need to load styles">
 	<cfscript>
-		super.loadJQueryDataTables(version=arguments.version, force=arguments.force);
+		super.loadJQueryDataTables(version=arguments.version, force=arguments.force, loadStyles=arguments.loadStyles);
 	</cfscript>
 </cffunction>
 
@@ -425,9 +483,10 @@ Arguments:
 	Boolean - Force
 History:
 	2013-02-06 - MFC - Created
+	2013-10-26 - GAC - Updated to load v1.2 by default
 --->
 <cffunction name="loadJQueryMigrate" access="public" output="true" returntype="void" hint="Loads the JQuery Migrate Plugin for Jquery backwards compatibility.">
-	<cfargument name="version" type="string" required="false" default="1.1" hint="JQuery Migrate version to load.">
+	<cfargument name="version" type="string" required="false" default="1.2" hint="JQuery Migrate version to load.">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery Migrate script header to load.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
@@ -956,6 +1015,62 @@ History:
 <!---
 /* *************************************************************** */
 Author:
+	PaperThin, Inc.
+	Ryan Kahn
+Name:
+	$loadJSTree
+Summary:
+	Loads the jsTree plugin
+	
+	NOTE: jsTree 3.0 requires 1.9.0 or greater in your webpage.
+Returns:
+	void
+Arguments:
+	Boolean - force
+	String - version
+	Boolean- loadStyles
+	String - theme
+History:
+	2014-01-22- GAC - Created new method for jsTree 3.0
+--->
+<cffunction name="loadJSTree" access="public" output="true" returntype="void" hint="Loads the JQuery Headers if not loaded.">
+	<cfargument name="version" type="string" required="false" default="3.0" hint="Version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces script header to load.">
+	<cfargument name="loadStyles" type="boolean" required="false" default="true" hint="Boolean flag incicating if we need to load styles">
+	<cfargument name="theme" type="string" required="false" default="default" hint="Sets the jsTree theme name.">
+	<cfscript>
+		var outputHTML = "";
+		var thirdPartyLibPath = "/ADF/thirdParty/jquery/jsTree";
+		// Make the version backwards compatiable to remove minor build numbers.
+		arguments.version = variables.scriptsService.getMajorMinorVersion(arguments.version);
+	</cfscript>
+	<cfif arguments.version LT 3>
+		<cfscript> 
+			// Call the super function
+			super.loadJSTree(version='1.0',force=arguments.force);
+		</cfscript>
+	<cfelse>
+		<cfsavecontent variable="outputHTML">
+			<cfoutput>
+				<cfif arguments.loadStyles AND LEN(TRIM(arguments.theme)) NEQ 0>
+				<link type="text/css" rel="stylesheet" href="#thirdPartyLibPath#/#arguments.version#/themes/#arguments.theme#/style.min.css" />
+				</cfif>
+				<script type="text/javascript" src="#thirdPartyLibPath#/#arguments.version#/jstree.min.js"></script>
+			</cfoutput>
+		</cfsavecontent>
+		<cfoutput>
+			<cfif arguments.force>
+				#outputHTML#
+			<cfelse>
+				#variables.scriptsService.renderScriptOnce("jstree",outputHTML)#
+			</cfif>
+		</cfoutput>
+	</cfif>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author:
 	Fig Leaf Software
 	Mike Tangorre (mtangorre@figleaf.com)
 Name:
@@ -1136,6 +1251,121 @@ History:
 			#variables.scriptsService.renderScriptOnce("jquerymousewheel",outputHTML)#
 		</cfif>
 	</cfoutput>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.	
+	G. Cronkright
+Name:
+	$loadQTip
+Summary:
+	Loads the QTip Headers if not loaded.
+Returns:
+	None
+Arguments:
+	String - version - QTip version to load.
+	Boolean - force - Forces QTip script header to load.
+History:
+	2013-09-04 - GAC - Created to add the latest version of qTip2
+--->
+<cffunction name="loadQTip" access="public" output="true" returntype="void" hint="Loads the JQuery Headers if not loaded.">
+	<cfargument name="version" type="string" required="false" default="2.1" hint="Version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces script header to load.">
+	<!--- <cfargument name="useImagesLoaded" type="boolean" required="false" default="0" hint="Loads optional imagesLoaded header add-on.">
+	<cfargument name="ImagesLoadedVersion" type="string" required="false" default="3.0" hint="Version of imagesLoaded to load."> --->
+	<cfscript>
+		var outputHTML = "";
+		var thirdPartyLibPath = "/ADF/thirdParty/jquery/qtip";
+		// Make the version backwards compatiable to remove minor build numbers.
+		arguments.version = variables.scriptsService.getMajorMinorVersion(arguments.version);
+	</cfscript>
+	<cfif arguments.version LT 2>
+		<cfscript> 
+			// Call the super function
+			super.loadQTip(version='1.0',force=arguments.force);
+		</cfscript>
+	<cfelse>
+		<cfsavecontent variable="outputHTML">
+			<cfoutput>
+				<link type="text/css" rel="stylesheet" href="#thirdPartyLibPath#/#arguments.version#/jquery.qtip.min.css" />
+				<script type="text/javascript" src="#thirdPartyLibPath#/#arguments.version#/jquery.qtip.min.js"></script>
+			</cfoutput>
+		</cfsavecontent>
+		<cfoutput>
+			<cfif arguments.force>
+				#outputHTML#
+			<cfelse>
+				#variables.scriptsService.renderScriptOnce("qtip",outputHTML)#
+			</cfif>
+			<!--- <cfif arguments.useImagesLoaded>
+				<!-- // Optional: imagesLoaded dependancy to better support images inside your tooltips -->
+				#loadJQueryImagesLoaded(force=arguments.force)# 
+			</cfif> --->
+		</cfoutput>
+	</cfif>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.	
+	G. Cronkright
+Name:
+	$loadJQueryImagesLoaded
+Summary:
+	Loads the jQuery Images Loaded Headers if not loaded.
+Returns:
+	None
+Arguments:
+	String - version - version to load.
+	Boolean - force - Forces script header to load.
+History:
+	2013-09-04 - GAC - Added
+--->
+<cffunction name="loadJQueryImagesLoaded" access="public" output="true" returntype="void" hint="Loads the JQuery Headers if not loaded.">
+	<cfargument name="version" type="string" required="false" default="3.0" hint="Version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces script header to load.">
+	<cfset var outputHTML = "">
+	<cfset var thirdPartyLibPath = "/ADF/thirdParty/jquery/imagesloaded">
+	<cfsavecontent variable="outputHTML">
+		<cfoutput>
+			<script type="text/javascript" src="#thirdPartyLibPath#/#arguments.version#/imagesloaded.pkgd.min.js"></script>
+		</cfoutput>
+	</cfsavecontent>
+	<cfoutput>
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("jqueryimagesloaded",outputHTML)#
+		</cfif>
+	</cfoutput>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	G. Cronkright
+Name:
+	$loadUploadify
+Summary:	
+	Loads the uploadify plugin for jQuery
+Returns:
+	Void
+Arguments:
+	String - version - 3.2.1
+	Boolean - Force
+History:
+ 	2012-12-17 - GAC - Based on scripts 1.1.  Set to default load version 2.9.
+--->
+<cffunction name="loadUploadify" access="public" output="true" returntype="void" hint="Loads the uploadify plugin for jQuery">
+	<cfargument name="version" type="string" required="false" default="3.2.1" hint="JQuery Uploadify plugin version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
+	<cfscript>
+		super.loadUploadify(version=arguments.version, force=arguments.force);
+	</cfscript>
 </cffunction>
 
 </cfcomponent>

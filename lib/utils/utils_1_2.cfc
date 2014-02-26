@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2012.
+PaperThin, Inc. Copyright(C) 2014.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -34,7 +34,7 @@ History:
 --->
 <cfcomponent displayname="utils_1_2" extends="ADF.lib.utils.utils_1_1" hint="Util functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_5">
+<cfproperty name="version" value="1_2_8">
 <cfproperty name="type" value="singleton">
 <cfproperty name="ceData" type="dependency" injectedBean="ceData_2_0">
 <cfproperty name="csData" type="dependency" injectedBean="csData_1_2">
@@ -363,7 +363,7 @@ History:
 			schedRequestTimeOut = int(arguments.timeout);
 			
 		// Validate authtoken (Future authentication feature)
-		//validAuthToken = application.adf.csSecurity.isValidAuthToken(arguments.authtoken);
+		//validAuthToken = application.ADF.csSecurity.isValidAuthToken(arguments.authtoken);
 		validAuthToken = true;
 		
 		if ( LEN(TRIM(arguments.AuthToken)) AND validAuthToken )

@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2012.
+PaperThin, Inc. Copyright(C) 2014.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -31,13 +31,14 @@ Version:
 History:
 	2009-06-17 - MFC - Created
 	2011-03-20 - RLW - Updated to use the new ccapi_1_0 component (was the original ccapi.cfc file)
+	2013-11-18 - GAC - Updated the lib dependency to utils_1_2
 ---> 
 <cfcomponent displayname="csUpload_1_0" hint="Constructs a CCAPI instance and then allows you to Upload Images" extends="ADF.core.Base">
 
 <cfproperty name="version" value="1_0_1">
 <cfproperty name="type" value="transient">
 <cfproperty name="ccapi" type="dependency" injectedBean="ccapi_1_0">
-<cfproperty name="utils" type="dependency" injectedBean="utils_1_0">
+<cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
 <cfproperty name="wikiTitle" value="CSUpload_1_0">
 
 <!---

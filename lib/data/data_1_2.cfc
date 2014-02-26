@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2012.
+PaperThin, Inc. Copyright(C) 2014.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -31,10 +31,11 @@ Version:
 History:
 	2012-12-31 - MFC/GAC - Created - New v1.2
 	2013-02-28 - GAC - Added new string to number and number to string functions
+	2013-09-06 - GAC - Added the listDiff and IsListDifferent functions
 --->
 <cfcomponent displayname="data_1_2" extends="ADF.lib.data.data_1_1" hint="Data Utils component functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_4">
+<cfproperty name="version" value="1_2_8">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Data_1_2">
 
@@ -53,6 +54,7 @@ Arguments:
 	Struct - structDataA
 	Struct - elementDataB
 	String - excludeFieldList
+	Any - objectFieldKeyList
 History:
 	2012-10-19 - GAC - Created - MOVE INTO THE ADF V1.6
 	2012-12-31 - Added 'objectFieldKeyList' argument for complex fields.
@@ -234,12 +236,17 @@ History:
 * @author Mike Gillespie (mike@striking.com)
 * @version 1, May 9, 2003
 * FIXED BY 2010-01-20 - GAC
+* 12/30/2013 - DMB - modified to use CHR in the strings to provide compatibility with Railo
+*					For documentation purposes, these are the original strings:	
+*					var bad_chars="/,\,*,&,%,$,¿,Æ,Ç,Ð,Ñ,Ý,Þ,ß,æ,ç,ð,ñ,÷,ø,ý,þ,ÿ";
+*					var good_chars="-,-,-,-,-,-,-,AE,C,D,N,Y,I,B,ae,c,o,n,-,o,y,1,y";
+*
 */ --->
 <cffunction name="filterInternationlChars" access="public" returntype="string" output="false" hint="Will replace chars in a string to be used to create a folder with valid equivalent replacements">
 	<cfargument name="fileName" type="string" required="true" hint="">
 	<cfscript>
-		var bad_chars="/,\,*,&,%,$,¿,Æ,Ç,Ð,Ñ,Ý,Þ,ß,æ,ç,ð,ñ,÷,ø,ý,þ,ÿ";
-		var good_chars="-,-,-,-,-,-,-,AE,C,D,N,Y,I,B,ae,c,o,n,-,o,y,1,y";
+		var bad_chars="#chr(47)#,#chr(92)#,#chr(42)#,#chr(38)#,#chr(37)#,#chr(36)#,#chr(191)#,#chr(198)#,#chr(199)#,#chr(208)#,#chr(209)#,#chr(221)#,#chr(222)#,#chr(223)#,#chr(230)#,#chr(231)#,#chr(240)#,#chr(241)#,#chr(247)#,#chr(248)#,#chr(253)#,#chr(254)#,#chr(255)#";
+		var good_chars="#chr(45)#,#chr(45)#,#chr(45)#,#chr(45)#,#chr(45)#,#chr(45)#,#chr(45)#,#chr(65)#,#chr(67)#,#chr(68)#,#chr(78)#,#chr(89)#,#chr(73)#,#chr(66)#,#chr(97)#,#chr(99)#,#chr(111)#,#chr(110)#,#chr(45)#,#chr(111)#,#chr(121)#,#chr(49)#,#chr(121)#";
 		var scrubbed="";
 		var b = "0";
 		
@@ -308,55 +315,176 @@ Author:
 Name:
 	$QuerySort
 Summary:
-	Sort a query based on a custom list.
-	http://cookbooks.adobe.com/post_Sort_query_in_custom_order-17997.html 
+	Sort a query based on a specific column in the query
 Returns:
 	query 
 Arguments:
-	query
-	string
-	string
-	string
-	string
+	query - query
+	string - orderColumn
+	string - orderType
 History:
-	2013-01-10 - MFC - Created
+	2013-10-23 - GAC - Created
+	2014-02-05 - GAC - Removed the requirement for an orderType in the order by statement. 
 --->
-<cffunction name="QuerySort" displayname="QuerySort" access="public" hint="Sort a query based on a custom list" returntype="query" output="true">
+<cffunction name="QuerySort" displayname="QuerySort" access="public" hint="Sort a query based on a custom list" returntype="query" output="false">
     <cfargument name="query" type="query" required="yes" hint="The query to be sorted">
-    <cfargument name="columnName" type="string" required="yes" hint="The name of the column to be sorted">
-    <cfargument name="columnType" type="string" required="no" default="numeric" hint="The column type. Possible values: numeric, varchar">
-    <cfargument name="orderList" type="string" required="yes" hint="The lsit used to sort the query">
-    <cfargument name="orderColumnName" type="string" required="no" default="orderNo" hint="The name of the column containing the order number">
-    <cfset var qResult = queryNew("null")>
-    
-    <!--- Make the order list unique to avoid duplicating query records --->
-    <!--- <cfset arguments.orderList = ListUnique(arguments.orderList)> --->
+    <cfargument name="columnName" type="string" required="no" default="" hint="The name of the column to be sorted">
+    <cfargument name="orderType" type="string" required="no" default="asc" hint="The sort type. Options: asc, desc">
+    <cfscript>
+		var qResult = queryNew("null");
+		var qColumnsList = arguments.query.columnList;
+		var orderCol = "";
+		var orderTypeDefaults = "asc,desc";
+		var orderTypeOption = "";
+		if ( ListFindNoCase(qColumnsList,arguments.columnName) )
+			orderCol = arguments.columnName;
+		if ( ListFindNoCase(orderTypeDefaults,arguments.orderType) )
+			orderTypeOption = arguments.orderType;
+	</cfscript>
     <cftry>
-		<!--- <cfdump var="#arguments#" label="QuerySort - args" expand="false"> --->
-		<!--- <cfdump var="#GetMetaData(arguments.query)#" label="QuerySort - GetMetaData" expand="false"> --->
 		<cfquery name="qResult" dbtype="query">
-			<cfloop from="1" to="#listLen(arguments.orderList)#" index="orderItem">
-				SELECT *, #orderItem# AS #arguments.orderColumnName#
-				FROM arguments.query
-				WHERE #arguments.columnName# = '#listGetAt(arguments.orderList, orderItem)#'
-				<cfif orderItem LT listLen(arguments.orderList)>
-					
-					UNION
-					 
-				</cfif>
-			</cfloop>
-			<!--- 
-			SELECT *, #listLen(arguments.orderList) + 1# AS #arguments.orderColumnName#
+			SELECT #qColumnsList#
 			FROM arguments.query
-			WHERE #arguments.columnName# NOT IN (<cfqueryparam value="#arguments.orderList#" list="yes" cfsqltype="cf_sql_#arguments.columnType#" />)
-			 --->
-			ORDER BY #arguments.orderColumnName#
+			<cfif LEN(TRIM(orderCol))>
+			ORDER BY #orderCol# #orderTypeOption#
+			</cfif>
 		</cfquery>
-		<!--- <cfdump var="#qResult#" label="QuerySort - qResult" expand="false"> --->
     	<cfreturn qResult>
 		<cfcatch>
 			<cfdump var="#cfcatch#" label="cfcatch" expand="false">
 			<cfreturn arguments.query>
+		</cfcatch>
+	</cftry>    
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$QuerySortByOrderedList
+Summary:
+	Sort a query based on a custom ordered list.
+	http://cookbooks.adobe.com/post_Sort_query_in_custom_order-17997.html 
+Returns:
+	query 
+Arguments:
+	query - query
+	String - columnName
+	String - columnType
+	String - orderList
+	String - orderColumnName
+	String - orderListDelimiter
+History:
+	2013-01-10 - MFC - Created
+	2013-10-23 - GAC - Renamed and cleaned up debug code in the method  
+					   Added null value protection logic around the ORDER BY statement
+	2014-02-05 - GAC - Updated to handle reserved words
+					 - Updated to auto-detect numeric and date comparisons. So now passing a column type is not needed unless forcing a specific type.
+	2013-02-06 - GAC - Updated the FORCE and AUT0-DETECT columnTpye logic. 
+					 - Updated the generated SQL output and error logging.
+					 - Added safety checks for the custom sort column name
+--->
+<cffunction name="QuerySortByOrderedList" displayname="QuerySortByOrderedList" access="public" hint="Sort a query based on a custom ordered list" returntype="query" output="false">
+    <cfargument name="query" type="query" required="yes" hint="The query to be sorted">
+    <cfargument name="columnName" type="string" required="yes" hint="The name of the column to be sorted">
+    <cfargument name="columnType" type="string" required="no" default="" hint="The column type. Not needed will auto-detect. But possible override values: numeric, varchar, date">
+    <cfargument name="orderList" type="string" required="yes" hint="The list used to sort the query">
+	<cfargument name="orderColumnName" type="string" required="no" default="recSortCol" hint="The name of the column containing the order number. Must be unique and not a column the orginal query"> 
+	<cfargument name="orderListDelimiter" type="string" required="no" default=",">
+	
+    <cfscript>
+		var qResult = queryNew("null");
+		var qColumnsList = arguments.query.columnList;
+		var orderItem = "";
+		var columnTypesAllowed = "varchar,numeric,date";
+		var columnTypeOverride = "";
+		var n = 1;
+		var newCol = "";
+		var newColList = "";
+		var criteriaValue = "";
+		var logSQL = (structKeyExists(Request.Params,"adfLogQuerySQL") and Request.Params.adfLogQuerySQL eq 1);
+		var logMsg = "";
+		
+		// If a columnType is passed in set it as the override Column Type
+		if ( ListFindNoCase(columnTypesAllowed,arguments.columnType) )
+			columnTypeOverride = arguments.columnType;
+		
+		// Protect against reserved words or columns with spaces query column names	
+		for ( n=1; n LTE ListLen(qColumnsList); n=n+1 ) {
+			newCol = "[" & ListGetAt(qColumnsList,n) & "]";
+			newColList = ListAppend(newColList,newCol);
+		}
+		
+		// A saftey catch so there is always a custom sort ORDERCOLUMNNAME defined
+		if ( LEN(TRIM(arguments.orderColumnName)) EQ 0 )
+			arguments.orderColumnName = "recSortCol";
+			
+		// Also make sure the ORDERCOLUMNNAME is unique and not one of the query columns
+		if ( ListFindNoCase(qColumnsList,arguments.orderColumnName) )
+			arguments.orderColumnName = "xNew" & arguments.orderColumnName;
+	</cfscript>
+		
+    <!--- // Make the order list unique to avoid duplicating query records --->
+    <cftry>
+		
+		<cfquery name="qResult" dbtype="query" result="createQueryResult">
+			<cfloop from="1" to="#listLen(arguments.orderList, arguments.orderListDelimiter)#" index="orderItem">
+				SELECT #newColList#, #orderItem# AS [#arguments.orderColumnName#]
+				FROM arguments.query
+				<!--- // Set the Criteria Value for the WHERE clause --->
+				<cfset criteriaValue = listGetAt(arguments.orderList, orderItem, arguments.orderListDelimiter)>
+				<!--- // Build the WHERE clause --->
+				<cfif columnTypeOverride EQ "numeric" OR (IsNumeric(criteriaValue) AND LEN(TRIM(columnTypeOverride)) EQ 0)>
+					<!--- // If the columnType is FORCED then obey the passed in Type even if it is WRONG --->
+					WHERE [#arguments.columnName#] = <cfqueryparam value="#criteriaValue#" cfsqltype="cf_sql_numeric">
+				<cfelseif columnTypeOverride EQ "date" OR (IsDate(criteriaValue) AND LEN(TRIM(columnTypeOverride)) EQ 0)>
+					<!--- // If the columnType is FORCED then obey the passed in Type even if it is WRONG --->
+					WHERE CAST([#arguments.columnName#] AS DATE) = CAST(<cfqueryparam value="#criteriaValue#" cfsqltype="cf_sql_date"> AS DATE)
+				<cfelse>
+					WHERE LOWER([#arguments.columnName#]) = <cfqueryparam value="#lcase(criteriaValue)#" cfsqltype="cf_sql_varchar">
+				</cfif>
+				
+				<cfif orderItem LT listLen(arguments.orderList, arguments.orderListDelimiter)>
+					UNION
+				</cfif>
+			</cfloop>
+			
+			ORDER BY [#arguments.orderColumnName#]
+		</cfquery>
+		
+		<!--- // If requested... log the generated SQL --->
+		<cfif logSQL>
+			<cfset logMsg = "[data_1_2.QuerySortByOrderedList] generated Query SQL:">
+			<cfif StructKeyExists(createQueryResult,"sql")>
+				<cfset logMsg = logMsg & "#chr(10)#SQL:#chr(10)##createQueryResult.sql#">
+			</cfif>
+			<cfif StructKeyExists(createQueryResult,"sqlparameters")>
+				<cfset logMsg = logMsg & "#chr(10)#PARAMS:#chr(10)##ArrayToList(createQueryResult.sqlparameters)#">
+			</cfif>
+			<cfset logMsg = logMsg & "#repeatString("-", 50)#">
+			<cfset application.ADF.utils.logAppend(logMsg,"ADFlogQuerySQL.log")>
+		</cfif>
+		
+		<!--- // Everything seems good... so return the results --->
+    	<cfreturn qResult>
+		
+		<cfcatch>
+			<!--- // Build an Error Log entry --->
+			<cfset logMsg = "[data_1_2.QuerySortByOrderedList] Error building query: #cfcatch.message##chr(10)#Detail: #cfcatch.detail#">
+			<cfif StructKeyExists(cfcatch,"sql")>
+				<!--- // Include the generated sql in the error log --->
+				<cfset logMsg = logMsg & "#chr(10)#SQL:#chr(10)##cfcatch.sql#">
+			</cfif>
+			<cfif StructKeyExists(cfcatch,"where")>
+				<cfset logMsg = logMsg & "#chr(10)#PARAMS:#chr(10)##cfcatch.where#">
+			</cfif>
+			<cfset logMsg = logMsg & "#repeatString("-", 50)#">
+			<cfset application.ADF.utils.logAppend(logMsg)> 
+			<!--- <cfdump var="#cfcatch#" label="cfcatch" expand="false"> --->
+			
+			<!--- // If there was a problem don't return any results... returning incorrect results just masks the issue --->
+			<cfreturn QueryNew("#qColumnsList#")>
 		</cfcatch>
 	</cftry>    
 </cffunction>
@@ -494,6 +622,153 @@ History:
 		}
 		return resultString;
 	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	G. Cronkright
+Name:
+	$IsListDifferent
+Summary:
+	Compares two lists and then returns a true if they are different or not
+Returns:
+	Boolean
+Arguments:
+	String - list1
+	String - list2
+	String - delimiters
+History:
+	2013-04-11 - GAC - Created
+--->
+<cffunction name="IsListDifferent" access="public" returntype="string" hint="Compares two lists and then returns a true if they are different">
+	<cfargument name="list1" type="string" required="false" default="" hint="First list to compare">
+	<cfargument name="list2" type="string" required="false" default="" hint="Second list to compare">
+	<cfargument name="delimiters" type="string" required="false" default="," hint="Delimiter for all lists.  Defualt is comma. (Optional)">
+	<cfscript>
+		 var isDifferent = true;
+		 var listDifferences = listDiff(list1=arguments.list1,list2=arguments.list2,delimiters=arguments.delimiters);
+		 if ( ListLen(listDifferences, arguments.delimiters) EQ 0 )
+		 	isDifferent = false;
+		 return isDifferent;
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+From CFLib on 04/05/2012 [GAC]
+	
+Name:
+	$listDiff
+	
+	This function compares two lists and returns the elements that do not appear in both lists.
+	
+	@param list1 	 First list to compare (Required)
+	@param list2 	 Second list to compare (Required)
+	@param delimiters 	 Delimiter for all lists.  Defualt is comma. (Optional)
+	@return Returns a string. 
+	
+	@author Ivan Rodriguez (&#119;&#97;&#110;&#116;&#101;&#122;&#48;&#49;&#53;&#64;&#104;&#111;&#116;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;) 
+	@version 1, June 26, 2002 
+	
+	http://cflib.org/udf/ListDiff
+
+History:
+	2013-04-11 - GAC - Added
+--->
+<cffunction name="listDiff" access="public" returntype="string" hint="Compares two lists and returns the elements that do not appear in both lists.">
+	<cfargument name="list1" type="string" required="false" default="" hint="First list to compare">
+	<cfargument name="list2" type="string" required="false" default="" hint="Second list to compare">
+	<cfargument name="delimiters" type="string" required="false" default="," hint="Delimiter for all lists.  Defualt is comma. (Optional)">
+	<cfscript>
+		var listReturn = "";
+		var position = 1;	
+		var value = "";	
+		//checking list1
+	  	for ( position = 1; position LTE ListLen(arguments.list1,arguments.delimiters); position = position + 1 ) {
+		    value = ListGetAt(arguments.list1, position , arguments.delimiters);
+		    if ( ListFindNoCase(arguments.list2, value , arguments.delimiters) EQ 0 )
+		      listReturn = ListAppend(listReturn, value , arguments.delimiters );
+	    }	
+	    //checking list2
+	    for ( position = 1; position LTE ListLen(arguments.list2,arguments.delimiters); position = position + 1 ) {
+	      value = ListGetAt(arguments.list2, position , arguments.delimiters);
+	      if ( ListFindNoCase(arguments.list1, value , arguments.delimiters) EQ 0 )
+	        listReturn = ListAppend(listReturn, value , arguments.delimiters );
+	  	}
+		return listReturn;
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	G. Cronkright
+Name:
+	$verifyTableExists
+Summary:
+	Verifies that a DB Table or View exists
+	
+	--Tested with MySQL and MSSQL
+Returns:
+	boolean
+Arguments:
+	String - tableName
+	String - datasourseName
+	String - databaseType
+History:
+	2013-11-18 - GAC - Created
+					 - Moved to data_1_2 from ceData_2_0.verifyViewTableExists and genernalized to check existance of any table or view not just custom element specific views
+					 - Added a dbType logic to add additional 'table_schema' criteria for MySQL
+					 - Added different table schema name for Oracle (thanks DM)
+					 - Added logging to the CFCatch rather than just returning false
+	2013-11-18 - GAC - Fixed issue with logAppend() method call		
+	2013-11-19 - DM  - Adding compatiblity of ORACLE	
+	2013-12-05 - GAC - Removed the table name check logic around the verifyDB query
+--->
+<cffunction name="verifyTableExists" access="public" returntype="boolean" output="false" hint="Verifies that a Tables and View Table exist for various db types.">
+	<cfargument name="tableName" type="string" required="true">
+	<cfargument name="datasourseName" type="string" required="false" default="#Request.Site.DataSource#">
+	<cfargument name="databaseType" type="string" required="false" default="#Request.Site.SiteDBType#">
+	<cfscript>
+		var verifySourceDB = QueryNew("temp");
+		var datasourse = arguments.datasourseName;
+		var dbType = arguments.databaseType;
+		var selectFromTable = "INFORMATION_SCHEMA.TABLES"; // SQLServer and MySQL schema table
+		// CFM 9+ syntax
+		//var selectFromTable = (dbType == "Oracle") ? "USER_TAB_COLUMNS" : "INFORMATION_SCHEMA.TABLES"; 
+		var utilsLib = server.ADF.objectFactory.getBean("utils_1_2");
+		
+		// Schema Table for ORACLE
+		if ( dbType EQ "Oracle" )
+		 	selectFromTable = "USER_TAB_COLUMNS"; 
+		 	
+		 // ORACLE requires uppercase DB objects
+		arguments.tableName = uCase(Trim(arguments.tableName));
+	</cfscript>
+	<cftry>
+		<!--- // Check if the table exists in the Source DB --->
+		<cfquery name="verifyDB" datasource="#datasourse#">
+			SELECT 	TABLE_NAME 
+			  FROM 	#selectFromTable#
+    		 WHERE 	TABLE_NAME = <cfqueryparam value="#arguments.tableName#" cfsqltype="cf_sql_varchar">
+    		 <cfif  dbType EQ "MySQL">
+    		  AND   TABLE_SCHEMA = DATABASE()
+    		 </cfif>
+		</cfquery>
+		<!--- // Check to see if we have the table --->
+		<cfif verifyDB.RecordCount> 
+			<cfreturn true>
+		<cfelse>
+			<cfreturn false>
+		</cfif>
+		<cfcatch>
+			<cfset utilsLib.logAppend(msg="#TRIM(arguments.tableName)#: #cfcatch.message#",logFile="utils-verifyTableExists.log")>
+			<cfreturn false>
+		</cfcatch>
+	</cftry>
 </cffunction>
 
 </cfcomponent>

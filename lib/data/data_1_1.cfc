@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2012.
+PaperThin, Inc. Copyright(C) 2014.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -34,7 +34,7 @@ History:
 --->
 <cfcomponent displayname="data_1_1" extends="ADF.lib.data.data_1_0" hint="Data Utils component functions for the ADF Library">
 
-<cfproperty name="version" value="1_1_2">
+<cfproperty name="version" value="1_1_3">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Data_1_1">
 
@@ -250,7 +250,7 @@ History:
 					"Could not parse XML data in feedToQuery. <br/>"
 					&"Feed URL: #path#. <br/>"
 					&"XML Results: <br/>"
-					&Application.ADF.utils.doDump(XMLText,"XMLText",0,1)
+					&application.ADF.utils.doDump(XMLText,"XMLText",0,1)
 					&"<br/><br/>"
 					,"feedToQueryErrors.html"
 				);

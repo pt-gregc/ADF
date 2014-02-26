@@ -1,11 +1,34 @@
+<!--- 
+The contents of this file are subject to the Mozilla Public License Version 1.1
+(the "License"); you may not use this file except in compliance with the
+License. You may obtain a copy of the License at http://www.mozilla.org/MPL/
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+the specific language governing rights and limitations under the License.
+
+The Original Code is comprised of the ADF directory
+
+The Initial Developer of the Original Code is
+PaperThin, Inc. Copyright(C) 2014.
+All Rights Reserved.
+
+By downloading, modifying, distributing, using and/or accessing any files 
+in this directory, you agree to the terms and conditions of the applicable 
+end user license agreement.
+--->
+
 <!---
 /* *************************************************************** */
-Author: 	Ron West
+Author: 	
+	PaperThin, Inc.
+	Ron West
 Name:
 	$site_config_core.cfm
-Summary: Each ADF Application can have configuration variables which can
-			be configured via a Custom Element.  This file will help manage
-			configurations for your Applications
+Summary: 
+	Each ADF Application can have configuration variables which can
+	be configured via a Custom Element.  This file will help manage
+	configurations for your Applications
 History:
 	2010-04-11 - RLW - Created
 	2011-04-08 - MFC - Updated the styles for the Edit and Show/Hide buttons

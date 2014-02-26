@@ -12,7 +12,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2013.
+PaperThin, Inc. Copyright(C) 2014.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -71,6 +71,7 @@ History:
 	<cfparam name="request.params.appName" default="" type="string">
 	<!--- Default the subsiteURL param --->
 	<cfparam name="request.params.subsiteURL" default="" type="string">
+	<cfparam name="request.params.query2array" default="1" type="boolean">
 	
 	<cfscript>
 		/*	Check if the subsiteURL is defined.
@@ -78,16 +79,16 @@ History:
 		 * 		the specific subsites application scope.
 		 */
 		if ( LEN(request.params.subsiteURL) )
-			CreateObject("component","ADF.Application").loadSiteAppSpace(request.params.subsiteURL);	
+			CreateObject("component","ADF.Application").loadSiteAppSpace(request.params.subsiteURL);
 	</cfscript>
 	
 	<!--- // reAJAX = ""; //Don't initalize the reAJAX allows for a return: void --->
 	<cfif (NOT request.params.debug)>
 		<cfsilent>
-			<cfset ajaxData = Application.ADF.ajax.buildAjaxProxyString()>
+			<cfset ajaxData = application.ADF.ajax.buildAjaxProxyString()>
 		</cfsilent>
 	<cfelse>
-		<cfset ajaxData = Application.ADF.ajax.buildAjaxProxyString()>
+		<cfset ajaxData = application.ADF.ajax.buildAjaxProxyString()>
 	</cfif>
 	
 	<cfscript>

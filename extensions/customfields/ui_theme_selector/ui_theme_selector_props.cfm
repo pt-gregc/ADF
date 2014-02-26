@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
  
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2011.
+PaperThin, Inc. Copyright(C) 2014.
 All Rights Reserved.
  
 By downloading, modifying, distributing, using and/or accessing any files
@@ -35,8 +35,15 @@ History:
 	2011-07-07 - GAC - Fixed a typo in the property field label
 	2012-01-11 - GAC - set jqueryUIurl to match the case of the directory stucture
 	2012-02-21 - GAC - added fixes additional fixes for slashes 
+	2014-01-02 - GAC - Added the CFSETTING tag to disable CF Debug results in the props module
+	2014-01-03 - GAC - Added the fieldVersion variable
 --->
+<cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
+
 <cfscript>
+	// Variable for the version of the field - Display in Props UI.
+	fieldVersion = "1.0"; 
+	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
 	prefix = attributes.prefix;
@@ -48,12 +55,8 @@ History:
 	jQueryUIurl = "/ADF/thirdParty/jquery/ui";
 	jQueryUIpath = Replace(ExpandPath(jQueryUIurl),"\","/","all");
 
-//application.ADF.utils.doDump(jQueryUIpath);	
-	
 	if( not structKeyExists(currentValues, "uiVersionPath") )
 		currentValues.uiVersionPath = Replace(jQueryUIpath & '/' & defaultVersion,"\","/","all");
-
-//application.ADF.utils.doDump(currentValues,"currentValues",0);				 
 </cfscript>
 
 <!--- // Get a list of jQuery UI versions --->
@@ -100,6 +103,12 @@ History:
 					</cfloop>
 		        </select>
 				<!--- <br/><span>Prop Field Description Text.</span> --->
+			</td>
+		</tr>
+		<tr>
+			<td class="cs_dlgLabelSmall" colspan="2" style="font-size:7pt;">
+				<hr />
+				ADF Custom Field v#fieldVersion#
 			</td>
 		</tr>
 	</table>

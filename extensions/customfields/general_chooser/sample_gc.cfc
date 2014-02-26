@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
  
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2010.
+PaperThin, Inc. Copyright(C) 2014.
 All Rights Reserved.
  
 By downloading, modifying, distributing, using and/or accessing any files
@@ -22,9 +22,8 @@ end user license agreement.
 /* *************************************************************** */
 Author: 	
 	PaperThin, Inc.
-	M Carroll 
 Custom Field Type:
-	sample_gc.cfc
+	general chooser
 Name:
 	sample_gc.cfc
 Summary:
@@ -56,11 +55,18 @@ History:
 	variables.SELECT_ITEM_CLASS = "ui-state-default";
 	variables.JQUERY_UI_THEME = "ui-lightness";
 	
-	// NEW VARIABLES v1.1
+	// VARIABLES for v1.1
 	variables.SHOW_SEARCH = true;  // Boolean
 	variables.SHOW_ALL_LINK = true;  // Boolean
 	variables.SHOW_ADD_LINK = true;  // Boolean
 	variables.SHOW_EDIT_DELETE_LINKS = false;  // Boolean
+	
+	// NEW VARIABLES for v1.2 for ADF 1.6.2
+	variables.AVAILABLE_LABEL = "Available Items";
+	variables.SELECTED_LABEL = "Selected Items";
+	variables.NEW_ITEM_LABEL = "Add New Item";
+	variables.SHOW_EDIT_LINKS = false;  			// Boolean - SHOW_EDIT_DELETE_LINKS must be true to enable this option 
+	variables.SHOW_DELETE_LINKS = false;  		// Boolean - SHOW_EDIT_DELETE_LINKS must be true to enable this option
 </cfscript>
 
 </cfcomponent>

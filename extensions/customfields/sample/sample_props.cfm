@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
  
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2011.
+PaperThin, Inc. Copyright(C) 2014.
 All Rights Reserved.
  
 By downloading, modifying, distributing, using and/or accessing any files
@@ -30,8 +30,15 @@ History:
  	2011-09-26 - RAK - Created
 	2011-12-19 - MFC - Updated to load the current values with the default values.
 	2011-12-28 - MFC - Force JQuery to "noconflict" mode to resolve issues with CS 6.2.
+	2014-01-02 - GAC - Added the CFSETTING tag to disable CF Debug results in the props module
+	2014-01-03 - GAC - Added the fieldVersion variable
 --->
+<cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
+
 <cfscript>
+	// Variable for the version of the field - Display in Props UI.
+	fieldVersion = "1.0"; 
+	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
 	prefix = attributes.prefix;
@@ -95,6 +102,12 @@ History:
 			--->
 			<td class="cs_dlgLabelSmall">
 				<input type="text" id="#prefix#defaultText" name="#prefix#defaultText" value="#currentValues.defaultText#">
+			</td>
+		</tr>
+		<tr>
+			<td class="cs_dlgLabelSmall" colspan="2" style="font-size:7pt;">
+				<hr />
+				ADF Custom Field v#fieldVersion#
 			</td>
 		</tr>
 	</table>

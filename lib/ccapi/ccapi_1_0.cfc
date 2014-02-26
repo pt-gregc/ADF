@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2012.
+PaperThin, Inc. Copyright(C) 2014.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -54,10 +54,12 @@ History:
 	variables.elements = structNew();
 	variables.templates = structNew();
 </cfscript>
+
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
 Name:
 	$initCCAPI
 Summary:	
@@ -83,9 +85,10 @@ History:
 <!--- // Utility functions for building and running WS --->
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
 Name:
 	$loadCCAPIConfig
 Summary:	
@@ -129,30 +132,45 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
 Name:
 	$buildWS
 Summary:	
-	Builds the Web Service object from all of the varialbes
-	defined from the configuration file
+	Builds the Web Service object from webserviceURL variable
+	defined in the configuration file
 Returns:
 	Void
 Arguments:
-	Void
+	Boolean - forceRemote
 History:
 	2009-05-13 - RLW - Created
+	2013-10-15 - GAC - Added logic to have CCAPI request use the new cs_remote.cfc
+					 - Added logic to force createObject to use the remote webservice URL instead local path
 --->
-<cffunction name="buildWS" access="private" returntype="void">
-	<cfset variables.ws = createObject("component", "commonspot.webservice.cs_service")>
-	<!--- <cfset variables.ws = createObject("webService", getWebServiceURL())> --->
+<cffunction name="buildWS" access="private" returntype="void" hint="Builds the Web Service object from webserviceURL variable defined in the configuration file">
+	<cfargument name="forceRemote" required="false" type="boolean" default="false">
+	<cfscript>
+		var wsURL = getWebServiceURL();
+		var wsPath = "commonspot.webservice.cs_service";
+		// Check to see if the WebService URL is using the 7.0.1+, 8.0.1+ and 9+ cs_remote.cfc
+		if ( FindNoCase(wsURL,"cs_remote") )
+			wsPath = "commonspot.webservice.cs_remote";
+		// Set the WS value	
+		if ( arguments.forceRemote )
+			variables.ws = createObject("webService", wsURL);
+		else
+			variables.ws = createObject("component", wsPath);
+	</cfscript>
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
 Name:
 	$loadElements
 Summary:	
@@ -176,8 +194,7 @@ History:
 		var elements = structNew();
 		if( isStruct(CCAPIConfig) and structKeyExists(CCAPIConfig, "elements") and isStruct(CCAPIConfig["elements"]) )
 			elementsList = structKeyList(CCAPIConfig["elements"]);
-		for( itm=1; itm lte listLen(elementsList); itm=itm+1 )
-		{
+		for( itm=1; itm lte listLen(elementsList); itm=itm+1 ) {
 			elementName = listGetAt(elementsList, itm);
 			thisElement = CCAPIConfig["elements"][elementName];
 			// load this element into local variables first
@@ -189,9 +206,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
 Name:
 	$loadWSVars
 Summary:	
@@ -223,46 +241,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
-Name:
-	$loadTemplates
-Summary:	
-	Based on the data returned from the configuration
-	this utility will set all of the templates which are
-	configured to handle API calls
-Returns:
-	Void
-Arguments:
-	Void
-History:
-	2009-05-13 - RLW - Created
-	2009-06-30 - Deleted
-
-<cffunction name="loadTemplates" access="private" returntype="void">
-	<cfscript>
-		var CCAPIConfig = getCCAPIConfig();
-		var templatesList = "";
-		var itm = 0;
-		var thisTemplate = "";
-		var templates = structNew();
-		if( isStruct(CCAPIConfig) and structKeyExists(CCAPIConfig, "templates") )
-			tempatesList = structKeyList(CCAPIConfig["templates"]);
-		for( itm=1; itm lte listLen(templatesList); itm=itm+1 )
-		{
-			thisTemplate = CCAPIConfig["templates"][listGetAt(templatesList, itm)];
-			// load this element into local variables first
-			structInsert(templates, thisTemplate["name"], thisTemplates);			
-		}
-		// load the elements into object space
-		setTemplates(templates);
-	</cfscript>
-</cffunction>--->
-
-<!---
 /* *************************************************************** */
-Author: 	Ron West
+Author: 	
+	PaperThin, Inc.
+	Ron West
 Name:
 	$hasElement
 Summary:	
@@ -282,8 +264,8 @@ History:
 		var elementExists = 0;
 		if( structKeyExists(getElements(), arguments.elementName) )
 			elementExists = 1;
+		return elementExists;	
 	</cfscript>
-	<cfreturn elementExists>
 </cffunction>
 
 <!---
@@ -342,14 +324,16 @@ History:
 			if( loggingEnabled() )
 				variables.utils.logAppend("#request.formattedTimestamp# - Error logging in to CCAPI: #error#", "CCAPI_ws_login.log");
 		}
+		//return loginResult;
 	</cfscript>
-	<cfreturn this>
+	<cfreturn this> 
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
 Name:
 	$logout
 Summary:
@@ -375,10 +359,12 @@ History:
 	</cfscript>
 	<cfreturn logoutResult>
 </cffunction>
+
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
 Name:
 	loggedIn()
 Summary:
@@ -411,10 +397,12 @@ History:
 	</cfscript>
 	<cfreturn rtnVar>
 </cffunction>
+
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 
+	PaperThin, Inc.		
+	Ron West
 Name:
 	$clearLock
 Summary:
@@ -442,22 +430,24 @@ History:
 	</cfscript>
 	<cfreturn true>
 </cffunction>
+
 <!---
-	/* ***************************************************************
-	/*
-	Author: 	Ron West
-	Name:
-		$loggingEnabled
-	Summary:	
-		Determines if logging is enabled
-	Returns:
-		Boolean rtnVal
-	Arguments:
-		Void
-	History:
-		2009-07-09 - RLW - Created
-		2010-12-09 - RAK - Improved fault tolerance
-	--->
+/* *************************************************************** */
+Author: 
+	PaperThin, Inc.	
+	Ron West
+Name:
+	$loggingEnabled
+Summary:	
+	Determines if logging is enabled
+Returns:
+	Boolean rtnVal
+Arguments:
+	Void
+History:
+	2009-07-09 - RLW - Created
+	2010-12-09 - RAK - Improved fault tolerance
+--->
 <cffunction name="loggingEnabled" access="public" returntype="boolean" hint="Determines if logging is enabled">
 	<cfscript>
 		var config = getCCAPIConfig();
@@ -470,6 +460,7 @@ History:
 	</cfscript>
 	<cfreturn rtnVal>
 </cffunction>
+
 <!--- // Public GETTERS/SETTERS --->
 <cffunction name="setSubsiteID" access="public" returntype="void">
 	<cfargument name="subsiteID" type="numeric" required="true">

@@ -10,12 +10,27 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2010.
+PaperThin, Inc. Copyright(C) 2014.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
 in this directory, you agree to the terms and conditions of the applicable 
 end user license agreement.
+*/
+
+/* *************************************************************** */
+/*
+Author: 	
+	PaperThin Inc.
+Name:
+	windows_ref.js
+Summary:
+	ADF Lightbox Framework JavaScript
+Version:
+	1.0.0
+History:
+	2010-02-19 - MFC - Created
+	2014-01-03 - GAC - Added Comment Headers
 */
 
 /*

@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2010.
+PaperThin, Inc. Copyright(C) 2014.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -41,31 +41,31 @@ History:
 
 <!--- // Output Core ADF objects in the Server scope   --->
 <cfif StructKeyExists(Server,"ADF")>
-	<cfdump var="#Server.ADF#" label="Server.ADF" expand="no">
+	<cfdump var="#server.ADF#" label="server.ADF" expand="no">
 <cfelse>
-	<cfoutput>Server.ADF is NOT Defined!<br /></cfoutput>
+	<cfoutput>server.ADF is NOT Defined!<br /></cfoutput>
 </cfif>
 
 <!--- // Output Core ADF objects in the Application scope  --->
-<cfif StructKeyExists(Application,"ADF")>
-	<cfdump var="#Application.ADF#" label="Application.ADF" expand="no">
+<cfif StructKeyExists(application,"ADF")>
+	<cfdump var="#application.ADF#" label="application.ADF" expand="no">
 	
 	<!--- // Output ADF lib objects  --->
-	<!--- <cfdump var="#Application.ADF.utils#" label="Application.ADF.utils" expand="no"> --->
+	<!--- <cfdump var="#application.ADF.utils#" label="application.ADF.utils" expand="no"> --->
 	
 	<!--- // Direct ADF lib method calls  --->
 	<!--- <cfscript>
-		Application.ADF.scripts.loadJQuery('1.3.2');
-		Application.ADF.scripts.loadJQueryUI('1.7.1');
+		application.ADF.scripts.loadJQuery('1.3.2');
+		application.ADF.scripts.loadJQueryUI('1.7.1');
 	</cfscript> --->
 	
 <cfelse>
-	<cfoutput>Application.ADF is NOT Defined!<br /></cfoutput>
+	<cfoutput>application.ADF is NOT Defined!<br /></cfoutput>
 </cfif>
 
 <!--- // Output ADF App specific objects in the Application scope  --->
-<cfif StructKeyExists(Application,"ptProfile")>
-	<cfdump var="#Application.ptProfile#" label="Application.ptProfile" expand="no">
+<cfif StructKeyExists(application,"ptProfile")>
+	<cfdump var="#application.ptProfile#" label="application.ptProfile" expand="no">
 <cfelse>
-	<cfoutput>Application.ptProfile is NOT Defined!<br /></cfoutput>
+	<cfoutput>application.ptProfile is NOT Defined!<br /></cfoutput>
 </cfif>

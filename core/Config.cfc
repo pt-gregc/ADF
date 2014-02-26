@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2013.
+PaperThin, Inc. Copyright(C) 2014.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -28,11 +28,13 @@ Summary:
 	Config component for Custom Application Common Framework
 History:
 	2009-05-11 - MFC - Created
-	2011-04-05 - MFC - Updated the version property.
+	2011-04-05 - MFC - Updated the version property
+	2013-10-21 - GAC - Added 'file-version' property for ADF core files 
 --->
 <cfcomponent name="Config" hint="Config component for Application Development Framework" extends="ADF.core.Base">
 
-<cfproperty name="version" value="1_6_1">
+<cfproperty name="version" value="1_6_2">
+<cfproperty name="file-version" value="1">
 	
 <!---
 /* *************************************************************** */
@@ -86,7 +88,7 @@ History:
 					// Build the Error Struct
 					buildError.ADFmethodName = "Core Config";
 					buildError.details = "Core Config deserialize XML Error. [#request.site.name# - #request.site.id#].";
-					// Add the errorStruct to the server.ADF.buildErrors Array 
+					// Add the errorStruct to the server.ADF.buildErrors Array
 					ArrayAppend(server.ADF.buildErrors,buildError);
 				</cfscript>
 			</cfcatch>

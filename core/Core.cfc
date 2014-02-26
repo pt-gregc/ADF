@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2013.
+PaperThin, Inc. Copyright(C) 2014.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -39,17 +39,20 @@ History:
 								  Added "server.ADF.buildRev" to have available in the ADF space.
 	2012-07-11 - MFC - Modified - New v1.6.0 branch.
 	2013-03-15 - MFC - Modified - New v1.6.1 branch.
+	2013-05-21 - MFC - Modified - New v1.6.2 branch.
+	2013-10-21 - GAC - Modified - Added 'file-version' property for ADF core files 
 --->
 <cfcomponent name="Core" hint="Core component for Application Development Framework">
 
-<cfproperty name="version" value="1_6_1">
+<cfproperty name="version" value="1_6_2">
+<cfproperty name="file-version" value="5">
 
 <cfscript>
-	variables.ADFversion = "1.6.1"; // use a dot delimited version number
+	variables.ADFversion = "1.6.2"; // use a dot delimited version number
 	// ADF Build Revision Number
-	variables.buildRev = "1045";
+	variables.buildRev = "1212";
 	// ADF Codename
-	variables.buildName = "Zelda";
+	variables.buildName = "Spy Hunter";
 	// CS product version, get the decimal value
 	variables.csVersion = Val(ListLast(request.cp.productversion, " "));
 </cfscript>
@@ -148,6 +151,31 @@ History:
 
 <!---
 /* *************************************************************** */
+Author: 
+	PaperThin, Inc.
+	G. Cronkright
+Name:
+	getSiteDevModeStatus
+Summary:
+	Returns the Site Dev Mode Status
+Returns:
+	boolean - dev mode status
+Arguments:
+	NA
+History:
+	2013-10-19 - GAC - Created
+--->
+<cffunction name="getSiteDevModeStatus" access="public" returntype="numeric">
+	<Cfscript>
+		var status = false;
+		if ( StructKeyExists(application,"ADF") AND StructKeyExists(application.ADF,"siteDevMode") AND IsBoolean(application.ADF.siteDevMode) AND application.ADF.siteDevMode ) 
+			status = true;				
+		return status;
+	</Cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
 Author: 	
 	jrybacek
 Name:
@@ -171,17 +199,19 @@ History:
 	2011-02-09 - RAK - Fixing typo
 	2011-02-09 - GAC - Removed self-closing slash on cfthrow
 	2011-04-06 - MFC - Changed the ADF reset error log to not append to the file and overwrite the file.
-	2011-05-03 - MFC - Commented out 'Application.ADF' cfdump from the debug log. CFDump was too large and
+	2011-05-03 - MFC - Commented out 'application.ADF' cfdump from the debug log. CFDump was too large and
 						caused performance slowness loading debug html.
 	2011-06-29 - MT - Set a response header indicating if the ADF was reset or not.
 	2011-07-14 - MFC - Renamed cache variable to be under ADF struct, "application.ADF.cache".
 	2012-01-12 - MFC - Updated the ADF reset message text.
 	2013-01-23 - MFC - Increased the CFLOCK timeout to "120".
+	2013-10-28 - GAC - Added production mode or development mode designation message to the ADF reset message text
+	2013-12-05 - GAC - Added the forceResetStatus to the returnStruct to pass if the reset was Forced or not
 --->
 <cffunction name="reset" access="remote" returnType="Struct">
 	<cfargument name="type" type="string" required="false" default="all" hint="The type of the ADF to reset.  Options are 'Server', 'Site' or 'All'. Defaults to 'All'.">
 	<cfscript>
-		var rtnMsg = "Insufficient security, user not logged in.";
+		var rtnMsg = "ADF Reset Error: You must be logged in to perform this operation.";
 		var ADFReset = false;
 		var returnStruct = StructNew();
 		var siteName = "";
@@ -189,6 +219,7 @@ History:
 		var ADFversion = "v" & getADFversion();
 		var forceReset = false;
 		var dump = "";
+		var devModeStatus =  false;
 		// Check if the ADF space exists in the SERVER and APPLICATION
 		if ( NOT StructKeyExists(server, "ADF") OR NOT StructKeyExists(application, "ADF") )
 			forceReset = true;
@@ -201,8 +232,7 @@ History:
 				<cfscript>
 			 		// 2010-06-23 jrybacek Determine if user is logged in.
 			  		// 2010-06-23 jrybacek Determine how much of the ADF is being requested to be reset
-					switch (uCase(arguments.type))
-					{
+					switch (uCase(arguments.type)) {
 						case "ALL":
 							// 2010-06-23 jrybacek Reload ADF server
 							createObject("component", "ADF.core.Core").init();
@@ -227,12 +257,21 @@ History:
 							rtnMsg = "Invalid argument '#arguments.type#' passed to method reset.";
 							break;
 					}
-					if ( ADFReset ) //Reset the cache.
+					if ( ADFReset ) {
+						//Reset the cache.
 						application.ADF.cache = StructNew();
+						// Get the Dev Mode Status to display with reset message
+						devModeStatus =  getSiteDevModeStatus();
+						// Append the dev or production mode text to the rtnMsg string
+						if ( devModeStatus ) 
+							rtnMsg = rtnMsg & " [Development Mode]";	
+						else 
+							rtnMsg = rtnMsg & " [Production Mode]";
+					}
 				</cfscript>
 				<!--- // If sever.ADF.buildError Array has any errors... throw an exception (used the cfthrow tag for CF8 compatibility) --->
 				<cfif StructKeyExists(server.ADF,"buildErrors") AND ArrayLen(server.ADF.buildErrors)>
-					<cfthrow type="ADFBuildError" message="ADF Build Errors Occured" detail="Check the Server.ADF.buildErrors for Details.">
+					<cfthrow type="ADFBuildError" message="ADF Build Errors Occured" detail="Check the server.ADF.buildErrors for Details.">
 				</cfif>
 			</cflock>
 			<cfcatch>
@@ -248,7 +287,7 @@ History:
 					</cfif>
 					
 					<!--- Dump the application.ADF --->
-					<!--- 2011-05-03 - MFC - Commented out 'Application.ADF' cfdump from the debug log. --->
+					<!--- 2011-05-03 - MFC - Commented out 'application.ADF' cfdump from the debug log. --->
 					<!--- <cfif NOT StructKeyExists(application, "ADF")>
 						<cfoutput><p>application.ADF Does not exist.</p></cfoutput>
 					<cfelse>
@@ -272,7 +311,9 @@ History:
 		getPageContext().getResponse().setHeader( "X-CS_ADF_Reset" , "#ADFReset#" );
 		
 		returnStruct.success = ADFReset;
-		returnStruct.message = "&nbsp;"&DateFormat(now(),"yyyy-mm-dd")&" "&TimeFormat(now(),"hh:mm:ss")&" - "&rtnMsg;
+		returnStruct.message = "&nbsp;" & DateFormat(now(),"yyyy-mm-dd") & " " & TimeFormat(now(),"hh:mm:ss") & " - " & rtnMsg;
+		returnStruct.forceResetStatus = forceReset;
+		returnStruct.devModeStatus = devModeStatus;
 		return returnStruct;
 	</cfscript>
 </cffunction>
