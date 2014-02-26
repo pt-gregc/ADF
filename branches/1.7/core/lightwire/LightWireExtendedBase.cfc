@@ -27,12 +27,13 @@ Name:
 History:
 	2009-08-14 - MFC - Created
 	2013-10-21 - GAC - Added 'file-version' property for ADF core files 
+	2014-02-26 - GAC - Updated for version 1.7.0
 --->
 
 <cfcomponent name="LightWireExtendedBase" extends="ADF.thirdParty.lightwire.LightWire" output="false">
 
-<cfproperty name="version" value="1_6_2">
-<cfproperty name="file-version" value="1">
+<cfproperty name="version" value="1_7_0">
+<cfproperty name="file-version" value="2">
 
 <!---
 /* *************************************************************** */

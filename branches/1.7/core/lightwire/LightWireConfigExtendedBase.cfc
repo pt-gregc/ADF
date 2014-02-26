@@ -31,11 +31,12 @@ History:
 	2011-07-11 - MFC/AW - Updated Init and loadADFAppBeanConfig for performance improvements.
 	2012-12-26 - MFC - Updated the logging for the v1.6.
 	2013-10-21 - GAC - Added 'file-version' property for ADF core files 
+	2014-02-26 - GAC - Updated for version 1.7.0
 --->
 <cfcomponent name="LightWireConfigBase" extends="ADF.thirdParty.lightwire.BaseConfigObject" output="false">
 
-<cfproperty name="version" value="1_6_2">
-<cfproperty name="file-version" value="1">
+<cfproperty name="version" value="1_7_0">
+<cfproperty name="file-version" value="2">
 
 <cffunction name="init" returntype="any" hint="I initialize default LightWire config properties." output=false access="public">
 	<cfscript>

@@ -32,11 +32,12 @@ History:
 	2011-01-26 - GAC - Added a method for setLightboxProxyURL
 	2011-04-05 - MFC - Updated the version property.
 	2011-09-27 - GAC - Updated most of the comment blocks to follow the ADF standard
+	2014-02-26 - GAC - Updated for version 1.7.0
 --->
 <cfcomponent displayname="SiteBase" extends="ADF.core.AppBase">
 
-<cfproperty name="version" value="1_6_5">
-<cfproperty name="file-version" value="1">
+<cfproperty name="version" value="1_7_0">
+<cfproperty name="file-version" value="2">
 
 <!---
 /* *************************************************************** */

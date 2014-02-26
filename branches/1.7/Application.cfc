@@ -27,7 +27,7 @@ Name:
 Summary:
 	Application file.
 Version:
-	1.6.0
+	1.7.0
 History:
 	2009-06-17 - RLW - Created
 	2011-01-19 - RAK - Fixed typo in utils
@@ -37,11 +37,12 @@ History:
 	2011-10-04 - GAC - Updated getBean csSecurity call to reference csSecurity_1_1
 	2012-08-08 - MFC - Added structKeyExists check for "request.params".
 	2013-10-21 - GAC - Added version and 'file-version' property for ADF core file 
+	2014-02-26 - GAC - Updated for version 1.7.0
 --->
 <cfcomponent>
 	
-	<cfproperty name="version" value="1_6_2">
-	<cfproperty name="file-version" value="0">
+	<cfproperty name="version" value="1_7_0">
+	<cfproperty name="file-version" value="1">
 	
 	<cfset this.sessionManagement = true>
 	

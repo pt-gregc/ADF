@@ -75,7 +75,7 @@ History:
 	variables.SHOW_ADD_LINK = true;  // Boolean
 	variables.SHOW_EDIT_DELETE_LINKS = false;  	// Boolean - 'false' Disables both Edit and Delete options, 'true' Enables the SHOW_EDIT_LINKS and SHOW_DELETE_LINKS options
 	
-	// VARIABLES for v1.2 for ADF 1.6.2
+	// VARIABLES for v1.2 for ADF 1.6.2+
 	variables.AVAILABLE_LABEL = "Available Items";
 	variables.SELECTED_LABEL = "Selected Items";
 	variables.NEW_ITEM_LABEL = "Add New Item";
