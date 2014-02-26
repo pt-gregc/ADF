@@ -1150,8 +1150,8 @@ History:
 	
 <cffunction name="onDrop" returnformat="json" access="remote" hint="Method to reorder the values fo a custom element">
 	<cfargument name="formID" type="numeric" required="true" hint="ID of the form or control type">
-	<cfargument name="propertiesStruct" type="any" required="true" hint="Properties structure for the field in json format"><!--- TODO: Update to type="struct" --->
-	<cfargument name="currentValues" type="any" required="true" hint="Current values structure for the field in json format"><!--- TODO: Update to type="struct" --->
+	<cfargument name="propertiesStruct" type="any" required="true" hint="Properties structure for the field in json format"><!--- // Set to type="any" to handle either a json string or struture object --->
+	<cfargument name="currentValues" type="any" required="true" hint="Current values structure for the field in json format"><!--- // Set to type="any" to handle either a json string or struture object --->
     <cfargument name="movedDataPageID" type="numeric" required="true" hint="The unique data pageid for the record from start pos">
 	<cfargument name="dropAfterDataPageID" type="numeric" required="true" hint="The unique data pageid for the record from end pos">
     <cfscript>
@@ -1170,22 +1170,27 @@ History:
 		var posStruct = StructNew();
 		var rangeRecords = QueryNew('');
 			
-		if (IsJSON(arguments.propertiesStruct))
-		{
+		if ( IsJSON(arguments.propertiesStruct) )
 			inputPropStruct = DeserializeJSON(arguments.propertiesStruct);
-		}
+		else if ( IsStruct(arguments.propertiesStruct) )
+			inputPropStruct = arguments.propertiesStruct;
 		else
 		{
-			inputPropStruct = arguments.propertiesStruct;
+			sResult = 'Failed to read the propertiesStruct value that was passed in to the Custom Element Datamanager onDrop method.';	
+			application.ADF.utils.logAppend(msg=sResult,logFile="adf-custom-element-data-manager-cft.log");			
+			return sResult;
 		}
 			
-		if (IsJSON(arguments.currentValues))
-		{
+		if ( IsJSON(arguments.currentValues) )
 			curValuesStruct = DeserializeJSON(arguments.currentValues);
-		}
+		else if ( IsStruct(arguments.currentValues) )
+			curValuesStruct = arguments.currentValues;
 		else
 		{
-			curValuesStruct = arguments.currentValues;
+			application.ADF.utils.logAppend();
+			sResult = 'Failed to read the currentValues value that was passed in to the Custom Element Datamanager onDrop method.';
+			application.ADF.utils.logAppend(msg=sResult,logFile="adf-custom-element-data-manager-cft.log");			
+			return sResult;
 		}
 			
 		if (IsNumeric(inputPropStruct.assocCustomElement))
@@ -1287,7 +1292,19 @@ History:
 		var theArrayLen = 0;
 		var valueFld = 0;
 		var displayFld = 0;
-		
+		var ceObj = Server.CommonSpot.ObjectFactory.getObject('CustomElement');
+		var cfmlFilterCriteria = StructNew();	
+		var ceFormID = 0;
+		var fieldList = '';
+		var sortColumn = '';
+		var sortDir = '';
+		var filterArray = ArrayNew(1);
+		var statementsArray = ArrayNew(1);
+		var ceFieldsArray = ArrayNew(1);
+		var index = 1;
+		var valueWithoutParens = '';
+		var hasParens = 0;	
+		var ceData = QueryNew('');
 		
 		if( NOT StructKeyExists(request,'getContent_ceSelect') )
 			request['getContent_ceSelect'] = structNew();
@@ -1337,11 +1354,8 @@ History:
 					{
 						//
 						// Get Results of ALL applicable records.
-						//
-							
-						// TODO: NEED TO HANDLE FILTER CASE
-						
-						if( StructKeyExists(paramsStruct,"activeFlagField") 
+						//						
+						/*if( StructKeyExists(paramsStruct,"activeFlagField") 
 								AND Len(paramsStruct.activeFlagField)
 								AND StructKeyExists(paramsStruct,"activeFlagValue") 
 								AND Len(paramsStruct.activeFlagValue)
@@ -1358,7 +1372,90 @@ History:
 						{
 							// No filter, get all records
 							ceDataArray = application.ADF.ceData.getCEData(paramsStruct.customElement);
+						}*/
+						
+						if (StructKeyExists(paramsStruct,"customElement") and Len(paramsStruct.customElement))
+							ceFormID = application.ADF.cedata.getFormIDByCEName(paramsStruct.customElement);
+						
+						if ( StructKeyExists(paramsStruct,"activeFlagField") 
+								AND Len(paramsStruct.activeFlagField) 
+								AND StructKeyExists(paramsStruct,"activeFlagValue") 
+								AND Len(paramsStruct.activeFlagValue) 
+							) 
+						{
+							if ( (TRIM(LEFT(paramsStruct.activeFlagValue,1)) EQ "[") AND (TRIM(RIGHT(paramsStruct.activeFlagValue,1)) EQ "]"))
+							{
+								valueWithoutParens = MID(paramsStruct.activeFlagValue, 2, LEN(paramsStruct.activeFlagValue)-2);
+								hasParens = 1;
+							}
+							else
+							{
+								valueWithoutParens = paramsStruct.activeFlagValue;
+							}
+							
+							statementsArray[1] = ceObj.createStandardFilterStatement(customElementID=ceFormID,fieldIDorName=paramsStruct.activeFlagField,operator='Equals',value=valueWithoutParens);
+									
+							filterArray = ceObj.createQueryEngineFilter(filterStatementArray=statementsArray,filterExpression='1');
+							
+							if (hasParens)
+							{
+								filterArray[1] = ReplaceNoCase(filterArray[1], '| #valueWithoutParens#| |', '#valueWithoutParens#| ###valueWithoutParens###| |');
+							}
+							
+							cfmlFilterCriteria.filter = StructNew();
+							cfmlFilterCriteria.filter.serSrchArray = filterArray;
+							cfmlFilterCriteria.defaultSortColumn = paramsStruct.activeFlagField & '|asc';
 						}
+						
+						if ( StructKeyExists(paramsStruct,"sortByField") and paramsStruct.sortByField NEQ '--')
+						{
+							cfmlFilterCriteria.defaultSortColumn = paramsStruct.sortByField & '|asc';
+						}
+						
+						if (NOT StructIsEmpty(cfmlFilterCriteria))
+							paramsStruct.filterCriteria = Server.CommonSpot.UDF.util.WDDXEncode(cfmlFilterCriteria);
+				
+						if (StructKeyExists(paramsStruct, 'filterCriteria') AND IsWDDX(paramsStruct.filterCriteria))
+						{
+							cfmlFilterCriteria = Server.CommonSpot.UDF.util.WDDXDecode(paramsStruct.filterCriteria);	
+							if ( StructKeyExists(cfmlFilterCriteria,"filter") )		
+								filterArray = cfmlFilterCriteria.filter.serSrchArray;
+							sortColumn = ListFirst(cfmlFilterCriteria.defaultSortColumn,'|');
+							sortDir = ListLast(cfmlFilterCriteria.defaultSortColumn,'|');
+						}
+						
+						if (StructKeyExists(paramsStruct,"customElement") and Len(paramsStruct.customElement))
+						{
+							// TODO: Remove when the new Filter Criteria works correctly					
+							ceFieldsArray = application.ADF.cedata.getTabsFromFormID(formID=ceFormID,recurse=true);
+							if (ArrayLen(ceFieldsArray) AND StructKeyExists(ceFieldsArray[1],'fields') AND IsArray(ceFieldsArray[1].fields) AND ArrayLen(ceFieldsArray[1].fields))
+							{
+								for(index=1;index LTE ArrayLen(ceFieldsArray[1].fields);index=index+1)
+								{
+									fieldList = ListAppend(fieldList, ceFieldsArray[1].fields[index].fieldName);
+									if (NOT Len(sortColumn) AND NOT Len(sortDir) AND index EQ 1)
+									{
+										sortColumn = ceFieldsArray[1].fields[index].fieldName;
+										sortDir = 'asc';
+									}
+								}
+							}
+							
+							if (NOT ArrayLen(filterArray))
+								filterArray[1] = '| element_datemodified| element_datemodified| <= | | c,c,c| | ';
+							ceData = ceObj.getRecordsFromSavedFilter(elementID=ceFormID,queryEngineFilter=filterArray,columnList=fieldList,orderBy=sortColumn,orderByDirection=sortDir);
+							formIDColArray = ArrayNew(1);
+							formNameColArray = ArrayNew(1);
+							if (ceData.ResultQuery.RecordCount)
+							{
+								ArraySet(formIDColArray, 1, ceData.ResultQuery.RecordCount, ceFormID);
+								ArraySet(formNameColArray, 1, ceData.ResultQuery.RecordCount, paramsStruct.customElement);
+							}
+							
+							QueryAddColumn(ceData.ResultQuery, 'formID', formIDColArray);
+							QueryAddColumn(ceData.ResultQuery, 'formName', formIDColArray);
+						}
+						ceDataArray = application.ADF.cedata.buildCEDataArrayFromQuery(ceData.ResultQuery);
 	
 						// cache the results					
 						ceDataArrayLen = ArrayLen(ceDataArray);
