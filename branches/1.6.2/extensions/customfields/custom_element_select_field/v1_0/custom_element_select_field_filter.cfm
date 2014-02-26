@@ -24,7 +24,12 @@ Author:
 Name:
 	$custom_element_select_field_filter.cfm
 Summary:
-	This module should be used for the ADF Custom Element Select field type.
+	Sample Filter Module
+	
+		This is a sample filter module for a custom field type.  It is called when rendering the advanced filter criteria UI
+		for a metadata/custom element form.
+		
+		This module should be used for the ADF Custom Element Select field type.
 	
 	Input:
 		The following 'attribute' scope variables are passed to this module.
@@ -115,38 +120,55 @@ Summary:
 History:
 	2014-01-14 - TP - Created
 	2014-01-30 - GAC - Moved into a v1_0 version subfolder						
-
+	2014-02-26 - DJM - Updated version with an external options file
 -------------->
-<cfscript>
-	caller.operators = "";
-	optionsStruct = StructNew();
-	cfmlInputParams = '';
-</cfscript>
+<cfset caller.operators = "">
+<cfset optionsStruct = StructNew()>
+<cfset cfmlInputParams = ''>
 
-<!--- Get the properties for the form and field IDs passed --->
-<cfquery name="getProperties" datasource="#Request.Site.DataSource#">
-	SELECT d2.params as InputParams, d3.FieldID, d2.fieldName
-	  FROM FormInputControl d2
-   	INNER JOIN FormInputControlMap d3 ON d3.FieldID = d2.ID 
-	INNER JOIN FormControl d1 ON d1.ID = d3.FormID   	 
-	LEFT OUTER JOIN CustomFieldTypes cft ON d2.Type = cft.Type
-	 WHERE d3.FormID = #attributes.sourceFormID#
-	 AND cft.ID = #attributes.customFieldTypeID#
-	 AND d3.FieldID = #attributes.sourceFieldID#
-</cfquery>
+<cfset optionsModule = '/ADF/extensions/customfields/custom_element_select_field/v1_0/custom_element_select_field_options.cfm'>
 
-<cfif getProperties.RecordCount>
-	<cfwddx action="wddx2cfml" input="#getProperties.InputParams#" output="cfmlInputParams">
+<cfif StructKeyExists(attributes, 'currentValues') AND StructKeyExists(attributes, 'returnCurrentOnly') AND attributes.returnCurrentOnly EQ 1>
+	<cfmodule template = "#optionsModule#" attributeCollection="#attributes#">
+	<cfset caller.optionsStruct = ArrayToList(optionsStruct.optionText, "<br/>")>
+<cfelse>
+	<cfsavecontent variable="fieldHTML">
+		<cfoutput>
+			<span nowrap="nowrap">
+			<div id="selected_values_display_XRE" style="width:120px;height:70px;overflow:auto;border:1px inset ##999999;padding:1px;display:none;"></div>
+			#Server.CommonSpot.UDF.tag.input(type="button", onclick="javascript:top.commonspot.dialog.server.show('csModule=metadata/form_control/input_control/option-value-select&optionsModule=#optionsModule#&sourceformid=#attributes.sourceformid#&sourcefieldid=#attributes.sourcefieldid#&customFieldTypeID=#attributes.customFieldTypeID#&callBackFunction=updateSelectFieldValues&hiddenFldName=#attributes.fieldNameAttributeValue#&displayFldName=selected_values_display_XRE&btnName=selectBtn_XRE&&selectedValues=');", value="Select...", id="selectBtn_XRE", name="selectBtn_XRE", class="clsPushButton", style="vertical-align:top;")#
+			</span>
+			#Server.CommonSpot.UDF.tag.input(type="hidden", name="#attributes.fieldNameAttributeValue#", id="#attributes.fieldNameAttributeValue#", value="")#
+		</cfoutput>
+	</cfsavecontent>
 	
-	<cfscript>
-		if (cfmlInputParams.CustomElement NEQ '' AND cfmlInputParams.DisplayField NEQ '' AND cfmlInputParams.ValueField NEQ '')
-			optionsStruct = createOptionsStructure(propertiesStruct=cfmlInputParams); // Call function that would buid up the options struct
-			
-		if( NOT StructKeyExists( cfmlInputParams,'MultipleSelect' ) )
-			cfmlInputParams.MultipleSelect = 0;			
-	</cfscript>
+	<cfset caller.fieldHTML = fieldHTML>
+	
+	<cfsavecontent variable="jsSetValue">
+		<cfoutput>
+			function setValue_#attributes.customFieldTypeID#(objID,values,displayText)
+			{
+				var fieldName = '#attributes.fieldNameAttributeValue#';
+				fieldName = fieldName.replace("_XRE", "_" + objID);
+				if (displayText.length > 0)
+				{
+					document.getElementById('selected_values_display_' + objID).style.display = "block";
+					document.getElementById('selected_values_display_' + objID).innerHTML = displayText;
+				}
+				document.getElementById(fieldName).value = values;
+				var urlVal = document.getElementById('selectBtn_' + objID).getAttribute("onclick");
+				var startIndex = urlVal.indexOf("selectedValues=");
+				var endIndex = urlVal.indexOf("')");
+				var selectedValStr = urlVal.substr(startIndex + 15, endIndex - startIndex - 15);
+				urlVal = urlVal.replace("selectedValues=" + selectedValStr, "selectedValues=" + values);
+				document.getElementById('selectBtn_' + objID).setAttribute("onclick", urlVal);
+			}
+		</cfoutput>
+	</cfsavecontent>
+	<cfset caller.jsSetValueFunction = jsSetValue>
 </cfif>
 
+<!---
 <cfsavecontent variable="fieldHTML">
 	<cfif StructCount(optionsStruct)>
 		<cfoutput><select name="#attributes.fieldNameAttributeValue#" id="#attributes.fieldNameAttributeValue#" style="font-family:#Request.CP.Font#;font-size:10" multiple="#cfmlInputParams.MultipleSelect#"></cfoutput>
@@ -159,6 +181,7 @@ History:
 	</cfif>
 </cfsavecontent>
 <cfset caller.fieldHTML = fieldHTML>
+
 
 <cfsavecontent variable="jsSetValue">
 	<cfif StructCount(optionsStruct)>
@@ -191,92 +214,5 @@ History:
 	</cfif>
 </cfsavecontent>
 <cfset caller.jsSetValueFunction = jsSetValue>
+--->
 
-
-
-<cffunction name="createOptionsStructure" returntype="struct" hint="Creates the data-display pair for the options of the selection list" output="Yes">
-	<cfargument name="propertiesStruct" type="struct" required="yes" hint="Input the properties values">
-		
-	<cfscript>
-		var cfmlInputParams = arguments.propertiesStruct;
-		var optionsStruct = StructNew();
-		var i = 0;
-		var value = 0;
-		var display = '';
-		var recs = ArrayNew(1);
-
-		// get the records for this custom element
-		recs = application.adf.cedata.getCEData( cfmlInputParams.CustomElement ); 
-	
-		for( i=1; i lte ArrayLen(recs); i=i+1 )
-		{
-			if( StructKeyExists(recs[i].values, cfmlInputParams.ValueField) )	
-			{
-				if( StructKeyExists(recs[i].values, cfmlInputParams.DisplayField) )
-					display = recs[i].values[cfmlInputParams.DisplayField];
-				else	
-				{
-					if( cfmlInputParams.DisplayField eq '--Other--' AND cfmlInputParams.DisplayFieldBuilder neq '' )
-					{
-						// evaluate the fields in the string (i.e. «lname», «fname» )
-						display = getEvaluated( cfmlInputParams.DisplayFieldBuilder, recs[i].values );
-					}	
-					else
-						display = recs[i].values[cfmlInputParams.ValueField];
-				}	
-				
-				value = recs[i].values[cfmlInputParams.ValueField];
-			
-				if( NOT StructKeyExists( optionsStruct, display ) )
-				{
-					optionsStruct[ display ] = value;
-				}	
-			}
-		}
-	</cfscript>	
-	
-	<cfreturn optionsStruct>
-</cffunction>
-
-<cffunction name="getEvaluated" access="private" output="Yes" returntype="string">
-	<cfargument name="str" type="string" required="yes">
-	<cfargument name="values" type="struct" required="yes">
-
-	<cfscript>
-		var retString = arguments.str;
-		var tmp = '';
-		var j = 0;
-		var StartPos = 1;
-		var endPos = 0;
-		var replacement = '';
-		var fld = '';
-		
-		for( j=1; j lte 10; j=j+1 )
-		{
-			startPos = FindNoCase( Chr('171'), retString, 1 );
-
-			if( startPos )
-			{
-				endPos = FindNoCase( Chr('187'), retString, startPos );
-				if( endPos )
-				{
-					str = Mid( retString, startPos, EndPos - StartPos + 1);
-				
-					fld = str;
-					fld = Replace( fld, Chr('171'), '' );
-					fld = Replace( fld, Chr('187'), '' );
-					if( StructKeyExists( arguments.values, fld ) )
-						replacement = arguments.values[fld];
-					else
-						replacement = '??';	
-					
-					retString = ReplaceNoCase( retString, str, replacement, 'ALL' );
-				}	
-			}
-			else
-				break;
-		}
-	</cfscript>
-	
-	<cfreturn retString>
-</cffunction>
