@@ -47,7 +47,7 @@ History:
 --->
 <cfcomponent displayname="csData_1_2" extends="ADF.lib.csData.csData_1_1" hint="CommonSpot Data Utils functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_11">
+<cfproperty name="version" value="1_2_12">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">
@@ -877,7 +877,7 @@ Summary:
 	given a CS PageID build a URL to that page
 	
 	NOTE: If you want the CSPageURL use getCSPageURL() or parseCSURL().
-	Also this function will return loader.cfm the secure file string for documents.
+	      This method will also return the loader.cfm secure file string for documents.
 Returns:
 	String csFileURL
 Arguments:
