@@ -34,6 +34,9 @@ History:
 	2014-02-26 - GAC - Updated for version 1.7.0
 --->
 <cfcomponent name="ADF" extends="ADF.core.SiteBase">
+	
+<cfproperty name="version" value="1_7_0">
+<cfproperty name="file-version" value="7">
 
 <cffunction name="init" returntype="void" access="public">
 	<cfscript>
