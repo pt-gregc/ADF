@@ -63,7 +63,19 @@ History:
 	2014-01-17 - TP  - Added the abiltiy to render checkboxes, radio buttons as well as a selection list
 	2014-01-30 - DJM - Removed Active Field and Value fields and replaced with a filter criteria option
 	2014-01-30 - GAC - Moved into a v1_1 version subfolder
+	2014-02-27 - GAC - Added backwards compatiblity logic to allow field use the prior version of the CFT if installed on a pre-CS9 site
 --->
+<cfscript>
+	requiredCSversion = 9;
+	csVersion = ListFirst(ListLast(request.cp.productversion," "),".");
+</cfscript>
+<cfif csVersion LT requiredCSversion>
+	<cfset useCFTversion = "v1_0">
+	<cfinclude template="/ADF/extensions/customfields/custom_element_select_field/#useCFTversion#/custom_element_select_field_render.cfm">
+	<cfexit>
+</cfif>
+
+<!---// CommonSpot 9 Required for the new element data filter criteria --->
 <cfscript>
 	// the fields current value
 	currentValue = attributes.currentValues[fqFieldName];
