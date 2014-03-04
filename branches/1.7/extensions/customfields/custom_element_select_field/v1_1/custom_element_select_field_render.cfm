@@ -133,26 +133,11 @@ History:
 	if ( NOT StructKeyExists(xparams, "fldName") OR (LEN(xparams.fldName) LTE 0) )
 		xparams.fldName = fqFieldName;	
 	
-	// TODO: Remove when the new Filter Criteria works correctly	
-	//if ( NOT StructKeyExists(xparams, "sortByField") OR (LEN(xparams.sortByField) LTE 0) )
-	//	xparams.sortByField = "--";
+
 	
 	if ( NOT StructKeyExists(xparams,"addButton") OR !IsBoolean(xparams.addButton) )
 		xparams.addButton = 0;
 		
-	// TODO: Remove when the new Filter Criteria works correctly
-	// Get the data records
-	/*if ( StructKeyExists(xparams,"activeFlagField") and Len(xparams.activeFlagField) and StructKeyExists(xparams,"activeFlagValue") and Len(xparams.activeFlagValue) ) 
-	{
-		if ( (TRIM(LEFT(xparams.activeFlagValue,1)) EQ "[") AND (TRIM(RIGHT(xparams.activeFlagValue,1)) EQ "]"))
-		{
-			xparams.activeFlagValue = MID(xparams.activeFlagValue, 2, LEN(xparams.activeFlagValue)-2);
-			xparams.activeFlagValue = Evaluate(xparams.activeFlagValue);
-		}
-		ceDataArray = application.ADF.cedata.getCEData(xparams.customElement,xparams.activeFlagField,xparams.activeFlagValue);
-	}
-	else 
-		ceDataArray = application.ADF.cedata.getCEData(xparams.customElement);*/
 	
 	ceObj = Server.CommonSpot.ObjectFactory.getObject('CustomElement');
 	cfmlFilterCriteria = StructNew();	
@@ -218,21 +203,25 @@ History:
 	
 	if (StructKeyExists(xparams,"customElement") and Len(xparams.customElement))
 	{
-		// TODO: Remove when the new Filter Criteria works correctly
-		//ceFormID = application.ADF.cedata.getFormIDByCEName(xparams.customElement);
-	
-		ceFieldsArray = application.ADF.cedata.getTabsFromFormID(formID=ceFormID,recurse=true);
-		if (ArrayLen(ceFieldsArray) AND StructKeyExists(ceFieldsArray[1],'fields') AND IsArray(ceFieldsArray[1].fields) AND ArrayLen(ceFieldsArray[1].fields))
+		// fldsQry = ceObj.GetFields(ceFormID);
+		// fieldList = ValueList(fldsQry.Name);
+		if( StructKeyExists(xparams, "displayField") AND LEN(xparams.displayField) AND xparams.displayField neq "--Other--" ) 
+			fieldList = '#xparams.displayField#,#xparams.valueField#';
+		else if( xparams.displayField eq "--Other--" AND xparams.DisplayFieldBuilder neq '' )
 		{
-			for(index=1;index LTE ArrayLen(ceFieldsArray[1].fields);index=index+1)
-			{
-				fieldList = ListAppend(fieldList, ceFieldsArray[1].fields[index].fieldName);
-				if (NOT Len(sortColumn) AND NOT Len(sortDir) AND index EQ 1)
-				{
-					sortColumn = ceFieldsArray[1].fields[index].fieldName;
-					sortDir = 'asc';
-				}
-			}
+			fieldList = ReplaceNoCase( xparams.DisplayFieldBuilder, Chr(187), "", "ALL" );
+			fieldList = ReplaceNoCase( fieldList, Chr(171), "", "ALL" );
+			fieldList = ReplaceNoCase( fieldList, " ", "", "ALL" );
+		}
+		else
+		{
+			fieldList = xparams.valueField;
+		}
+		
+		if (NOT Len(sortColumn) AND NOT Len(sortDir))
+		{
+			sortColumn = ListFirst(fieldList);
+			sortDir = 'asc';
 		}
 		
 		if (NOT ArrayLen(filterArray))
@@ -252,11 +241,6 @@ History:
 	ceDataArray = application.ADF.cedata.buildCEDataArrayFromQuery(ceData.ResultQuery);
 
 	// Sort the list by the display field value, if its other.. all bets are off we sort via jquery... 
-	// TODO: Remove when the new Filter Criteria works correctly
-	//if( xparams.sortByField neq "--" ) 
-	//	ceDataArray = application.ADF.cedata.arrayOfCEDataSort(ceDataArray, xparams.sortByField);
-	//else 
-	
 	if( StructKeyExists(xparams, "displayField") AND LEN(xparams.displayField) AND xparams.displayField neq "--Other--" ) 
 		ceDataArray = application.ADF.cedata.arrayOfCEDataSort(ceDataArray, xparams.displayField);
 

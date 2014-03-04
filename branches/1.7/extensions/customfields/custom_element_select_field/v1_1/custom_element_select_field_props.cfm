@@ -136,6 +136,9 @@ History:
 	if ( isBoolean(currentValues.multipleSelect) AND currentValues.multipleSelect)
 		multipleSelectType = "multi";
 	
+	if (multipleSelectType eq "multi")
+		currentValues.renderSelectOption = false;
+			
 	// Query to get the Custom Element List
 	customElements = application.ADF.ceData.getAllCustomElements();
 	// 2013-11-15 - GAC - Set to use 'ceData_2_0'
@@ -220,6 +223,32 @@ History:
 		document.#formname#.#prefix#label.value = str;
 	}
 	
+	function #prefix#setRenderSelect()
+	{
+		if (document.#formname#.#prefix#multipleSelect[0].checked == true)
+		{
+			document.#formname#.#prefix#renderSelectOption[0].disabled = true;
+			document.#formname#.#prefix#renderSelectOption[1].checked = true;
+		}
+		else
+			document.#formname#.#prefix#renderSelectOption[0].disabled = false;
+	}
+	
+	function #prefix#clearFilter()
+	{
+		document.#formname#.#prefix#filterCriteria.value = "";
+		document.getElementById('#prefix#clearBtn').style.display = "none";
+		var onClickAttrVal = document.getElementById('#prefix#filterBtn').getAttribute("onclick");
+		onClickAttrVal = onClickAttrVal.replace("hasFilter=1", "hasFilter=0");	
+		document.getElementById('#prefix#filterBtn').setAttribute("onclick", onClickAttrVal);
+	}
+	
+	function #prefix#openFilterDlg()
+	{
+		var curl = 'csmodule=controls/custom/select-data-filters&isAdminUI=1&editRights=1&adminRights=1&openFrom=fieldProps&controlTypeID=#ceFormID#&persistentUniqueID=#persistentUniqueID#&prefixStr=#prefix#&hasFilter=1';
+		top.commonspot.dialog.server.show(curl);	
+	}
+		
 	function #prefix#doValidate()
 	{
 		if ( document.#formname#.#prefix#widthValue.value.length > 0 && !checkinteger(document.#formname#.#prefix#widthValue.value) ) 
@@ -311,7 +340,7 @@ History:
 	{
 		state = typeof state !== 'undefined' ? state : 'show';
 		multi = typeof multi !== 'undefined' ? multi : 0;
-
+		#prefix#setRenderSelect();
 		if ( state == 'show' )
 		{
 			jQuery("tr###prefix#selectOptionRow").show();
@@ -393,8 +422,11 @@ History:
 			jQuery('###prefix#filterBtn[onclick]').attr('onclick', function(i, urlVal){
 				// TODO: Remove when the new Filter Criteria works correctly
 				//var oldSelectedCEStr = urlVal.match(regex, "controlTypeID=");
+				if (urlVal)
+					var oldSelectedCEStr = urlVal.match(regex);
 				
-				var oldSelectedCEStr = urlVal.match(regex);
+				if (!oldSelectedCEStr)
+					var oldSelectedCEStr = '';	
 				
 				oldSelectedCEStr = oldSelectedCEStr.toString();
 				var oldSelectedCEID = '';
@@ -479,7 +511,7 @@ History:
 	}
 </script>
 
-<table>
+<table cellpadding="2" cellspacing="2" summary="" border="0">
 	<tr>
 		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Custom Element:</td>
 		<td class="cs_dlgLabelSmall">
@@ -523,7 +555,7 @@ History:
 			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Sort/Filter Criteria:</td>
 			<td valign="cs_dlgLabelSmall">
 			#Server.CommonSpot.UDF.tag.input(type="hidden", id="#prefix#filterCriteria", name="#prefix#filterCriteria", value=currentValues.filterCriteria, style="font-family:#Request.CP.Font#;font-size:10")#
-			#Server.CommonSpot.UDF.tag.input(type="button", class="clsPushButton", id="#prefix#filterBtn", name="#prefix#filterBtn", value="Sort/Filter Criteria...", onclick="javascript:top.commonspot.dialog.server.show('csmodule=controls/custom/select-data-filters&isAdminUI=1&editRights=1&adminRights=1&openFrom=fieldProps&controlTypeID=#ceFormID#&persistentUniqueID=#persistentUniqueID#&prefixStr=#prefix#&hasFilter=1');")#
+			#Server.CommonSpot.UDF.tag.input(type="button", class="clsPushButton", id="#prefix#filterBtn", name="#prefix#filterBtn", value="Sort/Filter Criteria...", onclick="#prefix#openFilterDlg();")#
 			<cfif Len(currentValues.filterCriteria)>
 				#Server.CommonSpot.UDF.tag.input(type="button", class="clsPushButton", id="#prefix#clearBtn", name="#prefix#clearBtn", value="Clear", onclick="#prefix#clearFilter()")#
 			<cfelse>
@@ -542,7 +574,7 @@ History:
 		</tr>
 		
 		<tr>
-			<td colspan="2"><hr /></td>
+			<td colspan="2"><hr noshade="noshade" size="1" align="center" width="98%" /></td>
 		</tr>
 		<tr>
 			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Field Type:</td>
@@ -605,7 +637,7 @@ History:
 		</tr>
 		
 		<tr>
-			<td colspan="2"><hr /></td>
+			<td colspan="2"><hr noshade="noshade" size="1" align="center" width="98%" /></td>
 		</tr>
 		<tr>
 			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Add Record Button:</td>
@@ -616,7 +648,7 @@ History:
 			</td>
 		</tr>
 		<tr>
-			<td colspan="2"><hr /></td>
+			<td colspan="2"><hr noshade="noshade" size="1" align="center" width="98%" /></td>
 		</tr>
 		<tr>
 			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Field Name:</td>
@@ -644,15 +676,9 @@ History:
 	</tbody>
 	<tr>
 		<td class="cs_dlgLabelSmall" colspan="2" style="font-size:7pt;">
-			<hr />
+			<hr noshade="noshade" size="1" align="center" width="98%" />
 			ADF Custom Field v#fieldVersion#
 		</td>
 	</tr>
 </table>
-<!--- <span class="cs_dlgLabelBoldNoAlign"></span> --->
-
-<!--- #currentValues.activeFlagField# --->
-<!--- #currentValues.activeFlagValue# --->
-<!--- #currentValues.sortByField# --->
-<!--- <cfdump var="#attributes.currentValues#"> --->
 </cfoutput>

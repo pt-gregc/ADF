@@ -1,12 +1,15 @@
+<!--- custom_element_select_field_options.cfm --->
+
 <cfscript>
 	getProperties = QueryNew('');
 	optionsStruct = StructNew();
+	optionsStruct.fieldHTML = "";
 	cfmlInputParams = StructNew();
 </cfscript>
 
 <!--- Get the properties for the form and field IDs passed --->
 <cfquery name="getProperties" datasource="#Request.Site.DataSource#">
-	SELECT d2.params as InputParams, d3.FieldID, d2.fieldName
+	SELECT d2.params as InputParams, d3.FieldID, d2.fieldName, d2.description
 	  FROM FormInputControl d2
    	INNER JOIN FormInputControlMap d3 ON d3.FieldID = d2.ID 
 	INNER JOIN FormControl d1 ON d1.ID = d3.FormID   	 
@@ -20,17 +23,73 @@
 	if (getProperties.RecordCount AND IsWDDX(getProperties.InputParams))
 	{
 		cfmlInputParams = Server.CommonSpot.UDF.util.WDDXDecode(getProperties.InputParams);
-		if (cfmlInputParams.CustomElement NEQ '' AND cfmlInputParams.DisplayField NEQ '' AND cfmlInputParams.ValueField NEQ '')
+		if( cfmlInputParams.CustomElement NEQ '' AND cfmlInputParams.DisplayField NEQ '' AND cfmlInputParams.ValueField NEQ '' )
 			optionsStruct = createOptionsStructure(propertiesStruct=cfmlInputParams,currentValues=attributes.currentValues,returnCurrentOnly=attributes.returnCurrentOnly); // Call function that would buid up the options struct
 	}
-	
+
 	multiple = '';
-	if( StructKeyExists(cfmlInputParams, 'MultipleSelect') AND cfmlInputParams.MultipleSelect )
+	if( StructKeyExists(cfmlInputParams, 'MultipleSelect') AND cfmlInputParams.MultipleSelect eq 1)
 		multiple = 'multiple';
 	
+	if (multiple eq 'multiple')
+		caller.fieldHTML = getFieldHTML(optionsStruct=optionsStruct, sourceFieldID=attributes.sourceFieldID, currentValues=attributes.currentValues);
+		
 	caller.optionsStruct = optionsStruct;
 	caller.multiple = multiple;
+	caller.label = cfmlInputParams.label;
+	caller.description = getProperties.description;
 </cfscript>
+<!----// FUNCTIONS //----------------------------->
+
+<cffunction name="getFieldHTML" returnType="any" hint="generates HTML with a div tag for the select field with multiple options list">
+	<cfargument name="optionsStruct" type="struct" required="yes" hint="available options for this field">
+	<cfargument name="sourceFieldID" type="string" required="yes" hint="ID of this source field">
+	<cfargument name="currentValues" type="string" required="yes" hint="current values list">
+	<cfscript>
+		var fldHTML = '';
+		var stringEnd = "</div>";
+		var stringStart = '<div id="div_selectField_#arguments.sourceFieldID#"  style="width:300px;min-height:70px;max-height:200px;overflow:auto;border:1px inset ##999999;padding:3px;display:block;cursor:pointer;">';
+		var i = 0;
+		var optVals = arguments.optionsStruct['optionValues'];
+		var optTxt = arguments.optionsStruct['optionText'];
+		var html = '';
+		var cssTxt = '';
+		//WriteDump( var=optVals, label='optVals', expand='No' );		
+	</cfscript>
+	
+	<cfsavecontent variable="html">
+		<cfscript>
+			if (arrayLen(optVals) eq arrayLen(optTxt))
+			{
+				for (i = 1; i le arrayLen(optVals); i=i+1)
+				{
+					WriteOutput('#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", name="selectField_#arguments.sourceFieldID#", value="#optVals[i]#", checked="#ListFind(arguments.currentValues, optVals[i])#", title="#optTxt[i]#", label="#optTxt[i]#", labelClass="chxBoxLabel")#');
+					if (i lt arrayLen(optVals))
+						WriteOutput('<br />');
+				}
+			
+			}
+		</cfscript>
+	</cfsavecontent>	
+	<cfsavecontent variable="cssTxt">
+	<cfoutput>
+		<style>
+		.chxBoxLabel
+		{
+			color: ##000000 !important;
+			font-weight: normal !important;
+			font-size: 11px !important;
+			text-decoration: none !important;
+		}
+	</style>
+	</cfoutput>
+	</cfsavecontent>
+	<cfscript>
+		html = '#cssTxt##stringStart##html##stringEnd#';
+		//WriteDump(var=html, label="html", expand="no");
+		return html;
+	</cfscript>
+</cffunction>
 
 <cffunction name="createOptionsStructure" returntype="struct" hint="Creates the data-display pair for the options of the selection list" output="true">
 	<cfargument name="propertiesStruct" type="struct" required="yes" hint="Input the properties values">
@@ -46,6 +105,7 @@
 		var ceObj = Server.CommonSpot.ObjectFactory.getObject('CustomElement');
 		var cfmlFilterCriteria = StructNew();
 		var fieldList = '';
+		var tmpFieldsArray = ArrayNew(1);
 		var ceDataArray = QueryNew('');
 		var filterArray = ArrayNew(1);
 		var ceFieldsArray = ArrayNew(1);
@@ -61,6 +121,9 @@
 		var displayArray = ArrayNew(1);
 		var displayField = '';
 		var getFilteredRecords = QueryNew('');
+		var ceFieldsArrayLen = '';
+		var fldsQry = '';		
+		var tc = getTickCount();		
 		
 		if (StructKeyExists(cfmlInputParams,"customElement") and Len(cfmlInputParams.customElement))
 			ceID = request.site.availControlsByName['custom:#cfmlInputParams.CustomElement#'].ID;		
@@ -80,10 +143,10 @@
 					valueWithoutParens = cfmlInputParams.activeFlagValue;
 				}
 				
+				// Run Query from Filter				
 				statementsArray[1] = ceObj.createStandardFilterStatement(customElementID=ceID,fieldIDorName=cfmlInputParams.activeFlagField,operator='Equals',value=valueWithoutParens);
-					
 				filterArray = ceObj.createQueryEngineFilter(filterStatementArray=statementsArray,filterExpression='1');
-				
+
 				if (hasParens)
 				{
 					filterArray[1] = ReplaceNoCase(filterArray[1], '| #valueWithoutParens#| |', '#valueWithoutParens#| ###valueWithoutParens###| |');
@@ -112,24 +175,41 @@
 				sortColumn = ListFirst(cfmlFilterCriteria.defaultSortColumn,'|');
 				sortDir = ListLast(cfmlFilterCriteria.defaultSortColumn,'|');
 			}
-			
-			ceFieldsArray = application.ADF.cedata.getTabsFromFormID(formID=ceID,recurse=true);
-			if (ArrayLen(ceFieldsArray) AND StructKeyExists(ceFieldsArray[1],'fields') AND IsArray(ceFieldsArray[1].fields) AND ArrayLen(ceFieldsArray[1].fields))
+
+			// Get fields
+			// fldsQry = ceObj.GetFields(ceID);
+			// FieldList = ValueList(fldsQry.Name);
+			if( StructKeyExists(cfmlInputParams, "displayField") AND LEN(cfmlInputParams.displayField) AND cfmlInputParams.displayField neq "--Other--" ) 
+				fieldList = '#cfmlInputParams.displayField#,#cfmlInputParams.valueField#';
+			else if( cfmlInputParams.displayField eq "--Other--" AND cfmlInputParams.DisplayFieldBuilder neq '' )
 			{
-				for(index=1;index LTE ArrayLen(ceFieldsArray[1].fields);index=index+1)
-				{
-					fieldList = ListAppend(fieldList, ceFieldsArray[1].fields[index].fieldName);
-					if (NOT Len(sortColumn) AND NOT Len(sortDir) AND index EQ 1)
-					{
-						sortColumn = ceFieldsArray[1].fields[index].fieldName;
-						sortDir = 'asc';
-					}
-				}
+				fieldList = ReplaceNoCase( cfmlInputParams.DisplayFieldBuilder, Chr(187), "", "ALL" );
+				fieldList = ReplaceNoCase( fieldList, Chr(171), "", "ALL" );
+				fieldList = ReplaceNoCase( fieldList, " ", "", "ALL" );
+				if( NOT FindNoCase( cfmlInputParams.valueField, fieldList ) )
+					fieldList = ListAppend( fieldList, cfmlInputParams.valueField ); 
 			}
-			
+			else
+			{
+				fieldList = cfmlInputParams.valueField;
+			}
+				
+
 			if (NOT ArrayLen(filterArray))
 				filterArray[1] = '| element_datemodified| element_datemodified| <= | | c,c,c| | ';
-			ceData = ceObj.getRecordsFromSavedFilter(elementID=ceID,queryEngineFilter=filterArray,columnList=fieldList,orderBy=sortColumn,orderByDirection=sortDir);
+
+
+			if( sortDir eq '' )
+				sortDir = 'Asc';
+						
+			ceData = ceObj.getRecordsFromSavedFilter( 
+											elementID=ceID,
+											queryEngineFilter=filterArray,
+											columnList=fieldList,
+											orderBy=sortColumn,
+											orderByDirection=sortDir, 
+											limit=0);
+
 		</cfscript>
 		
 		<cfif ceData.ResultQuery.RecordCount>
@@ -149,10 +229,12 @@
 				
 				QueryAddColumn(getFilteredRecords, 'formID', formIDColArray);
 				QueryAddColumn(getFilteredRecords, 'formName', formIDColArray);
+
 				ceDataArray = application.ADF.cedata.buildCEDataArrayFromQuery(getFilteredRecords);
-				
-				if( StructKeyExists(cfmlInputParams, "displayField") AND LEN(cfmlInputParams.displayField) AND cfmlInputParams.displayField neq "--Other--" ) 
-					ceDataArray = application.ADF.cedata.arrayOfCEDataSort(ceDataArray, sortColumn);
+
+				// if( StructKeyExists(cfmlInputParams, "displayField") AND LEN(cfmlInputParams.displayField) AND cfmlInputParams.displayField neq "--Other--" ) 
+				//	ceSortedDataArray = application.ADF.cedata.arrayOfCEDataSort(ceDataArray, sortColumn, sortDir);
+
 			</cfscript>
 		</cfif>
 	</cfif>
@@ -175,7 +257,7 @@
 	<cfscript>
 		optionsStruct['optionValues'] = valueArray;
 		optionsStruct['optionText'] = displayArray;
-		
+
 		return optionsStruct;
 	</cfscript>
 </cffunction>
