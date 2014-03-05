@@ -38,7 +38,8 @@ History:
 	2013-11-28 - DJM - Updated to correct issue with 3 element configuration
 	2013-12-04 - GAC - Added CommonSpot Version check since this field only runs on CommonSpot v9+
 	2013-12-09 - DJM - Added code to change the cursor for datatable, actions column width and modified path to CFC to allow drag drop
-	2014-02-20 - JTP - Added the AjazBeanName variable for the override function 
+	2014-02-20 - JTP - Added the AjaxBeanName variable for the override function 
+	2014-03-05 - JTP - Update to better handle the newData variable
 --->
 <cfscript>
 	requiredCSversion = 9;
@@ -72,6 +73,17 @@ History:
 			newData = 0;	
 	</cfscript>
 </cfif>
+
+<cfscript>
+	if ( NOT IsDefined('newData') )
+	{			
+		if (StructKeyExists(attributes.currentValues, 'DateAdded'))
+			newData = 0;
+		else
+			newData = 1;
+	}
+	request.showSaveAndContinue = newData;	// forces showing or hiding of 'Save & Continue' button
+</cfscript>
 
 <cfparam name="attributes.callingElement" default="">
 
@@ -184,17 +196,7 @@ History:
 		
 			heightVal = "150px";
 			if (IsNumeric(inputParameters.heightValue))
-			{
 				heightVal = "#inputParameters.heightValue#px";
-			}
-		
-			if (NOT IsDefined('newData'))
-			{			
-				if (StructKeyExists(attributes.currentValues, 'DateAdded'))
-					newData = 0;
-				else
-					newData = 1;
-			}
 		
 			application.ADF.scripts.loadJQuery(noConflict=true);
 			application.ADF.scripts.loadJQueryUI();
@@ -274,19 +276,22 @@ History:
 				onSuccess(data, '#uniqueTableAppend#' );
 			}
 
-			function onSuccess(data, uniqueTable )
+			if( typeof onSuccess != 'function' )
 			{
-				if(data == 'Success')
+				function onSuccess(data, uniqueTable )
 				{
-					// call the loadData function for the table that the drop occurred in.
-					window['loadData_' + uniqueTable]();	
-					// console.log('loadData_' + uniqueTable);			
-				}
-				else
-				{
-					document.getElementById('errorMsgSpan').innerHTML = data;
-					document.getElementById('customElementData_#uniqueTableAppend#').style.display = "none";
-					ResizeWindow();
+					if(data == 'Success')
+					{
+						// call the loadData function for the table that the drop occurred in.
+						window['loadData_' + uniqueTable]();	
+						// console.log('loadData_' + uniqueTable);			
+					}
+					else
+					{
+						document.getElementById('errorMsgSpan').innerHTML = data;
+						document.getElementById('customElementData_#uniqueTableAppend#').style.display = "none";
+						ResizeWindow();
+					}
 				}
 			}
 
