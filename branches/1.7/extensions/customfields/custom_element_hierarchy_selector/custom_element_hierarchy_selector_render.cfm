@@ -25,7 +25,7 @@ Author:
 Custom Field Type:
 	Custom Element Hierarchy Selector
 Name:
-	custom_element_hierarchy_selector_render.cfc
+	custom_element_hierarchy_selector_render.cfm
 Summary:
 	This the render file for the Custom Element Hierarchy Selector field
 ADF Requirements:
@@ -33,6 +33,7 @@ ADF Requirements:
 History:
 	2014-01-16 - DJM - Created
 	2014-01-29 - GAC - Converted to use AjaxProxy and the ADF Lib
+	2014-02-27 - JTP - Updated the variable that is used in the validation message
 --->
 
 <cfscript>
@@ -91,7 +92,7 @@ History:
 				#fqFieldName#.id = '#fqFieldName#';
 				#fqFieldName#.tid = #rendertabindex#;
 				#fqFieldName#.validator = "hasValue(document.#attributes.formname#.#fqFieldName#, 'TEXT')";
-				#fqFieldName#.msg = "Please select a value for the #xparams.label# field.";
+				#fqFieldName#.msg = "Please select a value for the #fieldlabel# field.";
 				// push on to validation array
 				vobjects_#attributes.formname#[vobjects_#attributes.formname#.length] = #fqFieldName#;
 				</CFOUTPUT>
