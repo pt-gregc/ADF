@@ -214,6 +214,7 @@ History:
 		var childColPos = 0;
 		var assocColPos = 0;
 		var displayColsArray = ArrayNew(1);
+		var uniqueList = '';
 		
 		if (inputPropStruct.sortByType EQ 'auto')
 		{
@@ -413,7 +414,8 @@ History:
 					if (assocData.RecordCount)
 					{
 						assocColumnList = assocData.columnList;
-						statementsArray[1] = ceObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childUniqueField,operator='Value Contained In List',value=ArrayToList(assocData[assocReqFieldName]));
+						uniqueList = application.adf.data.listRemoveDuplicates( ArrayToList(assocData[assocReqFieldName]) );
+						statementsArray[1] = ceObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childUniqueField,operator='Value Contained In List',value=uniqueList);
 						childFilterExpression = '1';
 					}
 				}
