@@ -198,7 +198,7 @@ History:
 				cacheData = memoryCache.cache;
 					 
 				if(ArrayLen(cacheData) AND (NOT IsDate(objLastUpdate) OR DateCompare(cacheLastUpdate, objLastUpdate) eq 1))
-					y = 1;  
+					isMemGood = 1;  
 				else
 					isMemGood = 0;
 				
