@@ -540,6 +540,7 @@ History:
 	2011-04-04 - MFC - Updated function to load the Forms from the server object factory.
 						Attempted to add dependency but ADF build throws error.
 	2011-05-26 - MFC - Modified function to set the fieldStruct variable outside of the cfloop.					
+	2014-03-05 - JTP - Var declarations
 --->
 <cffunction name="buildCEDataArrayFromQuery" access="public" returntype="array" hint="Returns a standard CEData Array to be used in Render Handlers from a ceDataView query">
 	<cfargument name="ceDataQuery" type="query" required="true" hint="ceData Query (usually built from ceDataView) results to be converted">
@@ -554,6 +555,7 @@ History:
 		var i = "";
 		//var commonFieldList = "pageID,formID,dateAdded,dateCreated";
 		var commonFieldList = "pageID,formID";
+		var commonField = '';
 		var fieldStruct = structNew();
 		
 		// Check that we have a query with values
@@ -691,6 +693,7 @@ History:
 						some cleanup, including removing query names where result is ignored
 	2014-02-19 - GAC - Added local variables for the VersionState Operator and Value
 	2014-02-19 - GAC - Added escape characters for reserverd words in custom element field names
+	2014-03-05 - JTP - Var declarations
 --->
 <cffunction name="buildRealTypeView" access="public" returntype="boolean" hint="Builds an element view for the passed in element name">
 	<cfargument name="elementName" type="string" required="true" hint="element name to build the view table off of">
@@ -724,6 +727,8 @@ History:
 		var createViewResult = QueryNew('temp');
 		var versionStateOpr = "=";
 		var versionStateValue = 2;
+		var firstTableName = '';
+		var table = '';
 
 		// make sure that we actually have a form ID
 		if (formID eq "" or formID LTE 0)
@@ -877,13 +882,13 @@ SELECT
 </cfloop>
 #firstTableName#.FormID, #firstTableName#.ControlID, #firstTableName#.PageID
 <cfloop query="fieldInfo">
-<cfset table = "dfv_#FieldID#">
-<cfif CurrentRow eq 1>FROM Data_FieldValue #table#<cfelse>
-LEFT OUTER JOIN Data_FieldValue #table# ON #table#.FormID = #FormID# AND #table#.FieldID = #FieldID# AND #table#.VersionState #versionStateOpr# #versionStateValue# AND #table#.PageID = #firstTableName#.PageID</cfif>
+	<cfset table = "dfv_#FieldID#">
+	<cfif CurrentRow eq 1>FROM Data_FieldValue #table#<cfelse>
+	LEFT OUTER JOIN Data_FieldValue #table# ON #table#.FormID = #FormID# AND #table#.FieldID = #FieldID# AND #table#.VersionState #versionStateOpr# #versionStateValue# AND #table#.PageID = #firstTableName#.PageID</cfif>
 </cfloop>
 <cfloop query="fieldInfo" startrow="1" endrow="1">
-<cfset table = "dfv_#FieldID#"><!--- this WHERE clause is the first table's equivalent of the JOIN constraints for other tables --->
-WHERE #table#.FormID = #FormID# AND #table#.FieldID = #FieldID# AND #table#.VersionState #versionStateOpr# #versionStateValue# AND #table#.PageID > 0
+	<cfset table = "dfv_#FieldID#"><!--- this WHERE clause is the first table's equivalent of the JOIN constraints for other tables --->
+	WHERE #table#.FormID = #FormID# AND #table#.FieldID = #FieldID# AND #table#.VersionState #versionStateOpr# #versionStateValue# AND #table#.PageID > 0
 </cfloop>
 		</cfquery>
 
@@ -984,6 +989,7 @@ History:
 	2011-07-17 - MFC - Removed update to step 5, this has been cleared up when generating the key.
 						Added call to clear the "currentElement" variable when looping in step 2.
 	2013-04-11 - MFC - Updated the calls to "generateStructKey" function for the new function name.
+	2014-03-05 - JTP - Var declarations
 --->
 <cffunction name="differentialSync" access="public" returntype="struct" hint="Given a list of custom elements, create or update or optionally delete elements.">
 	<cfargument name="elementName" type="string" required="true" default="" hint="Name of the element to sync">
@@ -1015,9 +1021,10 @@ History:
 		var dataPageIDList = '';
 		var scheduleParams = "";
 		var manualCompare = false;
-      	var syncKey = '';
-      	var currSrcElementKey = ""; // Stores the current source element key for building the 'srcElementStruct'.
-      	var dupSrcDataPageIDList = ""; // List for DataPageIDs for duplicate recs in source data.
+      var syncKey = '';
+      var currSrcElementKey = ""; // Stores the current source element key for building the 'srcElementStruct'.
+      var dupSrcDataPageIDList = ""; // List for DataPageIDs for duplicate recs in source data.
+		var newElement = '';
 		
 		returnStruct.success = false;
 		returnStruct.msg = "An unknown error occurred.";

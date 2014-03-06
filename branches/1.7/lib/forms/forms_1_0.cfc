@@ -319,25 +319,30 @@ History:
 	2010-02-18 - MFC - Returns a HTML for delete form.
 	2010-04-14 - GAC - Updated to work with the ADFLightbox Framework
 	2010-07-23 - SFS - Added argument to supply the lightbox dialog with a title needed for CS CE delete function.
+	2014-03-05 - JTP - Var declarations
 --->
 <cffunction name="renderDeleteForm" access="public" returntype="String" hint="Renders the standard datasheet delete module">
 	<cfargument name="formID" type="numeric" required="true" hint="The FormID for the Custom Element">
 	<cfargument name="dataPageID" type="numeric" required="true" hint="the DataPageID for the record being deleted">
 	<cfargument name="title" type="string" required="no" default="Delete Record" hint="The title of the dialog displayed while deleting">
-	<cfset var deleteFormHTML = "">
-	<cfsavecontent variable="deleteFormHTML">
-		<cfscript>
-			variables.scripts.loadJquery('1.3.2', 1);
-			variables.scripts.loadADFLightbox(force=1);
+
+	<cfscript>
+		var deleteFormHTML = "";
+		var targetModule = "/ADF/extensions/datasheet-modules/delete_element_handler.cfm";
+		var CD_DIALOGNAME = arguments.title;
+
+		variables.scripts.loadJquery('1.3.2', 1);
+		variables.scripts.loadADFLightbox(force=1);
 			
-			//targetModule = "#request.subsiteCache[1].url#datasheet-modules/delete-form-data.cfm";
-			targetModule = "/ADF/extensions/datasheet-modules/delete_element_handler.cfm";
-			request.params.pageID = arguments.dataPageID;
-			request.params.formID = arguments.formID;
-			CD_DIALOGNAME = arguments.title;
-		</cfscript>
+		//targetModule = "#request.subsiteCache[1].url#datasheet-modules/delete-form-data.cfm";
+		request.params.pageID = arguments.dataPageID;
+		request.params.formID = arguments.formID;
+	</cfscript>
+	
+	<cfsavecontent variable="deleteFormHTML">
 		<cfinclude template="/ADF/extensions/datasheet-modules/delete_element_handler.cfm">
 	</cfsavecontent>
+	
 	<cfreturn deleteFormHTML>
 </cffunction>
 

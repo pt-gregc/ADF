@@ -614,27 +614,33 @@ History:
  	2009-10-17 - RLW - Created
 	2010-02-03 - MFC - Updated path to the CSS to remove from Third Party directory.
 	2010-04-06 - MFC - Updated path to the CSS to "style".
+	2014-03-05 - JTP - Var declarations
 --->
 <cffunction name="loadJQueryTools" access="public" output="true" returntype="void" hint="Loads the JQuery tools plugin"> 
-<cfargument name="tool" type="string" required="false" default="all" hint="List of tools to load - leave blank to load entire library">
-<cfif not variables.scriptsService.isScriptLoaded("tools_#arguments.tool#")>
-	<cfif arguments.tool neq "all">
-		<cfloop list="#arguments.tool#" index="tool">
+	<cfargument name="tool" type="string" required="false" default="all" hint="List of tools to load - leave blank to load entire library">
+	
+	<cfscript>
+		var item = '';
+	</cfscript>
+	
+	<cfif not variables.scriptsService.isScriptLoaded("tools_#arguments.tool#")>
+		<cfif arguments.tool neq "all">
+			<cfloop list="#arguments.tool#" index="item">
+				<cfoutput>
+					<script type='text/javascript' src='/ADF/thirdParty/jquery/tools/jquery.tools.#item#.min.js'></script>
+					<cfif fileExists("#server.ADF.dir#/thirdParty/jquery/tools/css/#item#-minimal.css")>
+						<link href="/ADF/extensions/style/jquery/tools/overlay-minimal.css" rel="stylesheet" type="text/css" />
+					</cfif>
+				</cfoutput>
+			</cfloop>
+		<cfelse>
 			<cfoutput>
-				<script type='text/javascript' src='/ADF/thirdParty/jquery/tools/jquery.tools.#tool#.min.js'></script>
-				<cfif fileExists("#server.ADF.dir#/thirdParty/jquery/tools/css/#tool#-minimal.css")>
-					<link href="/ADF/extensions/style/jquery/tools/overlay-minimal.css" rel="stylesheet" type="text/css" />
-				</cfif>
+				<script type='text/javascript' src='/ADF/thirdParty/jquery/tools/jquery.tools.min.js'></script>
+				<link href="/ADF/extensions/style/jquery/tools/overlay-minimal.css" rel="stylesheet" type="text/css" />
 			</cfoutput>
-		</cfloop>
-	<cfelse>
-		<cfoutput>
-			<script type='text/javascript' src='/ADF/thirdParty/jquery/tools/jquery.tools.min.js'></script>
-			<link href="/ADF/extensions/style/jquery/tools/overlay-minimal.css" rel="stylesheet" type="text/css" />
-		</cfoutput>
+		</cfif>
+		<cfset variables.scriptsService.loadedScript("tools_#arguments.tool#")>
 	</cfif>
-	<cfset variables.scriptsService.loadedScript("tools_#arguments.tool#")>
-</cfif>
 </cffunction>
 
 <!---

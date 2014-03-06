@@ -358,6 +358,7 @@ History:
 	2011-03-20 - MFC - Added Else statement to add Table tag for CS5 lightbox resizing.
 	2011-04-07 - RAK - Prevented this from getting called 2x in the same request and producing duplicate stuff
 	2011-05-24 - RLW - Changed the "lbCheckLogin" arg to default to false.
+	2014-03-05 - JTP - Var declarations
 --->
 <cffunction name="lightboxHeader" access="public" returntype="string" output="false" hint="Returns HTML for the CS 6.x lightbox header (use with the lightboxFooter)">
 	<cfargument name="lbTitle" type="string" default="" hint="Lightbox Title">
@@ -366,6 +367,12 @@ History:
 	<cfscript>
 		var retHTML = "";
 		var productVersion = ListFirst(ListLast(request.cp.productversion," "),".");
+		var CD_DialogName = '';
+		var CD_Title = '';
+		var CD_IncludeTableTop = 1;
+		var CD_CheckLock = 0;
+		var CD_CheckLogin = 0;
+		var CD_CheckPageAlive = 0;		
 	</cfscript>
 	<cfif NOT StructKeyExists(request,"HaveRunDlgCommonHead")>
 		<cfsavecontent variable="retHTML">

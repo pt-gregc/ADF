@@ -201,17 +201,19 @@ History:
 <cffunction name="getThumbnailOfResource" access="public" returntype="string" hint="Returns the url to the thumbnail of a resource">
 	<cfargument name="filePath" type="string" required="true" default="" hint="Fully qualified path to resource.">
 	<cfargument name="destinationURL" type="string" required="false" default="" hint="URL to destination folder. EX: /mySite/images/ (If not specified it puts the image next to the file)">
+
 	<cfscript>
 		var documentName = "";
 		var destination = "";
-		filePath = Replace(filePath,'\','/',"ALL");
-		documentName = listLast(filePath,"/");
-		if(Len(destinationURL)){
+		
+		arguments.filePath = Replace(arguments.filePath,'\','/',"ALL");
+		documentName = listLast(arguments.filePath,"/");
+		if( Len(destinationURL) )
 			destination = expandPath(destinationURL);
-		}else{
-			destination = Replace(filePath,documentName,'');
-		}
+		else
+			destination = Replace(arguments.filePath,documentName,'');
 	</cfscript>
+	
 	<cfpdf
 		source="#filePath#"
 		action = "thumbnail"
@@ -298,7 +300,12 @@ History:
 --->
 <cffunction name="urlEncodeStruct" access="public" returntype="string" hint="Converts a structure into a URL encoded key value pair string">
 	<cfargument name="urlStruct" type="struct" required="true" default="" hint="Structure of key value pairs for the url encoding">
-	<cfset var rtnString = "">
+	
+	<cfscript>
+		var rtnString = "";
+		var key = '';
+	</cfscript>
+	
 	<!---Loop over each key in the structure, lowercase and encode it .
 				and assign it to its value and add it to the list with a delim of &
 	--->
@@ -307,6 +314,7 @@ History:
 			rtnString = listAppend(rtnString,URLEncodedFormat(LCase(key))&"="&URLEncodedFormat(arguments.urlStruct[key]),"&");
 		</cfscript>
 	</cfloop>
+	
 	<cfreturn rtnString>
 </cffunction>
 

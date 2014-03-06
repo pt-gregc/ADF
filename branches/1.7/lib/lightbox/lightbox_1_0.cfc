@@ -92,10 +92,12 @@ History:
 		var argExcludeList = "bean,method,appName,forceScripts,addLBHeaderFooter,addMainTable,debug";
 		// Verify if the bean and method combo are allowed to be accessed through the ajax proxy
 		var passedSecurity = false;
+		
 		// Initalize the reHTML key of the local struct
 		result.reHTML = "";
 		// Since we are relying on the request.params scope make sure the key params are available
-		if ( StructKeyExists(request,"params") ) {
+		if ( StructKeyExists(request,"params") ) 
+		{
 			params = request.params;
 			if ( StructKeyExists(request.params,"bean") ) 
 				bean = request.params.bean;
@@ -106,7 +108,8 @@ History:
 			if ( StructKeyExists(request.params,"debug") ) 
 				debug = request.params.debug;
 		}
-		if ( arguments.proxyFile NEQ callingFileName ) {
+		if ( arguments.proxyFile NEQ callingFileName ) 
+		{
 			// Verify if the bean and method combo are allowed to be accessed through the lightbox proxy
 			passedSecurity = variables.csSecurity.validateProxy(bean, method);
 			if ( passedSecurity ) {

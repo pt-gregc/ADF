@@ -64,6 +64,7 @@ History:
 	2012-12-13 - MFC - Updated to check if the fieldname starts with "FIC_" and remove.
 	2013-09-27 - GAC - Updated the Forms Lib that is used to call the getCEFieldNameData function
 	2013-10-23 - GAC - Updated the commonFields logic that turns the formID into a formName
+	2014-03-05 - JTP - Var declarations
 --->
 <cffunction name="buildCEDataArrayFromQuery" access="public" returntype="array" hint="Returns a standard CEData Array to be used in Render Handlers from a ceDataView query">
 	<cfargument name="ceDataQuery" type="query" required="true" hint="ceData Query (usually built from ceDataView) results to be converted">
@@ -77,22 +78,27 @@ History:
 		var formName = "";
 		var i = "";
 		//var commonFieldList = "pageID,formID,dateAdded,dateCreated";
+		var commonField = '';
 		var commonFieldList = "pageID,formID";
 		var fieldStruct = structNew();
 		var queryColFieldList = ""; // List to store the column names
 		var queryColPos = "";
 		// Sort the column name list to be safe
 		var origQueryColFieldList = ListSort(arguments.ceDataQuery.columnList, "textnocase");
+		var currColName = '';
+
 		
 		// Check that we have a query with values
-		if ( arguments.ceDataQuery.recordCount GTE 1 ){
+		if ( arguments.ceDataQuery.recordCount GTE 1 )
+		{
 			// Setup the default common fields 
 			// get the fields structure for this element
 			fieldStruct = server.ADF.objectFactory.getBean("Forms_1_1").getCEFieldNameData(getCENameByFormID(arguments.ceDataQuery["formID"][1]));
 		}
 		
 		// Check if the query column contains "FIC_" and remove
-		for ( i=1; i LTE ListLen(origQueryColFieldList); i++ ){
+		for ( i=1; i LTE ListLen(origQueryColFieldList); i++ )
+		{
 			currColName = ListGetAt(origQueryColFieldList, i);
 			if ( UCASE(LEFT(currColName, 4)) EQ "FIC_" )
 				currColName = Replace(currColName, "FIC_", "");
@@ -108,7 +114,8 @@ History:
 			//tmp = defaultTmp;
 			
 			// add in common fields			
-			for( i=1; i lte listLen(commonFieldList); i=i+1 ) {	
+			for( i=1; i lte listLen(commonFieldList); i=i+1 ) 
+			{	
 				// Set the commonField to work with
 				commonField = listGetAt(commonFieldList, i);
 				// handle each of the common fields
@@ -118,7 +125,8 @@ History:
 					tmp[commonField] = "";
 					
 				// do special case work for formID/formName
-				if ( commonField eq "formID"  ) {
+				if ( commonField eq "formID"  ) 
+				{
 					// Get the FormName from the FormID
 					if( not len(formName) and StructKeyExists(tmp,commonField) and IsNumeric(tmp[commonField]) )
 						formName = getCENameByFormID(tmp[commonField]);
@@ -131,7 +139,8 @@ History:
 			tmp.values = structNew();
 			
 			// loop through the field query and build the values structure
-			for( itm=1; itm lte listLen(structKeyList(fieldStruct)); itm=itm+1 ) {
+			for( itm=1; itm lte listLen(structKeyList(fieldStruct)); itm=itm+1 ) 
+			{
 				column = listGetAt(structKeyList(fieldStruct), itm);
 				// Get the position of the column from the in query
 				queryColPos = listFindNoCase(queryColFieldList, column);
@@ -582,6 +591,7 @@ Arguments:
 	Query - ceFieldIDNameMap
 History:
 	2014-01-31 - JTP - Created
+	2014-03-05 - JTP - Var declarations
 --->
 <cffunction name="getCEDataCore" access="private" output="No" returntype="query" hint=" A worker function that processes the query data from the getCEData function and returns a query">
 	<cfargument name="qry" required="Yes" type="query">
@@ -594,6 +604,7 @@ History:
 		var newrow = '';
 		var currPageIDDataQry = '';
 		var prevPageID = 0;
+		var currFieldName = '';
 	</cfscript>
 
 	<cfif getDataPageValueQrySORTED.RecordCount gt 0 >
@@ -818,6 +829,7 @@ Arguments:
 History:
 	2013-01-11 - MFC - Created
 	2014-02-21 - GAC - Added itemList delimiter option
+	2014-03-05 - JTP - Var declarations
 --->
 <cffunction name="getCEDataViewBetween" access="public" returntype="Query" output="true">
 	<cfargument name="customElementName" type="string" required="true">
@@ -830,6 +842,8 @@ History:
 		var viewTableName = "";
 		var ceViewQry = QueryNew("null");
 		var dbType = Request.Site.SiteDBType;
+		var rwPre = '';
+		var rwPost = '';
 		
 		// Set the escape characters for reserverd words
 		switch (dbType)
@@ -890,6 +904,7 @@ Arguments:
 	String - overrideViewTableName - Override for the view table to query
 History:
 	2013-01-11 - MFC - Created
+	2014-03-05 - JTP - Var declarations
 --->
 <cffunction name="getCEDataViewGreaterThan" access="public" returntype="Query" output="true">
 	<cfargument name="customElementName" type="string" required="true">
@@ -900,6 +915,8 @@ History:
 		var viewTableName = "";
 		var ceViewQry = QueryNew("null");
 		var dbType = Request.Site.SiteDBType;
+		var rwPre = '';
+		var rwPost = '';
 		
 		// Set the escape characters for reserverd words
 		switch (dbType)
@@ -1013,6 +1030,7 @@ History:
 	2013-01-11 - MFC - Created
 	2014-01-03 - GAC - Updated SQL 'IN' statements to use the CS module 'handle-in-list.cfm'
 	2014-02-21 - GAC - Added itemListDelimiter parameter
+	2014-03-05 - JTP - Var declarations
 --->
 <cffunction name="getCEDataViewNotSelected" access="public" returntype="Query" output="true">
 	<cfargument name="customElementName" type="string" required="true">
@@ -1025,6 +1043,8 @@ History:
 		var viewTableName = "";
 		var ceViewQry = QueryNew("null");
 		var dbType = Request.Site.SiteDBType;
+		var rwPre = '';
+		var rwPost = '';		
 		
 		// Set the escape characters for reserverd words
 		switch (dbType)
@@ -1170,6 +1190,7 @@ History:
 	2014-02-21 - GAC - Added itemListDelimiter parameter
 					 - Added escape characters for reserverd words in the criteria column
 					 - Added logic is a searchFields is passed but no Item value then look of null or empty strings
+	2014-03-05 - JTP - Var declarations
 --->
 <cffunction name="getCEDataViewSearchInList" access="public" returntype="Query" output="true">
 	<cfargument name="customElementName" type="string" required="true">
@@ -1186,6 +1207,7 @@ History:
 		var rwPre = "";
 		var rwPost = "";
 		var dbType = Request.Site.SiteDBType;
+		var theListLen = 0;
 		
 		// Set the escape characters for reserverd words
 		switch (dbType)
@@ -1268,6 +1290,7 @@ History:
 	2013-01-11 - MFC - Created
 	2014-01-03 - GAC - Updated SQL 'IN' statements to use the CS module 'handle-in-list.cfm'
 	2014-02-21 - GAC - Added itemListDelimiter parameter
+	2014-03-05 - JTP - Var declarations
 --->
 <cffunction name="getCEDataViewSelected" access="public" returntype="Query" output="true">
 	<cfargument name="customElementName" type="string" required="true">
@@ -1280,6 +1303,8 @@ History:
 		var viewTableName = "";
 		var ceViewQry = QueryNew("null");
 		var dbType = Request.Site.SiteDBType;
+		var rwPre = '';
+		var rwPost = '';		
 		
 		// Set the escape characters for reserverd words
 		switch (dbType)
@@ -1346,6 +1371,7 @@ History:
 	2013-07-03 - GAC - Created
 	2014-01-03 - GAC - Updated SQL 'IN' statements to use the CS module 'handle-in-list.cfm'
 	2014-02-21 - GAC - Added itemListDelimiter parameter
+	2014-03-05 - JTP - Var declarations
 --->
 <cffunction name="getCEDataViewList" access="public" returntype="Query" output="true" hint="Queries the CE Data View table for the Query Type of 'List'.">
 	<cfargument name="customElementName" type="string" required="true">
@@ -1357,6 +1383,7 @@ History:
 	<cfscript>
 		var viewTableName = "";
 		var ceViewQry = QueryNew("null");
+		var getListItemIDs = '';
 				
 		// Set the override for the view table name if defined
 		if ( LEN(arguments.overrideViewTableName) )
@@ -1491,10 +1518,6 @@ History:
 		var getDataFieldValueQry = queryNew("temp");
 	</cfscript>
 
-	<!--- <cfscript>
-		a5 = GetTickCount();
-	</cfscript> --->
-
 	<cfquery name="getDataFieldValueQry" datasource="#request.site.datasource#">
 		SELECT PageID, FormID, FieldID, fieldValue, memoValue
 		FROM Data_FieldValue
@@ -1509,12 +1532,6 @@ History:
 		AND VersionState = 2
 		AND PageID <> 0
 	</cfquery>
-	
-	<!--- <cfscript>
-		b5 = GetTickCount();
-		timer5 = "getPageIDForElement - Query Timer = " & b5-a5;
-	</cfscript>
-	<cfdump var="#timer5#" label="getDataFieldValue - Query Timer" expand="false"> --->
 	
 	<cfreturn getDataFieldValueQry>
 </cffunction>
