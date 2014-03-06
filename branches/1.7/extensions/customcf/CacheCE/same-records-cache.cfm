@@ -44,6 +44,7 @@ Version:
 History:
 	2013-12-09 - JTP - Created
 	2014-02-18 - JTP - Added ClearType and ClearAll url parameters
+	2014-03-05 - JTP - Var declarations
 --->
 
 <cfscript>
@@ -263,7 +264,8 @@ History:
 ------------------------------------>
 <cffunction name="getMissingAttributes" access="private" output="No" returntype="string">
 	<cfscript>
-		missingAttr = '';
+		var missingAttr = '';
+		
 		if( NOT StructKeyExists(attributes,"ElementType") )
 			missingAttr = ListAppend(missingAttr,"ElementType");
 		if( NOT StructKeyExists(attributes,"ElementName") )
@@ -276,6 +278,7 @@ History:
 		if( NOT StructKeyExists(attributes,"Debug") )
 			attributes.Debug = 0;
 	</cfscript>
+	
 	<cfreturn missingAttr>
 </cffunction>
 

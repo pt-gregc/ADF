@@ -327,10 +327,14 @@ Arguments:
 	None
 History:
 	2009-05-29 - MFC - Created
+	2014-03-05 - JTP - Var declarations
 --->
 <cffunction name="loadAddNewLink" access="private" returntype="string" hint="General Chooser - Add New Link HTML content.">
 	
-	<cfset var retAddLinkHTML = "">
+	<cfscript>
+		var retAddLinkHTML = "";
+		var ceFormID = 0;
+	</cfscript>	
 	
 	<!--- Check if we want to display show all link --->
 	<cfif variables.ADD_NEW_FLAG EQ true>
@@ -522,10 +526,9 @@ History:
 	<cfargument name="csPageID" type="numeric" required="false" default="">
 		
 	<cfscript>
-		// Initialize the return variable
 		var retHTML = "";
-		// Get the CE Data
 		var dataArray = ArrayNew(1);
+		
 		// clean the search text
 		if ( arguments.queryType eq "search" )
 			arguments.searchValues = cleanChooserSearchText(arguments.searchValues);

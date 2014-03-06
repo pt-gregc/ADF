@@ -54,6 +54,7 @@ History:
 	2009-11-19 - GAC - Modified to read a XML config values from an included .CFM file
 	2011-03-20 - RLW - Modified to use the new deserializeXML function loaded into Base.
 	2013-01-23 - MFC - Added ADF Build Error handling.
+	2014-03-05 - JTP - Var declarations
 --->
 <cffunction name="getConfigViaXML" access="public" returntype="struct" output="true">
 	<cfargument name="filePath" type="string" required="true">
@@ -62,9 +63,11 @@ History:
 		var configXML = "";
 		var configPath = arguments.filePath;
 		var isConfigCFM = false;
+		var buildError = '';
 	 
 	 	// Check if the config is CFM
-		if ( ListLast(arguments.filePath,".") EQ "cfm" ) {
+		if ( ListLast(arguments.filePath,".") EQ "cfm" ) 
+		{
 			// Set the expanded path for the config to run the file exists
 			configPath = ExpandPath(arguments.filePath);
 			isConfigCFM = true;

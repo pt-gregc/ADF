@@ -48,7 +48,8 @@ Summary:
 Version:
 	1.0
 History:
-	2013-12-09 - TP - Created
+	2013-12-09 - JTP - Created
+	2014-03-05 - JTP - Var declarations
 --->
 
 <cfscript>
@@ -230,7 +231,8 @@ History:
 ------------------------------------>
 <cffunction name="getMissingAttributes" access="private" output="No" returntype="string">
 	<cfscript>
-		missingAttr = '';
+		var missingAttr = '';
+		
 		if( NOT StructKeyExists(attributes,"ElementType") )
 			missingAttr = ListAppend(missingAttr,"ElementType");
 		if( NOT StructKeyExists(attributes,"ElementName") )

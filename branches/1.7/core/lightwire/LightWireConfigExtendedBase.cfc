@@ -217,6 +217,7 @@ History:
 	2011-05-13 - MFC - Set the expand path variable outside of the CFLOOP
 	2011-07-11 - MFC/AW - Updated AppConfig path building.
 	2013-02-26 - MFC - Updated comments to make sure the "appComPath" variable is not removed.
+	2014-03-05 - JTP - Var declarations
 --->
 <cffunction name="loadADFAppBeanConfig" returntype="void" access="public" output="true" hint="Loads the custom apps bean config file.">
 	<cfargument name="path" type="string" required="false" default="\ADF\apps\">
@@ -229,6 +230,7 @@ History:
 		var expPath = ExpandPath(arguments.path);
 		var target = '';
 		var appComPath = '';
+		var buildError = '';
 		
 		// Recurse the custom app directory
 		appLibDirQry = directoryFiles(arguments.path, "true");
@@ -507,6 +509,7 @@ History:
 		2009-06-05 - MFC - Created
 		2010-04-06 - MFC - Code cleanup.
 		2011-02-09 - RAK - Var'ing un-var'd items
+		2014-03-05 - JTP - Var declarations
 --->
 <cffunction name="loadLocalComponents" access="public" returntype="void" hint="Process the site level components into the object factory.">
 	<cfscript>
@@ -517,14 +520,17 @@ History:
 		var siteComponentsFiles = QueryNew("temp");
 		var beanData = StructNew();
 		var comPath = "#request.site.CSAPPSURL#components/";
+		var cfcName = '';
 
 		// Check if there is a 'components' directory in the site
-		if ( directoryExists(expandPath(comPath)) ){
+		if ( directoryExists(expandPath(comPath)) )
+		{
 			siteComponents = directoryFiles(comPath, "true");			
 			siteComponentsFiles = filterQueryByCFCFile(siteComponents, '%.cfc');
 
 			// Loop over the component files and create transients
-			for (j = 1; j LTE siteComponentsFiles.RecordCount; j = j + 1) {
+			for (j = 1; j LTE siteComponentsFiles.RecordCount; j = j + 1) 
+			{
 				cfcName = ListFirst(siteComponentsFiles.name[j],'.');
 				application.ADF.siteComponents = ListAppend(application.ADF.siteComponents, cfcName);
 				beanData = buildBeanDataStruct("#request.site.CSAPPSURL#components", cfcName);
@@ -615,6 +621,7 @@ History:
 	History:
 		2009-05-11 - MFC - Created
 		2010-11-29 - MFC - Removed commented code.
+		2014-03-05 - JTP - Var declarations
 --->
 <cffunction name="buildBeanDataStruct" access="public" returntype="struct" output="true" hint="Builds the Bean Data Struct with formatted data to create singletons and dependencies.">
 	<cfargument name="cfcPath" type="string" required="true" default="">
@@ -623,6 +630,7 @@ History:
 	<cfscript>
 		// initialize the return bean data struct
 		var retBeanData = StructNew();
+		
 		retBeanData.cfcPath = "";
 		retBeanData.cfcName = "";
 		retBeanData.beanName = "";
@@ -632,6 +640,7 @@ History:
 		retBeanData.cfcPath = "#retBeanData.cfcPath##retBeanData.cfcName#";
 		// Store that bean data	
 		retBeanData.beanName = "#arguments.beanNamePrefix##retBeanData.cfcName#";
+		
 		return retBeanData;
 	</cfscript>
 </cffunction>

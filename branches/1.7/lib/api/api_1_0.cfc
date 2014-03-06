@@ -30,6 +30,7 @@ Version:
 	1.0
 History:
 	2012-12-20 - MFC - Created
+	2014-03-05 - JTP - Var declarations
 --->
 <cfcomponent displayname="api" extends="ADF.core.Base" hint="CCAPI functions for the ADF Library">
 
@@ -487,6 +488,7 @@ History:
 		// Get the user account from the CCAPI Config
 		var apiConfig = getAPIConfig();
 		var wsObj = getWebService();
+		var error = '';
 		
 		var loginResult = wsObj.csLogin(site = getSiteURL(),
 										csUserID = apiConfig.wsVars.csuserid,

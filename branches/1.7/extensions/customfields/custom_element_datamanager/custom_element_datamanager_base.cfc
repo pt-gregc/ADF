@@ -38,6 +38,7 @@ History:
 	2013-11-27 - DJM - Updated code to allow multiple dataManager fields on the same form
 	2013-12-09 - DJM - Added changes to handle hidden fields and added code to set the size of actions column for datatable
 					 - Fixed issue for the range being considered as string
+	2014-03-05 - JTP - Var declarations
 --->
 <cfcomponent output="false" displayname="custom element datamanager_base" extends="ADF.core.Base" hint="This the base component for the Custom Element Data Manager field">
 	
@@ -915,7 +916,8 @@ History:
 	<cfargument name="propertiesStruct" type="struct" required="true" hint="Properties structure for the field">
 	<cfargument name="dataPageID" type="numeric" required="true" hint="The unique data pageid for the records">
 	<cfargument name="newPos" type="numeric" required="true" hint="The position value to update">
-       <cfscript>
+
+   <cfscript>
 		var inputPropStruct = arguments.propertiesStruct;
 		var updateRec = '';
 		var qry = '';
@@ -1169,6 +1171,7 @@ History:
 		var dataFormID = 0;
 		var posStruct = StructNew();
 		var rangeRecords = QueryNew('');
+		var i = 0;
 			
 		if ( IsJSON(arguments.propertiesStruct) )
 			inputPropStruct = DeserializeJSON(arguments.propertiesStruct);
@@ -1305,6 +1308,8 @@ History:
 		var valueWithoutParens = '';
 		var hasParens = 0;	
 		var ceData = QueryNew('');
+		var formIDColArray = '';
+		var formNameColArray = '';
 		
 		if( NOT StructKeyExists(request,'getContent_ceSelect') )
 			request['getContent_ceSelect'] = structNew();
