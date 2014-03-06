@@ -160,7 +160,9 @@ History:
 		persistentUniqueID = CreateUUID();
 	
 	ceFormID = 0;
-	if (StructKeyExists(currentValues,"customElement") and Len(currentValues.customElement))
+	if( StructKeyExists( request.params, 'controlTypeID' ) )
+		ceFormID = request.params.controlTypeID;
+	else if (StructKeyExists(currentValues,"customElement") and Len(currentValues.customElement))
 		ceFormID = application.ADF.cedata.getFormIDByCEName(currentValues.customElement);
 		
 	if ( StructKeyExists(currentValues,"activeFlagField") and Len(currentValues.activeFlagField) and StructKeyExists(currentValues,"activeFlagValue") and Len(currentValues.activeFlagValue) ) 

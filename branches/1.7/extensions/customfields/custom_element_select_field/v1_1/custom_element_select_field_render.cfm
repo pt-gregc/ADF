@@ -209,9 +209,30 @@ History:
 			fieldList = '#xparams.displayField#,#xparams.valueField#';
 		else if( xparams.displayField eq "--Other--" AND xparams.DisplayFieldBuilder neq '' )
 		{
-			fieldList = ReplaceNoCase( xparams.DisplayFieldBuilder, Chr(187), "", "ALL" );
-			fieldList = ReplaceNoCase( fieldList, Chr(171), "", "ALL" );
-			fieldList = ReplaceNoCase( fieldList, " ", "", "ALL" );
+			start = 1;
+			fieldList = '';
+			while( true )
+			{
+				start = FindNoCase( Chr(171), xparams.DisplayFieldBuilder, start );
+				if( start )
+				{
+					end = FindNoCase( Chr(187), xparams.DisplayFieldBuilder, start );
+					if( end )
+					{
+						fld = Mid( xparams.DisplayFieldBuilder, start + 1, (end - (start+1)) );
+						if( NOT FindNoCase( fld, fieldList ) )
+							fieldList = ListAppend( fieldList, fld ); 
+						start = end;	
+					}
+					else
+						break;
+				}
+				else
+					break;
+			}
+			// if value field not already in list, add it to the list						
+			if( NOT FindNoCase( xparams.valueField, fieldList ) )
+				fieldList = ListAppend( fieldList, xparams.valueField ); 			
 		}
 		else
 		{

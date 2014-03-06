@@ -54,7 +54,7 @@
 		var optTxt = arguments.optionsStruct['optionText'];
 		var html = '';
 		var cssTxt = '';
-		//WriteDump( var=optVals, label='optVals', expand='No' );		
+
 	</cfscript>
 	
 	<cfsavecontent variable="html">
@@ -86,7 +86,6 @@
 	</cfsavecontent>
 	<cfscript>
 		html = '#cssTxt##stringStart##html##stringEnd#';
-		//WriteDump(var=html, label="html", expand="no");
 		return html;
 	</cfscript>
 </cffunction>
@@ -124,6 +123,9 @@
 		var ceFieldsArrayLen = '';
 		var fldsQry = '';		
 		var tc = getTickCount();		
+		var start = 0;
+		var end = 0;
+		var fld = '';
 		
 		if (StructKeyExists(cfmlInputParams,"customElement") and Len(cfmlInputParams.customElement))
 			ceID = request.site.availControlsByName['custom:#cfmlInputParams.CustomElement#'].ID;		
@@ -183,9 +185,28 @@
 				fieldList = '#cfmlInputParams.displayField#,#cfmlInputParams.valueField#';
 			else if( cfmlInputParams.displayField eq "--Other--" AND cfmlInputParams.DisplayFieldBuilder neq '' )
 			{
-				fieldList = ReplaceNoCase( cfmlInputParams.DisplayFieldBuilder, Chr(187), "", "ALL" );
-				fieldList = ReplaceNoCase( fieldList, Chr(171), "", "ALL" );
-				fieldList = ReplaceNoCase( fieldList, " ", "", "ALL" );
+				start = 1;
+				fieldList = '';
+				while( true )
+				{
+					start = FindNoCase( Chr(171), cfmlInputParams.DisplayFieldBuilder, start );
+					if( start )
+					{
+						end = FindNoCase( Chr(187), cfmlInputParams.DisplayFieldBuilder, start );
+						if( end )
+						{
+							fld = Mid( cfmlInputParams.DisplayFieldBuilder, start + 1, (end - (start+1)) );
+							if( NOT FindNoCase( fld, fieldList ) )
+								fieldList = ListAppend( fieldList, fld ); 
+							start = end;	
+						}
+						else
+							break;
+					}
+					else
+						break;
+				}
+				// if value field not already in list, add it to the list			
 				if( NOT FindNoCase( cfmlInputParams.valueField, fieldList ) )
 					fieldList = ListAppend( fieldList, cfmlInputParams.valueField ); 
 			}
@@ -232,8 +253,8 @@
 
 				ceDataArray = application.ADF.cedata.buildCEDataArrayFromQuery(getFilteredRecords);
 
-				// if( StructKeyExists(cfmlInputParams, "displayField") AND LEN(cfmlInputParams.displayField) AND cfmlInputParams.displayField neq "--Other--" ) 
-				//	ceSortedDataArray = application.ADF.cedata.arrayOfCEDataSort(ceDataArray, sortColumn, sortDir);
+				if( StructKeyExists(cfmlInputParams, "displayField") AND LEN(cfmlInputParams.displayField) AND cfmlInputParams.displayField neq "--Other--" ) 
+					ceDataArray = application.ADF.cedata.arrayOfCEDataSort(ceDataArray, sortColumn, sortDir);
 
 			</cfscript>
 		</cfif>
