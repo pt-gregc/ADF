@@ -64,6 +64,7 @@ History:
 	2014-01-30 - DJM - Removed Active Field and Value fields and replaced with a filter criteria option
 	2014-01-30 - GAC - Moved into a v1_1 version subfolder
 	2014-02-27 - GAC - Added backwards compatiblity logic to allow field use the prior version of the CFT if installed on a pre-CS9 site
+	2014-03-07 - JTP - Fixed issue if duplicate items in list. Caused selected value to be duplicated. Also limit results if read-only.
 --->
 <cfscript>
 	requiredCSversion = 9;
@@ -247,7 +248,7 @@ History:
 		
 		if (NOT ArrayLen(filterArray))
 			filterArray[1] = '| element_datemodified| element_datemodified| <= | | c,c,c| | ';
-		ceData = ceObj.getRecordsFromSavedFilter(elementID=ceFormID,queryEngineFilter=filterArray,columnList=fieldList,orderBy=sortColumn,orderByDirection=sortDir);
+		ceData = ceObj.getRecordsFromSavedFilter(elementID=ceFormID, queryEngineFilter=filterArray, columnList=fieldList, orderBy=sortColumn, orderByDirection=sortDir, Limit=0);
 		formIDColArray = ArrayNew(1);
 		formNameColArray = ArrayNew(1);
 		if (ceData.ResultQuery.RecordCount)
@@ -259,11 +260,38 @@ History:
 		QueryAddColumn(ceData.ResultQuery, 'formID', formIDColArray);
 		QueryAddColumn(ceData.ResultQuery, 'formName', formIDColArray);
 	}
+	
+	//-- Update for CS 6.x / backwards compatible for CS 5.x --
+	//   If it does not exist set the Field Permission variable to a default value
+	if ( NOT StructKeyExists(variables,"fieldPermission") )
+		variables.fieldPermission = "";
+
+	//-- Read Only Check with the cs6 fieldPermission parameter --
+	//-- Also check to see if this field is FORCED to be READ ONLY for CS 9+ by looking for attributes.currentValues[fqFieldName_doReadonly] variable --
+	readOnly = application.ADF.forms.isFieldReadOnly(xparams,variables.fieldPermission, fqFieldName, attributes.currentValues);	
+</cfscript>	
+
+	<!--- if read only we only need the current selected records --->
+	<cfif readOnly>
+		<cfquery name="ceData.ResultQuery" dbtype="query">
+			select * from ceData.ResultQuery
+				<cfif ListLen(currentValue) eq 1>
+					where #xparams.ValueField# = '#currentValue#'
+				<cfelse>
+					where #xparams.ValueField# IN ( #ListQualify(currentValue, "'")# )
+				</cfif>
+		</cfquery>
+	</cfif>
+	
+	
+<cfscript>
 	ceDataArray = application.ADF.cedata.buildCEDataArrayFromQuery(ceData.ResultQuery);
 
 	// Sort the list by the display field value, if its other.. all bets are off we sort via jquery... 
 	if( StructKeyExists(xparams, "displayField") AND LEN(xparams.displayField) AND xparams.displayField neq "--Other--" ) 
 		ceDataArray = application.ADF.cedata.arrayOfCEDataSort(ceDataArray, xparams.displayField);
+		
+	ceDataArrayLen = ArrayLen(ceDataArray);	
 
 	// Check if we do not have a current value then set to the default
 	if ( (LEN(currentValue) LTE 0) OR (currentValue EQ "") ) 
@@ -287,15 +315,6 @@ History:
 	// Set defaults for the label and description 
 	includeLabel = true;
 	includeDescription = true; 
-
-	//-- Update for CS 6.x / backwards compatible for CS 5.x --
-	//   If it does not exist set the Field Permission variable to a default value
-	if ( NOT StructKeyExists(variables,"fieldPermission") )
-		variables.fieldPermission = "";
-
-	//-- Read Only Check with the cs6 fieldPermission parameter --
-	//-- Also check to see if this field is FORCED to be READ ONLY for CS 9+ by looking for attributes.currentValues[fqFieldName_doReadonly] variable --
-	readOnly = application.ADF.forms.isFieldReadOnly(xparams,variables.fieldPermission,fqFieldName,attributes.currentValues);
 
 	// Load JQuery to the script
 	application.ADF.scripts.loadJQuery(force=xParams.forceScripts);
@@ -421,13 +440,20 @@ History:
 						<cfoutput><option value=""> - Select - </option></cfoutput>
 					</cfif>
 					
-		 			<cfloop index="cfs_i" from="1" to="#ArrayLen(ceDataArray)#">
-						<cfif ListFind(currentValue,ceDataArray[cfs_i].Values[xparams.valueField])>
-							<cfset isSelected = true>
-							<cfset currentSelectedValue = ListAppend(currentSelectedValue,ceDataArray[cfs_i].Values[xparams.valueField])>
-						<cfelse>
-							<cfset isSelected = false>
-						</cfif>
+		 			<cfloop index="cfs_i" from="1" to="#ceDataArrayLen#">
+						<cfscript>
+							value = ceDataArray[cfs_i].Values[xparams.valueField];
+							
+							if( ListFindNoCase(currentValue,value) )		// mark as selected if found in currentvalue
+							{
+						
+								isSelected = true;
+								if( NOT ListFindNoCase(currentSelectedValue, value) )	// make sure its not already in the list
+									currentSelectedValue = ListAppend(currentSelectedValue, value);
+							}	
+						else
+							isSelected = false;
+						</cfscript>
 	               
 						<cfoutput><option value="#ceDataArray[cfs_i].Values[xparams.valueField]#"<cfif isSelected> selected="selected"</cfif>></cfoutput>
 						
@@ -449,13 +475,14 @@ History:
 					<!--- // Checkboxes / Radio Buttons //---->
 					<cfoutput><div id="#fqFieldName#_div" style="max-height:#xparams.heightValue#px; width:#xparams.widthValue#px; border: 1px solid grey; background-color:white; overflow:auto; padding:5px 5px;"></cfoutput>
 					
-		 			<cfloop index="cfs_i" from="1" to="#ArrayLen(ceDataArray)#">
+		 			<cfloop index="cfs_i" from="1" to="#ceDataArrayLen#">
 						<cfscript>
 							value = ceDataArray[cfs_i].Values[xparams.valueField];							
-							if( ListFind(currentValue, value) )
+							if( ListFindNoCase(currentValue, value) )
 							{
 								isSelected = 1;
-								currentSelectedValue = ListAppend(currentSelectedValue, value);
+								if( NOT ListFindNoCase( currentSelectedValue, value ) )
+									currentSelectedValue = ListAppend(currentSelectedValue, value);
 							}	
 							else
 								isSelected = 0;
@@ -538,7 +565,7 @@ History:
 			</td></tr></table>
 
 			<!--- // hidden field to store the value --->
-			<input type='hidden' name='#fqFieldName#' id='#xparams.fldName#' value='#currentSelectedValue#'>
+			<input type="hidden" name="#fqFieldName#" id="#xparams.fldName#" value="#currentSelectedValue#">
 			</cfoutput>
 			
 	</cfsavecontent>

@@ -370,7 +370,7 @@ History:
 				
 				parentFilterArray = ceObj.createQueryEngineFilter(filterStatementArray=parentStatementsArray,filterExpression='1');
 				
-				parentData = ceObj.getRecordsFromSavedFilter(elementID=arguments.formID,queryEngineFilter=parentFilterArray,columnList=getParentLinkedField.Name,orderBy=ReplaceNoCase(getParentLinkedField.Name,'FIC_',''),orderByDirection="ASC");
+				parentData = ceObj.getRecordsFromSavedFilter(elementID=arguments.formID,queryEngineFilter=parentFilterArray,columnList=getParentLinkedField.Name,orderBy=ReplaceNoCase(getParentLinkedField.Name,'FIC_',''),orderByDirection="ASC", Limit=0);
 			}
 		</cfscript>
 
@@ -408,7 +408,7 @@ History:
 					else
 						assocColumnList = assocReqFieldName;
 						
-					data = ceObj.getRecordsFromSavedFilter(elementID=inputPropStruct.assocCustomElement,queryEngineFilter=assocFilterArray,columnList=assocColumnList,orderBy=assocReqFieldName, orderByDirection="ASC");
+					data = ceObj.getRecordsFromSavedFilter(elementID=inputPropStruct.assocCustomElement,queryEngineFilter=assocFilterArray,columnList=assocColumnList,orderBy=assocReqFieldName, orderByDirection="ASC", limit=0);
 					assocData = data.resultQuery;
 						
 					if (assocData.RecordCount)
@@ -421,7 +421,7 @@ History:
 				}
 				childFilterArray = ceObj.createQueryEngineFilter(filterStatementArray=statementsArray,filterExpression=childFilterExpression);
 				childColumnList = '#childColNameList#,#valueFieldName#';
-				data = ceObj.getRecordsFromSavedFilter(elementID=inputPropStruct.childCustomElement,queryEngineFilter=childFilterArray,columnList=childColumnList);					
+				data = ceObj.getRecordsFromSavedFilter(elementID=inputPropStruct.childCustomElement,queryEngineFilter=childFilterArray,columnList=childColumnList, limit=0);					
 				filteredData = data.resultQuery;
 				displayColsArray = ListToArray(displayColNames);
 			</cfscript>
@@ -1450,7 +1450,7 @@ History:
 							
 							if (NOT ArrayLen(filterArray))
 								filterArray[1] = '| element_datemodified| element_datemodified| <= | | c,c,c| | ';
-							ceData = ceObj.getRecordsFromSavedFilter(elementID=ceFormID,queryEngineFilter=filterArray,columnList=fieldList,orderBy=sortColumn,orderByDirection=sortDir);
+							ceData = ceObj.getRecordsFromSavedFilter(elementID=ceFormID,queryEngineFilter=filterArray,columnList=fieldList,orderBy=sortColumn,orderByDirection=sortDir, limit=0);
 							formIDColArray = ArrayNew(1);
 							formNameColArray = ArrayNew(1);
 							if (ceData.ResultQuery.RecordCount)

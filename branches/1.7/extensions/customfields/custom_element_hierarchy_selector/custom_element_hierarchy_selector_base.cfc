@@ -319,7 +319,7 @@ History:
 					
 					if (NOT ArrayLen(filterArray))
 						filterArray[1] = '| element_datemodified| element_datemodified| <= | | c,c,c| | ';
-					ceData = customElementObj.getRecordsFromSavedFilter(elementID=inputPropStruct.customElement,queryEngineFilter=filterArray,columnList=fieldList,orderBy=sortColumn,orderByDirection=sortDir);
+					ceData = customElementObj.getRecordsFromSavedFilter(elementID=inputPropStruct.customElement, queryEngineFilter=filterArray, columnList=fieldList, orderBy=sortColumn, orderByDirection=sortDir, limit=0);
 				</cfscript>
 				
 				<cfquery name="getFormattedData" dbtype="query">
