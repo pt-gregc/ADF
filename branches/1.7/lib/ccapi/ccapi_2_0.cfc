@@ -70,12 +70,15 @@ History:
 	2009-06-30 - RLW - Removed the "loadTemplates()" function - obsolete
 	2012-01-23 - MFC - Modified to call the API library.
 	2014-03-05 - JTP - Var declarations
+	2014-03-07 - GAC - Updated the var'd apiConfig variable for backwards compatiblity
 --->
 <cffunction name="initCCAPI" access="public" returntype="void" hint="Initializes the CCAPI object using the settings in the ccapi.xml file from the site root">
 	<cfscript>
+		var apiConfig = StructNew();
+		
 		variables.api.initAPIConfig();
 		
-		var apiConfig = variables.api.getAPIConfig();
+		apiConfig = variables.api.getAPIConfig();
 
 		setCCAPIConfig(apiConfig);
 		setCSUserID(apiConfig.wsVars.csuserid);
