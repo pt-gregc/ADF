@@ -197,6 +197,8 @@ Arguments:
 History:
  	2011-03-01 - RAK - Created
  	2011-05-10 - RAK - fixed bug related to unix systems
+	2014-03-05 - JTP - var'd un-var'd variables
+	2014-03-06 - GAC - Added 'arguments.' to the destinationURL variable
 --->
 <cffunction name="getThumbnailOfResource" access="public" returntype="string" hint="Returns the url to the thumbnail of a resource">
 	<cfargument name="filePath" type="string" required="true" default="" hint="Fully qualified path to resource.">
@@ -208,8 +210,9 @@ History:
 		
 		arguments.filePath = Replace(arguments.filePath,'\','/',"ALL");
 		documentName = listLast(arguments.filePath,"/");
-		if( Len(destinationURL) )
-			destination = expandPath(destinationURL);
+		
+		if( Len(arguments.destinationURL) )
+			destination = expandPath(arguments.destinationURL);
 		else
 			destination = Replace(arguments.filePath,documentName,'');
 	</cfscript>
