@@ -539,7 +539,7 @@ History:
 						{
 							switch (formFieldType)
 							{
-								case 'Custom Element Select Field':
+								case 'Custom Element Select':
 									fieldUpdValue = getContent_ceSelect(fieldID=formFieldID,fieldValue='#formFieldValue#');
 									if( NOT StructKeyExists(convertedCols, col) )
 									{
@@ -1305,13 +1305,15 @@ History:
 		var sortDir = '';
 		var filterArray = ArrayNew(1);
 		var statementsArray = ArrayNew(1);
-		var ceFieldsArray = ArrayNew(1);
+		var fldsQry = QueryNew('');
 		var index = 1;
 		var valueWithoutParens = '';
 		var hasParens = 0;	
 		var ceData = QueryNew('');
 		var formIDColArray = '';
 		var formNameColArray = '';
+		var start = 0;
+		var end = 0;
 		
 		if( NOT StructKeyExists(request,'getContent_ceSelect') )
 			request['getContent_ceSelect'] = structNew();
@@ -1433,20 +1435,55 @@ History:
 						
 						if (StructKeyExists(paramsStruct,"customElement") and Len(paramsStruct.customElement))
 						{
-							// TODO: Remove when the new Filter Criteria works correctly					
-							ceFieldsArray = application.ADF.cedata.getTabsFromFormID(formID=ceFormID,recurse=true);
-							if (ArrayLen(ceFieldsArray) AND StructKeyExists(ceFieldsArray[1],'fields') AND IsArray(ceFieldsArray[1].fields) AND ArrayLen(ceFieldsArray[1].fields))
+							fldsQry = ceObj.GetFields(ceFormID);
+							fieldList = ValueList(fldsQry.Name);
+							
+							if( StructKeyExists(paramsStruct, "displayField") AND LEN(paramsStruct.displayField) AND paramsStruct.displayField neq "--Other--" ) 
+								fieldList = '#paramsStruct.displayField#,#paramsStruct.valueField#';
+							else if( paramsStruct.displayField eq "--Other--" AND paramsStruct.DisplayFieldBuilder neq '' )
 							{
-								for(index=1;index LTE ArrayLen(ceFieldsArray[1].fields);index=index+1)
+								start = 1;
+								fieldList = '';
+								while( true )
 								{
-									fieldList = ListAppend(fieldList, ceFieldsArray[1].fields[index].fieldName);
-									if (NOT Len(sortColumn) AND NOT Len(sortDir) AND index EQ 1)
+									start = FindNoCase( Chr(171), paramsStruct.DisplayFieldBuilder, start );
+									if( start )
 									{
-										sortColumn = ceFieldsArray[1].fields[index].fieldName;
-										sortDir = 'asc';
+										end = FindNoCase( Chr(187), paramsStruct.DisplayFieldBuilder, start );
+										if( end )
+										{
+											fld = Mid( paramsStruct.DisplayFieldBuilder, start + 1, (end - (start+1)) );
+											if( NOT FindNoCase( fld, fieldList ) )
+												fieldList = ListAppend( fieldList, fld ); 
+											start = end;	
+										}
+										else
+											break;
 									}
+									else
+										break;
 								}
+								// if value field not already in list, add it to the list			
+								if( NOT FindNoCase( paramsStruct.valueField, fieldList ) )
+									fieldList = ListAppend( fieldList, paramsStruct.valueField ); 
+
+
+
+								
+								
+								
 							}
+							else
+							{
+								fieldList = paramsStruct.valueField;
+							}
+							
+							if (NOT Len(sortColumn) AND NOT Len(sortDir))
+							{
+								sortColumn = ListFirst(fieldList);
+								sortDir = 'asc';
+							}
+
 							
 							if (NOT ArrayLen(filterArray))
 								filterArray[1] = '| element_datemodified| element_datemodified| <= | | c,c,c| | ';
