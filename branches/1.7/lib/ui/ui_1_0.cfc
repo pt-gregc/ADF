@@ -367,6 +367,7 @@ History:
 	<cfscript>
 		var retHTML = "";
 		var productVersion = ListFirst(ListLast(request.cp.productversion," "),".");
+		// Overwrite the CommonSpot Variables for the CS Lightbox (CS 6.0+)
 		var CD_DialogName = '';
 		var CD_Title = '';
 		var CD_IncludeTableTop = 1;
@@ -376,7 +377,7 @@ History:
 	</cfscript>
 	<cfif NOT StructKeyExists(request,"HaveRunDlgCommonHead")>
 		<cfsavecontent variable="retHTML">
-			<!--- // Load the CommonSpot Lightbox Header when in version 6.0 --->
+			<!--- // Load the CommonSpot Lightbox Header when in version CS 6.0+ --->
 			<cfif productVersion GTE 6>
 				<cfscript>
 					// Use the Title passed in or if available use the title in the request.params for the Lightbox DialogName
