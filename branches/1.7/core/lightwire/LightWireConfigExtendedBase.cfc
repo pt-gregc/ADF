@@ -218,6 +218,7 @@ History:
 	2011-07-11 - MFC/AW - Updated AppConfig path building.
 	2013-02-26 - MFC - Updated comments to make sure the "appComPath" variable is not removed.
 	2014-03-05 - JTP - Var declarations
+	2014-03-07 - GAC - Updated the var'd buildError variable to init as a Structure 
 --->
 <cffunction name="loadADFAppBeanConfig" returntype="void" access="public" output="true" hint="Loads the custom apps bean config file.">
 	<cfargument name="path" type="string" required="false" default="\ADF\apps\">
@@ -230,7 +231,7 @@ History:
 		var expPath = ExpandPath(arguments.path);
 		var target = '';
 		var appComPath = '';
-		var buildError = '';
+		var buildError = StructNew();
 		
 		// Recurse the custom app directory
 		appLibDirQry = directoryFiles(arguments.path, "true");
@@ -340,6 +341,7 @@ History:
 <cffunction name="processMetadata" access="private" returntype="void">
 	<cfargument name="beanData" type="struct" required="true">
 	<cfargument name="objFactoryType" type="string" required="false" default="server">
+	
 	<cfscript>
 		var tmpStruct = "";
 		var injected = 0;
