@@ -252,7 +252,7 @@ History:
 	<cfscript>
 		var deleteFormHTML = '';
 		// Overwrite the CommonSpot Variables (CD_DialogName, targetModule and realTargetModule)
-		var CD_DialogName = = arguments.title;
+		var CD_DialogName = arguments.title;
 		var targetModule = "/ADF/extensions/datasheet-modules/delete_element_handler.cfm";
 		var realTargetModule = "";
 		
