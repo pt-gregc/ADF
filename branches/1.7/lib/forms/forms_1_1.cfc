@@ -240,8 +240,9 @@ History:
 	2011-04-07 - MFC - Added 'realTargetModule' variable for when deleting in CS6.1 and Greater.
 	2011-06-22 - GAC - Added a callback ID list parameter to include IDs of records to be modified by the callback other than the one being deleted 
 	2014-03-05 - JTP - Var declarations
+	2014-03-07 - GAC - Moved the scripts calls for jquery and ADFlightbox back into the return variable string
 --->
-<cffunction name="renderDeleteForm" access="public" returntype="String" hint="Renders the standard datasheet delete module">
+<cffunction name="renderDeleteForm" access="public" returntype="String" hint="Renders the standard datasheet delete module" output="false">
 	<cfargument name="formID" type="numeric" required="true" hint="The FormID for the Custom Element">
 	<cfargument name="dataPageID" type="numeric" required="true" hint="the DataPageID for the record being deleted">
 	<cfargument name="title" type="string" required="no" default="Delete Record" hint="The title of the dialog displayed while deleting">
@@ -250,31 +251,34 @@ History:
 	
 	<cfscript>
 		var deleteFormHTML = '';
-		var CD_DIALOGNAME = '';
+		// Overwrite the CommonSpot Variables (CD_DialogName, targetModule and realTargetModule)
+		var CD_DialogName = = arguments.title;
 		var targetModule = "/ADF/extensions/datasheet-modules/delete_element_handler.cfm";
-
-		variables.scripts.loadJquery();
-		variables.scripts.loadADFLightbox();
+		var realTargetModule = "";
 		
-		// IF in CS6.1 or greater set into 'RealTargetModule' variable
+		// IF in CS6.1 or greater set the 'realTargetModule' CS Varaible from the targetModule
 		if ( application.ADF.csVersion GTE 6.1 )
 			realTargetModule = targetModule;
-		
+
+		// Set the request.params variables for pageID, formID, callback and cbIDlist
 		request.params.pageID = arguments.dataPageID;
 		request.params.formID = arguments.formID;
-		if(Len(arguments.callback))
+		
+		if ( Len(arguments.callback) )
 		{
 			request.params.callback = arguments.callback;
-			if(Len(Trim(arguments.cbIDlist)))
+			if ( Len(Trim(arguments.cbIDlist)) )
 				request.params.cbIDlist = arguments.cbIDlist;
 		}
-		CD_DIALOGNAME = arguments.title;
 	</cfscript>
-		
-	<cfsavecontent variable="deleteFormHTML">	
+	
+	<cfsavecontent variable="deleteFormHTML">
+		<cfscript>
+			variables.scripts.loadJquery();
+			variables.scripts.loadADFLightbox();
+		</cfscript>
 		<cfinclude template="/ADF/extensions/datasheet-modules/delete_element_handler.cfm">
 	</cfsavecontent>
-	
 	<cfreturn deleteFormHTML>
 </cffunction>
 
