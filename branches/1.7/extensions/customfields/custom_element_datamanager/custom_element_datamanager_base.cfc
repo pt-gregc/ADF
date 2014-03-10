@@ -630,6 +630,7 @@ History:
 		
 	<cfreturn returnStruct>
 </cffunction>
+
 		
 <cffunction name="renderActionColumns" returntype="void" access="public" hint="Get the data for the fields">
 	<cfargument name="propertiesStruct" type="struct" required="true" hint="Properties structure for the field">
@@ -730,10 +731,13 @@ History:
 			dataPageID = arguments.assocDataPageID;
 		}
 	</cfscript>
-	<cfsavecontent variable="renderData">
-		<cfoutput><img onclick="javascript:top.commonspot.lightbox.openDialog(&##39;#Request.SubSite.DlgLoader#?csModule=controls/datasheet/cs-delete-form-data&mode=results&callbackFunction=loadData_#arguments.fieldID#&realTargetModule=controls/datasheet/cs-delete-form-data&formID=#deleteFormID#&pageID=#dataPageID#&##39;);" class="actionIcon" title="Delete" alt="Delete" src="/commonspot/dashboard/icons/bin.png"></cfoutput>
-	</cfsavecontent>
-	<cfoutput>#renderData#</cfoutput>
+	
+	<cfif isNumeric(dataPageID) AND dataPageID gt 0 AND isNumeric(deleteFormID) AND deleteFormID gt 0>
+		<cfsavecontent variable="renderData">
+			<cfoutput><img onclick="javascript:top.commonspot.lightbox.openDialog(&##39;#Request.SubSite.DlgLoader#?csModule=controls/datasheet/cs-delete-form-data&mode=results&callbackFunction=loadData_#arguments.fieldID#&realTargetModule=controls/datasheet/cs-delete-form-data&formID=#deleteFormID#&pageID=#dataPageID#&##39;);" class="actionIcon" title="Delete" alt="Delete" src="/commonspot/dashboard/icons/bin.png"></cfoutput>
+		</cfsavecontent>
+		<cfoutput>#renderData#</cfoutput>
+	</cfif>
 </cffunction>
 	
 <cffunction name="getReorderRange" returntype="struct" access="public" hint="Method to get the reorder range for the values fo a custom element">
