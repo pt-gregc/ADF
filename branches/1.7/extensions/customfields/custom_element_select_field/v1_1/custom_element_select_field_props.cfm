@@ -60,6 +60,7 @@ History:
 	2014-01-30 - DJM - Removed Active Field and Value fields and replaced with a filter criteria option
 	2014-01-30 - GAC - Moved into a v1_1 version subfolder
 	2014-02-27 - GAC - Added backwards compatiblity logic to allow field use the prior version of the CFT if installed on a pre-CS9 site
+	2014-03-07 - DJM - Created Custom_Element_Select_Field_base.cfc for CFT specific methods
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
@@ -75,7 +76,7 @@ History:
 
 <!---// CommonSpot 9 Required for the new element data filter criteria --->
 <cfscript>
-	fieldVersion = "1.1.2"; // Variable for the version of the field - Display in Props UI
+	fieldVersion = "1.1.3"; // Variable for the version of the field - Display in Props UI
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
@@ -201,6 +202,8 @@ History:
 	
 	if (IsWDDX(currentValues.filterCriteria))
 		cfmlFilterCriteria = Server.CommonSpot.UDF.util.WDDXDecode(currentValues.filterCriteria);
+		
+	curl = 'csmodule=controls/custom/select-data-filters&isAdminUI=1&editRights=1&adminRights=1&openFrom=fieldProps&controlTypeID=#ceFormID#&persistentUniqueID=#persistentUniqueID#&prefixStr=#prefix#&hasFilter=1';
 </cfscript>
 
 <cfif IsStruct(cfmlFilterCriteria)>
@@ -234,21 +237,6 @@ History:
 		}
 		else
 			document.#formname#.#prefix#renderSelectOption[0].disabled = false;
-	}
-	
-	function #prefix#clearFilter()
-	{
-		document.#formname#.#prefix#filterCriteria.value = "";
-		document.getElementById('#prefix#clearBtn').style.display = "none";
-		var onClickAttrVal = document.getElementById('#prefix#filterBtn').getAttribute("onclick");
-		onClickAttrVal = onClickAttrVal.replace("hasFilter=1", "hasFilter=0");	
-		document.getElementById('#prefix#filterBtn').setAttribute("onclick", onClickAttrVal);
-	}
-	
-	function #prefix#openFilterDlg()
-	{
-		var curl = 'csmodule=controls/custom/select-data-filters&isAdminUI=1&editRights=1&adminRights=1&openFrom=fieldProps&controlTypeID=#ceFormID#&persistentUniqueID=#persistentUniqueID#&prefixStr=#prefix#&hasFilter=1';
-		top.commonspot.dialog.server.show(curl);	
 	}
 		
 	function #prefix#doValidate()
@@ -557,7 +545,7 @@ History:
 			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Sort/Filter Criteria:</td>
 			<td valign="cs_dlgLabelSmall">
 			#Server.CommonSpot.UDF.tag.input(type="hidden", id="#prefix#filterCriteria", name="#prefix#filterCriteria", value=currentValues.filterCriteria, style="font-family:#Request.CP.Font#;font-size:10")#
-			#Server.CommonSpot.UDF.tag.input(type="button", class="clsPushButton", id="#prefix#filterBtn", name="#prefix#filterBtn", value="Sort/Filter Criteria...", onclick="#prefix#openFilterDlg();")#
+			#Server.CommonSpot.UDF.tag.input(type="button", class="clsPushButton", id="#prefix#filterBtn", name="#prefix#filterBtn", value="Sort/Filter Criteria...", onclick="top.commonspot.dialog.server.show('#curl#');")#
 			<cfif Len(currentValues.filterCriteria)>
 				#Server.CommonSpot.UDF.tag.input(type="button", class="clsPushButton", id="#prefix#clearBtn", name="#prefix#clearBtn", value="Clear", onclick="#prefix#clearFilter()")#
 			<cfelse>

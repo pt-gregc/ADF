@@ -18,4 +18,5 @@
 	<!-- ADF Custom Field Types -->
 	<customElementDataManager_1_0>getFields,getFieldIDList,getGlobalCE,renderGrid,onDrop</customElementDataManager_1_0>
 	<customElementHierarchySelector_1_0>getFields</customElementHierarchySelector_1_0>
+	<customElementSelect_1_0>renderCustomElementSelect</customElementSelect_1_0>
 </settings>
