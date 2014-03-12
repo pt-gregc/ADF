@@ -39,6 +39,7 @@ History:
 	2013-12-09 - DJM - Added changes to handle hidden fields and added code to set the size of actions column for datatable
 					 - Fixed issue for the range being considered as string
 	2014-03-05 - JTP - Var declarations
+	2014-03-12 - DJM - Updated code displaying the flyover text for edit and delete icons
 --->
 <cfcomponent output="false" displayname="custom element datamanager_base" extends="ADF.core.Base" hint="This the base component for the Custom Element Data Manager field">
 	
@@ -681,7 +682,7 @@ History:
 			qryString = 'formID=#inputPropStruct.assocCustomElement#&linkageFieldID=#inputPropStruct.parentInstanceIDField#';
 		</cfscript>
 		<cfsavecontent variable="renderData">
-			<cfoutput><img onclick="javascript:top.commonspot.lightbox.openDialog(&##39;#Request.SubSite.DlgLoader#?csModule=controls/custom/submit-data&newData=0&dataPageID=#arguments.dataPageID#&dataControlID=#arguments.dataControlID#&openFrom=datamanager&callbackFunction=loadData_#arguments.fieldID#&#qryString#&##39;);" class="actionIcon" title="Edit Association Element" alt="Edit Association Element" src="/commonspot/dashboard/icons/application_form_edit.png"></cfoutput>
+			<cfoutput><img onclick="javascript:top.commonspot.lightbox.openDialog(&##39;#Request.SubSite.DlgLoader#?csModule=controls/custom/submit-data&newData=0&dataPageID=#arguments.dataPageID#&dataControlID=#arguments.dataControlID#&openFrom=datamanager&callbackFunction=loadData_#arguments.fieldID#&#qryString#&##39;);" class="actionIcon" title="Edit Association Element '#Request.Site.availcontrols[inputPropStruct.assocCustomElement].shortdesc#'" alt="Edit Association Element '#Request.Site.availcontrols[inputPropStruct.assocCustomElement].shortdesc#'" src="/commonspot/dashboard/icons/application_form_edit.png"></cfoutput>
 		</cfsavecontent>
 	</cfif>
 	<cfoutput>#renderData#</cfoutput>
@@ -703,7 +704,7 @@ History:
 			qryString = 'formID=#inputPropStruct.childCustomElement#&linkageFieldID=#inputPropStruct.childLinkedField#';
 		</cfscript>
 		<cfsavecontent variable="renderData">
-			<cfoutput><img onclick="javascript:top.commonspot.lightbox.openDialog(&##39;#Request.SubSite.DlgLoader#?csModule=controls/custom/submit-data&newData=0&dataPageID=#arguments.dataPageID#&dataControlID=#arguments.dataControlID#&openFrom=datamanager&callbackFunction=loadData_#arguments.fieldID#&#qryString#&##39;);" class="actionIcon" title="Edit Child Element" alt="Edit Child Element" src="/commonspot/dashboard/icons/edit.png"></cfoutput>
+			<cfoutput><img onclick="javascript:top.commonspot.lightbox.openDialog(&##39;#Request.SubSite.DlgLoader#?csModule=controls/custom/submit-data&newData=0&dataPageID=#arguments.dataPageID#&dataControlID=#arguments.dataControlID#&openFrom=datamanager&callbackFunction=loadData_#arguments.fieldID#&#qryString#&##39;);" class="actionIcon" title="Edit Child Element '#Request.Site.availcontrols[inputPropStruct.childCustomElement].shortdesc#'" alt="Edit Child Element '#Request.Site.availcontrols[inputPropStruct.childCustomElement].shortdesc#'" src="/commonspot/dashboard/icons/edit.png"></cfoutput>
 		</cfsavecontent>
 	</cfif>
 	<cfoutput>#renderData#</cfoutput>
@@ -734,7 +735,7 @@ History:
 	
 	<cfif isNumeric(dataPageID) AND dataPageID gt 0 AND isNumeric(deleteFormID) AND deleteFormID gt 0>
 		<cfsavecontent variable="renderData">
-			<cfoutput><img onclick="javascript:top.commonspot.lightbox.openDialog(&##39;#Request.SubSite.DlgLoader#?csModule=controls/datasheet/cs-delete-form-data&mode=results&callbackFunction=loadData_#arguments.fieldID#&realTargetModule=controls/datasheet/cs-delete-form-data&formID=#deleteFormID#&pageID=#dataPageID#&##39;);" class="actionIcon" title="Delete" alt="Delete" src="/commonspot/dashboard/icons/bin.png"></cfoutput>
+			<cfoutput><img onclick="javascript:top.commonspot.lightbox.openDialog(&##39;#Request.SubSite.DlgLoader#?csModule=controls/datasheet/cs-delete-form-data&mode=results&callbackFunction=loadData_#arguments.fieldID#&realTargetModule=controls/datasheet/cs-delete-form-data&formID=#deleteFormID#&pageID=#dataPageID#&##39;);" class="actionIcon" title="Delete #Request.Site.availcontrols[deleteFormID].shortdesc#" alt="Delete #Request.Site.availcontrols[deleteFormID].shortdesc#" src="/commonspot/dashboard/icons/bin.png"></cfoutput>
 		</cfsavecontent>
 		<cfoutput>#renderData#</cfoutput>
 	</cfif>

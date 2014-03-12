@@ -40,6 +40,8 @@ History:
 	2013-12-09 - DJM - Added code to change the cursor for datatable, actions column width and modified path to CFC to allow drag drop
 	2014-02-20 - JTP - Added the AjaxBeanName variable for the override function 
 	2014-03-05 - JTP - Update to better handle the newData variable
+	2014-03-12 - DJM - Added code for overlay while loading datamanager, updated flyover text for edit and delete icons, 
+						modified code for allowing resize of datamanager after load
 --->
 <cfscript>
 	requiredCSversion = 9;
@@ -221,14 +223,16 @@ History:
 						<span id="errorMsgSpan"></span>
 					</td></tr>
 					<tr><td>
-					<table id="customElementData_#uniqueTableAppend#" class="display" style="min-width:#widthVal#;">
-					<thead><tr></tr></thead>
-					<tbody>
-						<tr>
-							<td class="dataTables_empty"><img src="/commonspot/dashboard/images/dialog/loading.gif" />&nbsp;Loading data from server</td>
-						</tr>
-					</tbody>
-					</table>
+					<div id="datamanager_#uniqueTableAppend#">
+						<table id="customElementData_#uniqueTableAppend#" class="display" style="min-width:#widthVal#;">
+						<thead><tr></tr></thead>
+						<tbody>
+							<tr>
+								<td class="dataTables_empty"><img src="/commonspot/dashboard/images/dialog/loading.gif" />&nbsp;Loading data from server</td>
+							</tr>
+						</tbody>
+						</table>
+					</div>
 					</td></tr>
 					</table>
 				</CFOUTPUT>
@@ -254,13 +258,19 @@ History:
 
 	<cfif fieldPermission gt 0>
 		<cfoutput>
+		<script type="text/javascript" src="/commonspot/dashboard/js/nondashboard-util.js"></script>
 		<script type="text/javascript">
 			<!--	
 			var oTable#uniqueTableAppend# = '';
 			
+			if (!commonspot)
+				var commonspot = top.commonspot;
+			
 			jQuery.ajaxSetup({ cache: false, async: true });	
 		
-			top.commonspot.util.event.addEvent(window, "load", loadData_#uniqueTableAppend#);
+			top.commonspot.util.event.addEvent(window, "load", function(){
+																	loadData_#uniqueTableAppend#(0)
+																});
 			top.commonspot.util.event.addEvent(window, "resize", resize_#uniqueTableAppend#);
 			
 			function resize_#uniqueTableAppend#()
@@ -295,13 +305,20 @@ History:
 				}
 			}
 
-			function loadData_#uniqueTableAppend#()
+			function loadData_#uniqueTableAppend#(displayOverlay)
 			{
-				setTimeout( loadDataCore_#uniqueTableAppend#, 500 );
+				if (typeof displayOverlay == 'undefined')
+					var displayOverlay = 1;
+				
+				setTimeout( function(){
+								loadDataCore_#uniqueTableAppend#(displayOverlay)
+							}, 500 );
 			}
 			
-			function loadDataCore_#uniqueTableAppend#()
+			function loadDataCore_#uniqueTableAppend#(displayOverlay)
 			{
+				if (displayOverlay == 1)
+					commonspotNonDashboard.util.displayMessageOverlay('datamanager_#uniqueTableAppend#', 'overlayDivStyle', 'Please Wait...');	
 				var res#uniqueTableAppend# = '';
 				var retData#uniqueTableAppend# = '';
 				
@@ -404,7 +421,10 @@ History:
 							jQuery("##parentTable_#uniqueTableAppend#").find('.dataTables_scrollBody').css('height', "#heightVal#");
 							jQuery("##parentTable_#uniqueTableAppend#").find('.dataTables_scrollBody').css('width', "#widthVal#");
 							jQuery("##parentTable_#uniqueTableAppend#").find('.dataTables_scrollBody.dataTable').css('width', "#widthVal#");
-							// jQuery("##parentTable_#uniqueTableAppend#").find('.dataTables_scrollBody').css('width', ResizeWindow());
+							jQuery("##parentTable_#uniqueTableAppend#").find('.dataTables_scrollBody').css('width', ResizeWindow());
+							
+							if (displayOverlay == 1)
+								commonspotNonDashboard.util.hideMessageOverlay('datamanager_#uniqueTableAppend#');
 						}
 						else
 						{
@@ -492,7 +512,7 @@ History:
 					document.getElementById('customElementData_#uniqueTableAppend#').style.display = "none";
 					ResizeWindow();
 				});
-				// ResizeWindow();
+				// ResizeWindow();					
 			}
 			// -->
 		</script>
