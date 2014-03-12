@@ -263,8 +263,12 @@ History:
 			<!--	
 			var oTable#uniqueTableAppend# = '';
 			
-			if (!commonspot)
-				var commonspot = top.commonspot;
+
+			if ( typeof commonspot == 'undefined' )
+			{
+				var commonspot = {};
+			 	commonspot = top.commonspot.util.merge(commonspot, top.commonspot, 1, 0);
+			} 
 			
 			jQuery.ajaxSetup({ cache: false, async: true });	
 		
