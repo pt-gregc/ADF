@@ -39,7 +39,6 @@ History:
 
 <cfproperty name="version" value="1_0_14">
 <cfproperty name="type" value="singleton">
-<cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_0">
 <cfproperty name="data" type="dependency" injectedBean="data_1_0">
 <cfproperty name="wikiTitle" value="CEData_1_0">
 
@@ -256,11 +255,13 @@ History:
 		// get the formID for the Page Mapping element
 		var formID = getFormIDByCEName(arguments.ceName);
 		var pageIDs = getPageIDForElement(formID);
+		var csSecurity = server.ADF.objectFactory.getBean("csSecurity_1_2");
+
 		// Verify the security for the logged in user
-		if ( variables.csSecurity.isValidContributor() OR variables.csSecurity.isValidCPAdmin() ) {
-			if ( listLen(valueList(pageIDs.pageID)) ){
+		if ( csSecurity.isValidContributor() OR csSecurity.isValidCPAdmin() ) 
+		{
+			if ( listLen(valueList(pageIDs.pageID)) )
 				return deleteCE(valueList(pageIDs.pageID));
-			}
 		}
 	</cfscript>
 	<cfreturn false>
@@ -292,14 +293,18 @@ History:
 <cffunction name="deleteCE" access="public" returntype="boolean">
 	<cfargument name="datapageidList" type="string" required="true">
 
-	<cfset var deleteCEData = queryNew("temp")>
-	<cfset var i = 1>
-	<cfset var currPageID = 1>
-	<cfset var formID = 0>
-	<cfset var elementFields = "">
-	<cfset var j = "">
+	<cfscript>
+		var deleteCEData = queryNew("temp");
+		var i = 1;
+		var currPageID = 1;
+		var formID = 0;
+		var elementFields = "";
+		var j = "";
+		var csSecurity = server.ADF.objectFactory.getBean("csSecurity_1_2");
+	</cfscript>
+	
 	<!--- Verify the security for the logged in user --->
-	<cfif variables.csSecurity.isValidContributor() OR variables.csSecurity.isValidCPAdmin()>
+	<cfif csSecurity.isValidContributor() OR csSecurity.isValidCPAdmin()>
 		<!--- Loop over the page id list --->
 		<cftry>
 			<cfloop index="i" from="1" to="#ListLen(datapageidList)#">

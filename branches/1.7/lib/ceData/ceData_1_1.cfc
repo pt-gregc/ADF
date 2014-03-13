@@ -37,7 +37,6 @@ History:
 
 <cfproperty name="version" value="1_1_9">
 <cfproperty name="type" value="singleton">
-<cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_1">
 <cfproperty name="data" type="dependency" injectedBean="data_1_1">
 <cfproperty name="wikiTitle" value="CEData_1_1">
 
@@ -1396,7 +1395,7 @@ History:
 		2011-03-01 - RAK - Security determining if you can get the CEData is set in the proxyWhitelist files
 	--->
 	<cfscript>
-		if(NOT variables.csSecurity.validateProxy("getCEDataSecurity",arguments.customElementName)){
+		if(NOT csSecurity.validateProxy("getCEDataSecurity",arguments.customElementName)){
 			/*Security failed. Append to the log and return nothing useful.*/
 			application.ADF.utils.logAppend("Get CEData call to non-whitelisted element: #arguments.customElementName#","getCEDataSecurityException.txt");
 			return ArrayNew(1);

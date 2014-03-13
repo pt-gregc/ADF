@@ -38,7 +38,6 @@ History:
 
 <cfproperty name="version" value="2_0_22">
 <cfproperty name="type" value="singleton">
-<cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_2">
 <cfproperty name="wikiTitle" value="CEData_2_0">
 
 <!---
