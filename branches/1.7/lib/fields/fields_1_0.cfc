@@ -178,6 +178,7 @@ History:
 					 - Added a TRIM to the label variable
 	2014-01-06 - GAC - Added the labelClass variable the Field Label to specify optional or required class to the label tag
 					 - Moved from the Forms_1_1 LIB to the new Field_1_0 LIB
+	2014-03-03 - GAC - Added a class and a class varialbe to the field's label TD for required fields
 --->
 <cffunction name="wrapFieldHTML" access="public" returntype="String" hint="Wraps the given information with valid html for the current commonspot and configuration">
 	<cfargument name="fieldInputHTML" type="string" required="true" default="" hint="HTML for the field input, do a cfSaveContent on the input field and pass that in here">
@@ -198,6 +199,7 @@ History:
 		var labelClass = "cs_dlgLabelOptional";
 		var labelStart = arguments.attr.itemBaselineParamStart;
 		var labelEnd = arguments.attr.itemBaseLineParamEnd;
+		var tdClass = "CS_Form_Label_Baseline";
 		var renderMode =  arguments.attr.rendermode;
 		var renderSimpleFormField = false;
 		var doHiddenFieldSecurity = false; // No Edit / No Readonly ... just a hidden field
@@ -210,6 +212,7 @@ History:
 			labelClass = "cs_dlgLabelRequired";
 			labelStart = arguments.attr.reqItemBaselineParamStart;
 			labelEnd = arguments.attr.reqItemBaseLineParamEnd;
+			tdClass = "CS_Form_Required_Baseline";
 		}
 
 		// Determine if this is rendererd in a simple form or the standard custom element interface
@@ -251,7 +254,7 @@ History:
 			<cfif NOT doHiddenFieldSecurity>
 				<tr id="#fqFieldName#_FIELD_ROW">
 					<cfif arguments.includeLabel>
-						<td valign="top" nowrap="nowrap">
+						<td valign="top" nowrap="nowrap" class="#tdClass#">
 							#labelStart#
 							<label for="#fqFieldName#" id="#fqFieldName#_LABEL" class="#labelClass#">#TRIM(xParams.label)#:</label>
 							#labelEnd#
