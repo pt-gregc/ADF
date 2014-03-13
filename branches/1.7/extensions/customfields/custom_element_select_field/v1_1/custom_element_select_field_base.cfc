@@ -37,6 +37,26 @@ History:
 
 <cfcomponent output="false" displayname="custom element select field_base" extends="ADF.core.Base" hint="This the base component for the Custom Element Select field">
 
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+Name:
+	$renderCustomElementSelect
+Summary:
+	Returns the HTML for an custom element select control
+Returns:
+	String
+Arguments:
+	Any - propertiesStruct
+	Numeric - formID
+	String - fqFieldName
+	String - fieldCurrentValue
+	Boolean - isReadOnly
+History:
+ 	2014-03-07 - DJM - Created
+	2014-03-13 - GAC - Fix the default values for the var'd ceDataArray and the ceData varaibles
+--->
 <cffunction name="renderCustomElementSelect" access="public" returntype="String" hint="Returns the HTML for an custom element select control">
 	<cfargument name="propertiesStruct" type="any" required="true" hint="Properties structure for the field in json format">
 	<cfargument name="formID" type="numeric" required="true" hint="ID of the form">
@@ -47,8 +67,8 @@ History:
 		var inputPropStruct = StructNew();
 		var formFieldType = '';
 		var isSelectionList = 0;
-		var ceDataArray = QueryNew('');
-		var ceData = StructNew();
+		var ceDataArray = ArrayNew(1);
+		var ceData = QueryNew('tmp');
 		var formResultHTML = '';
 		
 		if (IsJSON(arguments.propertiesStruct))
@@ -86,6 +106,21 @@ History:
 	<cfreturn formResultHTML>
 </cffunction>
 
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+Name:
+	$getFieldType
+Summary:
+	Returns the type of field to be rendered for an custom element select control
+Returns:
+	String
+Arguments:
+	Struct - propertiesStruct
+History:
+ 	2014-03-07 - DJM - Created
+--->
 <cffunction name="getFieldType" access="public" returntype="string" hint="Returns the type of field to be rendered for an custom element select control">
 	<cfargument name="propertiesStruct" type="struct" required="true" hint="Properties structure for the field">
 	<cfscript>
@@ -106,6 +141,24 @@ History:
 	</cfscript>
 </cffunction>
 
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+Name:
+	$getCEData
+Summary:
+	Return the data for the custom elemnt select field
+Returns:
+	Query
+Arguments:
+	Struct - propertiesStruct
+	Numeric - formID
+	String - fieldCurrentValue
+	Boolean - isReadOnly
+History:
+ 	2014-03-07 - DJM - Created
+--->
 <cffunction name="getCEData" access="public" returntype="query" hint="Return the data for the custom elemnt select field">
 	<cfargument name="propertiesStruct" type="struct" required="true" hint="Properties structure for the field">
 	<cfargument name="formID" type="numeric" required="true" hint="ID of the form">
@@ -255,6 +308,25 @@ History:
 	</cfscript>
 </cffunction>
 
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+Name:
+	$renderSelectionList
+Summary:
+	Return the HTML for selection list for the custom elemnt select field
+Returns:
+	Query
+Arguments:
+	Struct - propertiesStruct
+	String - fqFieldName
+	String - fieldCurrentValue
+	Boolean - isReadOnly
+	Array - dataArray
+History:
+ 	2014-03-07 - DJM - Created
+--->
 <cffunction name="renderSelectionList" access="public" returntype="string" hint="Return the HTML for selection list for the custom elemnt select field">
 	<cfargument name="propertiesStruct" type="struct" required="true" hint="Properties structure for the field">
 	<cfargument name="fqFieldName" type="string" required="true" hint="Name of the field">
@@ -318,6 +390,25 @@ History:
 	<cfreturn formResultHTML>
 </cffunction>
 
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+Name:
+	$renderCheckBoxRadio
+Summary:
+	Return the HTML for radio button/check box for the custom elemnt select field
+Returns:
+	Query
+Arguments:
+	Struct - propertiesStruct
+	String - fqFieldName
+	String - fieldCurrentValue
+	Boolean - isReadOnly
+	Array - dataArray
+History:
+ 	2014-03-07 - DJM - Created
+--->
 <cffunction name="renderCheckBoxRadio" access="public" returntype="string" hint="Return the HTML for radio button/check box for the custom elemnt select field">
 	<cfargument name="propertiesStruct" type="struct" required="true" hint="Properties structure for the field">
 	<cfargument name="fqFieldName" type="string" required="true" hint="Name of the field">
