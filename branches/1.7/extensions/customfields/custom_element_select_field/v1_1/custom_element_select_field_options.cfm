@@ -245,12 +245,15 @@
 			</cfif>
 			
 			<cfscript>		
-				ArraySet(formIDColArray, 1, getFilteredRecords.RecordCount, ceID);
-				ArraySet(formNameColArray, 1, getFilteredRecords.RecordCount, cfmlInputParams.customElement);
-				
-				QueryAddColumn(getFilteredRecords, 'formID', formIDColArray);
-				QueryAddColumn(getFilteredRecords, 'formName', formIDColArray);
+				if( getFilteredRecords.RecordCount gt 0 )
+				{
+					ArraySet(formIDColArray, 1, getFilteredRecords.RecordCount, ceID);
+					ArraySet(formNameColArray, 1, getFilteredRecords.RecordCount, cfmlInputParams.customElement);
 
+					QueryAddColumn(getFilteredRecords, 'formID', formIDColArray);
+					QueryAddColumn(getFilteredRecords, 'formName', formIDColArray);
+				}
+		
 				ceDataArray = application.ADF.cedata.buildCEDataArrayFromQuery(getFilteredRecords);
 
 				if( StructKeyExists(cfmlInputParams, "displayField") AND LEN(cfmlInputParams.displayField) AND cfmlInputParams.displayField neq "--Other--" ) 
