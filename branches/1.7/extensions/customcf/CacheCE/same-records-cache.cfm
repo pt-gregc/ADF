@@ -143,7 +143,8 @@ History:
 				if( structKeyExists( application.CS_SameRecordsCache[attributes.ElementType][attributes.cacheName][PageIDControlID], 'ClassNames' ) )
 				{
 					classNames = application.CS_SameRecordsCache[attributes.ElementType][attributes.cacheName][PageIDControlID].classNames;
-					application.CS_SameRecordsCache[attributes.ElementType][attributes.cacheName].ElementInfo.ClassNames.element = classNames;
+					if( Len(classNames) ) 
+						application.CS_SameRecordsCache[attributes.ElementType][attributes.cacheName].ElementInfo.ClassNames.element = classNames;
 				}	
 			</cfscript>
 			<cfoutput><div <cfif classNames neq ''>class='#classNames#'</cfif>></cfoutput>			
@@ -179,7 +180,7 @@ History:
 	// check if nested invocations, if so clone
 	if( StructKeyExists(request,"CS_SameRecordsInfo") )
 	{
-		pushed_CS_SameRecordsInfo = Duplicate(request.CS_SameRecordsInfo);
+		pushed_CS_SameRecordsInfo = copyStruct(request.CS_SameRecordsInfo);
 		pushed = 1;
 	}	
 	request.CS_SameRecordsInfo = StructNew();
@@ -228,7 +229,7 @@ History:
 				application.CS_SameRecordsCache[attributes.ElementType] = StructNew();
 			if( NOT StructKeyExists( application.CS_SameRecordsCache[attributes.ElementType], attributes.cacheName ) )
 				application.CS_SameRecordsCache[attributes.ElementType][attributes.cacheName] = StructNew();
-			application.CS_SameRecordsCache[attributes.ElementType][attributes.cacheName].elementInfo = Duplicate(request.CS_SameRecordsInfo.elementInfo);
+			application.CS_SameRecordsCache[attributes.ElementType][attributes.cacheName].elementInfo = copyStruct(request.CS_SameRecordsInfo.elementInfo);
 			application.CS_SameRecordsCache[attributes.ElementType][attributes.cacheName][pageIDControlID] = StructNew();
 			application.CS_SameRecordsCache[attributes.ElementType][attributes.cacheName][pageIDControlID].renderhandler = request.CS_SameRecordsInfo.renderHandler;
 			application.CS_SameRecordsCache[attributes.ElementType][attributes.cacheName][pageIDControlID].classNames = request.CS_SameRecordsInfo.classNames;
@@ -298,3 +299,17 @@ History:
 	</cfscript>
 </cffunction>
 
+<cffunction name="copyStruct" access="private" output="no" returntype="struct">
+	<cfargument name="srcStruct" type="struct" required="Yes">
+	
+	<cfscript>
+		var retStruct = StructNew();
+		var key = '';
+		
+		retStruct = server.commonspot.udf.util.duplicateBean(arguments.srcStruct);
+//		for( key in arguments.srcStruct )
+//			retStruct[key] = arguments.srcStruct[key];
+	</cfscript>
+	
+	<cfreturn retStruct>
+</cffunction> 
