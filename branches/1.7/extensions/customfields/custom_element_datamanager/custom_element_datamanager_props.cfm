@@ -39,12 +39,13 @@ History:
 	2014-01-03 - GAC - Added the fieldVersion variable
 	2014-01-28 - GAC - Converted to use AjaxProxy.cfm instead of calling the base.cfc directly
 	2014-02-24 - DJM - Fix for the problem of fields not loading up in available fields grid occasionally on change of association CE.
+	2014-03-17 - GAC - Added dbType="QofQ" to the handle-in-list call inside the selectedTypeFields query or queries
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "1.0.5"; 
+	fieldVersion = "1.0.6"; 
 	
 	// CS version and required Version variables
 	requiredCSversion = 9;
@@ -130,7 +131,7 @@ History:
 <cfquery name="selectedTypeFields" dbtype="query">
 	SELECT ID, Label AS Name
 	  FROM selectedTypeFields
-	 WHERE <cfmodule template="/commonspot/utilities/handle-in-list.cfm" field="Type" list="formatted_text_block,taxonomy,date,calendar" cfsqltype="cf_sql_varchar" isNot=1>	
+	 WHERE <cfmodule template="/commonspot/utilities/handle-in-list.cfm" field="Type" list="formatted_text_block,taxonomy,date,calendar" cfsqltype="cf_sql_varchar" isNot=1 dbType="QofQ">	
 </cfquery>
 
 <cfscript>
