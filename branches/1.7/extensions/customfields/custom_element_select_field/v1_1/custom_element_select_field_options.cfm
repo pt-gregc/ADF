@@ -1,4 +1,34 @@
-<!--- custom_element_select_field_options.cfm --->
+<!--- 
+The contents of this file are subject to the Mozilla Public License Version 1.1
+(the "License"); you may not use this file except in compliance with the
+License. You may obtain a copy of the License at http://www.mozilla.org/MPL/
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+the specific language governing rights and limitations under the License.
+
+The Original Code is comprised of the ADF directory
+
+The Initial Developer of the Original Code is
+PaperThin, Inc. Copyright(C) 2014.
+All Rights Reserved.
+
+By downloading, modifying, distributing, using and/or accessing any files 
+in this directory, you agree to the terms and conditions of the applicable 
+end user license agreement.
+--->
+
+<!-------------
+Author: 	
+	PaperThin, Inc. 
+Name:
+	$custom_element_select_field_options.cfm
+Summary:
+	This file is included in the custom_element_select_field_filter.cfm for the ADF Custom Element Select field type.					
+History:
+	2014-02-26 - DJM - Created						
+	2014-03-17 - GAC - Added dbType="QofQ" to the handle-in-list call inside the getFilteredRecords Query of queries
+--->
 
 <cfscript>
 	getProperties = QueryNew('');
@@ -238,7 +268,7 @@
 				<cfquery name="getFilteredRecords" dbtype="query">
 					SELECT *
 					  FROM ceData.ResultQuery
-					 WHERE <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="#cfmlInputParams.valueField#" LIST="#arguments.currentValues#" CFSQLTYPE="cf_Sql_varchar">
+					 WHERE <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="#cfmlInputParams.valueField#" LIST="#arguments.currentValues#" CFSQLTYPE="cf_Sql_varchar" dbType="QofQ">
 				</cfquery>
 			<cfelse>
 				<cfset getFilteredRecords = ceData.ResultQuery>
