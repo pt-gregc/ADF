@@ -119,7 +119,7 @@ History:
 	<cfelse>
 		<cfscript>
 			result.reData = "Error: The Bean is not an Object and could not be used as a component!";
-			application.adf.utils.logAppend( msg='Error: The Bean '#bean#' is not an Object and could not be used as a component!', logfile='adf-run-command.html' );
+			application.adf.utils.logAppend( msg="Error: The Bean '#bean#' is not an Object and could not be used as a component!", logfile='adf-run-command.html' );
 		</cfscript>
 	</cfif>
 	
