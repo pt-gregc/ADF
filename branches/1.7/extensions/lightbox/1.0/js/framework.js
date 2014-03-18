@@ -58,11 +58,12 @@ function initADFLB() {
 		jQuery(this).click(function () {
 			var lightboxURL = processRel(jQuery(this).attr("rel"));
 			// Check if the commonspot OR lightbox space has been built
-			if ( (typeof commonspot == 'undefined') || (typeof commonspot.lightbox == 'undefined') ){
+			if( (typeof top.commonspot != 'undefined') && (typeof top.commonspot.lightbox != 'undefined') )
+				top.commonspot.lightbox.openDialog(lightboxURL);
+			else if( (typeof commonspot == 'undefined') || (typeof commonspot.lightbox == 'undefined') )
 				parent.commonspot.lightbox.openDialog(lightboxURL);
-			}else{
+			else
 				commonspot.lightbox.openDialog(lightboxURL);
-			}
 		});
    });
 }
@@ -105,10 +106,14 @@ function closeLB(){
 
 // Open the lightbox layer based on URL and set the width and height
 // 2011-02-02 - RAK - Added replacing of ajaxProxy.cfm to lightboxProxy.cfm
-function openLB(url) {
+function openLB(url) 
+{
 	url = url.replace(/ajaxProxy.cfm/i, "lightboxProxy.cfm");
 	// Check if the commonspot OR lightbox space has been built
-	if ( (typeof commonspot == 'undefined') || (typeof commonspot.lightbox == 'undefined') )
+	
+	if( (typeof top.commonspot != 'undefined') && (typeof top.commonspot.lightbox != 'undefined') )
+		top.commonspot.lightbox.openDialog(url);
+	else if( (typeof commonspot == 'undefined') || (typeof commonspot.lightbox == 'undefined') )
 		parent.commonspot.lightbox.openDialog(url);
 	else
 		commonspot.lightbox.openDialog(url);
@@ -203,7 +208,8 @@ function loadCallback(cbFunct, inArgsArray){
 }
 
 // Close the current lightbox and refresh its parent lightbox
-function closeLBReloadParent(){
+function closeLBReloadParent()
+{
 	// Check if the commonspot OR lightbox space has been built
 	if ( (typeof commonspot == 'undefined') || (typeof commonspot.lightbox == 'undefined') )
 		parent.commonspot.lightbox.closeCurrentWithReload();
