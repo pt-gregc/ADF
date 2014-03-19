@@ -277,6 +277,7 @@ History:
 	History:
 		2009-05-11 - MFC - Created
 		2010-04-06 - MFC - Code cleanup.
+		2014-03-19 - JTP - Add logic to not process dependencies for any site-level overrides in /_cs_apps/lib directory
 --->
 <cffunction name="loadADFLibComponents" returntype="void" access="public" output="true" hint="Creates Singletons for all components in directory argument.">
 	<cfargument name="directoryPath" type="string" required="true">
@@ -314,7 +315,8 @@ History:
 			}
 		}
 		// load the dependencies created from processMetadata
-		loadDependencies(arguments.objFactoryType);
+		if( NOT FindNoCase( '_cs_apps/lib', cfcPath ) )
+			loadDependencies(arguments.objFactoryType);
 	</cfscript>
 </cffunction>
 
