@@ -47,26 +47,24 @@ History:
 --->
 
 <cfif StructKeyExists(inputParameters, 'csAssoc_assocCE') AND IsNumeric(inputParameters.csAssoc_assocCE)>
-	<cfscript>
-		formID = inputParameters.csAssoc_assocCE;
-		
-		formFieldsToProcess['fic_#formID#_#inputParameters.csAssoc_parentInstanceIDField#'] = '';
+ 	<cfscript>
+  		formID = inputParameters.csAssoc_assocCE;
+  
+  		formFieldsToProcess['fic_#formID#_#inputParameters.csAssoc_parentInstanceIDField#'] = '';
 		formFieldsToProcess['fic_#formID#_#inputParameters.csAssoc_childInstanceIDField#'] = '';
-		
-		Request.Params['fic_#formID#_#inputParameters.csAssoc_parentInstanceIDField#'] = inputParameters.csAssoc_parentInstanceID;
-		Request.Params['fic_#formID#_#inputParameters.csAssoc_childInstanceIDField#'] = inputParameters.csAssoc_childInstanceID;
-		
-		args.dfvFormID = formID;
-		args.dfvPageID = Request.Site.IDMaster.getID();
-		args.dfvControlID = 0;
-		args.formFields = formFieldsToProcess;
-		args.isNew = 1;
-		args.wantIndex = 0;
-		
-		fieldComp = createObject('component', 'commonspot.components.form.gce-field').init(argumentCollection=args);	
-	</cfscript>
-	
+  
+  		Request.Params['fic_#formID#_#inputParameters.csAssoc_parentInstanceIDField#'] = inputParameters.csAssoc_parentInstanceID;
+  		Request.Params['fic_#formID#_#inputParameters.csAssoc_childInstanceIDField#'] = inputParameters.csAssoc_childInstanceID;
+  
+  		args.dfvFormID = formID;
+  		args.dfvPageID = Request.Site.IDMaster.getID();
+  		args.dfvControlID = 0;
+  		args.formFields = formFieldsToProcess;
+
+  		fieldComp = createObject('component', 'commonspot.components.form.gce-field').init(argumentCollection=args); 
+ 	</cfscript>
+ 
 	<CFLOCK type="readOnly" name="CS_Site#Request.SiteID#_SyncTime" timeout="10">
-		<cfset fieldComp.populateData('', 0)>
+	  	<cfset fieldComp.populateData('', 0, 1)>
 	</CFLOCK>
 </cfif>
