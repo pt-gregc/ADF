@@ -578,6 +578,10 @@ History:
 							switch (formFieldType)
 							{
 								case 'Custom Element Select':
+								case 'Custom Element Select Field':
+								case 'CustomElementSelect':
+								case 'CustomElement Select':
+								case 'CE Select':
 									fieldUpdValue = getContent_ceSelect(fieldID=formFieldID,fieldValue='#formFieldValue#');
 									if( NOT StructKeyExists(convertedCols, col) )
 									{
