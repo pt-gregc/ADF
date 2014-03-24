@@ -61,6 +61,7 @@ History:
 	2014-01-30 - GAC - Moved into a v1_1 version subfolder
 	2014-02-27 - GAC - Added backwards compatiblity logic to allow field use the prior version of the CFT if installed on a pre-CS9 site
 	2014-03-07 - DJM - Created Custom_Element_Select_Field_base.cfc for CFT specific methods
+	2014-03-23 - JTP - Changed to have 'Select All' / 'Deselect All' links
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
@@ -616,13 +617,12 @@ History:
 			</td>
 		</tr>	
 		<tr id="#prefix#clearSelectionLinkRow">
-			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Clear Selections Link:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Show Select All/Deselect All:</td>
 			<td class="cs_dlgLabelSmall">
-				<!--- <label>Clear Selections Link:</label>&nbsp; --->
 				<label style="color:black;font-size:12px;font-weight:normal;">Yes <input type="radio" id="#prefix#renderClearSelectionLink" name="#prefix#renderClearSelectionLink" value="1" <cfif currentValues.renderClearSelectionLink EQ "1">checked</cfif>></label>
 				&nbsp;&nbsp;&nbsp;
 				<label style="color:black;font-size:12px;font-weight:normal;">No <input type="radio" id="#prefix#renderClearSelectionLink" name="#prefix#renderClearSelectionLink" value="0" <cfif currentValues.renderClearSelectionLink EQ "0">checked</cfif>></label>
-				<br />Places a 'clear selections' link under the checkbox/radio box. 
+				<br />Displays 'Select All' and 'Deselect All' links. 
 			</td>
 		</tr>
 		

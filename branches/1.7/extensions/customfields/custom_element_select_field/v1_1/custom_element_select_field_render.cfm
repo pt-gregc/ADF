@@ -66,6 +66,7 @@ History:
 	2014-02-27 - GAC - Added backwards compatiblity logic to allow field use the prior version of the CFT if installed on a pre-CS9 site
 	2014-03-07 - JTP - Fixed issue if duplicate items in list. Caused selected value to be duplicated. Also limit results if read-only.
 	2014-03-07 - DJM - Created Custom_Element_Select_Field_base.cfc for CFT specific methods
+	2014-03-23 - JTP - Changed to have 'Select All' / 'Deselect All' links
 --->
 <cfscript>
 	requiredCSversion = 9;
@@ -249,7 +250,23 @@ History:
 			
 			
 			<cfif xParams.renderClearSelectionLink>
-				jQuery("###fqFieldName#_clearSelectionLink").click(function(){
+				jQuery("###fqFieldName#_SelectAll").click(function(){
+
+					<cfif cType EQ 'radio'>
+						jQuery("input:radio[name=#fqFieldName#_select]").each(function(){
+								jQuery(this).prop('checked',true);
+						});
+					<cfelse>
+						//jQuery("input:checkbox[name=#fqFieldName#_select]").unCheckCheckboxes();
+						jQuery("input:checkbox[name=#fqFieldName#_select]").each(function(){
+								jQuery(this).prop('checked',true);	
+						});
+					</cfif>
+					#fqFieldName#_loadSelection();
+					});
+
+				
+				jQuery("###fqFieldName#_DeselectAll").click(function(){
 					
 				<cfif cType EQ 'radio'>
 					jQuery("input:radio[name=#fqFieldName#_select]").each(function(){
@@ -261,9 +278,9 @@ History:
 							jQuery(this).prop('checked',false);	
 					});
 				</cfif>
-					jQuery("input[name=#fqFieldName#]").val('');
-				
+				jQuery("input[name=#fqFieldName#]").val('');
 				});
+				
 			</cfif>
 		});
 		

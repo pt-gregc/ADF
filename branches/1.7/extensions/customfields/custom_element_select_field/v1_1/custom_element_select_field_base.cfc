@@ -408,6 +408,7 @@ Arguments:
 	Array - dataArray
 History:
  	2014-03-07 - DJM - Created
+	2014-03-23 - JTP - Changed to have 'Select All' / 'Deselect All' links
 --->
 <cffunction name="renderCheckBoxRadio" access="public" returntype="string" hint="Return the HTML for radio button/check box for the custom elemnt select field">
 	<cfargument name="propertiesStruct" type="struct" required="true" hint="Properties structure for the field">
@@ -462,19 +463,15 @@ History:
 		
 		<cfif inputPropStruct.renderClearSelectionLink>
 			<cfoutput>
-			<style type="text/css">
-				###arguments.fqFieldName#_clearSelection{
-					font-size: xx-small;
-					display: block;
-					text-align: right;
-				}
-			</style>
-			<div id="#arguments.fqFieldName#_clearSelection"><a href="javascript:;" id="#arguments.fqFieldName#_clearSelectionLink">Clear Selection<cfif inputPropStruct.multipleSelect>s</cfif></a></div>
+			<div style="text-align: right; font-size:xx-small;">
+				<cfif inputPropStruct.multipleSelect><div style="display:inline-block" id="#arguments.fqFieldName#_SelectAll"><a href="javascript:;">Select All</a></div>&nbsp;</cfif>
+				<div style="display:inline-block" id="#arguments.fqFieldName#_DeselectAll"><a href="javascript:;">Deselect All</a></div>
+			</div>
 			</cfoutput>
 		</cfif>
 				
 		<!--- // hidden field to store the value --->
-		<cfoutput><input type='hidden' name='#arguments.fqFieldName#' id='#inputPropStruct.fldName#' value='#currentSelectedValue#'></cfoutput>
+		<cfoutput><input type="hidden" name="#arguments.fqFieldName#" id="#inputPropStruct.fldName#" value="#currentSelectedValue#"></cfoutput>
 	</cfsavecontent>
 	<cfreturn formResultHTML>
 </cffunction>
