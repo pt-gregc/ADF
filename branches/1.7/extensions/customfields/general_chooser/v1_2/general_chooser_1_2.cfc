@@ -391,6 +391,7 @@ History:
 	2013-12-12 - GAC - Added the ready only parameter to disable ADD button if the FIELD is set to READ ONLY
 	2013-12-12 - GAC - Added the newItemLabel parameter to allow the ADD NEW button to have a custom label
 	2014-03-05 - JTP - Var declarations
+	2014-03-20 - GAC - To be safe force the value of the js_fieldName_CE_FIELD to lowercase so it is sure to match keys data from the callback 
 --->
 <cffunction name="loadAddNewLink" access="public" returntype="string" hint="General Chooser - Add New Link HTML content.">
 	<cfargument name="fieldName" type="String" required="true">
@@ -418,9 +419,10 @@ History:
 		<!--- Render out the show all link to the field type --->
 		<cfsavecontent variable="retAddLinkHTML">
 			<cfoutput>
-				<!--- Load CE Field name into JS for adding new records to the "selected" side. --->
+				<!--- // Load CE Field name into JS for adding new records to the "selected" side. --->
+				<!--- // Also... to be safe force the CE_FIELD to lowercase so it is sure to match the CE_FIELD key in callback data objecy --->
 				<script type="text/javascript">
-					js_#arguments.fieldName#_CE_FIELD = '#variables.CE_FIELD#';
+					js_#arguments.fieldName#_CE_FIELD = '#LCASE(variables.CE_FIELD)#';
 				</script>
 				<div id="add-new-items">
 					<a href="javascript:;" rel="#application.ADF.ajaxProxy#?bean=Forms_1_1&method=renderAddEditForm&formID=#ceFormID#&dataPageId=0&callback=#arguments.fieldName#_formCallback&title=#variables.NEW_ITEM_LABEL#" class="ADFLightbox ui-state-default ui-corner-all #arguments.fieldName#-ui-buttons">#variables.NEW_ITEM_LABEL#</a>

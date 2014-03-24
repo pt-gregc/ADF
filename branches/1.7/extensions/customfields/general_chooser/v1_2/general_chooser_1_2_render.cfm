@@ -52,6 +52,7 @@ History:
 	2013-01-10 - MFC - Fixed issue with the to add the new records into the "selected" area when saved.
 	2013-12-02 - GAC - Added a new callback function for the the edit/delete to reload the selected items after an edit or a delete
 					 - Updated to allow 'ADD NEW' to be used multiple times before submit
+	2014-03-20 - GAC - Force the keys in the formData object from the 'ADD NEW' callback to lowercase so it is sure to match js_fieldName_CE_FIELD  value 
 --->
 <cfscript>
 	// the fields current value
@@ -142,7 +143,7 @@ History:
 		var #xParams.fieldID#searchValues = "";
 		var #xParams.fieldID#queryType = "all";
 		
-		jQuery(document).ready(function() {
+		jQuery(document).ready(function(){
 			
 			// Resize the window on the page load
 			checkResizeWindow();
@@ -156,7 +157,7 @@ History:
 		    
 		    // JQuery use the LIVE event b/c we are adding links/content dynamically
 		    jQuery('###fqFieldName#-searchBtn').live("click", function(event){
-		  	//load the search field into currentItems
+		  		//load the search field into currentItems
 				#xParams.fieldID#searchValues = jQuery('input###fqFieldName#-searchFld').val();
 				#xParams.fieldID#currentValue = jQuery('input###fqFieldName#').val();
 				#xParams.fieldID#_loadTopics('search')
@@ -172,7 +173,8 @@ History:
 		});
 		
 		// 2013-12-02 - GAC - Updated to allow 'ADD NEW' to be used multiple times before submit
-		function #xParams.fieldID#_loadTopics(queryType) {
+		function #xParams.fieldID#_loadTopics(queryType) 
+		{
 			var cValue = jQuery("input###fqFieldName#").val();		
 				
 			// Put up the loading message
@@ -194,7 +196,8 @@ History:
 				csPageID: '#request.page.id#',
 				fieldID: '#xParams.fieldID#'
 			},
-			function(msg){
+			function(msg)
+			{
 				if (queryType == "selected")
 					jQuery("###xParams.fieldID#-sortable2").html(jQuery.trim(msg));
 				else
@@ -207,7 +210,8 @@ History:
 			});
 		}
 		
-		function #xParams.fieldID#_loadEffects() {
+		function #xParams.fieldID#_loadEffects() 
+		{
 			<cfif !readOnly>
 			jQuery("###xParams.fieldID#-sortable1, ###xParams.fieldID#-sortable2").sortable({
 				connectWith: '.connectedSortable',
@@ -217,11 +221,13 @@ History:
 		}
 		
 		// serialize the selections
-		function #xParams.fieldID#_serialize() {
+		function #xParams.fieldID#_serialize() 
+		{
 			// get the serialized list
 			var serialList = jQuery('###xParams.fieldID#-sortable2').sortable( 'toArray' );
 			// Check if the serialList is Array
-			if ( jQuery.isArray(serialList) ){
+			if ( jQuery.isArray(serialList) )
+			{
 				serialList = jQuery.ArrayToList(serialList);
 			}
 			
@@ -232,20 +238,28 @@ History:
 		}
 		
 		// Resize the window function
-		function checkResizeWindow(){
+		function checkResizeWindow()
+		{
 			// Check if we are in a loader.cfm page
-			if ( '#ListLast(cgi.SCRIPT_NAME,"/")#' == 'loader.cfm' ) {
+			if ( '#ListLast(cgi.SCRIPT_NAME,"/")#' == 'loader.cfm' ) 
+			{
 				ResizeWindow();
 			}
 		}
 		
 		// 2013-12-02 - GAC - Updated to allow 'ADD NEW' to be used multiple times before submit
-		function #xParams.fieldID#_formCallback(formData){
+		function #xParams.fieldID#_formCallback(formData)
+		{
+			formData = typeof formData !== 'undefined' ? formData : {};
 			var cValue = jQuery("input###fqFieldName#").val();
+
+			// Call the utility function to make sure the JS object keys are all lowercase 
+			formData = #xParams.fieldID#_ConvertCaseOfDataObjKeys(formData,'lower');
 
 			// Load the newest item onto the selected values
 			// 2012-07-31 - MFC - Replaced the CFJS function for "ListLen" and "ListFindNoCase".
-			if ( cValue.length > 0 ){
+			if ( cValue.length > 0 )
+			{
 				// Check that the record does not exist in the list already
 				tempValue = cValue.search(formData[js_#xParams.fieldID#_CE_FIELD]); 
 				if ( tempValue <= 0 ) 
@@ -264,8 +278,9 @@ History:
 			closeLB();
 		}
 		
-		// 2013-11-26 - Fix for duplicatic items on edit issue
-		function #xParams.fieldID#_formEditCallback(){
+		// 2013-11-26 - Fix for duplicate items on edit issue
+		function #xParams.fieldID#_formEditCallback()
+		{
 			// Reload the selected Values
 			#xParams.fieldID#_loadTopics("selected");
 			// Reload the non-selected Values
@@ -275,7 +290,8 @@ History:
 		}
 
 		// Validation function to validate required field and max/min selections
-		function #xParams.fieldID#_validate(){
+		function #xParams.fieldID#_validate()
+		{
 			//Get the list of selected items
 			var selections = jQuery("###fqFieldName#").val();
 			var lengthOfSelections = 0;
@@ -304,6 +320,26 @@ History:
 				}
 			</cfif>
 			return true;
+		}
+		
+		// A Utility function convert the case of keys of a JS Data Object
+		function #xParams.fieldID#_ConvertCaseOfDataObjKeys(dataobj,keycase)
+		{
+			dataobj = typeof dataobj !== 'undefined' ? dataobj : {};
+			keycase = typeof keycase !== 'undefined' ? keycase : "lower"; //lower OR upper
+			var key, keys = Object.keys(dataobj);
+			var n = keys.length;
+			var newobj={}
+			while (n--) {
+			  key = keys[n];
+			  if ( keycase == 'lower' )
+			  	newobj[key.toLowerCase()] = dataobj[key];
+			  else if ( keycase == 'upper' ) 
+			  	newobj[key.toUpperCase()] = dataobj[key];
+			  else
+			  	newobj[key] = dataobj[key]; // NOT upper or lower... pass the data back with keys unchanged
+			}
+			return newobj;
 		}
 	</script>
 	<!--- //Load the General Chooser Styles --->
