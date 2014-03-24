@@ -62,7 +62,9 @@ History:
 	2014-02-27 - GAC - Added backwards compatiblity logic to allow field use the prior version of the CFT if installed on a pre-CS9 site
 	2014-03-07 - DJM - Created Custom_Element_Select_Field_base.cfc for CFT specific methods
 	2014-03-23 - JTP - Changed to have 'Select All' / 'Deselect All' links
+	2014-03-24 - JTP - Added Sort option. Allowing user to determin if sort should be by dsiplay field or column specified in Filter Criteria. Also changed order of radio buttons.
 --->
+
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <cfscript>
@@ -103,6 +105,7 @@ History:
 	defaultValues.heightValue = "150";
 	defaultValues.fieldtype = "select";
 	defaultValues.renderClearSelectionLink = 0; 
+	defaultValues.sortOption = '?';
 	
 	// This will override the current values with the default values.
 	// In normal use this should not need to be modified.
@@ -140,7 +143,7 @@ History:
 	
 	if (multipleSelectType eq "multi")
 		currentValues.renderSelectOption = false;
-			
+		
 	// Query to get the Custom Element List
 	customElements = application.ADF.ceData.getAllCustomElements();
 	// 2013-11-15 - GAC - Set to use 'ceData_2_0'
@@ -193,7 +196,7 @@ History:
 		cfmlFilterCriteria.defaultSortColumn = currentValues.activeFlagField & '|asc';
 	}
 	
-	if ( StructKeyExists(currentValues,"sortByField") and currentValues.sortByField NEQ '--')
+	if( StructKeyExists(currentValues,"sortByField") and currentValues.sortByField NEQ '--')
 	{
 		cfmlFilterCriteria.defaultSortColumn = currentValues.sortByField & '|asc';
 	}
@@ -205,6 +208,28 @@ History:
 		cfmlFilterCriteria = Server.CommonSpot.UDF.util.WDDXDecode(currentValues.filterCriteria);
 		
 	curl = 'csmodule=controls/custom/select-data-filters&isAdminUI=1&editRights=1&adminRights=1&openFrom=fieldProps&controlTypeID=#ceFormID#&persistentUniqueID=#persistentUniqueID#&prefixStr=#prefix#&hasFilter=1';
+
+	if( currentValues.sortOption eq '?' ) // new field or field that existed prior to this option
+	{
+		// field existed before option was added
+		if( StructKeyExists(request.params,'ID') AND request.params.ID gt 0 )	// URL param ID is passed for edit
+		{
+			// if -Other- sort by display value
+			if( FindNoCase('-other-', currentValues.displayField) 
+					OR
+				 ( StructKeyExists(currentValues,"sortByField") AND currentValues.sortByField EQ '--' )
+				)
+			{
+				currentValues.sortOption = 'useDisplay';
+			}	
+			else
+				currentValues.sortOption = 'useFilterCriteria';	
+		}	
+		else	// New Field
+		{
+			currentValues.sortOption = 'useDisplay';
+		}		
+	}		
 </cfscript>
 
 <cfif IsStruct(cfmlFilterCriteria)>
@@ -218,7 +243,7 @@ History:
 
 <cfoutput>
 <script type="text/javascript">
-	fieldProperties['#typeid#'].paramFields = "#prefix#customElement,#prefix#valueField,#prefix#displayField,#prefix#renderField,#prefix#defaultVal,#prefix#fldName,#prefix#forceScripts,#prefix#displayFieldBuilder,#prefix#filterCriteria,#prefix#addButton,#prefix#multipleSelect,#prefix#renderSelectOption,#prefix#fieldtype,#prefix#multipleSelectSize,#prefix#widthValue,#prefix#heightValue,#prefix#renderClearSelectionLink";
+	fieldProperties['#typeid#'].paramFields = "#prefix#customElement,#prefix#valueField,#prefix#displayField,#prefix#renderField,#prefix#defaultVal,#prefix#fldName,#prefix#forceScripts,#prefix#displayFieldBuilder,#prefix#filterCriteria,#prefix#addButton,#prefix#multipleSelect,#prefix#renderSelectOption,#prefix#fieldtype,#prefix#multipleSelectSize,#prefix#widthValue,#prefix#heightValue,#prefix#renderClearSelectionLink,#prefix#sortOption";
 	// allows this field to support the orange icon (copy down to label from field name)
 	fieldProperties['#typeid#'].jsLabelUpdater = '#prefix#doLabel';
 	// allows this field to have a common onSubmit Validator
@@ -411,8 +436,6 @@ History:
 		{
 			var regex = new RegExp("controlTypeID=[0-9]*", "g");
 			jQuery('###prefix#filterBtn[onclick]').attr('onclick', function(i, urlVal){
-				// TODO: Remove when the new Filter Criteria works correctly
-				//var oldSelectedCEStr = urlVal.match(regex, "controlTypeID=");
 				if (urlVal)
 					var oldSelectedCEStr = urlVal.match(regex);
 				
@@ -541,21 +564,34 @@ History:
 				<input type="text" name="#prefix#displayFieldBuilder" value="#currentValues.displayFieldBuilder#" id="#prefix#displayFieldBuilder" size="40">
 			</td>
 		</tr>
-		
+
+		<!--- Filter Criteria --->				
 		<tr>
-			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Sort/Filter Criteria:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Filter Criteria:</td>
 			<td valign="cs_dlgLabelSmall">
 			#Server.CommonSpot.UDF.tag.input(type="hidden", id="#prefix#filterCriteria", name="#prefix#filterCriteria", value=currentValues.filterCriteria, style="font-family:#Request.CP.Font#;font-size:10")#
-			#Server.CommonSpot.UDF.tag.input(type="button", class="clsPushButton", id="#prefix#filterBtn", name="#prefix#filterBtn", value="Sort/Filter Criteria...", onclick="top.commonspot.dialog.server.show('#curl#');")#
+			#Server.CommonSpot.UDF.tag.input(type="button", class="clsPushButton", id="#prefix#filterBtn", name="#prefix#filterBtn", value="Filter Criteria...", onclick="top.commonspot.dialog.server.show('#curl#');")#
 			<cfif Len(currentValues.filterCriteria)>
 				#Server.CommonSpot.UDF.tag.input(type="button", class="clsPushButton", id="#prefix#clearBtn", name="#prefix#clearBtn", value="Clear", onclick="#prefix#clearFilter()")#
 			<cfelse>
 				#Server.CommonSpot.UDF.tag.input(type="button", class="clsPushButton", id="#prefix#clearBtn", name="#prefix#clearBtn", value="Clear", onclick="#prefix#clearFilter()", style="display:none;")#
 			</cfif>
 			<br />
-			<div class="cs_dlgLabelSmall">Specify the sort/filter criteria to be applied while retrieving data.</div>
+			<div class="cs_dlgLabelSmall">Specify the filter criteria to be applied when retrieving data.</div>
 			</td>
 		</tr>
+		
+		<!--- Sort --->
+		<tr>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Sort:</td>
+			<td class="cs_dlgLabelSmall" valign="baseline">
+				<label style="color:black;font-size:12px;font-weight:normal;"><input type="radio" id="#prefix#sortOption" name="#prefix#sortOption" value="useDisplay" <cfif currentValues.sortOption EQ "useDisplay">checked</cfif>> Sort by display value </label>
+				&nbsp;&nbsp;&nbsp;				
+				<label style="color:black;font-size:12px;font-weight:normal;"><input type="radio" id="#prefix#sortOption" name="#prefix#sortOption" value="useFilterCriteria" <cfif currentValues.sortOption EQ "useFilterCriteria">checked</cfif>> Sort by column specified in Filter Criteria</label> 
+			</td>
+		</tr>
+		
+		<!--- Default Field --->
 		<tr>
 			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Default Field Value:</td>
 			<td class="cs_dlgLabelSmall">
@@ -580,9 +616,9 @@ History:
 			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Multiple Select:</td>
 			<td class="cs_dlgLabelSmall" valign="baseline">
 				<!--- <label>Multiple Select:<label>&nbsp; --->
-				<label style="color:black;font-size:12px;font-weight:normal;">Yes <input type="radio" id="#prefix#multipleSelect" name="#prefix#multipleSelect" value="1" <cfif currentValues.multipleSelect EQ "1">checked</cfif>></label>
+				<label style="color:black;font-size:12px;font-weight:normal;"><input type="radio" id="#prefix#multipleSelect" name="#prefix#multipleSelect" value="1" <cfif currentValues.multipleSelect EQ "1">checked</cfif>> Yes</label>
 				&nbsp;&nbsp;&nbsp;
-				<label style="color:black;font-size:12px;font-weight:normal;">No <input type="radio" id="#prefix#multipleSelect" name="#prefix#multipleSelect" value="0" <cfif currentValues.multipleSelect EQ "0">checked</cfif>></label>
+				<label style="color:black;font-size:12px;font-weight:normal;"><input type="radio" id="#prefix#multipleSelect" name="#prefix#multipleSelect" value="0" <cfif currentValues.multipleSelect EQ "0">checked</cfif>> No</label>
 			</td>
 		</tr>
 		
@@ -598,9 +634,9 @@ History:
 			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Select Option:</td>
 			<td class="cs_dlgLabelSmall">
 				<!--- <label>Select Option:</label>&nbsp; --->
-				<label style="color:black;font-size:12px;font-weight:normal;">Yes <input type="radio" id="#prefix#renderSelectOption" name="#prefix#renderSelectOption" value="1" <cfif currentValues.renderSelectOption EQ "1">checked</cfif>></label>
+				<label style="color:black;font-size:12px;font-weight:normal;"><input type="radio" id="#prefix#renderSelectOption" name="#prefix#renderSelectOption" value="1" <cfif currentValues.renderSelectOption EQ "1">checked</cfif>> Yes</label>
 				&nbsp;&nbsp;&nbsp;
-				<label style="color:black;font-size:12px;font-weight:normal;">No <input type="radio" id="#prefix#renderSelectOption" name="#prefix#renderSelectOption" value="0" <cfif currentValues.renderSelectOption EQ "0">checked</cfif>></label>
+				<label style="color:black;font-size:12px;font-weight:normal;"><input type="radio" id="#prefix#renderSelectOption" name="#prefix#renderSelectOption" value="0" <cfif currentValues.renderSelectOption EQ "0">checked</cfif>> No</label>
 				<br />Places a '--Select--' option in the list. <!--- Cannot be used with a multiple selection list. ---> 
 				<!--- // Must leave this option available for multiple selections lists for backwards compatiblity --->
 			</td>
@@ -619,9 +655,9 @@ History:
 		<tr id="#prefix#clearSelectionLinkRow">
 			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Show Select All/Deselect All:</td>
 			<td class="cs_dlgLabelSmall">
-				<label style="color:black;font-size:12px;font-weight:normal;">Yes <input type="radio" id="#prefix#renderClearSelectionLink" name="#prefix#renderClearSelectionLink" value="1" <cfif currentValues.renderClearSelectionLink EQ "1">checked</cfif>></label>
+				<label style="color:black;font-size:12px;font-weight:normal;"><input type="radio" id="#prefix#renderClearSelectionLink" name="#prefix#renderClearSelectionLink" value="1" <cfif currentValues.renderClearSelectionLink EQ "1">checked</cfif>> Yes</label>
 				&nbsp;&nbsp;&nbsp;
-				<label style="color:black;font-size:12px;font-weight:normal;">No <input type="radio" id="#prefix#renderClearSelectionLink" name="#prefix#renderClearSelectionLink" value="0" <cfif currentValues.renderClearSelectionLink EQ "0">checked</cfif>></label>
+				<label style="color:black;font-size:12px;font-weight:normal;"><input type="radio" id="#prefix#renderClearSelectionLink" name="#prefix#renderClearSelectionLink" value="0" <cfif currentValues.renderClearSelectionLink EQ "0">checked</cfif>> No</label>
 				<br />Displays 'Select All' and 'Deselect All' links. 
 			</td>
 		</tr>
@@ -632,9 +668,9 @@ History:
 		<tr>
 			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Add Record Button:</td>
 			<td class="cs_dlgLabelSmall">
-				<label style="color:black;font-size:12px;font-weight:normal;">Yes <input type="radio" id="#prefix#addButton" name="#prefix#addButton" value="1" <cfif currentValues.addButton EQ "1">checked</cfif>></label>
+				<label style="color:black;font-size:12px;font-weight:normal;"><input type="radio" id="#prefix#addButton" name="#prefix#addButton" value="1" <cfif currentValues.addButton EQ "1">checked</cfif>> Yes</label>
 				&nbsp;&nbsp;&nbsp;
-				<label style="color:black;font-size:12px;font-weight:normal;">No <input type="radio" id="#prefix#addButton" name="#prefix#addButton" value="0" <cfif currentValues.addButton EQ "0">checked</cfif>></label>
+				<label style="color:black;font-size:12px;font-weight:normal;"><input type="radio" id="#prefix#addButton" name="#prefix#addButton" value="0" <cfif currentValues.addButton EQ "0">checked</cfif>> No</label>
 			</td>
 		</tr>
 		<tr>
@@ -650,16 +686,16 @@ History:
 		<tr>
 			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Field Display Type:</td>
 			<td class="cs_dlgLabelSmall">
-				<label style="color:black;font-size:12px;font-weight:normal;">Visible <input type="radio" name="#prefix#renderField" id="#prefix#renderField" value="yes" <cfif currentValues.renderField eq 'yes'>checked</cfif>></label>
-				<label style="color:black;font-size:12px;font-weight:normal;">Hidden <input type="radio" name="#prefix#renderField" id="#prefix#renderField" value="no" <cfif currentValues.renderField eq 'no'>checked</cfif>></label>
+				<label style="color:black;font-size:12px;font-weight:normal;"><input type="radio" name="#prefix#renderField" id="#prefix#renderField" value="yes" <cfif currentValues.renderField eq 'yes'>checked</cfif>> Visible</label>
+				<label style="color:black;font-size:12px;font-weight:normal;"><input type="radio" name="#prefix#renderField" id="#prefix#renderField" value="no" <cfif currentValues.renderField eq 'no'>checked</cfif>> Hidden</label>
 			</td>
 		</tr>
 		<tr>
 			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Force Loading Scripts:</td>
 			<td class="cs_dlgLabelSmall">
-				<label style="color:black;font-size:12px;font-weight:normal;">Yes <input type="radio" id="#prefix#forceScripts" name="#prefix#forceScripts" value="1" <cfif currentValues.forceScripts EQ "1">checked</cfif>></label>
+				<label style="color:black;font-size:12px;font-weight:normal;"><input type="radio" id="#prefix#forceScripts" name="#prefix#forceScripts" value="1" <cfif currentValues.forceScripts EQ "1">checked</cfif>> Yes</label>
 				&nbsp;&nbsp;&nbsp;
-				<label style="color:black;font-size:12px;font-weight:normal;">No <input type="radio" id="#prefix#forceScripts" name="#prefix#forceScripts" value="0" <cfif currentValues.forceScripts EQ "0">checked</cfif>></label>
+				<label style="color:black;font-size:12px;font-weight:normal;"><input type="radio" id="#prefix#forceScripts" name="#prefix#forceScripts" value="0" <cfif currentValues.forceScripts EQ "0">checked</cfif>> No</label>
 				<br />Force the JQuery script to load.
 			</td>
 		</tr>

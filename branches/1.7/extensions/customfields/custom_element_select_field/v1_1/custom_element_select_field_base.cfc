@@ -56,6 +56,7 @@ Arguments:
 History:
  	2014-03-07 - DJM - Created
 	2014-03-13 - GAC - Fix the default values for the var'd ceDataArray and the ceData varaibles
+	2014-03-14 - JTP Commented out logic that perform sort. Should have been EQ vs NEQ, but not needed as we are doing client side sorting for --other--
 --->
 <cffunction name="renderCustomElementSelect" access="public" returntype="String" hint="Returns the HTML for an custom element select control">
 	<cfargument name="propertiesStruct" type="any" required="true" hint="Properties structure for the field in json format">
@@ -89,8 +90,8 @@ History:
 			ceDataArray = application.ADF.cedata.buildCEDataArrayFromQuery(ceData);
 
 		// Sort the list by the display field value, if its other.. all bets are off we sort via jquery... 
-		if( StructKeyExists(inputPropStruct, "displayField") AND LEN(inputPropStruct.displayField) AND inputPropStruct.displayField neq "--Other--" ) 
-			ceDataArray = application.ADF.cedata.arrayOfCEDataSort(ceDataArray, inputPropStruct.displayField);
+//		if( StructKeyExists(inputPropStruct, "displayField") AND LEN(inputPropStruct.displayField) AND inputPropStruct.displayField eq "--Other--" ) 
+//			ceDataArray = application.ADF.cedata.arrayOfCEDataSort(ceDataArray, inputPropStruct.displayField);
 	</cfscript>
 	
 	<!--- Result from the Form Submit --->

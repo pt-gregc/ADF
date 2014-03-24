@@ -67,6 +67,7 @@ History:
 	2014-03-07 - JTP - Fixed issue if duplicate items in list. Caused selected value to be duplicated. Also limit results if read-only.
 	2014-03-07 - DJM - Created Custom_Element_Select_Field_base.cfc for CFT specific methods
 	2014-03-23 - JTP - Changed to have 'Select All' / 'Deselect All' links
+	2014-03-24 - JTP - Added logic to sort selction list by display value if specified in props
 --->
 <cfscript>
 	requiredCSversion = 9;
@@ -244,10 +245,17 @@ History:
 			if( '#xparams.renderField#' == 'no' ) 
 				jQuery("###fqFieldName#_fieldRow").hide();
 
-			<cfif SELECTION_LIST AND xparams.displayField eq "--Other--">
-				jQuery("###fqFieldName#_select").sortOptions();
-			</cfif>
-			
+			<!--- determine whether to use JS to sort items in list --->
+			<cfif StructKeyExists(xparams, 'SortOption')>
+				<cfif xParams.SortOption eq 'useDisplay'>
+					jQuery("###fqFieldName#_select").sortOptions();
+				</cfif>
+			<cfelse>
+				<cfif SELECTION_LIST AND xparams.displayField eq "--Other--">
+					jQuery("###fqFieldName#_select").sortOptions();
+				</cfif>
+			</cfif>	
+
 			
 			<cfif xParams.renderClearSelectionLink>
 				jQuery("###fqFieldName#_SelectAll").click(function(){
