@@ -214,7 +214,7 @@ History:
 		var ADFversion = getDecimalADFVersion();
 
 		// Load the ADF Lib components
-		application.ADF.beanConfig.loadADFLibComponents("#request.site.csAppsURL#lib/", "", "application");
+		application.ADF.beanConfig.loadADFLibComponents("#request.site.csAppsURL#lib/", "", "application"); 
 
 		// Refresh the Object Factory
 		application.ADF.objectFactory = createObject("component","ADF.core.lightwire.LightWireExtendedBase").init(application.ADF.beanConfig);
