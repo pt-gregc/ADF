@@ -573,55 +573,65 @@ History:
 						formFieldType = mappingStruct[dataColumnArray[i]].fieldType;
 						formFieldID = mappingStruct[dataColumnArray[i]].fieldID;
 						formFieldValue = childData[dataColumnArray[i]];
-						if(Len(formFieldValue))
+
+						switch (formFieldType)
 						{
-							switch (formFieldType)
-							{
-								case 'Custom Element Select':
-								case 'Custom Element Select Field':
-								case 'CustomElementSelect':
-								case 'CustomElement Select':
-								case 'CE Select':
+							case 'Custom Element Select':
+							case 'Custom Element Select Field':
+							case 'CustomElementSelect':
+							case 'CustomElement Select':
+							case 'CE Select':
+								if( len(formFieldValue) )
 									fieldUpdValue = getContent_ceSelect(fieldID=formFieldID,fieldValue='#formFieldValue#');
-									if( NOT StructKeyExists(convertedCols, col) )
-									{
-										QueryAddColumn(childData, '#col#_converted', 'varchar', ArrayNew(1) );				
-										convertedCols[col] = StructNew();
-									}	
-									QuerySetCell(childData, '#col#_converted', fieldUpdValue, childData.CurrentRow);
-									break;
-								case 'select':
-									fieldUpdValue = getContent_select(fieldID=formFieldID,fieldValue='#formFieldValue#');
-									if( NOT StructKeyExists(convertedCols, col) )
-									{
-										QueryAddColumn(childData, '#col#_converted', 'varchar', ArrayNew(1) );				
-										convertedCols[col] = StructNew();
-									}	
-									QuerySetCell(childData, '#col#_converted', fieldUpdValue, childData.CurrentRow);
-									break;
-								case 'csextendedurl':
-								case 'cs_url':
-									fieldUpdValue = getContent_csurl(fieldID=formFieldID,fieldValue='#formFieldValue#');
-									QuerySetCell(childData, col, fieldUpdValue, childData.CurrentRow);
-									break;
-								default:
-									fieldUpdValue = formFieldValue;
-									QuerySetCell(childData, col, fieldUpdValue, childData.CurrentRow);
-									break;
-							}
+								else
+									fieldUpdValue = '';
+										
+								if( NOT StructKeyExists(convertedCols, col) )
+								{
+									QueryAddColumn(childData, '#col#_converted', 'varchar', ArrayNew(1) );				
+									convertedCols[col] = StructNew();
+								}	
+								QuerySetCell(childData, '#col#_converted', fieldUpdValue, childData.CurrentRow);
+								break;
 								
-							/*
-							try 
-							{
-							QuerySetCell(childData, dataColumnArray[i], fieldUpdValue, childData.CurrentRow);
-							}  
-							catch (any e) 
-							{ 
-								// QuerySetCell(childData, dataColumnArray[i], '', childData.CurrentRow);									
-								logit('Error updating column:[#dataColumnArray[i]#] Row:[#childData.CurrentRow#] formFieldType:[#formFieldType#] fieldUpdValue:[#fieldUpdValue#] Message:[#e.message#] detail:[#e.detail#]'); 
-							}
-							*/
+							case 'select':
+								if( len(formFieldValue) )
+									fieldUpdValue = getContent_select(fieldID=formFieldID,fieldValue='#formFieldValue#');
+								else
+									fieldUpdValue = '';
+									
+								if( NOT StructKeyExists(convertedCols, col) )
+								{
+									QueryAddColumn(childData, '#col#_converted', 'varchar', ArrayNew(1) );				
+									convertedCols[col] = StructNew();
+								}	
+								QuerySetCell(childData, '#col#_converted', fieldUpdValue, childData.CurrentRow);
+								break;
+
+							case 'csextendedurl':
+							case 'cs_url':
+								fieldUpdValue = getContent_csurl(fieldID=formFieldID,fieldValue='#formFieldValue#');
+								QuerySetCell(childData, col, fieldUpdValue, childData.CurrentRow);
+								break;
+
+							default:
+								fieldUpdValue = formFieldValue;
+								QuerySetCell(childData, col, fieldUpdValue, childData.CurrentRow);
+								break;
 						}
+							
+						/*
+						try 
+						{
+						QuerySetCell(childData, dataColumnArray[i], fieldUpdValue, childData.CurrentRow);
+						}  
+						catch (any e) 
+						{ 
+							// QuerySetCell(childData, dataColumnArray[i], '', childData.CurrentRow);									
+							logit('Error updating column:[#dataColumnArray[i]#] Row:[#childData.CurrentRow#] formFieldType:[#formFieldType#] fieldUpdValue:[#fieldUpdValue#] Message:[#e.message#] detail:[#e.detail#]'); 
+						}
+						*/
+
 					}
 				}
 			</cfscript>					
@@ -1737,20 +1747,23 @@ History:
 		// the Structure request['getContent_ceSelect'][fieldID] is built at this point.
 	
 		// Display Value is built from one or more fields
-		if( request['getContent_ceSelect'][fieldID].displayField eq "--Other--" and Len(request['getContent_ceSelect'][fieldID].displayFieldBuilder))
+		if( arguments.fieldValue neq '' )
 		{
-			i = request['getContent_ceSelect'][fieldID].assocArray[arguments.fieldValue];
-			returnString = application.ADF.forms.renderDataValueStringfromFieldMask( request['getContent_ceSelect'][fieldID].ceDataArray[i].Values, request['getContent_ceSelect'][fieldID].displayFieldBuilder );
-		}
-		// Display Value is another field, simple lookup
-		else if( isStruct( request['getContent_ceSelect'][fieldID].assocArray ) )
-		{
-			returnString = request['getContent_ceSelect'][fieldID].assocArray[arguments.fieldValue];
-		}
-		// Fall back, just pass back the value.
-		else
-		{
-			returnString = arguments.fieldValue;
+			if( request['getContent_ceSelect'][fieldID].displayField eq "--Other--" and Len(request['getContent_ceSelect'][fieldID].displayFieldBuilder))
+			{
+				i = request['getContent_ceSelect'][fieldID].assocArray[arguments.fieldValue];
+				returnString = application.ADF.forms.renderDataValueStringfromFieldMask( request['getContent_ceSelect'][fieldID].ceDataArray[i].Values, request['getContent_ceSelect'][fieldID].displayFieldBuilder );
+			}
+			// Display Value is another field, simple lookup
+			else if( isStruct( request['getContent_ceSelect'][fieldID].assocArray ) )
+			{
+				returnString = request['getContent_ceSelect'][fieldID].assocArray[arguments.fieldValue];
+			}
+			// Fall back, just pass back the value.
+			else
+			{
+				returnString = arguments.fieldValue;
+			}
 		}
 	</cfscript>
 	
