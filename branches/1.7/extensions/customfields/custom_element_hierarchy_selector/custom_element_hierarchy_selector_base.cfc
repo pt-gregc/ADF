@@ -256,6 +256,13 @@ History:
 		</cfscript>
     </cffunction>
 	
+
+	<!---
+		buildMemoryStructure()
+
+		History:
+			Fixed issue where if child node was ordered before parent, we would drop nodes.
+	--->
 	<cffunction name="buildMemoryStructure" returntype="void" access="public" hint="Build the memory structure" output="yes">
 		<cfargument name="propertiesStruct" type="struct" required="true" hint="Memory cache name">
         <cfargument name="elementID" type="numeric" required="true" hint="Custom element ID">
@@ -332,6 +339,8 @@ History:
 				</cfquery>
 
 				<cfscript>
+					// if the parent node has not already been added, add it and store off its offset into teh array. 
+					// 	They must exist before child nodes.
 					if( inputPropStruct.RootNodeText neq '' )
 					{
 						arrayIndex = 1;
@@ -346,27 +355,43 @@ History:
 				<cfif getFormattedData.RecordCount>
 					<cfloop query="getFormattedData">
 						<cfscript>
-							// only add the node if its parent has been already added
-							if( StructKeyExists( addedParents, getFormattedData.ParentField ) )
-							{
+							// if the parent node has not already been added, add it and store off its offset into teh array. 
+							// 	They must exist before child nodes.
+							if( NOT StructKeyExists( addedParents, getFormattedData.ParentField ) )
+							{	
 								// add so we know that it has been processed
-								addedParents[getFormattedData.ValueField] = structNew();
-
 								arrayIndex = ArrayLen(dataArray) + 1;
-								dataArray[arrayIndex] = StructNew();
-								dataArray[arrayIndex]['id'] = '#arguments.fieldID#_#getFormattedData.ValueField#';
-								dataArray[arrayIndex]['text'] = "#getFormattedData.DisplayField#";
-								
-								if( getFormattedData.ParentField EQ inputPropStruct.rootValue )
-								{
-									if( inputPropStruct.RootNodeText neq '' )
-										dataArray[arrayIndex]['parent'] = '#arguments.fieldID#_#inputPropStruct.rootValue#';
-									else
-										dataArray[arrayIndex]['parent'] = '##';
-								}	
-								else
-									dataArray[arrayIndex]['parent'] = '#arguments.fieldID#_#getFormattedData.ParentField#';
+								addedParents[getFormattedData.ParentField] = arrayIndex;
 							}
+							
+							// If this node was already added into the array (processed a child already), get offset and 
+							//		add info to that structure
+							if( StructKeyExists( addedParents, getFormattedData.ValueField ) )
+							{
+								arrayIndex = addedParents[getFormattedData.ValueField];
+							}	
+							else	// otherwise append to the array
+							{	
+								arrayIndex = ArrayLen(dataArray) + 1;
+							
+								// add so we know that it has been processed
+								addedParents[getFormattedData.ValueField] = arrayIndex;
+							}	
+								
+							dataArray[arrayIndex] = StructNew();
+							dataArray[arrayIndex]['id'] = '#arguments.fieldID#_#getFormattedData.ValueField#';
+							dataArray[arrayIndex]['text'] = "#getFormattedData.DisplayField#";
+							
+							if( getFormattedData.ParentField EQ inputPropStruct.rootValue )
+							{
+								if( inputPropStruct.RootNodeText neq '' )
+									dataArray[arrayIndex]['parent'] = '#arguments.fieldID#_#inputPropStruct.rootValue#';
+								else
+									dataArray[arrayIndex]['parent'] = '##';
+							}	
+							else
+								dataArray[arrayIndex]['parent'] = '#arguments.fieldID#_#getFormattedData.ParentField#';
+
 						</cfscript>
 					</cfloop>
 				</cfif>
