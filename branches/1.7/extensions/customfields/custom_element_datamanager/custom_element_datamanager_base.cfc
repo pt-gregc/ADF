@@ -1749,13 +1749,18 @@ History:
 		// Display Value is built from one or more fields
 		if( arguments.fieldValue neq '' )
 		{
-			if( request['getContent_ceSelect'][fieldID].displayField eq "--Other--" and Len(request['getContent_ceSelect'][fieldID].displayFieldBuilder))
+			if( request['getContent_ceSelect'][fieldID].displayField eq "--Other--" 
+					AND Len(request['getContent_ceSelect'][fieldID].displayFieldBuilder)
+					AND StructKeyExists(request['getContent_ceSelect'][fieldID], 'assocArray')
+					AND isStruct( request['getContent_ceSelect'][fieldID].assocArray )
+					AND StructKeyExists( request['getContent_ceSelect'][fieldID].assocArray, arguments.fieldValue) )
 			{
 				i = request['getContent_ceSelect'][fieldID].assocArray[arguments.fieldValue];
 				returnString = application.ADF.forms.renderDataValueStringfromFieldMask( request['getContent_ceSelect'][fieldID].ceDataArray[i].Values, request['getContent_ceSelect'][fieldID].displayFieldBuilder );
 			}
 			// Display Value is another field, simple lookup
-			else if( isStruct( request['getContent_ceSelect'][fieldID].assocArray ) )
+			else if( isStruct( request['getContent_ceSelect'][fieldID].assocArray ) 
+					AND StructKeyExists( request['getContent_ceSelect'][fieldID].assocArray, arguments.fieldValue) )
 			{
 				returnString = request['getContent_ceSelect'][fieldID].assocArray[arguments.fieldValue];
 			}
@@ -1866,6 +1871,7 @@ History:
 		// Display Value is another field, simple lookup
 		if( StructKeyExists(request['getContent_select'][fieldID],'assocArray') 
 				AND isStruct( request['getContent_select'][fieldID].assocArray )
+				AND StructKeyExists( request['getContent_select'][fieldID].assocArray, arguments.fieldValue )
 		   )
 		{
 			returnString = request['getContent_select'][fieldID].assocArray[arguments.fieldValue];
