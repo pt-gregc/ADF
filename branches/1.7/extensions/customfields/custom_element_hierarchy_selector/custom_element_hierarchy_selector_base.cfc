@@ -265,7 +265,7 @@ History:
 	--->
 	<cffunction name="buildMemoryStructure" returntype="void" access="public" hint="Build the memory structure" output="yes">
 		<cfargument name="propertiesStruct" type="struct" required="true" hint="Memory cache name">
-        <cfargument name="elementID" type="numeric" required="true" hint="Custom element ID">
+      <cfargument name="elementID" type="numeric" required="true" hint="Custom element ID">
 		<cfargument name="fieldID" type="numeric" required="true" hint="Custom element field ID">
 		
         <cfscript>
@@ -332,15 +332,13 @@ History:
 				<cfquery name="getFormattedData" dbtype="query">
 					SELECT #parentFieldName# AS ParentField, #displayFieldName# AS DisplayField, #valueFieldName# AS ValueField
 					  FROM ceData.ResultQuery
-				 ORDER BY #parentFieldName#
+				 	ORDER BY #parentFieldName#
 				<cfif sortColumn NEQ parentFieldName>
 				 , #sortColumn# #sortDir#
 				</cfif>
 				</cfquery>
 
 				<cfscript>
-					// if the parent node has not already been added, add it and store off its offset into teh array. 
-					// 	They must exist before child nodes.
 					if( inputPropStruct.RootNodeText neq '' )
 					{
 						arrayIndex = 1;
@@ -355,12 +353,12 @@ History:
 				<cfif getFormattedData.RecordCount>
 					<cfloop query="getFormattedData">
 						<cfscript>
-							// if the parent node has not already been added, add it and store off its offset into teh array. 
+							// if the parent node has not already been added, add it and store off its offset into the array. 
 							// 	They must exist before child nodes.
 							if( NOT StructKeyExists( addedParents, getFormattedData.ParentField ) )
 							{	
-								// add so we know that it has been processed
 								arrayIndex = ArrayLen(dataArray) + 1;
+								dataArray[arrayIndex] = StructNew();
 								addedParents[getFormattedData.ParentField] = arrayIndex;
 							}
 							
@@ -373,8 +371,6 @@ History:
 							else	// otherwise append to the array
 							{	
 								arrayIndex = ArrayLen(dataArray) + 1;
-							
-								// add so we know that it has been processed
 								addedParents[getFormattedData.ValueField] = arrayIndex;
 							}	
 								
@@ -413,6 +409,7 @@ History:
 				dataArray[1] = errorMsg;
 			}
 		</cfscript>
+
 		<cflock name="objHierarchy" timeout="5" type="Exclusive"> 
 		    <cfscript>
 				if (NOT StructKeyExists(Application, 'objectHierarchyCustomField'))
