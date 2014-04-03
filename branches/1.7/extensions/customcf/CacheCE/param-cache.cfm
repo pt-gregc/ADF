@@ -50,6 +50,7 @@ Version:
 History:
 	2013-12-09 - JTP - Created
 	2014-03-05 - JTP - Var declarations
+	2014-04-03 - JTP - Add logic to not cache if element errors out
 --->
 
 <cfscript>
@@ -194,6 +195,11 @@ History:
 	</cftry>
 </cfsavecontent>			
 <cfoutput>#theOutput#</cfoutput>
+
+<!--- make sure the element did not error out --->
+<cfif FindNoCase("Error in", theOutput)>
+	<cfset bMakeCache = 0>
+</cfif>
 
 
 <cfif bMakeCache>
