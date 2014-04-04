@@ -151,7 +151,10 @@ History:
 			if (NOT Len(returnStr))
 			{
 				if (qryFieldName.RecordCount)
-					returnStr = ListRest(qryFieldName.Name,'_');
+				{
+					// returnStr = ListRest(qryFieldName.Name,'_');
+					returnStr = qryFieldName.Name;
+				}
 				else
 					returnStr = "Error: The specified field ID '#arguments.fieldID#' does not exist for this custom element.";
 			}
@@ -299,10 +302,11 @@ History:
 				}
 				else
 					errorMsg = ListRest(parentFieldName,':');
+
 				
-				if (NOT Len(ErrorMsg) AND ListFirst(displayFieldName,':') NEQ 'Error')
+				if( NOT Len(ErrorMsg) AND ListFirst(displayFieldName,':') NEQ 'Error' )
 				{
-					if (NOT ListFindNoCase(fieldList, displayFieldName))
+					if( NOT ListFindNoCase(fieldList, displayFieldName) AND displayFieldName neq '' )
 						fieldList = ListAppend(fieldList, displayFieldName);
 					valueFieldName = getFieldName(allFieldsQuery=ceFields, fieldID=inputPropStruct.valueField);
 				}
@@ -326,7 +330,16 @@ History:
 					
 					if (NOT ArrayLen(filterArray))
 						filterArray[1] = '| element_datemodified| element_datemodified| <= | | c,c,c| | ';
-					ceData = customElementObj.getRecordsFromSavedFilter(elementID=inputPropStruct.customElement, queryEngineFilter=filterArray, columnList=fieldList, orderBy=sortColumn, orderByDirection=sortDir, limit=0);
+
+					if (NOT ListFindNoCase(fieldList, sortColumn))
+						fieldList = ListAppend(fieldList, sortColumn);
+						
+					ceData = customElementObj.getRecordsFromSavedFilter( elementID=inputPropStruct.customElement, 
+																				queryEngineFilter=filterArray, 
+																				columnList=fieldList, 
+																				orderBy=sortColumn, 
+																				orderByDirection=sortDir, 
+																				limit=0);
 				</cfscript>
 				
 				<cfquery name="getFormattedData" dbtype="query">
@@ -403,34 +416,32 @@ History:
 			</cfscript>
 		</cfcatch>
 		</cftry>
-		<cfscript>
-			if (Len(errorMsg))
-			{
-				dataArray[1] = errorMsg;
-			}
-		</cfscript>
 
-		<cflock name="objHierarchy" timeout="5" type="Exclusive"> 
-		    <cfscript>
-				if (NOT StructKeyExists(Application, 'objectHierarchyCustomField'))
-					Application.objectHierarchyCustomField = StructNew();
-				if (NOT StructKeyExists(Application.objectHierarchyCustomField, arguments.elementID))
-					Application.objectHierarchyCustomField[arguments.elementID] = StructNew();
-				if (NOT StructKeyExists(Application.objectHierarchyCustomField[arguments.elementID], arguments.fieldID))
-					Application.objectHierarchyCustomField[arguments.elementID][arguments.fieldID] = StructNew();
-				
-				Application.objectHierarchyCustomField[arguments.elementID][arguments.fieldID].lastUpdate = Request.FormattedTimestamp;
-				Application.objectHierarchyCustomField[arguments.elementID][arguments.fieldID].cache = dataArray;
-				Application.objectHierarchyCustomField[arguments.elementID][arguments.fieldID].customElement = propertiesStruct.customElement;
-				Application.objectHierarchyCustomField[arguments.elementID][arguments.fieldID].parentField = propertiesStruct.parentField;
-				Application.objectHierarchyCustomField[arguments.elementID][arguments.fieldID].displayField = propertiesStruct.displayField;
-				Application.objectHierarchyCustomField[arguments.elementID][arguments.fieldID].valueField = propertiesStruct.valueField;
-				Application.objectHierarchyCustomField[arguments.elementID][arguments.fieldID].rootValue = propertiesStruct.rootValue;
-				Application.objectHierarchyCustomField[arguments.elementID][arguments.fieldID].rootNodeText = propertiesStruct.rootNodeText;
-				Application.objectHierarchyCustomField[arguments.elementID][arguments.fieldID].filterArray = filterArray;
-				Application.objectHierarchyCustomField[arguments.elementID][arguments.fieldID].defaultSortColumn = defaultSortColumn;
-			</cfscript>
-		</cflock>
+		<cfif Len(errorMsg)>
+			<cfset dataArray[1] = errorMsg>
+		<cfelse>
+			<cflock name="objHierarchy" timeout="5" type="Exclusive"> 
+			    <cfscript>
+					if (NOT StructKeyExists(Application, 'objectHierarchyCustomField'))
+						Application.objectHierarchyCustomField = StructNew();
+					if (NOT StructKeyExists(Application.objectHierarchyCustomField, arguments.elementID))
+						Application.objectHierarchyCustomField[arguments.elementID] = StructNew();
+					if (NOT StructKeyExists(Application.objectHierarchyCustomField[arguments.elementID], arguments.fieldID))
+						Application.objectHierarchyCustomField[arguments.elementID][arguments.fieldID] = StructNew();
+					
+					Application.objectHierarchyCustomField[arguments.elementID][arguments.fieldID].lastUpdate = Request.FormattedTimestamp;
+					Application.objectHierarchyCustomField[arguments.elementID][arguments.fieldID].cache = dataArray;
+					Application.objectHierarchyCustomField[arguments.elementID][arguments.fieldID].customElement = propertiesStruct.customElement;
+					Application.objectHierarchyCustomField[arguments.elementID][arguments.fieldID].parentField = propertiesStruct.parentField;
+					Application.objectHierarchyCustomField[arguments.elementID][arguments.fieldID].displayField = propertiesStruct.displayField;
+					Application.objectHierarchyCustomField[arguments.elementID][arguments.fieldID].valueField = propertiesStruct.valueField;
+					Application.objectHierarchyCustomField[arguments.elementID][arguments.fieldID].rootValue = propertiesStruct.rootValue;
+					Application.objectHierarchyCustomField[arguments.elementID][arguments.fieldID].rootNodeText = propertiesStruct.rootNodeText;
+					Application.objectHierarchyCustomField[arguments.elementID][arguments.fieldID].filterArray = filterArray;
+					Application.objectHierarchyCustomField[arguments.elementID][arguments.fieldID].defaultSortColumn = defaultSortColumn;
+				</cfscript>
+			</cflock>
+		</cfif>
     </cffunction>
 
 </cfcomponent>
