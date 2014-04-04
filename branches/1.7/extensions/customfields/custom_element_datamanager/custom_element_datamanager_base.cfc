@@ -1685,11 +1685,15 @@ History:
 								sortColumn = ListFirst(fieldList);
 								sortDir = 'asc';
 							}
-
+							
+							if( NOT ListFindNoCase(fieldList, sortColumn) )
+								fieldList = ListAppend(fieldList, sortColumn);
 							
 							if (NOT ArrayLen(filterArray))
 								filterArray[1] = '| element_datemodified| element_datemodified| <= | | c,c,c| | ';
+								
 							ceData = ceObj.getRecordsFromSavedFilter(elementID=ceFormID,queryEngineFilter=filterArray,columnList=fieldList,orderBy=sortColumn,orderByDirection=sortDir, limit=0);
+
 							formIDColArray = ArrayNew(1);
 							formNameColArray = ArrayNew(1);
 							if (ceData.ResultQuery.RecordCount)
