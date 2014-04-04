@@ -45,9 +45,11 @@ History:
 	<cfproperty name="file-version" value="1">
 	
 	<cfset this.sessionManagement = true>
+	<!--- // todo - alias mapping --->
+	<!--- <cfset this.mapping["/ADF"] = ExpandPath("/ADF")> --->
 	
 	<cffunction name="onRequestStart" access="public" returntype="any">
-		<!--- // include CommonSpots application.cfm --->
+		<!--- // not needed - include CommonSpots application.cfm --->
 		<!--- <cfinclude template="/commonspot/Application.cfm"> --->
 		<cfscript>
 			// this will come through an AJAX call

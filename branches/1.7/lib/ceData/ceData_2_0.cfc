@@ -36,7 +36,7 @@ History:
 --->
 <cfcomponent displayname="ceData_2_0" extends="ADF.lib.ceData.ceData_1_1" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="2_0_22">
+<cfproperty name="version" value="2_0_23">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="CEData_2_0">
 
@@ -264,7 +264,9 @@ History:
 		var vNamePrefix = "vCE_";
 		var vNameSuffix = "";
 		var dbType = Request.Site.SiteDBType;
-
+		var throwError = false;
+		var throwErrorMsg = "";
+		
 		// Convert space in element to underscores
 		arguments.ceName = reReplace(arguments.ceName, "[\s]", "_", "all");
 		
@@ -277,11 +279,20 @@ History:
 			charLimit = charLimit - LEN(vNameSuffix);
 	
 			if ( len(arguments.ceName) gt charLimit )
-				throw("[ceData.getCEViewName] Custom element name is too long to create a view name that's valid on Oracle."); // TODO: is this really what we should do here
+			{
+				// Throw error that the ceName to use as a viewName for Oracle
+				throwError = true;
+				throwErrorMsg = "[ceData.getCEViewName] Custom element name is too long to create a view name that's valid on Oracle.";
+				// cfscript 'throw' is not cf8 compatible
+				//throw("[ceData.getCEViewName] Custom element name is too long to create a view name that's valid on Oracle."); // TODO: is this really what we should do here
+				server.ADF.objectFactory.getBean("utils_1_2").logAppend(throwErrorMsg);	
+			}
 		}
-		
-		return vNamePrefix & arguments.ceName & vNameSuffix;
-	</cfscript>
+	</cfscript>	
+	<cfif throwError>
+		<cfthrow message="#throwErrorMsg#">
+	</cfif>
+	<cfreturn vNamePrefix & arguments.ceName & vNameSuffix>
 </cffunction>
 
 <!---
@@ -667,6 +678,7 @@ History:
 	2013-10-23 - GAC - Removed the local dependency for the data_1_2 Lib which was causing errors being extended by the general_chooser.cfc
 	2014-02-21 - JTP - Updated 'searchInList' with better handling of non-UUID lists
 	2014-02-21 - GAC - Added itemListDelimiter parameter
+	2014-04-04 - GAC - Changed the cfscript thow to the utils.doThow with logging option
 --->
 <cffunction name="getCEDataView" access="public" returntype="array" output="true">
 	<cfargument name="customElementName" type="string" required="true">
@@ -683,6 +695,7 @@ History:
 		var ceViewQry = QueryNew("null");
 		var dataArray = ArrayNew(1);
 		var viewTableExists = false;
+		var throwErrorMsg = "";
 		
 		try {
 			
@@ -781,13 +794,17 @@ History:
 			}
 			else 
 			{
-				throw(message="View Table Does Not Exist", detail="View Table Does Not Exist");	
+				// Throw error that the Library Component Bean doesn't exist.
+				throwErrorMsg = "A view for #arguments.customElementName# Custom Element does not exist!";
+				application.ADF.utils.doThrow(message=throwErrorMsg,logerror=true);
+				// cfscript 'throw' is not cf8 compatible
+				//throw(message="View Table Does Not Exist", detail="View Table Does Not Exist");	
 			}
 		}
-		catch (ANY exception){
+		catch (ANY exception) {
 			application.ADF.utils.dodump(exception, "CFCATCH", false);	
 		}
-		
+	
 		if ( ceViewQry.recordCount ) {
 			// Check if we are processing the selected list
 			if ( arguments.queryType EQ "selected" and len(arguments.customElementFieldName) and len(arguments.item) ) 

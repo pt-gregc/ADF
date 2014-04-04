@@ -39,7 +39,7 @@ History:
 <cfcomponent name="AppBase" extends="ADF.core.Base" hint="App Base component for the ADF">
 
 <cfproperty name="version" value="1_7_0">
-<cfproperty name="file-version" value="2">
+<cfproperty name="file-version" value="3">
 
 <cffunction name="init" output="true" returntype="any">
 	<cfscript>
@@ -99,11 +99,14 @@ History:
 	2010-08-26 - MFC - Changed "isDefined" to "StructKeyExists"
 	2013-01-18 - MFC - Added check for if the "app" is a struct.
 	2013-04-25 - MFC - Validate if the "appBeanName" exists in the SERVER object factory.
+	2014-04-04 - GAC - Switched to the cfthrow tag since the cfscript 'throw' is not cf8 compatible
 --->
 <cffunction name="loadApp" access="private" returntype="void" hint="Stores the ADF Lib Components into application.ADF space.">
 	<cfargument name="appBeanName" type="string" required="true" default="" hint="ADF lightwire bean name.">
 	<cfscript>
 		var app = "";
+		var throwError = false;
+		var throwErrorMsg = "";
 		
 		if ( LEN(arguments.appBeanName) )
 		{
@@ -136,10 +139,17 @@ History:
 			}
 			else {
 				// Throw error that the App Bean doesn't exist.
-				throw("The'#arguments.appBeanName#' app could not be loaded. Check that the app exists in the '/ADF/apps/' directory.");
+				throwError = true;
+				throwErrorMsg = "The'#arguments.appBeanName#' app could not be loaded. Check that the app exists in the '/ADF/apps/' directory.";
+				// cfscript 'throw' is not cf8 compatible
+				//throw("The'#arguments.appBeanName#' app could not be loaded. Check that the app exists in the '/ADF/apps/' directory.");
+				//server.ADF.objectFactory.getBean("utils_1_2").logAppend(throwErrorMsg);	
 			}
 		}
 	</cfscript>
+	<cfif throwError>
+		<cfthrow message="#throwErrorMsg#">
+	</cfif>
 </cffunction>
 
 <!---
@@ -444,7 +454,7 @@ History:
 		{	
 			configStruct = server.ADF.objectFactory.getBean("CoreConfig").getConfigViaXML(proxyWhiteListXMLPath);
 			// Merge this config struct into the application proxy white list 
-			application.ADF.proxyWhiteList = server.ADF.objectFactory.getBean("Data_1_0").structMerge(application.ADF.proxyWhiteList, configStruct, true);
+			application.ADF.proxyWhiteList = server.ADF.objectFactory.getBean("data_1_2").structMerge(application.ADF.proxyWhiteList, configStruct, true);
 		}
 	</cfscript>
 </cffunction>

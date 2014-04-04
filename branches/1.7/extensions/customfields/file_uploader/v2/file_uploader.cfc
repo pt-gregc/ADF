@@ -32,9 +32,10 @@ History:
 	2013-05-13 - MFC - Updated the "variables.destinationDir" to use the "request.subsiteCache[1].url" variable and
 						corrected issue with multiple "//" in the path.
 					   Added the "createUploadDir" function.
+	2014-04-04 - GAC - Changed the cfscript thow to the utils.doThow with a new logging option
 --->
 <cfcomponent name="file_uploader" extends="ADF.core.Base">
-	<cfproperty name="version" value="1_0_1">
+	<cfproperty name="version" value="1_0_2">
 	<cfscript>
 		//Default settings, you can override these in your extended cfc
 		variables.acceptedExtensions = "png,pdf";
@@ -390,17 +391,18 @@ History:
 			var rtnStruct = StructNew();
 			var destination = "";
 			var createDirStatus = false;
+			var logFileName = "fileUploadError.log";
 			
 			
 			if(!FileExists(source))
-				throw(message="Source file does not exist.",type="custom");
+				application.ADF.utils.doThrow(message="Source file does not exist.",type="custom",logerror=1,logfile=logFileName);
 
 			if(!DirectoryExists(variables.destinationDir))
 			{
 				// Create the directory
 				createDirStatus = createUploadDir();
 				if ( !createDirStatus )
-					throw(message="Destination directory does not exist.",type="custom",detail="Please create directory: #variables.destinationDir#");
+					application.ADF.utils.doThrow(message="Destination directory does not exist.",type="custom",detail="Please create directory: #variables.destinationDir#",logerror=1,logfile=logFileName);
 			}
 
 			//Dont overwrite, so get a unique filename!
@@ -536,5 +538,29 @@ History:
 				<cfreturn false>
 			</cfcatch>
 		</cftry>
+	</cffunction>
+	
+	<!---
+	/* *************************************************************** */
+	Author:
+		PaperThin, Inc.
+	Name:
+		$doThrowError
+	Summary:
+		Used to throw errors in CFSCRIPT blocks since the cfscript 'throw' is not cf8 compatible
+	Returns:
+		struct
+	Arguments:
+
+	History:
+	 	2014-04-01 - GAC - Created
+	--->
+	<cffunction name="doThrowError" access="private" returntype="void" hint="Used to throw errors in CFSCRIPT blocks since the cfscript 'throw' is not cf8 compatible">
+		<cfargument name="message" type="string" required="false" default="" hint="Error Message to Throw">
+		<cfargument name="type" type="string" required="false" default="Application" hint="Error Type to Throw">
+		<cfargument name="detail" type="string" required="false" default="" hint="Error Message Detail to Throw">
+		<cfif LEN(TRIM(arguments.message))>
+			<cfthrow message="#arguments.message#" type="#arguments.type#" detail="#arguments.detail#">
+		</cfif> 
 	</cffunction>
 </cfcomponent>

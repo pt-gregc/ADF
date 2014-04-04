@@ -37,7 +37,7 @@ History:
 <cfcomponent displayname="SiteBase" extends="ADF.core.AppBase">
 
 <cfproperty name="version" value="1_7_0">
-<cfproperty name="file-version" value="2">
+<cfproperty name="file-version" value="3">
 
 <!---
 /* *************************************************************** */
@@ -445,22 +445,32 @@ Arguments:
 History:
  	2011-01-18 - RAK - Created
 	2011-02-09 - RAK - Var'ing un-var'd items
+	2014-04-04 - GAC - Switched to the cfthrow tag since the cfscript 'throw' is not cf8 compatible
 --->
 <cffunction name="loadLibraryComponent" access="public" returntype="void" hint="Allows overriding of ADF beans and creating new ones with names">
 	<cfargument name="beanName" type="string" required="true" default="" hint="Bean name to use in the overloading (ceData_1_5)">
 	<cfargument name="adfBeanName" type="string" required="true" default="" hint="Destination bean name to set the adf bean to (ceData)">
 	<cfscript>
 		var bean = "false";
-		if(server.ADF.objectFactory.containsBean(beanName))
+		var buildError = StructNew();
+		var throwError = false;
+		var throwErrorMsg = "";
+		if (server.ADF.objectFactory.containsBean(beanName) )
 		{
 			StructInsert(application.ADF,adfBeanName,server.ADF.objectFactory.getSingleton(beanName),true);
 		}
 		else
 		{
-			// TODO: Need to check this... not sure the cfscript version of cfthrow is CF8 compatible
-			throw("Could not find bean name: '#beanName#' while calling loadLibraryComponent");
+			// Throw error that the Library Component Bean doesn't exist.
+			throwError = true;
+			throwErrorMsg = "Could not find bean name: '#beanName#' while calling loadLibraryComponent.";
+			// cfscript 'throw' is not cf8 compatible
+			//throw("Could not find bean name: '#beanName#' while calling loadLibraryComponent");
 		}
 	</cfscript>
+	<cfif throwError>
+		<cfthrow message="#throwErrorMsg#">
+	</cfif>
 </cffunction>
 
 <!---
@@ -520,7 +530,7 @@ History:
 					// Add the errorStruct to the server.ADF.buildErrors Array
 					ArrayAppend(server.ADF.buildErrors,buildError);
 				}
-				}
+			}
 		}
 		catch (Any exception){
 			// Build the Error Struct
