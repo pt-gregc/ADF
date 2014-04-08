@@ -36,7 +36,7 @@ History:
 --->
 <cfcomponent displayname="ceData_2_0" extends="ADF.lib.ceData.ceData_1_1" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="2_0_23">
+<cfproperty name="version" value="2_0_24">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="CEData_2_0">
 
@@ -174,11 +174,13 @@ History:
 						value passed in.  Calls the SUPER function to create the table.
 	2013-01-29 - GAC - Updated the getViewTableName logic so it creates a view table name if a viewName is NOT passed in
 	2013-12-06 - DRM - Accept and pass fieldTypes for the 'new' buildRealTypeView
+	2014-04-04 - DRM - Accept and pass options to the 'new' buildRealTypeView
 --->
 <cffunction name="buildRealTypeView" access="public" returntype="boolean" hint="Builds an element view for the passed in element name">
 	<cfargument name="elementName" type="string" required="true" hint="element name to build the view table off of">
 	<cfargument name="viewName" type="string" required="false" default="" hint="Override the view name that gets generated">
 	<cfargument name="fieldTypes" type="struct" default="#structNew()#" hint="see ceData_1_1.cfc">
+	<cfargument name="options" type="struct" default="#structNew()#" hint="See argument notes for this method in ceData_1_1.">
 	<cfscript>
 		// Set the view table name from the elementName if a viewName is NOT passed in
 		arguments.viewName = trim(arguments.viewName);
@@ -218,6 +220,7 @@ History: - some carried over from original in ptCalendar app
 	<cfargument name="viewName" type="string" default="" hint="Optional name of view to create. If blank or not passed, defaults to one calc'd from custom element name.">
 	<cfargument name="fieldTypes" type="struct" default="#structNew()#" hint="Optional struct of field type specs; see hint for this arg in buildRealTypeView().">
 	<cfargument name="forceRebuild" type="boolean" default="false" hint="Pass true to rebuild the view always, even if it already exists.">
+	<cfargument name="options" type="struct" default="#structNew()#">
 
 	<cfscript>
 		var buildNow = arguments.forceRebuild or (structKeyExists(Request.Params, "adfRebuildSQLViews") and Request.Params.adfRebuildSQLViews eq 1);
@@ -229,12 +232,14 @@ History: - some carried over from original in ptCalendar app
 		
 		buildNow = buildNow or not server.ADF.objectFactory.getBean("data_1_2").verifyTableExists(tableName=arguments.viewName);
 
-		if ( buildNow )
-			return buildRealTypeView (
-								elementName=arguments.ceName,
-								viewName=arguments.viewName,
-								fieldTypes=arguments.fieldTypes
-							);
+		if (buildNow)
+			return buildRealTypeView
+			(
+				elementName=arguments.ceName,
+				viewName=arguments.viewName,
+				fieldTypes=arguments.fieldTypes,
+				options=arguments.options
+			);
 		return true;
 	</cfscript>
 </cffunction>
