@@ -256,7 +256,7 @@ History:
 		var formID = getFormIDByCEName(arguments.ceName);
 		var pageIDs = 0;
 		var csSecurity = server.ADF.objectFactory.getBean("csSecurity_1_2");
-		var isCS9Plus = (val(listFirst(Server.CommonSpot.ProductVersion, ".")) >= 9);
+		var isCS9Plus = (val(ListLast(ListFirst(Request.CP.ProductVersion, "."), " ")) >= 9);
 
 	</cfscript>
 	<!--- Verify the security for the logged in user --->
@@ -319,7 +319,7 @@ History:
 		var elementFields = "";
 		var j = "";
 		var csSecurity = server.ADF.objectFactory.getBean("csSecurity_1_2");
-		var isCS9Plus = (val(listFirst(Server.CommonSpot.ProductVersion, ".")) >= 9);
+		var isCS9Plus = (val(ListLast(ListFirst(Request.CP.ProductVersion, "."), " ")) >= 9);
 	</cfscript>
 	
 	<!--- Verify the security for the logged in user --->
