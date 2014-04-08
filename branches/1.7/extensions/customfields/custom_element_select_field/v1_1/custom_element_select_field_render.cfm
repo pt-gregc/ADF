@@ -68,6 +68,9 @@ History:
 	2014-03-07 - DJM - Created Custom_Element_Select_Field_base.cfc for CFT specific methods
 	2014-03-23 - JTP - Changed to have 'Select All' / 'Deselect All' links
 	2014-03-24 - JTP - Added logic to sort selction list by display value if specified in props
+	
+To Do:
+	2014-04-08 - JTP - Currently we are NOT sorting the list if displayed as checkboxes/radio buttons and user choose sort by display value
 --->
 <cfscript>
 	requiredCSversion = 9;
@@ -174,7 +177,7 @@ History:
 	
 	// Load JQuery to the script
 	application.ADF.scripts.loadJQuery(force=xParams.forceScripts);
-	if( xparams.displayField EQ "--Other--" ) 
+	if( SELECTION_LIST AND StructKeyExists(xparams, 'SortOption') AND xParams.SortOption eq 'useDisplay' )
 		application.ADF.scripts.loadJQuerySelectboxes();
 </cfscript>
 
@@ -246,16 +249,17 @@ History:
 				jQuery("###fqFieldName#_fieldRow").hide();
 
 			<!--- determine whether to use JS to sort items in list --->
-			<cfif StructKeyExists(xparams, 'SortOption')>
-				<cfif xParams.SortOption eq 'useDisplay'>
-					jQuery("###fqFieldName#_select").sortOptions();
-				</cfif>
-			<cfelse>
-				<cfif SELECTION_LIST AND xparams.displayField eq "--Other--">
-					jQuery("###fqFieldName#_select").sortOptions();
-				</cfif>
-			</cfif>	
-
+			<cfif SELECTION_LIST eq 1>
+				<cfif StructKeyExists(xparams, 'SortOption') AND xParams.SortOption eq 'useDisplay'>
+					var obj = jQuery("###fqFieldName#_select");
+					if( obj && typeof obj.sortOptions == 'function')
+						obj.sortOptions();
+				<cfelseif xparams.displayField eq "--Other--">
+					var obj = jQuery("###fqFieldName#_select");
+					if( obj && typeof obj.sortOptions == 'function' ) 
+						obj.sortOptions();
+				</cfif>	
+			</cfif>
 			
 			<cfif xParams.renderClearSelectionLink>
 				jQuery("###fqFieldName#_SelectAll").click(function(){
