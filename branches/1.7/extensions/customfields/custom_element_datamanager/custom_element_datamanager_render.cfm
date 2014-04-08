@@ -42,6 +42,7 @@ History:
 	2014-03-05 - JTP - Update to better handle the newData variable
 	2014-03-12 - DJM - Added code for overlay while loading datamanager, updated flyover text for edit and delete icons, 
 						modified code for allowing resize of datamanager after load
+	2014-04-08 - JTP - Added logic for multi-record delete
 --->
 <cfscript>
 	requiredCSversion = 9;
@@ -350,6 +351,7 @@ History:
 					var res#uniqueTableAppend# = jQuery.parseJSON( retData#uniqueTableAppend# );	
 
 					var columns = [];
+					var actionColumnWidth = res#uniqueTableAppend#.actionColumnWidth;
 					var columnsList = res#uniqueTableAppend#.aoColumns;
 					
 					if( typeof columnsList == 'undefined' || ! columnsList.length  )
@@ -380,11 +382,7 @@ History:
 								}
 								else if (columnsArray[i] == "Actions")
 								{
-									<CFIF ListFindNoCase(inputParameters.interfaceOptions, 'editAssoc') AND ListFindNoCase(inputParameters.interfaceOptions, 'editChild') AND ListFindNoCase(inputParameters.interfaceOptions, 'delete')>
-										var obj = { "sTitle": columnsArray[i], "mDataProp": i+1, "sWidth": "65px" };
-									<CFELSE>
-										var obj = { "sTitle": columnsArray[i], "mDataProp": i+1, "sWidth": "42px" };
-									</CFIF>
+									var obj = { "sTitle": columnsArray[i], "mDataProp": i+1, "sWidth": actionColumnWidth + "px" };
 									hasActionColumn = 1;
 								}
 								else
@@ -534,6 +532,53 @@ History:
 					ResizeWindow();
 				});
 				// ResizeWindow();					
+			}
+			
+			
+			function doDeleteSelected_#uniqueTableAppend#(msg,errormsg)
+			{
+				var dataPageIDsToDelete = '';
+				
+				// get checked checkboxes, ensure at least 1 checked
+				var theLen = jQuery( '##customElementData_#uniqueTableAppend# input:checked' ).length;
+				if( theLen == 0 )
+				{
+					alert(errormsg);
+					return false;
+				}
+
+				// confirm with user that they really want to delete
+				if( ! confirm( msg ) )
+					return;
+				
+				
+				// get data pageIDs				
+				jQuery( '##customElementData_#uniqueTableAppend# input:checked' ).each( function() {
+						if( dataPageIDsToDelete == '' )
+							dataPageIDsToDelete = jQuery(this).val();
+						else
+							dataPageIDsToDelete = dataPageIDsToDelete + "," + jQuery(this).val();
+					} );
+				
+				var data = { 
+						bean: '#ajaxBeanName#',
+						method: 'deleteSelectedRecords',
+						returnformat: 'json',
+						propertiesStruct : JSON.stringify(<cfoutput>#SerializeJSON(inputParameters)#</cfoutput>),
+						dataPageIDList : dataPageIDsToDelete
+				 };
+				 
+				jQuery.when(
+
+							jQuery.post( '#ajaxComURL#', 
+													data, 
+													null, 
+													"json" )
+
+						).done( 
+						
+							function() { onSuccess_#uniqueTableAppend#('Success'); } 
+						);
 			}
 			// -->
 		</script>

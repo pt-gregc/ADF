@@ -40,6 +40,7 @@ History:
 					 - Fixed issue for the range being considered as string
 	2014-03-05 - JTP - Var declarations
 	2014-03-12 - DJM - Updated code displaying the flyover text for edit and delete icons
+	2014-04-08 - JTP - Added multi-record delete
 --->
 <cfcomponent output="false" displayname="custom element datamanager_base" extends="ADF.core.Base" hint="This the base component for the Custom Element Data Manager field">
 	
@@ -84,12 +85,19 @@ History:
 	</cfscript>
 	<cfif ListFindNoCase(inputPropStruct.interfaceOptions,'new') OR ListFindNoCase(inputPropStruct.interfaceOptions,'existing')>
 		<cfsavecontent variable="renderData">
+			
 			<cfif ListFindNoCase(inputPropStruct.interfaceOptions,'new')>
 				<cfoutput>#renderAddNewButton(argumentCollection=arguments)#</cfoutput>
 			</cfif>
+			
 			<cfif ListFindNoCase(inputPropStruct.interfaceOptions,'existing')>
 				<cfoutput>#renderAddExistingButton(argumentCollection=arguments)#</cfoutput>
 			</cfif>
+			
+			<cfif ListFindNoCase(inputPropStruct.interfaceOptions,'existing')>
+				<cfoutput>#renderDeleteSelectedButton(argumentCollection=arguments)#</cfoutput>
+			</cfif>
+			
 			<!--- <cfoutput><br/></cfoutput> --->
 		</cfsavecontent>
 	</cfif>
@@ -167,6 +175,34 @@ History:
 
 
 <!-------------------------------------------
+	renderDeleteSelectedButton()
+------------------------------------------->	
+<cffunction name="renderDeleteSelectedButton" access="public" returntype="void" hint="Method to render the Delete Selected button">
+	<cfargument name="propertiesStruct" type="struct" required="true" hint="Properties structure for the field">
+	<cfargument name="currentValues" type="struct" required="true" hint="Current values structure for the field">
+	<cfargument name="formID" type="numeric" required="true" hint="ID of the form or control type">
+	<cfargument name="fieldID" type="numeric" required="true" hint="ID of the field">
+
+	<cfscript>
+		var renderData = '';
+	</cfscript>
+		
+	<cfsavecontent variable="renderData">
+		<cfoutput>
+			#Server.CommonSpot.UDF.tag.input( type="button", 
+															class="clsPushButton", 
+															name="deleteSelected", 
+															id="deleteSelected", 
+															value=getDeleteSelectedButtonName(propertiesStruct=arguments.propertiesStruct), 
+															onclick="doDeleteSelected_#arguments.fieldID#('Are you sure you want to delete the selected records?  Note this action will permanently delete the records.', 'Please select one or more records to delete.');")#
+		</cfoutput>
+	</cfsavecontent>
+	<cfoutput>#renderData#</cfoutput>
+</cffunction>
+
+
+
+<!-------------------------------------------
 	getAddExistingButtonName()
 ------------------------------------------->	
 <cffunction name="getAddExistingButtonName" access="public" returntype="string" hint="Method to get the label displayed for add existing button">
@@ -181,6 +217,20 @@ History:
 			if ( LEN(TRIM(ceName)) )
 				buttonLabel = "Add New #ceName#...";
 		}
+				
+		return buttonLabel;
+	</cfscript>
+</cffunction>
+
+
+<!-------------------------------------------
+	getDeleteSelectedButtonName()
+------------------------------------------->	
+<cffunction name="getDeleteSelectedButtonName" access="public" returntype="string" hint="Method to get the label displayed for the Delete Selected">
+	<cfargument name="propertiesStruct" type="struct" required="true" hint="Properties structure for the field">
+
+	<cfscript>
+		var buttonLabel = 'Delete Selected';
 				
 		return buttonLabel;
 	</cfscript>
@@ -549,6 +599,7 @@ History:
 		var fieldUpdValue = '';
 		var dataColumnList_new = '';
 		var theListLen = 0;
+		var actionColumnWidth = '';
 		
 		dataColumnArray = ListToArray(dataColumnList);
 	</cfscript>
@@ -557,8 +608,17 @@ History:
 		<cfloop query="childData">			
 			<cfif ListFindNoCase(inputPropStruct.interfaceOptions,'editAssoc') OR ListFindNoCase(inputPropStruct.interfaceOptions,'editChild') OR ListFindNoCase(inputPropStruct.interfaceOptions,'delete')>	
 				<cfsavecontent variable="renderData">
-					<cfoutput>#renderActionColumns(fieldID=arguments.fieldID,propertiesStruct=inputPropStruct,assocDataPageID=childData.AssocDataPageID,assocDataControlID=ChildData.AssocDataControlID,childDataPageID=childData.ChildDataPageID,childDataControlID=ChildData.ChildDataControlID)#</cfoutput>
+					<cfscript>
+						// this will output the content
+						actionColumnWidth = renderActionColumns( fieldID=arguments.fieldID, 
+																				propertiesStruct=inputPropStruct,
+																				assocDataPageID=childData.AssocDataPageID,
+																				assocDataControlID=ChildData.AssocDataControlID,
+																				childDataPageID=childData.ChildDataPageID,
+																				childDataControlID=ChildData.ChildDataControlID);
+					</cfscript>
 				</cfsavecontent>
+				
 				<cfscript>
 					actionColumnArray[childData.currentRow] = renderData;
 				</cfscript>
@@ -664,6 +724,7 @@ History:
 		</cfquery>
 		
 		<cfscript>
+			returnStruct['actionColumnWidth'] = '#actionColumnWidth#';
 			returnStruct['aoColumns'] = '#dataColumnList_new#';
 			returnStruct['aoColumns'] = '#ReplaceNoCase(dataColumnList_new,'_converted','','ALL')#';
 			returnStruct['aaData'] = QueryToArray(queryData=returnData, fieldOrderList=dataColumnList_new);
@@ -687,7 +748,7 @@ History:
 <!-------------------------------------------
 	renderActionColumns()
 ------------------------------------------->		
-<cffunction name="renderActionColumns" returntype="void" access="public" hint="Get the data for the fields">
+<cffunction name="renderActionColumns" returntype="numeric" access="public" hint="Get the data for the fields" output="Yes">
 	<cfargument name="propertiesStruct" type="struct" required="true" hint="Properties structure for the field">
 	<cfargument name="assocDataPageID" type="numeric" required="true" hint="Data page id for the association element record">
 	<cfargument name="assocDataControlID" type="numeric" required="true" hint="Data control id for the association element record">
@@ -698,29 +759,42 @@ History:
 	<cfscript>
 		var inputPropStruct = arguments.propertiesStruct;
 		var renderData = '';
+		var actionColumnWidth = '';
 	</cfscript>
 
 	<cfsavecontent variable="renderData">
-		<cfif ListFindNoCase(inputPropStruct.interfaceOptions,'editAssoc') OR ListFindNoCase(inputPropStruct.interfaceOptions,'editChild') OR ListFindNoCase(inputPropStruct.interfaceOptions,'delete')>
+	
+		<cfif ListFindNoCase(inputPropStruct.interfaceOptions,'editAssoc') 
+					OR ListFindNoCase(inputPropStruct.interfaceOptions,'editChild') 
+					OR ListFindNoCase(inputPropStruct.interfaceOptions,'delete')>
+
 			<cfif ListFindNoCase(inputPropStruct.interfaceOptions,'editAssoc') AND ListFindNoCase(inputPropStruct.interfaceOptions,'editChild') AND ListFindNoCase(inputPropStruct.interfaceOptions,'delete')>
-				<cfoutput><div style="width:65px;white-space:no-wrap;"></cfoutput>
+				<cfset actionColumnWidth="85"> <!--- 65 --->
 			<cfelse>
-				<cfoutput><div style="width:42px;white-space:no-wrap;"></cfoutput>
+				<cfset actionColumnWidth="60">  <!--- 42 --->
 			</cfif>
+			
+			<cfoutput><div style="width:#actionColumnWidth#px;white-space:no-wrap;"></cfoutput>
+
 			<cfif ListFindNoCase(inputPropStruct.interfaceOptions,'editAssoc')>
 				<cfoutput>#renderEditAssocIcon(propertiesStruct=arguments.propertiesStruct,dataPageID=arguments.assocDataPageID,dataControlID=arguments.assocDataControlID,fieldID=arguments.fieldID)#</cfoutput>
 			</cfif>
+
 			<cfif ListFindNoCase(inputPropStruct.interfaceOptions,'editChild')>
 				<cfoutput>#renderEditChildIcon(propertiesStruct=arguments.propertiesStruct,dataPageID=arguments.childDataPageID,dataControlID=arguments.childDataControlID,fieldID=arguments.fieldID)#</cfoutput>
 			</cfif>
+
 			<cfif ListFindNoCase(inputPropStruct.interfaceOptions,'delete')>
 				<cfoutput>#renderDeleteIcon(propertiesStruct=arguments.propertiesStruct,assocDataPageID=arguments.assocDataPageID,childDataPageID=arguments.childDataPageID,fieldID=arguments.fieldID)#</cfoutput>
 			</cfif>
+
 			<cfoutput></div></cfoutput>
 		</cfif>
 	</cfsavecontent>
 	
 	<cfoutput>#renderData#</cfoutput>
+	
+	<cfreturn actionColumnWidth>
 </cffunction>
 
 
@@ -807,7 +881,10 @@ History:
 	
 	<cfif isNumeric(dataPageID) AND dataPageID gt 0 AND isNumeric(deleteFormID) AND deleteFormID gt 0>
 		<cfsavecontent variable="renderData">
-			<cfoutput><img onclick="javascript:top.commonspot.lightbox.openDialog(&##39;#Request.SubSite.DlgLoader#?csModule=controls/datasheet/cs-delete-form-data&mode=results&callbackFunction=loadData_#arguments.fieldID#&realTargetModule=controls/datasheet/cs-delete-form-data&formID=#deleteFormID#&pageID=#dataPageID#&##39;);" class="actionIcon" title="Delete #Request.Site.availcontrols[deleteFormID].shortdesc#" alt="Delete #Request.Site.availcontrols[deleteFormID].shortdesc#" src="/commonspot/dashboard/icons/bin.png"></cfoutput>
+			<cfoutput>
+				<img onclick="javascript:top.commonspot.lightbox.openDialog(&##39;#Request.SubSite.DlgLoader#?csModule=controls/datasheet/cs-delete-form-data&mode=results&callbackFunction=loadData_#arguments.fieldID#&realTargetModule=controls/datasheet/cs-delete-form-data&formID=#deleteFormID#&pageID=#dataPageID#&##39;);" class="actionIcon" title="Delete #Request.Site.availcontrols[deleteFormID].shortdesc#" alt="Delete #Request.Site.availcontrols[deleteFormID].shortdesc#" src="/commonspot/dashboard/icons/bin.png">
+				<input type="checkbox" name="deleteCheckbox" value="#dataPageID#">
+			</cfoutput>
 		</cfsavecontent>
 		<cfoutput>#renderData#</cfoutput>
 	</cfif>
@@ -1908,5 +1985,57 @@ History:
 		return returnString;
 	</cfscript>
 </cffunction>
+
+
+<!------------------------------------------------------
+	DeleteSelectedRecords()
+		- deletes one or more records that were selected.
+-------------------------------------------------------->	
+<cffunction name="DeleteSelectedRecords" access="public" returntype="void" hint="Given a list of dataPageIDs, delete the selected records." output="No">
+	<cfargument name="propertiesStruct" type="struct" required="true" hint="Properties structure for the field">
+	<cfargument name="dataPageIDList" required="Yes" type="string">
+	
+	<cfscript>
+		var ceObj = '';
+		var dataPageID = '';
+		var FormID = 0;
+		
+		if(NOT IsNumeric(arguments.propertiesStruct.assocCustomElement))
+			FormID = arguments.propertiesStruct.childCustomElement;
+		else
+			FormID = arguments.propertiesStruct.assocCustomElement;
+		
+		
+		if( val(arguments.dataPageIDList) eq 0 OR val(formID) eq 0 )
+			return;
+		
+		ceObj = Server.CommonSpot.ObjectFactory.getObject("CustomElement");	
+		
+		for( i=1; i lte ListLen(arguments.dataPageIDList); i=i+1 ) 
+		{
+			// current method only deletes one at a time?? 
+			try
+			{
+				dataPageID = ListGetAt( arguments.dataPageIDList, i );
+				
+				if( val(dataPageID) gt 0 )
+				{
+application.adf.utils.logAppend( 'deleting record: FormID:#formID# DataPageID:#dataPageID#', 'datamanager-delete.log' );			
+					ceObj.DeleteRecords( formID, dataPageID );
+				}
+			}
+			catch (any e)	
+			{
+				application.adf.utils.logAppend( 'Could not delete custom element record from data manager. #e.message# #e.detail#', 'datamanager-delete.log' );
+			}
+		}				
+	</cfscript>
+
+	
+
+</cffunction>
+
 	
 </cfcomponent>
+
+
