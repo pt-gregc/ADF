@@ -93,14 +93,19 @@ History:
 			<cfif ListFindNoCase(inputPropStruct.interfaceOptions,'existing')>
 				<cfoutput>#renderAddExistingButton(argumentCollection=arguments)#</cfoutput>
 			</cfif>
-			
-			<cfif ListFindNoCase(inputPropStruct.interfaceOptions,'existing')>
+
+			<cfif ListFindNoCase(inputPropStruct.interfaceOptions,'delete')>
 				<cfoutput>#renderDeleteSelectedButton(argumentCollection=arguments)#</cfoutput>
 			</cfif>
 			
 			<!--- <cfoutput><br/></cfoutput> --->
 		</cfsavecontent>
 	</cfif>
+	
+	<cfif renderData neq ''>
+		<cfset renderData = '<div style="min-width:580px;">#renderData#</div>'>
+	</cfif>
+	
 	<cfoutput>#renderData#</cfoutput>
 </cffunction>
 	
@@ -189,12 +194,24 @@ History:
 		
 	<cfsavecontent variable="renderData">
 		<cfoutput>
+			<div style="display:inline-block; text-alignment:right; float:right;">
+			<a href="javascript:doSelectAll_#arguments.fieldID#(true);">Select All</a> |
+			<a href="javascript:doSelectAll_#arguments.fieldID#(false);">Deselect All</a> &nbsp; 	
 			#Server.CommonSpot.UDF.tag.input( type="button", 
 															class="clsPushButton", 
 															name="deleteSelected", 
 															id="deleteSelected", 
 															value=getDeleteSelectedButtonName(propertiesStruct=arguments.propertiesStruct), 
 															onclick="doDeleteSelected_#arguments.fieldID#('Are you sure you want to delete the selected records?  Note this action will permanently delete the records.', 'Please select one or more records to delete.');")#
+			</div>	
+			<script>
+				function doSelectAll_#arguments.fieldID#(opt)
+				{
+					jQuery( '##customElementData_#arguments.fieldID# input' ).each( function() {
+						jQuery(this).prop('checked', opt);
+					} );
+				}				
+			</script>														
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>#renderData#</cfoutput>
@@ -2020,7 +2037,6 @@ History:
 				
 				if( val(dataPageID) gt 0 )
 				{
-application.adf.utils.logAppend( 'deleting record: FormID:#formID# DataPageID:#dataPageID#', 'datamanager-delete.log' );			
 					ceObj.DeleteRecords( formID, dataPageID );
 				}
 			}
@@ -2030,9 +2046,6 @@ application.adf.utils.logAppend( 'deleting record: FormID:#formID# DataPageID:#d
 			}
 		}				
 	</cfscript>
-
-	
-
 </cffunction>
 
 	
