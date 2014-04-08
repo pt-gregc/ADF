@@ -247,23 +247,41 @@ History:
 	2009-08-12 - MFC - Updated: Add the check to csSecurity
 	2009-10-22 - MFC - Updated: Changed Return Type Boolean
 	2010-02-04 - MFC - Updated: Replaced the delete query with a call to the deleteCE function.
+	2014-04-08 - ACW - CS 9 supports sending a form ID only to deletefieldvalue now, added logic to support that
 --->
 <cffunction name="deleteByElementName" access="public" returntype="boolean" hint="Delete the Custom Element records from the data_fieldvalue table given a Custom Element name">
 	<cfargument name="ceName" type="string" required="true">
 	<cfscript>
-		var deleteCEData = queryNew("temp");
 		// get the formID for the Page Mapping element
 		var formID = getFormIDByCEName(arguments.ceName);
-		var pageIDs = getPageIDForElement(formID);
+		var pageIDs = 0;
 		var csSecurity = server.ADF.objectFactory.getBean("csSecurity_1_2");
+		var isCS9Plus = (val(listFirst(Server.CommonSpot.ProductVersion, ".")) >= 9);
 
-		// Verify the security for the logged in user
-		if ( csSecurity.isValidContributor() OR csSecurity.isValidCPAdmin() ) 
-		{
-			if ( listLen(valueList(pageIDs.pageID)) )
-				return deleteCE(valueList(pageIDs.pageID));
-		}
 	</cfscript>
+	<!--- Verify the security for the logged in user --->
+	<cfif csSecurity.isValidContributor() OR csSecurity.isValidCPAdmin()>
+		<cftry>
+			<cfif isCS9Plus>
+				<CFMODULE template="/commonspot/metadata/tags/data_control/deletefieldvalue.cfm"
+					id="0"
+					formID="#formID#">
+			<cfelse>
+				<cfscript>
+					pageIDs = getPageIDForElement(formID);
+					if (listLen(valueList(pageIDs.pageID)) GT 0)
+						return deleteCE(valueList(pageIDs.pageID));
+				</cfscript>
+			</cfif>
+			<!--- No problems, Return TRUE --->
+			<cfreturn true>
+		<cfcatch>
+			<!--- <cfdump var="#cfcatch#" label="cfcatch" expand="false"> --->
+			<cfreturn false>
+		</cfcatch>
+		</cftry>
+	</cfif>
+
 	<cfreturn false>
 </cffunction>
 
@@ -289,38 +307,45 @@ History:
 							to CS Module deletefieldvalue.
 	2011-02-09 - RAK - Var'ing un-var'd variables
 	2011-09-26 - MFC - Updated logic to return false if user is not validated.
+	2014-04-08 - ACW - CS 9 supports sending a list of page IDs to deletefieldvalue now, added logic to support that
 --->
 <cffunction name="deleteCE" access="public" returntype="boolean">
 	<cfargument name="datapageidList" type="string" required="true">
 
 	<cfscript>
-		var deleteCEData = queryNew("temp");
 		var i = 1;
 		var currPageID = 1;
 		var formID = 0;
 		var elementFields = "";
 		var j = "";
 		var csSecurity = server.ADF.objectFactory.getBean("csSecurity_1_2");
+		var isCS9Plus = (val(listFirst(Server.CommonSpot.ProductVersion, ".")) >= 9);
 	</cfscript>
 	
 	<!--- Verify the security for the logged in user --->
 	<cfif csSecurity.isValidContributor() OR csSecurity.isValidCPAdmin()>
 		<!--- Loop over the page id list --->
 		<cftry>
-			<cfloop index="i" from="1" to="#ListLen(datapageidList)#">
-				<cfset currPageID = ListGetAt(datapageidList,i)>
-				<cfset formID = getFormIDFromPageID(currPageID)>
-				<cfset elementFields = getElementFieldsByFormID(formID)>
-				<!--- Loop over the element fields --->
-				<cfloop index="j" from="1" to="#elementFields.RecordCount#">
-					<!------// delete field value //------->
-					<CFMODULE template="/commonspot/metadata/tags/data_control/deletefieldvalue.cfm"
-								dsn="#Request.Site.datasource#"
-								id="#elementFields.FieldID[j]#"
-								formID="#formID#"
-								pageID="#currPageID#">
+			<cfif isCS9Plus>
+				<CFMODULE template="/commonspot/metadata/tags/data_control/deletefieldvalue.cfm"
+					id="0"
+					pageID="#arguments.datapageidList#">
+			<cfelse>
+				<cfloop index="i" from="1" to="#ListLen(datapageidList)#">
+					<cfset currPageID = ListGetAt(datapageidList,i)>
+					<cfset formID = getFormIDFromPageID(currPageID)>
+					<cfset elementFields = getElementFieldsByFormID(formID)>
+					<!--- Loop over the element fields --->
+					<cfloop index="j" from="1" to="#elementFields.RecordCount#">
+						<!------// delete field value //------->
+						<CFMODULE template="/commonspot/metadata/tags/data_control/deletefieldvalue.cfm"
+									dsn="#Request.Site.datasource#"
+									id="#elementFields.FieldID[j]#"
+									formID="#formID#"
+									pageID="#currPageID#">
+					</cfloop>
 				</cfloop>
-			</cfloop>
+			</cfif>
 			<!--- No problems, Return TRUE --->
 			<cfreturn true>
 		<cfcatch>
@@ -1243,16 +1268,16 @@ History:
 	<cfset var getDataFieldValues = queryNew("temp")>
 	<!--- Query to get the data for the custom element by pageid --->
 	<cfquery name="getDataFieldValues" datasource="#request.site.datasource#">
-		SELECT    FormID
-        FROM      Data_FieldValue 
-		WHERE     PageID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.pageid#">
+		SELECT distinct FormID
+		  FROM Data_FieldValue
+		 WHERE PageID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.pageid#">
 		<cfif arguments.controlid GT 0>
-			AND   ControlID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.controlid#">
+			AND ControlID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.controlid#">
 		</cfif>
-		AND 	  VersionState = 2
+			AND VersionState = <cfqueryparam cfsqltype="cf_sql_integer" value="2">
 	</cfquery>
 	<!--- Check that we have a query values --->
-	<cfif getDataFieldValues.RecordCount>
+	<cfif getDataFieldValues.RecordCount GT 0>
 		<cfreturn getDataFieldValues.FormID>	
 	<cfelse>
 		<cfreturn 0>	
