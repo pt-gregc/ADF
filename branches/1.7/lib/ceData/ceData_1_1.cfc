@@ -1323,15 +1323,14 @@ Arguments:
 	NA
 History:
 	2014-04-04 - DRM - Created
-	2014-04-08 - Switched the Server.CommonSpot.ProductVersion to use the older request.cp.ProductVersion for older compatiblity
+	2014-04-08 - GAC - Switched the Server.CommonSpot.ProductVersion to use the older request.cp.ProductVersion for CS backwards compatibility
 --->
 <cffunction name="_getDBTypeStrs" output="no" returntype="struct">
 
 	<cfscript>
 		var result = structNew();
 		var uniCodePrefixMaybe = _pick(siteDBIsUnicode(), "N", "");
-		var isCS9Plus = (val(listFirst(request.cp.ProductVersion, ".")) >= 9);
-		//var isCS9Plus = (val(listFirst(Server.CommonSpot.ProductVersion, ".")) >= 9); // Not valid for CommonSpot 6
+		var isCS9Plus = (val(ListLast(ListFirst(Request.CP.ProductVersion, "."), " ")) >= 9);
 
 		switch (Request.Site.SiteDBType)
 		{
