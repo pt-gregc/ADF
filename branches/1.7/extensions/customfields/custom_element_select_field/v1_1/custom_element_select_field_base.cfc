@@ -175,7 +175,6 @@ History:
 		var cfmlFilterCriteria = StructNew();
 		var sortColumn = '';
 		var sortDir = '';
-		var fldsQry = QueryNew('');
 		var fieldList = '';
 		var start = 0;
 		var end = 0;
@@ -231,14 +230,11 @@ History:
 	
 		if (StructKeyExists(inputPropStruct,"customElement") and Len(inputPropStruct.customElement))
 		{
-			fldsQry = ceObj.getFields(ceFormID);
-			fieldList = ValueList(fldsQry.Name);
-			if( StructKeyExists(inputPropStruct, "displayField") AND LEN(inputPropStruct.displayField) AND inputPropStruct.displayField neq "--Other--" ) 
+			if( StructKeyExists(inputPropStruct, "displayField") AND LEN(inputPropStruct.displayField) AND inputPropStruct.displayField neq "--Other--" )
 				fieldList = '#inputPropStruct.displayField#,#inputPropStruct.valueField#';
 			else if( inputPropStruct.displayField eq "--Other--" AND inputPropStruct.DisplayFieldBuilder neq '' )
 			{
 				start = 1;
-				fieldList = '';
 				while( true )
 				{
 					start = FindNoCase( Chr(171), inputPropStruct.DisplayFieldBuilder, start );
