@@ -70,7 +70,8 @@ History:
 	2011-04-19 - RAK - Modified loading beans by bean name to not use evaluate and added fallback for application.ADF.beanName
 	2011-05-17 - RAK - Verified we were able to find the bean before we invoked commands upon it
 	2011-09-07 - GAC - Modified - added a TRY/CATCH around the CFINVOKE and an ELSE to the IsObject() check to help with error handling
-	2013-03-17 - JTP - Added logging if runCommand fails
+	2014-03-17 - JTP - Added logging if runCommand fails
+	2014-04-11 - GAC - updated the logging to better log what is actually failing
 --->
 <cffunction name="runCommand" access="public" returntype="Any" hint="Runs the given command">
 	<cfargument name="beanName" type="string" required="true" default="" hint="Name of the bean you would like to call">
@@ -97,7 +98,7 @@ History:
 		{
 			bean = server.ADF.objectFactory.getBean(arguments.beanName);
 		}
-		else if(StructKeyExists(application.ADF,arguments.beanName))
+		else if ( StructKeyExists(application.ADF,arguments.beanName) )
 		{
 			bean = StructFind(application.ADF,arguments.beanName);
 		}
@@ -112,14 +113,14 @@ History:
 			<cfcatch>
 				<cfscript>
 					result.reData = cfcatch;
-					application.adf.utils.logAppend( msg=cfcatch, label='Error calling utils.RunCommand() method.', logfile='adf-run-command.html' );
+					application.adf.utils.logAppend(msg=cfcatch, label='Error calling utils.RunCommand() method. #arguments.appName#.#arguments.beanName#.#arguments.methodName#', logfile='adf-run-command.html');
 				</cfscript>
 			</cfcatch>
 		</cftry>
 	<cfelse>
 		<cfscript>
-			result.reData = "Error: The Bean is not an Object and could not be used as a component!";
-			application.adf.utils.logAppend( msg="Error: The Bean '#bean#' is not an Object and could not be used as a component!", logfile='adf-run-command.html' );
+			result.reData = "Error: The Bean is not an Object and could not be used as a component! Check the Error logs for more details.";			
+			application.adf.utils.logAppend(msg="Error: The Bean '#arguments.appName#.#arguments.beanName#' is not an Object and could not be used as a component! Attempting to call the Method: '#arguments.methodName#'", logfile='adf-run-command.html');
 		</cfscript>
 	</cfif>
 	
