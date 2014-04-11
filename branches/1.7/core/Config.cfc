@@ -35,7 +35,7 @@ History:
 <cfcomponent name="Config" hint="Config component for Application Development Framework" extends="ADF.core.Base">
 
 <cfproperty name="version" value="1_7_0">
-<cfproperty name="file-version" value="2">
+<cfproperty name="file-version" value="3">
 	
 <!---
 /* *************************************************************** */
@@ -118,6 +118,7 @@ Arguments:
 	String Custom Element Name
 History:
 	2009-08-06 - RLW/MFC - Created
+	2014-04-10 - GAC - Updated the ceData Lib version
 --->
 <cffunction name="getConfigViaElement" access="public" returntype="struct">
 	<cfargument name="appName" type="string" required="true">
@@ -125,7 +126,7 @@ History:
 	<cfscript>
 		var configStruct = structNew();
 		var configElementQry = getConfigurationCE(arguments.appName);
-		var ceData = server.ADF.objectFactory.getBean("ceData_1_0");
+		var ceData = server.ADF.objectFactory.getBean("ceData_2_0");
 		var configData = ceData.getCEData(configElementQry.formName);
 		if ( arrayLen(configData) )
 		{

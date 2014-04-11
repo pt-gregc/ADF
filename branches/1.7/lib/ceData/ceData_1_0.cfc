@@ -37,7 +37,7 @@ History:
 --->
 <cfcomponent displayname="ceData_1_0" extends="ADF.core.Base" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_14">
+<cfproperty name="version" value="1_0_15">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_0">
 <cfproperty name="wikiTitle" value="CEData_1_0">
@@ -953,6 +953,7 @@ History:
 	2014-02-20 - JTP - Updated 'searchInList' with better handling of non-UUID lists
 	2014-02-21 - GAC - Added itemListDelimiter parameter
 					 - Added logic is a searchFields is passed but no Item value then look of null or empty strings
+	2014-04-10 - GAC - Fixed typo in comment
 --->
 <cffunction name="getPageIDForElement" access="public" returntype="query" hint="Returns Page ID Query in Data_FieldValue matching Form ID">
 	<cfargument name="formid" type="numeric" required="true">
@@ -1097,7 +1098,7 @@ History:
 				)
 				<cfelse>
 				(
-				  <!--- // 2014-02-22 - GAC - If no Item value is passed look of null or empty strings --->
+				  <!--- // 2014-02-22 - GAC - If no Item value is passed look of null for empty strings --->
 				  LOWER(fieldValue) IS <cfqueryparam cfsqltype="cf_sql_varchar" null="true"> 
 				  OR  
 				  LOWER(fieldValue) = <cfqueryparam cfsqltype="cf_sql_varchar" value=""> 
