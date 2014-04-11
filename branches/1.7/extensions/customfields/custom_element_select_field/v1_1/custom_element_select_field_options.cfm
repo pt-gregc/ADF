@@ -208,9 +208,6 @@ History:
 				sortDir = ListLast(cfmlFilterCriteria.defaultSortColumn,'|');
 			}
 
-			// Get fields
-			// fldsQry = ceObj.GetFields(ceID);
-			// FieldList = ValueList(fldsQry.Name);
 			if( StructKeyExists(cfmlInputParams, "displayField") AND LEN(cfmlInputParams.displayField) AND cfmlInputParams.displayField neq "--Other--" ) 
 				fieldList = '#cfmlInputParams.displayField#,#cfmlInputParams.valueField#';
 			else if( cfmlInputParams.displayField eq "--Other--" AND cfmlInputParams.DisplayFieldBuilder neq '' )
