@@ -384,6 +384,7 @@ History:
 	2013-02-06 - GAC - Updated the FORCE and AUT0-DETECT columnTpye logic. 
 					 - Updated the generated SQL output and error logging.
 					 - Added safety checks for the custom sort column name
+	2014-03-05 - JTP - Var declarations
 --->
 <cffunction name="QuerySortByOrderedList" displayname="QuerySortByOrderedList" access="public" hint="Sort a query based on a custom ordered list" returntype="query" output="false">
     <cfargument name="query" type="query" required="yes" hint="The query to be sorted">
@@ -405,6 +406,7 @@ History:
 		var criteriaValue = "";
 		var logSQL = (structKeyExists(Request.Params,"adfLogQuerySQL") and Request.Params.adfLogQuerySQL eq 1);
 		var logMsg = "";
+		var createQueryResult = '';
 		
 		// If a columnType is passed in set it as the override Column Type
 		if ( ListFindNoCase(columnTypesAllowed,arguments.columnType) )
@@ -582,6 +584,7 @@ Arguments:
 	String - cardinalString
 History:
 	2013-02-28 - GAC - Added from CFLib.org
+	2014-03-05 - JTP - Var declarations
 --->
 <cffunction name="cardinalToOrdinal" access="public" output="false" returntype="string" hint="This function converts cardinal number strings to ordinal number strings..">
 	<cfargument name="cardinalString" type="string" required="true" hint="">
@@ -589,13 +592,12 @@ History:
 		var resultString = "";        // Generated result to return
 	 	var lastCardinal = "";        // Last word in cardinal number string
 	  	var TempNum = 0;              // temp integer
-
-  		cardinalSpecialStrings = "One,one,Two,two,Three,three,Four,four,Five,five,Six,six,Eight,eight,Nine,nine,Twelve,twelve";
-  		ordinalSpecialStrings = "First,first,Second,second,Third,third,Fourth,fourth,Fifth,fifth,Sixth,sixth,Eighth,eighth,Ninth,ninth,Twelfth,twelfth";
+  		var cardinalSpecialStrings = "One,one,Two,two,Three,three,Four,four,Five,five,Six,six,Eight,eight,Nine,nine,Twelve,twelve";
+  		var ordinalSpecialStrings = "First,first,Second,second,Third,third,Fourth,fourth,Fifth,fifth,Sixth,sixth,Eighth,eighth,Ninth,ninth,Twelfth,twelfth";
   
-  		cardinalString = trim(cardinalString);
- 		lastCardinal = listLast(cardinalString," ");
-  		resultString = ListDeleteAt(cardinalString,ListLen(cardinalString," ")," ");
+  		arguments.cardinalString = trim(arguments.cardinalString);
+ 		lastCardinal = listLast(arguments.cardinalString," ");
+  		resultString = ListDeleteAt(arguments.cardinalString,ListLen(arguments.cardinalString," ")," ");
   
 		// Is lastCardinal a special case?
 		TempNum = listFindNoCase(cardinalSpecialStrings,lastCardinal);
@@ -727,12 +729,14 @@ History:
 	2013-11-18 - GAC - Fixed issue with logAppend() method call		
 	2013-11-19 - DM  - Adding compatiblity of ORACLE	
 	2013-12-05 - GAC - Removed the table name check logic around the verifyDB query
+	2014-03-05 - JTP - Var declarations
 --->
 <cffunction name="verifyTableExists" access="public" returntype="boolean" output="false" hint="Verifies that a Tables and View Table exist for various db types.">
 	<cfargument name="tableName" type="string" required="true">
 	<cfargument name="datasourseName" type="string" required="false" default="#Request.Site.DataSource#">
 	<cfargument name="databaseType" type="string" required="false" default="#Request.Site.SiteDBType#">
 	<cfscript>
+		var verifyDB = '';
 		var verifySourceDB = QueryNew("temp");
 		var datasourse = arguments.datasourseName;
 		var dbType = arguments.databaseType;
@@ -740,6 +744,7 @@ History:
 		// CFM 9+ syntax
 		//var selectFromTable = (dbType == "Oracle") ? "USER_TAB_COLUMNS" : "INFORMATION_SCHEMA.TABLES"; 
 		var utilsLib = server.ADF.objectFactory.getBean("utils_1_2");
+
 		
 		// Schema Table for ORACLE
 		if ( dbType EQ "Oracle" )

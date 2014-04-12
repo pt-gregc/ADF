@@ -30,10 +30,11 @@ Version:
 	1.0
 History:
 	2012-12-20 - MFC - Created
+	2014-03-05 - JTP - Var declarations
 --->
 <cfcomponent displayname="api" extends="ADF.core.Base" hint="CCAPI functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_7">
+<cfproperty name="version" value="1_0_8">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
 <cfproperty name="wikiTitle" value="API">
 
@@ -487,6 +488,7 @@ History:
 		// Get the user account from the CCAPI Config
 		var apiConfig = getAPIConfig();
 		var wsObj = getWebService();
+		var error = '';
 		
 		var loginResult = wsObj.csLogin(site = getSiteURL(),
 										csUserID = apiConfig.wsVars.csuserid,
@@ -513,6 +515,7 @@ History:
 	</cfscript>
 </cffunction>
 
+<!--- // 2014-04-10 - GAC - Fixed variable name in log output --->
 <cffunction name="ccapiLogout" access="public" returntype="void">
 	<cfscript>
 		// Get the user account from the CCAPI Config
@@ -532,7 +535,7 @@ History:
 		else {
 			// Log Error
 			if( apiConfig.logging.enabled )
-				variables.utils.logAppend("#request.formattedTimestamp# - Error Logout with the CCAPI: #error#", "API_Login.log");
+				variables.utils.logAppend("#request.formattedTimestamp# - Error Logout with the CCAPI: #logoutResult#", "API_Login.log");
 		}
 	</cfscript>
 </cffunction>

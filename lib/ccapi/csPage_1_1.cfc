@@ -94,6 +94,7 @@ History:
 	2011-02-09 - RAK - Var'ing un-var'd variables
 	2012-02-24 - MFC - Added TRY-CATCH around processing to logout the CCAPI if any errors.
 	2013-07-01 - GAC - Fixed an issue with the createPage operation that was calling the application.ADF.csPage.createPage() instead of the local createPage() 
+	2014-03-05 - JTP - Var declarations
 --->	
 <cffunction name="copyPage" access="public" returntype="boolean" hint="Duplicates the page from source to destination using destination template. ">
 	<cfargument name="sourcePageID" type="numeric" required="true">
@@ -122,6 +123,7 @@ History:
 		var newPage = '';
 		var elementTabs = '';
 		var populateContentResults = '';
+		var logStruct = StructNew();
 
 		try {
 			//Error checking
@@ -231,6 +233,7 @@ History:
 			// Log the error message also
 			logStruct.msg = "#request.formattedTimestamp# - Error [Message: #e.message#] [Details: #e.Details#]";
 			logStruct.logFile = "copyPageLog_errors.log";
+			ArrayAppend( logArray, logStruct );
 			variables.utils.bulkLogAppend(logArray);
 		}
 		

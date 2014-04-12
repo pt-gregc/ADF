@@ -32,9 +32,10 @@ History:
 	2013-05-13 - MFC - Updated the "variables.destinationDir" to use the "request.subsiteCache[1].url" variable and
 						corrected issue with multiple "//" in the path.
 					   Added the "createUploadDir" function.
+	2014-04-04 - GAC - Changed the cfscript thow to the utils.doThow with a new logging option
 --->
 <cfcomponent name="file_uploader" extends="ADF.core.Base">
-	<cfproperty name="version" value="1_0_1">
+	<cfproperty name="version" value="1_0_2">
 	<cfscript>
 		//Default settings, you can override these in your extended cfc
 		variables.acceptedExtensions = "png,pdf";
@@ -149,18 +150,27 @@ History:
 
 	History:
 	 	2011-09-02 - RAK - Created
+		2014-03-05 - JTP - Var declarations
 	--->
 	<cffunction name="getUniqueFileName" access="public" returntype="string" hint="Returns a unique filename for the destination file">
 		<cfargument name="sourceFileName" type="string" required="true" default="" hint="Source File Name">
+		
 		<cfscript>
 			var rtnFileName = sourceFileName;
-			if(FileExists("#variables.destinationDir##sourceFileName#")){
+			var unique = false;
+			var i = 0;
+			var extension = '';
+			var rootFileName = '';			
+			
+			if( FileExists("#variables.destinationDir##sourceFileName#") )
+			{
 				//The file exists, lets loop until we get a unique number.
 				unique = false;
 				i = 1;
 				extension = listLast(sourceFileName,'.');
 				rootFileName = left(sourceFileName,(Len(sourceFileName)-Len(extension)-1));
-				while(!unique){
+				while(!unique)
+				{
 					rtnFileName = "#rootFileName##i#.#extension#";
 					if(!FileExists("#variables.destinationDir##rootFileName##i#.#extension#")){
 						unique = true;
@@ -187,13 +197,17 @@ History:
 
 	History:
 	 	2011-09-02 - RAK - Created
+		2014-03-05 - JTP - Var declarations
 	--->
 	<cffunction name="generateThumbnailForImage" access="public" returntype="struct" hint="Generates a thumbnail for an image">
 		<cfargument name="filePath" type="string" required="true" default="" hint="Fully qualified filepath">
+		
 		<cfscript>
 			var rtnStruct = StructNew();
 			var thumbnailWidth = 0;
 			var thumbnailHeight = 0;
+			var resizeDimension = '';
+			
 			rtnStruct.handledImage = false;
 			rtnStruct.image = "";
 		</cfscript>
@@ -312,20 +326,25 @@ History:
 
 	History:
 	 	2011-09-01 - RAK - Created
+		2014-03-05 - JTP - Var declarations
 	--->
 	<cffunction name="_validateFile" access="public" returntype="struct" hint="Magic validation function, it takes the array of validation functions and executes them. On error it returns the results">
 		<cfargument name="filePath" type="string" required="true" default="" hint="Fully qualified filepath">
 		<cfargument name="fileName" type="string" required="true" default="" hint="Filename for the destination file">
 		<cfargument name="fieldID" type="string" required="false" default="" hint="Field ID of the field we are uploading to">
+		
 		<cfscript>
 			var returnStruct = StructNew();
 			var argumentCollection = StructNew();
 			var validationResults = '';
-			fileDetails = StructNew();
+			var fileDetails = StructNew();
+			var i = 0;
+			
 			fileDetails.fileName = arguments.fileName;
 			fileDetails.temporaryPath = arguments.filePath;
 			argumentCollection.fileDetails = fileDetails;
 		</cfscript>
+		
 		<cffile action="read" variable="fileDetails.binary" file="#filePath#">
 		<cfloop from="1" to="#ArrayLen(variables.validationFunctions)#" index="i">
 			<cfinvoke method = "#variables.validationFunctions[i]#"
@@ -360,37 +379,43 @@ History:
 	History:
 	 	2011-09-02 - RAK - Created
 	 	2013-05-13 - MFC - Updated to call the "createUploadDir" function.
+		2014-03-05 - JTP - Var declarations
 	--->
 	<cffunction name="_preformFileMove" access="public" returntype="struct" hint="Preforms the file move from temporary to permanent storage">
 		<cfargument name="filePath" type="string" required="true" default="" hint="Fully qualified filepath">
 		<cfargument name="fileName" type="string" required="true" default="" hint="Filename for the destination file">
 		<cfargument name="fieldID" type="string" required="false" default="" hint="Field ID of the field we are uploading to">
+		
 		<cfscript>
 			var source = arguments.filePath;
 			var rtnStruct = StructNew();
 			var destination = "";
 			var createDirStatus = false;
-			if(!FileExists(source)){
-				throw(message="Source file does not exist.",type="custom");
-			}
-			if(!DirectoryExists(variables.destinationDir)){
-				
+			var logFileName = "fileUploadError.log";
+			
+			
+			if(!FileExists(source))
+				application.ADF.utils.doThrow(message="Source file does not exist.",type="custom",logerror=1,logfile=logFileName);
+
+			if(!DirectoryExists(variables.destinationDir))
+			{
 				// Create the directory
 				createDirStatus = createUploadDir();
 				if ( !createDirStatus )
-					throw(message="Destination directory does not exist.",type="custom",detail="Please create directory: #variables.destinationDir#");
+					application.ADF.utils.doThrow(message="Destination directory does not exist.",type="custom",detail="Please create directory: #variables.destinationDir#",logerror=1,logfile=logFileName);
 			}
+
 			//Dont overwrite, so get a unique filename!
-			if(!variables.overwriteExistingFiles){
-				fileName = getUniqueFileName(fileName);
-			}
-			destination = "#variables.destinationDir##fileName#";
+			if(!variables.overwriteExistingFiles)
+				arguments.fileName = getUniqueFileName(arguments.fileName);
+
+			destination = "#variables.destinationDir##arguments.fileName#";
 
 			FileMove(source,destination);
 			application.ADF.utils.logAppend("File move success. From-- "&source&" To-- "&destination,"fileUpload.txt");
 			rtnStruct.success = true;
 			rtnStruct.message = "File move success.";
-			rtnStruct.fileName = fileName;
+			rtnStruct.fileName = arguments.fileName;
 			return rtnStruct;
 		</cfscript>
 	</cffunction>
@@ -431,17 +456,22 @@ History:
 	History:
 	 	2011-09-02 - RAK - Created
 	 	2011-09-21 - RAK - Added fieldID to overrides can use it to get more details
+		2014-03-05 - JTP - Var declarations
 	--->
 	<cffunction name="_getThumbnail" access="public" returntype="string" hint="Returns a thumbnail to the browser">
 		<cfargument name="fileName" type="string" required="true" default="" hint="Filename to get the thumbnail of">
 		<cfargument name="fieldID" type="string" required="false" default="" hint="Field ID of the field we are uploading to">
+
 		<cfscript>
 			var i = "";
 			var rtnHTML = "";
 			var argumentCollection = StructNew();
 			var img = "";
+			var thumbnailResults = '';
+
 			argumentCollection.filePath = "#variables.destinationDir##arguments.fileName#";
 		</cfscript>
+
 		<!---Loop over the thumbnail generators letting them do their thing--->
 		<cfloop from="1" to="#ArrayLen(variables.thumbnailGenerators)#" index="i">
 			<cfinvoke method = "#variables.thumbnailGenerators[i]#"
@@ -508,5 +538,29 @@ History:
 				<cfreturn false>
 			</cfcatch>
 		</cftry>
+	</cffunction>
+	
+	<!---
+	/* *************************************************************** */
+	Author:
+		PaperThin, Inc.
+	Name:
+		$doThrowError
+	Summary:
+		Used to throw errors in CFSCRIPT blocks since the cfscript 'throw' is not cf8 compatible
+	Returns:
+		struct
+	Arguments:
+
+	History:
+	 	2014-04-01 - GAC - Created
+	--->
+	<cffunction name="doThrowError" access="private" returntype="void" hint="Used to throw errors in CFSCRIPT blocks since the cfscript 'throw' is not cf8 compatible">
+		<cfargument name="message" type="string" required="false" default="" hint="Error Message to Throw">
+		<cfargument name="type" type="string" required="false" default="Application" hint="Error Type to Throw">
+		<cfargument name="detail" type="string" required="false" default="" hint="Error Message Detail to Throw">
+		<cfif LEN(TRIM(arguments.message))>
+			<cfthrow message="#arguments.message#" type="#arguments.type#" detail="#arguments.detail#">
+		</cfif> 
 	</cffunction>
 </cfcomponent>

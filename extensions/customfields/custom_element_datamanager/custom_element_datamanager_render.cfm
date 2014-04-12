@@ -38,7 +38,11 @@ History:
 	2013-11-28 - DJM - Updated to correct issue with 3 element configuration
 	2013-12-04 - GAC - Added CommonSpot Version check since this field only runs on CommonSpot v9+
 	2013-12-09 - DJM - Added code to change the cursor for datatable, actions column width and modified path to CFC to allow drag drop
-	2014-02-20 - JTP - Added the AjazBeanName variable for the override function 
+	2014-02-20 - JTP - Added the AjaxBeanName variable for the override function 
+	2014-03-05 - JTP - Update to better handle the newData variable
+	2014-03-12 - DJM - Added code for overlay while loading datamanager, updated flyover text for edit and delete icons, 
+						modified code for allowing resize of datamanager after load
+	2014-04-08 - JTP - Added logic for multi-record delete
 --->
 <cfscript>
 	requiredCSversion = 9;
@@ -72,6 +76,17 @@ History:
 			newData = 0;	
 	</cfscript>
 </cfif>
+
+<cfscript>
+	if ( NOT IsDefined('newData') )
+	{			
+		if (StructKeyExists(attributes.currentValues, 'DateAdded'))
+			newData = 0;
+		else
+			newData = 1;
+	}
+	request.showSaveAndContinue = newData;	// forces showing or hiding of 'Save & Continue' button
+</cfscript>
 
 <cfparam name="attributes.callingElement" default="">
 
@@ -184,17 +199,7 @@ History:
 		
 			heightVal = "150px";
 			if (IsNumeric(inputParameters.heightValue))
-			{
 				heightVal = "#inputParameters.heightValue#px";
-			}
-		
-			if (NOT IsDefined('newData'))
-			{			
-				if (StructKeyExists(attributes.currentValues, 'DateAdded'))
-					newData = 0;
-				else
-					newData = 1;
-			}
 		
 			application.ADF.scripts.loadJQuery(noConflict=true);
 			application.ADF.scripts.loadJQueryUI();
@@ -214,19 +219,23 @@ History:
 				<CFOUTPUT>
 					#datamanagerObj.renderStyles(propertiesStruct=inputParameters)#
 					<table class="cs_data_manager" border="0" cellpadding="2" cellspacing="2" summary="" id="parentTable_#uniqueTableAppend#">
-					#datamanagerObj.renderButtons(propertiesStruct=inputParameters,currentValues=attributes.currentvalues,formID=ceFormID,fieldID=fieldQuery.inputID)#
+					<tr><td>
+						#datamanagerObj.renderButtons(propertiesStruct=inputParameters,currentValues=attributes.currentvalues,formID=ceFormID,fieldID=fieldQuery.inputID)#
+					</td></tr>	
 					<tr><td>
 						<span id="errorMsgSpan"></span>
 					</td></tr>
 					<tr><td>
-					<table id="customElementData_#uniqueTableAppend#" class="display" style="min-width:#widthVal#;">
-					<thead><tr></tr></thead>
-					<tbody>
-						<tr>
-							<td class="dataTables_empty"><img src="/commonspot/dashboard/images/dialog/loading.gif" />&nbsp;Loading data from server</td>
-						</tr>
-					</tbody>
-					</table>
+					<div id="datamanager_#uniqueTableAppend#">
+						<table id="customElementData_#uniqueTableAppend#" class="display" style="min-width:#widthVal#;">
+						<thead><tr></tr></thead>
+						<tbody>
+							<tr>
+								<td class="dataTables_empty"><img src="/commonspot/dashboard/images/dialog/loading.gif" />&nbsp;Loading data from server</td>
+							</tr>
+						</tbody>
+						</table>
+					</div>
 					</td></tr>
 					</table>
 				</CFOUTPUT>
@@ -252,13 +261,23 @@ History:
 
 	<cfif fieldPermission gt 0>
 		<cfoutput>
+		<script type="text/javascript" src="/commonspot/dashboard/js/nondashboard-util.js"></script>
 		<script type="text/javascript">
 			<!--	
 			var oTable#uniqueTableAppend# = '';
 			
+
+			if ( typeof commonspot == 'undefined' )
+			{
+				var commonspot = {};
+			 	commonspot = top.commonspot.util.merge(commonspot, top.commonspot, 1, 0);
+			} 
+			
 			jQuery.ajaxSetup({ cache: false, async: true });	
 		
-			top.commonspot.util.event.addEvent(window, "load", loadData_#uniqueTableAppend#);
+			top.commonspot.util.event.addEvent(window, "load", function(){
+																	loadData_#uniqueTableAppend#(0)
+																});
 			top.commonspot.util.event.addEvent(window, "resize", resize_#uniqueTableAppend#);
 			
 			function resize_#uniqueTableAppend#()
@@ -274,29 +293,39 @@ History:
 				onSuccess(data, '#uniqueTableAppend#' );
 			}
 
-			function onSuccess(data, uniqueTable )
+			if( typeof onSuccess != 'function' )
 			{
-				if(data == 'Success')
+				function onSuccess(data, uniqueTable )
 				{
-					// call the loadData function for the table that the drop occurred in.
-					window['loadData_' + uniqueTable]();	
-					// console.log('loadData_' + uniqueTable);			
-				}
-				else
-				{
-					document.getElementById('errorMsgSpan').innerHTML = data;
-					document.getElementById('customElementData_#uniqueTableAppend#').style.display = "none";
-					ResizeWindow();
+					if(data == 'Success')
+					{
+						// call the loadData function for the table that the drop occurred in.
+						window['loadData_' + uniqueTable]();	
+						// console.log('loadData_' + uniqueTable);			
+					}
+					else
+					{
+						document.getElementById('errorMsgSpan').innerHTML = data;
+						document.getElementById('customElementData_#uniqueTableAppend#').style.display = "none";
+						ResizeWindow();
+					}
 				}
 			}
 
-			function loadData_#uniqueTableAppend#()
+			function loadData_#uniqueTableAppend#(displayOverlay)
 			{
-				setTimeout( loadDataCore_#uniqueTableAppend#, 500 );
+				if (typeof displayOverlay == 'undefined')
+					var displayOverlay = 1;
+				
+				setTimeout( function(){
+								loadDataCore_#uniqueTableAppend#(displayOverlay)
+							}, 500 );
 			}
 			
-			function loadDataCore_#uniqueTableAppend#()
+			function loadDataCore_#uniqueTableAppend#(displayOverlay)
 			{
+				if (displayOverlay == 1)
+					commonspotNonDashboard.util.displayMessageOverlay('datamanager_#uniqueTableAppend#', 'overlayDivStyle', 'Please Wait...');	
 				var res#uniqueTableAppend# = '';
 				var retData#uniqueTableAppend# = '';
 				
@@ -324,161 +353,178 @@ History:
 					var res#uniqueTableAppend# = jQuery.parseJSON( retData#uniqueTableAppend# );	
 
 					var columns = [];
+					var actionColumnWidth = res#uniqueTableAppend#.actionColumnWidth;
 					var columnsList = res#uniqueTableAppend#.aoColumns;
-					var columnsArray = columnsList.split(',');
-					var hasActionColumn = 0;
-				
-					if (columnsList != 'ERRORMSG')
-					{
-						for(var i=0; i < columnsArray.length; i=i+1)
-						{
-							if(columnsArray[i] == "AssocDataPageID" || columnsArray[i] == "ChildDataPageID")
-							{
-								var obj = {"bVisible": false, "mDataProp": i+1};
-							}
-							else if (columnsArray[i] == "Actions")
-							{
-								<CFIF ListFindNoCase(inputParameters.interfaceOptions, 'editAssoc') AND ListFindNoCase(inputParameters.interfaceOptions, 'editChild') AND ListFindNoCase(inputParameters.interfaceOptions, 'delete')>
-									var obj = { "sTitle": columnsArray[i], "mDataProp": i+1, "sWidth": "65px" };
-								<CFELSE>
-									var obj = { "sTitle": columnsArray[i], "mDataProp": i+1, "sWidth": "42px" };
-								</CFIF>
-								hasActionColumn = 1;
-							}
-							else
-							{
-								var obj = { "sTitle": columnsArray[i], "mDataProp": i+1, "sWidth": null };
-							}
-							columns.push(obj);
-						};
-						oTable#uniqueTableAppend# = jQuery("##customElementData_#uniqueTableAppend#").dataTable({
-							"bFilter": false,
-							"bPaginate": false,
-							"bLengthChange": false,
-							"bScrollInfinite": false,
-							"sScrollX": "#widthVal#",
-							"sScrollY": "#heightVal#",
-							"bSort": false,
-							"bProcessing": true,
-							"bDestroy": true,
-							"bAutoWidth": false,
-							"bScrollCollapse": false,
-							"bRetrieve": false,
-							"oLanguage": {
-								"sProcessing": "Please wait...fetching records....",
-								"sZeroRecords": "No records found.",
-								"sInfo": "Showing _TOTAL_ records",
-								"sInfoEmpty": "Showing 0 records"
-								},
-							"aaData": res#uniqueTableAppend#.aaData,
-							"aoColumns": columns,
-							"fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-									if( hasActionColumn == 1 )
-									{
-										if (aData[2] == 0)
-											jQuery(nRow).attr("id", aData[3]);
-										else
-											jQuery(nRow).attr("id", aData[2]);
-									}
-									else
-									{
-										if (aData[1] == 0)
-											jQuery(nRow).attr("id", aData[2]);
-										else
-											jQuery(nRow).attr("id", aData[1]);
-									}
-									return nRow;
-							}
-						});						
-						
-						if (res#uniqueTableAppend#.aaData.length > 0)
-						{
-							jQuery("##parentTable_#uniqueTableAppend#").find('.dataTables_scrollHead').css('width', "#widthVal#");								
-							jQuery("##parentTable_#uniqueTableAppend#").find('.dataTables_scrollHead.dataTables_scrollHeadInner.dataTable').css('width', "#widthVal#");
-							jQuery("##parentTable_#uniqueTableAppend#").find('.dataTables_scrollHeadInner').css('width', "#widthVal#");
-							jQuery("##parentTable_#uniqueTableAppend#").find('.dataTables_scrollBody').css('height', "#heightVal#");
-							jQuery("##parentTable_#uniqueTableAppend#").find('.dataTables_scrollBody').css('width', "#widthVal#");
-							jQuery("##parentTable_#uniqueTableAppend#").find('.dataTables_scrollBody.dataTable').css('width', "#widthVal#");
-							// jQuery("##parentTable_#uniqueTableAppend#").find('.dataTables_scrollBody').css('width', ResizeWindow());
-						}
-						else
-						{
-							jQuery("##parentTable_#uniqueTableAppend#").find('.dataTables_scrollBody').css('height', "30px");
-						}
 					
-						if (res#uniqueTableAppend#.aaData.length > 1)
-						{
-							<CFIF inputParameters.sortByType EQ 'manual'>
-								var startPosition;
-								var endPosition;
-								var startVal;
-								var endVal;
-								var rowData;
-								var movedDataPageID = 0;
-								var prevItemsLenBeforeDrop = 0;
-								var prevItemsLenAfterDrop = 0;
-								var dropAfterDataPageID = 0;
-								
-								jQuery("##customElementData_#uniqueTableAppend# tbody").sortable(
-									{
-									cursor: "move",
-									start:function(event, ui)
-										{
-											prevItemsLenBeforeDrop = ui.item.prevAll().length;										
-										},
-									stop:function(event, ui)
-										{
-											prevItemsLenAfterDrop = ui.item.prevAll().length;
-											movedDataPageID = ui.item.attr("id");
-											prevItemsLenAfterDrop = ui.item.prevAll().length;
-											if (prevItemsLenAfterDrop == 0)
-											{
-												dropAfterDataPageID = 0;
-											}
-											else 
-											{
-												if (prevItemsLenBeforeDrop < prevItemsLenAfterDrop)
-												{
-													rowData = oTable#uniqueTableAppend#.fnGetNodes()[ui.item.prevAll().length];
-												}
-												else if (prevItemsLenBeforeDrop > prevItemsLenAfterDrop)
-												{
-													rowData = oTable#uniqueTableAppend#.fnGetNodes()[ui.item.prevAll().length-1];
-												}
-												dropAfterDataPageID = jQuery(rowData).attr("id");
-											}
-											
-											if (movedDataPageID != null && dropAfterDataPageID != null)
-											{
-												dataToBeSent#uniqueTableAppend# = 
-													{ 
-														bean: '#ajaxBeanName#',
-														method: 'onDrop',
-														query2array: 0,
-														returnformat: 'json',
-														formID: #ceFormID#,
-														movedDataPageID: movedDataPageID, 
-														dropAfterDataPageID: dropAfterDataPageID,
-														propertiesStruct : JSON.stringify(<cfoutput>#SerializeJSON(inputParameters)#</cfoutput>),
-														currentValues : JSON.stringify(<cfoutput>#SerializeJSON(attributes.currentvalues)#</cfoutput>)						
-												 	};
-										
-												jQuery.post( '#ajaxComURL#', 
-																	dataToBeSent#uniqueTableAppend#, 
-																	onSuccess_#uniqueTableAppend#, 
-																	"json"); 
-												
-											}
-										}
-									});
-							</CFIF>
-						}
+					if( typeof columnsList == 'undefined' || ! columnsList.length  )
+					{
+						// no columns
+						<cfif inputParameters.assocCustomElement neq ''>
+							<cfset ceName = request.site.availControls[inputParameters.assocCustomElement].ShortDesc>
+						<cfelse>
+							<cfset ceName = request.site.availControls[inputParameters.childCustomElement].ShortDesc>
+						</cfif>	
+						document.getElementById('errorMsgSpan').innerHTML = "No columns returned.  Check the definition of the '#ceName#' associated custom element";
+						
+						document.getElementById('customElementData_#uniqueTableAppend#').style.display = "none";
+						ResizeWindow();
 					}
 					else
 					{
-						document.getElementById('errorMsgSpan').innerHTML = res#uniqueTableAppend#.aaData[1];
-						document.getElementById('customElementData_#uniqueTableAppend#').style.display = "none";
-						ResizeWindow();
+						var columnsArray = columnsList.split(',');
+						var hasActionColumn = 0;
+					
+						if (columnsList != 'ERRORMSG')
+						{
+							for(var i=0; i < columnsArray.length; i=i+1)
+							{
+								if(columnsArray[i] == "AssocDataPageID" || columnsArray[i] == "ChildDataPageID")
+								{
+									var obj = {"bVisible": false, "mDataProp": i+1};
+								}
+								else if (columnsArray[i] == "Actions")
+								{
+									var obj = { "sTitle": columnsArray[i], "mDataProp": i+1, "sWidth": actionColumnWidth + "px" };
+									hasActionColumn = 1;
+								}
+								else
+								{
+									var obj = { "sTitle": columnsArray[i], "mDataProp": i+1, "sWidth": null };
+								}
+								columns.push(obj);
+							};
+							oTable#uniqueTableAppend# = jQuery("##customElementData_#uniqueTableAppend#").dataTable({
+								"bFilter": false,
+								"bPaginate": false,
+								"bLengthChange": false,
+								"bScrollInfinite": false,
+								"sScrollX": "#widthVal#",
+								"sScrollY": "#heightVal#",
+								"bSort": false,
+								"bProcessing": true,
+								"bDestroy": true,
+								"bAutoWidth": false,
+								"bScrollCollapse": false,
+								"bRetrieve": false,
+								"oLanguage": {
+									"sProcessing": "Please wait...fetching records....",
+									"sZeroRecords": "No records found.",
+									"sInfo": "Showing _TOTAL_ records",
+									"sInfoEmpty": "Showing 0 records"
+									},
+								"aaData": res#uniqueTableAppend#.aaData,
+								"aoColumns": columns,
+								"fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+										if( hasActionColumn == 1 )
+										{
+											if (aData[2] == 0)
+												jQuery(nRow).attr("id", aData[3]);
+											else
+												jQuery(nRow).attr("id", aData[2]);
+										}
+										else
+										{
+											if (aData[1] == 0)
+												jQuery(nRow).attr("id", aData[2]);
+											else
+												jQuery(nRow).attr("id", aData[1]);
+										}
+										return nRow;
+								}
+							});						
+							
+							if (res#uniqueTableAppend#.aaData.length > 0)
+							{
+								jQuery("##parentTable_#uniqueTableAppend#").find('.dataTables_scrollHead').css('width', "#widthVal#");								
+								jQuery("##parentTable_#uniqueTableAppend#").find('.dataTables_scrollHead.dataTables_scrollHeadInner.dataTable').css('width', "#widthVal#");
+								jQuery("##parentTable_#uniqueTableAppend#").find('.dataTables_scrollHeadInner').css('width', "#widthVal#");
+								jQuery("##parentTable_#uniqueTableAppend#").find('.dataTables_scrollBody').css('height', "#heightVal#");
+								jQuery("##parentTable_#uniqueTableAppend#").find('.dataTables_scrollBody').css('width', "#widthVal#");
+								jQuery("##parentTable_#uniqueTableAppend#").find('.dataTables_scrollBody.dataTable').css('width', "#widthVal#");
+								jQuery("##parentTable_#uniqueTableAppend#").find('.dataTables_scrollBody').css('width', ResizeWindow());
+								
+								if (displayOverlay == 1)
+									commonspotNonDashboard.util.hideMessageOverlay('datamanager_#uniqueTableAppend#');
+							}
+							else
+							{
+								jQuery("##parentTable_#uniqueTableAppend#").find('.dataTables_scrollBody').css('height', "30px");
+							}
+						
+							if (res#uniqueTableAppend#.aaData.length > 1)
+							{
+								<CFIF inputParameters.sortByType EQ 'manual'>
+									var startPosition;
+									var endPosition;
+									var startVal;
+									var endVal;
+									var rowData;
+									var movedDataPageID = 0;
+									var prevItemsLenBeforeDrop = 0;
+									var prevItemsLenAfterDrop = 0;
+									var dropAfterDataPageID = 0;
+									
+									jQuery("##customElementData_#uniqueTableAppend# tbody").sortable(
+										{
+										cursor: "move",
+										start:function(event, ui)
+											{
+												prevItemsLenBeforeDrop = ui.item.prevAll().length;										
+											},
+										stop:function(event, ui)
+											{
+												prevItemsLenAfterDrop = ui.item.prevAll().length;
+												movedDataPageID = ui.item.attr("id");
+												prevItemsLenAfterDrop = ui.item.prevAll().length;
+												if (prevItemsLenAfterDrop == 0)
+												{
+													dropAfterDataPageID = 0;
+												}
+												else 
+												{
+													if (prevItemsLenBeforeDrop < prevItemsLenAfterDrop)
+													{
+														rowData = oTable#uniqueTableAppend#.fnGetNodes()[ui.item.prevAll().length];
+													}
+													else if (prevItemsLenBeforeDrop > prevItemsLenAfterDrop)
+													{
+														rowData = oTable#uniqueTableAppend#.fnGetNodes()[ui.item.prevAll().length-1];
+													}
+													dropAfterDataPageID = jQuery(rowData).attr("id");
+												}
+												
+												if (movedDataPageID != null && dropAfterDataPageID != null)
+												{
+													dataToBeSent#uniqueTableAppend# = 
+														{ 
+															bean: '#ajaxBeanName#',
+															method: 'onDrop',
+															query2array: 0,
+															returnformat: 'json',
+															formID: #ceFormID#,
+															movedDataPageID: movedDataPageID, 
+															dropAfterDataPageID: dropAfterDataPageID,
+															propertiesStruct : JSON.stringify(<cfoutput>#SerializeJSON(inputParameters)#</cfoutput>),
+															currentValues : JSON.stringify(<cfoutput>#SerializeJSON(attributes.currentvalues)#</cfoutput>)						
+													 	};
+											
+													jQuery.post( '#ajaxComURL#', 
+																		dataToBeSent#uniqueTableAppend#, 
+																		onSuccess_#uniqueTableAppend#, 
+																		"json"); 
+													
+												}
+											}
+										});
+								</CFIF>
+							}
+						}
+						else
+						{
+							document.getElementById('errorMsgSpan').innerHTML = res#uniqueTableAppend#.aaData[1];
+							document.getElementById('customElementData_#uniqueTableAppend#').style.display = "none";
+							ResizeWindow();
+						}
 					}
 				})
 				.fail(function() 
@@ -487,7 +533,54 @@ History:
 					document.getElementById('customElementData_#uniqueTableAppend#').style.display = "none";
 					ResizeWindow();
 				});
-				// ResizeWindow();
+				// ResizeWindow();					
+			}
+			
+			
+			function doDeleteSelected_#uniqueTableAppend#(msg,errormsg)
+			{
+				var dataPageIDsToDelete = '';
+				
+				// get checked checkboxes, ensure at least 1 checked
+				var theLen = jQuery( '##customElementData_#uniqueTableAppend# input:checked' ).length;
+				if( theLen == 0 )
+				{
+					alert(errormsg);
+					return false;
+				}
+
+				// confirm with user that they really want to delete
+				if( ! confirm( msg ) )
+					return;
+				
+				
+				// get data pageIDs				
+				jQuery( '##customElementData_#uniqueTableAppend# input:checked' ).each( function() {
+						if( dataPageIDsToDelete == '' )
+							dataPageIDsToDelete = jQuery(this).val();
+						else
+							dataPageIDsToDelete = dataPageIDsToDelete + "," + jQuery(this).val();
+					} );
+				
+				var data = { 
+						bean: '#ajaxBeanName#',
+						method: 'deleteSelectedRecords',
+						returnformat: 'json',
+						propertiesStruct : JSON.stringify(<cfoutput>#SerializeJSON(inputParameters)#</cfoutput>),
+						dataPageIDList : dataPageIDsToDelete
+				 };
+				 
+				jQuery.when(
+
+							jQuery.post( '#ajaxComURL#', 
+													data, 
+													null, 
+													"json" )
+
+						).done( 
+						
+							function() { onSuccess_#uniqueTableAppend#('Success'); } 
+						);
 			}
 			// -->
 		</script>

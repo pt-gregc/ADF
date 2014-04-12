@@ -28,7 +28,7 @@ Name:
 Summary:
 	ADF Lightbox Framework JavaScript
 Version:
-	1.0.3
+	1.0.4
 History:
 	2010-02-19 - MFC - Created
 	2010-08-26 - MFC - Updated processRel function to not force the "addMainTable" parameter.
@@ -42,6 +42,8 @@ History:
 						windows and the opener page is in or out of the LView.
 	2013-02-06 - MFC - Removed JS 'alert' commands for CS 8.0.1 and CS 9 compatibility
 	2013-01-03 - GAC - Added missing semi-colons to the ends of variablized functions
+	2014-03-20 - JTP - Added top.commonspot logic to the initADFLB and openLB functions 
+	2014-03-20 - GAC - Added top.commonspot logic to the closeLB and closeLBReloadParent functions
 */
 
 // Set default variables
@@ -58,11 +60,12 @@ function initADFLB() {
 		jQuery(this).click(function () {
 			var lightboxURL = processRel(jQuery(this).attr("rel"));
 			// Check if the commonspot OR lightbox space has been built
-			if ( (typeof commonspot == 'undefined') || (typeof commonspot.lightbox == 'undefined') ){
+			if( (typeof top.commonspot != 'undefined') && (typeof top.commonspot.lightbox != 'undefined') )
+				top.commonspot.lightbox.openDialog(lightboxURL);
+			else if( (typeof commonspot == 'undefined') || (typeof commonspot.lightbox == 'undefined') )
 				parent.commonspot.lightbox.openDialog(lightboxURL);
-			}else{
+			else
 				commonspot.lightbox.openDialog(lightboxURL);
-			}
 		});
    });
 }
@@ -97,7 +100,9 @@ function processRel(relParam) {
 // Close the lightbox layer
 function closeLB(){
 	// Check if the commonspot OR lightbox space has been built
-	if ( (typeof commonspot == 'undefined') || (typeof commonspot.lightbox == 'undefined') )
+	if ( (typeof top.commonspot != 'undefined') && (typeof top.commonspot.lightbox != 'undefined') ) 
+		top.commonspot.lightbox.closeCurrent();
+	else if ( (typeof commonspot == 'undefined') || (typeof commonspot.lightbox == 'undefined') )
 		parent.commonspot.lightbox.closeCurrent();
 	else
 		commonspot.lightbox.closeCurrent();
@@ -105,10 +110,14 @@ function closeLB(){
 
 // Open the lightbox layer based on URL and set the width and height
 // 2011-02-02 - RAK - Added replacing of ajaxProxy.cfm to lightboxProxy.cfm
-function openLB(url) {
+function openLB(url) 
+{
 	url = url.replace(/ajaxProxy.cfm/i, "lightboxProxy.cfm");
 	// Check if the commonspot OR lightbox space has been built
-	if ( (typeof commonspot == 'undefined') || (typeof commonspot.lightbox == 'undefined') )
+	
+	if( (typeof top.commonspot != 'undefined') && (typeof top.commonspot.lightbox != 'undefined') )
+		top.commonspot.lightbox.openDialog(url);
+	else if( (typeof commonspot == 'undefined') || (typeof commonspot.lightbox == 'undefined') )
 		parent.commonspot.lightbox.openDialog(url);
 	else
 		commonspot.lightbox.openDialog(url);
@@ -203,9 +212,12 @@ function loadCallback(cbFunct, inArgsArray){
 }
 
 // Close the current lightbox and refresh its parent lightbox
-function closeLBReloadParent(){
+function closeLBReloadParent()
+{
 	// Check if the commonspot OR lightbox space has been built
-	if ( (typeof commonspot == 'undefined') || (typeof commonspot.lightbox == 'undefined') )
+	if ( (typeof top.commonspot != 'undefined') && (typeof top.commonspot.lightbox != 'undefined') )
+		top.commonspot.lightbox.closeCurrentWithReload();
+	else if ( (typeof commonspot == 'undefined') || (typeof commonspot.lightbox == 'undefined') )
 		parent.commonspot.lightbox.closeCurrentWithReload();
 	else
 		commonspot.lightbox.closeCurrentWithReload();

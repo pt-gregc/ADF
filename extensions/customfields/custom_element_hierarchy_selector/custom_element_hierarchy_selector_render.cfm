@@ -25,7 +25,7 @@ Author:
 Custom Field Type:
 	Custom Element Hierarchy Selector
 Name:
-	custom_element_hierarchy_selector_render.cfc
+	custom_element_hierarchy_selector_render.cfm
 Summary:
 	This the render file for the Custom Element Hierarchy Selector field
 ADF Requirements:
@@ -33,6 +33,8 @@ ADF Requirements:
 History:
 	2014-01-16 - DJM - Created
 	2014-01-29 - GAC - Converted to use AjaxProxy and the ADF Lib
+	2014-02-27 - JTP - Updated the variable that is used in the validation message
+	2014-04-03 - JTP - Made root node expand when initially opening
 --->
 
 <cfscript>
@@ -77,26 +79,24 @@ History:
 
 	<cfif attributes.rendermode eq 'standard'>
 		<!-------// output row_and_labelcell //------>
-		<CFOUTPUT><CFIF fieldpermission gt 0>#row_and_labelcell#<CFELSE><tr><td></td><td></CFIF></CFOUTPUT>
+		<CFIF fieldpermission gt 0>
+			<CFOUTPUT>#row_and_labelcell#</CFOUTPUT>
+		<CFELSE>
+			<CFOUTPUT><tr><td></td><td></CFOUTPUT>
+		</CFIF>	
 	</cfif>
-	
-	<CFIF fieldpermission eq 2>
+
+	<CFIF fieldpermission eq 2 AND req eq 'yes'>
 		<CFOUTPUT>
 		<script type="text/javascript">
 		<!--
-		</CFOUTPUT>
-			<CFIF req eq 'yes'>
-				<cfoutput>
 				#fqFieldName# = new Object();
 				#fqFieldName#.id = '#fqFieldName#';
 				#fqFieldName#.tid = #rendertabindex#;
 				#fqFieldName#.validator = "hasValue(document.#attributes.formname#.#fqFieldName#, 'TEXT')";
-				#fqFieldName#.msg = "Please select a value for the #xparams.label# field.";
+				#fqFieldName#.msg = "Please select a value for the #fieldlabel# field.";
 				// push on to validation array
 				vobjects_#attributes.formname#[vobjects_#attributes.formname#.length] = #fqFieldName#;
-				</CFOUTPUT>
-			</CFIF>
-			<CFOUTPUT>
 			// -->
 		</script>
 		</CFOUTPUT>
@@ -232,7 +232,7 @@ History:
 						MakeOpen_#fqFieldName#(node);
 					}			
 				}	
-				jQuery('##jstree_#fqFieldName#').jstree( "open_node", '#inputParameters.rootValue#' );
+				jQuery('##jstree_#fqFieldName#').jstree( "open_node", '#fieldQuery.InputID#_#inputParameters.rootValue#' );
 			}
 			
 			jQuery('##jstree_#fqFieldName#').on("changed.jstree", function (e, data) 
