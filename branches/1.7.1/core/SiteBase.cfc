@@ -36,7 +36,7 @@ History:
 --->
 <cfcomponent displayname="SiteBase" extends="ADF.core.AppBase">
 
-<cfproperty name="version" value="1_7_0">
+<cfproperty name="version" value="1_7_1">
 <cfproperty name="file-version" value="3">
 
 <!---
