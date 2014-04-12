@@ -41,18 +41,19 @@ History:
 	2013-03-15 - MFC - Modified - New v1.6.1 branch.
 	2013-05-21 - MFC - Modified - New v1.6.2 branch.
 	2013-10-21 - GAC - Modified - Added 'file-version' property for ADF core files 
+	2014-02-26 - GAC - Modified - New v1.7.0 branch.
 --->
 <cfcomponent name="Core" hint="Core component for Application Development Framework">
 
-<cfproperty name="version" value="1_6_2">
-<cfproperty name="file-version" value="5">
+<cfproperty name="version" value="1_7_0">
+<cfproperty name="file-version" value="6">
 
 <cfscript>
-	variables.ADFversion = "1.6.2"; // use a dot delimited version number
+	variables.ADFversion = "1.7.0"; // use a dot delimited version number
 	// ADF Build Revision Number
-	variables.buildRev = "1220";
+	variables.buildRev = "1292";
 	// ADF Codename
-	variables.buildName = "Spy Hunter";
+	variables.buildName = "Spy Hunter II";
 	// CS product version, get the decimal value
 	variables.csVersion = Val(ListLast(request.cp.productversion, " "));
 </cfscript>

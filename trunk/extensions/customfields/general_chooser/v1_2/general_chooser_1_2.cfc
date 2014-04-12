@@ -75,7 +75,7 @@ History:
 	variables.SHOW_ADD_LINK = true;  // Boolean
 	variables.SHOW_EDIT_DELETE_LINKS = false;  	// Boolean - 'false' Disables both Edit and Delete options, 'true' Enables the SHOW_EDIT_LINKS and SHOW_DELETE_LINKS options
 	
-	// VARIABLES for v1.2 for ADF 1.6.2
+	// VARIABLES for v1.2 for ADF 1.6.2+
 	variables.AVAILABLE_LABEL = "Available Items";
 	variables.SELECTED_LABEL = "Selected Items";
 	variables.NEW_ITEM_LABEL = "Add New Item";
@@ -390,13 +390,17 @@ History:
 	2012-03-19 - MFC - Added - Load CE Field name into JS for adding new records to the "selected" side.
 	2013-12-12 - GAC - Added the ready only parameter to disable ADD button if the FIELD is set to READ ONLY
 	2013-12-12 - GAC - Added the newItemLabel parameter to allow the ADD NEW button to have a custom label
+	2014-03-05 - JTP - Var declarations
+	2014-03-20 - GAC - To be safe force the value of the js_fieldName_CE_FIELD to lowercase so it is sure to match keys data from the callback 
 --->
 <cffunction name="loadAddNewLink" access="public" returntype="string" hint="General Chooser - Add New Link HTML content.">
 	<cfargument name="fieldName" type="String" required="true">
 	<cfargument name="readonly" type="boolean" default="false" required="false">
 	<cfargument name="newItemLabel" type="String" default="#variables.NEW_ITEM_LABEL#" required="false">
+	
 	<cfscript>
 		var retAddLinkHTML = "";
+		var ceFormID = 0;
 	
 		// Backward Compatibility to allow the variables from General Chooser v1.0 site and app override GC files to be honored
 		// - if the section2 variable is used and set to false... not ADD button should be displayed
@@ -415,9 +419,10 @@ History:
 		<!--- Render out the show all link to the field type --->
 		<cfsavecontent variable="retAddLinkHTML">
 			<cfoutput>
-				<!--- Load CE Field name into JS for adding new records to the "selected" side. --->
+				<!--- // Load CE Field name into JS for adding new records to the "selected" side. --->
+				<!--- // Also... to be safe force the CE_FIELD to lowercase so it is sure to match the CE_FIELD key in callback data objecy --->
 				<script type="text/javascript">
-					js_#arguments.fieldName#_CE_FIELD = '#variables.CE_FIELD#';
+					js_#arguments.fieldName#_CE_FIELD = '#LCASE(variables.CE_FIELD)#';
 				</script>
 				<div id="add-new-items">
 					<a href="javascript:;" rel="#application.ADF.ajaxProxy#?bean=Forms_1_1&method=renderAddEditForm&formID=#ceFormID#&dataPageId=0&callback=#arguments.fieldName#_formCallback&title=#variables.NEW_ITEM_LABEL#" class="ADFLightbox ui-state-default ui-corner-all #arguments.fieldName#-ui-buttons">#variables.NEW_ITEM_LABEL#</a>
@@ -716,6 +721,7 @@ History:
 	2012-09-06 - MFC - Updated to build the display text outside of the main string build.
 	2013-01-10 - MFC - Disabled the Delete icon/action in the selection.
 	2013-12-02 - GAC - Updated the edit/delete options to call a new callback function that reloads the selected items after an edit or a delete
+	2014-03-05 - JTP - Var declarations
 --->
 <cffunction name="getSelections" access="public" returntype="string" hint="Returns the html code for the selections of the profile select custom element.">
 	<cfargument name="item" type="string" required="false" default="">
@@ -733,24 +739,27 @@ History:
 		var editDeleteButtonHTML = "";
 		var itemEditDeleteCls = "itemEditDelete";
 		var ceDataArray = getChooserData(arguments.item, arguments.queryType, arguments.searchValues, arguments.csPageID);
+		var displayText = '';
 		
 		// Backward Compatibility - if a DISPLAY_TEXT variable not given or is not defined the ORDER_FIELD will still be used for the Item display text
 		if ( NOT StructKeyExists(variables,"DISPLAY_FIELD") OR LEN(TRIM(variables.DISPLAY_FIELD)) EQ 0 )
 			variables.DISPLAY_FIELD = variables.ORDER_FIELD;
 		
 		// Loop over the data 	
-		for ( i=1; i LTE ArrayLen(ceDataArray); i=i+1) {
+		for ( i=1; i LTE ArrayLen(ceDataArray); i=i+1) 
+		{
 			// Assemble the render HTML
 			if ( StructKeyExists(ceDataArray[i].Values, "#variables.DISPLAY_FIELD#") 
 					AND LEN(ceDataArray[i].Values[variables.DISPLAY_FIELD])
 					AND StructKeyExists(ceDataArray[i].Values, "#variables.CE_FIELD#") 
-					AND LEN(ceDataArray[i].Values[variables.CE_FIELD]) ) {
-				
+					AND LEN(ceDataArray[i].Values[variables.CE_FIELD]) ) 
+			{
 				// Reset the item class on every loop iteration
 				itemCls = variables.SELECT_ITEM_CLASS;
 				
 				// Build the Edit/Delete links
-				if ( variables.SHOW_EDIT_DELETE_LINKS AND !arguments.readonly ) {
+				if ( variables.SHOW_EDIT_DELETE_LINKS AND !arguments.readonly ) 
+				{
 					// Render the Buttons HTML
 					editDeleteButtonHTML = loadEditDeleteItemLinks(fieldName=arguments.fieldID,formid=ceDataArray[i].formID,csPageID=ceDataArray[i].pageID,readonly=arguments.readonly);			
 								
@@ -758,7 +767,8 @@ History:
 					//editDeleteLinks = editDeleteLinks & "<td><a href='javascript:;' rel='#application.ADF.ajaxProxy#?bean=Forms_1_1&method=renderDeleteForm&formID=#ceDataArray[i].formID#&datapageId=#ceDataArray[i].pageID#&callback=#arguments.fieldID#_formEditCallback&title=Delete Record' class='ADFLightbox ui-icon ui-icon-trash'></a></td></tr></table>";
 					//editDeleteLinks = "<br /><a href='javascript:;' rel='#application.ADF.ajaxProxy#?bean=Forms_1_1&method=renderAddEditForm&formID=#ceDataArray[i].formID#&datapageId=#ceDataArray[i].pageID#&callback=#arguments.fieldID#_formEditCallback&title=Edit Record' class='ADFLightbox ui-icon ui-icon-pencil'></a>";
 				    
-				    if ( LEN(TRIM(editDeleteButtonHTML)) ) {
+				    if ( LEN(TRIM(editDeleteButtonHTML)) ) 
+					 {
 					    editDeleteLinks = "<div>";
 					    editDeleteLinks = editDeleteLinks & TRIM(editDeleteButtonHTML);
 					    editDeleteLinks = editDeleteLinks & "</div>";

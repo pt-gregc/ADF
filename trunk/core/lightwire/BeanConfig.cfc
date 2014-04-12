@@ -18,6 +18,18 @@ in this directory, you agree to the terms and conditions of the applicable
 end user license agreement.
 --->
 
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 
+Name:
+	BeanConfig.cfc
+Summary:
+	BeanConfig component for Custom Application Common Framework
+History:
+	2014-02-26 - GAC - Updated for version 1.7.0
+--->
+
 <cfcomponent name="BeanConfig" extends="ADF.core.lightwire.LightWireConfigExtendedBase" hint="A LightWire configuration bean.">
 <!--- 
 BEAN DEFINITION SYNTAX
@@ -86,8 +98,8 @@ Adds a constructor property to a bean.
 - PropertyValue:any:required - The value of the property to add. Can be of any simple or complex type (anything from a string or a boolean to a struct or even an object that isn't being managed by LightWire).
 --->
 
-<cfproperty name="version" value="1_6_2">
-<cfproperty name="update" value="0">
+<cfproperty name="version" value="1_7_0">
+<cfproperty name="update" value="1">
 
 <cffunction name="init" output="true" returntype="any" hint="I initialize the config bean.">
 	

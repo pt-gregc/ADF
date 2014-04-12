@@ -48,7 +48,9 @@ Summary:
 Version:
 	1.0
 History:
-	2013-12-09 - TP - Created
+	2013-12-09 - JTP - Created
+	2014-03-05 - JTP - Var declarations
+	2014-04-03 - JTP - Add logic to not cache if element errors out
 --->
 
 <cfscript>
@@ -194,6 +196,11 @@ History:
 </cfsavecontent>			
 <cfoutput>#theOutput#</cfoutput>
 
+<!--- make sure the element did not error out --->
+<cfif FindNoCase("Error in", theOutput)>
+	<cfset bMakeCache = 0>
+</cfif>
+
 
 <cfif bMakeCache>
 	<cflock name="#lockName#" type="EXCLUSIVE" timeout="30">
@@ -230,7 +237,8 @@ History:
 ------------------------------------>
 <cffunction name="getMissingAttributes" access="private" output="No" returntype="string">
 	<cfscript>
-		missingAttr = '';
+		var missingAttr = '';
+		
 		if( NOT StructKeyExists(attributes,"ElementType") )
 			missingAttr = ListAppend(missingAttr,"ElementType");
 		if( NOT StructKeyExists(attributes,"ElementName") )

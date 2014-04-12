@@ -104,6 +104,7 @@ History:
 	<cfscript>
 		var logFileName = arguments.logFile;
 		var utcNow = mid(dateConvert('local2utc', now()), 6, 19);
+		
 		if( arguments.addTimeStamp )
 			logFileName = dateFormat(now(), "yyyymmdd") & "." & request.site.name & "." & logFileName;
 		if( len(arguments.label) )
@@ -114,8 +115,8 @@ History:
 		<cfif NOT directoryExists(arguments.logdir)>
 			<cfdirectory action="create" directory="#arguments.logdir#">
 		</cfif>
-		<cfif NOT isSimpleValue(msg)>
-			<cfset msg = doDump(msg,"#arguments.label#msg-#application.ADF.date.csDateFormat(now(),now())#",0,1)>
+		<cfif NOT isSimpleValue(arguments.msg)>
+			<cfset arguments.msg = doDump(arguments.msg,"#arguments.label#msg-#application.ADF.date.csDateFormat(now(),now())#",0,1)>
 		</cfif>
 		<cffile action="append" file="#arguments.logDir##logFileName#" output="#utcNow# (UTC) - #arguments.label# #arguments.msg#" addnewline="true" fixnewline="true">
 		<cfcatch type="any">

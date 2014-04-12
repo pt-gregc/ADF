@@ -72,6 +72,7 @@ History:
 	2011-01-28 - RLW - Modified - Added doctype as an optional argument to handle document metadata bindings
 	2011-02-23 - DMB - Modified - Added logic to pass doctype automatically for all non-pages.
 	2011-03-10 - MFC/GAC - Moved method into v1.1 for new functionality.
+	2014-03-05 - JTP - Var declarations
 --->
 <cffunction name="getCustomMetadata" access="public" returntype="struct" hint="Returns custom metadata for a page">
 	<cfargument name="pageID" type="numeric" required="yes" hint="PageID to get custom metadata from">
@@ -89,7 +90,9 @@ History:
 		var fieldKey = "";
 		var taxTermTextList = "";
 		var taxTermIDList = "";
+		var getDocType = '';
 	</cfscript>
+	
 	<!--- // If we are missing categoryID, subsiteID OR inheritedTemplateList get them! --->
     <cfif arguments.categoryID eq -1 or arguments.subsiteID eq -1 or Len(inheritedTemplateList) eq 0>
     	<cfscript>
@@ -98,8 +101,7 @@ History:
     		arguments.subsiteID = stdMetadata.subsiteID;
     		arguments.inheritedTemplateList = stdMetadata.inheritedTemplateList;
     	</cfscript>
-    </cfif>
-	
+    </cfif>	
 	
 	<!--- If item is not a page (e.g. metadata form bound to a pdf) get the doctype --->
 	<cfquery name="getDocType" datasource="#request.site.datasource#">

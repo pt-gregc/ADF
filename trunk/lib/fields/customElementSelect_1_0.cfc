@@ -23,24 +23,24 @@ end user license agreement.
 Author:
 	PaperThin, Inc.
 Custom Field Type:
-	Custom Element DataManager 
+	Custom Element Select Field 
 Name:
-	customElementDataManager_1_0.cfc
+	customElementSelect_1_0.cfc
 Summary:
-	This is a pass-through for the base component for the Custom Element Data Manager field
+	This is a pass-through for the base component for the Custom Element Select Field 
 ADF Requirements:
 	csData_2_0
 	fields_1_0
 History:
-	2014-01-27 - GAC - Created
+	2014-03-07 - GAC - Created
 --->
-<cfcomponent displayname="customElementDataManager_1_0" extends="ADF.extensions.customfields.custom_element_datamanager.custom_element_datamanager_base" output="false"  hint="This the base component for the Custom Element Data Manager field">
+<cfcomponent displayname="customElementSelect_1_0" extends="ADF.extensions.customfields.custom_element_select_field.custom_element_select_field_base" output="false"  hint="This the base component for the Custom Element Data Manager field">
 
 <cfproperty name="version" value="1_0_0">
 <cfproperty name="type" value="transient">
-<cfproperty name="wikiTitle" value="customElementDataManager_1_0">
+<cfproperty name="wikiTitle" value="customElementSelect_1_0">
 
-<!--- // This component is a pass-through component that allows for the custom_element_data_manager_base.cfc to be part of the ADF as a LIB component --->
-<!--- // - Global overrides can be achieved by copying this file to the  "_cs_apps/lib" folder ( "_cs_apps/lib/customElementDataManager_1_0.cfc" and extending to this file )  --->
+<!--- // This component is a pass-through component that allows for the custom_element_select_field_base.cfc to be part of the ADF as a LIB component --->
+<!--- // - Global overrides can be achieved by copying this file to the  "_cs_apps/lib" folder ( "_cs_apps/lib/customElementSelect_1_0.cfc" and extending to this file )  --->
 
 </cfcomponent>

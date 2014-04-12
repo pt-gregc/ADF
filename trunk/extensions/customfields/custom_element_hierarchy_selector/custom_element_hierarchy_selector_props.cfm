@@ -403,7 +403,7 @@ History:
 		<tr>
 			<th valign="baseline" class="cs_dlgLabelBold" nowrap="nowrap">Root Node Text:</th>
 			<td valign="baseline">
-				#Server.CommonSpot.udf.tag.input(type="text", id="#prefix#rootNodeText", name="#prefix#rootNodeText", value="#currentValues.rootNodeText#", size="25", class="InputControl")#
+				#Server.CommonSpot.udf.tag.input(type="text", id="#prefix#rootNodeText", name="#prefix#rootNodeText", value="#currentValues.rootNodeText#", size="40", class="InputControl")#
 				<div class="cs_dlgLabelSmall">Enter the text to be displayed as the 'root' node. If blank no 'root' node will be displayed.</div>
 			</td>
 		</tr>
