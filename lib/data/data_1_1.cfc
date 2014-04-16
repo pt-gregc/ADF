@@ -103,10 +103,11 @@ History:
 	<cfscript>
 		var rtnXML = XmlNew();
 		var i = 1;
-		
 		rtnXML.xmlRoot = XmlElemNew(rtnXML,arguments.rootName);
-		for(i=1;i<=ArrayLen(arrayOfStruct);i = i +1)
+		for(i=1;i<=ArrayLen(arrayOfStruct);i = i +1){
 			rtnXML[arguments.rootName].XmlChildren[i] = XmlElemNew(rtnXML,arguments.nodeName);
+			
+		}
 	</cfscript>
 </cffunction>
 
@@ -219,25 +220,21 @@ History:
 	2011-05-11 - RAK - Added success/failure return value to function
 	2011-05-11 - RAK - Added improved error handling and reporting.
 	2011-05-17 - RAK - Removed extra evaluate
-	2014-03-05 - JTP - Var declarations
 --->
 <cffunction name="feedToQuery" returntype="struct" output="false" access="public" hint="Converts an rss feed to a query">
 	<cfargument name="path" type="string" required="yes" hint="RSS Path" />
 
-	<cfscript>
-		var parsed = "";
-		var index = 0;
-		var rows = 0;
-		var thisArr = arrayNew(1);
-		var retStruct = structNew();
-		var XMLText = "";
-		var retQuery = queryNew("title,link,description");
-		var nodeToReplace = '';
-	</cfscript>
-	
+	<cfset var parsed = "" />
+	<cfset var index = 0 />
+	<cfset var rows = 0 />
+	<cfset var thisArr = arrayNew(1) />
+	<cfset var retStruct = structNew() />
+	<cfset var XMLText = "" />
+	<cfset var retQuery = queryNew("title,link,description") />
+
 	<cfif path CONTAINS "://">
 		<cfhttp url="#path#" resolveurl="no" />
-		<cfset XMLText = cfhttp.fileContent>
+		<cfset XMLText = cfhttp.fileContent />
 	<cfelse>
 		<cffile action="read" file="#path#" variable="XMLText">
 	</cfif>
@@ -474,21 +471,14 @@ Source:
 	URL: http://www.petefreitag.com/item/202.cfm
 History:
 	2011-03-31 - GAC - Added
-	2014-03-05 - JTP - Var declarations
 --->
 <cffunction name="EscapeExtendedChars" returntype="string" access="public" output="false" hint="Escapes extended chararacters from a string">
 	<cfargument name="str" type="string" required="true" hint="String to escape extended characters on">
-	
-	<cfscript>
-		var buf = CreateObject("java", "java.lang.StringBuffer");
-		var len = Len(arguments.str);
-		var char = "";
-		var charcode = 0;
-		var i = 0;
-		
-		buf.ensureCapacity(JavaCast("int", len+20));
-	</cfscript>
-	
+	<cfset var buf = CreateObject("java", "java.lang.StringBuffer")>
+	<cfset var len = Len(arguments.str)>
+	<cfset var char = "">
+	<cfset var charcode = 0>
+	<cfset buf.ensureCapacity(JavaCast("int", len+20))>
 	<cfif NOT len>
 		<cfreturn arguments.str>
 	</cfif>
@@ -564,23 +554,22 @@ History:
  	2011-07-25 - RAK - copied from http://www.cflib.org/index.cfm?event=page.udfbyid&udfid=40
 	2011-09-07 - GAC - Removed all of IsDefined() functions and replaced them with StructKeyExists()... sorry Ben F! ... no IsDefined's allowed!
 	2011-09-09 - GAC - Moved from UTILS_1_1 
-	2014-03-05 - JTP - Var declarations
 --->
 <cffunction name="numberAsString" access="public" returntype="string" hint="Returns a number converted into a string (i.e. 1 becomes 'one')">
 	<cfargument name="number" type="numeric" required="true" default="" hint="Number to convert into string">
 	<cfscript>
-		var Result="";          // Generated result
-		var Str1="";            // Temp string
-		var Str2="";            // Temp string
-		var n=number;           // Working copy
-		var Billions=0;
-		var Millions=0;
-		var Thousands=0;
-		var Hundreds=0;
-		var Tens=0;
-		var Ones=0;
-		var Point=0;
-		var HaveValue=0;        // Flag needed to know if to process "0"
+		VAR Result="";          // Generated result
+		VAR Str1="";            // Temp string
+		VAR Str2="";            // Temp string
+		VAR n=number;           // Working copy
+		VAR Billions=0;
+		VAR Millions=0;
+		VAR Thousands=0;
+		VAR Hundreds=0;
+		VAR Tens=0;
+		VAR Ones=0;
+		VAR Point=0;
+		VAR HaveValue=0;        // Flag needed to know if to process "0"
 		var strHolder = StructNew();
 
 		// Initialize strings

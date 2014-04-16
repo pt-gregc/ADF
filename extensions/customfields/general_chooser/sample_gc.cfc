@@ -61,7 +61,7 @@ History:
 	variables.SHOW_ADD_LINK = true;  // Boolean
 	variables.SHOW_EDIT_DELETE_LINKS = false;  // Boolean
 	
-	// NEW VARIABLES for v1.2 for ADF 1.6.2+
+	// NEW VARIABLES for v1.2 for ADF 1.6.2
 	variables.AVAILABLE_LABEL = "Available Items";
 	variables.SELECTED_LABEL = "Selected Items";
 	variables.NEW_ITEM_LABEL = "Add New Item";

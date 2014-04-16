@@ -674,12 +674,10 @@ Arguments:
 	Binary document
 History:
 	2008-06-22 - RLW - Created
-	2014-03-05 - JTP - Var declarations
 --->
 <cffunction name="getBinaryDocFile" access="public" returntype="void">
 	<cfargument name="filePath" type="string" required="true">
 	<cfscript>
-		var binaryDoc = '';
 		// reset the binary doc value to null to start over
 		request.binaryDoc = "";
 	</cfscript>
@@ -1253,7 +1251,6 @@ History:
 		var thisVar = "";
 		var thisIndex = "";
 		var array = "";
-
 		//put the query string into an array for easier looping
 		array = listToArray(arguments.list,",");
 		//now, loop over the array and rebuild the string
@@ -1391,12 +1388,10 @@ History:
 		var asArray = "";
 		var set = StructNew();
 		
-		if (ArrayLen(arguments) gt 1) 
-			delim = arguments[2];
+		if (ArrayLen(arguments) gt 1) delim = arguments[2];
 		
 		asArray = ListToArray(lst, delim);
-		for (i = 1; i LTE ArrayLen(asArray); i = i + 1) 
-			set[asArray[i]] = "";
+		for (i = 1; i LTE ArrayLen(asArray); i = i + 1) set[asArray[i]] = "";
 		
 		return structKeyList(set, delim);
 	</cfscript>

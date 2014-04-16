@@ -95,7 +95,6 @@ Arguments:
 	Numeric - dataPageID - CE record data page ID
 History:
 	2009-10-06 - MFC - Created
-	2014-03-05 - JTP - Var declarations
 --->
 <cffunction name="htmlAddEditLinkBuilder" access="public" returntype="string" hint="Returns the HTML for the Add/Edit Link Builder CE data form.">
 	<cfargument name="callbackFunct" type="string" required="true" hint="Callback function">
@@ -110,7 +109,6 @@ History:
 		var formResultHTML = "";
 		var formElementFlds = application.ADF.forms.getCEFieldNameData("Link Builder Data");
 		var formContainRTE = application.ADF.ceData.containsFieldType(arguments.formID, "formatted_text_block");
-		var cbAction = '';
 	
 		var linkBuilderUUID = "";
 		

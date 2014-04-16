@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="scripts_1_0" extends="ADF.core.Base" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_10">
+<cfproperty name="version" value="1_0_9">
 <cfproperty name="type" value="singleton">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_0" type="dependency">
 <cfproperty name="wikiTitle" value="Scripts_1_0">
@@ -442,7 +442,6 @@ Arguments:
 	None
 History:
 	2009-02-04 - MFC - Created
-	2014-04-11 - GAC - Removed bad ending cf ending comment tag
 --->
 <cffunction name="loadGalleryView" access="public" output="true" returntype="void" hint="Loads the JQuery UI Headers if not loaded."> 
 <cfargument name="version" type="numeric" required="false" default="1.1" hint="">
@@ -459,7 +458,7 @@ History:
 		<script type='text/javascript' src='/ADF/thirdParty/jquery/galleryview/jquery-galleryview-#arguments.version#/jquery.timers-1.1.2.js'></script>
 		<!--- render the css for 2.0 --->
 		<cfif arguments.version NEQ "1.1">
-			<link rel='stylesheet' href='/ADF/thirdParty/jquery/galleryview/jquery-galleryview-#arguments.version#/galleryview.css' type='text/css' media='screen' />
+			<link rel='stylesheet' href='/ADF/thirdParty/jquery/galleryview/jquery-galleryview-#arguments.version#/galleryview.css' type='text/css' media='screen' /> --->
 		</cfif>
 		<!--- Jquery easing --->
 		<script type='text/javascript' src='/ADF/thirdParty/jquery/easing/jquery.easing.1.3.js'></script>
@@ -615,33 +614,27 @@ History:
  	2009-10-17 - RLW - Created
 	2010-02-03 - MFC - Updated path to the CSS to remove from Third Party directory.
 	2010-04-06 - MFC - Updated path to the CSS to "style".
-	2014-03-05 - JTP - Var declarations
 --->
 <cffunction name="loadJQueryTools" access="public" output="true" returntype="void" hint="Loads the JQuery tools plugin"> 
-	<cfargument name="tool" type="string" required="false" default="all" hint="List of tools to load - leave blank to load entire library">
-	
-	<cfscript>
-		var item = '';
-	</cfscript>
-	
-	<cfif not variables.scriptsService.isScriptLoaded("tools_#arguments.tool#")>
-		<cfif arguments.tool neq "all">
-			<cfloop list="#arguments.tool#" index="item">
-				<cfoutput>
-					<script type='text/javascript' src='/ADF/thirdParty/jquery/tools/jquery.tools.#item#.min.js'></script>
-					<cfif fileExists("#server.ADF.dir#/thirdParty/jquery/tools/css/#item#-minimal.css")>
-						<link href="/ADF/extensions/style/jquery/tools/overlay-minimal.css" rel="stylesheet" type="text/css" />
-					</cfif>
-				</cfoutput>
-			</cfloop>
-		<cfelse>
+<cfargument name="tool" type="string" required="false" default="all" hint="List of tools to load - leave blank to load entire library">
+<cfif not variables.scriptsService.isScriptLoaded("tools_#arguments.tool#")>
+	<cfif arguments.tool neq "all">
+		<cfloop list="#arguments.tool#" index="tool">
 			<cfoutput>
-				<script type='text/javascript' src='/ADF/thirdParty/jquery/tools/jquery.tools.min.js'></script>
-				<link href="/ADF/extensions/style/jquery/tools/overlay-minimal.css" rel="stylesheet" type="text/css" />
+				<script type='text/javascript' src='/ADF/thirdParty/jquery/tools/jquery.tools.#tool#.min.js'></script>
+				<cfif fileExists("#server.ADF.dir#/thirdParty/jquery/tools/css/#tool#-minimal.css")>
+					<link href="/ADF/extensions/style/jquery/tools/overlay-minimal.css" rel="stylesheet" type="text/css" />
+				</cfif>
 			</cfoutput>
-		</cfif>
-		<cfset variables.scriptsService.loadedScript("tools_#arguments.tool#")>
+		</cfloop>
+	<cfelse>
+		<cfoutput>
+			<script type='text/javascript' src='/ADF/thirdParty/jquery/tools/jquery.tools.min.js'></script>
+			<link href="/ADF/extensions/style/jquery/tools/overlay-minimal.css" rel="stylesheet" type="text/css" />
+		</cfoutput>
 	</cfif>
+	<cfset variables.scriptsService.loadedScript("tools_#arguments.tool#")>
+</cfif>
 </cffunction>
 
 <!---

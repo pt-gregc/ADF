@@ -24,14 +24,14 @@ Author:
 	PaperThin, Inc.
 	M Carroll 
 Custom Field Type:
-	general chooser v1.2
+	general_chooser_props.cfm
 Name:
-	general_chooser_1_2_render.cfm
+	general_chooser_props.cfm
 Summary:
 	General Chooser field type.
 	Allows for selection of the custom element records.
 Version:
-	1.2
+	1.1
 History:
 	2009-10-16 - MFC - Created
 	2009-11-13 - MFC - Updated the Ajax calls to the CFC to call the controller 
@@ -50,8 +50,6 @@ History:
 					   Added the new records will load into the "selected" area when saved.
 	2012-07-31 - MFC - Replaced the CFJS function for "ListLen" and "ListFindNoCase".
 	2013-01-10 - MFC - Fixed issue with the to add the new records into the "selected" area when saved.
-	2013-12-02 - GAC - Added a new callback function for the the edit/delete to reload the selected items after an edit or a delete
-					 - Updated to allow 'ADD NEW' to be used multiple times before submit
 --->
 <cfscript>
 	// the fields current value
@@ -60,7 +58,7 @@ History:
 	xparams = parameters[fieldQuery.inputID];
 	
 	// overwrite the field ID to be unique
-	xParams.fieldID = fqFieldName;
+	xParams.fieldID = #fqFieldName#;
 	
 	// Set the defaults
 	if( StructKeyExists(xParams, "forceScripts") AND (xParams.forceScripts EQ "1") )
@@ -79,32 +77,6 @@ History:
 	renderSimpleFormField = false;
 	if ( (StructKeyExists(request, "simpleformexists")) AND (request.simpleformexists EQ 1) )
 		renderSimpleFormField = true;
-	
-	// Set the label start and end tags
-	labelStart = attributes.itemBaselineParamStart;
-	labelEnd = attributes.itemBaseLineParamEnd;	
-	//If the fields are required change the label start and end
-	if ( xparams.req eq "Yes" ) {
-		labelStart = attributes.reqItemBaselineParamStart;
-		labelEnd = attributes.reqItemBaseLineParamEnd;
-	}
-
-	// Set defaults for the label and description 
-	includeLabel = false;
-	includeDescription = false; 
-
-	//-- Update for CS 6.x / backwards compatible for CS 5.x --
-	//   If it does not exist set the Field Permission variable to a default value
-	if ( NOT StructKeyExists(variables,"fieldPermission") )
-		variables.fieldPermission = "";
-
-	//-- Read Only Check with the cs6 fieldPermission parameter --
-	//-- Also check to see if this field is FORCED to be READ ONLY for CS 9+ by looking for attributes.currentValues[fqFieldName_doReadonly] variable --
-	readOnly = application.ADF.forms.isFieldReadOnly(xparams,variables.fieldPermission,fqFieldName,attributes.currentValues);
-	//readOnly = true;
-	
-	if ( readOnly ) 
-		xParams.loadAvailable = 0;
 </cfscript>
 
 <cfoutput>
@@ -118,7 +90,6 @@ History:
 		// init Arg struct
 		initArgs = StructNew();
 		initArgs.fieldName = fqFieldName;
-		initArgs.readOnly = readOnly;
 		
 		// Build the argument structure to pass into the Run Command
 		selectionsArg = StructNew();
@@ -126,7 +97,6 @@ History:
 		selectionsArg.queryType = "selected";
 		selectionsArg.csPageID = request.page.id;
 		selectionsArg.fieldID = xParams.fieldID;
-		selectionsArg.readOnly = readOnly;
 	</cfscript>
 	
 	<script type="text/javascript">
@@ -162,19 +132,13 @@ History:
 				#xParams.fieldID#_loadTopics('search')
 			});
 			
-			<cfif !readOnly>
 			// Load the effects and lightbox - this is b/c we are auto loading the selections
 			#xParams.fieldID#_loadEffects();
-			</cfif>
-			
 			// Re-init the ADF Lightbox
 			initADFLB();
 		});
 		
-		// 2013-12-02 - GAC - Updated to allow 'ADD NEW' to be used multiple times before submit
 		function #xParams.fieldID#_loadTopics(queryType) {
-			var cValue = jQuery("input###fqFieldName#").val();		
-				
 			// Put up the loading message
 			if (queryType == "selected")
 				jQuery("###xParams.fieldID#-sortable2").html("Loading ... <img src='/ADF/extensions/customfields/general_chooser/ajax-loader-arrows.gif'>");
@@ -187,8 +151,7 @@ History:
 				bean: '#xParams.chooserCFCName#',
 				method: 'controller',
 				chooserMethod: 'getSelections',
-				// item: #xParams.fieldID#currentValue, // removed since this value was not dynamically updating after 'ADD NEW'
-				item: cValue,
+				item: #xParams.fieldID#currentValue,
 				queryType: queryType,
 				searchValues: #xParams.fieldID#searchValues,
 				csPageID: '#request.page.id#',
@@ -208,12 +171,10 @@ History:
 		}
 		
 		function #xParams.fieldID#_loadEffects() {
-			<cfif !readOnly>
 			jQuery("###xParams.fieldID#-sortable1, ###xParams.fieldID#-sortable2").sortable({
 				connectWith: '.connectedSortable',
 				stop: function(event, ui) { #xParams.fieldID#_serialize(); }
 			}).disableSelection();
-			</cfif>
 		}
 		
 		// serialize the selections
@@ -239,23 +200,20 @@ History:
 			}
 		}
 		
-		// 2013-12-02 - GAC - Updated to allow 'ADD NEW' to be used multiple times before submit
 		function #xParams.fieldID#_formCallback(formData){
-			var cValue = jQuery("input###fqFieldName#").val();
-
 			// Load the newest item onto the selected values
 			// 2012-07-31 - MFC - Replaced the CFJS function for "ListLen" and "ListFindNoCase".
-			if ( cValue.length > 0 ){
+			if ( #xParams.fieldID#currentValue.length > 0 ){
 				// Check that the record does not exist in the list already
-				tempValue = cValue.search(formData[js_#xParams.fieldID#_CE_FIELD]); 
-				if ( tempValue <= 0 ) 
-					cValue = jQuery.ListAppend(formData[js_#xParams.fieldID#_CE_FIELD], cValue);
+				tempValue = #xParams.fieldID#currentValue.search(formData[js_#xParams.fieldID#_CE_FIELD]); 
+				if ( tempValue <= 0 )
+					#xParams.fieldID#currentValue = jQuery.ListAppend(formData[js_#xParams.fieldID#_CE_FIELD], #xParams.fieldID#currentValue);
 			}
 			else 
-				cValue = formData[js_#xParams.fieldID#_CE_FIELD];
-
+				#xParams.fieldID#currentValue = formData[js_#xParams.fieldID#_CE_FIELD];
+		
 			// load current values into the form field
-			jQuery("input###fqFieldName#").val(cValue);
+			jQuery("input###fqFieldName#").val(#xParams.fieldID#currentValue);
 			
 			// Reload the selected Values
 			#xParams.fieldID#_loadTopics("selected");
@@ -268,8 +226,7 @@ History:
 		function #xParams.fieldID#_formEditCallback(){
 			// Reload the selected Values
 			#xParams.fieldID#_loadTopics("selected");
-			// Reload the non-selected Values
-			#xParams.fieldID#_loadTopics("notselected");
+			
 			// Close the lightbox
 			closeLB();
 		}
@@ -306,41 +263,18 @@ History:
 			return true;
 		}
 	</script>
-	<!--- //Load the General Chooser Styles --->
-	#application.ADF.utils.runCommand(beanName=xParams.chooserCFCName,
-											methodName="loadStyles",
-											args=initArgs)#
-	<!--- <tr>
+	<tr>
 		<td class="cs_dlgLabelSmall" colspan="2">
-			
-		</td>
-	</tr> --->
-	
-	<!--- // include hidden field for simple form processing --->
-	<!--- <cfif renderSimpleFormField>
-		<input type="hidden" name="#fqFieldName#_FIELDNAME" id="#fqFieldName#_FIELDNAME" value="#ReplaceNoCase(xParams.fieldName, 'fic_','')#">
-	</cfif> --->
-	
-	<cfsavecontent variable="inputHTML">
-		<cfoutput>
-			<!--- <div id="#xParams.fieldID#-gc-init-styles"></div> --->
-			
-			<!--- // Build Label --->
-			<div id="#xParams.fieldID#-gc-main-label" class="cs_dlgLabelBoldNoAlign">
-				#labelStart#
-				<label for="#fqFieldName#" id="#fqFieldName#_LABEL">#TRIM(xParams.label)#:</label>
-				#labelEnd#
+			<div>
+				#xparams.label#:
 			</div>
-			
-			<!--- // Instructions --->
-			<div id="#xParams.fieldID#-gc-top-area-instructions" class="cs_dlgLabelSmall">
-				#TRIM(application.ADF.utils.runCommand(beanName=xParams.chooserCFCName,
-															methodName="loadChooserInstructions",
-															args=initArgs))#
+			<div id="#xParams.fieldID#-gc-init-styles">
+				<!--- Load the General Chooser Styles --->
+				#application.ADF.utils.runCommand(beanName=xParams.chooserCFCName,
+													methodName="loadStyles",
+													args=initArgs)#
 			</div>
-			
-			<div id="#xParams.fieldID#-gc-main-area" class="cs_dlgLabelSmall">
-			
+			<div id="#xParams.fieldID#-gc-main-area">
 				<div id="#xParams.fieldID#-gc-top-area">
 					<!--- SECTION 1 - TOP LEFT --->
 					<div id="#xParams.fieldID#-gc-section1">
@@ -357,30 +291,20 @@ History:
 															args=initArgs)#
 					</div>
 				</div>
-				
 				<!--- SECTION 3 --->
 				<div id="#xParams.fieldID#-gc-section3">
-					
-					<!--- // Instructions --->
-					<!--- <div id="#xParams.fieldID#-gc-top-area-instructions">
-						#TRIM(application.ADF.utils.runCommand(beanName=xParams.chooserCFCName,
-															methodName="loadChooserInstructions",
-															args=initArgs))#
-						<!--- Select the records you want to include in the selections by dragging 
+					<!--- Instructions --->
+					<div id="#xParams.fieldID#-gc-top-area-instructions">
+						Select the records you want to include in the selections by dragging 
 							items into or out of the 'Available Items' list. Order the columns 
-							within the datasheet by dragging items within the 'Selected Items' field. --->
-					</div> --->
-				
+							within the datasheet by dragging items within the 'Selected Items' field.
+					</div>
 					<!--- Select Boxes --->
 					<div id="#xParams.fieldID#-gc-select-left-box-label">
-						#TRIM(application.ADF.utils.runCommand(beanName=xParams.chooserCFCName,
-															methodName="loadAvailableLabel",
-															args=initArgs))#
+						<strong>Available Items</strong>
 					</div>
 					<div id="#xParams.fieldID#-gc-select-right-box-label">
-						#TRIM(application.ADF.utils.runCommand(beanName=xParams.chooserCFCName,
-															methodName="loadSelectedLabel",
-															args=initArgs))#
+						<strong>Selected Items</strong>
 					</div>
 					<div id="#xParams.fieldID#-gc-select-left-box">
 						<ul id="#xParams.fieldID#-sortable1" class="connectedSortable">
@@ -414,16 +338,11 @@ History:
 				</div>
 			</div>	
 			<input type="hidden" id="#fqFieldName#" name="#fqFieldName#" value="#currentValue#">
-		</cfoutput>
-	</cfsavecontent>
+		</td>
+	</tr>
 	
-	<!---
-		This CFT is using the forms lib wrapFieldHTML functionality. The wrapFieldHTML takes
-		the Form Field HTML that you want to put into the TD of the right section of the CFT 
-		table row and helps with display formatting, adds the hidden simple form fields (if needed) 
-		and handles field permissions (other than read-only).
-		Optionally you can disable the field label and the field discription by setting 
-		the includeLabel and/or the includeDescription variables (found above) to false.  
-	--->
-	#application.ADF.forms.wrapFieldHTML(inputHTML,fieldQuery,attributes,variables.fieldPermission,includeLabel,includeDescription)#
+	<!--- // include hidden field for simple form processing --->
+	<cfif renderSimpleFormField>
+		<input type="hidden" name="#fqFieldName#_FIELDNAME" id="#fqFieldName#_FIELDNAME" value="#ReplaceNoCase(xParams.fieldName, 'fic_','')#">
+	</cfif>
 </cfoutput>

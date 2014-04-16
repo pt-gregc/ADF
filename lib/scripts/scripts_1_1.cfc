@@ -1320,23 +1320,17 @@ History:
 	2010-02-03 - MFC - Updated path to the CSS to remove from Third Party directory.
 	2010-04-06 - MFC - Updated path to the CSS to "style".
 	2012-08-16 - GAC - Added the force parameter
-	2014-03-05 - JTP - Var declarations
 --->
 <cffunction name="loadJQueryTools" access="public" output="true" returntype="void" hint="Loads the JQuery tools plugin"> 
 	<cfargument name="tool" type="string" required="false" default="all" hint="List of tools to load - leave blank to load entire library">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
-	
-	<cfscript>
-		var outputHTML = "";
-		var item = '';
-	</cfscript>
-	
+	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
 			<cfif arguments.tool neq "all">
-				<cfloop list="#arguments.tool#" index="item">
-					<script type='text/javascript' src='/ADF/thirdParty/jquery/tools/jquery.tools.#item#.min.js'></script>
-					<cfif fileExists("#server.ADF.dir#/thirdParty/jquery/tools/css/#item#-minimal.css")>
+				<cfloop list="#arguments.tool#" index="tool">
+					<script type='text/javascript' src='/ADF/thirdParty/jquery/tools/jquery.tools.#tool#.min.js'></script>
+					<cfif fileExists("#server.ADF.dir#/thirdParty/jquery/tools/css/#tool#-minimal.css")>
 						<link href="/ADF/extensions/style/jquery/tools/overlay-minimal.css" rel="stylesheet" type="text/css" />
 					</cfif>
 				</cfloop>

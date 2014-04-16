@@ -128,8 +128,6 @@ History:
 
 <cfset optionsModule = '/ADF/extensions/customfields/custom_element_select_field/v1_1/custom_element_select_field_options.cfm'>
 
-
-
 <cfif StructKeyExists(attributes, 'currentValues') AND StructKeyExists(attributes, 'returnCurrentOnly') AND attributes.returnCurrentOnly EQ 1>
 	<cfmodule template = "#optionsModule#" attributeCollection="#attributes#">
 	<cfset caller.optionsStruct = ArrayToList(optionsStruct.optionText, "<br/>")>
@@ -137,8 +135,8 @@ History:
 	<cfsavecontent variable="fieldHTML">
 		<cfoutput>
 			<span nowrap="nowrap">
+			<div id="selected_values_display_XRE" style="width:120px;height:70px;overflow:auto;border:1px inset ##999999;padding:1px;display:none;"></div>
 			#Server.CommonSpot.UDF.tag.input(type="button", onclick="javascript:top.commonspot.dialog.server.show('csModule=metadata/form_control/input_control/option-value-select&optionsModule=#optionsModule#&sourceformid=#attributes.sourceformid#&sourcefieldid=#attributes.sourcefieldid#&customFieldTypeID=#attributes.customFieldTypeID#&callBackFunction=updateSelectFieldValues&hiddenFldName=#attributes.fieldNameAttributeValue#&displayFldName=selected_values_display_XRE&btnName=selectBtn_XRE&&selectedValues=');", value="Select...", id="selectBtn_XRE", name="selectBtn_XRE", class="clsPushButton", style="vertical-align:top;")#
-			<div id="selected_values_display_XRE" style="width:120px;max-height:70px;overflow:auto;padding:1px;display:none;"></div>
 			</span>
 			#Server.CommonSpot.UDF.tag.input(type="hidden", name="#attributes.fieldNameAttributeValue#", id="#attributes.fieldNameAttributeValue#", value="")#
 		</cfoutput>

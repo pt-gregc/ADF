@@ -50,8 +50,7 @@ Summary:
 Version:
 	1.0
 History:
-	2013-12-09 - JTP - Created
-	2014-03-05 - JTP - Var declarations
+	2013-12-09 - TP - Created
 --->
 
 <cfif NOT request.user.isContributor()>
@@ -296,7 +295,6 @@ History:
 	
 	<cfscript>
 		var ret_url = '';
-		var qry = '';
 	</cfscript>
 	
 	<cftry>

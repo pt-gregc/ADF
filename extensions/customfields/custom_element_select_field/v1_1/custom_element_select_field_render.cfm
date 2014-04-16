@@ -64,13 +64,6 @@ History:
 	2014-01-30 - DJM - Removed Active Field and Value fields and replaced with a filter criteria option
 	2014-01-30 - GAC - Moved into a v1_1 version subfolder
 	2014-02-27 - GAC - Added backwards compatiblity logic to allow field use the prior version of the CFT if installed on a pre-CS9 site
-	2014-03-07 - JTP - Fixed issue if duplicate items in list. Caused selected value to be duplicated. Also limit results if read-only.
-	2014-03-07 - DJM - Created Custom_Element_Select_Field_base.cfc for CFT specific methods
-	2014-03-23 - JTP - Changed to have 'Select All' / 'Deselect All' links
-	2014-03-24 - JTP - Added logic to sort selction list by display value if specified in props
-	
-To Do:
-	2014-04-08 - JTP - Currently we are NOT sorting the list if displayed as checkboxes/radio buttons and user choose sort by display value
 --->
 <cfscript>
 	requiredCSversion = 9;
@@ -109,14 +102,18 @@ To Do:
 	if( NOT StructKeyExists(xparams,"heightValue") OR NOT IsNumeric(xParams.heightValue) )
 		xParams.heightValue = "150";	
 		
-	cType = application.ADF.customElementSelect.getFieldType(xparams);
-	if( cType eq 'select' )		
+	if( NOT StructKeyExists(xparams,"fieldtype") OR xparams.fieldtype eq 'select' )		
 	{
+		cType = 'select';
 		SELECTION_LIST = 1;
-	}
+	}	
 	else	
 	{
-		SELECTION_LIST = 0;	
+		SELECTION_LIST = 0;
+		if( xParams.multipleSelect )
+			cType = 'checkbox';
+		else
+			cType = 'radio';	
 	}	
 
 	// For backwards compatiblity: 
@@ -134,24 +131,135 @@ To Do:
 			xParams.renderClearSelectionLink = 0; 
 	
 	if ( NOT StructKeyExists(xparams, "fldName") OR (LEN(xparams.fldName) LTE 0) )
-		xparams.fldName = fqFieldName;
+		xparams.fldName = fqFieldName;	
+	
+	// TODO: Remove when the new Filter Criteria works correctly	
+	//if ( NOT StructKeyExists(xparams, "sortByField") OR (LEN(xparams.sortByField) LTE 0) )
+	//	xparams.sortByField = "--";
 	
 	if ( NOT StructKeyExists(xparams,"addButton") OR !IsBoolean(xparams.addButton) )
 		xparams.addButton = 0;
+		
+	// TODO: Remove when the new Filter Criteria works correctly
+	// Get the data records
+	/*if ( StructKeyExists(xparams,"activeFlagField") and Len(xparams.activeFlagField) and StructKeyExists(xparams,"activeFlagValue") and Len(xparams.activeFlagValue) ) 
+	{
+		if ( (TRIM(LEFT(xparams.activeFlagValue,1)) EQ "[") AND (TRIM(RIGHT(xparams.activeFlagValue,1)) EQ "]"))
+		{
+			xparams.activeFlagValue = MID(xparams.activeFlagValue, 2, LEN(xparams.activeFlagValue)-2);
+			xparams.activeFlagValue = Evaluate(xparams.activeFlagValue);
+		}
+		ceDataArray = application.ADF.cedata.getCEData(xparams.customElement,xparams.activeFlagField,xparams.activeFlagValue);
+	}
+	else 
+		ceDataArray = application.ADF.cedata.getCEData(xparams.customElement);*/
 	
+	ceObj = Server.CommonSpot.ObjectFactory.getObject('CustomElement');
+	cfmlFilterCriteria = StructNew();	
 	ceFormID = 0;
+	fieldList = '';
+	ceDataArray = QueryNew('');
+	sortColumn = '';
+	sortDir = '';
+	filterArray = ArrayNew(1);
+	ceFieldsArray = ArrayNew(1);
+	index = 1;
+	valueWithoutParens = '';
+	hasParens = 0;
+	statementsArray = ArrayNew(1);
+	
 	if (StructKeyExists(xparams,"customElement") and Len(xparams.customElement))
 		ceFormID = application.ADF.cedata.getFormIDByCEName(xparams.customElement);
 	
-	//-- Update for CS 6.x / backwards compatible for CS 5.x --
-	//   If it does not exist set the Field Permission variable to a default value
-	if ( NOT StructKeyExists(variables,"fieldPermission") )
-		variables.fieldPermission = "";
-
-	//-- Read Only Check with the cs6 fieldPermission parameter --
-	//-- Also check to see if this field is FORCED to be READ ONLY for CS 9+ by looking for attributes.currentValues[fqFieldName_doReadonly] variable --
-	readOnly = application.ADF.forms.isFieldReadOnly(xparams,variables.fieldPermission, fqFieldName, attributes.currentValues);	
+	flagValueWithoutExp = '';
+	
+	if ( StructKeyExists(xparams,"activeFlagField") and Len(xparams.activeFlagField) and StructKeyExists(xparams,"activeFlagValue") and Len(xparams.activeFlagValue) ) 
+	{
+		if ( (TRIM(LEFT(xparams.activeFlagValue,1)) EQ "[") AND (TRIM(RIGHT(xparams.activeFlagValue,1)) EQ "]"))
+		{
+			valueWithoutParens = MID(xparams.activeFlagValue, 2, LEN(xparams.activeFlagValue)-2);
+			hasParens = 1;
+		}
+		else
+		{
+			valueWithoutParens = xparams.activeFlagValue;
+		}
 		
+		statementsArray[1] = ceObj.createStandardFilterStatement(customElementID=ceFormID,fieldIDorName=xparams.activeFlagField,operator='Equals',value=valueWithoutParens);
+				
+		filterArray = ceObj.createQueryEngineFilter(filterStatementArray=statementsArray,filterExpression='1');
+		
+		if (hasParens)
+		{
+			filterArray[1] = ReplaceNoCase(filterArray[1], '| #valueWithoutParens#| |', '#valueWithoutParens#| ###valueWithoutParens###| |');
+		}
+		
+		cfmlFilterCriteria.filter = StructNew();
+		cfmlFilterCriteria.filter.serSrchArray = filterArray;
+		cfmlFilterCriteria.defaultSortColumn = xparams.activeFlagField & '|asc';
+	}
+	
+	if ( StructKeyExists(xparams,"sortByField") and xparams.sortByField NEQ '--')
+	{
+		cfmlFilterCriteria.defaultSortColumn = xparams.sortByField & '|asc';
+	}
+	
+	if (NOT StructIsEmpty(cfmlFilterCriteria))
+		xparams.filterCriteria = Server.CommonSpot.UDF.util.WDDXEncode(cfmlFilterCriteria);
+
+	if (StructKeyExists(xparams, 'filterCriteria') AND IsWDDX(xparams.filterCriteria))
+	{
+		cfmlFilterCriteria = Server.CommonSpot.UDF.util.WDDXDecode(xparams.filterCriteria);	
+		if ( StructKeyExists(cfmlFilterCriteria,"filter") )		
+			filterArray = cfmlFilterCriteria.filter.serSrchArray;
+		sortColumn = ListFirst(cfmlFilterCriteria.defaultSortColumn,'|');
+		sortDir = ListLast(cfmlFilterCriteria.defaultSortColumn,'|');
+	}
+	
+	if (StructKeyExists(xparams,"customElement") and Len(xparams.customElement))
+	{
+		// TODO: Remove when the new Filter Criteria works correctly
+		//ceFormID = application.ADF.cedata.getFormIDByCEName(xparams.customElement);
+	
+		ceFieldsArray = application.ADF.cedata.getTabsFromFormID(formID=ceFormID,recurse=true);
+		if (ArrayLen(ceFieldsArray) AND StructKeyExists(ceFieldsArray[1],'fields') AND IsArray(ceFieldsArray[1].fields) AND ArrayLen(ceFieldsArray[1].fields))
+		{
+			for(index=1;index LTE ArrayLen(ceFieldsArray[1].fields);index=index+1)
+			{
+				fieldList = ListAppend(fieldList, ceFieldsArray[1].fields[index].fieldName);
+				if (NOT Len(sortColumn) AND NOT Len(sortDir) AND index EQ 1)
+				{
+					sortColumn = ceFieldsArray[1].fields[index].fieldName;
+					sortDir = 'asc';
+				}
+			}
+		}
+		
+		if (NOT ArrayLen(filterArray))
+			filterArray[1] = '| element_datemodified| element_datemodified| <= | | c,c,c| | ';
+		ceData = ceObj.getRecordsFromSavedFilter(elementID=ceFormID,queryEngineFilter=filterArray,columnList=fieldList,orderBy=sortColumn,orderByDirection=sortDir);
+		formIDColArray = ArrayNew(1);
+		formNameColArray = ArrayNew(1);
+		if (ceData.ResultQuery.RecordCount)
+		{
+			ArraySet(formIDColArray, 1, ceData.ResultQuery.RecordCount, ceFormID);
+			ArraySet(formNameColArray, 1, ceData.ResultQuery.RecordCount, xparams.customElement);
+		}
+		
+		QueryAddColumn(ceData.ResultQuery, 'formID', formIDColArray);
+		QueryAddColumn(ceData.ResultQuery, 'formName', formIDColArray);
+	}
+	ceDataArray = application.ADF.cedata.buildCEDataArrayFromQuery(ceData.ResultQuery);
+
+	// Sort the list by the display field value, if its other.. all bets are off we sort via jquery... 
+	// TODO: Remove when the new Filter Criteria works correctly
+	//if( xparams.sortByField neq "--" ) 
+	//	ceDataArray = application.ADF.cedata.arrayOfCEDataSort(ceDataArray, xparams.sortByField);
+	//else 
+	
+	if( StructKeyExists(xparams, "displayField") AND LEN(xparams.displayField) AND xparams.displayField neq "--Other--" ) 
+		ceDataArray = application.ADF.cedata.arrayOfCEDataSort(ceDataArray, xparams.displayField);
+
 	// Check if we do not have a current value then set to the default
 	if ( (LEN(currentValue) LTE 0) OR (currentValue EQ "") ) 
 	{
@@ -173,11 +281,20 @@ To Do:
 	
 	// Set defaults for the label and description 
 	includeLabel = true;
-	includeDescription = true;
-	
+	includeDescription = true; 
+
+	//-- Update for CS 6.x / backwards compatible for CS 5.x --
+	//   If it does not exist set the Field Permission variable to a default value
+	if ( NOT StructKeyExists(variables,"fieldPermission") )
+		variables.fieldPermission = "";
+
+	//-- Read Only Check with the cs6 fieldPermission parameter --
+	//-- Also check to see if this field is FORCED to be READ ONLY for CS 9+ by looking for attributes.currentValues[fqFieldName_doReadonly] variable --
+	readOnly = application.ADF.forms.isFieldReadOnly(xparams,variables.fieldPermission,fqFieldName,attributes.currentValues);
+
 	// Load JQuery to the script
 	application.ADF.scripts.loadJQuery(force=xParams.forceScripts);
-	if( SELECTION_LIST AND StructKeyExists(xparams, 'SortOption') AND xParams.SortOption eq 'useDisplay' )
+	if( xparams.displayField EQ "--Other--" ) 
 		application.ADF.scripts.loadJQuerySelectboxes();
 </cfscript>
 
@@ -202,6 +319,7 @@ To Do:
 				return true;
 			else 
 			{
+				alert(#fqFieldName#.msg);
 				return false;
 			}
 		}
@@ -248,138 +366,186 @@ To Do:
 			if( '#xparams.renderField#' == 'no' ) 
 				jQuery("###fqFieldName#_fieldRow").hide();
 
-			<!--- determine whether to use JS to sort items in list --->
-			<cfif SELECTION_LIST eq 1>
-				<cfif StructKeyExists(xparams, 'SortOption') AND xParams.SortOption eq 'useDisplay'>
-					var obj = jQuery("###fqFieldName#_select");
-					if( obj && typeof obj.sortOptions == 'function')
-						obj.sortOptions();
-				<cfelseif xparams.displayField eq "--Other--">
-					var obj = jQuery("###fqFieldName#_select");
-					if( obj && typeof obj.sortOptions == 'function' ) 
-						obj.sortOptions();
-				</cfif>	
+			<cfif SELECTION_LIST AND xparams.displayField eq "--Other--">
+				jQuery("###fqFieldName#_select").sortOptions();
 			</cfif>
 			
+			
 			<cfif xParams.renderClearSelectionLink>
-				jQuery("###fqFieldName#_SelectAll").click(function(){
-
-					<cfif cType EQ 'radio'>
-						jQuery("input:radio[name=#fqFieldName#_select]").each(function(){
-								jQuery(this).prop('checked',true);
-						});
-					<cfelse>
-						//jQuery("input:checkbox[name=#fqFieldName#_select]").unCheckCheckboxes();
-						jQuery("input:checkbox[name=#fqFieldName#_select]").each(function(){
-								jQuery(this).prop('checked',true);	
-						});
-					</cfif>
-					#fqFieldName#_loadSelection();
-					});
-
-				
-				jQuery("###fqFieldName#_DeselectAll").click(function(){
+				jQuery("###fqFieldName#_clearSelectionLink").click(function(){
 					
 				<cfif cType EQ 'radio'>
 					jQuery("input:radio[name=#fqFieldName#_select]").each(function(){
+							console.log('uncheck!');	
 							jQuery(this).prop('checked',false);	
 					});
 				<cfelse>
 					//jQuery("input:checkbox[name=#fqFieldName#_select]").unCheckCheckboxes();
 					jQuery("input:checkbox[name=#fqFieldName#_select]").each(function(){
+							console.log('uncheck!');	
 							jQuery(this).prop('checked',false);	
 					});
 				</cfif>
-				jQuery("input[name=#fqFieldName#]").val('');
-				});
+					jQuery("input[name=#fqFieldName#]").val('');
 				
+				});
 			</cfif>
 		});
-		
-		function #fqFieldName#_reloadSelection()
-		{
-			var dataToBeSent_#fqFieldName# = 
-				{ 
-					bean: 'customElementSelect_1_0',
-					method: 'renderCustomElementSelect',
-					query2array: 0,
-					returnformat: 'json',
-					propertiesStruct: JSON.stringify(<cfoutput>#SerializeJSON(xparams)#</cfoutput>),
-					formID: #ceFormID#,
-					fqFieldName: '#fqFieldName#',
-					fieldCurrentValue: '#currentValue#',
-					isReadOnly: #readOnly#						
-			 	};
-	
-			jQuery.post( '#application.ADF.ajaxProxy#', 
-								dataToBeSent_#fqFieldName#,
-								onSuccess_#fqFieldName#,
-								"json");
-		}
-		
-		function onSuccess_#fqFieldName#(data)
-		{
-			document.getElementById('#fqFieldName#_renderSelect').innerHTML = data;
-			CloseWindow();
-		}
 	</script>
 </cfoutput>
 	
-<cfsavecontent variable="inputHTML">
-	<cfoutput>
-		<table border=0 cellspacing="0" cellpadding="0"><tr><td>
-		
-			<div id="#fqFieldName#_renderSelect">#application.ADF.customElementSelect.renderCustomElementSelect(xparams,ceFormID,fqFieldName,currentValue,readOnly)#</div></cfoutput>
+	<cfsavecontent variable="inputHTML">
+		<cfoutput>
+			<table border=0 cellspacing="0" cellpadding="0"><tr><td>
 			
-	 		<cfif xparams.addButton EQ "1">
-				<cfoutput>
-					</td><td valign="top" nowrap="nowrap">
-				
-					#application.ADF.scripts.loadJQuery()#
-					#application.ADF.scripts.loadJQueryUI()#
-					#application.ADF.scripts.loadADFLightbox()#
-					<style type="text/css">
-						a###fqFieldName#_addNewLink{
-							font-size: 10px;
-   							padding: 2px 4px;
-							text-decoration:none;
-							margin-left: 6px;
-						}
-						a###fqFieldName#_addNewLink:hover{
-							cursor:pointer;
-						}
-					</style>
-					<script type="text/javascript">
-						jQuery(document).ready(function(){
-							// Hover states on the static widgets
-							jQuery("##addNew").hover(
-								function() {
-									jQuery(this).addClass('ui-state-hover');
-								},
-								function() {
-									jQuery(this).removeClass('ui-state-hover');
-								}
-							);
-						});
-					</script>
-				</cfoutput>
-				
-				<cfset buttonLabel = "New #xParams.label#">
-				
-				<cfoutput><a href="javascript:;" rel="#application.ADF.ajaxProxy#?bean=Forms_1_1&method=renderAddEditForm&formid=#ceFormID#&datapageid=0&lbAction=norefresh&title=#buttonLabel#&callback=#fqFieldName#_reloadSelection" id="#fqFieldName#_addNewLink" class="ADFLightbox add-button ui-state-default ui-corner-all">#buttonLabel#</a></cfoutput>
-	 		</cfif>
+			<div id="#fqFieldName#_renderSelect">
+		</cfoutput>
 			
-		<cfoutput></td></tr></table></cfoutput>		
-</cfsavecontent>
+				<cfif SELECTION_LIST>
+				
+					<!--- // Selection List //---->
+			
+					<!---// 2011-04-20 - RAK - Added multiple select ability--->
+					<cfif StructKeyExists(xparams,"multipleSelect") and StructKeyExists(xparams,"multipleSelectSize") and xparams.multipleSelect>
+							<cfoutput><select multiple="multiple" size="#xparams.multipleSelectSize#" name='#fqFieldName#_select' class="#xparams.fldName# cls#fqFieldName#" id='#fqFieldName#_select' onchange='#fqFieldName#_loadSelection()'<cfif readOnly> disabled='disabled'</cfif>></cfoutput>
+					<cfelse>							
+							<cfoutput><select name='#fqFieldName#_select' class="#xparams.fldName# cls#fqFieldName#" id='#fqFieldName#_select' onchange='#fqFieldName#_loadSelection()'<cfif readOnly> disabled='disabled'</cfif>></cfoutput>
+					</cfif>
+							
+					<cfif xParams.renderSelectOption>
+						<cfoutput><option value=""> - Select - </option></cfoutput>
+					</cfif>
+					
+		 			<cfloop index="cfs_i" from="1" to="#ArrayLen(ceDataArray)#">
+						<cfif ListFind(currentValue,ceDataArray[cfs_i].Values[xparams.valueField])>
+							<cfset isSelected = true>
+							<cfset currentSelectedValue = ListAppend(currentSelectedValue,ceDataArray[cfs_i].Values[xparams.valueField])>
+						<cfelse>
+							<cfset isSelected = false>
+						</cfif>
+	               
+						<cfoutput><option value="#ceDataArray[cfs_i].Values[xparams.valueField]#"<cfif isSelected> selected="selected"</cfif>></cfoutput>
+						
+						<cfif xparams.displayField eq "--Other--" and Len(xparams.displayFieldBuilder)>
+							<!--- // Covert the Field Builder String to Values from the element ---> 
+							<cfset displayField = application.ADF.forms.renderDataValueStringfromFieldMask(ceDataArray[cfs_i].Values, xparams.displayFieldBuilder)>
+							<cfoutput>#displayField#</cfoutput>
+						<cfelse>
+							<cfoutput>#ceDataArray[cfs_i].Values[xparams.displayField]#</cfoutput>
+						</cfif>
+						
+						<cfoutput></option></cfoutput>
+					</cfloop>
+			 		
+					<cfoutput></select></cfoutput>
+				
+				<cfelse>
 
-<!---
-	This CFT is using the forms lib wrapFieldHTML functionality. The wrapFieldHTML takes
-	the Form Field HTML that you want to put into the TD of the right section of the CFT 
-	table row and helps with display formatting, adds the hidden simple form fields (if needed) 
-	and handles field permissions (other than read-only).
-	Optionally you can disable the field label and the field discription by setting 
-	the includeLabel and/or the includeDescription variables (found above) to false.  
---->
+					<!--- // Checkboxes / Radio Buttons //---->
+					<cfoutput><div id="#fqFieldName#_div" style="max-height:#xparams.heightValue#px; width:#xparams.widthValue#px; border: 1px solid grey; background-color:white; overflow:auto; padding:5px 5px;"></cfoutput>
+					
+		 			<cfloop index="cfs_i" from="1" to="#ArrayLen(ceDataArray)#">
+						<cfscript>
+							value = ceDataArray[cfs_i].Values[xparams.valueField];							
+							if( ListFind(currentValue, value) )
+							{
+								isSelected = 1;
+								currentSelectedValue = ListAppend(currentSelectedValue, value);
+							}	
+							else
+								isSelected = 0;
+
+							if( xparams.displayField eq "--Other--" AND Len(xparams.displayFieldBuilder) )
+							{
+								// Covert the Field Builder String to Values from the element 
+								displayField = application.ADF.forms.renderDataValueStringfromFieldMask(ceDataArray[cfs_i].Values, xparams.displayFieldBuilder);
+							}	
+							else
+								displayField = ceDataArray[cfs_i].Values[xparams.displayField];
+						</cfscript>
+	               
+						<cfoutput>
+							<div style="line-height:14px;">
+							<input type="#cType#" name="#fqFieldName#_select" class="#xparams.fldName# cls#fqFieldName#" id="#fqFieldName#_select_#value#" value="#value#"<cfif isSelected> checked="checked"</cfif>  onchange="#fqFieldName#_loadSelection()">
+							<label for="#fqFieldName#_select_#value#" style="font-weight:normal; color:black;">#displayField#</label>
+							</div>
+						</cfoutput>
+					</cfloop>
+					
+					<cfoutput></div></cfoutput>
+					
+					<cfoutput>
+						<cfif xParams.renderClearSelectionLink>
+						<style type="text/css">
+							###fqFieldName#_clearSelection{
+								font-size: xx-small;
+								display: block;
+								text-align: right;
+							}
+						</style>
+						<div id="#fqFieldName#_clearSelection"><a href="javascript:;" id="#fqFieldName#_clearSelectionLink">Clear Selection<cfif xParams.multipleSelect>s</cfif></a></div>
+						</cfif>
+					</cfoutput>	
+				</cfif>
+				
+				<cfoutput></div></cfoutput>
+				
+		 		<cfif xparams.addButton EQ "1">
+					<cfoutput>
+						</td><td valign="top" nowrap="nowrap">
+					
+						#application.ADF.scripts.loadJQuery()#
+						#application.ADF.scripts.loadJQueryUI()#
+						#application.ADF.scripts.loadADFLightbox()#
+						<style type="text/css">
+							a###fqFieldName#_addNewLink{
+								font-size: 10px;
+    							padding: 2px 4px;
+								text-decoration:none;
+								margin-left: 6px;
+							}
+							a###fqFieldName#_addNewLink:hover{
+								cursor:pointer;
+							}
+						</style>
+						<script type="text/javascript">
+							jQuery(document).ready(function(){
+								// Hover states on the static widgets
+								jQuery("##addNew").hover(
+									function() {
+										jQuery(this).addClass('ui-state-hover');
+									},
+									function() {
+										jQuery(this).removeClass('ui-state-hover');
+									}
+								);
+							});
+						</script>
+					</cfoutput>
+					
+					<cfset buttonLabel = "New #xParams.label#">
+					<cfset ceFormID = application.ADF.cedata.getFormIDByCEName(xparams.customElement)>
+					
+					<cfoutput><a href="javascript:;" rel="#application.ADF.ajaxProxy#?bean=Forms_1_1&method=renderAddEditForm&formid=#ceFormID#&datapageid=0&lbAction=refreshparent&title=#buttonLabel#" id="#fqFieldName#_addNewLink" class="ADFLightbox add-button ui-state-default ui-corner-all">#buttonLabel#</a></cfoutput>
+		 		</cfif>
+				
+			<cfoutput>
+			</td></tr></table>
+
+			<!--- // hidden field to store the value --->
+			<input type='hidden' name='#fqFieldName#' id='#xparams.fldName#' value='#currentSelectedValue#'>
+			</cfoutput>
+			
+	</cfsavecontent>
+
+	<!---
+		This CFT is using the forms lib wrapFieldHTML functionality. The wrapFieldHTML takes
+		the Form Field HTML that you want to put into the TD of the right section of the CFT 
+		table row and helps with display formatting, adds the hidden simple form fields (if needed) 
+		and handles field permissions (other than read-only).
+		Optionally you can disable the field label and the field discription by setting 
+		the includeLabel and/or the includeDescription variables (found above) to false.  
+	--->
 <cfoutput>	
 	#application.ADF.forms.wrapFieldHTML(inputHTML,fieldQuery,attributes,variables.fieldPermission,includeLabel,includeDescription)#
 </cfoutput>

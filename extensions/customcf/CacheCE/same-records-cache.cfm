@@ -29,41 +29,21 @@ Summary:
 	Requires the following custom script parameters:
 		ElementType - for example 'PageIndex' 
 		ElementName - the unique name of the element
-		
-	Optional parameters:		
 		CacheName - Optional, the name of the cache. Defauls to ElementName if not passed
-		MinutesToCache - the number of minutes to cache the content for - defaults to 10.
-		ShowClearLink - If set to 1 will display a link to clear the cache in author/edit/approve mode - defaults to 0
-		Debug - If set to 1 will show debug info in read mode - defaults to 0		
-		RenderHandler - The path to the render handle to invoke when cache exists and is current. Recommended that this is passed, 
-								otherwise the elemnt needed to be loaded to get the render handler path.
-		ClassNames - One or more class names to apply to the surrounding div						
+		MinutesToCache - the number of minutes to cache the content for.
+		ShowClearLink - If set to 1 will display a link to clear the cache in author/edit/approve mode
+		Debug - If set to 1 will show debug info in read mode 
 		
 	URL or Post Parameters:
 		clearmemcache - clear all memory caches for this element
 		ForceRender - causes element to render and then cache.
 		ClearType - causes cache clear of all instances for this element type
 		ClearALL - causes cache clear of all instances		
-		
-	The render handler for the custom element that is being called MUST include code like the following:
-		<cfscript>
-			request.element.isStatic = 0;		// the element need to be dynamic			
-		   if( StructKeyExists(request,"CS_SameRecordsInfo") )
-		   {
-		   	request.CS_SameRecordsInfo.ElementInfo = attributes.ElementInfo;
-		      request.CS_SameRecordsInfo.renderhandler = '{renderhandler path}';	// i.e. /rendrhandlers/profile.cfm
-				request.CS_SameRecordsInfo.ClassNames = '{class names}';
-		   }
-		</cfscript>		
-	
-		
 Version:
 	1.0.1
 History:
 	2013-12-09 - JTP - Created
 	2014-02-18 - JTP - Added ClearType and ClearAll url parameters
-	2014-03-05 - JTP - Var declarations
-	2014-03-19 - JTP - Added optional renderhandler & classNames attributes as an optimization. 
 --->
 
 <cfscript>
@@ -144,27 +124,7 @@ History:
 		<cfoutput><br>Expires: #application.CS_SameRecordsCache[attributes.ElementType][attributes.cacheName].expires#</cfoutput>
 	</cfif>
 
-	<!---// Check if the structure exists for the element. If not create it and set the render handler to teh passed in render handler //--->	
-	<cfscript>
-		if( NOT StructKeyExists( application.CS_SameRecordsCache[attributes.ElementType][attributes.cacheName], '#pageIDControlID#' ) )
-			application.CS_SameRecordsCache[attributes.ElementType][attributes.cacheName][pageIDControlID] = StructNew();
-
-		if( NOT StructKeyExists( application.CS_SameRecordsCache[attributes.ElementType][attributes.cacheName][pageIDControlID], 'renderhandler' ) )	
-		{
-			if( StructKeyExists( attributes, 'renderHandler' ) )
-				application.CS_SameRecordsCache[attributes.ElementType][attributes.cacheName][pageIDControlID].renderhandler = attributes.renderhandler;
-			else	
-				application.CS_SameRecordsCache[attributes.ElementType][attributes.cacheName][pageIDControlID].renderhandler = '';
-				
-			if( StructKeyExists( attributes, 'classNames' ) )				
-				application.CS_SameRecordsCache[attributes.ElementType][attributes.cacheName][pageIDControlID].classNames = attributes.classNames;
-			else	
-				application.CS_SameRecordsCache[attributes.ElementType][attributes.cacheName][pageIDControlID].classNames = '';
-		}	
-	</cfscript>
-
-	<!---// check if it is OK to render from cache //--->
-	<cfif application.CS_SameRecordsCache[attributes.ElementType][attributes.cacheName][pageIDControlID].renderHandler neq '' 
+	<cfif StructKeyExists( application.CS_SameRecordsCache[attributes.ElementType][attributes.cacheName], '#pageIDControlID#' )
 				AND DateCompare( now(), application.CS_SameRecordsCache[attributes.ElementType][attributes.cacheName].expires) eq -1 
 				AND isStruct(application.CS_SameRecordsCache[attributes.ElementType][attributes.cacheName].elementInfo) 
 				AND Request.Params.ForceRender neq 1>
@@ -182,8 +142,7 @@ History:
 				if( structKeyExists( application.CS_SameRecordsCache[attributes.ElementType][attributes.cacheName][PageIDControlID], 'ClassNames' ) )
 				{
 					classNames = application.CS_SameRecordsCache[attributes.ElementType][attributes.cacheName][PageIDControlID].classNames;
-					if( Len(classNames) ) 
-						application.CS_SameRecordsCache[attributes.ElementType][attributes.cacheName].ElementInfo.ClassNames = classNames;
+					application.CS_SameRecordsCache[attributes.ElementType][attributes.cacheName].ElementInfo.ClassNames.element = classNames;
 				}	
 			</cfscript>
 			<cfoutput><div <cfif classNames neq ''>class='#classNames#'</cfif>></cfoutput>			
@@ -219,15 +178,12 @@ History:
 	// check if nested invocations, if so clone
 	if( StructKeyExists(request,"CS_SameRecordsInfo") )
 	{
-		pushed_CS_SameRecordsInfo = copyStruct(request.CS_SameRecordsInfo);
+		pushed_CS_SameRecordsInfo = Duplicate(request.CS_SameRecordsInfo);
 		pushed = 1;
 	}	
 	request.CS_SameRecordsInfo = StructNew();
 	request.CS_SameRecordsInfo.elementInfo = '';
-	if( StructKeyExists( attributes,'renderhandler' ) )
-		request.CS_SameRecordsInfo.renderhandler = attributes.renderhandler;
-	else	
-		request.CS_SameRecordsInfo.renderhandler = '';
+	request.CS_SameRecordsInfo.renderhandler = '';
 	request.CS_SameRecordsInfo.ClassNames = '';
 
 	tc = GetTickcount();
@@ -271,7 +227,7 @@ History:
 				application.CS_SameRecordsCache[attributes.ElementType] = StructNew();
 			if( NOT StructKeyExists( application.CS_SameRecordsCache[attributes.ElementType], attributes.cacheName ) )
 				application.CS_SameRecordsCache[attributes.ElementType][attributes.cacheName] = StructNew();
-			application.CS_SameRecordsCache[attributes.ElementType][attributes.cacheName].elementInfo = copyStruct(request.CS_SameRecordsInfo.elementInfo);
+			application.CS_SameRecordsCache[attributes.ElementType][attributes.cacheName].elementInfo = Duplicate(request.CS_SameRecordsInfo.elementInfo);
 			application.CS_SameRecordsCache[attributes.ElementType][attributes.cacheName][pageIDControlID] = StructNew();
 			application.CS_SameRecordsCache[attributes.ElementType][attributes.cacheName][pageIDControlID].renderhandler = request.CS_SameRecordsInfo.renderHandler;
 			application.CS_SameRecordsCache[attributes.ElementType][attributes.cacheName][pageIDControlID].classNames = request.CS_SameRecordsInfo.classNames;
@@ -307,8 +263,7 @@ History:
 ------------------------------------>
 <cffunction name="getMissingAttributes" access="private" output="No" returntype="string">
 	<cfscript>
-		var missingAttr = '';
-		
+		missingAttr = '';
 		if( NOT StructKeyExists(attributes,"ElementType") )
 			missingAttr = ListAppend(missingAttr,"ElementType");
 		if( NOT StructKeyExists(attributes,"ElementName") )
@@ -321,7 +276,6 @@ History:
 		if( NOT StructKeyExists(attributes,"Debug") )
 			attributes.Debug = 0;
 	</cfscript>
-	
 	<cfreturn missingAttr>
 </cffunction>
 
@@ -341,17 +295,3 @@ History:
 	</cfscript>
 </cffunction>
 
-<cffunction name="copyStruct" access="private" output="no" returntype="struct">
-	<cfargument name="srcStruct" type="struct" required="Yes">
-	
-	<cfscript>
-		var retStruct = StructNew();
-		var key = '';
-		
-		retStruct = server.commonspot.udf.util.duplicateBean(arguments.srcStruct);
-//		for( key in arguments.srcStruct )
-//			retStruct[key] = arguments.srcStruct[key];
-	</cfscript>
-	
-	<cfreturn retStruct>
-</cffunction> 

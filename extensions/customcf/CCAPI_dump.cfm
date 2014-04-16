@@ -32,8 +32,6 @@ History:
 	2012-01-24 - MFC - Updated to remove "ADFdemo" reference.
 	2012-12-26 - MFC - Updated to remove "CFINVOKE" tags for RAILO.
 	2013-10-24 - GAC - Updated to handle ADF CCAPI_1_0, ADF CCAPI_2_0 and ADF API_1_0 testing
-	2014-04-04 - GAC - Updated to pass the remote flag to CCAPI_2_0 
-					 - Also added some additional comments to the config options
 --->
 
 <!--- // Use this file to test to see if the CommonSpot is allowing a user to login to the CCAPI web service --->
@@ -53,7 +51,7 @@ History:
 		
 verboseOutput = false;
 remoteRequests = false;
-serviceLegacyMode = true;	// true - will use cs_service instead of cs_remote
+serviceLegacyMode = true;
 enableADFCCAPIv1 = true;
 enableADFCCAPIv2 = true;
 enableADFAPIv1 = true;
@@ -210,7 +208,7 @@ ccapiConfig.password = "password";
 			<cfscript>
 				ccapiObj2 = server.ADF.objectFactory.getBean("ccapi_2_0");
 				ccapiObj2.initCCAPI();
-				ccapiLoginRet2 = ccapiObj2.login(subsiteID=1,remote=remoteRequests);
+				ccapiLoginRet2 = ccapiObj2.login(1);
 				ccapiSSID2 = ccapiObj2.getSSID();
 			</cfscript>
 			<cfoutput><p>Login -- #ccapiSSID2#</p></cfoutput>

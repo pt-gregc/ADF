@@ -264,10 +264,13 @@ History:
 					
 				<cfif cType EQ 'radio'>
 					jQuery("input:radio[name=#fqFieldName#_select]").each(function(){
+							console.log('uncheck!');	
 							jQuery(this).prop('checked',false);	
 					});
 				<cfelse>
+					//jQuery("input:checkbox[name=#fqFieldName#_select]").unCheckCheckboxes();
 					jQuery("input:checkbox[name=#fqFieldName#_select]").each(function(){
+							console.log('uncheck!');	
 							jQuery(this).prop('checked',false);	
 					});
 				</cfif>

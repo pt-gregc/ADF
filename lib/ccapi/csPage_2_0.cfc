@@ -87,7 +87,6 @@ History:
 	2013-01-11 - MFC - Fixed issue with VAR not at the top for CF8 and under.
 	2013-02-08 - MFC - Updated logging variable in error handling.
 	2013-02-12 - MFC - Moved the "metadataStructToArray" code to a function in CSData.
-	2014-03-05 - JTP - Var declarations
 --->
 <cffunction name="createPage" access="public" output="true" returntype="struct" hint="Creates a page using the argument data passed in">
 	<cfargument name="stdMetadata" type="struct" required="true" hint="Standard Metadata would include 'Title, Description, TemplateId, SubsiteID etc...'">
@@ -110,7 +109,6 @@ History:
 		var loggingEnabled = false;
 		// Check the element is in the API Config file and defined		
 		var apiConfig = variables.api.getAPIConfig();
-		var result = StructNew();
 		
 		// Convert Metadata Struct into an Array of values
 		//	FieldName = The name of the field in the metadata form.

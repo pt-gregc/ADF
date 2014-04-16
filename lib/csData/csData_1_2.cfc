@@ -44,7 +44,6 @@ History:
 	2013-10-22 - GAC - Added new functions: csPageExistsByTitle,getCSPageIDlistByTitle,getCSPageQueryByTitle, getCSPageQueryByName,getCSPageIDlistByName
 					 - Updated the createUniquePageTitle,getCSPageIDByTitle functions
 	2014-02-24 - GAC - Added getCSFileURL function based on the old getCSPageURL function
-	2014-03-16 - JTP - Added getPaddedID function
 --->
 <cfcomponent displayname="csData_1_2" extends="ADF.lib.csData.csData_1_1" hint="CommonSpot Data Utils functions for the ADF Library">
 
@@ -911,14 +910,6 @@ History:
 		</cfif>
 	</cfif>
 	<cfreturn csFileURL>
-</cffunction>
-
-<!---
-	getPaddedID()
-		returns a uniqueID string which is 0 padded for textbased sorting 
---->
-<cffunction name="getPaddedID" access="public" returntype="string">
-	<cfreturn NumberFormat( Request.Site.IDMaster.getID(), '000000009' )>
 </cffunction>
 
 </cfcomponent>

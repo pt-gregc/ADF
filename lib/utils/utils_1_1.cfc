@@ -70,15 +70,12 @@ History:
 	2011-04-19 - RAK - Modified loading beans by bean name to not use evaluate and added fallback for application.ADF.beanName
 	2011-05-17 - RAK - Verified we were able to find the bean before we invoked commands upon it
 	2011-09-07 - GAC - Modified - added a TRY/CATCH around the CFINVOKE and an ELSE to the IsObject() check to help with error handling
-	2014-03-17 - JTP - Added logging if runCommand fails
-	2014-04-11 - GAC - updated the logging to better log what is actually failing
 --->
 <cffunction name="runCommand" access="public" returntype="Any" hint="Runs the given command">
 	<cfargument name="beanName" type="string" required="true" default="" hint="Name of the bean you would like to call">
 	<cfargument name="methodName" type="string" required="true" default="" hint="Name of the method you would like to call">
 	<cfargument name="args" type="Struct" required="false" default="#StructNew()#" hint="Structure of arguments for the speicified call">
 	<cfargument name="appName" type="string" required="false" default="" hint="Pass in an App Name to allow the method to be exectuted from an app bean">
-	
 	<cfscript>
 		var result = StructNew();
 		var bean = "";
@@ -98,12 +95,11 @@ History:
 		{
 			bean = server.ADF.objectFactory.getBean(arguments.beanName);
 		}
-		else if ( StructKeyExists(application.ADF,arguments.beanName) )
+		else if(StructKeyExists(application.ADF,arguments.beanName))
 		{
 			bean = StructFind(application.ADF,arguments.beanName);
 		}
 	</cfscript>
-	
 	<cfif isObject(bean)>
 		<cftry>
 			<cfinvoke component = "#bean#"
@@ -111,19 +107,12 @@ History:
 				  returnVariable = "result.reData"
 				  argumentCollection = "#arguments.args#">
 			<cfcatch>
-				<cfscript>
-					result.reData = cfcatch;
-					application.adf.utils.logAppend(msg=cfcatch, label='Error calling utils.RunCommand() method. #arguments.appName#.#arguments.beanName#.#arguments.methodName#', logfile='adf-run-command.html');
-				</cfscript>
+				<cfset result.reData = cfcatch>
 			</cfcatch>
 		</cftry>
 	<cfelse>
-		<cfscript>
-			result.reData = "Error: The Bean is not an Object and could not be used as a component! Check the Error logs for more details.";			
-			application.adf.utils.logAppend(msg="Error: The Bean '#arguments.appName#.#arguments.beanName#' is not an Object and could not be used as a component! Attempting to call the Method: '#arguments.methodName#'", logfile='adf-run-command.html');
-		</cfscript>
+		<cfset result.reData = "Error: The Bean is not an Object and could not be used as a component!">
 	</cfif>
-	
 	<cfscript>
 		// Check to make sure the result.returnData was not destroyed by a method that returns void
 		if ( StructKeyExists(result,"reData") )
@@ -208,26 +197,21 @@ Arguments:
 History:
  	2011-03-01 - RAK - Created
  	2011-05-10 - RAK - fixed bug related to unix systems
-	2014-03-05 - JTP - var'd un-var'd variables
-	2014-03-06 - GAC - Added 'arguments.' to the destinationURL variable
 --->
 <cffunction name="getThumbnailOfResource" access="public" returntype="string" hint="Returns the url to the thumbnail of a resource">
 	<cfargument name="filePath" type="string" required="true" default="" hint="Fully qualified path to resource.">
 	<cfargument name="destinationURL" type="string" required="false" default="" hint="URL to destination folder. EX: /mySite/images/ (If not specified it puts the image next to the file)">
-
 	<cfscript>
 		var documentName = "";
 		var destination = "";
-		
-		arguments.filePath = Replace(arguments.filePath,'\','/',"ALL");
-		documentName = listLast(arguments.filePath,"/");
-		
-		if( Len(arguments.destinationURL) )
-			destination = expandPath(arguments.destinationURL);
-		else
-			destination = Replace(arguments.filePath,documentName,'');
+		filePath = Replace(filePath,'\','/',"ALL");
+		documentName = listLast(filePath,"/");
+		if(Len(destinationURL)){
+			destination = expandPath(destinationURL);
+		}else{
+			destination = Replace(filePath,documentName,'');
+		}
 	</cfscript>
-	
 	<cfpdf
 		source="#filePath#"
 		action = "thumbnail"
@@ -314,12 +298,7 @@ History:
 --->
 <cffunction name="urlEncodeStruct" access="public" returntype="string" hint="Converts a structure into a URL encoded key value pair string">
 	<cfargument name="urlStruct" type="struct" required="true" default="" hint="Structure of key value pairs for the url encoding">
-	
-	<cfscript>
-		var rtnString = "";
-		var key = '';
-	</cfscript>
-	
+	<cfset var rtnString = "">
 	<!---Loop over each key in the structure, lowercase and encode it .
 				and assign it to its value and add it to the list with a delim of &
 	--->
@@ -328,7 +307,6 @@ History:
 			rtnString = listAppend(rtnString,URLEncodedFormat(LCase(key))&"="&URLEncodedFormat(arguments.urlStruct[key]),"&");
 		</cfscript>
 	</cfloop>
-	
 	<cfreturn rtnString>
 </cffunction>
 

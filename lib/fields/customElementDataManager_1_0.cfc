@@ -41,6 +41,6 @@ History:
 <cfproperty name="wikiTitle" value="customElementDataManager_1_0">
 
 <!--- // This component is a pass-through component that allows for the custom_element_data_manager_base.cfc to be part of the ADF as a LIB component --->
-<!--- // - Global overrides can be achieved by copying this file to the  "_cs_apps/lib" folder ( "_cs_apps/lib/customElementDataManager_1_0.cfc" and extending to this file )  --->
+<!--- // - Global overrides can be achieved by copying this file to the  "_cs_apps/lib" folder ( "_cs_apps/lib/customElementDataManager_1_0.cfc" and extentding to this file )  --->
 
 </cfcomponent>
