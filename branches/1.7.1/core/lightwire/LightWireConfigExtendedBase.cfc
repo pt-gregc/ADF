@@ -36,7 +36,7 @@ History:
 --->
 <cfcomponent name="LightWireConfigExtendedBase" extends="ADF.thirdParty.lightwire.BaseConfigObject" output="false">
 
-<cfproperty name="version" value="1_7_0">
+<cfproperty name="version" value="1_7_1">
 <cfproperty name="file-version" value="3">
 
 <cffunction name="init" returntype="any" hint="I initialize default LightWire config properties." output=false access="public">
@@ -352,7 +352,8 @@ History:
 		//if ( overrideLibPath )
 		//	loadDependencies(objFactoryType=arguments.objFactoryType,libType='site',overridePath=cfcPath);
 		//else
-			loadDependencies(objFactoryType=arguments.objFactoryType);
+		
+		loadDependencies(objFactoryType=arguments.objFactoryType);
 	</cfscript>
 </cffunction>
 
