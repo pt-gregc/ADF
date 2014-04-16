@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2014.
+PaperThin, Inc. Copyright(C) 2012.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files
@@ -35,15 +35,14 @@ History:
 	2011-09-26 - GAC - Updated application.schedule to be application.ADFscheduler 
 	2011-09-27 - GAC - Added the UTILS and SCRIPTS LIBs as a dependencies and converted all application.ADF references to the local 'variables.'. 
 	2012-11-29 - GAC - Added the DATA lib as a dependency 
-	2013-11-18 - GAC - Updated the lib dependencies to scripts_1_2, data_1_2 and utils_1_2
 --->
 <cfcomponent displayname="scheduler_1_0" extends="ADF.core.Base" hint="Scheduler base for the ADF">
 	
-<cfproperty name="version" value="1_0_6">
+<cfproperty name="version" value="1_0_1">
 <cfproperty name="type" value="singleton">
-<cfproperty name="scripts" type="dependency" injectedBean="scripts_1_2">
-<cfproperty name="data" type="dependency" injectedBean="data_1_2">
-<cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
+<cfproperty name="scripts" injectedBean="scripts_1_1" type="dependency">
+<cfproperty name="data" type="dependency" injectedBean="data_1_1">
+<cfproperty name="utils" type="dependency" injectedBean="utils_1_1">
 <cfproperty name="wikiTitle" value="Scheduler_1_0">
 
 <cfscript>
@@ -184,8 +183,7 @@ History:
 	2011-09-17 - GAC - Added a check to verify that application.schedule variable exists
 	2011-09-26 - GAC - Updated application.schedule to be application.ADFscheduler 
 	2011-09-27 - GAC - Added a call to delete the CF Scheduled Task after process is marked as 'complete'
-					   Converted application.ADF references to the local 'variables.'.
-	2014-04-11 - GAC - Updated to allow the AppName passed to the runCommand  
+					   Converted application.ADF references to the local 'variables.'. 
 --->
 <cffunction name="processNextScheduleItem" access="public" returntype="boolean" hint="Executes the next item in the schedule. If there are no more it marks the schedule as ran.">
 	<cfargument name="scheduleName" type="string" required="true" hint="Unique name for the schedule you want to run">
@@ -234,10 +232,7 @@ History:
 							{
 								currentCommand.args = "";
 							}
-							if ( StructKeyExists(currentCommand,"app") )
-								variables.utils.runCommand(beanName=currentCommand.bean,methodName=currentCommand.method,args=currentCommand.args,appName=currentCommand.app);
-							else
-								variables.utils.runCommand(beanName=currentCommand.bean,methodName=currentCommand.method,args=currentCommand.args);
+							variables.utils.runCommand(currentCommand.bean,currentCommand.method,currentCommand.args);
 						}
 						else
 						{
@@ -562,7 +557,6 @@ History:
 	2010-12-21 - GAC - Added
 	2010-12-21 - GAC - Added task name filter
 	2012-11-29 - GAC - Updated to handle getting the CFSCHEDULED tasks list from RAILO
-	2013-06-12 - GAC - Fixed a variable name issue in the taskName filter loop
 --->
 <cffunction name="getScheduledTasks" returntype="array" output="no" access="public" hint="Obtain an Array of CF scheduled tasks ">
 	<cfargument name="taskNameFilter" type="string" required="false" default="" hint="Used to only display Scheduled Task Names that contain this filter value">	
@@ -627,7 +621,7 @@ History:
 		if ( ArrayLen(result) ){
 			// If filter value is passed in loop over the Array of task and build a new array
 			if ( LEN(TRIM(arguments.taskNameFilter)) ) { 
-				for ( i; i LTE ArrayLen(result); i=i+1 ) {
+				for ( i; itm LTE ArrayLen(result); i=i+1 ) {
 					taskName = result[i].task;
 					// Only Add Tasks to the Result Array if they contain the filter value
 					if ( FindNoCase(arguments.taskNameFilter,taskName,1) NEQ 0 ) {

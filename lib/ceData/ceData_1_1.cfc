@@ -1,4 +1,4 @@
-<!---
+<!--- 
 The contents of this file are subject to the Mozilla Public License Version 1.1
 (the "License"); you may not use this file except in compliance with the
 License. You may obtain a copy of the License at http://www.mozilla.org/MPL/
@@ -10,18 +10,18 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2014.
+PaperThin, Inc. Copyright(C) 2012.
 All Rights Reserved.
 
-By downloading, modifying, distributing, using and/or accessing any files
-in this directory, you agree to the terms and conditions of the applicable
+By downloading, modifying, distributing, using and/or accessing any files 
+in this directory, you agree to the terms and conditions of the applicable 
 end user license agreement.
 --->
 
 <!---
 /* *************************************************************** */
-Author:
-	PaperThin, Inc.
+Author: 	
+	PaperThin, Inc. 
 Name:
 	ceData_1_1.cfc
 Summary:
@@ -35,14 +35,15 @@ History:
 --->
 <cfcomponent displayname="ceData_1_1" extends="ADF.lib.ceData.ceData_1_0" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="1_1_10">
+<cfproperty name="version" value="1_1_5">
 <cfproperty name="type" value="singleton">
+<cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_1">
 <cfproperty name="data" type="dependency" injectedBean="data_1_1">
 <cfproperty name="wikiTitle" value="CEData_1_1">
 
 <!---
 /* *************************************************************** */
-Author:
+Author: 	
 	PaperThin, Inc.
 	Ryan Kahn
 Name:
@@ -57,8 +58,8 @@ History:
 	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="getTabsFromFormID" hint="Returns array containing form tab name and id ordered by their display name"
-				access="public"
-				returntype="array"
+				access="public" 
+				returntype="array" 
 				description="From form ID this function, when recurse is set to true returns the form's tabs in order, with the tab's fields in order, with each field's default information.">
 	<cfargument name="formID" type="numeric" required="true" hint="FormID to get the tabs from">
 	<cfargument name="recurse" type="boolean" required="false" default="false" hint="If true, this function will return a structure containing every tabs fields and the fields default values.">
@@ -90,7 +91,7 @@ History:
 <!---
 /* *************************************************************** */
 Author:
-	PaperThin, Inc.
+	PaperThin, Inc.	
 	Ryan Kahn
 Name:
 	$getFieldsFromTabID
@@ -105,7 +106,7 @@ History:
 	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="getFieldsFromTabID" hint="Returns array containing form field name and id in order from the tabID"
-				access="public"
+				access="public" 
 				returntype="array"
 				description="From tab id this can return either a simple listing of fields/fieldid in order. With recursive flag to true this function will return the fields/fieldid as normal but each field will have its default settings also.">
 	<cfargument name="tabIDList" type="string" required="true" hint="list of tab IDs to get fields from">
@@ -118,8 +119,8 @@ History:
 	<cfquery name="formFieldQuery" datasource="#request.site.datasource#">
 		  select FormInputControlMap.FieldID,FormInputControlMap.ItemPos,FormInputControl.FieldName
 			 from FormInputControlMap
-    			inner join FormInputControl
-					ON FormInputControl.ID = FormInputControlMap.FieldID
+    inner join FormInputControl 
+				ON FormInputControl.ID = FormInputControlMap.FieldID
   			where TabID in (<cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.tabIDList#" list="Yes">)
 		order by ItemPos
 	</cfquery>
@@ -137,7 +138,7 @@ History:
 
 <!---
 /* *************************************************************** */
-Author:
+Author: 	
 	PaperThin, Inc.
 	Ryan Kahn
 Name:
@@ -154,7 +155,7 @@ History:
 	2012-04-16 - GAC - Removed the circular references to application.ADF.cedata
 --->
 <cffunction name="getFieldDefaultValueFromID" hint="Returns struct containing form field default values"
-				access="public"
+				access="public" 
 				returntype="struct"
 				description="Attempts to get all relevant default form field information from field id.">
 	<cfargument name="fieldID" type="numeric" required="true" hint="Field ID to get the default values from">
@@ -183,7 +184,7 @@ History:
 		<cfscript>
 			fieldDefaultValues = getElementInfoByPageID(pageid=0,formid=formID);
 			rtnStruct = StructNew();
-
+			
 			// 2011-05-04 - MFC - Added check for CS 5 to decode the HTML escaped param WDDX.
 			// Check if in CS 5 or lower to decode the HTML in the wddx
 			if ( application.ADF.csVersion LT 6 ){
@@ -209,7 +210,7 @@ History:
 			}
 			if(structkeyexists(params,"VALSOURCE")
 					and params.VALSOURCE eq "element"
-					and structkeyexists(params,"ELEMENTID")
+					and structkeyexists(params,"ELEMENTID") 
 					and Len(params.ELEMENTID)
 				){
 				//Its an optionlist on a list of elements! And they selected an element. Figure out what element it is!
@@ -245,7 +246,7 @@ History:
 
 <!---
 /* *************************************************************** */
-Author:
+Author: 	
 	PaperThin, Inc.
 	Ryan Kahn
 Name:
@@ -396,7 +397,7 @@ History:
 			return returnStruct;
 		}
 		// Horray! The file existed and had content
-		ceData = server.Commonspot.UDF.util.deserialize(dataToImport);
+		ceData = Server.Commonspot.UDF.util.deserialize(dataToImport);
 	</cfscript>
 	<cfif !isArray(ceData) && Find(",",dataToImport) && Len(ceName)>
 		<!---	Boo, we didnt deserialize properly which means its probably a csv. Parse the crap out of it--->
@@ -429,7 +430,7 @@ History:
 		arguments.ceName = ceData[1].formName;
 		if ( LEN(TRIM(arguments.ccapiCEName)) )
 			arguments.ceName = arguments.ccapiCEName;
-
+		
 		//We have a valid structure! lets do our clean if requested and continue on.
 		if(arguments.clean){
 			variables.deleteByElementName(ceName);
@@ -455,6 +456,7 @@ History:
 			//Add the item to the schedule
 			ArrayAppend(scheduleArray,scheduleStruct);
 		}
+//Application.ADF.utils.doDump(scheduleArray,"scheduleArray",0);
 
 		//Setup the schedule params
 		scheduleParams = StructNew();
@@ -521,12 +523,12 @@ History:
 
 <!---
 /* ************************************************************** */
-Author:
+Author: 	
 	PaperThin, Inc.
 	Ron West
 Name:
 	$buildCEDataArrayFromQuery
-Summary:
+Summary:	
 	Returns a standard CEData Array to be used in Render Handlers from a ceDataView query
 Returns:
 	Array ceDataArray
@@ -538,8 +540,7 @@ History:
 	2011-02-08 - RAK - Removing ptBlog2 from the function calls as this is not running in ptBlog2 and should never have been here. Its fixed now at least...
 	2011-04-04 - MFC - Updated function to load the Forms from the server object factory.
 						Attempted to add dependency but ADF build throws error.
-	2011-05-26 - MFC - Modified function to set the fieldStruct variable outside of the cfloop.
-	2014-03-05 - JTP - Var declarations
+	2011-05-26 - MFC - Modified function to set the fieldStruct variable outside of the cfloop.					
 --->
 <cffunction name="buildCEDataArrayFromQuery" access="public" returntype="array" hint="Returns a standard CEData Array to be used in Render Handlers from a ceDataView query">
 	<cfargument name="ceDataQuery" type="query" required="true" hint="ceData Query (usually built from ceDataView) results to be converted">
@@ -554,26 +555,25 @@ History:
 		var i = "";
 		//var commonFieldList = "pageID,formID,dateAdded,dateCreated";
 		var commonFieldList = "pageID,formID";
-		var commonField = '';
 		var fieldStruct = structNew();
-
+		
 		// Check that we have a query with values
 		if ( arguments.ceDataQuery.recordCount GTE 1 ){
-			// Setup the default common fields
+			// Setup the default common fields 
 			// get the fields structure for this element
 			fieldStruct = server.ADF.objectFactory.getBean("Forms_1_0").getCEFieldNameData(getCENameByFormID(arguments.ceDataQuery["formID"][1]));
 		}
 	</cfscript>
-
+	
 	<cfloop from="1" to="#arguments.ceDataQuery.recordCount#" index="row">
 		<cfscript>
 			tmp = structNew();
 			// Set the tmp to the default values from the common fields
 			//tmp = defaultTmp;
-
-			// add in common fields
+			
+			// add in common fields			
 			for( i=1; i lte listLen(commonFieldList); i=i+1 )
-			{
+			{				
 				commonField = listGetAt(commonFieldList, i);
 				// handle each of the common fields
 				if( findNoCase(commonField, arguments.ceDataQuery.columnList) )
@@ -586,11 +586,11 @@ History:
 					if( not len(formName) )
 						formName = getCENameByFormID(tmp.formID);
 					tmp.formName = formName;
-				}
+				} 
 			}
-
+			
 			tmp.values = structNew();
-
+			
 			// loop through the field query and build the values structure
 			for( itm=1; itm lte listLen(structKeyList(fieldStruct)); itm=itm+1 )
 			{
@@ -606,77 +606,17 @@ History:
 
 <!---
 /* *************************************************************** */
-Author:
+Author: 	
 	PaperThin, Inc.
 Name:
 	$buildRealTypeView
-Summary:
+Summary:	
 	Builds an element view for the passed in element
 Returns:
 	Boolean viewCreated
 Arguments:
-	String ceName - required
-	String viewName - optional
-	Struct fieldTypes - optional
-		FIELD TYPE DETERMINATION
-			arguments.fieldTypes is a struct keyed by field type, whose values are a list of field names (without 'fic_') that should be forced to that type.
-				Allowed types are:
-					shortText - will never be longer than 425 chars, always in FieldValue column
-					longText - memo/CLOB, may be in MemoValue column
-					int
-					float
-				Anything else is treated as longText.
-				It can also contain the following optional special keys:
-					defaultTextType: The value of this key will be used as the type for fields not explicitly spec'd that aren't integer or float
-						Should be shortText or longText.
-					omit: List of field names (without 'fic_') that should not be included in the generated views.
-						You cannot omit FormID, PageID, or ControlID.
-			If no spec is provided, the code tries to guess; see getFormFieldDatatypes() for details.
-				If you're not getting the result you want, spec some columns manually.
-		BEHAVIOR OF DIFFERENT FIELD TYPES
-			Integer and float types CAST FieldValue to the appropriate type for the db.
-			Fields spec'd as shortText use FieldValue only, ignoring MemoValue.
-				Where possible that's good, because the view can be optimized a lot, especially on SQL Server, and because it supports '=' comparison.
-					That also means these columns can be joined against.
-				However, with shortText, values longer than 425 characters will be returned by the view as NULL, because CommonSpot stores values that size in MemoText, not FieldValue.
-				In CommonSpot 9.0 and later, longText columns are also joinable and comparable (because Data_FieldValue.MemoValue is NVARCHAR(MAX)).
-		ORACLE COMPATIBILITY
-			On Oracle, these views will truncate data in all columns at 4000 characters.
-			See also the comments for options.useFICPrefix, below.
-		THE OPTIMAL STRATEGY
-			Pass defaultTextType="shortText", and list all longText fields explicitly.
-			That uses the simple FieldValue-only definition for all text columns except ones explicitly made longText, which use the LIKE-only syntax.
-			This approach is fully compatible with Oracle.
-		CAPTURING VIEW SQL
-			If you want to capture the view creation SQL, append this to the URL of a request that will attempt to create the views you want to capture:
-				?adfLogViewSQL=1
-			You can also pass 1 for options.logViewSQL to request this. See info about the options arguemnt, below.
-			The SQL used to create the view will be written to a file named {date}.{site}.ADFlogViewSQL.log, in the CommonSpot logs directory.
-			If an error occurs, view sql will still be written to that file, with an indication that there was an error.
-	Struct options - optional
-		Struct with the following keys, all optional:
-			useFICPrefix: boolean integer, default 0
-				By default, and always before ADF 1.7, the internal 'FIC_' prefix for field names is removed when view columns are named; pass 1 to use it instead.
-				Note that without it, some field names may conflict with CommonSpot internals, 'FormID' for instance.
-				Note also that without it, field names that are reserved words in Oracle will crash, preventing creation of the view.
-				For these reasons, using it is safest, but changing this option breaks existing code that looks for the un-prefixed names.
-			logViewSQL: boolean integer, default 0
-				If 1, SQL of the generated view will be logged to a file in the CommonSpot logs directory.
-				You can also request this via a URL parameter; see CAPTURING VIEW SQL, above.
-
-CODING PATTERNS
-	Ideally, direct calls to this method should be replaced by calls to ceData_2_0.buildView().
-		That lets you explicitly force the view to rebuild always, even if it already exists.
-	Where custom view specs or view names are required (which is common), one approach is to use the following pattern in your App.cfc:
-		Create a getCEViewSpecs(customElementName) method, which returns the appropriate fieldTypes struct for each custom element the app creates views for.
-		If desired, override the inherited getCEViewName(customElementName), with one that returns the view names you want to use.
-		Override the buildView method inherited from ceData_2_0, calling those getCEViewSpecs and getCEViewName methods, then calling cedata's buildView method.
-		See the PT Calendar app for an example.
-	An alternative is for each DAO in an app to own its own view specs, and for App.cfc to call each of them in postInit.
-	Bottom line:
-		You should think about what code should be creating views, and related, what code owns view specs.
-		Make sure that all code that might build or rebuild views has access to view specs.
-
+	String ceName
+	String viewName
 History:
 	2010-04-07 - RLW - Created
 	2010-06-18 - SF - [Steve Farwell] Bug fix for building the view for MySQL
@@ -687,741 +627,150 @@ History:
 	2011-03-14 - MFC - Update the viewname variable to remove spaces.
 	2011-04-25 - MFC - Commented out the Oracle DB cast for "large_textarea,formatted_text_block".
 	2011-04-27 - MFC - Updated the SQL WHEN condition to only check for empty string.
-						Updated the "large_textarea,formatted_text_block" CASE for the IF condition when "SQLServer".
+						Updated the "large_textarea,formatted_text_block" CASE for the IF condition when 'SQLServer'.
 						Changed memoValue field size to "max".
 	2011-05-03 - RAK - Modified code to default to try the memo field if the data is null or ''
 	2010-09-24 - GAC - Added an optional FIX for use with SQL2000. The FIX is commented out since SQL 2000 is not widely used.
 	2012-06-20 - GAC - Updated the SQL to allow CE Field names with underscores (_). Changed the 'AS {FIELDNAME}' to strip the "FIC_" instead of using a ListGetAt with an underscore delimiter.
 					 - Also added brackets [] around the {FIELDNAME} to allow for field names that might be reserved or non-standard SQL field names.
 	2012-08-03 - DMB - Added check for db type around the square brackets Greg added and rendered single quotes instead if under mySQL.
-	2012-10-16 - DMB - Updated to use the memovalue field for fields longer than 425 characters.
+	2012-10-16 - DMB - Updated to use the memovalue field for fields longer than 850 characters.
 	2012-10-24 - GAC - Added a db type version check to uncomment the fix for using nvarchar(4000) instead of nvarchar(max) for older versions of MSSQL.
-					 - Moved the memovalue field fix into the conditional logic for MySQL. In the old position the syntax caused MSSQL view table creation to fail.
+					 - Moved the memovalue field fix into the conditional logic for MySQL. In the old position the syntax caused MSSQL view table creation to fail. 
 	2013-01-08 - MFC - Added TRY-CATCH for error handling when generating the view table.
-	2013-02-04 - MFC - Added IF statement to check that the view table name has a length.
-	2013-11-19 - DRM - Major rework of how the generated view combines FieldValue and MemoValue
-						part of Oracle case was never written
-						allow passing of fieldTypes struct, docs above about its use
-						various ways to auto-detect if a field can be short text
-						don't truncate data on recent SQL Server
-						honor ntext vs text type of MemoValue col
-						log error if there is one (was only a comment there before)
-						some cleanup, including removing query names where result is ignored
-	2014-02-19 - GAC - Added local variables for the VersionState Operator and Value
-	2014-02-19 - GAC - Added escape characters for reserved words in custom element field names
-	2014-03-05 - JTP - Var declarations
-	2014-03-25 - DRM - Major rework to optimize view performance separately for each db type
-						drops self-join strategy, not performant, though it does avoid truncating long text on Oracle
-						uses pivot for SQL Server, aggregate-based view for MySQL and Oracle
-						drops support for SQL Server earlier than SQL 2005 (official End of Life for SQL 2000 was 4/9/2013)
+	2013-02-04 - MFC - Added IF statement to check that the view table name has a length.				 
 --->
-<cffunction name="buildRealTypeView" access="public" returntype="boolean" hint="Builds an element view for the passed in element name">
+<cffunction name="buildRealTypeView" access="public" returntype="boolean" hint="Builds ane lement view for the passed in element name">
 	<cfargument name="elementName" type="string" required="true" hint="element name to build the view table off of">
-	<cfargument name="viewName" type="string" default="ce_#arguments.elementName#View" hint="Override the view name that gets generated">
-	<cfargument name="fieldTypes" type="struct" default="#structNew()#" hint="See argument notes above.">
-	<cfargument name="options" type="struct" default="#structNew()#" hint="See argument notes above.">
-
+	<cfargument name="viewName" type="string" required="false" default="ce_#arguments.elementName#View" hint="Override the view name that gets generated">
 	<cfscript>
+		var deleteView = '';
 		var viewCreated = false;
 		var formID = getFormIDByCEName(arguments.elementName);
-		var fieldsQuery = "";
-		var fieldDatatypes = "";
-		var buildMethod = "";
-		var useFICPrefix = 0;
-		var logViewSQL = 0;
-
-		// make sure that we actually have a form ID
-		if (formID == "" || formID <= 0)
+		var dbType = Request.Site.SiteDBType;
+		var dbInfo = server.commonspot.datasources[request.site.datasource];
+		var dbVersion = "";
+		var realTypeView = '';
+		var fieldsSQL = '';
+		var fldqry = '';
+		var intType = '';
+		// Remove the spaces in the name
+		arguments.viewName = Replace(arguments.viewName, " ", "_", "all");
+		// Set the db version if available 
+		if ( StructKeyExists(dbInfo,"version") )
+			dbVersion = ListFirst(dbInfo.version,".");
+		// Set datatypes for different db types
+		switch (dbtype)
 		{
-			server.ADF.objectFactory.getBean("utils_1_2").logAppend("ERROR: element '#arguments.elementName#' for view '#arguments.viewName#' does not exist#Chr(10)##repeatString("-", 50)#");
-			return false;
-		}
-
-		if (arguments.viewName eq "")
-			arguments.viewName = "ce_#arguments.elementName#View";
-		arguments.viewName = Replace(arguments.viewName, " ", "_", "all"); // Remove the spaces in the name
-
-		if (structKeyExists(arguments.options, "useFICPrefix") AND arguments.options.useFICPrefix eq 1)
-			useFICPrefix = 1;
-
-		if (structKeyExists(arguments.options, "logViewSQL") AND arguments.options.logViewSQL eq 1)
-			logViewSQL = 1;
-		else if (structKeyExists(Request.Params, "adfLogViewSQL") and Request.Params.adfLogViewSQL eq 1)
-			logViewSQL = 1;
-	</cfscript>
-
-	<!--- drop the view if it already exists--->
-	<cftry>
-		<cfquery datasource="#request.site.dataSource#">
-			DROP VIEW #arguments.viewName#
-		</cfquery>
-		<cfcatch><!--- assume it's because view didn't exist, we're good ---></cfcatch>
-	</cftry>
-
-	<cfscript>
-		fieldsQuery = getFormFieldsQuery(formID);
-		fieldDatatypes = getFormFieldDatatypes(fieldsQuery, arguments.fieldTypes);
-
-
-		// aggregate version works for all dbs, but pivot is more efficient, so it's used for SQL Server
-		// Oracle supports pivot too, but requires a somewhat different query arrangement than SQL Server, didn't have to time to work that out
-		// MySQL doesn't support pivot at all
-		switch(Request.Site.SiteDBType)
-		{
-			case "SQLServer":
-				buildMethod = _buildPivotView;
+			case 'Oracle':
+				intType = 'number(12)';
 				break;
 			case 'MySQL':
-			case "Oracle":
-				buildMethod = _buildAggregateView;
+				intType = 'UNSIGNED';
+				break;
+			case 'SQLServer':
+				intType = 'int';
 				break;
 		}
-		viewCreated = buildMethod(formID, arguments.viewName, fieldsQuery, fieldDatatypes, useFICPrefix, logViewSQL);
-
-		return viewCreated;
-	</cfscript>
-</cffunction>
-
-<!---
-/* *************************************************************** */
-Author:
-	PaperThin, Inc.
-Name:
-	$_buildPivotView
-Summary:
-	Builds an element view for the passed in element name- SQL Server version.
-	Private utility method for buildRealTypeView.
-Returns:
-	boolean
-Arguments:
-	formID - numeric
-	viewName - string
-	fieldsQuery - query
-	fieldDatatypes - struct
-	keepFICPrefix - boolean
-	logViewSQL - boolean
-History:
-	2014-04-04 - DRM - Created
---->
-<cffunction name="_buildPivotView" returntype="boolean" hint="Builds an element view for the passed in element name- SQL Server version" access="private">
-	<cfargument name="formID" type="numeric" required="true" hint="formID of element to build a view for">
-	<cfargument name="viewName" type="string" required="false" default="ce_#arguments.elementName#View" hint="Override the view name that gets generated">
-	<cfargument name="fieldsQuery" type="query" required="yes">
-	<cfargument name="fieldDatatypes" type="struct" required="yes">
-	<cfargument name="useFICPrefix" type="boolean" required="yes">
-	<cfargument name="logViewSQL" type="boolean" required="yes">
-
-	<cfscript>
-		var viewCreated = false;
-		var dbType = Request.Site.SiteDBType;
-		var dbTypeStrs = _getDBTypeStrs();
-		var intType = "";
-		var memoValueExpr = "";
-		var andNotEmptyStr = "";
-		var orIsEmpty = "";
-		var fieldType = "";
-		var dataColsList = "MemoValue,FieldValue";
-		var dataColSpecs = structNew();
-		var dataCol = "";
-		var dataColExpr = "";
-		var fieldNameNoFIC = "";
-		var colAlias = "";
-		var createViewResult = "";
-		var selectExpr = "";
-		var logMsg = "";
-		var thisViewName = "";
-		var indent = repeatString(chr(9), 5);
-
-		intType = dbTypeStrs.intType;
-		memoValueExpr = dbTypeStrs.memoValueExpr;
-		andNotEmptyStr = dbTypeStrs.andNotEmptyStr;
 	</cfscript>
 
-	<cftry>
-		<cfquery datasource="#request.site.dataSource#">
-			CREATE VIEW ADF_MemoValueData
-			AS
-			(
-				SELECT FormID, PageID, ControlID, FieldID, VersionState, #memoValueExpr# AS MemoValue <!--- need this to  pivot on MemoValue prior to cs 9, where it's already VARCHAR(MAX) --->
-				  FROM Data_FieldValue
-			)
-		</cfquery>
-		<cfcatch><!--- assume it's because view already exists, we're good ---></cfcatch>
-	</cftry>
-
-	<cfloop list="#dataColsList#" index="dataCol">
-		<cfscript>
-			dataColSpecs[dataCol]["selectSQL"] = "";
-			dataColSpecs[dataCol]["fieldIDList"] = "";
-		</cfscript>
-
-		<!--- drop pivot view for this column (FieldValue/MemoValue) if it exists --->
+	<!--- // make sure that we actually have a form ID --->
+	<cfif len(formID) and formID GT 0>
+		<!--- // delete the view if it exsists already delete it --->
 		<cftry>
-			<cfquery datasource="#request.site.dataSource#">
-				DROP VIEW #arguments.viewName#_#lCase(left(dataCol, 1))#
+			<cfquery name="deleteView" datasource="#request.site.dataSource#">
+				Drop view #arguments.viewName#
 			</cfquery>
-			<cfcatch><!--- assume it's because view didn't exist, we're good ---></cfcatch>
+			<cfcatch></cfcatch>
 		</cftry>
-
-		<cfloop query="arguments.fieldsQuery">
-			<cfscript>
-				fieldNameNoFIC = replaceNoCase(FieldName, "FIC_", "");
-				colAlias = FieldName;
-				if (arguments.useFICPrefix eq 0)
-					colAlias = fieldNameNoFIC;
-				fieldType = arguments.fieldDatatypes[fieldNameNoFIC];
-				if (fieldType != "omit" && (dataCol == "FieldValue" || fieldType == "longText"))
-				{
-					dataColSpecs[dataCol].selectSQL = "#dataColSpecs[dataCol].selectSQL##indent##_escapeSQLReservedWord(FieldID, 1)# AS #_escapeSQLReservedWord(colAlias)#,#chr(10)#";
-					dataColSpecs[dataCol].fieldIDList = listAppend(dataColSpecs[dataCol].fieldIDList, _escapeSQLReservedWord(FieldID, 1));
-				}
-			</cfscript>
-		</cfloop>
-	</cfloop>
-
-	<cfscript>
-		if (dataColSpecs.MemoValue.selectSQL == "")
-			dataColsList = "FieldValue"; // no MemoValue cols, don't need that pivot view
-	</cfscript>
-
-	<cftry>
-		<!--- create MemoValue pivot view, and FieldValue one if needed --->
-		<cfloop list="#dataColsList#" index="dataCol">
-			<cfscript>
-				dataColExpr = _pick((dataCol == "FieldValue"), "FieldValue", memoValueExpr);
-				if (dataColSpecs.MemoValue.selectSQL == "")
-					thisViewName = arguments.viewName; // no memo cols, build this pivot as the requested view
-				else
-					thisViewName = "#arguments.viewName#_#lCase(left(dataCol, 1))#";
-			</cfscript>
-
-			<!--- create pivot view for this column (FieldValue/MemoValue) --->
-			<cfquery datasource="#Request.Site.DataSource#" result="createViewResult">
-				CREATE VIEW #thisViewName# AS
-				SELECT#chr(10)##dataColSpecs[dataCol].selectSQL##indent#PageID, FormID, ControlID
-				FROM
-				(
-					SELECT FormID, PageID, ControlID, FieldID, #dataCol#
-					  FROM <cfif dataCol eq "FieldValue">Data_FieldValue<cfelse>ADF_MemoValueData</cfif>
-					 WHERE FormID = #arguments.formID#
-						AND VersionState = 2
-						AND PageID > 0
-				) temp
-				PIVOT
-				(
-					MAX (#dataCol#)
-					FOR FieldID IN (#dataColSpecs[dataCol].fieldIDList#)
-				)<cfif dbType eq "SQLServer"> AS Value<cfelse><!--- empty cfelse is for nicer whitespace in logged sql; shouldn't matter but it does ---></cfif>
-			</cfquery>
-
-			<cfscript>
-				if (arguments.logViewSQL and StructKeyExists(createViewResult,"sql"))
-					server.ADF.objectFactory.getBean("utils_1_2").logAppend("#arguments.viewName#: #thisViewName##Chr(10)##createViewResult.sql##chr(10)##repeatString(chr(9), 3)##repeatString("-", 50)#", "ADFlogViewSQL.log");
-			</cfscript>
-		</cfloop>
-
-		<!--- if we have some memo cols, we just built FieldValue and MemoValue pivot views, now build requested view as a join of them --->
-		<cfif dataColSpecs.MemoValue.selectSQL neq "">
-			<cfquery datasource="#Request.Site.DataSource#" result="createViewResult">
-				CREATE VIEW #arguments.viewName# AS
-				SELECT
-<!---	  ---><cfloop query="arguments.fieldsQuery">
-					<cfscript>
-						fieldNameNoFIC = replaceNoCase(FieldName, "FIC_", "");
-						colAlias = FieldName;
-						if (arguments.useFICPrefix eq 0)
-							colAlias = fieldNameNoFIC;
-						colAlias = _escapeSQLReservedWord(colAlias);
-						orIsEmpty = _pick((dbType == "Oracle"), "", " OR LEN(f.#colAlias#) = 0");
-						selectExpr = "";
-						dataType = arguments.fieldDatatypes[fieldNameNoFIC];
-						switch(dataType)
-						{
-							case "omit":
-								break;
-							case "shortText":
-								selectExpr = "f.#colAlias#";
-								break;
-							case "integer":
-								selectExpr = "CAST(f.#colAlias# AS #intType#) AS #colAlias#";
-								break;
-							case "float":
-								selectExpr = "CASE WHEN f.#colAlias# IS NULL#orIsEmpty# THEN 0 ELSE CAST(f.#colAlias# AS DECIMAL(7,2)) END AS #colAlias#";
-								break;
-							default:
-								selectExpr = "CASE WHEN f.#colAlias# IS NULL#orIsEmpty# THEN m.#colAlias# ELSE f.#colAlias# END AS #colAlias#";
-						}
-						if (dataType != "omit")
-							writeOutput("#indent##selectExpr#,#chr(10)#");
-					</cfscript>
-<!---	  ---></cfloop>#indent#f.FormID, f.PageID, f.ControlID
-				FROM #arguments.viewName#_f f
-				JOIN #arguments.viewName#_m m ON m.PageID = f.PageID AND m.ControlID = f.ControlID
-			</cfquery>
-
-			<cfscript>
-				if (arguments.logViewSQL and StructKeyExists(createViewResult,"sql"))
-					server.ADF.objectFactory.getBean("utils_1_2").logAppend("#arguments.viewName##Chr(10)##createViewResult.sql##repeatString("-", 50)#", "ADFlogViewSQL.log");
-			</cfscript>
-		</cfif>
-
-		<cfscript>
-			viewCreated = true;
-		</cfscript>
-
-		<cfcatch>
-			<cfscript>
-				logMsg = "[ceData_1_1._buildPivotView] Error building view: #arguments.viewName##Chr(10)##cfcatch.message# #cfcatch.detail#";
-				if (structKeyExists(cfcatch, "sql"))
-					logMsg = "#logMsg##chr(10)#QUERY SQL:#chr(10)##cfcatch.sql#";
-				server.ADF.objectFactory.getBean("utils_1_2").logAppend(logMsg);
-			</cfscript>
-		</cfcatch>
-	</cftry>
-
-	<cfreturn viewCreated>
-</cffunction>
-
-<!---
-/* *************************************************************** */
-Author:
-	PaperThin, Inc.
-Name:
-	$_buildAggregateView
-Summary:
-	Builds an element view for the passed in element name.
-	Private utility method for buildRealTypeView.
-Returns:
-	boolean
-Arguments:
-	formID - numeric
-	viewName - string
-	fieldsQuery - query
-	fieldDatatypes - struct
-	useFICPrefix - boolean
-	logViewSQL - boolean
-History:
-	2014-04-04 - DRM - Created
---->
-<cffunction name="_buildAggregateView" returntype="boolean" hint="Builds an element view for the passed in element name" access="private">
-	<cfargument name="formID" type="numeric" required="yes" hint="formID of element to build a view for">
-	<cfargument name="viewName" type="string" required="yes" hint="Override the view name that gets generated">
-	<cfargument name="fieldsQuery" type="query" required="yes">
-	<cfargument name="fieldDatatypes" type="struct" required="yes">
-	<cfargument name="useFICPrefix" type="boolean" required="yes">
-	<cfargument name="logViewSQL" type="boolean" required="yes">
-
-	<cfscript>
-		var viewCreated = false;
-		var dbType = Request.Site.SiteDBType;
-		var dbTypeStrs = _getDBTypeStrs();
-		var intType = "";
-		var andNotEmptyStr = "";
-		var fieldNameNoFIC = "";
-		var colAlias = "";
-		var dataType = "";
-		var sql = "";
-		var defaultValue = "";
-		var indent = repeatString(chr(9), 5) & " ";
-		var createViewResult = "";
-		var logMsg = "";
-
-		intType = dbTypeStrs.intType;
-		andNotEmptyStr = dbTypeStrs.andNotEmptyStr;
-	</cfscript>
-
-	<cftry>
-		<cfquery datasource="#Request.Site.DataSource#" result="createViewResult">
-			CREATE VIEW #arguments.viewName# AS
-			SELECT
-<!------><cfloop query="arguments.fieldsQuery"><!---
-		  ---><cfscript>
-					fieldNameNoFIC = replaceNoCase(FieldName, "FIC_", "");
-					dataType = arguments.fieldDatatypes[fieldNameNoFIC];
-					sql = "";
-					defaultValue = "";
-					switch(dataType)
-					{
-						case "omit":
-							break;
-						case "shortText":
-							sql = "FieldValue";
-							break;
-						case "longText":
-							sql = dbTypeStrs.memoValueExpr;
-							break;
-						case "integer":
-							sql = "CAST(FieldValue AS #intType#)";
-							defaultValue = "0";
-							break;
-						case "float":
-							sql = "CAST(FieldValue AS DECIMAL(7,2))";
-							defaultValue = "0.0";
-							break;
-					}
-					if (dataType != "omit")
-					{
-						if (dataType eq "longText")
-							sql = "CASE WHEN FieldID <> #FieldID# THEN NULL WHEN FieldValue IS NOT NULL#andNotEmptyStr# THEN FieldValue ELSE #sql#";
-						else
-						{
-							sql = "CASE WHEN FieldID = #FieldID# THEN #sql#";
-							if (defaultValue != "")
-								sql = "#sql# ELSE #defaultValue#";
-						}
-						colAlias = FieldName;
-						if (arguments.useFICPrefix eq 0)
-							colAlias = fieldNameNoFIC;
-						colAlias = _escapeSQLReservedWord(colAlias);
-						sql = "MAX(#sql# END) AS #colAlias#,";
-						writeOutput(indent & trim(sql) & chr(10));
-					}
-				</cfscript>
-			</cfloop><!---
---->					 PageID, ControlID, FormID
-			  FROM Data_FieldValue
-			 WHERE FormID = #formID#
-				AND VersionState >= 2
-				AND PageID > 0
-		 GROUP BY PageID, ControlID, FormID
-		</cfquery>
-
-		<cfscript>
-			viewCreated = true;
-			if (arguments.logViewSQL && structKeyExists(createViewResult, "sql"))
-				server.ADF.objectFactory.getBean("utils_1_2").logAppend("#arguments.viewName##Chr(10)##createViewResult.sql##repeatString("-", 50)#", "ADFlogViewSQL.log");
-		</cfscript>
-
-		<cfcatch>
-			<!--- <cfdump var="#cfcatch#" label="cfcatch" expand="false"> --->
-			<cfscript>
-				logMsg = "[ceData_1_1._buildAggregateView] Error building view: #arguments.viewName##Chr(10)##cfcatch.message# #cfcatch.detail#";
-				if (structKeyExists(cfcatch, "sql"))
-					logMsg = "#logMsg##chr(10)#QUERY SQL:#chr(10)##cfcatch.sql#";
-				server.ADF.objectFactory.getBean("utils_1_2").logAppend(logMsg);
-			</cfscript>
-		</cfcatch>
-	</cftry>
-	<cfreturn viewCreated>
-</cffunction>
-
-<!---
-/* *************************************************************** */
-Author:
-	PaperThin, Inc.
-Name:
-	$getFormFieldsQuery
-Summary:
-	Returns a query with information about the fields in a custom element, simple form, or metadata form.
-	Utility method for the buildRealTypeView.
-Returns:
-	query
-Arguments:
-	formID - numeric
-History:
-	2014-04-04 - DRM - Created
---->
-<cffunction name="getFormFieldsQuery" output="no" returntype="query" access="public" hint="Returns a query with information about the fields in a custom element, simple form, or metadata form.">
-	<cfargument name="formID" type="numeric" required="yes">
-	
-	<cfset var fieldsQuery = "">
-	
-	<cfquery name="fieldsQuery" datasource="#Request.Site.DataSource#">
-		SELECT fic.FieldName, fic.Type, fic.Params, ficm.FormID, fic.ID AS FieldID, dv.FieldValue AS FieldDefaultValue, cft.ID AS CustomFieldtypeID
-		  FROM FormInputControl fic
-		  JOIN FormInputControlMap ficm ON ficm.FieldID = fic.ID
-		  LEFT OUTER JOIN Data_FieldValue dv ON dv.FormID = ficm.FormID AND dv.FieldID = fic.ID AND PageID = 0 <!--- default value spec, if there is one --->
-		  LEFT OUTER JOIN CustomFieldTypes cft ON cft.Type = fic.Type
-		 WHERE ficm.FormID = <cfqueryparam value="#arguments.formID#" cfsqltype="CF_SQL_INTEGER">
-		 ORDER BY fic.ID <!--- should be recs for all fields, but just in case, put oldest one first, as main table in the join, avoiding missing pseudo-rows from fields that aren't there --->
-	</cfquery>
-	
-	<cfreturn fieldsQuery>
-</cffunction>
-
-<!---
-/* *************************************************************** */
-Author:
-	PaperThin, Inc.
-Name:
-	$getFormFieldDatatypes
-Summary:
-	Returns a structure with the effective datatype for each field in the passed fieldsQuery, keyed by its name with the FIC_ prefix removed.
-	Utility method for the buildRealTypeView.
-Returns:
-	struct
-Arguments:
-	fieldsQuery - query
-	fieldTypes - struct
-History:
-	2014-04-04 - DRM - Created
---->
-<cffunction name="getFormFieldDatatypes" output="no" returntype="struct" access="public" hint="Returns a structure with the effective datatype for each field in the passed fieldsQuery, keyed by its name with the FIC_ prefix removed.">
-	<cfargument name="fieldsQuery" type="query" required="yes" hint="Query with field definitions, as returned by getFormFieldsQuery().">
-	<cfargument name="fieldTypes" type="struct" default="#structNew()#" hint="Structure with options to override the default field types. See buildRealTypeView for more informaiton.">
-
-	<cfscript>
-		var dataTypes = structNew();
-		var fieldLogInfo = structNew();
-		var fieldTypeIndex = structNew();
-		var fieldsArray = "";
-		var colAlias = "";
-		var dataType = "";
-		var defaultFieldType = "longText";
-		var maxFieldValueLen = 425;
-		var fieldMaxLength = 0;
-		var hasLongValueList = false;
-		var i = 0;
-
-		if (structKeyExists(Request.Constants, "dfvFieldvalueColumnMax"))
-			maxFieldValueLen = Request.Constants.dfvFieldvalueColumnMax;
-
-		// build struct of types for each field alias out of arguments.fieldTypes, which is a list of columns for each spec'd type
-		for (dataType in arguments.fieldTypes)
-		{
-			fieldsArray = listToArray(arguments.fieldTypes[dataType]);
-			for (i = 1; i lte arrayLen(fieldsArray); i = i + 1)
-			{
-				if (dataType eq "defaultTextType")
-					defaultFieldType = arguments.fieldTypes[dataType];
-				else
-					fieldTypeIndex[fieldsArray[i]] = dataType;
-			}
-		}
-	</cfscript>
-
-	<cfloop query="arguments.fieldsQuery">
-		<cfscript>
-			colAlias = ReplaceNoCase(FieldName, "FIC_", "");
-			dataType = Type;
-			fieldMaxLength = 0;
-			if (structKeyExists(fieldTypeIndex, colAlias)) // a specific type was requested for this field
-				dataType = fieldTypeIndex[colAlias];
-			else if (listFindNoCase("calendar,checkbox,date,email,img,text,select", Type)) // CommonSpot field types we know can't be too long to fit in FieldValue
-				dataType = "shortText";
-			else if (listFindNoCase("request.formattedTimeStamp,request.user.id,request.user.userid,request.page.id,request.subsite.id,createUUID(),now()", FieldDefaultValue)) // default value expressions implying short text
-				dataType = "shortText";
-			else if (listFindNoCase("linebreak,label", Type)) // CommonSpot field types we know have no value and can be omitted
-				dataType = "omit";
-			else if (dataType neq "integer" and dataType neq "float")
-				dataType = ""; // flag to check max length
-		</cfscript>
-
-		<cfif dataType eq ""><!--- no decision yet, need to check in more detail --->
-			<cfset dataType = defaultFieldType><!--- use spec'd default if nothing else is definitive --->
-			<cfif isWDDX(Params)>
-				<cfwddx action="WDDX2CFML" input="#Params#" output="fieldParams">
-				<cfscript>
-					hasLongValueList = (structKeyExists(fieldParams, "valList") && len(fieldParams.valList) > maxFieldValueLen) || (structKeyExists(fieldParams, "valCol") && fieldParams.valCol != "");
-					if (Type == "select")
-						dataType = _pick((structKeyExists(fieldParams, "mult") && fieldParams.mult == "yes") && hasLongValueList, "longText", "shortText");
-					else if (Type == "multicheckbox")
-						dataType = _pick(hasLongValueList, "longText", "shortText");
-					else if (CustomFieldtypeID > 0) // custom element
-					{
-						if (_hasAllKeys(fieldParams, "customElement,displayFieldBuilder")) // Custom Element Select
-							dataType = _pick(structKeyExists(fieldParams, "multipleSelect") && fieldParams.multipleSelect == "1", "longText", "shortText");
-						else if (_hasAllKeys(fieldParams, "standardizedTimeStr,standardizedTimeType") || structKeyExists(fieldParams, "standardizedDateStr")) // Date or Time Picker
-							dataType = "shortText";
-						else if (_hasAllKeys(fieldParams, "parentField,rootNodeText,selectionType")) // Custom Element Hierarchy Selector
-							dataType = _pick(fieldParams.selectionType == "single", "shortText", "longText");
-						else if (_hasAllKeys(fieldParams, "chooserCFCName,maxSelections")) // General Chooser
-							dataType = _pick(fieldParams.maxSelections == 0 || val(fieldParams.maxSelections) > 10, "longText", "shortText"); // assumes stored IDs aren't longer than a UUID
-						else if (_hasAllKeys(fieldParams, "assocCustomElement,childCUSTOMElement,childInstanceIDField,childLinkedField,childUniqueField")) // Data Manager
-							dataType = "omit"; // stores no data
-						if (dataType == "longText" and structKeyExists(request, "dbg"))
-							request.dbg(fieldParams);
-					}
-					else if (structKeyExists(fieldParams, "maxLength"))
-					{
-						fieldMaxLength = val(fieldParams.maxLength);
-						if (fieldMaxLength gt maxFieldValueLen) // too long for FieldValue
-							dataType = "longText";
-						else if (fieldMaxLength gt 0) // max length spec'd and not too long
-							dataType = "shortText";
-					}
-				</cfscript>
+		
+		<cftry>
+			<cfif LEN(arguments.viewName)>
+				<cfquery name="fldqry" datasource="#Request.Site.DataSource#">
+					select fic.ID, fic.type, fic.fieldName
+					  from formINputControl fic, forminputcontrolMap
+					 where forminputcontrolMap.fieldID  = fic.ID
+						and forminputcontrolMap.formID = <cfqueryparam value="#formID#" cfsqltype="cf_sql_integer">
+				</cfquery>
+				<cfquery name="realTypeView" datasource="#Request.Site.DataSource#">
+					CREATE VIEW #arguments.viewName# AS
+					SELECT
+					<cfloop query="fldqry">
+						max(
+						<cfswitch expression="#fldqry.type#">
+							<cfcase value="integer">
+								CASE
+									WHEN FieldID = #ID# THEN CAST(fieldvalue as #intType#)
+									ELSE 0
+								END
+								</cfcase>
+								<cfcase value="float">
+								CASE
+									WHEN FieldID = #ID# THEN CAST(fieldvalue as DECIMAL(7,2))
+									ELSE 0.0
+								END
+							</cfcase>
+							<cfdefaultcase> <!--- NEEDSWORK fieldtype like List, should add ListID column, fieldtype like email, could add 'lower case' function to avoid case sensitive issue --->
+								CASE
+									WHEN FieldID = #ID# THEN
+										CASE
+											WHEN fieldValue <> '' THEN fieldvalue
+											<cfif dbtype is 'oracle'>
+												<!--- TODO
+													Issue with Oracle DB and casting the 'memovalue' field.
+													Commented out to make this work in Oracle, but still needs to be resolved.
+												--->
+												<!--- WHEN length(memovalue) < 4000 THEN CAST(memovalue as varchar2(4000)) --->
+												<!--- ELSE CAST([memovalue] AS nvarchar2(2000)) --->
+											<cfelseif dbtype is 'SQLServer' AND dbVersion LT 9><!--- // 9 = MSSQL 2005 --->
+												<!--- // nvarchar(max) FIX FOR MSSQL 2000 and below --->
+												ELSE CAST([memovalue] AS nvarchar(4000))
+											<cfelseif dbtype is 'SQLServer'>
+												ELSE CAST([memovalue] AS nvarchar(max))
+											<cfelse>
+												<!--- // MySQL fix for when memovalue (instead of fieldvalue) is used up due to the data being over 850 characters --->
+												WHEN memoValue <> '' THEN memovalue
+												<!--- Don't CAST if using MySQL --->
+											</cfif>
+										END
+									ELSE null
+								END
+							</cfdefaultcase>
+						</cfswitch>
+						<!--- ) as FieldID#ID#, --->
+						<!--- ) as #listGetAt(fieldName, 2, "_")#, --->
+						<!--- // Remove the "FIC_" from the CS field name when creating the column alias so this works with CE field names with underscores --->
+						) <cfif dbtype is 'MySQL'> as '#ReplaceNoCase(fieldName, "FIC_", "")#'<cfelse> as [#ReplaceNoCase(fieldName, "FIC_", "")#]</cfif>,
+						<!--- ) <cfif dbtype is 'MySQL'> as '#fieldName#'<cfelse> as [#fieldName#]</cfif>, --->
+					</cfloop>
+				   			PageID, controlID, formID<!--- , dateApproved, dateAdded --->
+					  FROM data_fieldvalue
+					 where formID = #formID#
+						and versionstate >= 2
+						and PageID > 0
+				 GROUP BY PageID, ControlID, formID<!--- , dateApproved, dateAdded --->
+				</cfquery>
+				<cfset viewCreated = true>
+			<cfelse>
+				<cfreturn false>
 			</cfif>
-			<cfscript>
-				if (dataType == "")
-					dataType = defaultFieldType;
-			</cfscript>
-		</cfif>
-		<cfscript>
-			dataTypes[colAlias] = dataType;
-			fieldLogInfo[colAlias] = Type & "|" & CustomFieldtypeID & "|" & dataType;
-		</cfscript>
-	</cfloop>
-
-	<cfscript>
-		if (structKeyExists(request, "dbg"))
-			request.dbg(fieldLogInfo);
-
-		return dataTypes;
-	</cfscript>
-</cffunction>
-	
-<!---
-/* *************************************************************** */
-Author:
-	PaperThin, Inc.
-Name:
-	$_escapeSQLReservedWord
-Summary:
-	Private utility method for buildRealTypeView
-Returns:
-	string
-Arguments:
-	expression - string
-	fieldIDMode - boolean
-History:
-	2014-04-04 - DRM - Created
---->	
-<cffunction name="_escapeSQLReservedWord" output="no" returntype="string" access="private">
-	<cfargument name="expression" type="string" required="yes">
-	<cfargument name="fieldIDMode" type="boolean" default="false">
-
-	<cfscript>
-		var result = arguments.expression;
-		switch(Request.Site.SiteDBType)
-		{
-			case "sqlserver":
-				result = "[#arguments.expression#]";
-				break;
-			case "mysql":
-				result = "`#arguments.expression#`";
-				break;
-			case "oracle":
-				/*
-					IMPORTANT NOTE:
-						The escaping method commented out below is correct, and works.
-						HOWEVER, queries on the resulting view MUST enclose all column names in double quotes, and use the correct case.
-						Since that's a non-starter, we're opting instead not to escape column names at all for Oracle.
-						Result is that view creation will fail if any element fields have names that are reserved words for Oracle.
-							This will get logged, only, no error will be visible.
-						One approach if you're writing new code to work with an existing element with this issue is to pass options.useFICPrefix=1.
-							The resulting view column names will all have the prefix 'FIC_', so they won't be reserved words.
-				if (!arguments.fieldIDMode)
-					result = '"#arguments.expression#"';*/
-				break;
-		}
-		return result;
-	</cfscript>
+			<cfcatch>
+				<!--- <cfdump var="#cfcatch#" label="cfcatch" expand="false"> --->
+				<cfscript>
+					// Log the error creating the view table
+					
+					// Failed to create view table
+					return false;
+				</cfscript>
+			</cfcatch>
+		</cftry>
+	</cfif>
+	<cfreturn viewCreated>
 </cffunction>
 
 <!---
 /* *************************************************************** */
-Author:
-	PaperThin, Inc.
-Name:
-	$_getDBTypeStrs
-Summary:
-	Private utility method for buildRealTypeView
-Returns:
-	struct
-Arguments:
-	NA
-History:
-	2014-04-04 - DRM - Created
-	2014-04-08 - GAC - Switched the Server.CommonSpot.ProductVersion to use the older request.cp.ProductVersion for CS backwards compatibility
---->
-<cffunction name="_getDBTypeStrs" output="no" returntype="struct">
-
-	<cfscript>
-		var result = structNew();
-		var uniCodePrefixMaybe = _pick(siteDBIsUnicode(), "N", "");
-		var isCS9Plus = (val(ListLast(ListFirst(Request.CP.ProductVersion, "."), " ")) >= 9);
-
-		switch (Request.Site.SiteDBType)
-		{
-			case "Oracle":
-				result.intType = "number(12)";
-				result.memoValueExpr = "CAST(SUBSTR(MemoValue, 1, 4000) AS #uniCodePrefixMaybe#VARCHAR2(4000))"; // truncates
-				result.andNotEmptyStr = " AND LENGTH(FieldValue) <> 0";
-				break;
-			case 'MySQL':
-				result.intType = "UNSIGNED";
-				result.memoValueExpr = "MemoValue";
-				result.andNotEmptyStr = " AND LENGTH(FieldValue) <> 0";
-				break;
-			case "SQLServer":
-				result.intType = "int";
-				if (isCS9Plus)
-					result.memoValueExpr = "MemoValue"; // VARCHAR(MAX) natively, no CAST needed
-				else
-					result.memoValueExpr = "CAST(MemoValue AS #uniCodePrefixMaybe#VARCHAR(MAX))";
-				result.andNotEmptyStr = " AND LEN(FieldValue) <> 0";
-				break;
-		}
-		return result;
-	</cfscript>
-</cffunction>
-
-<!---
-/* *************************************************************** */
-Author:
-	PaperThin, Inc.
-Name:
-	$_hasAllKeys
-Summary:
-	Private utility method for buildRealTypeView
-Returns:
-	boolean
-Arguments:
-	struct - struct
-	keysList - string
-History:
-	2014-04-04 - DRM - Created
---->
-<cffunction name="_hasAllKeys" output="no" returntype="boolean" access="private">
-	<cfargument name="struct" type="struct" required="yes">
-	<cfargument name="keysList" type="string" required="yes">
-
-	<cfscript>
-		var aKeys = listToArray(arguments.keysList);
-		var count = arrayLen(aKeys);
-		var i = 0;
-		for (i = 1; i <= count; i++)
-		{
-			if (!structKeyExists(arguments.struct, aKeys[i]))
-				return false;
-		}
-		return true;
-	</cfscript>
-</cffunction>
-
-<!---
-/* *************************************************************** */
-Author:
-	PaperThin, Inc.
-Name:
-	$_pick
-Summary:
-	Private utility method for buildRealTypeView
-Returns:
-	any
-Arguments:
-	bool - boolean
-	value1 - any
-	value2 - any
-History:
-	2014-04-04 - DRM - Created
---->
-<cffunction name="_pick" output="no" returntype="any" access="private">
-	<cfargument name="bool" type="boolean" required="yes">
-	<cfargument name="value1" type="any" required="yes">
-	<cfargument name="value2" type="any" required="yes">
-
-	<cfscript>
-		if (arguments.bool)
-			return arguments.value1;
-		return arguments.value2;
-	</cfscript>
-</cffunction>
-
-<!---
-/* *************************************************************** */
-Author:
+Author: 	
 	PaperThin, Inc.
 	M. Carroll
 Name:
@@ -1452,7 +801,7 @@ History:
 		AND		controlID = <cfqueryparam value="#arguments.controlID#" cfsqltype="cf_sql_integer">
 		AND 	versionState = 2
 	</cfquery>
-
+	
 	<cfscript>
 		// Check that we got records
 		if ( getDataWDDX.RecordCount ) {
@@ -1498,7 +847,6 @@ History:
 	2011-07-17 - MFC - Removed update to step 5, this has been cleared up when generating the key.
 						Added call to clear the "currentElement" variable when looping in step 2.
 	2013-04-11 - MFC - Updated the calls to "generateStructKey" function for the new function name.
-	2014-03-05 - JTP - Var declarations
 --->
 <cffunction name="differentialSync" access="public" returntype="struct" hint="Given a list of custom elements, create or update or optionally delete elements.">
 	<cfargument name="elementName" type="string" required="true" default="" hint="Name of the element to sync">
@@ -1530,14 +878,13 @@ History:
 		var dataPageIDList = '';
 		var scheduleParams = "";
 		var manualCompare = false;
-      var syncKey = '';
-      var currSrcElementKey = ""; // Stores the current source element key for building the 'srcElementStruct'.
-      var dupSrcDataPageIDList = ""; // List for DataPageIDs for duplicate recs in source data.
-		var newElement = '';
-
+      	var syncKey = '';
+      	var currSrcElementKey = ""; // Stores the current source element key for building the 'srcElementStruct'.
+      	var dupSrcDataPageIDList = ""; // List for DataPageIDs for duplicate recs in source data.
+		
 		returnStruct.success = false;
 		returnStruct.msg = "An unknown error occurred.";
-
+		
 		//*********************************************Begin validation*********************************************//
 
 		if(!Len(arguments.elementName)){
@@ -1675,7 +1022,7 @@ History:
 						isDifferent = true;
 					}
 				}
-
+				
 				if(isDifferent){
 					//We have a change on our hands! Do something!
 				    arguments.updateOverride = duplicate(updateOverride);
@@ -1703,12 +1050,12 @@ History:
 				currentElement = structFind(srcElementStruct,listGetAt(deleteList,i));
 				dataPageIDList = ListAppend(dataPageIDList,currentElement.pageID);
 			}
-
+			
 			// 2011-07-08 - MFC - Added Step 5a.
 			// 5a. Get any duplicate records and add to the delete dataPageIDList
 			if ( ListLen(dupSrcDataPageIDList) )
 				dataPageIDList = ListAppend(dataPageIDList, dupSrcDataPageIDList);
-
+			
 			// Add the dataPageIDList to the delete command
 			arguments.deleteOverride.args.datapageidList = dataPageIDList;
 			ArrayAppend(commandArray,arguments.deleteOverride);
@@ -1729,12 +1076,12 @@ History:
 
 <!---
 /* *************************************************************** */
-Author:
+Author: 	
 	PaperThin, Inc.
 	Ryan Kahn
 Name:
 	$generateStructKey
-Summary:
+Summary:	
 	Helper function for getting the structures unique identifier as a string
 Returns:
 	string
@@ -1764,7 +1111,7 @@ History:
 				StructInsert(tempStruct,currentKey,ToString(arguments.element.pageID),true);
 			}else{
 				// Set the key value and then check if key has a value.
-				keyValue = StructFind(arguments.element.values,currentKey);
+				keyValue = StructFind(arguments.element.values,currentKey);		
 				if ( LEN(keyValue) )
 					StructInsert(tempStruct,currentKey,StructFind(arguments.element.values,currentKey),true);
 			}
@@ -1905,7 +1252,7 @@ History:
 		2011-03-01 - RAK - Security determining if you can get the CEData is set in the proxyWhitelist files
 	--->
 	<cfscript>
-		if(NOT csSecurity.validateProxy("getCEDataSecurity",arguments.customElementName)){
+		if(NOT variables.csSecurity.validateProxy("getCEDataSecurity",arguments.customElementName)){
 			/*Security failed. Append to the log and return nothing useful.*/
 			application.ADF.utils.logAppend("Get CEData call to non-whitelisted element: #arguments.customElementName#","getCEDataSecurityException.txt");
 			return ArrayNew(1);

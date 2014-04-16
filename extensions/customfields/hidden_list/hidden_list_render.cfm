@@ -10,29 +10,12 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
  
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2014.
+PaperThin, Inc. Copyright(C) 2010.
 All Rights Reserved.
  
 By downloading, modifying, distributing, using and/or accessing any files
 in this directory, you agree to the terms and conditions of the applicable
 end user license agreement.
---->
-
-<!---
-/* *************************************************************** */
-Author: 	
-	PaperThin, Inc.
-Custom Field Type:
-	Hidden List
-Name:
-	hidden_list_props.cfm
-Summary:
-	Custom field to build a collection of CS and external URL links.
-ADF Requirements:
-	
-History:
-	2014-01-02 - GAC - Added comment header block
-					 - Added the CFSETTING tag to disable CF Debug results in the props module
 --->
 
 <cfscript>

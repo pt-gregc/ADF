@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2014.
+PaperThin, Inc. Copyright(C) 2013.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -69,23 +69,20 @@ History:
 	2009-05-13 - RLW - Created
 	2009-06-30 - RLW - Removed the "loadTemplates()" function - obsolete
 	2012-01-23 - MFC - Modified to call the API library.
-	2014-03-05 - JTP - Var declarations
-	2014-03-07 - GAC - Updated the var'd apiConfig variable for backwards compatiblity
 --->
 <cffunction name="initCCAPI" access="public" returntype="void" hint="Initializes the CCAPI object using the settings in the ccapi.xml file from the site root">
 	<cfscript>
-		var apiConfig = StructNew();
-		
 		variables.api.initAPIConfig();
 		
 		apiConfig = variables.api.getAPIConfig();
-
+		
 		setCCAPIConfig(apiConfig);
 		setCSUserID(apiConfig.wsVars.csuserid);
 		setCSPassword(apiConfig.wsVars.cspassword);
-		setSiteURL(apiConfig.wsVars.siteURL);
+		setSiteURL(variables.api.getSiteURL());
 		setWebServiceURL(apiConfig.wsVars.webserviceURL);
-		setSubsiteID(apiConfig.wsVars.subsiteID);
+		setSubsiteID(variables.api.getSubsiteID());
+		
 	</cfscript>
 </cffunction>
 
@@ -109,13 +106,12 @@ History:
 --->
 <cffunction name="login">
 	<cfargument name="subsiteID" required="false" type="numeric" default="1">
-	<cfargument name="remote" type="boolean" required="false" default="false">
 	<cfscript>
-		if ( arguments.subsiteID gt 0 ) {
+		if( arguments.subsiteID gt 0 ){
 			variables.api.setSubsiteID(arguments.subsiteID);
 		}
 		
-		return variables.api.login(remote=arguments.remote,forceSubsiteID=variables.api.getSubsiteid());
+		variables.api.login(forceSubsiteID=variables.api.getSubsiteid());
 	</cfscript>
 </cffunction>
 
@@ -135,11 +131,10 @@ History:
 	2008-05-21 - RLW - Created
 	2010-06-17 - MFC - Added Clear the SSID and SubsiteID for the session
 	2012-01-23 - MFC - Modified to call the API library.
-	2013-10-25 - GAC - Updated to return status from the API logout call
 --->
 <cffunction name="logout">
 	<cfscript>
-		return variables.api.logout();
+		variables.api.logout();
 	</cfscript>
 </cffunction>
 
@@ -159,12 +154,11 @@ Arguments:
 History:
 	2007-08-08 - RLW - Created
 	2012-01-23 - MFC - Modified to call the API library.
-	2013-10-23 - GAC - Updated to return a value from the api.isloggedIn()
 --->
 <cffunction name="loggedIn">
 	<cfargument name="resultMsg" type="string" required="false" default="">
 	<cfscript>
-		return variables.api.isLoggedIn();
+		variables.api.isLoggedIn();
 	</cfscript>
 </cffunction>
 
@@ -228,7 +222,6 @@ History:
 		return false;
 	</cfscript>
 </cffunction>
-
 <!--- // Public GETTERS/SETTERS --->
 <cffunction name="setSubsiteID" access="public" returntype="void">
 	<cfargument name="subsiteID" type="numeric" required="true">
@@ -243,9 +236,8 @@ History:
 	<cfreturn variables.ws>
 </cffunction>
 
-<!--- // 10-25-2013 - Updated to use the API getToken method --->
 <cffunction name="getSSID" access="public" returntype="string">
-	<cfreturn variables.api.getAPIToken()>
+	<cfreturn variables.SSID>
 </cffunction>
 
 <!--- // Private GETTERS/SETTERS --->
@@ -314,7 +306,7 @@ History:
 
 <cffunction name="setSSID" access="private" returntype="void">
 	<cfargument name="ssid" type="string" required="true">
-	<cfset variables.ssid = arguments.ssid>
+	<cfset variables.SSID = arguments.SSID>	
 </cffunction>
 
 </cfcomponent>

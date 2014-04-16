@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2014.
+PaperThin, Inc. Copyright(C) 2013.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -28,16 +28,14 @@ Summary:
 	Site Base component for the ADF
 History:
 	2009-08-14 - MFC - Created
-	2011-01-21 - GAC - Added a version variable to application.ADF
+	2011-01-21 - GAC - Added a version variable to Application.ADF
 	2011-01-26 - GAC - Added a method for setLightboxProxyURL
 	2011-04-05 - MFC - Updated the version property.
 	2011-09-27 - GAC - Updated most of the comment blocks to follow the ADF standard
-	2014-02-26 - GAC - Updated for version 1.7.0
 --->
 <cfcomponent displayname="SiteBase" extends="ADF.core.AppBase">
 
-<cfproperty name="version" value="1_7_0">
-<cfproperty name="file-version" value="3">
+<cfproperty name="version" value="1_6_5">
 
 <!---
 /* *************************************************************** */
@@ -66,14 +64,10 @@ History:
 		application.ADF.siteComponents = "";
 		application.ADF.library = StructNew(); // Stores library components
 		application.ADF.dependencyStruct = StructNew();  // Stores the bean dependency list
-		application.ADF.siteAppList = ""; // Stores a list of the sites Apps loaded
+		application.ADF.siteAppList = ""; // Stores a list of the sites Apps loaded 
 		application.ADF.version = "";
 		// Set the proxyWhiteList from the Server Apps ProxyWhiteList
 		application.ADF.proxyWhiteList = server.ADF.proxyWhiteList;
-		// Set the site to NOT enable siteDevMode by default
-		application.ADF.siteDevMode = false;
-		// Set the site to NOT enable proxyDebugLogging by default
-		application.ADF.proxyDebugLogging = false;
 	</cfscript>	
 	
 </cffunction>
@@ -86,7 +80,7 @@ Author:
 Name:
 	$loadSite
 Summary:
-	Load the application.ADF object factory, site specific components, and
+	Load the Application.ADF object factory, site specific components, and 
 		environment variables for the current site.
 Returns:
 	Void
@@ -117,7 +111,7 @@ History:
 		// Load the site API or CCAPI Config
 		loadSiteAPIConfig();
 		
-		// Adds the ADF version to the application.ADF stuct
+		// Adds the ADF version to the Application.ADF stuct
 		application.ADF.version = getADFversion();
 		application.ADF.decimalVersion = getDecimalADFVersion();
 		application.ADF.csVersion = getCSVersion();
@@ -157,7 +151,7 @@ Author:
 Name:
 	$loadSiteComponents
 Summary:
-	Load the site components in the application.ADF object factory into application.ADF components
+	Load the site components in the APPLICATION.ADF object factory into APPLICATION.ADF components
 Returns:
 	Void
 Arguments:
@@ -165,7 +159,7 @@ Arguments:
 History:
 	2009-08-07 - MFC - Created
 --->
-<cffunction name="loadSiteComponents" access="private" returntype="void" hint="Stores the site specific components in '/_cs_apps/components' into application.ADF space.">
+<cffunction name="loadSiteComponents" access="private" returntype="void" hint="Stores the site specific components in '/_cs_apps/components' into application.ADF space."> 
 	<cfscript>
 		var i = 1;
 		var bean = "";
@@ -214,10 +208,10 @@ History:
 		var ADFversion = getDecimalADFVersion();
 
 		// Load the ADF Lib components
-		application.ADF.beanConfig.loadADFLibComponents("#request.site.csAppsURL#lib/", "", "application"); 
+		application.ADF.beanConfig.loadADFLibComponents("#request.site.csAppsURL#lib/", "", "application");
 
 		// Refresh the Object Factory
-		application.ADF.objectFactory = createObject("component","ADF.core.lightwire.LightWireExtendedBase").init(application.ADF.beanConfig);
+		application.ADF.objectFactory = createObject("component","ADF.core.lightwire.LightWireExtendedBase").init(application.ADF.beanConfig);		
 
 		// retrieve the libraryComponents to load
 		libVersions = loadLibVersions();
@@ -333,7 +327,8 @@ History:
 		var configPath = "#request.site.csAppsDir#config/proxyWhiteList.xml";
 		var configStruct = StructNew();
 		// Check if the file exist on the site
-		if ( fileExists( configPath ) ) {
+		if ( fileExists( configPath ) )
+		{
 			configStruct = server.ADF.objectFactory.getBean("CoreConfig").getConfigViaXML(configPath);
 			application.ADF.proxyWhiteList = server.ADF.objectFactory.getBean("Data_1_0").structMerge(application.ADF.proxyWhiteList, configStruct, true);
 		}
@@ -387,49 +382,6 @@ History:
 
 <!---
 /* *************************************************************** */
-Author: 	
-	PaperThin, Inc.
-	Greg Cronkright
-Name:
-	$enableProxyDebugLogging
-Summary:	
-	Enables or disables the AjaxProxy and Lightbox Proxy Debug logging for the site
-Returns:
-	Void
-Arguments:
-	Boolean enable
-History:
-	2013-10-19 - GAC - Created
---->
-<cffunction name="enableProxyDebugLogging" access="public" returntype="void" hint="Enables or disables the AjaxProxy and Lightbox Proxy Debug logging for the site">
-	<cfargument name="enable" type="boolean" required="false"  default="false">
-	<cfset application.ADF.proxyDebugLogging = arguments.enable>
-</cffunction>
-
-<!---
-/* *************************************************************** */
-Author: 	
-	PaperThin, Inc.
-	Greg Cronkright
-Name:
-	$enableADFsiteDevMode
-Summary:	
-	Enables or disables the ADF site Dev mode
-	Default: false (disabled)
-Returns:
-	Void
-Arguments:
-	Boolenan enable
-History:
-	2013-10-19 - GAC - Created
---->
-<cffunction name="enableADFsiteDevMode" access="public" returntype="void" hint="Enables or disables the ADF site Dev mode. Default: false (disabled)">
-	<cfargument name="enable" type="boolean" required="false" default="false">
-	<cfset application.ADF.siteDevMode = arguments.enable>
-</cffunction>
-
-<!---
-/* *************************************************************** */
 Author:
 	PaperThin, Inc.
 	Ryan Kahn
@@ -445,32 +397,22 @@ Arguments:
 History:
  	2011-01-18 - RAK - Created
 	2011-02-09 - RAK - Var'ing un-var'd items
-	2014-04-04 - GAC - Switched to the cfthrow tag since the cfscript 'throw' is not cf8 compatible
 --->
 <cffunction name="loadLibraryComponent" access="public" returntype="void" hint="Allows overriding of ADF beans and creating new ones with names">
 	<cfargument name="beanName" type="string" required="true" default="" hint="Bean name to use in the overloading (ceData_1_5)">
 	<cfargument name="adfBeanName" type="string" required="true" default="" hint="Destination bean name to set the adf bean to (ceData)">
 	<cfscript>
 		var bean = "false";
-		var buildError = StructNew();
-		var throwError = false;
-		var throwErrorMsg = "";
-		if (server.ADF.objectFactory.containsBean(beanName) )
+		if(server.ADF.objectFactory.containsBean(beanName))
 		{
 			StructInsert(application.ADF,adfBeanName,server.ADF.objectFactory.getSingleton(beanName),true);
 		}
 		else
 		{
-			// Throw error that the Library Component Bean doesn't exist.
-			throwError = true;
-			throwErrorMsg = "Could not find bean name: '#beanName#' while calling loadLibraryComponent.";
-			// cfscript 'throw' is not cf8 compatible
-			//throw("Could not find bean name: '#beanName#' while calling loadLibraryComponent");
+			// TODO: Need to check this... not sure the cfscript version of cfthrow is CF8 compatible
+			throw("Could not find bean name: '#beanName#' while calling loadLibraryComponent");
 		}
 	</cfscript>
-	<cfif throwError>
-		<cfthrow message="#throwErrorMsg#">
-	</cfif>
 </cffunction>
 
 <!---
@@ -527,18 +469,18 @@ History:
 					// Build the Error Struct
 					buildError.ADFmethodName = "API Config";
 					buildError.details = "API Configuration CFM (or XML) file is not a valid data format. [#request.site.name# - #request.site.id#].";
-					// Add the errorStruct to the server.ADF.buildErrors Array
+					// Add the errorStruct to the server.ADF.buildErrors Array 
 					ArrayAppend(server.ADF.buildErrors,buildError);
 				}
-			}
+				}
 		}
 		catch (Any exception){
 			// Build the Error Struct
 			buildError.ADFmethodName = "API Config";
 			//buildError.details = "API Configuration CFM (or XML) file is not setup for this site [#request.site.name# - #request.site.id#].";
 			buildError.details = exception;
-			// Add the errorStruct to the server.ADF.buildErrors Array
-			ArrayAppend(server.ADF.buildErrors, buildError);
+			// Add the errorStruct to the server.ADF.buildErrors Array 
+			ArrayAppend(server.ADF.buildErrors, buildError);	
 		}
 	</cfscript>
 </cffunction>

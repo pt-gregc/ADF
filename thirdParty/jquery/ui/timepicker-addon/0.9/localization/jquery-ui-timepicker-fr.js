@@ -1,4 +1,4 @@
-/* French translation for the jQuery Timepicker Addon */
+/* Czech translation for the jQuery Timepicker Addon */
 /* Written by Thomas Lété */
 $.timepicker.regional['fr'] = {
 	timeOnlyTitle: 'Choisir une heure',
@@ -8,7 +8,7 @@ $.timepicker.regional['fr'] = {
 	secondText: 'Secondes',
 	timezoneText: 'Fuseau horaire',
 	currentText: 'Maintenant',
-	closeText: 'Terminé',
+	closeText: 'Terminé'
 	timeFormat: 'h:m',
 	ampm: false
 };

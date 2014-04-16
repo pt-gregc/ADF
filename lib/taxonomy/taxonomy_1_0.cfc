@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2014.
+PaperThin, Inc. Copyright(C) 2010.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -35,7 +35,7 @@ History:
 --->
 <cfcomponent displayname="taxonomy_1_0" extends="ADF.core.Base" hint="Taxonomy functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_3">
+<cfproperty name="version" value="1_0_1">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Taxonomy_1_0">
 
@@ -135,9 +135,9 @@ History:
 	<cfloop list="#arguments.termList#" index="termName">
 
 		<cfif request.cp.versionid EQ "510">
-			<cfset termName = server.CommonSpot.UDF.data.fromHTML(termName)>
+			<cfset termName = Server.CommonSpot.UDF.data.fromHTML(termName)>
 		<cfelseif val(request.cp.versionid) GTE 600>
-			<cfset termName = server.CommonSpot.api.unescapeHTML(termName)>
+			<cfset termName = Server.CommonSpot.api.unescapeHTML(termName)>
 		</cfif>
 
 		<cfquery name="getTermIDList" datasource="#request.site.datasource#">
@@ -174,7 +174,6 @@ History:
 	2008-11-17 - MFC - Created - Moved into ADF
 	2010-03-04 - GAC - Modified - Removed CF8 specific code
 	2011-02-09 - RAK - Var'ing un-var'd variables
-	2014-01-03 - GAC - Updated SQL 'IN' statements to use the CS module 'handle-in-list.cfm'
 --->
 <cffunction name="getPageBindingsForTermID" returntype="struct" access="public" output="yes">
 	<cfargument name="csTaxObj" type="any" required="true" hint="CS Taxonomy API Object intialized to the proper taxonomy">
@@ -194,7 +193,6 @@ History:
 		var childIdArray = arguments.csTaxObj.getNarrowerTermArray(facetID, arguments.TermID, true);
 		// Set the return data struct
 		var retDataStruct = StructNew();
-		
 		retDataStruct.bindingCount = 0;
 		retDataStruct.pageIDList = "";
 		
@@ -213,10 +211,7 @@ History:
 			AND 	fieldID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.CEFieldID#"> 
 			AND 	formID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.CEFormID#">
 			AND 	FieldValue <> ''
-			<cfif len(arguments.currTermPageIdList)>
-				AND <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="pageid" LIST="#arguments.currTermPageIdList#">
-				<!--- AND pageid IN (<cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.currTermPageIdList#" list="true">) --->
-			</cfif>
+			<cfif len(arguments.currTermPageIdList)>AND pageid IN (<cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.currTermPageIdList#" list="true">)</cfif>
 		</cfquery>
 		<!--- Loop over the fieldvalues --->
 		<cfloop query="getFieldValues">

@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2014.
+PaperThin, Inc. Copyright(C) 2012.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="scripts_1_0" extends="ADF.core.Base" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_10">
+<cfproperty name="version" value="1_0_7">
 <cfproperty name="type" value="singleton">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_0" type="dependency">
 <cfproperty name="wikiTitle" value="Scripts_1_0">
@@ -103,23 +103,22 @@ Arguments:
 	void
 History:
 	2009-03-12 - RLW - Created
-	2014-01-22 - GAC - Replaced the '$' with the jQuery alias
 --->
 <cffunction name="loadNiceForms" access="public" returntype="void">
 <cfif not variables.scriptsService.isScriptLoaded("niceForms")>
 	<cfoutput>
 		<script language="javascript" type="text/javascript" src="/ADF/thirdParty/prettyForms/prettyForms.js"></script>
 		<script type="text/javascript">
-			jQuery(document).ready(function(){
-				jQuery("input[name='submitbutton']").attr("value", "Save");
-				jQuery("span[id^='tabDlg'] > table").addClass("csForms");
-				jQuery("form[name='dlgform']").addClass("csForms");
+			jQuery(document).ready(function($) {
+				$("input[name='submitbutton']").attr("value", "Save");
+				$("span[id^='tabDlg'] > table").addClass("csForms");
+				$("form[name='dlgform']").addClass("csForms");
 				//jQuery(".cs_default_form").attr("class", "niceform");
 				prettyForms();
-				//jQuery(".clsPushButton").addClass("blue-pill");
+				//$(".clsPushButton").addClass("blue-pill");
 				<cfif find("login.cfm", cgi.script_name)>
 					// change the login button text
-					jQuery(".clsPushButton").attr("value", "Login");
+					$(".clsPushButton").attr("value", "Login");
 				</cfif>
 			});
 		</script>
@@ -442,7 +441,6 @@ Arguments:
 	None
 History:
 	2009-02-04 - MFC - Created
-	2014-04-11 - GAC - Removed bad ending cf ending comment tag
 --->
 <cffunction name="loadGalleryView" access="public" output="true" returntype="void" hint="Loads the JQuery UI Headers if not loaded."> 
 <cfargument name="version" type="numeric" required="false" default="1.1" hint="">
@@ -459,7 +457,7 @@ History:
 		<script type='text/javascript' src='/ADF/thirdParty/jquery/galleryview/jquery-galleryview-#arguments.version#/jquery.timers-1.1.2.js'></script>
 		<!--- render the css for 2.0 --->
 		<cfif arguments.version NEQ "1.1">
-			<link rel='stylesheet' href='/ADF/thirdParty/jquery/galleryview/jquery-galleryview-#arguments.version#/galleryview.css' type='text/css' media='screen' />
+			<link rel='stylesheet' href='/ADF/thirdParty/jquery/galleryview/jquery-galleryview-#arguments.version#/galleryview.css' type='text/css' media='screen' /> --->
 		</cfif>
 		<!--- Jquery easing --->
 		<script type='text/javascript' src='/ADF/thirdParty/jquery/easing/jquery.easing.1.3.js'></script>
@@ -538,16 +536,14 @@ Arguments:
 	Boolean - force - Forces QTip script header to load.
 History:
 	2009-09-26 - MFC - Created
-	2013-09-04 - GAC - Updated to use folder versioning
 --->
 <cffunction name="loadQTip" access="public" output="true" returntype="void" hint="Loads the JQuery Headers if not loaded.">
 <cfargument name="version" type="string" required="false" default="1.0" hint="JQuery version to load.">
 <cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
-<cfset var thirdPartyLibPath = "/ADF/thirdParty/jquery/qtip">
 <!--- Check if the header is out yet, or we want to force rendering --->
 <cfif (not variables.scriptsService.isScriptLoaded("qtip")) OR (arguments.force)>
 	<cfoutput>
-		<script type="text/javascript" src="#thirdPartyLibPath#/#arguments.version#/jquery.qtip.min.js"></script>
+		<script type="text/javascript" src="/ADF/thirdParty/jquery/qtip/jquery.qtip-#arguments.version#.min.js"></script>
 	</cfoutput>
 	<!--- If we force, then don't record the loaded script --->
 	<cfif NOT arguments.force>
@@ -576,7 +572,8 @@ History:
 </cffunction>
 
 <!---
-/* *************************************************************** */
+/* ***************************************************************
+/*
 Author: 	Ron West
 Name:
 	$loadJCycle
@@ -615,33 +612,27 @@ History:
  	2009-10-17 - RLW - Created
 	2010-02-03 - MFC - Updated path to the CSS to remove from Third Party directory.
 	2010-04-06 - MFC - Updated path to the CSS to "style".
-	2014-03-05 - JTP - Var declarations
 --->
 <cffunction name="loadJQueryTools" access="public" output="true" returntype="void" hint="Loads the JQuery tools plugin"> 
-	<cfargument name="tool" type="string" required="false" default="all" hint="List of tools to load - leave blank to load entire library">
-	
-	<cfscript>
-		var item = '';
-	</cfscript>
-	
-	<cfif not variables.scriptsService.isScriptLoaded("tools_#arguments.tool#")>
-		<cfif arguments.tool neq "all">
-			<cfloop list="#arguments.tool#" index="item">
-				<cfoutput>
-					<script type='text/javascript' src='/ADF/thirdParty/jquery/tools/jquery.tools.#item#.min.js'></script>
-					<cfif fileExists("#server.ADF.dir#/thirdParty/jquery/tools/css/#item#-minimal.css")>
-						<link href="/ADF/extensions/style/jquery/tools/overlay-minimal.css" rel="stylesheet" type="text/css" />
-					</cfif>
-				</cfoutput>
-			</cfloop>
-		<cfelse>
+<cfargument name="tool" type="string" required="false" default="all" hint="List of tools to load - leave blank to load entire library">
+<cfif not variables.scriptsService.isScriptLoaded("tools_#arguments.tool#")>
+	<cfif arguments.tool neq "all">
+		<cfloop list="#arguments.tool#" index="tool">
 			<cfoutput>
-				<script type='text/javascript' src='/ADF/thirdParty/jquery/tools/jquery.tools.min.js'></script>
-				<link href="/ADF/extensions/style/jquery/tools/overlay-minimal.css" rel="stylesheet" type="text/css" />
+				<script type='text/javascript' src='/ADF/thirdParty/jquery/tools/jquery.tools.#tool#.min.js'></script>
+				<cfif fileExists("#server.ADF.dir#/thirdParty/jquery/tools/css/#tool#-minimal.css")>
+					<link href="/ADF/extensions/style/jquery/tools/overlay-minimal.css" rel="stylesheet" type="text/css" />
+				</cfif>
 			</cfoutput>
-		</cfif>
-		<cfset variables.scriptsService.loadedScript("tools_#arguments.tool#")>
+		</cfloop>
+	<cfelse>
+		<cfoutput>
+			<script type='text/javascript' src='/ADF/thirdParty/jquery/tools/jquery.tools.min.js'></script>
+			<link href="/ADF/extensions/style/jquery/tools/overlay-minimal.css" rel="stylesheet" type="text/css" />
+		</cfoutput>
 	</cfif>
+	<cfset variables.scriptsService.loadedScript("tools_#arguments.tool#")>
+</cfif>
 </cffunction>
 
 <!---

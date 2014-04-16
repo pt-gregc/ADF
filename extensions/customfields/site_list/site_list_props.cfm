@@ -17,7 +17,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the Starter App directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2014.
+PaperThin, Inc. Copyright(C) 2010.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files
@@ -39,8 +39,5 @@ Version:
 	1.0.0
 History:
 	2012-04-12 - GAC - Added redirect CFINCLUDE to point to /cs_site_select/cs_site_select_props.cfm
-	2014-01-02 - GAC - Added the CFSETTING tag to disable CF Debug results in the props module
 --->
-<cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
-
 <cfinclude template="/ADF/extensions/customfields/cs_site_select/cs_site_select_props.cfm">

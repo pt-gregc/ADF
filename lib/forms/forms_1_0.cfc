@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2014.
+PaperThin, Inc. Copyright(C) 2012.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="forms_1_0" extends="ADF.core.Base" hint="Form functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_3">
+<cfproperty name="version" value="1_0_2">
 <cfproperty name="type" value="transient">
 <cfproperty name="ceData" injectedBean="ceData_1_0" type="dependency">
 <cfproperty name="scripts" injectedBean="scripts_1_0" type="dependency">
@@ -248,7 +248,7 @@ History:
 					variables.scripts.loadADFLightbox(force=1);
 				</cfscript>
 				<!--- Call the UDF function --->
-				#server.CommonSpot.UDF.UI.RenderSimpleForm(arguments.dataPageID, arguments.formID, APIPostToNewWindow, formResultHTML)#
+				#Server.CommonSpot.UDF.UI.RenderSimpleForm(arguments.dataPageID, arguments.formID, APIPostToNewWindow, formResultHTML)#
 			</cfoutput>
 		</cfsavecontent>
 	<cfelse>
@@ -301,10 +301,9 @@ History:
 </cffunction>
 
 <!---
-/* *************************************************************** */
-Author: 
-	PaperThin, Inc.	
-	Ron West
+/* ***************************************************************
+/*
+Author: 	Ron West
 Name:
 	$renderDeleteForm
 Summary:	
@@ -320,32 +319,22 @@ History:
 	2010-02-18 - MFC - Returns a HTML for delete form.
 	2010-04-14 - GAC - Updated to work with the ADFLightbox Framework
 	2010-07-23 - SFS - Added argument to supply the lightbox dialog with a title needed for CS CE delete function.
-	2014-03-05 - JTP - Var declarations
-	2014-03-07 - GAC - Moved the scripts calls for jquery and ADFlightbox back into the return variable string
-					 - Removed the hardcoded jquery version
 --->
-<cffunction name="renderDeleteForm" access="public" returntype="String" hint="Renders the standard datasheet delete module" output="false">
+<cffunction name="renderDeleteForm" access="public" returntype="String" hint="Renders the standard datasheet delete module">
 	<cfargument name="formID" type="numeric" required="true" hint="The FormID for the Custom Element">
 	<cfargument name="dataPageID" type="numeric" required="true" hint="the DataPageID for the record being deleted">
 	<cfargument name="title" type="string" required="no" default="Delete Record" hint="The title of the dialog displayed while deleting">
-	
-	<cfscript>
-		var deleteFormHTML = "";
-		// Overwrite the CommonSpot Variables (CD_DialogName and targetModule)
-		var CD_DialogName = arguments.title;
-		// Use the ADF's delete_element_handler.cfm instead of the CommonSpot standard delete ds module
-		var targetModule = "/ADF/extensions/datasheet-modules/delete_element_handler.cfm";
-		// var targetModule = "#request.subsiteCache[1].url#datasheet-modules/delete-form-data.cfm";
-
-		// Set the request.params variables for pageID and formID
-		request.params.pageID = arguments.dataPageID;
-		request.params.formID = arguments.formID;
-	</cfscript>
-
+	<cfset var deleteFormHTML = "">
 	<cfsavecontent variable="deleteFormHTML">
 		<cfscript>
-			variables.scripts.loadJquery(force=1);
+			variables.scripts.loadJquery('1.3.2', 1);
 			variables.scripts.loadADFLightbox(force=1);
+			
+			//targetModule = "#request.subsiteCache[1].url#datasheet-modules/delete-form-data.cfm";
+			targetModule = "/ADF/extensions/datasheet-modules/delete_element_handler.cfm";
+			request.params.pageID = arguments.dataPageID;
+			request.params.formID = arguments.formID;
+			CD_DIALOGNAME = arguments.title;
 		</cfscript>
 		<cfinclude template="/ADF/extensions/datasheet-modules/delete_element_handler.cfm">
 	</cfsavecontent>

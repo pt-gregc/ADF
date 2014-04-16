@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
  
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2014.
+PaperThin, Inc. Copyright(C) 2012.
 All Rights Reserved.
  
 By downloading, modifying, distributing, using and/or accessing any files
@@ -28,13 +28,9 @@ Summary:
 		simple form.
 History:
  	2012-11-27 - MFC - Created
-	2014-01-02 - GAC - Added the CFSETTING tag to disable CF Debug results in the props module
 --->
-<cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
-
 <cfscript>
-	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "1.0"; 
+	fieldVersion = "1.0"; // Variable for the version of the field - Display in Props UI.
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
@@ -91,7 +87,6 @@ History:
 		</tr>
 		<tr>
 			<td class="cs_dlgLabelSmall" colspan="2" style="font-size:7pt;">
-				<hr />
 				ADF Custom Field v#fieldVersion#
 			</td>
 		</tr>

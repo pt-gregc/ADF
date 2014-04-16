@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2014.
+PaperThin, Inc. Copyright(C) 2010.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -18,26 +18,9 @@ in this directory, you agree to the terms and conditions of the applicable
 end user license agreement.
 */
 
-/* *************************************************************** */
-/*
-Author: 	
-	PaperThin Inc.
-Name:
-	lightbox.js
-Summary:
-	ADF Lightbox Framework JavaScript
-Version:
-	1.0.0
-History:
-	2010-02-19 - MFC - Created
-	2014-01-03 - GAC - Added Comment Headers
-					 - Added missing semi-colons to the ends of variablized functions
-*/
-
 /**
  * commonspot.lightbox: lightbox package
  */
-
 if (!commonspot)
 	commonspot = {};
 commonspot.lightbox = {};
@@ -184,7 +167,7 @@ commonspot.lightbox.getCurrent = function(includeAlerts)
 				return commonspot.lightbox.stack[i];
 		}
 	}
-};
+}
 
 /**
  * Get window object of topmost lightbox, ignoring alerts if requested
@@ -238,7 +221,7 @@ commonspot.lightbox.closeBtnOnClick = function()
 		btn.onclick();
 	else
 		btn.click();
-};
+}
 
 /**
  * Close the topmost lightbox and reload the parent Dialog
@@ -279,7 +262,7 @@ commonspot.lightbox.closeParentDialogs = function()
 	var endPos = commonspot.lightbox.stack.length - 2;
 	for (var i = endPos; i >= 0; i--)
 		commonspot.lightbox.stack[i].close();
-};
+}
 
 /**
  * Close all lightboxes, and refresh the innermost one
@@ -460,7 +443,7 @@ commonspot.lightbox.getFirefoxVersion = function()
 		ffversion=new Number(RegExp.$1); // capture x.x portion and store as a number
 	}
 	return ffversion;
-};
+}
 
 /**
  * Extract information from a server dialog that will be used to set up the furniture (title, subtitle etc)
@@ -658,7 +641,7 @@ commonspot.lightbox.getNextToTopDlg = function(returnOpenerWhenEmpty)
 			return commonspot.lightbox.getPageWindow();
 	}	
 	return parentDialog;
-};
+}
 
 // keep closing parent dlgs until we find one with requested callback, then return it
 commonspot.lightbox.findCallbackInAncestorWindow = function(callback)
@@ -678,7 +661,7 @@ commonspot.lightbox.findCallbackInAncestorWindow = function(callback)
 			parentDlg.close();
 	}
 	return null; // didn't find callback, oops
-};
+}
 
 /*
  * Function to handle specific key presses.
@@ -704,8 +687,7 @@ commonspot.lightbox.handleDialogKeys = function(e)
 			commonspot.lightbox.closeBtnOnClick();
 			break;
 	}
-};
-		
+}		
 /*
 * should this go in a sperate namespace and file ??
 */
@@ -827,7 +809,7 @@ commonspot.lightbox.getQAStatus = function(dlgObj)
 	cmd.add('DebugHelp', 'getHelpObjectStatus', args,  cmdOptions); 
 	cmd.send();		
 
-};
+}
 
 commonspot.lightbox.onCompleteCallback_GetHelpObjectStatus = function()
 {
@@ -916,7 +898,7 @@ commonspot.lightbox.onCompleteCallback_GetHelpObjectStatus = function()
 			else
 				event.cancelBubble=true;
 			commonspot.lightbox.openDialog('/commonspot/dashboard/dialogs/common/module-mapping-status-report.html',false, null, null, null, null, true);
-		};
+		}
 	}
 	if (qaIcon)	
 	{
@@ -937,7 +919,7 @@ commonspot.lightbox.onCompleteCallback_GetHelpObjectStatus = function()
 											'&WidgetName=' + escape(data["widgetname"]) +
 											'&StatusType=QA' +
 											'&WidgetNameSource=' + escape(data["widgetnamesrc"]),false, null, null, null, null, true);
-		};
+		}
 	}
 	if (reportsIcon)
 	{
@@ -955,11 +937,10 @@ commonspot.lightbox.onCompleteCallback_GetHelpObjectStatus = function()
 											'&MappingCount=' + data["mappingcount"] +
 											'&WidgetName=' + escape(data["widgetname"]) +
 											'&WidgetNameSource=' + escape(data["widgetnamesrc"]),false, null, null, null, null, true);
-		};
+		}
 	}
 
-};
-
+}
 /**
  * Singleton, object factory for lightboxed dialogs
  */
@@ -1008,7 +989,7 @@ commonspot.lightbox.dialogFactory.getInstance = function(url, hideClose, name, c
 	      event.stopPropagation();
 	   else
 	      event.cancelBubble=true;		
-	};
+	}
 	dialogObj.overlayDiv.style.opacity = '.45';
 	dialogObj.overlayDiv.style.filter='alpha(opacity=45);';
 	dialogObj.overlayDiv.style.zIndex = nextZindex;
@@ -1024,7 +1005,7 @@ commonspot.lightbox.dialogFactory.getInstance = function(url, hideClose, name, c
 	      event.stopPropagation();
 	   else
 	      event.cancelBubble=true;	
-	};
+	}
 	dialogObj.divNode.style.zIndex = nextZindex +1;
 	dialogObj.divNode.style.top = '-5000px';
 	
@@ -1157,7 +1138,7 @@ commonspot.lightbox.dialogFactory.getInstance = function(url, hideClose, name, c
 	      event.stopPropagation();
 	   else
 	      event.cancelBubble=true;	
-	};	
+	}	
 	dialogObj.iframeDiv.style.zIndex = nextZindex+2;
 	dialogObj.divNode.appendChild(dialogObj.iframeDiv);
 	// iframe
@@ -1188,7 +1169,7 @@ commonspot.lightbox.dialogFactory.getInstance = function(url, hideClose, name, c
 	dialogObj.adjustLayout = function()
 	{
 		dialogObj.overlayDiv.style.height = commonspot.lightbox.getWinSize().height + 'px';
-	};
+	}
 	
 	dialogObj.close = function()
 	{
@@ -1206,7 +1187,7 @@ commonspot.lightbox.dialogFactory.getInstance = function(url, hideClose, name, c
 		var curWin = commonspot.lightbox.getCurrentWindow();
 		if (curWin)
 			curWin.focus();
-	};
+	}
 	
 	// This hides the lightbox dialog and overlay
 	dialogObj.hideLightbox = function(delay)	
@@ -1215,17 +1196,17 @@ commonspot.lightbox.dialogFactory.getInstance = function(url, hideClose, name, c
 		$(dialogObj.divNode).hide();
 		$(dialogObj.overlayDiv).hide();
 		}, delay );
-	};
+	}
 	
 	dialogObj.getFrameName = function()
 	{
 		return dialogObj.frameName;
-	};
+	}
 	
 	dialogObj.getWindow = function()
 	{
 		return dialogObj.iframeNode.contentWindow;
-	};
+	}
 	
 	dialogObj.resize = function(w, h)
 	{
@@ -1265,7 +1246,7 @@ commonspot.lightbox.dialogFactory.getInstance = function(url, hideClose, name, c
 			var rr = dialogObj.iconsContainer.style.width;
 			dialogObj.QAiconsContainer.style.right = rr;
 		}
-	};
+	}
 	
 	dialogObj.show = function()
 	{
@@ -1290,7 +1271,7 @@ commonspot.lightbox.dialogFactory.getInstance = function(url, hideClose, name, c
 		dialogObj.focusFirstField();
 		
 		*/
-	};
+	}
 	
 	dialogObj.focusFirstField = function()
 	{
@@ -1378,7 +1359,7 @@ commonspot.lightbox.dialogFactory.getInstance = function(url, hideClose, name, c
 		/*
 		 *	End Code Add
 		 */
-	};
+	}
 	
 	dialogObj.setUpFurniture = function(info)
 	{
@@ -1401,7 +1382,7 @@ commonspot.lightbox.dialogFactory.getInstance = function(url, hideClose, name, c
 							(commonspot.lightbox.helpDlg).location.href = dialogUrl;					
 						else
 							commonspot.lightbox.helpDlg = window.open(dialogUrl,'helpDlg',argsStr);
-					};
+					}
 				}				
 			}
 
@@ -1450,7 +1431,7 @@ commonspot.lightbox.dialogFactory.getInstance = function(url, hideClose, name, c
 		}
 		else
 			dialogObj.closeImg.style.display = 'none';
-	};
+	}
 	
 	dialogObj.showCrash = function()
 	{
@@ -1586,7 +1567,7 @@ commonspot.lightbox.loadingMsg =
 					   else
 					      event.cancelBubble=true;			
 						commonspot.lightbox.closeCurrent();			
-					};
+					}
 					var delayOverlayMsg = "Loading, please wait or click to abort";
 					loadingDiv.title = delayOverlayMsg;
 					if (loadingImg)
@@ -1648,7 +1629,7 @@ commonspot.lightbox.hideQAElements = function(objList)
 				elem.style.display='';	
 		}
 	}
-};
+}
 
 /**
  * Utility method. Returns inner size of current viewport
@@ -1738,8 +1719,7 @@ commonspot.lightbox.addToDom = function(objType, objID, objClass, objTitle, objP
 	dom.className = objClass;
 	objParent.appendChild(dom);
 	return dom;
-};
-
+}
 commonspot.lightbox.readCookie = function(name)
 {
 	var nameEQ = name + "=";

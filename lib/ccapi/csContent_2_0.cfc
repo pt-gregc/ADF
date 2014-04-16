@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2014.
+PaperThin, Inc. Copyright(C) 2012.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="csContent_2_0" extends="ADF.lib.ccapi.csContent_1_0" hint="Constructs a CCAPI instance and then allows you to populate Custom Elements and Textblocks">
 
-<cfproperty name="version" value="2_0_3">
+<cfproperty name="version" value="2_0_2">
 <cfproperty name="type" value="transient">
 <cfproperty name="apiElement" type="dependency" injectedBean="apiElement_1_0">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
@@ -62,7 +62,6 @@ Arguments:
 History:
 	2012-12-27 - MFC - Created.  Direct functions to the API Element Library.
 	2013-02-21 - GAC - Fixed typo in log text message
-	2013-06-24 - MTT - Added the forceControlName and forceControlID arguments.
 --->
 <cffunction name="populateContent" access="public" returntype="struct" hint="Use this method to populate content for either a Textblock or Custom Element">
 	<cfargument name="elementName" type="string" required="true" hint="The name of the element from the CCAPI configuration">
@@ -70,8 +69,6 @@ History:
 	<cfargument name="forceSubsiteID" type="numeric" required="false" default="-1" hint="If set this will override the subsiteID in the data.">
 	<cfargument name="forcePageID" type="numeric" required="false" default="-1" hint="If set this will override the pageID in the data.">
 	<cfargument name="forceLogout" type="boolean" required="false" default="true" hint="Flag to keep the API session logged in for a continuous process.">	
-	<cfargument name="forceControlName" type="string" required="false" default="" hint="Field to override the element control name from the config.">
-	<cfargument name="forceControlID" type="numeric" required="false" default="-1" hint="Field to override the element control name with the control ID.">
 	<!--- <cfscript>
 		var elements = "";
 		var thisElement = structNew();
@@ -248,9 +245,7 @@ History:
 															    data=arguments.data,
 															    forceSubsiteID=arguments.forceSubsiteID,
 															    forcePageID=arguments.forcePageID,
-															    forceLogout=arguments.forceLogout,
-															    forceControlName=arguments.forceControlName,
-															    forceControlID=arguments.forceControlID);
+															    forceLogout=arguments.forceLogout);
 		
 		// Format the result in the way that was previously constructed
 		result.contentUpdated = contentResult.status;

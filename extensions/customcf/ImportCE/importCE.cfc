@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2014.
+PaperThin, Inc. Copyright(C) 2010.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -136,7 +136,6 @@ Arguments:
 	Numeric - startAt - Data position to start the import at.
 History:
 	2009-10-21 - MFC - Created
-	2014-03-05 - JTP - Var declarations
 --->
 <cffunction name="processImport" access="public" returntype="void" hint="Process the import of the Custom Element Data.">
 	<cfargument name="importData" type="struct" required="true" hint="Data that is being imported.">
@@ -158,7 +157,6 @@ History:
 		var csContent = "";
 		var pageResult = "";
 		var extData = "";
-		var schedTaskURL = '';
 		
 		//application.ADF.utils.doDump(arguments, "arguments", false);		
 		// check if app variable exists or we need to restart
@@ -252,10 +250,8 @@ History:
 		// Log that we are ending the process
 		application.ADF.utils.logAppend("Import Element Process - Element:#arguments.importData.ceName# - End @ #now()#;", arguments.logFileName);
 		
-		if ( arguments.scheduleProcess ) 
-		{
-			if (application.ADF.importElement.currRow LTE application.ADF.importElement.Query.RecordCount) 
-			{
+		if ( arguments.scheduleProcess ) {
+			if (application.ADF.importElement.currRow LTE application.ADF.importElement.Query.RecordCount) {
 				// set the scheduled task to start again
 				schedTaskURL = "#variables.IMPORTCEPAGE#?action=process&importCE=#arguments.importData.ceName#&restart=false&count=#arguments.passCount#&cont=#arguments.scheduleProcess#&pause=#arguments.delayMinutes#";
 				application.ADF.utils.setScheduledTask(schedTaskURL, "Import_Element_Process_#arguments.importData.ceName#","Import_Element_Process_#arguments.importData.ceName#.htm", arguments.delayMinutes);

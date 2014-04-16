@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2014.
+PaperThin, Inc. Copyright(C) 2012.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files
@@ -32,16 +32,14 @@ History:
 	2009-09-28 - MFC - Created
 	2010-12-20 - MFC - Updated Forms_1_1 for dependency to Scripts_1_1.
 	2011-09-09 - GAC - Minor comment updates and formatting
-	2013-11-18 - GAC - Updated the lib dependencies to scripts_1_2 and ceData_2_0
 --->
 <cfcomponent displayname="forms_1_1" extends="ADF.lib.forms.forms_1_0" hint="Form functions for the ADF Library">
 
-<cfproperty name="version" value="1_1_8">
+<cfproperty name="version" value="1_1_4">
 <cfproperty name="type" value="transient">
-<cfproperty name="ceData" injectedBean="ceData_2_0" type="dependency">
-<cfproperty name="scripts" injectedBean="scripts_1_2" type="dependency">
+<cfproperty name="ceData" injectedBean="ceData_1_1" type="dependency">
+<cfproperty name="scripts" injectedBean="scripts_1_1" type="dependency">
 <cfproperty name="ui" injectedBean="ui_1_0" type="dependency">
-<cfproperty name="fields" injectedBean="fields_1_0" type="dependency">
 <cfproperty name="wikiTitle" value="Forms_1_1">
 
 <!---
@@ -154,7 +152,7 @@ History:
 
 	<!--- HTML for the form --->
 	<cfsavecontent variable="rtnHTML">
-		<cfset udfResults = server.CommonSpot.UDF.UI.RenderSimpleForm(arguments.dataPageID, arguments.formID, APIPostToNewWindow, formResultHTML)>
+		<cfset udfResults = Server.CommonSpot.UDF.UI.RenderSimpleForm(arguments.dataPageID, arguments.formID, APIPostToNewWindow, formResultHTML)>
 		<cfoutput>
 			<cfscript>
 				// ADF Lightbox needs to be forced to load the browser-all.js into
@@ -239,43 +237,35 @@ History:
 						now renders the header and footer.
 	2011-04-07 - MFC - Added 'realTargetModule' variable for when deleting in CS6.1 and Greater.
 	2011-06-22 - GAC - Added a callback ID list parameter to include IDs of records to be modified by the callback other than the one being deleted 
-	2014-03-05 - JTP - Var declarations
-	2014-03-07 - GAC - Moved the scripts calls for jquery and ADFlightbox back into the return variable string
 --->
-<cffunction name="renderDeleteForm" access="public" returntype="String" hint="Renders the standard datasheet delete module" output="false">
+<cffunction name="renderDeleteForm" access="public" returntype="String" hint="Renders the standard datasheet delete module">
 	<cfargument name="formID" type="numeric" required="true" hint="The FormID for the Custom Element">
 	<cfargument name="dataPageID" type="numeric" required="true" hint="the DataPageID for the record being deleted">
 	<cfargument name="title" type="string" required="no" default="Delete Record" hint="The title of the dialog displayed while deleting">
 	<cfargument name="callback" type="string" required="false" default="" hint="The callback Javascript function that will be called on succesful deletion">
 	<cfargument name="cbIDlist" type="string" required="false" default="" hint="The list of IDs to pass to the call back function">
-	
-	<cfscript>
-		var deleteFormHTML = '';
-		// Overwrite the CommonSpot Variables (CD_DialogName, targetModule and realTargetModule)
-		var CD_DialogName = arguments.title;
-		var targetModule = "/ADF/extensions/datasheet-modules/delete_element_handler.cfm";
-		var realTargetModule = "";
-		
-		// IF in CS6.1 or greater set the 'realTargetModule' CS Varaible from the targetModule
-		if ( application.ADF.csVersion GTE 6.1 )
-			realTargetModule = targetModule;
-
-		// Set the request.params variables for pageID, formID, callback and cbIDlist
-		request.params.pageID = arguments.dataPageID;
-		request.params.formID = arguments.formID;
-		
-		if ( Len(arguments.callback) )
-		{
-			request.params.callback = arguments.callback;
-			if ( Len(Trim(arguments.cbIDlist)) )
-				request.params.cbIDlist = arguments.cbIDlist;
-		}
-	</cfscript>
-	
+	<cfset var deleteFormHTML = "">
+	<!--- Check if the user is logged In --->
 	<cfsavecontent variable="deleteFormHTML">
 		<cfscript>
 			variables.scripts.loadJquery();
 			variables.scripts.loadADFLightbox();
+
+			targetModule = "/ADF/extensions/datasheet-modules/delete_element_handler.cfm";
+			
+			// IF in CS6.1 or greater set into 'RealTargetModule' variable
+			if ( application.ADF.csVersion GTE 6.1 )
+				realTargetModule = targetModule;
+			
+			request.params.pageID = arguments.dataPageID;
+			request.params.formID = arguments.formID;
+			if(Len(arguments.callback))
+			{
+				request.params.callback = arguments.callback;
+				if(Len(Trim(arguments.cbIDlist)))
+					request.params.cbIDlist = arguments.cbIDlist;
+			}
+			CD_DIALOGNAME = arguments.title;
 		</cfscript>
 		<cfinclude template="/ADF/extensions/datasheet-modules/delete_element_handler.cfm">
 	</cfsavecontent>
@@ -300,18 +290,35 @@ History:
 	2010-12-06 - RAK - Created
 	2011-11-22 - GAC - Added a fieldPermission argument and logic to handle 6.x field security
 	2012-12-03 - GAC - Fixed the logic when checking the fieldPermission value for CS 6.0+ to only return ReadOnly when the fieldPermission value equals 1
-	2013-12-05 - GAC - Added parameters for the CFTs fqFieldName and the attributes.currentValues struct
-					 - Added the CS 9+ fqFieldName_doReadonly check to see if the field is forces to be read only
-	2014-01-06 - GAC - Moved to the new Field_1_0 LIB
 --->
-<!--- // Moved to the Fields LIB for v1.6.2 --->
 <cffunction name="isFieldReadOnly" access="public" returntype="boolean" hint="Given xparams determines if the field is readOnly">
-	<cfargument name="xparams" type="struct" required="true" hint="the CFT xparams struct">
+	<cfargument name="xparams" type="struct" required="true" default="" hint="XParams struct">
 	<cfargument name="fieldPermission" type="string" required="false" default="" hint="fieldPermission attribute for CS 6.x and above: 0 (no rights), 1 (read only), 2 (edit)">
-	<cfargument name="fqfieldName" type="string" required="false" default="" hint="the CFT's fqfieldName">
-	<cfargument name="currentValues" type="struct" required="false" default="#StructNew()#" hint="the CFT attributes.currentValues struct">
 	<cfscript>
-		return variables.fields.isFieldReadOnly(xparams=arguments.xparams,fieldPermission=arguments.fieldPermission,fqfieldName=arguments.fqfieldName,currentValues=arguments.currentValues);
+		var readOnly = true;
+		var productVersion = ListFirst(ListLast(request.cp.productversion," "),".");
+		var commonGroups = "";
+		// Determine if this field should be read only due to "Use Explicit Security"
+		// Check the CS version
+		if ( productVersion GTE 6 )
+		{
+			// For CS 6.x and above
+			// - If the user has ready only rights (fieldPermission = 1) readOnly will be true
+			if ( LEN(TRIM(arguments.fieldPermission)) AND arguments.fieldPermission EQ 1 ) 
+				readOnly = true;
+			else
+				readOnly = false;				
+		}
+		else
+		{
+			// For CS 5.x 
+			// Get the list permissions and compare
+			commonGroups = application.ADF.data.ListInCommon(request.user.grouplist, arguments.xparams.pedit);
+			// Check if the user does have edit permissions
+			if ( (arguments.xparams.UseSecurity EQ 0) OR ( (arguments.xparams.UseSecurity EQ 1) AND (ListLen(commonGroups)) ) )
+				readOnly = false;	
+		}
+		return readOnly;
 	</cfscript>
 </cffunction>
 
@@ -340,12 +347,7 @@ History:
 	2011-11-07 - GAC - Addressed table formatting issues with the includeLabel argument 
 					 - Added an includeDescription argument to allow the description to be turned off
 	2011-11-22 - GAC - Added a fieldPermission argument and logic to handle 6.x field security
-	2013-12-06 - GAC - Added nowrap="nowrap" to the Label table cell
-					 - Added a TRIM to the label variable
-	2014-01-06 - GAC - Added the labelClass variable the Field Label to specify optional or required class to the label tag
-	2014-01-06 - GAC - Moved to the new Field_1_0 LIB
 --->
-<!--- // Moved to the Fields LIB for v1.6.2 --->
 <cffunction name="wrapFieldHTML" access="public" returntype="String" hint="Wraps the given information with valid html for the current commonspot and configuration">
 	<cfargument name="fieldInputHTML" type="string" required="true" default="" hint="HTML for the field input, do a cfSaveContent on the input field and pass that in here">
 	<cfargument name="fieldQuery" type="query" required="true" default="" hint="fieldQuery value">
@@ -354,37 +356,101 @@ History:
 	<cfargument name="includeLabel" type="boolean" required="false" default="true" hint="Set to false to remove the label on the left">
 	<cfargument name="includeDescription" type="boolean" required="false" default="true" hint="Set to false to remove the description under the field">
 	<cfscript>
-		return variables.fields.wrapFieldHTML(fieldInputHTML=arguments.fieldInputHTML,fieldQuery=arguments.fieldQuery,attr=arguments.attr,fieldPermission=arguments.fieldPermission,includeLabel=arguments.includeLabel,includeDescription=arguments.includeDescription);
-	</cfscript>
-</cffunction>
+		var returnHTML = '';
+		var productVersion = ListFirst(ListLast(request.cp.productversion," "),".");
+		var row = arguments.fieldQuery.currentRow;
+		var fqFieldName = "fic_#arguments.fieldQuery.ID[row]#_#arguments.fieldQuery.INPUTID[row]#";
+		var description = arguments.fieldQuery.DESCRIPTION[row];
+		var fieldName = arguments.fieldQuery.fieldName[row];
+		var xparams = arguments.attr.parameters[arguments.fieldQuery.inputID[row]];
+		var currentValue = arguments.attr.currentValues[fqFieldName];
+		var labelStart = arguments.attr.itemBaselineParamStart;
+		var labelEnd = arguments.attr.itemBaseLineParamEnd;
+		var renderMode =  arguments.attr.rendermode;
+		var renderSimpleFormField = false;
+		var doHiddenFieldSecurity = false; // No Edit / No Readonly ... just a hidden field
+		var editGroups = "";
+		var viewGroups = "";
+		
+		//If the fields are required change the label start and end
+		if ( xparams.req eq "Yes" )
+		{
+			labelStart = arguments.attr.reqItemBaselineParamStart;
+			labelEnd = arguments.attr.reqItemBaseLineParamEnd;
+		}
 
-<!---
-/* *************************************************************** */
-Author:
-	PaperThin, Inc.
-Name:
-	$renderDataValueStringfromFieldMask
-Summary:
-	Returns the string of data values from field mask. 
-	Used with the Custom Element Field Select CFT
-Returns:
-	string
-Arguments:
-	Struct - fieldDataStruct
-	string - fieldMaskStr
-History:
- 	2010-12-06 - RAK - Created
-	2013-11-14 - DJM - Pulled out from the Custom Element Select Field render file and converted to its own method
-	2013-11-14 - GAC - Moved from the Custom Element Select Field to the Forms_1_1 lib
-	2013-12-18 - GAC - Moved to the fields_1_0 lib
---->
-<!--- // Moved to the Fields LIB for v1.6.2 --->
-<cffunction name="renderDataValueStringfromFieldMask" hint="Returns the string of data values from field mask" access="public" returntype="string">
-	<cfargument name="fieldDataStruct" type="struct" required="true" hint="Struct with the field key/value pair">
-	<cfargument name="fieldMaskStr" type="string" required="true" hint="String mask of <fieldNames> used build the field value display">
-	<cfscript>
-		return variables.fields.renderDataValueStringfromFieldMask(fieldDataStruct=arguments.fieldDataStruct,fieldMaskStr=arguments.fieldMaskStr);
+		// Determine if this is rendererd in a simple form or the standard custom element interface
+		if ( (StructKeyExists(request, "simpleformexists")) AND (request.simpleformexists EQ 1) )
+		{
+			renderSimpleFormField = true;
+		}
+		
+		// Determine if this field should be hidden due to "Use Explicit Security"
+		// - Check the CS version
+		if ( productVersion GTE 6 )
+		{
+			// For CS 6.x and above
+			// - If the user has no rights (fieldSecurity = 0) to the field then doHiddenSecurity should be true
+			if ( LEN(TRIM(arguments.fieldPermission)) AND arguments.fieldPermission LTE 0 ) 
+			{
+				doHiddenFieldSecurity = true;		
+			}	
+			
+			// TODO: determine if this conditional logic is needed to display the description or not (fieldPermission is new to CS6.x)
+			//if ( renderMode NEQ 'standard' OR fieldpermission LTE 0 )
+				//arguments.includeDescription = false;
+		}
+		else
+		{
+			// For CS 5.x 
+			// Get the list permissions and compare for security
+			editGroups = application.ADF.data.ListInCommon(request.user.grouplist, xparams.pedit);
+			viewGroups = application.ADF.data.ListInCommon(request.user.grouplist, xparams.pread);
+			// - If user is part for the edit or view groups doHiddenSecurity should remain false
+			if ( xparams.UseSecurity AND ListLen(viewGroups) EQ 0 AND ListLen(editGroups) EQ 0 )
+			{
+				doHiddenFieldSecurity = true;
+			}
+		}
 	</cfscript>
+	<cfsavecontent variable="returnHTML">
+		<cfoutput>
+			<cfif NOT doHiddenFieldSecurity>
+				<tr id="#fqFieldName#_FIELD_ROW">
+					<cfif arguments.includeLabel>
+						<td valign="top">
+							#labelStart#
+							<label for="#fqFieldName#" id="#fqFieldName#_LABEL">#xParams.label#:</label>
+							#labelEnd#
+						</td>
+					</cfif>
+					<td<cfif NOT arguments.includeLabel> colspan="2"</cfif>>
+						#arguments.fieldInputHTML#
+					</td>
+				</tr>
+				<cfif Len(description) AND arguments.includeDescription>
+					<!--- // If there is a description print out a new row and the description --->
+					<tr id="#fqFieldName#_DESCRIPTION_ROW">
+						<cfif arguments.includeLabel>
+						<td></td>
+						</cfif>
+						<td<cfif NOT arguments.includeLabel> colspan="2"</cfif>>
+							#arguments.attr.descParamStart#
+							#description#
+							<br/><br/>
+							#arguments.attr.descParamEnd#
+						</td>
+					</tr>
+				</cfif>
+			<cfelse>
+				<input type="hidden" name="#fqFieldName#" id="#fqFieldName#" value="#currentValue#">
+			</cfif>
+			<cfif renderSimpleFormField>
+				<input type="hidden" name="#fqFieldName#_FIELDNAME" id="#fqFieldName#_FIELDNAME" value="#ReplaceNoCase(fieldName, 'fic_','')#">
+			</cfif>
+		</cfoutput>
+	</cfsavecontent>
+	<cfreturn returnHTML>
 </cffunction>
 
 <!---

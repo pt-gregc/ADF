@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2014.
+PaperThin, Inc. Copyright(C) 2013.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -38,9 +38,8 @@ History:
 	2012-07-02 - MFC - Added lock around the entire ADF reset processing. Prevents errors on server restarts.
 	2013-01-23 - MFC - Increased the CFLOCK timeout to "300".
 	2013-01-24 - MFC - Setup the "Session.ADF" space if it doesn't exist for the users session
-	2013-12-05 - GAC - Removed the login check logic from around URL resetADF checks to allow the not logged in message to display (when not a forced Reset) and the user is not logged in 
  --->
-<!--- // Lock around the entire load ADF processing --->
+<!--- Lock around the entire load ADF processing --->
 <cflock timeout="300" type="exclusive" name="ADF-RESET-LOAD-SITE">
 	<cfscript>
 		// Initialize the RESET TYPE variable
@@ -48,11 +47,10 @@ History:
 		adfResetType = "";
 		force = false;
 		// Check if the ADF space exists in the SERVER and APPLICATION
-		if ( NOT StructKeyExists(server, "ADF") ) {
+		if ( NOT StructKeyExists(server, "ADF") ){
 			adfResetType = "ALL";
 			force = true;
-		} 
-		else if ( NOT StructKeyExists(application, "ADF") ) {
+		} else if ( NOT StructKeyExists(application, "ADF") ){
 			force = true;
 			adfResetType = "SITE";
 		}
@@ -62,25 +60,26 @@ History:
 			session.ADF = StructNew();
 	</cfscript>
 	
-	<!--- // Check if the user is logged in run the reset commands --->
-	<cfscript>
-		// Command to reset the entire ADF
-		if( StructKeyExists(url,"resetADF") ) {
-			adfResetType = "ALL";
-		}
-		else {
-			// Check the SERVER or SITE reset commands
-			if(StructKeyExists(url,"resetServerADF") and StructKeyExists(url,"resetSiteADF")){
+	<!--- Check if the user is logged in run the reset commands --->
+	<cfif request.user.id gt 0>
+		<cfscript>
+			// Command to reset the entire ADF
+			if( StructKeyExists(url,"resetADF") ){
 				adfResetType = "ALL";
-			}else if(StructKeyExists(url,"resetServerADF")){
-				adfResetType = "SERVER";
-			}else if(StructKeyExists(url,"resetSiteADF")){
-				adfResetType = "SITE";
+			}else{
+				// Check the SERVER or SITE reset commands
+				if(StructKeyExists(url,"resetServerADF") and StructKeyExists(url,"resetSiteADF")){
+					adfResetType = "ALL";
+				}else if(StructKeyExists(url,"resetServerADF")){
+					adfResetType = "SERVER";
+				}else if(StructKeyExists(url,"resetSiteADF")){
+					adfResetType = "SITE";
+				}
 			}
-		}
-	</cfscript>
-
-	<!--- // Run the RESET command --->
+		</cfscript>
+	</cfif>
+	
+	<!--- Run the RESET command --->
 	<cfif Len(adfResetType) gt 0>
 		<cfscript>
 			adfCore = createObject("component", "ADF.core.Core");
@@ -88,38 +87,30 @@ History:
 		</cfscript>
 		<cfoutput>
 			<cfif !force>
-				<!--- // 2012-01-10 - MFC - Added span tag with ID around the reset message. --->
-				<!--- // 2014-01-08 - DRM - Moved msg to cfhtmlhead, otherwise it's before doctype tag, browser reverts to quirks mode, can look funny --->
-				<cfhtmlhead text="<span id='ADF-Reset-Message'><b>#resetResults.message#</b></span>">
+				<!--- 2012-01-10 - MFC - Added span tag with ID around the reset message. --->
+				<span id='ADF-Reset-Message'><b>#resetResults.message#</b></span>
 			</cfif>
 		</cfoutput>
 	</cfif>
 	
-	<!--- // Check if the user is logged in run the ADF DUMP VAR command --->
+	<!--- Check if the user is logged in run the ADF DUMP VAR command --->
 	<cfif request.user.id gt 0>
-		<!--- // The following is unchanged during the 2010-10-29 refractor --->
+		<!--- The following is unchanged during the 2010-10-29 refractor --->
 		<cfscript>
-			adfDumpMsg = "";
 			if ( StructKeyExists(url,"ADFDumpVar")) {
 				// Verify if the ADF dump var exists
 				// [MFC] - Changed "isDefined" to "LEN"
 				// [RAK] - 2010-11-01 - Fixing security issue with cfscript code being passed into the evaluate from any logged in user
 				// [RAK] - 2011-06-02 - Added * to end of regular expression because it was only validating the first character instead of every character in the string
-				// [DRM] = 2014-01-08 - Moved msg to cfhtmlhead, same reasoning as with reset msg above
 				//Anything that is not a-z or 0-9 or '.' or '[' or ']'
 				regularExpression = '[^a-z0-9\.\[\]]]*';
-				if (Len(url.ADFDumpVar) GT 0 and !ReFindNoCase(regularExpression,url.ADFDumpVar)) {
-					utilsObj = CreateObject("component","ADF.lib.utils.utils_1_0");
-					adfDumpMsg = utilsObj.dodump(evaluate(url.ADFDumpVar), #url.ADFDumpVar#, false, true);
-				}
-				else {
+				if ( LEN(url.ADFDumpVar) GT 0 and !ReFindNoCase(regularExpression,url.ADFDumpVar)){
+					CreateObject("component","ADF.lib.utils.Utils_1_0").dodump(evaluate(url.ADFDumpVar), #url.ADFDumpVar#, false);
+				}else{
 					// 2012-01-10 - MFC - Added span tag with ID around the reset message.
-					adfDumpMsg = "<span id='ADF-Reset-Message'><strong>ADFDumpVar Failed</strong> : Variable '#url.ADFDumpVar#' does not exist.</span>";
+					WriteOutput("<span id='ADF-Reset-Message'><strong>ADFDumpVar Failed</strong> : Variable '#url.ADFDumpVar#' does not exist.</span>");
 				}
 			}
 		</cfscript>
-		<cfif adfDumpMsg neq "">
-			<cfhtmlhead text="#adfDumpMsg#">
-		</cfif>
 	</cfif>
 </cflock>

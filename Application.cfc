@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2014.
+PaperThin, Inc. Copyright(C) 2012.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -27,7 +27,7 @@ Name:
 Summary:
 	Application file.
 Version:
-	1.7.0
+	1.6.0
 History:
 	2009-06-17 - RLW - Created
 	2011-01-19 - RAK - Fixed typo in utils
@@ -36,20 +36,13 @@ History:
 	2011-03-19 - RLW - Moved the conditional logic of url scope check up because left panels don't have request.params until after Application.cfm executes
 	2011-10-04 - GAC - Updated getBean csSecurity call to reference csSecurity_1_1
 	2012-08-08 - MFC - Added structKeyExists check for "request.params".
-	2013-10-21 - GAC - Added version and 'file-version' property for ADF core file 
-	2014-02-26 - GAC - Updated for version 1.7.0
 --->
 <cfcomponent>
 	
-	<cfproperty name="version" value="1_7_0">
-	<cfproperty name="file-version" value="1">
-	
 	<cfset this.sessionManagement = true>
-	<!--- // todo - alias mapping --->
-	<!--- <cfset this.mapping["/ADF"] = ExpandPath("/ADF")> --->
 	
 	<cffunction name="onRequestStart" access="public" returntype="any">
-		<!--- // not needed - include CommonSpots application.cfm --->
+		<!--- // include CommonSpots application.cfm --->
 		<!--- <cfinclude template="/commonspot/Application.cfm"> --->
 		<cfscript>
 			// this will come through an AJAX call

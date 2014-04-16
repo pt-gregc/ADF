@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
  
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2014.
+PaperThin, Inc. Copyright(C) 2010.
 All Rights Reserved.
  
 By downloading, modifying, distributing, using and/or accessing any files
@@ -95,7 +95,6 @@ Arguments:
 	Numeric - dataPageID - CE record data page ID
 History:
 	2009-10-06 - MFC - Created
-	2014-03-05 - JTP - Var declarations
 --->
 <cffunction name="htmlAddEditLinkBuilder" access="public" returntype="string" hint="Returns the HTML for the Add/Edit Link Builder CE data form.">
 	<cfargument name="callbackFunct" type="string" required="true" hint="Callback function">
@@ -110,7 +109,6 @@ History:
 		var formResultHTML = "";
 		var formElementFlds = application.ADF.forms.getCEFieldNameData("Link Builder Data");
 		var formContainRTE = application.ADF.ceData.containsFieldType(arguments.formID, "formatted_text_block");
-		var cbAction = '';
 	
 		var linkBuilderUUID = "";
 		
@@ -178,7 +176,7 @@ History:
 		<cfsavecontent variable="retHTML">	
 			<cfoutput>
 				<!--- Call the UDF function --->
-				#server.CommonSpot.UDF.UI.RenderSimpleForm(arguments.dataPageID, arguments.formID, APIPostToNewWindow, formResultHTML)#
+				#Server.CommonSpot.UDF.UI.RenderSimpleForm(arguments.dataPageID, arguments.formID, APIPostToNewWindow, formResultHTML)#
 			</cfoutput>
 		</cfsavecontent>
 	<cfelse>

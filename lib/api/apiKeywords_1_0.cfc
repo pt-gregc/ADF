@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2014.
+PaperThin, Inc. Copyright(C) 2012.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="apiKeywords" extends="ADF.core.Base" hint="API Keywords functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_2">
+<cfproperty name="version" value="1_0_1">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
 <cfproperty name="wikiTitle" value="API Keywords">
@@ -62,7 +62,7 @@ History:
 	<cfscript>
 		var pageCmdResult = StructNew();
 		// Use the CS 6.x Command API to SET page keywords
-		var kwComponent = server.CommonSpot.api.getObject('keywords');
+		var kwComponent = Server.CommonSpot.api.getObject('keywords');
 		var kwCmdResults = "";
 		try {
 			kwCmdResults = kwComponent.setForObject(arguments.csPageID,arguments.keywordList);

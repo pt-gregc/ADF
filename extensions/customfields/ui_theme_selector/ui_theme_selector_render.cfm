@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
  
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2014.
+PaperThin, Inc. Copyright(C) 2011.
 All Rights Reserved.
  
 By downloading, modifying, distributing, using and/or accessing any files
@@ -42,7 +42,6 @@ History:
 					 - Added the includeLabel and includeDescription parameters to the wrapFieldHTML function call
 					 - Added readOnly field security code with the cs6 fieldPermission parameter
 					 - Updated the wrapFieldHTML explanation comment block
-	2012-07-01 - GAC - Updated the default jQuery version
 --->
 <cfscript>
 	// the fields current value
@@ -51,7 +50,7 @@ History:
 	xparams = parameters[fieldQuery.inputID];
 
 	uiFilterOutList = ".svn,base"; 		// Add DIRs that need to be filtered from the theme drop down	
-	defaultVersion = "jquery-ui-1.9";
+	defaultVersion = "jquery-ui-1.8";
 	defaultTheme = ""; 					//ui-lightness
 	
 	jQueryUIurl = "/ADF/thirdParty/jquery/ui/";
@@ -81,10 +80,7 @@ History:
 		variables.fieldPermission = "";
 
 	//-- Read Only Check w/ cs6 fieldPermission parameter --
-	readOnly = application.ADF.forms.isFieldReadOnly(xparams,variables.fieldPermission);
-	
-	// jQuery Headers
-	application.ADF.scripts.loadJQuery();	
+	readOnly = application.ADF.forms.isFieldReadOnly(xparams,variables.fieldPermission);	
 </cfscript>
 
 <!--- // Get a list of jQuery UI themes for the version of jQuery --->
@@ -155,5 +151,6 @@ History:
 		Optionally you can disable the field label and the field discription by setting 
 		the includeLabel and/or the includeDescription variables (found above) to false.  
 	--->
+	
 	#application.ADF.forms.wrapFieldHTML(inputHTML,fieldQuery,attributes,variables.fieldPermission,includeLabel,includeDescription)#
 </cfoutput>

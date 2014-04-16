@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2014.
+PaperThin, Inc. Copyright(C) 2011.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -18,23 +18,7 @@ in this directory, you agree to the terms and conditions of the applicable
 end user license agreement.
 --->
 
-<!---
-/* *************************************************************** */
-Author: 	
-	PaperThin, Inc. 
-Name:
-	SiteBeanConfig.cfc
-History:
-	2009-08-14 - MFC - Created
-	2013-10-21 - GAC - Added 'file-version' property for ADF core files 
-	2014-02-26 - GAC - Updated for version 1.7.0
---->
-
 <cfcomponent name="SiteBeanConfig" extends="ADF.core.lightwire.LightWireConfigExtendedBase" hint="A LightWire configuration bean.">
-
-<cfproperty name="version" value="1_7_0">
-<cfproperty name="file-version" value="1">
-
 <!--- 
 BEAN DEFINITION SYNTAX
 SINGLETONS:
@@ -101,6 +85,8 @@ Adds a constructor property to a bean.
 - PropertyName:string:required - The name of the property to add.
 - PropertyValue:any:required - The value of the property to add. Can be of any simple or complex type (anything from a string or a boolean to a struct or even an object that isn't being managed by LightWire).
 --->
+
+<cfproperty name="version" value="1_5_0">
 
 <cffunction name="init" output="true" returntype="any" hint="I initialize the config bean.">
 	

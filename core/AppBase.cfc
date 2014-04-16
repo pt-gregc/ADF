@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2014.
+PaperThin, Inc. Copyright(C) 2013.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -33,13 +33,10 @@ History:
 	2011-04-05 - MFC - Modified - Updated the version property.
 	2011-07-11 - MFC - Updated INIT function for no IF statement for call to "super.init".
 	2013-04-25 - MFC - Added "validateAppBeanExists" function.
-	2013-10-21 - GAC - Added 'file-version' property for ADF core files 
-	2014-02-26 - GAC - Updated for version 1.7.0
 --->
 <cfcomponent name="AppBase" extends="ADF.core.Base" hint="App Base component for the ADF">
 
-<cfproperty name="version" value="1_7_0">
-<cfproperty name="file-version" value="3">
+<cfproperty name="version" value="1_6_2">
 
 <cffunction name="init" output="true" returntype="any">
 	<cfscript>
@@ -99,14 +96,11 @@ History:
 	2010-08-26 - MFC - Changed "isDefined" to "StructKeyExists"
 	2013-01-18 - MFC - Added check for if the "app" is a struct.
 	2013-04-25 - MFC - Validate if the "appBeanName" exists in the SERVER object factory.
-	2014-04-04 - GAC - Switched to the cfthrow tag since the cfscript 'throw' is not cf8 compatible
 --->
 <cffunction name="loadApp" access="private" returntype="void" hint="Stores the ADF Lib Components into application.ADF space.">
 	<cfargument name="appBeanName" type="string" required="true" default="" hint="ADF lightwire bean name.">
 	<cfscript>
 		var app = "";
-		var throwError = false;
-		var throwErrorMsg = "";
 		
 		if ( LEN(arguments.appBeanName) )
 		{
@@ -119,7 +113,7 @@ History:
 				// Create the Application Space for the app bean
 				application[arguments.appBeanName] = StructNew();
 				
-				// Copy the App bean config struct from server.ADF into application.ADF
+				// Copy the App bean config struct from Server.ADF into Application.ADF
 				copyServerBeanToApplication(arguments.appBeanName);
 				// Load the local App components into the object factory
 				loadSiteAppComponents(arguments.appBeanName);
@@ -139,17 +133,10 @@ History:
 			}
 			else {
 				// Throw error that the App Bean doesn't exist.
-				throwError = true;
-				throwErrorMsg = "The'#arguments.appBeanName#' app could not be loaded. Check that the app exists in the '/ADF/apps/' directory.";
-				// cfscript 'throw' is not cf8 compatible
-				//throw("The'#arguments.appBeanName#' app could not be loaded. Check that the app exists in the '/ADF/apps/' directory.");
-				//server.ADF.objectFactory.getBean("utils_1_2").logAppend(throwErrorMsg);	
+				throw("The'#arguments.appBeanName#' app could not be loaded. Check that the app exists in the '/ADF/apps/' directory.");
 			}
 		}
 	</cfscript>
-	<cfif throwError>
-		<cfthrow message="#throwErrorMsg#">
-	</cfif>
 </cffunction>
 
 <!---
@@ -173,7 +160,7 @@ History:
 		// Load the Apps Configs for CE and XML configs into server.ADF.environment
 		server.ADF.environment[request.site.id][arguments.appBeanName] = StructNew();
 		StructAppend(server.ADF.environment[request.site.id][arguments.appBeanName], getAppCEConfigs(arguments.appBeanName), true);
-		StructAppend(server.ADF.environment[request.site.id][arguments.appBeanName], getAppXMLConfigs(arguments.appBeanName), true);
+		StructAppend(server.ADF.environment[request.site.id][arguments.appBeanName], getAppXMLConfigs(arguments.appBeanName), true);	
 	</cfscript>
 </cffunction>
 
@@ -269,7 +256,7 @@ History:
 						Resolves the issue with the bean and CFC name being different names loaded into the
 						App Bean Config.
 --->
-<cffunction name="loadSiteAppComponents" access="private" returntype="void" hint="Stores the site specific components in '/_cs_apps/components' into application.ADF space.">
+<cffunction name="loadSiteAppComponents" access="private" returntype="void" hint="Stores the site specific components in '/_cs_apps/components' into application.ADF space."> 
 	<cfargument name="appBeanName" type="string" required="true" default="" hint="ADF lightwire bean name.">
 	
 	<cfscript>
@@ -334,8 +321,8 @@ Author: 	M. Carroll
 Name:
 	$copyServerBeanToApplication
 Summary:
-	Recurses the bean in server.ADF Bean Config and copies the beans to
-		the application.ADF Bean Config.
+	Recurses the bean in Server.ADF Bean Config and copies the beans to 
+		the Application.ADF Bean Config.
 		Recurses for the CONSTRUCTORDEPENDENCYSTRUCT, MIXINDEPENDENCYSTRUCT, and 
 			SETTERDEPENDENCYSTRUCT data in the bean.
 Returns:
@@ -359,7 +346,7 @@ History:
 		var sd_keys = "";
 		var appBeanStruct = server.ADF.beanConfig.getConfigStruct();
 		
-		// Check if we are working with a server.ADF bean
+		// Check if we are working with a SERVER.ADF bean
 		if ( StructKeyExists(appBeanStruct, arguments.beanName) ) {
 			appBeanStruct = appBeanStruct[arguments.beanName];
 			// Add the bean to the application ADF
@@ -454,7 +441,7 @@ History:
 		{	
 			configStruct = server.ADF.objectFactory.getBean("CoreConfig").getConfigViaXML(proxyWhiteListXMLPath);
 			// Merge this config struct into the application proxy white list 
-			application.ADF.proxyWhiteList = server.ADF.objectFactory.getBean("data_1_2").structMerge(application.ADF.proxyWhiteList, configStruct, true);
+			application.ADF.proxyWhiteList = server.ADF.objectFactory.getBean("Data_1_0").structMerge(application.ADF.proxyWhiteList, configStruct, true);
 		}
 	</cfscript>
 </cffunction>

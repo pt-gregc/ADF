@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2014.
+PaperThin, Inc. Copyright(C) 2012.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -40,7 +40,7 @@ History:
 --->
 <cfcomponent displayname="scripts_1_1" extends="ADF.lib.scripts.scripts_1_0" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" value="1_1_21">
+<cfproperty name="version" value="1_1_17">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_1" type="dependency">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Scripts_1_1">
@@ -897,12 +897,10 @@ History:
 	2010-05-19 - MFC - Created
 	2011-06-24 - GAC - Added CFOUTPUTS around the renderScriptOnce method call
 	2013-02-06 - MFC - Restructured the thirdparty folders & versions.
-	2013-11-14 - DJM - Added a loadStyle parameter
 --->
 <cffunction name="loadJQueryDataTables" access="public" output="true" returntype="void" hint="Loads the JQuery DataTables Headers if not loaded.">
 	<cfargument name="version" type="string" required="false" default="1.6" hint="JQuery DataTables version to load.">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery DataTables script header to load.">
-	<cfargument name="loadStyles" type="boolean" required="false" default="true" hint="Boolean flag incicating if we need to load styles">
 	<cfscript>
 		var outputHTML = "";
 		// Make the version backwards compatiable to remove minor build numbers.
@@ -911,18 +909,14 @@ History:
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
 			<script type="text/javascript" src="/ADF/thirdParty/jquery/datatables/#arguments.version#/js/jquery.dataTables.min.js"></script>
-			<cfif arguments.loadStyles>
-				<link rel='stylesheet' href='/ADF/thirdParty/jquery/datatables/#arguments.version#/css/demo_page.css' type='text/css' media='screen' />
-				<link rel='stylesheet' href='/ADF/thirdParty/jquery/datatables/#arguments.version#/css/demo_table_jui.css' type='text/css' media='screen' />
-				<link rel='stylesheet' href='/ADF/thirdParty/jquery/datatables/#arguments.version#/css/demo_table.css' type='text/css' media='screen' />
-				<!--- // Only available in v1.9 and up --->
-				<cfif FileExists(expandPath("/ADF/thirdParty/jquery/datatables/#arguments.version#/css/jquery.dataTables.css"))>
-					<link rel='stylesheet' href='/ADF/thirdParty/jquery/datatables/#arguments.version#/css/jquery.dataTables.css' type='text/css' media='screen' />
-				</cfif>
-				<!--- // Only available in v1.9 and up --->
-				<cfif FileExists(expandPath("/ADF/thirdParty/jquery/datatables/#arguments.version#/css/jquery.dataTables_themeroller.css"))>
-					<link rel='stylesheet' href='/ADF/thirdParty/jquery/datatables/#arguments.version#/css/jquery.dataTables_themeroller.css' type='text/css' media='screen' />
-				</cfif>
+			<link rel='stylesheet' href='/ADF/thirdParty/jquery/datatables/#arguments.version#/css/demo_page.css' type='text/css' media='screen' />
+			<link rel='stylesheet' href='/ADF/thirdParty/jquery/datatables/#arguments.version#/css/demo_table_jui.css' type='text/css' media='screen' />
+			<link rel='stylesheet' href='/ADF/thirdParty/jquery/datatables/#arguments.version#/css/demo_table.css' type='text/css' media='screen' />
+			<cfif FileExists(expandPath("/ADF/thirdParty/jquery/datatables/#arguments.version#/css/jquery.dataTables.css"))>
+				<link rel='stylesheet' href='/ADF/thirdParty/jquery/datatables/#arguments.version#/css/jquery.dataTables.css' type='text/css' media='screen' />
+			</cfif>
+			<cfif FileExists(expandPath("/ADF/thirdParty/jquery/datatables/#arguments.version#/css/jquery.dataTables_themeroller.css"))>
+				<link rel='stylesheet' href='/ADF/thirdParty/jquery/datatables/#arguments.version#/css/jquery.dataTables_themeroller.css' type='text/css' media='screen' />
 			</cfif>
 		</cfoutput>
 	</cfsavecontent>
@@ -1320,23 +1314,17 @@ History:
 	2010-02-03 - MFC - Updated path to the CSS to remove from Third Party directory.
 	2010-04-06 - MFC - Updated path to the CSS to "style".
 	2012-08-16 - GAC - Added the force parameter
-	2014-03-05 - JTP - Var declarations
 --->
 <cffunction name="loadJQueryTools" access="public" output="true" returntype="void" hint="Loads the JQuery tools plugin"> 
 	<cfargument name="tool" type="string" required="false" default="all" hint="List of tools to load - leave blank to load entire library">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
-	
-	<cfscript>
-		var outputHTML = "";
-		var item = '';
-	</cfscript>
-	
+	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
 			<cfif arguments.tool neq "all">
-				<cfloop list="#arguments.tool#" index="item">
-					<script type='text/javascript' src='/ADF/thirdParty/jquery/tools/jquery.tools.#item#.min.js'></script>
-					<cfif fileExists("#server.ADF.dir#/thirdParty/jquery/tools/css/#item#-minimal.css")>
+				<cfloop list="#arguments.tool#" index="tool">
+					<script type='text/javascript' src='/ADF/thirdParty/jquery/tools/jquery.tools.#tool#.min.js'></script>
+					<cfif fileExists("#server.ADF.dir#/thirdParty/jquery/tools/css/#tool#-minimal.css")>
 						<link href="/ADF/extensions/style/jquery/tools/overlay-minimal.css" rel="stylesheet" type="text/css" />
 					</cfif>
 				</cfloop>
@@ -1460,32 +1448,27 @@ Returns:
 	void
 Arguments:
 	Boolean - force
-	String  - version
-	Boolean - loadJQueryCookie
-	Boolean - loadJQueryHotkeys
 History:
  	2011-05-31 - RAK - Created
  	2011-06-13 - RAK - removed a bug where I was defining a var after a output was opened
 	2012-08-16 - GAC - Added the force parameter
-	2014-01-22 - GAC - Added a version parameter
-					 - Updated the dependencies to push through the force parameter
-	2014-02-04 - MS  - Added a missing semi-colon to the thirdPartyLibPath statement
 --->
 <cffunction name="loadJSTree" access="public" returntype="void" hint="Loads the jsTree plugin">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
-	<cfargument name="version" type="string" required="false" default="1.0" hint="Script version to load.">
 	<cfscript>
 		var outputHTML = "";
-		var thirdPartyLibPath = "/ADF/thirdParty/jquery/jsTree";
-		
-		// Dependencies
-		loadJQuery(force=arguments.force);
-		loadJQueryCookie(force=arguments.force);
-		loadJQueryHotkeys(force=arguments.force);
 	</cfscript>
+	<cfoutput>
+		<cfscript>
+			//Dependencies
+			loadJQuery();
+			loadJQueryCookie();
+			loadJQueryHotkeys();
+		</cfscript>
+	</cfoutput>
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
-			<script type='text/javascript' src='#thirdPartyLibPath#/#arguments.version#/jquery.jstree.js'></script>
+			<script type='text/javascript' src='/ADF/thirdParty/jquery/jsTree/jquery.jstree.js'></script>
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
@@ -1549,7 +1532,6 @@ Arguments:
 History:
 	2009-03-12 - RLW - Created
 	2012-08-16 - GAC - Added the force parameter
-	2014-01-22 - GAC - Replaced the '$' with the jQuery alias
 --->
 <cffunction name="loadNiceForms" access="public" returntype="void">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
@@ -1558,16 +1540,16 @@ History:
 		<cfoutput>
 			<script language="javascript" type="text/javascript" src="/ADF/thirdParty/prettyForms/prettyForms.js"></script>
 			<script type="text/javascript">
-				jQuery(document).ready(function(){
-					jQuery("input[name='submitbutton']").attr("value", "Save");
-					jQuery("span[id^='tabDlg'] > table").addClass("csForms");
-					jQuery("form[name='dlgform']").addClass("csForms");
+				jQuery(document).ready(function($) {
+					$("input[name='submitbutton']").attr("value", "Save");
+					$("span[id^='tabDlg'] > table").addClass("csForms");
+					$("form[name='dlgform']").addClass("csForms");
 					//jQuery(".cs_default_form").attr("class", "niceform");
 					prettyForms();
-					//jQuery(".clsPushButton").addClass("blue-pill");
+					//$(".clsPushButton").addClass("blue-pill");
 					<cfif find("login.cfm", cgi.script_name)>
 						// change the login button text
-						jQuery(".clsPushButton").attr("value", "Login");
+						$(".clsPushButton").attr("value", "Login");
 					</cfif>
 				});
 			</script>
@@ -1600,16 +1582,14 @@ Arguments:
 	Boolean - force - Forces QTip script header to load.
 History:
 	2009-09-26 - MFC - Created
-	2013-09-04 - GAC - Updated to use folder versioning
 --->
 <cffunction name="loadQTip" access="public" output="true" returntype="void" hint="Loads the JQuery Headers if not loaded.">
 	<cfargument name="version" type="string" required="false" default="1.0" hint="JQuery version to load.">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfset var outputHTML = "">
-	<cfset var thirdPartyLibPath = "/ADF/thirdParty/jquery/qtip">
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
-			<script type="text/javascript" src="#thirdPartyLibPath#/#arguments.version#/jquery.qtip.min.js"></script>
+			<script type="text/javascript" src="/ADF/thirdParty/jquery/qtip/jquery.qtip-#arguments.version#.min.js"></script>
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>

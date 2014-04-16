@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2014.
+PaperThin, Inc. Copyright(C) 2012.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -30,15 +30,14 @@ Version
 History:
 	2011-01-26 - GAC - Created
 	2011-10-04 - GAC - Updated csSecurity dependency to csSecurity_1_1
-	2013-11-18 - GAC - Updated the lib dependencies to csSecurity_1_2, utils_1_2, data_1_2
 --->
 <cfcomponent displayname="ajax" extends="ADF.core.Base" hint="AJAX functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_7">
+<cfproperty name="version" value="1_0_2">
 <cfproperty name="type" value="singleton">
-<cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_2">
-<cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
-<cfproperty name="data" type="dependency" injectedBean="data_1_2">
+<cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_1">
+<cfproperty name="utils" type="dependency" injectedBean="utils_1_1">
+<cfproperty name="data" type="dependency" injectedBean="data_1_1">
 <cfproperty name="wikiTitle" value="ajax_1_0">
 
 <!---
@@ -66,9 +65,6 @@ History:
 	2011-02-09 - GAC - Removed ADFlightbox specific forceOutput variable
 	2012-03-08 - MFC - Added the cfcatch error message to the default error message display.
 	2012-03-12 - GAC - Added logic to the reString error struct to check if a message key was returned
-	2013-10-18 - MS  - Updated to comment out the verbose error messages which caused security issues
-	2013-10-19 - GAC - Updated to use application.ADF.siteDevMode to control the verbose error msgs 
-	2013-03-17 - JTP - Added logic to log if runCommand fails
 --->
 <!--- // ATTENTION: 
 		Do not call is method directly. Call from inside the AjaxProxy.cfm file (method properties are subject to change) 
@@ -85,7 +81,6 @@ History:
 		var appName = "";
 		var returnFormat = "";
 		var debug = 0;
-		var query2array = 1; //default is true for backwards compatiblity
 		var params = StructNew();
 		var args = StructNew();
 		var debugRaw = "";
@@ -100,8 +95,7 @@ History:
 		// initalize the reString key of the result struct
 		result.reString = "";
 		// Since we are relying on the request.params scope make sure the main params are available
-		if ( StructKeyExists(request,"params") ) 
-		{
+		if ( StructKeyExists(request,"params") ) {
 			params = request.params;
 			if ( StructKeyExists(request.params,"bean") ) 
 				bean = request.params.bean;
@@ -113,36 +107,31 @@ History:
 				returnFormat = request.params.returnFormat;
 			if ( StructKeyExists(request.params,"debug") ) 
 				debug = request.params.debug;
-			if ( StructKeyExists(request.params,"query2array") ) 
-				query2array = request.params.query2array;
 		}
-		if ( arguments.proxyFile NEQ callingFileName ) 
-		{
+		if ( arguments.proxyFile NEQ callingFileName ) {
 			// Verify if the bean and method combo are allowed to be accessed through the ajax proxy
 			passedSecurity = variables.csSecurity.validateProxy(bean,method);
-			if ( passedSecurity ) 
+			if ( passedSecurity )
 			{
 				// convert the params that are passed in to the args struct before passing them to runCommand method
 				args = variables.utils.buildRunCommandArgs(request.params,argExcludeList);
-				try {
+				try 
+				{
 					// Run the Bean, Method and Args and get a return value
 					result.reString = variables.utils.runCommand(trim(bean),trim(method),args,trim(appName));
 				} 
 				catch( Any e ) 
 				{
-					application.adf.utils.logAppend( msg=cfcatch, label='Error in AjaxProxy calling utils.runCommand()', logfile='adf-ajax-proxy.html' );				
 					debug = 1;
 					hasCommandError = 1; // try/catch thows and error skip the runCommand return data processing
 					// Set Error output to the return String
 					result.reString = e;
 				}	
-				
 				// Build the DUMP for debugging the RAW value of result.reString
-				if ( debug AND application.ADF.siteDevMode ) 
-				{
+				if ( debug ) {
 					// If the variable result.reString doesn't exist set the debug output to the string: void 
 					if ( !StructKeyExists(result,"reString") ){debugRaw="void";}else{debugRaw=result.reString;}
-						reDebugRaw = variables.utils.doDump(debugRaw,"RAW OUTPUT",1,1);
+					reDebugRaw = variables.utils.doDump(debugRaw,"RAW OUTPUT",1,1);
 				}
 				// if runCommand throws an error skip processing jump down to the debug output
 				if ( !hasCommandError ) 
@@ -151,7 +140,7 @@ History:
 					if ( StructKeyExists(result,"reString") ) 
 					{
 						// Convert Query to an Array of Structs for Processing
-						if ( IsQuery(result.reString) AND query2array EQ 1 ) 
+						if ( IsQuery(result.reString) ) 
 						{
 							result.reString = variables.data.queryToArrayOfStructures(result.reString,true);
 							if ( !isArray(result.reString) ) 
@@ -162,7 +151,7 @@ History:
 							} 
 						}
 						// if JSON is set as the returnFormat convert return data to an JSON
-						if ( returnFormat eq "json" ) 
+						if ( returnFormat eq "json" )
 						{
 							json = server.ADF.objectFactory.getBean("json");
 							// when jsonp calls are made there will be a variable called "jsonpCallback" it will
@@ -179,63 +168,56 @@ History:
 								}
 							}	
 						}
-						else if ( returnFormat eq "xml" ) 
+						else if ( returnFormat eq "xml" )
 						{
 							// convert return data to XML using CS internal serialize function
-							result.reString = server.CommonSpot.UDF.util.serializeBean(result.reString,"data",0); //server.CommonSpot.UDF.util.serializeBean(Arguments.bean,Arguments.tagName,JavaCast("boolean",Arguments.forceLCase));
+							result.reString = Server.CommonSpot.UDF.util.serializeBean(result.reString,"data",0); //Server.CommonSpot.UDF.util.serializeBean(Arguments.bean,Arguments.tagName,JavaCast("boolean",Arguments.forceLCase));
 							// make return is an XML string
 							if ( IsXML(result.reString) ) 
 								result.reString = XmlParse(result.reString);
-							if ( !IsXmlDoc(result.reString) ) {
+							if ( !IsXmlDoc(result.reString) ) 
+							{
 								hasProcessingError = 1; 
 								result.reString = "Error: unable to convert the return value to xml";
 							}
 						}
-						if ( isStruct(result.reString) or isArray(result.reString) or isObject(result.reString) ) {
+						if ( isStruct(result.reString) or isArray(result.reString) or isObject(result.reString) ) 
+						{
 							hasProcessingError = 1; 
 							// 2012-03-10 - GAC - we need to check if we have a 'message' before we can output it
-							if ( StructKeyExists(result.reString,"message") AND application.ADF.siteDevMode )
+							if ( StructKeyExists(result.reString,"message") )
 								result.reString = "Error: Unable to convert the return value into string. [" & result.reString.message & "]";
 							else
 								result.reString = "Error: Unable to convert the return value into string.";
 						}
 					}
-					else {
+					else
+					{
 						// The method call returned void and destroyed the result.reString variable
 						hasProcessingError = 0;  // returning void is not considered an error
 						// result.reString = "Error: return value came back as 'void'"; 
 					}
 				}
 			}
-			else 
+			else
 			{
 				hasProcessingError = 1; 
-				if ( !application.ADF.siteDevMode ) 
-				{
-					result.reString = "Error: The request is not accessible remotely via Ajax Proxy.";
-					// TODO: Do Proxy Logging				
-				}
-				else 
-				{
-					if ( len(trim(appName)) )
-						result.reString = "Error: The Bean: #bean# with method: #method# in the App: #appName# is not accessible remotely via Ajax Proxy.";	
-					else
-						result.reString = "Error: The Bean: #bean# with method: #method# is not accessible remotely via Ajax Proxy.";	
-				}
+				if ( len(trim(appName)) )
+					result.reString = "Error: The Bean: #bean# with method: #method# in the App: #appName# is not accessible remotely via Ajax Proxy.";	
+				else
+					result.reString = "Error: The Bean: #bean# with method: #method# is not accessible remotely via Ajax Proxy.";	
 			}
-			
 			// build the dump for debugging the Processed value of result.reString
-			if ( debug AND application.ADF.siteDevMode AND passedSecurity AND ListFindNoCase(strFormatsList,returnformat) EQ 0 ) 
+			if ( debug AND passedSecurity AND ListFindNoCase(strFormatsList,returnformat) EQ 0 ) 
 			{
 				// If the variable reHTML doesn't exist set the debug output to the string: void 
 				if ( !StructKeyExists(result,"reString") ){debugProcessed="void";}else{debugProcessed=result.reString;}
-					reDebugProcessed = variables.utils.doDump(debugProcessed,"PROCESSED OUTPUT",1,1);
+				reDebugProcessed = variables.utils.doDump(debugProcessed,"PROCESSED OUTPUT",1,1);
 			}
-		
 			// pass the debug dumps to the reHTML for output
-			if ( debug AND application.ADF.siteDevMode ) 
+			if ( debug ) 
 			{
-				if ( hasCommandError OR (IsSimpleValue(debugRaw) AND debugRaw EQ "void") ) 
+				if ( hasCommandError OR (IsSimpleValue(debugRaw) AND debugRaw EQ "void") )
 				{
 					// if runCommand has error, return only the first DUMP which contains the CATCH info
 					result.reString = reDebugRaw;
@@ -245,15 +227,13 @@ History:
 					// if processing has an error, return the processing error and the first DUMP
 					result.reHTML = result.reString & reDebugRaw;
 				} 
-				else 
+				else
 				{
 					// for a debug with no errors, return both the runCommand DUMP and the processing DUMP
 					result.reString = reDebugRaw & reDebugProcessed;
 				}
 			}
-		} 
-		else 
-		{
+		} else {
 			result.reString = "Error: This method can not be called directly. Use the AjaxProxy.cfm file.";	
 		}
 		return result;

@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2014.
+PaperThin, Inc. Copyright(C) 2010.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -40,7 +40,7 @@ History:
 --->
 <cfcomponent displayname="csData_1_0" extends="ADF.core.Base" hint="CommonSpot Data Utils functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_7">
+<cfproperty name="version" value="1_0_3">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_0">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_0">
@@ -106,19 +106,28 @@ Arguments:
 History:
 	2008-06-20 - RLW - Created
 	2009-10-22 - MFC - Updated: Added IF block to get the uploaded doc page url.
-	2013-08-23 - GAC - Update to return template URLs as well as page URLs
-	2014-01-14 - JTP - Updated to use the CommonSpot ct-decipher-linkurl module call
 --->
 <cffunction name="getCSPageURL" access="public" returntype="string">
 	<cfargument name="pageID" type="numeric" required="true">
 	<cfscript>
 		var csPageURL = "";
+		var getPageData = queryNew("test");
 	</cfscript>
-	 <cfif arguments.PageID neq 0>
-          <CFMODULE TEMPLATE="/commonspot/utilities/ct-decipher-linkurl.cfm"
-	          PageID="#arguments.PageID#"
-	          VarName="csPageURL">
-     </cfif> 
+	<cfquery name="getPageData" datasource="#request.site.datasource#">
+		SELECT 	fileName, subsiteID, PageType, DocType 
+		FROM 	sitePages
+		WHERE 	ID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.pageID#">
+	</cfquery>
+	<cfif getPageData.recordCount>
+		<!--- Check the doctype --->
+		<cfif getPageData.DocType EQ 0>
+			<!--- We are working with a CS page --->
+			<cfset csPageURL = request.subsiteCache[getPageData.subsiteID].url & getPageData.fileName>
+		<cfelse>
+			<!--- We are working with an uploaded file --->
+			<cfset csPageURL = getUploadedDocPageURL(arguments.pageID, getPageData.subsiteID)>
+		</cfif>
+	</cfif>
 	<cfreturn csPageURL>
 </cffunction>
 
@@ -250,7 +259,6 @@ History:
 	2013-02-14 - GAC - Added filter list parameter to allow subsites to be filtered out of the return struct
 	2013-03-12 - GAC - Modified the filtering logic to do the work mostly in the SQL rather than a complex loop
 					 - Added the ORDER BY parameter to allow the list to be sorted by id or subsiteURL
-	2014-01-03 - GAC - Updated SQL 'IN' statements to use the CS module 'handle-in-list.cfm'
 --->
 <cffunction name="getSubsiteStruct" access="public" returntype="struct" output="false" hint="Returns a structure with subsiteID and subsiteURL">
 	<cfargument name="filterValueList" type="string" required="false" default="" hint="A list of subsiteIDs OR subsiteNames to filter out of the return struct">
@@ -262,23 +270,22 @@ History:
 	</cfscript>
 	<!--- // retrieve the available susbsites --->
 	<cfquery name="getSubsites" datasource="#request.site.datasource#">
-		SELECT ss.id, ss.subsiteURL
-		FROM subsites ss, sitePages sp
-		WHERE ss.securityPageID = sp.id
+		select ss.id, ss.subsiteURL
+		from subsites ss, sitePages sp
+		where ss.securityPageID = sp.id
 		<cfif LEN(TRIM(arguments.filterValueList))>
 			<cfif IsNumeric(ListFirst(arguments.filterValueList))>
-				AND <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="ss.ID" LIST="#arguments.filterValueList#" isNot=1>
-				<!--- and ss.ID not in (<cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.filterValueList#" list="true">) --->
+				and ss.ID not in (<cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.filterValueList#" list="true">)
 			<cfelse>
 				<cfloop list="#arguments.filterValueList#" index="s">
-					AND ss.subsiteURL NOT LIKE <cfqueryparam cfsqltype="cf_sql_varchar" value="%#s#%">
+					and ss.subsiteURL not like <cfqueryparam cfsqltype="cf_sql_varchar" value="%#s#%">
 				</cfloop>
 			</cfif>
 		</cfif>
 		<cfif arguments.orderby EQ "ID">
-			ORDER BY ss.id
+			order by ss.id
 		<cfelse>
-			ORDER BY ss.subsiteURL
+			order by ss.subsiteURL
 		</cfif>
 	</cfquery>
 	<cfscript>
@@ -414,7 +421,7 @@ History:
 			stdMetadata.PublicReleaseDate = getData.PublicReleaseDate;
 			stdMetadata.Confidentiality = getData.Confidentiality;
 			if ( IsNumeric(getData.IsPublic) AND getData.IsPublic gt 0 ) 
-				stdMetadata.IncludeInIndex = application.CS.site.IsPublicGetOptions(getData.IsPublic);
+				stdMetadata.IncludeInIndex = Application.CS.site.IsPublicGetOptions(getData.IsPublic);
 		}
 	</cfscript>
 	<cfreturn stdMetadata>
@@ -941,7 +948,6 @@ History:
 	2009-07-30 - RLW - Created
 	2013-03-12 - GAC - Added filter list parameter to allow subsites to be filtered out of the return struct
 					 - Added the ORDER BY parameter to allow the struct to be sorted by title or ID
-	2014-01-03 - GAC - Updated SQL 'IN' statements to use the CS module 'handle-in-list.cfm'
 --->
 <cffunction name="getSiteTemplates" access="public" returntype="struct" hint="Returns a structure with the templates available for this site">
 	<cfargument name="filterValueList" type="string" required="false" default="" hint="A list of pageIDs or Template Names to filter out of the return struct">
@@ -952,23 +958,22 @@ History:
 		var t = "";
 	</cfscript>
 	<cfquery name="getTemplates" datasource="#request.site.datasource#">
-		SELECT id,title
-		FROM sitePages
-		WHERE pageType = 1
+		select id,title
+		from sitePages
+		where pageType = 1
 		<cfif LEN(TRIM(arguments.filterValueList))>
 			<cfif IsNumeric(ListFirst(arguments.filterValueList))>
-				AND <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="id" LIST="#arguments.filterValueList#" isNot=1>
-				<!--- AND id NOT IN (<cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.filterValueList#" list="true">) --->
+				and id not in (<cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.filterValueList#" list="true">)
 			<cfelse>
 				<cfloop list="#arguments.filterValueList#" index="t">
-				AND title NOT LIKE <cfqueryparam cfsqltype="cf_sql_varchar" value="%#t#%">
+				and title not like <cfqueryparam cfsqltype="cf_sql_varchar" value="%#t#%">
 				</cfloop>
 			</cfif>
 		</cfif>
 		<cfif arguments.orderby EQ "title" OR arguments.orderby EQ "name">
-			ORDER BY title
+			order by title
 		<cfelse>
-			ORDER BY ID
+			order by ID
 		</cfif>
 	</cfquery>
 	<cfscript>
@@ -1517,7 +1522,6 @@ History:
 	2010-06-29 - GAC - Modified - Set the getModuleData query to return multiple module IDs instead of maxrow=1 from the CustomElementModule table. 
 									Then the returned Module IDs are converted to a List to be used in the WHERE statement using an IN to get all the PageIDs 
 									from the data_custom_render table. This will allow the correct pageData will be returned if multiple elements  use the same render handler.
-	2014-01-03 - GAC - Updated SQL 'IN' statements to use the CS module 'handle-in-list.cfm'
 --->
 <cffunction name="pagesContainingRH" access="public" returntype="array" hint="">
 	<cfargument name="modulePath" type="string" required="true">
@@ -1536,17 +1540,16 @@ History:
 	</cfscript>
 	<!--- // retrieve the moduleID --->
 	<cfquery name="getModuleData" datasource="#request.site.datasource#">
-		SELECT ID
-		FROM CustomElementModules
-		WHERE modulePath = <cfqueryparam cfsqltype="cf_sql_varchar" value="#modPath#">
+		select ID
+		from CustomElementModules
+		where modulePath = <cfqueryparam cfsqltype="cf_sql_varchar" value="#modPath#">
 	</cfquery>
 	<cfif getModuleData.recordCount>
 		<cfset moduleIDlist = ValueList(getModuleData.ID)>
 		<cfquery name="getPages" datasource="#request.site.datasource#">
-			SELECT DISTINCT pageID
-			FROM data_custom_render
-			WHERE <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="moduleID" LIST="#moduleIDlist#">
-			<!--- where moduleID IN (<cfqueryparam cfsqltype="cf_sql_integer" value="#moduleIDlist#" list="true">) --->
+			select distinct pageID
+			from data_custom_render
+			where moduleID IN (<cfqueryparam cfsqltype="cf_sql_integer" value="#moduleIDlist#" list="true">)
 		</cfquery>
 		<cfscript>
 			if( getPages.recordCount )
@@ -1685,7 +1688,6 @@ Arguments:
 	Boolean includeExternalURLs
 History:
 	2010-01-27 - RLW - Created
-	2014-01-03 - GAC - Updated SQL 'IN' statements to use the CS module 'handle-in-list.cfm'
 --->
 <cffunction name="getPagesBySubsiteID" access="public" returntype="array">
 	<cfargument name="subsiteID" type="numeric" required="true">
@@ -1709,14 +1711,11 @@ History:
 		}
     </cfscript>
    	<cfquery name="pageQry" datasource="#request.site.datasource#">
-   		SELECT 	ID, filename, title, subsiteID, uploaded, pageType, DocType
-		FROM 	sitePages
-		WHERE <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="subsiteID" LIST="#subsiteList#" cfsqltype="cf_sql_numeric">
-		<!--- where subsiteID in (<cfqueryparam cfsqltype="cf_sql_numeric" value="#subsiteList#" list="true">) --->
-		AND <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="uploaded" LIST="#uploaded#" cfsqltype="cf_sql_numeric">
-		<!--- and uploaded in (<cfqueryparam cfsqltype="cf_sql_numeric" value="#uploaded#" list="true">) --->
-		AND <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="pageType" LIST="#pageTypeList#" cfsqltype="cf_sql_numeric">
-		<!--- and pageType in (<cfqueryparam cfsqltype="cf_sql_numeric" value="#pageTypeList#" list="true">) --->
+   		select ID, filename, title, subsiteID, uploaded, pageType, DocType
+		from sitePages
+		where subsiteID in (<cfqueryparam cfsqltype="cf_sql_numeric" value="#subsiteList#" list="true">)
+		and uploaded in (<cfqueryparam cfsqltype="cf_sql_numeric" value="#uploaded#" list="true">)
+		and pageType in (<cfqueryparam cfsqltype="cf_sql_numeric" value="#pageTypeList#" list="true">)
    	</cfquery>
     <cfreturn variables.data.queryToArrayOfStructures(pageQry)>
 </cffunction>
@@ -1809,7 +1808,6 @@ Arguments:
 History:
  	2010-10-08 - RAK - Created
 	2011-02-09 - RAK - Var'ing un-var'd variables
-	2014-01-03 - GAC - Updated SQL 'IN' statements to use the CS module 'handle-in-list.cfm'
 --->
 <cffunction name="getPageIdsUsingTemplateID" access="public" returntype="array" hint="Returns an array of page ids that DIRECTLY utilize the template">
 	<cfargument name="templateID" type="numeric" required="true">

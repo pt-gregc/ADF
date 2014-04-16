@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
  
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2014.
+PaperThin, Inc. Copyright(C) 2010.
 All Rights Reserved.
  
 By downloading, modifying, distributing, using and/or accessing any files
@@ -32,16 +32,10 @@ ADF Requirements:
 History:
 	2007-01-24 - RLW - Created
 	2012-02-13 - GAC - Updated to use accept a filter porperty and a uitheme propery 
-					 - Also added the appBeanName and appPropsVarName props to allow porps to be overridden by an app												
-	2014-01-02 - GAC - Added the CFSETTING tag to disable CF Debug results in the props module
-	2014-01-03 - GAC - Added the fieldVersion variable
+					 - Also added the appBeanName and appPropsVarName props to allow porps to be overridden by an app
+													
 --->
-<cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
-
 <cfscript>
-	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "1.0"; 
-	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
 	prefix = attributes.prefix;
@@ -132,11 +126,5 @@ History:
 			<br/><span>Please enter the App Props Variable name that contains PROPS keys and values to override.</span> 
 		</td>
 	</tr>
-	<tr>
-			<td class="cs_dlgLabelSmall" colspan="2" style="font-size:7pt;">
-				<hr />
-				ADF Custom Field v#fieldVersion#
-			</td>
-		</tr>
 </table>
 </cfoutput>

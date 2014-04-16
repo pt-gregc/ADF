@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2014.
+PaperThin, Inc. Copyright(C) 2010.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -32,8 +32,8 @@ Version:
 History:
 	2010-02-19 - MFC - Created
 	2010-04-19 - MFC - Commented out some functions that conflict with CS 5.x styles.
-	2013-01-03 - GAC - Added missing semi-colons to the ends of variablized functions
 */
+
 
 function loadNonDashboardFiles()
 {
@@ -390,21 +390,18 @@ function setCommonspot()
 
 var last = function last() {
 	return this[this.length - 1];
-};
+}
 
 var each = function each(iterator) {
     for (var i = 0, length = this.length; i < length; i++)
       iterator(this[i]);
-};
-
+}
 if (!Array.last)
 {
 	Array.prototype.last = last;
 	Array.prototype.each = each;
 }
-
 if (typeof document.getElementsByClassName == 'undefined') 
-{
 	document.getElementsByClassName = function(searchClass,node,tag) {
 		var classElements = new Array();
 		if ( node == null )
@@ -421,5 +418,4 @@ if (typeof document.getElementsByClassName == 'undefined')
 			}
 		}
 		return classElements;
-	};
-}
+	}

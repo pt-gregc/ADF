@@ -9,7 +9,7 @@ WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 the specific language governing rights and limitations under the License.
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2014.
+PaperThin, Inc. Copyright(C) 2010.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files
@@ -33,15 +33,13 @@ end user license agreement.
 		</UniqueElementName>
 	</elements>
 	<wsVars>
-		<webserviceURL>http://#request.CGIVars.SERVER_NAME#:#request.CGIVars.SERVER_PORT#/commonspot/webservice/cs_service.cfc?wsdl</webserviceURL>
-		<!-- // For CS 7.0.1+, 8.0.1+ and 9+ use the cs_remote.cfc -  uncomment webserviceURL below and delete the one above  -->
-		<!-- <webserviceURL>http://#request.CGIVars.SERVER_NAME#:#request.CGIVars.SERVER_PORT#/commonspot/webservice/cs_remote.cfc?wsdl</webserviceURL> -->
+		<webserviceURL>http://cfusion/commonspot/webservice/cs_service.cfc?wsdl</webserviceURL>
 		<csuserid>webmaster</csuserid>
 		<cspassword>password</cspassword>
-		<site>#request.site.name#</site>
-		<siteURL>#request.site.url#</siteURL>
+		<site>Demo</site>
+		<siteURL>http://cfusion/demo</siteURL>
 		<subsiteID>1</subsiteID>
-		<cssites>#request.cp.sitesDatasource#</cssites>
+		<cssites>commonspot-sites</cssites>
 	</wsVars>
 </settings>
 </cfoutput>

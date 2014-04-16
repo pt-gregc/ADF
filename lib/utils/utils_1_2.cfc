@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2014.
+PaperThin, Inc. Copyright(C) 2012.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -31,11 +31,10 @@ Version:
 History:
 	2012-12-07 - MFC - Created
 	2013-02-26 - MFC - Updated the Injection Dependencies to use the ADF v1.6 lib versions.
-	2014-04-04 - GAC - Added the doThow method with logging options
 --->
 <cfcomponent displayname="utils_1_2" extends="ADF.lib.utils.utils_1_1" hint="Util functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_9">
+<cfproperty name="version" value="1_2_5">
 <cfproperty name="type" value="singleton">
 <cfproperty name="ceData" type="dependency" injectedBean="ceData_2_0">
 <cfproperty name="csData" type="dependency" injectedBean="csData_1_2">
@@ -364,7 +363,7 @@ History:
 			schedRequestTimeOut = int(arguments.timeout);
 			
 		// Validate authtoken (Future authentication feature)
-		//validAuthToken = application.ADF.csSecurity.isValidAuthToken(arguments.authtoken);
+		//validAuthToken = application.adf.csSecurity.isValidAuthToken(arguments.authtoken);
 		validAuthToken = true;
 		
 		if ( LEN(TRIM(arguments.AuthToken)) AND validAuthToken )
@@ -450,48 +449,6 @@ History:
 		}
 		return retParams;
 	</cfscript>
-</cffunction>
-
-<!---
-/* *************************************************************** */
-Author:
-	PaperThin, Inc.
-Name:
-	$doThrow
-Summary:
-	Used to throw errors in CFSCRIPT blocks since the cfscript 'throw' is not cf8 compatible
-Returns:
-	void
-Arguments:
-	String - message
-	String - type
-	String - detail
-	Boolean - logerror
-History:
- 	2014-04-04 - GAC - Created
---->
-<cffunction name="doThrow" access="public" returntype="void" hint="Used to throw errors in CFSCRIPT blocks since the cfscript 'throw' is not cf8 compatible">
-	<cfargument name="message" type="string" required="false" default="" hint="Error Message to Throw">
-	<cfargument name="type" type="string" required="false" default="Application" hint="Error Type to Throw">
-	<cfargument name="detail" type="string" required="false" default="" hint="Error Message Detail to Throw">
-	<cfargument name="logerror" type="boolean" required="false" default="false" hint="Log the error.">
-	<cfargument name="logfile" type="string" required="false" default="" hint="Log the error file name.">
-	<cfset var logMsg = "">
-	<cfif LEN(TRIM(arguments.message))>
-		<!--- // Option to log the error that is going to be thrown --->
-		<cfif LEN(TRIM(arguments.logerror))>
-			<cfset logMsg = arguments.message>
-			<cfif LEN(TRIM(arguments.detail)) AND arguments.detail NEQ arguments.message>
-				<cfset logMsg = logMsg & " Detail: #arguments.detail#">
-			</cfif>
-			<cfif LEN(TRIM(arguments.logFile))>
-				<cfset logAppend(msg=logMsg,logFile=arguments.logFile)>
-			<cfelse>
-				<cfset logAppend(msg=logMsg)>
-			</cfif>
-		</cfif> 
-		<cfthrow message="#arguments.message#" type="#arguments.type#" detail="#arguments.detail#">
-	</cfif>
 </cffunction>
 
 </cfcomponent>

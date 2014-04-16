@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2014.
+PaperThin, Inc. Copyright(C) 2010.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -35,44 +35,26 @@ History:
 	2011-02-07 - RAK - Renamed file
 	2011-04-28 - RAK - Fixed so that it wont throw an error if they try to translate a bad subsite.
 	2011-12-06 - SFS - Added the other bad subsite fix that was missed about the currentSortValue as well.
-	2013-06-26 - GAC - Added IsNumeric checks around the subsiteID values
-					 - Added logic to always generate a currentSortValue
-	2013-08-09 - GAC - Added extra check to make sure the column value is a number 
-			   and that a SubsiteCace URL value is available for the provided subsiteID
-	2013-09-06 - GAC - Added fall back to check for subsite URL info from using the getSubsiteURLbySubsiteID function  
 --->
 <cfscript>
-	ssID = request.datasheet.currentColumnValue;
-	ssURL = "";
-	
-	// Is the SubsiteID value passed a numeric value
-	if ( LEN(TRIM(ssID)) AND IsNumeric(ssID) ) {
-		// If the CS subsiteCache has a URL value then use it... 
-		// if not, then check the CS Subsite table using the getSubsiteURLbySubsiteID function
-		if ( StructKeyExists(request,"subsiteCache") AND StructKeyExists(request.subsiteCache,ssID) AND StructKeyExists(request.subsiteCache[ssID],"url") AND LEN(TRIM(request.subsiteCache[ssID].url)) )
-			ssURL = request.subsiteCache[ssID].url;
-		else 
-			ssURL = application.ADF.csData.getSubsiteURLbySubsiteID(subsiteID=ssID);			
-	}
+	subsiteID = request.datasheet.currentColumnValue;
 </cfscript>
 
 <cfsavecontent variable="tdHTML">
-<cfoutput>
-	<td>
-		<cfif LEN(TRIM(ssURL))>
-			<a href="#ssURL#">
-				#ssURL#
-			</a>
-		<cfelse>
-			Subsite does not exist.
-		</cfif>
-	</td>
-</cfoutput>
+	<cfoutput>
+		<td>
+			<cfif len(subsiteID) and StructKeyExists(request.subsiteCache,subsiteID)>
+				<a href="#request.subsiteCache[subsiteID].url#">
+					#request.subsiteCache[subsiteID].url#
+				</a>
+			<cfelse>
+				Subsite does not exist.
+			</cfif>
+		</td>
+	</cfoutput>
 </cfsavecontent>
 
-<cfif LEN(TRIM(ssURL))>
-	<cfset Request.datasheet.currentSortValue = ssURL>
-<cfelse>
-	<cfset Request.datasheet.currentSortValue = "">	
+<cfif StructKeyExists(request.subsiteCache,subsiteID)>
+	<cfset Request.datasheet.currentSortValue = request.subsiteCache[subsiteID].url>
 </cfif>
 <cfset request.datasheet.currentFormattedValue = tdHTML>

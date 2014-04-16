@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
  
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2014.
+PaperThin, Inc. Copyright(C) 2010.
 All Rights Reserved.
  
 By downloading, modifying, distributing, using and/or accessing any files
@@ -33,7 +33,7 @@ ADF Requirements:
 History:
 	2007-01-24 - RLW - Created
 	2011-02-08 - GAC - Removed old jQuery tools reference
-					 - Replaced the getBean call with application.ADF
+					 - Replaced the getBean call with Application.ADF
 	2012-02-13 - GAC - Updated to use accept a filter porperty and a uitheme propery 
 					 - Also added the appBeanName and appPropsVarName props to allow porps to be overridden by an app
 	2013-03-07 - GAC - Fixed an issue with the Required field validation script.
@@ -70,10 +70,10 @@ History:
 	}
 	
 	// load the jQuery library
-	application.ADF.scripts.loadJQuery();
-	application.ADF.scripts.loadJQueryUI(themeName=xparams.uiTheme);
-	application.ADF.scripts.loadJQuerySelectboxes();
-	//application.ADF.scripts.loadADFLightbox();
+	Application.ADF.scripts.loadJQuery();
+	Application.ADF.scripts.loadJQueryUI(themeName=xparams.uiTheme);
+	Application.ADF.scripts.loadJQuerySelectboxes();
+	//Application.ADF.scripts.loadADFLightbox();
 	
 	// Added for future use
 	// TODO: Add options in Props for a Bean and a Method that return a custom Subsite Struct

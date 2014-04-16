@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2014.
+PaperThin, Inc. Copyright(C) 2010.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files
@@ -22,7 +22,7 @@ end user license agreement.
 /* *********************************************************************** */
 Author:
 	PaperThin, Inc.
-	R. Kahn
+	Ryan Kahn
 Name:
 	custom_script_selector_render.cfm
 Summary:
@@ -34,10 +34,7 @@ History:
 					 - Added the includeLabel and includeDescription parameters to the wrapFieldHTML function call
 					 - Added readOnly field security code with the cs6 fieldPermission parameter
 					 - Updated the wrapFieldHTML explanation comment block
-	2014-01-02 - GAC - Added the CFSETTING tag to disable CF Debug results in the props module
 --->
-<cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
-
 
 <cfscript>
 	// the fields current value

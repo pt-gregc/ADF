@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2014.
+PaperThin, Inc. Copyright(C) 2012.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="utils_1_0" extends="ADF.core.Base" hint="Util functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_8">
+<cfproperty name="version" value="1_0_4">
 <cfproperty name="type" value="singleton">
 <cfproperty name="ceData" type="dependency" injectedBean="ceData_1_0">
 <cfproperty name="wikiTitle" value="Utils_1_0">
@@ -91,20 +91,16 @@ History:
 	2011-07-15 - RAK - Converted msg to be able to take anything
 	2012-11-16 - SFS - Added Label argument so that you can individually label each complex object dump
 	2013-02-20 - SFS - Added label name to the cffile so that the passed in label is actually part of the dump
-	2013-11-20 - GAC - Added hints to the msg, addTimeStamp and the label arguments
-	2013-12-05 - DRM - Create formatted UTC timestamp in local code, avoids crash logging ADF startup errors when ADF isn't built yet
-	                   default logFile to adf-debug.log, instead of debug.log
 --->
 <cffunction name="logAppend" access="public" returntype="void">
-	<cfargument name="msg" type="any" required="true" hint="if this value is NOT a simple string then the value gets converted to sting output using CFDUMP">
-	<cfargument name="logFile" type="string" required="false" default="adf-debug.log">
-	<cfargument name="addTimeStamp" type="boolean" required="false" default="true" hint="Adds a date stamp to the file name">
+	<cfargument name="msg" type="any" required="true">
+	<cfargument name="logFile" type="string" required="false" default="debug.log">
+	<cfargument name="addTimeStamp" type="boolean" required="false" default="true">
 	<cfargument name="logDir" type="string" required="false" default="#request.cp.commonSpotDir#logs/">
-	<cfargument name="label" type="string" required="false" default="" hint="Adds a text label to the log entry">
+	<cfargument name="label" type="string" required="false" default="">
 	<cfscript>
 		var logFileName = arguments.logFile;
-		var utcNow = mid(dateConvert('local2utc', now()), 6, 19);
-		
+		var utcNow = DateConvert('local2utc', now());
 		if( arguments.addTimeStamp )
 			logFileName = dateFormat(now(), "yyyymmdd") & "." & request.site.name & "." & logFileName;
 		if( len(arguments.label) )
@@ -115,10 +111,10 @@ History:
 		<cfif NOT directoryExists(arguments.logdir)>
 			<cfdirectory action="create" directory="#arguments.logdir#">
 		</cfif>
-		<cfif NOT isSimpleValue(arguments.msg)>
-			<cfset arguments.msg = doDump(arguments.msg,"#arguments.label#msg-#application.ADF.date.csDateFormat(now(),now())#",0,1)>
+		<cfif NOT isSimpleValue(msg)>
+			<cfset msg = Application.ADF.utils.doDump(msg,"#arguments.label#msg-#application.ADF.date.csDateFormat(now(),now())#",0,1)>
 		</cfif>
-		<cffile action="append" file="#arguments.logDir##logFileName#" output="#utcNow# (UTC) - #arguments.label# #arguments.msg#" addnewline="true" fixnewline="true">
+		<cffile action="append" file="#arguments.logDir##logFileName#" output="#application.adf.date.csDateFormat(utcNow,utcNow)# (UTC) - #arguments.label# #arguments.msg#" addnewline="true" fixnewline="true">
 		<cfcatch type="any">
 			<cfdump var="#arguments.logDir##logFileName#" label="Log File: #arguments.logDir##logFileName#" />
 			<cfdump expand="false" label="LogAppend() Error" var="#cfcatch#" />
@@ -177,40 +173,38 @@ Arguments:
 	Numeric returnInVar [optional] = Flag for return dump in a variable
 History:
 	2008-06-22 - MFC - Created
-	2009-12-01 - GAC - Added label option for simple values
-	2010-08-20 - GAC - Label on simple values is now controlled by the expand argument
-	2010-08-20 - GAC - Added the output=true as a cffunction parameter
-	2010-08-30 - GAC - Added arguments scope to the returnInVar variable
+	2009-12-01 - GAC - Updated - Added label option for simple values
+	2010-08-20 - GAC - Updated - Label on simple values is now controlled by the expand argument
+	2010-08-20 - GAC - Updated - Added the output=true as a cffunction parameter
+	2010-08-30 - GAC - Updated - Added arguments scope to the returnInVar variable
 								 Set return value of 'foo' equal to an empty string 
-	2014-01-13 - GAC - Updated the return variable name and simplified the dump output logic
 --->
 <cffunction name="doDump" access="public" returntype="string" output="true" hint="ColdFusion dump of the variable argument.">
 	<cfargument name="var" required="Yes" type="any">
 	<cfargument name="label" required="no" type="string" default="no label">
 	<cfargument name="expand" required="no" type="boolean" default="true">
 	<cfargument name="returnInVar" type="numeric" required="No" default="0">
-	
-	<cfscript>
-		var resultHTML = "";
-	</cfscript>
-	
-	<!--- // process the dump and save it to the return variable --->
-	<cfsavecontent variable="resultHTML">
+
+	<CFSCRIPT>
+		var foo = "";
+	</CFSCRIPT>
+
+	<cfif arguments.returnInVar eq 1>
+		<cfsavecontent variable="foo">
+			<cfif IsSimpleValue(arguments.var)>
+				<cfoutput><div><cfif LEN(TRIM(arguments.label)) AND arguments.expand EQ true><strong>#arguments.label#:</strong> </cfif>#arguments.var#</div></cfoutput>
+			<cfelse>
+				<cfdump var="#arguments.var#" label="#arguments.label#" expand="#arguments.expand#">
+			</cfif>
+		</cfsavecontent>
+	<cfelse>
 		<cfif IsSimpleValue(arguments.var)>
 			<cfoutput><div><cfif LEN(TRIM(arguments.label)) AND arguments.expand EQ true><strong>#arguments.label#:</strong> </cfif>#arguments.var#</div></cfoutput>
 		<cfelse>
 			<cfdump var="#arguments.var#" label="#arguments.label#" expand="#arguments.expand#">
 		</cfif>
-	</cfsavecontent>
-
-	<!--- // output the dump in place or pass to the return of the function --->
-	<cfif arguments.returnInVar neq 1>
-		<!--- // outputing the dump in place so set the return to an empty string to avoid duplicate output --->
-		<cfoutput>#resultHTML#</cfoutput>
-		<cfreturn "">
-	<cfelse>
-		<cfreturn resultHTML>	
 	</cfif>
+	<cfreturn foo>
 </cffunction>
 
 <!---

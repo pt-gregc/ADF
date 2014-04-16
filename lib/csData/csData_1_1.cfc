@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2014.
+PaperThin, Inc. Copyright(C) 2012.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -42,7 +42,7 @@ History:
 --->
 <cfcomponent displayname="csData_1_1" extends="ADF.lib.csData.csData_1_0" hint="CommonSpot Data Utils functions for the ADF Library">
 	
-<cfproperty name="version" value="1_1_7">
+<cfproperty name="version" value="1_1_5">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_1">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">
@@ -72,7 +72,6 @@ History:
 	2011-01-28 - RLW - Modified - Added doctype as an optional argument to handle document metadata bindings
 	2011-02-23 - DMB - Modified - Added logic to pass doctype automatically for all non-pages.
 	2011-03-10 - MFC/GAC - Moved method into v1.1 for new functionality.
-	2014-03-05 - JTP - Var declarations
 --->
 <cffunction name="getCustomMetadata" access="public" returntype="struct" hint="Returns custom metadata for a page">
 	<cfargument name="pageID" type="numeric" required="yes" hint="PageID to get custom metadata from">
@@ -90,9 +89,7 @@ History:
 		var fieldKey = "";
 		var taxTermTextList = "";
 		var taxTermIDList = "";
-		var getDocType = '';
 	</cfscript>
-	
 	<!--- // If we are missing categoryID, subsiteID OR inheritedTemplateList get them! --->
     <cfif arguments.categoryID eq -1 or arguments.subsiteID eq -1 or Len(inheritedTemplateList) eq 0>
     	<cfscript>
@@ -101,7 +98,8 @@ History:
     		arguments.subsiteID = stdMetadata.subsiteID;
     		arguments.inheritedTemplateList = stdMetadata.inheritedTemplateList;
     	</cfscript>
-    </cfif>	
+    </cfif>
+	
 	
 	<!--- If item is not a page (e.g. metadata form bound to a pdf) get the doctype --->
 	<cfquery name="getDocType" datasource="#request.site.datasource#">
@@ -138,7 +136,7 @@ History:
 						taxTermTextList = custMetadata[formKey][fieldkey];    
 						if ( LEN(TRIM(taxTermTextList)) ) {
 							// Convert the List Terms to a List of TermIDs
-							taxTermIDList = application.ADF.taxonomy.getTermIDs(termList=taxTermTextList);
+							taxTermIDList = Application.ADF.taxonomy.getTermIDs(termList=taxTermTextList);
 							// Reset The CustomMetadata to the Term ID List
 							custMetadata[formKey][fieldkey] = taxTermIDList;
 						} 		    
@@ -221,7 +219,6 @@ History:
 	2011-02-09 - RAK - Var'ing un-var'd variables
 	2011-02-09 - GAC - Removed self-closing CF tag slashes
 	2012-02-17 - GAC - Added an option to add a struct of the 'field params' as the value of each 'field' 
-	2014-01-03 - GAC - Updated SQL 'IN' statements to use the CS module 'handle-in-list.cfm'
 --->
 <cffunction name="getCustomMetadataFieldsByCSPageID" access="public" returntype="struct" hint="Returns a structure of custom metadata forms and fields from a CSPageID">
 	<cfargument name="cspageid" type="numeric" required="true" hint="commonspot pageID">
@@ -254,10 +251,9 @@ History:
 				ON FormInputControlMap.FieldID = FormInputControl.ID
 		WHERE      FormInputControlMap.FormID IN ( SELECT	DISTINCT FormID
 													 FROM      Data_FieldValue 
-													 WHERE <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="PageID" LIST="#inheritedPageIDList#">
-													 <!--- WHERE     PageID IN (<cfqueryparam cfsqltype="cf_sql_integer" value="#inheritedPageIDList#" list="true">) --->
+													 WHERE     PageID IN (<cfqueryparam cfsqltype="cf_sql_integer" value="#inheritedPageIDList#" list="true">)
 													 AND 	   VersionState = 2
-												  )
+													)
 		<cfif LEN(TRIM(arguments.fieldtype))>
 		AND FormInputControl.Type = <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.fieldtype#">	
        	</cfif>  	
@@ -524,7 +520,7 @@ History:
 			stdMetadata.PublicReleaseDate = getData.PublicReleaseDate;
 			stdMetadata.Confidentiality = getData.Confidentiality;
 			if ( IsNumeric(getData.IsPublic) AND getData.IsPublic gt 0 ) 
-				stdMetadata.IncludeInIndex = application.CS.site.IsPublicGetOptions(getData.IsPublic);
+				stdMetadata.IncludeInIndex = Application.CS.site.IsPublicGetOptions(getData.IsPublic);
 		}
 	</cfscript>
 	<cfreturn stdMetadata>
@@ -575,7 +571,7 @@ History:
 	<cfelse>
 		<cfscript>
 			// If CS 6.x or greater create the Keywords Object
-			keywordObj = server.CommonSpot.ObjectFactory.getObject("keywords");
+			keywordObj = Server.CommonSpot.ObjectFactory.getObject("keywords");
 			// Get the list of global keywords from the keywordObj
 			if ( StructKeyExists(keywordObj,"getDelimitedListForObject") ) 
 				globalKeywordsList = keywordObj.getDelimitedListForObject(objectID=arguments.csPageID);

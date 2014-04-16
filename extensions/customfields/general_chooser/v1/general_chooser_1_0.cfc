@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
  
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2014.
+PaperThin, Inc. Copyright(C) 2010.
 All Rights Reserved.
  
 By downloading, modifying, distributing, using and/or accessing any files
@@ -327,14 +327,10 @@ Arguments:
 	None
 History:
 	2009-05-29 - MFC - Created
-	2014-03-05 - JTP - Var declarations
 --->
 <cffunction name="loadAddNewLink" access="private" returntype="string" hint="General Chooser - Add New Link HTML content.">
 	
-	<cfscript>
-		var retAddLinkHTML = "";
-		var ceFormID = 0;
-	</cfscript>	
+	<cfset var retAddLinkHTML = "">
 	
 	<!--- Check if we want to display show all link --->
 	<cfif variables.ADD_NEW_FLAG EQ true>
@@ -526,9 +522,10 @@ History:
 	<cfargument name="csPageID" type="numeric" required="false" default="">
 		
 	<cfscript>
+		// Initialize the return variable
 		var retHTML = "";
+		// Get the CE Data
 		var dataArray = ArrayNew(1);
-		
 		// clean the search text
 		if ( arguments.queryType eq "search" )
 			arguments.searchValues = cleanChooserSearchText(arguments.searchValues);

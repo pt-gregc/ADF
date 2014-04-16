@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2014.
+PaperThin, Inc. Copyright(C) 2013.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="apiPage" extends="ADF.core.Base" hint="API Page functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_6">
+<cfproperty name="version" value="1_0_4">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
 <cfproperty name="wikiTitle" value="API Page">
@@ -53,7 +53,6 @@ Arguments:
 	Numeric csPageID			
 History:
 	2013-01-02 - MFC - Created
-	2013-07-07 - GAC - Fixed an issue with the publicationDate and the PublicReleaseDate
 --->
 <cffunction name="create" access="public" returntype="struct" hint="Creates a page.">
 	<cfargument name="pageData" type="struct" required="true" hint="a structure that contains page the required fields as page data.">
@@ -61,7 +60,7 @@ History:
 	<cfscript>
 		var pageResult = StructNew();
 		// Use the CS 6.x Command API to SET page Metadata
-		var pageComponent = server.CommonSpot.api.getObject('Page');
+		var pageComponent = Server.CommonSpot.api.getObject('Page');
 		var pageCmdResults = StructNew();
 		var newConfidentialityID = 0;
 		var newShowInList = "PageIndex,SearchResults";
@@ -70,10 +69,6 @@ History:
 		var newExpirationRedirectURL = "";
 		var newMetadata = ArrayNew(1);
 		var activateState = "";
-		
-		// Convert PUBLICRELEASEDATE to publicationDate if exists
-		if ( !StructKeyExists(arguments.pageData,"publicationDate") AND StructKeyExists(arguments.pageData,"PublicReleaseDate") )
-			arguments.pageData.publicationDate = arguments.pageData.PublicReleaseDate;
 		
 		// Build the Optional Field Nodes
 		if ( StructKeyExists(arguments.pageData,"confidentialityID") )
@@ -149,7 +144,7 @@ History:
 	<cfscript>
 		var pageCmdResult = StructNew();
 		// Use the CS 6.x Command API to delete the page whose pageID was passed in
-		var pageComponent = server.CommonSpot.api.getObject('page');
+		var pageComponent = Server.CommonSpot.api.getObject('page');
 		try {
 			pageComponent.delete(arguments.csPageID,0);
 			pageCmdResult["CMDSTATUS"] = true;
@@ -191,7 +186,7 @@ History:
 	<cfscript>
        var pageResult = StructNew();
        // Use the CS 6.x Command API to RENAME the page
-       var pageComponent = server.CommonSpot.api.getObject('Page');
+       var pageComponent = Server.CommonSpot.api.getObject('Page');
        var pageCmdResults = StructNew();
 
        try {
@@ -242,7 +237,7 @@ History:
      <cfscript>
        var pageResult = StructNew();
        // Use the CS 6.x Command API to RENAME the page
-       var pageComponent = server.CommonSpot.api.getObject('Page');
+       var pageComponent = Server.CommonSpot.api.getObject('Page');
        var pageCmdResults = StructNew();
        var newPageTitle = "";
        var newCaption = "";
@@ -301,7 +296,7 @@ History:
 	<cfscript>
 		var pageCmdResult = StructNew();
 		// Use the CS 6.x Command API to SET page keywords
-		var pageComponent = server.CommonSpot.api.getObject('page');
+		var pageComponent = Server.CommonSpot.api.getObject('page');
 		try {
 			pageComponent.saveActivationState(arguments.csPageID, arguments.state);
 			pageCmdResult["CMDSTATUS"] = true;
@@ -359,7 +354,7 @@ History:
 	<cfscript>
 		var pageResult = StructNew();
 		// Use the CS 6.x Command API to SET page Metadata
-		var pageComponent = server.CommonSpot.api.getObject('Page');
+		var pageComponent = Server.CommonSpot.api.getObject('Page');
 		var pageCmdResults = StructNew();
 		var newConfidentialityID = 0;
 		var newShowInList = "PageIndex,SearchResults";
