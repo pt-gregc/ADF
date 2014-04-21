@@ -33,6 +33,7 @@ ADF Requirements:
 History:
 	2014-01-16 - DJM - Created
 	2014-01-29 - GAC - Converted to use AjaxProxy and the ADF Lib
+    2014-04-21 - JTP - Added logic so that if filter has an expression we don't cache it
 --->
 <cfcomponent output="false" displayname="custom_element_hierarchy_selector_base" extends="ADF.core.Base" hint="Contains base functions to handle hierarchy selector">
 	
@@ -226,6 +227,16 @@ History:
 					}
 					if (NOT ArrayLen(filterArray))
 						filterArray[1] = '| element_datemodified| element_datemodified| <= | | c,c,c| | ';
+						
+					// check if filter contains #, If so assume filter has expression and make dynamic
+					for( z=1; z lte ArrayLen(filterArray); z=z+1 )
+					{
+						if( Find( '##', filterArray[z] ) )
+						{
+							isMemGood = 0;
+							break;
+						}
+					}	
 				
 					if (memoryCache.defaultSortColumn NEQ defaultSortColumn)
 						isMemGood = 0;
