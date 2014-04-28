@@ -100,7 +100,6 @@ History:
 	<cfset var outputHTML = "">
 	<cfoutput>
 		#LoadJQuery(force=arguments.force)#
-		<!-- ADF Lightbox Framework Loaded @ #now()# -->
 	</cfoutput>
 	<!--- Check if we have LB properties --->
 	<cfscript>
