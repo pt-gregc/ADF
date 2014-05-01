@@ -38,6 +38,11 @@ History:
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
 <cfproperty name="wikiTitle" value="API">
 
+<!---
+/* *************************************************************** */
+History:
+	2012-12-20 - MFC - Created
+--->
 <cffunction name="init">
 	<cfscript>
 		super.init();
@@ -54,6 +59,11 @@ History:
 	</cfscript>
 </cffunction>
 
+<!---
+/* *************************************************************** */
+History:
+	2012-12-20 - MFC - Created
+--->
 <cffunction name="initSession" access="private">
 	<cfscript>
 		// Check if the session space does NOT exist, then setup the variables
@@ -91,6 +101,11 @@ History:
 	</cfscript>
 </cffunction>
 
+<!---
+/* *************************************************************** */
+History:
+	2012-12-20 - MFC - Created
+--->
 <cffunction name="initAPIConfig" access="public">
 	<cfscript>
 		// Get the user account from the CCAPI Config
@@ -103,6 +118,11 @@ History:
 	</cfscript>
 </cffunction>
 
+<!---
+/* *************************************************************** */
+History:
+	2012-12-20 - MFC - Created
+--->
 <cffunction name="login" access="public" output="true">
 	<cfargument name="remote" type="boolean" required="false" default="false">
 	<cfargument name="forceSubsiteID" type="numeric" required="false" default="0">
@@ -233,7 +253,12 @@ History:
 	<cfreturn this>
 </cffunction>
 
-<!--- // 2013-10-25 - GAC - Updated to check login status local or remote --->
+<!---
+/* *************************************************************** */
+History:
+	2012-12-20 - MFC - Created
+	2013-10-25 - GAC - Updated to check login status local or remote
+--->
 <cffunction name="isLoggedIn" access="public">
 	<cfscript>
 		//var command = StructNew();
@@ -280,8 +305,13 @@ History:
 	</cfscript>
 </cffunction>
 
-<!--- // 2013-10-25 - GAC - Updated to return a logout status --->
-<!--- // 				  - Updated to logout local or remote --->
+<!---
+/* *************************************************************** */
+History:
+	2012-12-20 - MFC - Created
+	2013-10-25 - GAC - Updated to return a logout status
+				  	  - Updated to logout local or remote 
+--->
 <cffunction name="logout" access="public">
 	<cfscript>
 		// Get the user account from the CCAPI Config
@@ -340,6 +370,11 @@ History:
 	</cfscript>	
 </cffunction>
 
+<!---
+/* *************************************************************** */
+History:
+	2012-12-20 - MFC - Created
+--->
 <cffunction name="runRemote" access="public" returntype="any" output="true" hint="Runs the Command API locally via HTML/XML.">
 	<cfargument name="commandStruct" type="struct" required="false" hint="Command collection as Structure.">
 	<cfargument name="commandArgsXML" type="String" required="false" hint="Command collection as XML.">
@@ -413,6 +448,12 @@ History:
 	<cfreturn "">
 </cffunction>
 
+<!---
+/* *************************************************************** */
+History:
+	2012-12-20 - MFC - Created
+	2014-05-01 - GAC - Fixed typo in the try/catch around the populateCustomElement call, switched (e ANY) to (ANY e)
+--->
 <cffunction name="runCCAPI" access="public" returntype="any" output="true" hint="Runs the Content Creation API.">
 	<cfargument name="method" type="String" required="true">
 	<cfargument name="sparams" type="Struct" required="true">
@@ -448,7 +489,8 @@ History:
 		// If the web service is setup and the login token is valid
 		if ( LEN(getAPIToken()) ) {
 		
-			try {
+			try 
+			{
 				switch (arguments.method){
 					// Populate Custom Element Record
 					case "populateCustomElement":
@@ -461,7 +503,8 @@ History:
 						break;
 				}
 			}
-			catch (e ANY){
+			catch (ANY e)
+			{
 				// Error caught, send back the error message
 				result.status = false;
 				result.msg = e.message;
@@ -477,12 +520,21 @@ History:
 	</cfscript>
 </cffunction>
 
+<!---
+/* *************************************************************** */
+History:
+	2012-12-20 - MFC - Created
+--->
 <cffunction name="runLocal" access="public" returntype="any" output="true" hint="Runs the Command API locally via ColdFusion.">
 </cffunction>
 
+<!--- // CCAPI FUNCTIONS --->
 
-
-<!--- CCAPI FUNCTIONS --->
+<!---
+/* *************************************************************** */
+History:
+	2012-12-20 - MFC - Created
+--->
 <cffunction name="ccapiLogin" access="public" returntype="void">
 	<cfscript>
 		// Get the user account from the CCAPI Config
@@ -515,7 +567,12 @@ History:
 	</cfscript>
 </cffunction>
 
-<!--- // 2014-04-10 - GAC - Fixed variable name in log output --->
+<!--- 
+/* *************************************************************** */
+History:
+	2012-12-26 - MFC - Created
+	2014-04-10 - GAC - Fixed variable name in log output
+--->
 <cffunction name="ccapiLogout" access="public" returntype="void">
 	<cfscript>
 		// Get the user account from the CCAPI Config
@@ -540,6 +597,11 @@ History:
 	</cfscript>
 </cffunction>
 
+<!---
+/* *************************************************************** */
+History:
+	2012-12-20 - MFC - Created
+--->
 <cffunction name="processSSID" access="private" returnType="void" output="no" hint="Splits the specified SSID And returnt a struct of information stored in SSID.">
 	<cfargument name="ssid" type="string" required="yes">
 
@@ -640,14 +702,26 @@ History:
 	</cfscript>
 </cffunction>
 
+
 <!--- // Private GETTERS/SETTERS --->
-<!--- // 10-25-2013 - can NOT be private since we are being injected in to ccapi_2_0 --->
+
+<!---
+/* *************************************************************** */
+History:
+	2012-12-20 - MFC - Created
+	2013-10-25 - GAC - can NOT be private since we are being injected in to ccapi_2_0
+--->
 <cffunction name="setSubsiteID" access="public" returntype="void" hint="Set the subsiteID"> 
 	<cfargument name="subsiteID" type="numeric" required="true" hint="subsiteID to set">
 	<cfset session.ADF.API.subsiteID = arguments.subsiteID>
 </cffunction>
 
-<!--- // - can NOT be private since we are being injected in to ccapi_2_0 --->
+<!---
+/* *************************************************************** */
+History:
+	2012-12-20 - MFC - Created
+	2013-10-25 - GAC - can NOT be private since we are being injected in to ccapi_2_0
+--->
 <cffunction name="getSubsiteID" access="public" returntype="numeric" hint="Get the subsiteID">
 	<cfreturn session.ADF.API.subsiteID>
 </cffunction>
@@ -674,10 +748,20 @@ History:
 	</cfscript>
 </cffunction>
 
+<!---
+/* *************************************************************** */
+History:
+	2012-12-20 - MFC - Created
+--->
 <cffunction name="getSiteURL" access="private" returntype="string" hint="Get the Site URL for Remote Commands.">
 	<cfreturn session.ADF.API.siteURL>
 </cffunction>
 
+<!---
+/* *************************************************************** */
+History:
+	2012-12-20 - MFC - Created
+--->
 <cffunction name="setAPIToken" access="private" returntype="void" hint="set the ccapi token">
 	<cfscript>
 		session.ADF.API.token = "#session.ADF.API.csSession.cfID# #session.ADF.API.csSession.cfToken#";
@@ -691,20 +775,40 @@ History:
 	<cfset session.ADF.API.token = "">
 </cffunction>
 
-<!--- // 10-25-2013 - Set to public to be able to access the current users login token  --->
+<!---
+/* *************************************************************** */
+History:
+	2012-12-20 - MFC - Created
+	2013-10-25 - GAC - Set to public to be able to access the current users login token
+--->
 <cffunction name="getAPIToken" access="public" returntype="string" hint="get the ccapi token">
 	<cfreturn session.ADF.API.token>
 </cffunction>
 
+<!---
+/* *************************************************************** */
+History:
+	2012-12-20 - MFC - Created
+--->
 <cffunction name="setRemoteFlag" access="private" returntype="void" hint="Set the Remote Flag">
 	<cfargument name="remoteFlag" type="boolean" required="true">
 	<cfset session.ADF.API.remote = arguments.remoteFlag>
 </cffunction>
 
+<!---
+/* *************************************************************** */
+History:
+	2012-12-20 - MFC - Created
+--->
 <cffunction name="getRemoteFlag" access="private" returntype="boolean" hint="Get the Remote Flag">
 	<cfreturn session.ADF.API.remote>
 </cffunction>
 
+<!---
+/* *************************************************************** */
+History:
+	2012-12-20 - MFC - Created
+--->
 <cffunction name="getAPIConfig" access="public" returntype="struct">
 	<cfscript>
 		var tempStruct = structNew();

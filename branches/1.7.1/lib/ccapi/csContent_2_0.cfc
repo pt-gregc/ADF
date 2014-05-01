@@ -63,6 +63,7 @@ History:
 	2012-12-27 - MFC - Created.  Direct functions to the API Element Library.
 	2013-02-21 - GAC - Fixed typo in log text message
 	2013-06-24 - MTT - Added the forceControlName and forceControlID arguments.
+	2014-05-01 - GAC - Fixed typo in the try/catch, switched ( e ANY ) to ( ANY e )
 --->
 <cffunction name="populateContent" access="public" returntype="struct" hint="Use this method to populate content for either a Textblock or Custom Element">
 	<cfargument name="elementName" type="string" required="true" hint="The name of the element from the CCAPI configuration">
@@ -97,7 +98,8 @@ History:
 			result.contentUpdated = false;
 			result.msg = "CCAPI Populate Content Error";
 			
-			try {
+			try 
+			{
 				elements = variables.ccapi.getElements();
 				ws = variables.ccapi.getWS();
 				
@@ -223,7 +225,8 @@ History:
 				if( variables.ccapi.loggingEnabled() and arrayLen(logArray) )
 					variables.utils.bulkLogAppend(logArray);
 			}
-			catch (e ANY){
+			catch ( ANY e )
+			{
 				// Error caught, send back the error message
 				result.contentUpdated = false;
 				result.msg = e.message;

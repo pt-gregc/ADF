@@ -66,6 +66,7 @@ History:
 	2013-06-24 - MFC - Added "forceControlName" and "forceControlID" arg to override the config control name or ID.
 					   Updated to check if the "forceControlName", "forceSubsiteID", and "forcePageID" arguments
 						are defined, then setup the element config to bypass the config file.
+	2014-05-01 - GAC - Fixed typo in the try/catch, switched ( e ANY ) to ( ANY e )
 --->
 <cffunction name="populateCustom" access="public" returntype="struct">
 	<cfargument name="elementName" type="string" required="true" hint="The name of the element from the CCAPI configuration">
@@ -100,7 +101,8 @@ History:
 	<cflock type="exclusive" name="CCAPIPopulateContent" timeout="30">
 		<cfscript>
 			// Error handling
-			try {
+			try 
+			{
 				// Check the element is in the API Config file and defined		
 				apiConfig = variables.api.getAPIConfig();
 				
@@ -260,7 +262,8 @@ History:
 					arrayAppend(logArray, logStruct);
 				}
 			}
-			catch (e ANY){
+			catch ( ANY e )
+			{
 				// Error caught, send back the error message
 				result.status = false;
 				result.msg = e.message;

@@ -69,6 +69,7 @@ History:
 	2012-02-24 - MFC - Added TRY-CATCH around processing 
 						to logout the CCAPI if any errors.
 	2013-02-21 - GAC - Fixed typo in log text message
+	2014-05-01 - GAC - Fixed typo in the try/catch, switched ( e ANY ) to ( ANY e )
 --->
 <cffunction name="populateContent" access="public" returntype="struct" hint="Use this method to populate content for either a Textblock or Custom Element">
 	<cfargument name="elementName" type="string" required="true" hint="The name of the element from the CCAPI configuration">
@@ -226,7 +227,8 @@ History:
 				if( variables.ccapi.loggingEnabled() and arrayLen(logArray) )
 					variables.utils.bulkLogAppend(logArray);
 			}
-			catch (e ANY){
+			catch ( ANY e ) 
+			{
 				// Error caught, send back the error message
 				result.contentUpdated = false;
 				result.msg = e.message;
