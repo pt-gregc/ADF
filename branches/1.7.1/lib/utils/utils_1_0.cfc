@@ -342,13 +342,20 @@ Arguments:
 	String taskname - Scheduled task name
 History:
 	2009-04-16 - MFC - Created
+	2014-05-01 - ACW - in ACF 10, if you do not have a task called 'foo', run <cfschedule action="delete" task="foo"> will cause CF exception, message is 'The following task could not be found: foo.'
 --->
 <cffunction name="deleteScheduledTask" access="public" returntype="any">
 	<cfargument name="taskName" type="string" required="true">
 	
 	<!--- Delete scheduled task --->
-	<cfschedule action="delete"	task="#arguments.taskName#">
-
+	<cftry>
+		<cfschedule action="delete" task="#arguments.taskName#">
+		<cfcatch>
+			<cfif cfcatch.message NEQ 'The following task could not be found: #arguments.taskName#.'> <!--- ACF 10 only --->
+				<cfrethrow>
+			</cfif>
+		</cfcatch>
+	</cftry>
 </cffunction>
 
 <!---
