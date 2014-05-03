@@ -183,7 +183,9 @@ History:
 			var memoryCache = StructNew();
 			var cachedFilterArray = ArrayNew(1);
 			var currentFilterArray = ArrayNew(1);
+			var z = 0;
 		</cfscript>
+		
 		<cflock name="objHierarchy" timeout="5" type="readOnly">
 			<cfscript>	
 				if (StructKeyExists(application, 'objectHierarchyCustomField')
@@ -228,7 +230,7 @@ History:
 					if (NOT ArrayLen(filterArray))
 						filterArray[1] = '| element_datemodified| element_datemodified| <= | | c,c,c| | ';
 						
-					// check if filter contains #, If so assume filter has expression and make dynamic
+					// check if filter contains #. If so assume filter has expression and make dynamic
 					for( z=1; z lte ArrayLen(filterArray); z=z+1 )
 					{
 						if( Find( '##', filterArray[z] ) )
