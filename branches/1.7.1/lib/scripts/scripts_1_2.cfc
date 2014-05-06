@@ -36,7 +36,7 @@ History:
 --->
 <cfcomponent displayname="scripts_1_2" extends="ADF.lib.scripts.scripts_1_1" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" value="1_2_18">
+<cfproperty name="version" value="1_2_19">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_1" type="dependency">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Scripts_1_2">
@@ -207,9 +207,10 @@ History:
 	2012-12-07 - MFC - Based on 1.1.  Set to default load JQuery 1.8.
 	2013-02-06 - MFC - Set default to 1.9 and load JQuery Migrate Plugin when 
 						loading v1.9 or greater.
+	2014-05-05 - GAC - Updated the default jQuery version to 1.11
 --->
 <cffunction name="loadJQuery" access="public" returntype="void" hint="Loads the JQuery Headers if not loaded.">
-	<cfargument name="version" type="string" required="false" default="1.9" hint="JQuery version to load.">
+	<cfargument name="version" type="string" required="false" default="1.11" hint="JQuery version to load.">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfargument name="noConflict" type="boolean" required="false" default="0" hint="JQuery no conflict flag.">
 	<cfscript>
@@ -442,7 +443,7 @@ History:
 					   Set the default to v1.3.
 --->
 <cffunction name="loadJQueryMobile" access="public" output="true" returntype="void" hint="Loads the JQuery Mobile script if not loaded.">
-	<cfargument name="version" type="string" required="false" default="1.3" hint="JQuery Mobile version to load.">
+	<cfargument name="version" type="string" required="false" default="1.4" hint="JQuery Mobile version to load.">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery Mobile to load.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
