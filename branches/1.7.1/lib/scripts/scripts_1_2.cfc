@@ -36,7 +36,7 @@ History:
 --->
 <cfcomponent displayname="scripts_1_2" extends="ADF.lib.scripts.scripts_1_1" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" value="1_2_19">
+<cfproperty name="version" value="1_2_20">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_1" type="dependency">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Scripts_1_2">
@@ -1367,6 +1367,114 @@ History:
 	<cfscript>
 		super.loadUploadify(version=arguments.version, force=arguments.force);
 	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.	
+	G. Cronkright
+Name:
+	$loadJQueryJeditable
+Summary:
+	Loads the jQuery JEditable
+Returns:
+	None
+Arguments:
+	String - version - version to load.
+	Boolean - force - Forces script header to load.
+History:
+	2013-05-16 - GAC - Added
+--->
+<cffunction name="loadJQueryJeditable" access="public" output="true" returntype="void" hint="Loads the jQuery JEditable Headers if not loaded.">
+	<cfargument name="version" type="string" required="false" default="1.7" hint="Version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces script header to load.">
+	<cfset var outputHTML = "">
+	<cfset var thirdPartyLibPath = "/ADF/thirdParty/jquery/jeditable">
+	<cfsavecontent variable="outputHTML">
+		<cfoutput>
+			<script type="text/javascript" src="#thirdPartyLibPath#/#arguments.version#/jquery.jeditable.min.js"></script>
+		</cfoutput>
+	</cfsavecontent>
+	<cfoutput>
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("jqueryjeditable",outputHTML)#
+		</cfif>
+	</cfoutput>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.	
+	G. Cronkright
+Name:
+	$loadJQueryCalcX
+Summary:
+	Loads the jQuery CalcX
+Returns:
+	None
+Arguments:
+	String - version - version to load.
+	Boolean - force - Forces script header to load.
+History:
+	2013-05-16 - GAC - Added
+--->
+<cffunction name="loadJQueryCalcX" access="public" output="true" returntype="void" hint="Loads the jQuery CalcX Headers if not loaded.">
+	<cfargument name="version" type="string" required="false" default="1.1" hint="Version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces script header to load.">
+	<cfset var outputHTML = "">
+	<cfset var thirdPartyLibPath = "/ADF/thirdParty/jquery/calcx">
+	<cfsavecontent variable="outputHTML">
+		<cfoutput>
+			<script type="text/javascript" src="#thirdPartyLibPath#/#arguments.version#/jquery.calx.min.js"></script>
+		</cfoutput>
+	</cfsavecontent>
+	<cfoutput>
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("jquerycalcx",outputHTML)#
+		</cfif>
+	</cfoutput>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.	
+	G. Cronkright
+Name:
+	$loadJQueryCalculation
+Summary:
+	Loads the jQuery Calculation
+Returns:
+	None
+Arguments:
+	String - version - version to load.
+	Boolean - force - Forces script header to load.
+History:
+	2013-05-16 - GAC - Added
+--->
+<cffunction name="loadJQueryCalculation" access="public" output="true" returntype="void" hint="Loads the jQuery Calculation Headers if not loaded.">
+	<cfargument name="version" type="string" required="false" default="0.4" hint="Version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces script header to load.">
+	<cfset var outputHTML = "">
+	<cfset var thirdPartyLibPath = "/ADF/thirdParty/jquery/calculation">
+	<cfsavecontent variable="outputHTML">
+		<cfoutput>
+			<script type="text/javascript" src="#thirdPartyLibPath#/#arguments.version#/jquery.calculation.min.js"></script>
+		</cfoutput>
+	</cfsavecontent>
+	<cfoutput>
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("jquerycalculation",outputHTML)#
+		</cfif>
+	</cfoutput>
 </cffunction>
 
 </cfcomponent>
