@@ -36,7 +36,7 @@ History:
 --->
 <cfcomponent displayname="utils_1_2" extends="ADF.lib.utils.utils_1_1" hint="Util functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_10">
+<cfproperty name="version" value="1_2_11">
 <cfproperty name="type" value="singleton">
 <cfproperty name="ceData" type="dependency" injectedBean="ceData_2_0">
 <cfproperty name="csData" type="dependency" injectedBean="csData_1_2">
@@ -510,6 +510,8 @@ Arguments:
 	Boolean - sanitize
 History:
  	2014-05-22 - GAC - Created
+	2014-05-27 - GAC - Added some validation on the passed in variable name
+					 - Added a try/catch around the variable string evaluation
 --->
 <cffunction name="processADFDumpVar" access="public" returntype="any" output="true" hint="Returns the processed ADFdumpVar variable string as the provided variable's evaluated data.">
 	<cfargument name="dumpVarStr" type="string" required="false" default="" hint="">
@@ -517,23 +519,46 @@ History:
 	
 	<cfscript>
 		var retData = StructNew();
-		var dataTemp = Evaluate(arguments.dumpVarStr); // Evalute the passed in variable // TODO: We need to find a better way to do this!
+		var dataTemp = StructNew();
+		var retError = true;
 		
-		// Clean the secure data from the dump data
-		if ( arguments.sanitize ) 
+		if ( !IsValid('variableName',arguments.dumpVarStr) )
 		{
-			// Use
-			if ( arguments.dumpVarStr EQ "server" )
+			retError = true;
+			retData.dumpVar = arguments.dumpVarStr;
+			retData.dumpMsg = "The ADFDumpVar utility was not passed a valid variable name.";
+		}
+		
+		try
+		{
+			dataTemp = Evaluate(arguments.dumpVarStr); // Evalute the passed in variable // TODO: We need to find a better way to do this!
+			retError = false;
+		}
+		catch ( any e )
+		{
+			retError = true;
+			retData.dumpVar = arguments.dumpVarStr;
+			retData.dumpMsg = "The ADFDumpVar utility failed to parse the passed in variable name.";			
+		}
+		
+		if ( !retError )
+		{
+			// Clean the secure data from the dump data
+			if ( arguments.sanitize ) 
 			{
-				retData.dumpMsg = "The ADFDumpVar utility cannot be used to dump the entire SERVER scope";
+				// Use
+				if ( arguments.dumpVarStr EQ "server" )
+				{
+					retData.dumpMsg = "The ADFDumpVar utility cannot be used to dump the entire SERVER scope";
+				}
+				else
+				{
+					retData = sanitizeADFDumpVarData(dumpVarStr=arguments.dumpVarStr,dumpVarData=dataTemp);
+				}
 			}
 			else
-			{
-				retData = sanitizeADFDumpVarData(dumpVarStr=arguments.dumpVarStr,dumpVarData=dataTemp);
-			}
+				retData = dataTemp;
 		}
-		else
-			retData = dataTemp;
 		
 		return retData;
 	</cfscript>
@@ -557,6 +582,7 @@ Arguments:
 	Any - dumpVarData
 History:
  	2014-05-22 - GAC - Created
+	2014-05-27 - GAC - Method cleanup / removed dev dumps
 --->
 <cffunction name="sanitizeADFDumpVarData" access="public" returntype="any" output="false" hint="Returns a ADFdumpVar data from the ADFdumpVar URL command with secure data sanitized.">
 	<cfargument name="dumpVarStr" type="string" required="false" default="" hint="">
@@ -587,70 +613,49 @@ History:
 			}
 			else if ( IsStruct(arguments.dumpVarData) AND arguments.dumpVarStr NEQ "server")
 			{
-				if ( arguments.dumpVarStr EQ "server" AND StructKeyExists(arguments.dumpVarData,"ADF") )
+				if ( arguments.dumpVarStr EQ "server" )
 				{
-						retData = tempData[arguments.dumpVarData];
+					// We can not allow using the ADFdumpVar command to dump the enitre SERVER scope
+					retData.dumpMsg = "The ADFDumpVar utility cannot be used to dump the entire SERVER scope";
 				}
 				else
 				{
 					retData = Duplicate(arguments.dumpVarData);
-				}
-//application.ADF.utils.doDump(retData,"data dump - before work",1);	
-				
-				pwFindArray = StructFindKey(retData,configPWkey,"all");
-//application.ADF.utils.doDump(pwFindArray,"PW FIND ARRAY!",0);
-				
-				for ( i=1; i LTE ArrayLen(pwFindArray); i=i+1 )
-				{
-					configPWpath = pwFindArray[i].path;
-//application.ADF.utils.doDump(configPWpath,"configPWpath",0);writeoutput("<br>");	
 					
-					//configPWpathHasNumbersArray = REMATCH("(\.[0-9]+)",configPWpath);
-//application.ADF.utils.doDump(configPWpathHasNumbersArray,"configPWpathHasNumbersArray",0);writeoutput("<br>");
-
-					if ( REFindNoCase("(\.[0-9]+)",configPWpath) ) 
+					// Find the instances of the CSPASSWORD stuct key 
+					pwFindArray = StructFindKey(retData,configPWkey,"all");
+					
+					// Loop over the Find Array and REPLACE each value with a TEMP string
+					for ( i=1; i LTE ArrayLen(pwFindArray); i=i+1 )
 					{
-						configPWpathArray = ListToArray(configPWpath,".");
-//application.ADF.utils.doDump(configPWpathArray,"configPWpathArray",0);
-
-						varPath = "retData";		
-						for ( n=1; n LTE ArrayLen(configPWpathArray); n=n+1 )
+						configPWpath = pwFindArray[i].path;
+	
+						if ( REFindNoCase("(\.[0-9]+)",configPWpath) ) 
 						{
-							if ( IsNumeric(configPWpathArray[n]) )
-								varPath = varPath & "[" & configPWpathArray[n] & "]";
-							else if ( configPWpathArray[n] NEQ configPWkey )
+							configPWpathArray = ListToArray(configPWpath,".");
+							varPath = "retData";		
+							for ( n=1; n LTE ArrayLen(configPWpathArray); n=n+1 )
 							{
-								varPath = varPath & "." & configPWpathArray[n];
-								
-								//varPath = varPath & "['" & configPWpathArray[n] & "']";
+								if ( IsNumeric(configPWpathArray[n]) )
+									varPath = varPath & "[" & configPWpathArray[n] & "]";
+								else if ( configPWpathArray[n] NEQ configPWkey )
+								{
+									varPath = varPath & "." & configPWpathArray[n];
+								}
 							}
-						}
-//application.ADF.utils.doDump(varPath,"varPath",0);writeoutput("<br>");
-					
-						data = Evaluate(varPath);
-					
-						//data = StructGet(varPath);
-						//data = StructGet(configPWpath);
-//application.ADF.utils.doDump(data,"data",0);writeoutput("<br>");
-						
-						StructUpdate(data, configPWkey, configPWReplaceValue);
-						//"#varPath#" = configPWReplaceValue;
-					} 
-					else
-					{
-						configPWpath = REREPLACE( configPWpath,"(\.)([0-9]+)","[\2]","all");
-//application.ADF.utils.doDump(configPWpath,"configPWpath",0);writeoutput("<br>");
-
-						"retData#configPWpath#" = configPWReplaceValue;
-					} 
-					
-				}
-//application.ADF.utils.doDump(retData,"data dump - after work",1);			
-				
+							// Evalute the concatenated variable path // TODO: We need to find a better way to do this!
+							data = Evaluate(varPath);
+							StructUpdate(data, configPWkey, configPWReplaceValue);
+						} 
+						else
+						{	
+							// Build the key path variable (without numeric keys) and replace its value
+							"retData#configPWpath#" = configPWReplaceValue;
+						} 
+					}	
+				}	
 			}
-//application.ADF.utils.doDump(retData,"data dump - after work: 1",1);
 		}
-		
 		return retData;
 	</cfscript>
 </cffunction>

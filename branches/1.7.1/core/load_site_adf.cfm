@@ -41,12 +41,13 @@ History:
 	2013-12-05 - GAC - Removed the login check logic from around URL resetADF checks to allow the not logged in message to display (when not a forced Reset) and the user is not logged in 
 	2014-05-27 - GAC - Added a ADFdumpVar processing method call to help with securing the rendered output
 					 - Added the ADF and fileVersion local variables
+					 - Added the label to simple value dumps
  --->
 <!--- // Lock around the entire load ADF processing --->
 <cflock timeout="300" type="exclusive" name="ADF-RESET-LOAD-SITE">
 	<cfscript>
 		adfVersion = "1.7.1";
-		adfFileVersion = "12"; 
+		adfFileVersion = "13"; 
 		
 		// Initialize the RESET TYPE variable
 		// Determine what kind of reset is needed (if any)
@@ -115,10 +116,13 @@ History:
 				regularExpression = '[^a-z0-9\.\[\]]]*';
 				if ( Len(url.ADFDumpVar) GT 0 and !ReFindNoCase(regularExpression,url.ADFDumpVar) ) {
 					utilsObj = CreateObject("component","ADF.lib.utils.utils_1_2");
-					//2014-05-27 - GAC - Added a security fix for the ADF dump var command
+					// [GAC] 2014-05-27 - Added a security fix for the ADF dump var command
 					adfDumpVarData = utilsObj.processADFDumpVar(dumpVarStr=url.ADFDumpVar,sanitize=true);
-					adfDumpMsg = utilsObj.dodump(adfDumpVarData, url.ADFDumpVar, false, true);
-					//adfDumpMsg = utilsObj.dodump(evaluate(url.ADFDumpVar), #url.ADFDumpVar#, false, true);
+					// [GAC] 2014-05-27 - Dump the processed ADFdumpVar data 
+					if ( IsSimpleValue(adfDumpVarData) )
+						adfDumpMsg = utilsObj.dodump(adfDumpVarData, url.ADFDumpVar, true, true);
+					else
+						adfDumpMsg = utilsObj.dodump(adfDumpVarData, url.ADFDumpVar, false, true);
 				}
 				else {
 					// 2012-01-10 - MFC - Added span tag with ID around the reset message.
