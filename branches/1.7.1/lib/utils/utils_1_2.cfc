@@ -32,10 +32,11 @@ History:
 	2012-12-07 - MFC - Created
 	2013-02-26 - MFC - Updated the Injection Dependencies to use the ADF v1.6 lib versions.
 	2014-04-04 - GAC - Added the doThow method with logging options
+	2014-05-27 - GAC - Added new methods to help secure ADFdumpVar: processADFDumpVar and sanitizeADFDumpVarData
 --->
 <cfcomponent displayname="utils_1_2" extends="ADF.lib.utils.utils_1_1" hint="Util functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_9">
+<cfproperty name="version" value="1_2_10">
 <cfproperty name="type" value="singleton">
 <cfproperty name="ceData" type="dependency" injectedBean="ceData_2_0">
 <cfproperty name="csData" type="dependency" injectedBean="csData_1_2">
@@ -492,6 +493,166 @@ History:
 		</cfif> 
 		<cfthrow message="#arguments.message#" type="#arguments.type#" detail="#arguments.detail#">
 	</cfif>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+Name:
+	$processADFDumpVar
+Summary:
+	Returns the processed ADFdumpVar variable string as the provided variable's evaluated data. 
+Returns:
+	any
+Arguments:
+	String - dumpVarStr
+	Boolean - sanitize
+History:
+ 	2014-05-22 - GAC - Created
+--->
+<cffunction name="processADFDumpVar" access="public" returntype="any" output="true" hint="Returns the processed ADFdumpVar variable string as the provided variable's evaluated data.">
+	<cfargument name="dumpVarStr" type="string" required="false" default="" hint="">
+	<cfargument name="sanitize" type="boolean" required="false" default="true" hint="For security this must be TRUE by default">
+	
+	<cfscript>
+		var retData = StructNew();
+		var dataTemp = Evaluate(arguments.dumpVarStr); // Evalute the passed in variable // TODO: We need to find a better way to do this!
+		
+		// Clean the secure data from the dump data
+		if ( arguments.sanitize ) 
+		{
+			// Use
+			if ( arguments.dumpVarStr EQ "server" )
+			{
+				retData.dumpMsg = "The ADFDumpVar utility cannot be used to dump the entire SERVER scope";
+			}
+			else
+			{
+				retData = sanitizeADFDumpVarData(dumpVarStr=arguments.dumpVarStr,dumpVarData=dataTemp);
+			}
+		}
+		else
+			retData = dataTemp;
+		
+		return retData;
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+Name:
+	$sanitizeADFDumpVarData
+Summary:
+	Returns a ADFdumpVar data from the ADFdumpVar URL command with secure data sanitized. 
+	
+	The current version specificly focuses on replacing each site's' CCAPI config password
+	that is stored in the Server.ENVIRONMENT array.
+Returns:
+	any
+Arguments:
+	String - dumpVarStr
+	Any - dumpVarData
+History:
+ 	2014-05-22 - GAC - Created
+--->
+<cffunction name="sanitizeADFDumpVarData" access="public" returntype="any" output="false" hint="Returns a ADFdumpVar data from the ADFdumpVar URL command with secure data sanitized.">
+	<cfargument name="dumpVarStr" type="string" required="false" default="" hint="">
+	<cfargument name="dumpVarData" type="any" required="false" default="" hint="the data evaluated from url.ADFdumpVar">
+	
+	<cfscript>
+		var retData = "";
+		var configPWscope = "server";
+		var configPWkey = "cspassword";
+		var configPWReplaceValue = "**************";
+		var pwFindArray = ArrayNew(1);
+		var i = 1;
+		var k = 1;
+		var n = 1;
+		var configPWpath = "";
+		var configPWpathKey = "";
+		var configPWpathKeyList = "";	
+		var configPWpathArray = ArrayNew(1);
+		var varPath = "";
+		
+		retData = arguments.dumpVarData;
+		
+		if ( ListFirst(arguments.dumpVarStr,".") EQ configPWscope )
+		{
+			if ( ListFindNoCase(arguments.dumpVarStr,configPWkey,".") AND IsSimpleValue(arguments.dumpVarData) )
+			{
+				retData = configPWReplaceValue;
+			}
+			else if ( IsStruct(arguments.dumpVarData) AND arguments.dumpVarStr NEQ "server")
+			{
+				if ( arguments.dumpVarStr EQ "server" AND StructKeyExists(arguments.dumpVarData,"ADF") )
+				{
+						retData = tempData[arguments.dumpVarData];
+				}
+				else
+				{
+					retData = Duplicate(arguments.dumpVarData);
+				}
+//application.ADF.utils.doDump(retData,"data dump - before work",1);	
+				
+				pwFindArray = StructFindKey(retData,configPWkey,"all");
+//application.ADF.utils.doDump(pwFindArray,"PW FIND ARRAY!",0);
+				
+				for ( i=1; i LTE ArrayLen(pwFindArray); i=i+1 )
+				{
+					configPWpath = pwFindArray[i].path;
+//application.ADF.utils.doDump(configPWpath,"configPWpath",0);writeoutput("<br>");	
+					
+					//configPWpathHasNumbersArray = REMATCH("(\.[0-9]+)",configPWpath);
+//application.ADF.utils.doDump(configPWpathHasNumbersArray,"configPWpathHasNumbersArray",0);writeoutput("<br>");
+
+					if ( REFindNoCase("(\.[0-9]+)",configPWpath) ) 
+					{
+						configPWpathArray = ListToArray(configPWpath,".");
+//application.ADF.utils.doDump(configPWpathArray,"configPWpathArray",0);
+
+						varPath = "retData";		
+						for ( n=1; n LTE ArrayLen(configPWpathArray); n=n+1 )
+						{
+							if ( IsNumeric(configPWpathArray[n]) )
+								varPath = varPath & "[" & configPWpathArray[n] & "]";
+							else if ( configPWpathArray[n] NEQ configPWkey )
+							{
+								varPath = varPath & "." & configPWpathArray[n];
+								
+								//varPath = varPath & "['" & configPWpathArray[n] & "']";
+							}
+						}
+//application.ADF.utils.doDump(varPath,"varPath",0);writeoutput("<br>");
+					
+						data = Evaluate(varPath);
+					
+						//data = StructGet(varPath);
+						//data = StructGet(configPWpath);
+//application.ADF.utils.doDump(data,"data",0);writeoutput("<br>");
+						
+						StructUpdate(data, configPWkey, configPWReplaceValue);
+						//"#varPath#" = configPWReplaceValue;
+					} 
+					else
+					{
+						configPWpath = REREPLACE( configPWpath,"(\.)([0-9]+)","[\2]","all");
+//application.ADF.utils.doDump(configPWpath,"configPWpath",0);writeoutput("<br>");
+
+						"retData#configPWpath#" = configPWReplaceValue;
+					} 
+					
+				}
+//application.ADF.utils.doDump(retData,"data dump - after work",1);			
+				
+			}
+//application.ADF.utils.doDump(retData,"data dump - after work: 1",1);
+		}
+		
+		return retData;
+	</cfscript>
 </cffunction>
 
 </cfcomponent>
