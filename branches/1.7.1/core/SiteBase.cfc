@@ -37,7 +37,7 @@ History:
 <cfcomponent displayname="SiteBase" extends="ADF.core.AppBase">
 
 <cfproperty name="version" value="1_7_1">
-<cfproperty name="file-version" value="3">
+<cfproperty name="file-version" value="4">
 
 <!---
 /* *************************************************************** */
@@ -493,37 +493,45 @@ History:
 	2013-01-23 - MFC - Modified the function to NOT expand the file of the CFM file.
 	2013-01-24 - MFC - Added check if the ccapi config file exists and needs to be setup.
 					    This will bypass any false errors if no config file exists.
+	2014-05-21 - GAC - Updated to use the csAppsURL so the site's mapping path is included to help for a
+						more accurate ExpandPath() when on a multi-site install
 --->
 <cffunction name="loadSiteAPIConfig" access="private" returntype="void">
 	<cfscript>
-		var APIConfig = "";
-		var configAppXMLPath = ExpandPath("#request.site.csAppsWebURL#config/ccapi.xml");
-		var configAppCFMPath = "#request.site.csAppsWebURL#config/ccapi.cfm";
+		var APIConfig = "";	
+		var configAppXMLPath = ExpandPath("#request.site.csAppsURL#config/ccapi.xml");
+		var configAppCFMPath = "#request.site.csAppsURL#config/ccapi.cfm";
 		var buildError = StructNew();
 		var coreConfigObj = "";
 		var configFileExists = false; // Track if the site has a ccapi config file
-		
-		try {
+
+		try 
+		{
 			coreConfigObj = CreateObject("component", "ADF.core.Config");
 			 	
 			// Pass a Logical path for the CFM file to the getConfigViaXML() since it will be read via CFINCLUDE
-			if ( FileExists(ExpandPath(configAppCFMPath)) ){
+			if ( FileExists(ExpandPath(configAppCFMPath)) )
+			{
 				APIConfig = coreConfigObj.getConfigViaXML(configAppCFMPath);
 				configFileExists = true;	
 			}
 			// Pass an Absolute path for the XML file to the getConfigViaXML() since it will be read via CFFILE
-			else if ( FileExists(configAppXMLPath) ){
+			else if ( FileExists(configAppXMLPath) )
+			{
 				APIConfig = coreConfigObj.getConfigViaXML(configAppXMLPath);
 				configFileExists = true;
 			}
 			
 			// Verify that the CCAPI config needs to be setup b/c the config file exists
-			if ( configFileExists ){
+			if ( configFileExists )
+			{
 				// Validate the config has the fields we need
-				if( isStruct(APIConfig) ){
+				if( isStruct(APIConfig) )
+				{
 					server.ADF.environment[request.site.id]['apiConfig'] = APIConfig;
 				}
-				else {
+				else
+				{
 					// Build the Error Struct
 					buildError.ADFmethodName = "API Config";
 					buildError.details = "API Configuration CFM (or XML) file is not a valid data format. [#request.site.name# - #request.site.id#].";
@@ -532,7 +540,8 @@ History:
 				}
 			}
 		}
-		catch (Any exception){
+		catch (any exception)
+		{
 			// Build the Error Struct
 			buildError.ADFmethodName = "API Config";
 			//buildError.details = "API Configuration CFM (or XML) file is not setup for this site [#request.site.name# - #request.site.id#].";
