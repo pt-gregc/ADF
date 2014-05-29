@@ -316,6 +316,8 @@ History:
 		var assocColPos = 0;
 		var displayColsArray = ArrayNew(1);
 		var uniqueList = '';
+		var theList = '';
+		var j = 0;
 		
 		if (inputPropStruct.sortByType EQ 'auto')
 		{
@@ -515,7 +517,14 @@ History:
 					if (assocData.RecordCount)
 					{
 						assocColumnList = assocData.columnList;
-						uniqueList = application.adf.data.listRemoveDuplicates( ArrayToList(assocData[assocReqFieldName]) );
+						ids = assocData[assocReqFieldName];
+						
+						// build list of values
+						theList = '';
+						for( j=1; j lte assocData.recordCount; j = j+1 )
+							theList = ListAppend( theList, assocData[assocReqFieldName][j] );
+							
+						uniqueList = application.adf.data.listRemoveDuplicates( theList );
 						statementsArray[1] = ceObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childUniqueField,operator='Value Contained In List',value=uniqueList);
 						childFilterExpression = '1';
 					}
