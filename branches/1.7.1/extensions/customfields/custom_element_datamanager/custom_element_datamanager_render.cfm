@@ -43,6 +43,7 @@ History:
 	2014-03-12 - DJM - Added code for overlay while loading datamanager, updated flyover text for edit and delete icons, 
 						modified code for allowing resize of datamanager after load
 	2014-04-08 - JTP - Added logic for multi-record delete
+	2014-05-29 - DJM - Moved hideOverlay() call out of the if else condition.
 --->
 <cfscript>
 	requiredCSversion = 9;
@@ -442,14 +443,14 @@ History:
 								jQuery("##parentTable_#uniqueTableAppend#").find('.dataTables_scrollBody').css('width', "#widthVal#");
 								jQuery("##parentTable_#uniqueTableAppend#").find('.dataTables_scrollBody.dataTable').css('width', "#widthVal#");
 								jQuery("##parentTable_#uniqueTableAppend#").find('.dataTables_scrollBody').css('width', ResizeWindow());
-								
-								if (displayOverlay == 1)
-									commonspotNonDashboard.util.hideMessageOverlay('datamanager_#uniqueTableAppend#');
 							}
 							else
 							{
 								jQuery("##parentTable_#uniqueTableAppend#").find('.dataTables_scrollBody').css('height', "30px");
 							}
+							
+							if (displayOverlay == 1)
+									commonspotNonDashboard.util.hideMessageOverlay('datamanager_#uniqueTableAppend#');
 						
 							if (res#uniqueTableAppend#.aaData.length > 1)
 							{
