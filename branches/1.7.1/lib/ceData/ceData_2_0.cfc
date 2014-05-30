@@ -36,7 +36,7 @@ History:
 --->
 <cfcomponent displayname="ceData_2_0" extends="ADF.lib.ceData.ceData_1_1" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="2_0_25">
+<cfproperty name="version" value="2_0_26">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="CEData_2_0">
 
@@ -1579,8 +1579,8 @@ History:
 		if ( ListFindNoCase(viewNameTypeOptions,arguments.type,",") EQ 0 )
 			arguments.type = "Default";
 		
-		if ( LEN(arguments.adfVersion) EQ 0 )
-			arguments.adfVersion = defaultADFversion;
+		if ( LEN(arguments.version) EQ 0 )
+			arguments.version = defaultADFversion;
 			
 		switch ( arguments.type )
 		{
@@ -1588,7 +1588,7 @@ History:
 		         retViewName = getCEFormIdViewName(ceName=arguments.ceName);
 		         break;
 		    case "ADFversion":
-		       	 retViewName = getCEViewNameMigrate(ceName=arguments.ceName,adfVersion=arguments.adfVersion);
+		       	 retViewName = getCEViewNameMigrate(ceName=arguments.ceName,adfVersion=arguments.version);
 		         break;
 		    case "Custom":
 		       	 retViewName = getCEViewNameCustom(ceName=arguments.ceName,viewPrefix=arguments.viewPrefix,viewSuffix=arguments.viewSuffix);
