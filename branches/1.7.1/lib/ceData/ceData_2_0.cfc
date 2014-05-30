@@ -36,7 +36,7 @@ History:
 --->
 <cfcomponent displayname="ceData_2_0" extends="ADF.lib.ceData.ceData_1_1" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="2_0_24">
+<cfproperty name="version" value="2_0_25">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="CEData_2_0">
 
@@ -169,12 +169,14 @@ Arguments:
 	String  ceName
 	String  viewName
 	Struct  fieldTypes
+	Struct  options
 History:
 	2013-01-04 - MFC - Sets the view table name to the "getViewTableName" function if no
 						value passed in.  Calls the SUPER function to create the table.
 	2013-01-29 - GAC - Updated the getViewTableName logic so it creates a view table name if a viewName is NOT passed in
 	2013-12-06 - DRM - Accept and pass fieldTypes for the 'new' buildRealTypeView
 	2014-04-04 - DRM - Accept and pass options to the 'new' buildRealTypeView
+	2014-05-30 - GAC - Updated to use the getCEViewName method instead of the DEPRECATED getViewTableName method
 --->
 <cffunction name="buildRealTypeView" access="public" returntype="boolean" hint="Builds an element view for the passed in element name">
 	<cfargument name="elementName" type="string" required="true" hint="element name to build the view table off of">
@@ -184,8 +186,11 @@ History:
 	<cfscript>
 		// Set the view table name from the elementName if a viewName is NOT passed in
 		arguments.viewName = trim(arguments.viewName);
-		if (len(arguments.viewName) eq 0)
-			arguments.viewName = getViewTableName(customElementName=arguments.elementName);
+		if ( len(arguments.viewName) eq 0 )
+		{
+			// ADF 1.6 SQL View Naming using the ce_view_{FormID} convention
+			arguments.viewName = getCEViewName(ceName=arguments.elementName,type="adfversion",version="1.6");
+		}
 		// Call the SUPER function to build the view table
 		return super.buildRealTypeView(argumentCollection=arguments);
 	</cfscript>
@@ -207,6 +212,7 @@ Arguments:
 	String  viewName
 	Struct  fieldTypes
 	Boolean forceRebuild
+	Struct  options
 History: - some carried over from original in ptCalendar app
 	2011-07-11 - GAC - Created
 	2013-12-04 - DRM - Added forceRebuild arg and logic
@@ -214,21 +220,27 @@ History: - some carried over from original in ptCalendar app
 		Accept and pass fieldTypes
 		Default viewName to "", use local default if blank
 		Honor Request.Params.adfRebuildSQLViews as well as arguments.forceRebuild
+	2014-04-04 - DRM - Accept and pass options to the 'new' version of buildRealTypeView ceData_1_1
+	2014-05-30 - GAC - Updated to use the getCEViewName method instead of the DEPRECATED getViewTableName method
 --->
 <cffunction name="buildView" access="public" returntype="boolean" output="false" hint="Rebuilds the requested View.">
 	<cfargument name="ceName" type="string" required="true" hint="Name of custom element to base view off of.">
 	<cfargument name="viewName" type="string" default="" hint="Optional name of view to create. If blank or not passed, defaults to one calc'd from custom element name.">
 	<cfargument name="fieldTypes" type="struct" default="#structNew()#" hint="Optional struct of field type specs; see hint for this arg in buildRealTypeView().">
 	<cfargument name="forceRebuild" type="boolean" default="false" hint="Pass true to rebuild the view always, even if it already exists.">
-	<cfargument name="options" type="struct" default="#structNew()#">
-
+	<cfargument name="options" type="struct" default="#structNew()#" hint="See argument notes for buildRealTypeView method in ceData_1_1.">
+	
 	<cfscript>
 		var buildNow = arguments.forceRebuild or (structKeyExists(Request.Params, "adfRebuildSQLViews") and Request.Params.adfRebuildSQLViews eq 1);
 		
 		arguments.viewName = trim(arguments.viewName);
 		
-		if (arguments.viewName eq "" )
-			arguments.viewName = getViewTableName(customElementName=arguments.ceName); // have to calc default name here, to check if view exists; should use same algorithm as buildRealTypeView
+		if ( LEN(arguments.viewName) EQ 0 )
+		{
+			// if no view name passed in, calc the default name here, to check if view exists; should use same algorithm as buildRealTypeView
+			// - Use ADF 1.6 SQL View Naming convention: ce_view_{FormID} 
+			arguments.viewName = getCEViewName(ceName=arguments.ceName,type="adfversion",version="1.6"); 
+		}
 		
 		buildNow = buildNow or not server.ADF.objectFactory.getBean("data_1_2").verifyTableExists(tableName=arguments.viewName);
 
@@ -241,100 +253,6 @@ History: - some carried over from original in ptCalendar app
 				options=arguments.options
 			);
 		return true;
-	</cfscript>
-</cffunction>
-
-<!---
-/* *************************************************************** */
-Author:
-	PaperThin, Inc.
-	D. Merrill
-Name:
-	getCEViewName
-Summary:
-	Rebuilds a requested  View
-Returns:
-	boolean
-Arguments:
-	String  ceName
-History:
-	2013-12-02 - GAC - Updated to create 30 character or less view names for Oracle
-	2013-12-06 - DRM - Copied from ptCalendar app
-	2014-02-18 - GAC - Updated logic to test for Oracle DB before testing character limit of the view name 
---->
-<cffunction name="getCEViewName" access="public" returntype="string" output="false">
-	<cfargument name="ceName" type="string" required="true">
-	<cfscript>
-		var charLimit = 30; // Oracle VIEW table name character limitation
-		var vNamePrefix = "vCE_";
-		var vNameSuffix = "";
-		var dbType = Request.Site.SiteDBType;
-		var throwError = false;
-		var throwErrorMsg = "";
-		
-		// Convert space in element to underscores
-		arguments.ceName = reReplace(arguments.ceName, "[\s]", "_", "all");
-		
-		if ( dbType EQ "Oracle" ) 
-		{
-			// Set the Oracle character limit by subtracking the VIEW prefix length
-			charLimit = charLimit - LEN(vNamePrefix);
-			
-			// Set the Oracle character limit by subtracking the VIEW suffix length
-			charLimit = charLimit - LEN(vNameSuffix);
-	
-			if ( len(arguments.ceName) gt charLimit )
-			{
-				// Throw error that the ceName to use as a viewName for Oracle
-				throwError = true;
-				throwErrorMsg = "[ceData.getCEViewName] Custom element name is too long to create a view name that's valid on Oracle.";
-				// cfscript 'throw' is not cf8 compatible
-				//throw("[ceData.getCEViewName] Custom element name is too long to create a view name that's valid on Oracle."); // TODO: is this really what we should do here
-				server.ADF.objectFactory.getBean("utils_1_2").logAppend(throwErrorMsg);	
-			}
-		}
-	</cfscript>	
-	<cfif throwError>
-		<cfthrow message="#throwErrorMsg#">
-	</cfif>
-	<cfreturn vNamePrefix & arguments.ceName & vNameSuffix>
-</cffunction>
-
-<!---
-/* *************************************************************** */
-Author: 	
-	PaperThin, Inc.
-Name:
-	$getCEViewTableName
-Summary:
-	Returns a string for the view table name.
-	The table name is prefixed with "ce_view_" and based on the CE form ID.
-	Sample = "ce_view_#CUSTOM-ELEMENT-FORM-ID#"
-	
-	The arguments allow to either pass in the CE Form ID or the CE Form Name.	
-Returns:
-	string
-Arguments:
-	numeric - customElementFormID
-	string - customElementName
-History:
-	2013-01-04 - MFC - Created
---->
-<cffunction name="getViewTableName" access="public" returntype="string" output="true">
-	<cfargument name="customElementFormID" type="numeric" required="false" default="0">
-	<cfargument name="customElementName" type="string" required="false" default="">
-	<cfscript>
-		var ceFormID = 0;
-		// Check the arguments that are passed in
-		if ( arguments.customElementFormID GT 0 )
-			ceFormID = arguments.customElementFormID;
-		else if ( LEN(arguments.customElementName) )
-			ceFormID = getFormIDByCEName(CEName=arguments.customElementName);
-		// Check that we have a form ID before hand
-		if ( ceFormID GT 0 )
-			return "ce_view_#ceFormID#";
-		else 
-			return "";
 	</cfscript>
 </cffunction>
 
@@ -743,10 +661,10 @@ History:
 													    overrideViewTableName=viewTableName);
 						break;	
 					case "searchInList":
-						// To make backwards compatiable, check if the "searchFields" are passed in the "customElementFieldName" arg.
+						// To make backwards compatible, check if the "searchFields" are passed in the "customElementFieldName" arg.
 						if ( LEN(TRIM(arguments.searchFields)) EQ 0 AND LEN(arguments.customElementFieldName) )
 							arguments.searchFields = arguments.customElementFieldName;
-						// To make backwards compatiable, check if the "searchValues" are passed in the "items" arg.
+						// To make backwards compatible, check if the "searchValues" are passed in the "items" arg.
 						if ( LEN(TRIM(arguments.searchValues)) EQ 0 AND LEN(arguments.item) )
 							arguments.searchValues = arguments.item;
 					
@@ -1621,6 +1539,358 @@ History:
 
 <!---
 /* *************************************************************** */
+Author:
+	PaperThin, Inc.
+	G. Cronkright
+Name:
+	getCEViewName
+Summary:
+	Creates the SQL view name for the build view method
+Returns:
+	boolean
+Arguments:
+	String  ceName
+	String  type
+	String  version
+	String  viewPrefix
+	String  viewSuffix
+History:
+	2013-12-02 - GAC - Updated to create 30 character or less view names for Oracle
+	2013-12-06 - DRM - Copied from ptCalendar app
+	2014-02-18 - GAC - Updated logic to test for Oracle DB before testing character limit of the view name 
+	2014-05-21 - GAC - Added parameters to the getCEViewName to handle backwards compatibility for SQL view naming conventions used in older ADF versions.
+					   and to allow for custom naming conventions by passing in custom prefix and/or suffix
+--->
+<cffunction name="getCEViewName" access="public" returntype="string" output="false">
+	<cfargument name="ceName" type="string" required="true">
+	<cfargument name="type" type="string" required="false" default="Default" hint="View Name Type. Options: Default, FormID, ADFversion, Custom">
+	<cfargument name="version" type="string" required="false" default="" hint="Optional: For use with Type=ADFversion. Pass in an ADF version number to set SQL View Naming convention for the specified version. Ignored if Type is not set to ADFversion."> 
+	<cfargument name="viewPrefix" type="string" required="false" default="" hint="Optional: For use with Type=Custom. Custom SQL View Name Prefix. Ignored if Type is not set to custom.">
+	<cfargument name="viewSuffix" type="string" required="false" default="" hint="Optional: For use with Type=Custom. Custom SQL View Name Suffix. Ignored if Type is not set to custom.">
+
+	<cfscript>
+		var retViewName = TRIM(arguments.ceName);
+		var oracleCharLimit = 30; // Oracle VIEW name character limitation
+		var dbType = Request.Site.SiteDBType;
+		var viewNameTypeOptions = "Default,FormID,ADFversion,Custom";
+		var defaultADFversion = application.ADF.version; // Default version of the ADF SQL View Naming convention
+		var throwErrorMsg = "";
+		
+		if ( ListFindNoCase(viewNameTypeOptions,arguments.type,",") EQ 0 )
+			arguments.type = "Default";
+		
+		if ( LEN(arguments.adfVersion) EQ 0 )
+			arguments.adfVersion = defaultADFversion;
+			
+		switch ( arguments.type )
+		{
+			 case "FormID":
+		         retViewName = getCEFormIdViewName(ceName=arguments.ceName);
+		         break;
+		    case "ADFversion":
+		       	 retViewName = getCEViewNameMigrate(ceName=arguments.ceName,adfVersion=arguments.adfVersion);
+		         break;
+		    case "Custom":
+		       	 retViewName = getCEViewNameCustom(ceName=arguments.ceName,viewPrefix=arguments.viewPrefix,viewSuffix=arguments.viewSuffix);
+		         break;
+		    default: 
+		    	 retViewName = getCEViewNameMigrate(ceName=arguments.ceName,adfVersion=defaultADFversion);
+		}
+		
+		// If needed, check for valid oracle character view name length
+		if ( dbType EQ "Oracle" AND LEN(retViewName) GT oracleCharLimit )
+		{
+			// Throw error that the ceName to use as a viewName for Oracle
+			throwErrorMsg = "[ceData.getCEViewName] Custom element name with prefix and suffix has a total of #LEN(retViewName)# characters which is longer than the #oracleCharLimit# character limit for an Oracle view.";
+
+			server.ADF.objectFactory.getBean("utils_1_2").doThrow(message=throwErrorMsg,logerror=true);
+			//server.ADF.objectFactory.getBean("utils_1_2").logAppend(throwErrorMsg);	
+		}
+		
+		return retViewName;
+	</cfscript>	
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$getCEViewNameMigrate
+Summary:
+	Returns a string for the SQL view name based on the version of the ADF that is passed in
+	
+	Default: 1.5 (ADF 1.5 ceData_1_1)
+	Example: "ce_{CustomElementName}View"
+	
+	Option: 1.6  (ADF 1.6 ceData_2_0)
+	Example: "ce_view_{CustomElementFormID}"
+	
+	Option: 1.7 (ADF 1.7 ceData_2_0)
+	Example: "ce_view_{CustomElementFormID}"
+	
+	Option: 1.8 (ADF 1.8)
+	Example: "vCE_{CustomElementFormID}"
+Returns:
+	string
+Arguments:
+	string - ceName
+History:
+	2014-05-21 - GAC - Created
+	2014-05-30 - GAC - Added addtional logic to handle bad versions or and empty version being passed in
+--->
+<cffunction name="getCEViewNameMigrate" access="public" returntype="string" output="true" hint="Returns a string for the SQL view name based on the version of the ADF that is passed in">
+	<cfargument name="ceName" type="string" required="false" default="">
+	<cfargument name="adfVersion" type="string" required="false" default="" hint="Options: 1.5,1.6,1.7,1.8">
+	<cfscript>
+		var retFormID = 0;
+		var retViewName = "";
+		var defaultADFversion = application.ADF.version;
+		
+		arguments.ceName = TRIM(arguments.ceName);
+		arguments.adfVersion = TRIM(arguments.adfVersion);
+		
+		if ( LEN(arguments.adfVersion) EQ 0 OR IsNumeric(ListFirst(arguments.adfVersion,".")) EQ 0 ) 
+			arguments.adfVersion = defaultADFversion;
+		
+		// If the passed in version is less than 1.6  then use the ADF 1.5 SQL View Name convention
+		if ( application.ADF.utils.versionCompare(versionA=arguments.adfVersion,versionB="1.6") LT 0 )
+		{
+			// Generate the view name using the ADF 1.5 SQL View Name convention
+			retViewName = getCEViewNameADF_1_5(ceName=arguments.ceName);
+		}
+		// If the passed in version is less than 1.8  then use the ADF 1.6 SQLView Name convention
+		else if ( application.ADF.utils.versionCompare(versionA=arguments.adfVersion,versionB="1.8") LT 0 )
+		{
+			// Generate the view name using the ADF 1.6 & 1.7 SQL View Name convention
+			retViewName = getCEViewNameADF_1_6(ceName=arguments.ceName);
+		}
+		else
+		{
+			// Generate the view name using the future ADF 1.8 SQL View Name convention "vCE_{CustomElementName}"
+			retViewName = getCEViewNameADF_1_8(ceName=arguments.ceName);
+		}
+
+		return retViewName;
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$getCEViewNameADF_1_5
+Summary:
+	Returns a string for the SQL view name that uses the ADF 1.5 view naming convention
+	
+	Example: "ce_{CustomElementName}View"
+Returns:
+	string
+Arguments:
+	string - ceName
+History:
+	2014-05-21 - GAC - Created
+--->
+<cffunction name="getCEViewNameADF_1_5" access="public" returntype="string" output="true" hint="Returns a string for the SQL view name that uses the ADF 1.5 view naming convention. (Example: ce_{CustomElementName}View)">
+	<cfargument name="ceName" type="string" required="false" default="">
+	<cfscript>
+		var retViewName = "";
+		var vNamePrefix = "ce_";
+		var vNameSuffix = "View";
+
+		arguments.ceName = TRIM(arguments.ceName);
+		
+		// Concatenate the prefix, ce name and the suffix
+		retViewName = vNamePrefix & arguments.ceName & vNameSuffix;
+		// Convert space in element to underscores
+		retViewName = reReplace(TRIM(retViewName), "[\s]", "_", "all");
+		
+		return retViewName;
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$getCEViewNameADF_1_6
+Summary:
+	Returns a string for the SQL view name that uses the ADF 1.6 & 1.7 view naming convention
+	
+	Example: "ce_view_{CustomElementFormID}"
+Returns:
+	string
+Arguments:
+	string - ceName
+History:
+	2014-05-21 - GAC - Created
+--->
+<cffunction name="getCEViewNameADF_1_6" access="public" returntype="string" output="true" hint="Returns a string for the SQL view name that uses the ADF 1.6 view naming convention. (Example: ce_{CustomElementName}View)">
+	<cfargument name="ceName" type="string" required="false" default="">
+	<cfscript>
+		arguments.ceName = TRIM(arguments.ceName);
+		
+		return getCEFormIdViewName(ceName=arguments.ceName);
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$getCEViewNameADF_1_8
+Summary:
+	Returns a string for the SQL view name that uses the ADF 1.8 view naming convention
+	
+	Example: "vCE_{CustomElementName}"
+Returns:
+	string
+Arguments:
+	string - ceName
+History:
+	2014-05-30 - GAC - Created
+--->
+<cffunction name="getCEViewNameADF_1_8" access="public" returntype="string" output="true" hint="Returns a string for the SQL view name that uses the ADF 1.8 view naming convention. (Example: ce_{CustomElementName}View)">
+	<cfargument name="ceName" type="string" required="false" default="">
+	<cfscript>
+		var retViewName = "";
+		var vNamePrefix = "vCE_";
+		
+		arguments.ceName = TRIM(arguments.ceName);
+		
+		// Concatenate the prefix, ce name and the suffix
+		retViewName = vNamePrefix & arguments.ceName;
+		// Convert space in element to underscores
+		retViewName = reReplace(TRIM(retViewName), "[\s]", "_", "all");
+		
+		return retViewName;
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$getCEViewNameCustom
+Summary:
+	Returns a string for the SQL view name that use a user defined prefix and suffix around the Custom Element name
+	
+	Fall back to the ADF 1.8 (future) naming convention if no custom prefix and suffix values are passed in
+	
+	Example: "{viewPrefix}{CustomElementName}(viewSuffix)"
+Returns:
+	string
+Arguments:
+	string - ceName
+History:
+	2014-05-30 - GAC - Created
+--->
+<cffunction name="getCEViewNameCustom" access="public" returntype="string" output="true" hint="Returns a string for the SQL view name that use a user defined prefix and suffix around the Custom Element name">
+	<cfargument name="ceName" type="string" required="false" default="">
+	<cfargument name="viewPrefix" type="string" required="false" default="" hint="Optional: Custom SQL View Name Prefix. Default: vCE_">
+	<cfargument name="viewSuffix" type="string" required="false" default="" hint="Optional: Custom SQL View Name Suffix.">
+	<cfscript>
+		var retViewName = TRIM(arguments.ceName);
+		
+		arguments.viewPrefix = TRIM(arguments.viewPrefix);
+		arguments.viewSuffix = TRIM(arguments.viewSuffix);
+		
+		// If no custom prefix and suffix are passed in then use the 1.8 naming convention
+		if ( LEN(arguments.viewPrefix) EQ 0 AND LEN(arguments.viewSuffix) EQ 0  )
+			retViewName = getCEViewNameADF_1_8(ceName=retViewName);
+		else
+		{
+			// Concatenate the prefix, ce name and the suffix
+			retViewName = TRIM(arguments.viewPrefix) & TRIM(arguments.ceName) & TRIM(arguments.viewSuffix);
+			// Convert space in element to underscores
+			retViewName = reReplace(TRIM(retViewName), "[\s]", "_", "all");
+		}
+		
+		return retViewName;
+	</cfscript>
+</cffunction>
+
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$getCEFormIdViewName
+Summary:
+	By default returns a string for the SQL view name that s prefixed with "ce_view_" and appends the CE Form ID 
+	
+	Example: "ce_view_{CustomElementFormID}"
+	
+	The arguments allow to either pass in the CE Form ID or the CE Form Name.	
+Returns:
+	string
+Arguments:
+	numeric - ceFormID
+	string - ceFormID
+	string - viewPrefix
+	string - viewSuffix
+History:
+	2013-01-04 - MFC - Created
+	2014-05-21 - GAC - Updated to rename method and change parameter names
+					 - Updated to add error logging
+					 - Updated to add new parameters to set the view prefix and suffix
+--->
+<cffunction name="getCEFormIdViewName" access="public" returntype="string" output="true" hint="By default returns a string for the SQL view name that s prefixed with 'ce_view_' and appends the CE Form ID. (Example: ce_view_{CustomElementFormID})">
+	<cfargument name="ceFormID" type="numeric" required="false" default="0" hint="Pass the formID. Not needed if passing the  CE Name.">
+	<cfargument name="ceName" type="string" required="false" default="" hint="Pass the Custom Element Name. Not needed if passing the Form ID.">
+	<cfargument name="viewPrefix" type="string" required="false" default="ce_view_" hint="Default: ce_view_">
+	<cfargument name="viewSuffix" type="string" required="false" default="" hint="Default: {empty string}">
+	<cfscript>
+		var retFormID = 0;
+		var retViewName = "";
+		var vNamePrefix = "ce_view_";
+		var vNameSuffix = "";
+
+		arguments.ceName = TRIM(arguments.ceName);
+		
+		if ( LEN(arguments.viewPrefix) NEQ 0 )
+			vNamePrefix=arguments.viewPrefix;
+		
+		if ( LEN(arguments.viewSuffix) NEQ 0 )
+			vNameSuffix=arguments.viewSuffix;
+
+		// Check the arguments that are passed in
+		if ( arguments.ceFormID GT 0 )
+			retFormID = arguments.ceFormID;
+		else if ( LEN(arguments.ceName) )
+			retFormID = getFormIDByCEName(ceName=arguments.ceName);
+		
+		// Check that we have a form ID before hand
+		if ( IsNumeric(retFormID) AND retFormID GT 0 )
+		{
+			// Concatinate the prefix, formid and the suffix
+			retViewName = TRIM(vNamePrefix & retFormID & vNameSuffix);
+			// Convert space in element to underscores
+			retViewName = reReplace(retViewName, "[\s]", "_", "all");
+			
+			return retViewName;
+		}
+		else 
+		{ 
+			// Error message
+			throwErrorMsg = "[ceData.buildCEFormIdViewName] No form ID was returned for provided custom element. Can not create a valid view name.";
+			// Throw and Log error
+			server.ADF.objectFactory.getBean("utils_1_2").doThrow(message=throwErrorMsg,logerror=true);	
+			//server.ADF.objectFactory.getBean("utils_1_2").logAppend(throwErrorMsg);	
+			
+			// If error is thrown return an empty string
+			return "";
+		}
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
 Author: 	
 	PaperThin, Inc.
 	G. Cronkright
@@ -1651,6 +1921,35 @@ History:
 	<cfargument name="forceRebuild" type="boolean" default="false">
 	<cfscript>
 		return buildView(ceName=arguments.customElementName, viewName=arguments.viewTableName, fieldTypes=arguments.fieldTypes, forceRebuild=arguments.forceRebuild);
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$getCEViewTableName
+Summary:
+	Returns a string for the view table name.
+	The table name is prefixed with "ce_view_" and based on the CE form ID.
+	Sample = "ce_view_#CUSTOM-ELEMENT-FORM-ID#"
+	
+	The arguments allow to either pass in the CE Form ID or the CE Form Name.	
+Returns:
+	string
+Arguments:
+	numeric - customElementFormID
+	string - customElementName
+History:
+	2013-01-04 - MFC - Created
+--->
+<!--- // DEPRECATED - please use getCEFormIdViewName(ceFormID,ceName) --->
+<cffunction name="getViewTableName" access="public" returntype="string" output="true">
+	<cfargument name="customElementFormID" type="numeric" required="false" default="0">
+	<cfargument name="customElementName" type="string" required="false" default="">
+	<cfscript>
+		return getCEFormIdViewName(ceFormID=arguments.customElementFormID,ceName=arguments.customElementName);
 	</cfscript>
 </cffunction>
 
