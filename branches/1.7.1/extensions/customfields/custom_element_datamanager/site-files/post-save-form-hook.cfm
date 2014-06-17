@@ -27,7 +27,7 @@ Summary:
 	Runs code after a custom element from is saved
 History:
 	2013-11-14 - DJM - Created
-	2013-11-15 - GAC - Converted to an ADF custom field type
+	2013-11-15 - GAC - Added cfinclude for the ADF Custom Element DataManager custom field type
 --->
 
 <!--- // Custom Element DataManager POST SAVE HOOK --->
