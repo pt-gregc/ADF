@@ -1061,7 +1061,7 @@ History:
 		var dataFieldID = 0;
 		var getPageIDs = '';
 		var getRecsToChg = QueryNew('DataPageID,Pos');
-/*		
+		
 		var dbType = Request.Site.SiteDBType;
 		var intType = '';
 		switch (dbtype)
@@ -1076,7 +1076,7 @@ History:
 				intType = 'int';
 				break;
 		}
-*/		
+
 		if (IsNumeric(inputPropStruct.assocCustomElement))
 		{
 			dataFormID = inputPropStruct.assocCustomElement;
@@ -1123,11 +1123,12 @@ History:
 					AND FieldID = <cfqueryparam value="#inputPropStruct.positionField#" cfsqltype="cf_sql_integer">
 					AND <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="PageID" LIST="#ValueList(getPageIDs.PageID)#">
 					AND VersionState = <cfqueryparam value="#request.constants.stateCURRENT#" cfsqltype="cf_sql_integer">
-					AND FieldValue >= <cfqueryparam value="#NumberFormat(arguments.minPos,'000000009')#" cfsqltype="CF_SQL_VARCHAR">
-					AND FieldValue <= <cfqueryparam value="#NumberFormat(arguments.maxPos,'000000009')#" cfsqltype="CF_SQL_VARCHAR">
+					AND CAST(FieldValue AS #intType#) >= <cfqueryparam value="#arguments.minPos#" cfsqltype="CF_SQL_INTEGER">
+					AND CAST(FieldValue AS #intType#) <= <cfqueryparam value="#arguments.maxPos#" cfsqltype="CF_SQL_INTEGER">
 					AND PageID > 0
 			 ORDER BY Pos
 			</cfquery>
+
 		</cfif>
 	<cfcatch>
 		<CFMODULE TEMPLATE="/commonspot/utilities/log-append.cfm" comment="getRangeRecords: Error while trying to retrieve the fields: #cfcatch.message# :: #cfcatch.detail#">
