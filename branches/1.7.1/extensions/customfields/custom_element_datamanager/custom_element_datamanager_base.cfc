@@ -41,6 +41,7 @@ History:
 	2014-03-05 - JTP - Var declarations
 	2014-03-12 - DJM - Updated code displaying the flyover text for edit and delete icons
 	2014-04-08 - JTP - Added multi-record delete
+	2014-07-01 - DJM - Added code to support metadata forms
 --->
 <cfcomponent output="false" displayname="custom element datamanager_base" extends="ADF.core.Base" hint="This the base component for the Custom Element Data Manager field">
 	
@@ -78,6 +79,8 @@ History:
 	<cfargument name="currentValues" type="struct" required="true" hint="Current values structure for the field">
 	<cfargument name="formID" type="numeric" required="true" hint="ID of the form or control type">
 	<cfargument name="fieldID" type="numeric" required="true" hint="ID of the field">
+	<cfargument name="formType" type="string" required="false" default="CustomElement" hint="Type of the form">
+	<cfargument name="pageID" type="numeric" required="false" default="0" hint="Page id of the current page; used only when datamanager is used in a metadata form">
 
 	<cfscript>
 		var renderData = '';
@@ -118,19 +121,28 @@ History:
 	<cfargument name="currentValues" type="struct" required="true" hint="Current values structure for the field">
 	<cfargument name="formID" type="numeric" required="true" hint="ID of the form or control type">
 	<cfargument name="fieldID" type="numeric" required="true" hint="ID of the field">
+	<cfargument name="formType" type="string" required="false" default="CustomElement" hint="Type of the form">
+	<cfargument name="pageID" type="numeric" required="false" default="0" hint="Page id of the current page; used only when datamanager is used in a metadata form">
 
 	<cfscript>
 		var renderData = '';
 		var inputPropStruct = arguments.propertiesStruct;
 		var curValuesStruct = arguments.currentValues;
-		var linkedIDSelectedName = 'fic_#arguments.formID#_#inputPropStruct.parentUniqueField#';
 		var assocParameters  = 'csAssoc_assocCE=#propertiesStruct.assocCustomElement#&csAssoc_ParentInstanceIDField=#propertiesStruct.parentInstanceIDField#&csAssoc_ChildInstanceIDField=#propertiesStruct.childInstanceIDField#&csAssoc_ChildUniqueField=#propertiesStruct.childUniqueField#';
-		assocParameters = ListAppend(assocParameters, 'csAssoc_ParentInstanceID=#curValuesStruct[linkedIDSelectedName]#', '&');
+		var parentInstanceIDVal = 0;
+		
+		if (arguments.formType EQ 'MetadataForm' AND inputPropStruct.parentUniqueField EQ '{{pageid}}')	
+			parentInstanceIDVal = arguments.pageID;
+		else
+			parentInstanceIDVal = curValuesStruct['fic_#arguments.formID#_#inputPropStruct.parentUniqueField#'];
+		
+		
+		assocParameters = ListAppend(assocParameters, 'csAssoc_ParentInstanceID=#parentInstanceIDVal#', '&');
 		assocParameters = ListAppend(assocParameters, 'csAssoc_ChildInstanceID=', '&');
 	</cfscript>
 		
 	<cfsavecontent variable="renderData">
-		<cfoutput>#Server.CommonSpot.UDF.tag.input(type="button", class="clsPushButton", name="addNew", id="addNew", value=getAddNewButtonName(propertiesStruct=arguments.propertiesStruct), onclick="javascript:top.commonspot.lightbox.openDialog('#Request.SubSite.DlgLoader#?csModule=controls/custom/submit-data&controlTypeID=#propertiesStruct.childCustomElement#&formID=#propertiesStruct.childCustomElement#&newData=1&dataPageID=0&dataControlID=0&linkageFieldID=#propertiesStruct.childLinkedField#&linkedFieldValue=#curValuesStruct[linkedIDSelectedName]#&openFrom=datamanager&callbackFunction=loadData_#arguments.fieldID#&#assocParameters#')")#</cfoutput>
+		<cfoutput>#Server.CommonSpot.UDF.tag.input(type="button", class="clsPushButton", name="addNew", id="addNew", value=getAddNewButtonName(propertiesStruct=arguments.propertiesStruct), onclick="javascript:top.commonspot.lightbox.openDialog('#Request.SubSite.DlgLoader#?csModule=controls/custom/submit-data&controlTypeID=#propertiesStruct.childCustomElement#&formID=#propertiesStruct.childCustomElement#&newData=1&dataPageID=0&dataControlID=0&linkageFieldID=#propertiesStruct.childLinkedField#&linkedFieldValue=#parentInstanceIDVal#&openFrom=datamanager&callbackFunction=loadData_#arguments.fieldID#&#assocParameters#')")#</cfoutput>
 	</cfsavecontent>
 	<cfoutput>#renderData#</cfoutput>
 </cffunction>
@@ -164,16 +176,23 @@ History:
 	<cfargument name="currentValues" type="struct" required="true" hint="Current values structure for the field">
 	<cfargument name="formID" type="numeric" required="true" hint="ID of the form or control type">
 	<cfargument name="fieldID" type="numeric" required="true" hint="ID of the field">
+	<cfargument name="formType" type="string" required="false" default="CustomElement" hint="Type of the form">
+	<cfargument name="pageID" type="numeric" required="false" default="0" hint="Page id of the current page; used only when datamanager is used in a metadata form">
 
 	<cfscript>
 		var renderData = '';
 		var inputPropStruct = arguments.propertiesStruct;
 		var curValuesStruct = arguments.currentValues;
-		var linkedIDSelectedName = 'fic_#arguments.formID#_#inputPropStruct.parentUniqueField#';
+		var parentInstanceIDVal = 0;
+		
+		if (arguments.formType EQ 'MetadataForm' AND inputPropStruct.parentUniqueField EQ '{{pageid}}')	
+			parentInstanceIDVal = arguments.pageID;
+		else
+			parentInstanceIDVal = curValuesStruct['fic_#arguments.formID#_#inputPropStruct.parentUniqueField#'];
 	</cfscript>
 		
 	<cfsavecontent variable="renderData">
-		<cfoutput>#Server.CommonSpot.UDF.tag.input(type="button", class="clsPushButton", name="addExisting", id="addExisting", value=getAddExistingButtonName(propertiesStruct=arguments.propertiesStruct), onclick="javascript:top.commonspot.lightbox.openDialog('#Request.SubSite.DlgLoader#?csModule=controls/custom/submit-data&controlTypeID=#inputPropStruct.assocCustomElement#&formID=#inputPropStruct.assocCustomElement#&newData=1&dataPageID=0&dataControlID=0&linkageFieldID=#inputPropStruct.parentInstanceIDField#&linkedFieldValue=#curValuesStruct[linkedIDSelectedName]#&openFrom=datamanager&callbackFunction=loadData_#arguments.fieldID#')")#</cfoutput>
+		<cfoutput>#Server.CommonSpot.UDF.tag.input(type="button", class="clsPushButton", name="addExisting", id="addExisting", value=getAddExistingButtonName(propertiesStruct=arguments.propertiesStruct), onclick="javascript:top.commonspot.lightbox.openDialog('#Request.SubSite.DlgLoader#?csModule=controls/custom/submit-data&controlTypeID=#inputPropStruct.assocCustomElement#&formID=#inputPropStruct.assocCustomElement#&newData=1&dataPageID=0&dataControlID=0&linkageFieldID=#inputPropStruct.parentInstanceIDField#&linkedFieldValue=#parentInstanceIDVal#&openFrom=datamanager&callbackFunction=loadData_#arguments.fieldID#')")#</cfoutput>
 	</cfsavecontent>
 	<cfoutput>#renderData#</cfoutput>
 </cffunction>
@@ -187,6 +206,8 @@ History:
 	<cfargument name="currentValues" type="struct" required="true" hint="Current values structure for the field">
 	<cfargument name="formID" type="numeric" required="true" hint="ID of the form or control type">
 	<cfargument name="fieldID" type="numeric" required="true" hint="ID of the field">
+	<cfargument name="formType" type="string" required="false" default="CustomElement" hint="Type of the form">
+	<cfargument name="pageID" type="numeric" required="false" default="0" hint="Page id of the current page; used only when datamanager is used in a metadata form">
 
 	<cfscript>
 		var renderData = '';
@@ -261,14 +282,16 @@ History:
 	<cfargument name="formID" type="numeric" required="true" hint="ID of the form or control type">
 	<cfargument name="propertiesStruct" type="struct" required="true" hint="Properties structure for the field">
 	<cfargument name="currentValues" type="struct" required="true" hint="Current values structure for the field">
-   
+	<cfargument name="formType" type="string" required="false" default="CustomElement" hint="Type of the form">
+	<cfargument name="pageID" type="string" required="false" default="0" hint="Page id of the current page; used only when datamanager is used in a metadata form">
+	
 	<cfscript>
 		var inputPropStruct = arguments.propertiesStruct;
 		var curValuesStruct = arguments.currentValues;
-		var linkedIDSelectedName = 'fic_#arguments.formID#_#inputPropStruct.parentUniqueField#';
 		var defaultSortColumn = '';
 		var defaultSortOrder = '';
-		var resultData = QueryNew('');		
+		var resultData = QueryNew('');	
+		var parentObj = Server.CommonSpot.ObjectFactory.getObject(arguments.formType);	
 		var ceObj = Server.CommonSpot.ObjectFactory.getObject("CustomElement");
 		var colList = inputPropStruct.displayFields;
 		var colArray = ArrayNew(1);
@@ -293,7 +316,7 @@ History:
 		var getParentLinkedField =  QueryNew('');
 		var parentStatementsArray = ArrayNew(1);
 		var parentFilterArray = ArrayNew(1);
-		var parentData = QueryNew('');
+		var parentData = StructNew();
 		var statementsArray = ArrayNew(1);
 		var childFilterExpression = '';
 		var assocFieldDetail = QueryNew('');
@@ -318,7 +341,28 @@ History:
 		var uniqueList = '';
 		var theList = '';
 		var j = 0;
+		var parentInstanceIDVal = 0;
+		var compareValueWithChild = '';
 		
+		if (arguments.formType EQ 'MetadataForm' AND inputPropStruct.parentUniqueField EQ '{{pageid}}')	
+		{
+			parentInstanceIDVal = arguments.pageID;
+		}
+		else
+		{
+			parentInstanceIDVal = curValuesStruct['fic_#arguments.formID#_#inputPropStruct.parentUniqueField#'];
+		}
+		
+		if(IsNumeric(inputPropStruct.assocCustomElement))
+			linkedFldDetails = ceObj.getFields(elementID=inputPropStruct.assocCustomElement,fieldID=inputPropStruct.childInstanceIDField);
+		else
+			linkedFldDetails = ceObj.getFields(elementID=inputPropStruct.childCustomElement,fieldID=inputPropStruct.childLinkedField);
+			
+		if (linkedFldDetails.type NEQ 'img')
+			compareValueWithChild = getLinkedFieldValue(fieldType=linkedFldDetails.type,fieldValue=parentInstanceIDVal);
+		else
+			compareValueWithChild = parentInstanceIDVal;
+			
 		if (inputPropStruct.sortByType EQ 'auto')
 		{
 			defaultSortColumn = inputPropStruct.sortByField;
@@ -341,10 +385,10 @@ History:
 			
 		colArray = ListToArray(colList);
 	</cfscript>
-		
+	
 	<cftry>
 		<cfset childFormFields = ceObj.getFields(elementid=inputPropStruct.childCustomElement)>
-			
+		
 		<!--- List of available columns --->
 		<cfloop query="childFormFields">
 			<cfscript>
@@ -464,24 +508,33 @@ History:
 			}
 				
 			returnData = QueryNew('AssocDataPageID,ChildDataPageID,#displayColNames#');
-				
-			getParentLinkedField = ceObj.getFields(elementID=arguments.formID,fieldID=inputPropStruct.parentUniqueField);
-				
-			if (getParentLinkedField.RecordCount)
+			
+			if (arguments.formType EQ 'CustomElement')	
 			{
-				parentStatementsArray[1] = ceObj.createStandardFilterStatement(customElementID=arguments.formID,fieldIDorName=getParentLinkedField.ID,operator='Equals',value=curValuesStruct[linkedIDSelectedName]);
-				
-				parentFilterArray = ceObj.createQueryEngineFilter(filterStatementArray=parentStatementsArray,filterExpression='1');
-				
-				parentData = ceObj.getRecordsFromSavedFilter(elementID=arguments.formID,queryEngineFilter=parentFilterArray,columnList=getParentLinkedField.Name,orderBy=ReplaceNoCase(getParentLinkedField.Name,'FIC_',''),orderByDirection="ASC", Limit=0);
+				getParentLinkedField = parentObj.getFields(elementID=arguments.formID,fieldID=inputPropStruct.parentUniqueField);
+			
+				if (getParentLinkedField.RecordCount)
+				{
+					parentStatementsArray[1] = ceObj.createStandardFilterStatement(customElementID=arguments.formID,fieldIDorName=getParentLinkedField.ID,operator='Equals',value=compareValueWithChild);
+					
+					parentFilterArray = ceObj.createQueryEngineFilter(filterStatementArray=parentStatementsArray,filterExpression='1');
+					
+					if(linkedFldDetails.type EQ 'img')
+					{
+						compareValueWithChild = getLinkedFieldValue(fieldType=linkedFldDetails.type,fieldValue=parentInstanceIDVal);
+						parentFilterArray[1] = ReplaceNoCase(parentFilterArray[1], '| | #parentInstanceIDVal#|', '| | #compareValueWithChild#|');
+					}
+					
+					parentData = ceObj.getRecordsFromSavedFilter(elementID=arguments.formID,queryEngineFilter=parentFilterArray,columnList=getParentLinkedField.Name,orderBy=ReplaceNoCase(getParentLinkedField.Name,'FIC_',''),orderByDirection="ASC", Limit=0);
+				}
 			}
 		</cfscript>
-
-		<cfif parentData.resultQuery.RecordCount>
+		
+		<cfif (NOT StructIsEmpty(parentData) AND StructKeyExists(parentData, 'resultQuery') AND parentData.resultQuery.RecordCount) OR arguments.formType EQ 'MetadataForm'>
 			<cfscript>
 				if(NOT IsNumeric(inputPropStruct.assocCustomElement))
 				{
-					statementsArray[1] = ceObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childLinkedField,operator='Equals',value=curValuesStruct[linkedIDSelectedName]);
+					statementsArray[1] = ceObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childLinkedField,operator='Equals',value=compareValueWithChild);
 					if(Len(inputPropStruct.inactiveField) AND Len(inputPropStruct.inactiveFieldValue))
 					{
 						statementsArray[2] = ceObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.inactiveField,operator='Not Equal',value=inputPropStruct.inactiveFieldValue);
@@ -496,7 +549,7 @@ History:
 					assocReqFieldName = assocFieldDetail.Name;
 					if (FindNoCase("FIC_", assocReqFieldName) eq 1)
 						assocReqFieldName = Mid(assocReqFieldName, 5, 999);
-					assocStatementsArray[1] = ceObj.createStandardFilterStatement(customElementID=inputPropStruct.assocCustomElement,fieldIDorName=inputPropStruct.parentInstanceIDField,operator='Equals',value=curValuesStruct[linkedIDSelectedName]);
+					assocStatementsArray[1] = ceObj.createStandardFilterStatement(customElementID=inputPropStruct.assocCustomElement,fieldIDorName=inputPropStruct.parentInstanceIDField,operator='Equals',value=compareValueWithChild);
 					if(Len(inputPropStruct.inactiveField) AND Len(inputPropStruct.inactiveFieldValue))
 					{
 						assocStatementsArray[2] = ceObj.createStandardFilterStatement(customElementID=inputPropStruct.assocCustomElement,fieldIDorName=inputPropStruct.inactiveField,operator='Not Equal',value=inputPropStruct.inactiveFieldValue);
@@ -505,7 +558,12 @@ History:
 					else
 						assocFilterExpression = '1';
 					assocFilterArray = ceObj.createQueryEngineFilter(filterStatementArray=assocStatementsArray,filterExpression=assocFilterExpression);
-						
+					
+					if(linkedFldDetails.type EQ 'img')
+					{
+						compareValueWithChild = getLinkedFieldValue(fieldType=linkedFldDetails.type,fieldValue=parentInstanceIDVal);
+						assocFilterArray[1] = ReplaceNoCase(assocFilterArray[1], '| | #parentInstanceIDVal#|', '| | #compareValueWithChild#|');
+					}	
 					if (Len(assocColNameList))
 						assocColumnList = '#assocReqFieldName#,#assocColNameList#';
 					else
@@ -530,12 +588,18 @@ History:
 					}
 				}
 				childFilterArray = ceObj.createQueryEngineFilter(filterStatementArray=statementsArray,filterExpression=childFilterExpression);
+				if(NOT IsNumeric(inputPropStruct.assocCustomElement) AND linkedFldDetails.type EQ 'img')
+				{
+					compareValueWithChild = getLinkedFieldValue(fieldType=linkedFldDetails.type,fieldValue=parentInstanceIDVal);
+					childFilterArray[1] = ReplaceNoCase(childFilterArray[1], '| | #parentInstanceIDVal#|', '| | #compareValueWithChild#|');
+				}				
+				
 				childColumnList = '#childColNameList#,#valueFieldName#';
 				data = ceObj.getRecordsFromSavedFilter(elementID=inputPropStruct.childCustomElement,queryEngineFilter=childFilterArray,columnList=childColumnList, limit=0);					
 				filteredData = data.resultQuery;
 				displayColsArray = ListToArray(displayColNames);
 			</cfscript>
-				
+			
 			<cfquery name="returnData" dbtype="query">
 				SELECT 
 				<cfif IsNumeric(inputPropStruct.assocCustomElement)>
@@ -1050,13 +1114,14 @@ History:
 	--->
 	<cfargument name="minPos" type="string" required="true" hint="The minimum position value to change">
 	<cfargument name="maxPos" type="string" required="true" hint="The maximum position value to change">
-	
+	<cfargument name="formType" type="string" required="false" default="CustomElement" hint="Type of the form">
+	<cfargument name="pageID" type="numeric" required="false" default="0" hint="Page id of the current page; used only when datamanager is used in a metadata form">
+
 	<cfscript>
 		var reqFormFields = "";
 		var ceObj = Server.CommonSpot.ObjectFactory.getObject("CustomElement");
 		var inputPropStruct = arguments.propertiesStruct;
 		var curValuesStruct = arguments.currentValues;
-		var linkedIDSelectedName = 'fic_#arguments.formID#_#inputPropStruct.parentUniqueField#';
 		var dataFormID = 0;
 		var dataFieldID = 0;
 		var getPageIDs = '';
@@ -1064,6 +1129,13 @@ History:
 		
 		var dbType = Request.Site.SiteDBType;
 		var intType = '';
+		var parentInstanceIDVal = 0;
+		
+		if (arguments.formType EQ 'MetadataForm' AND inputPropStruct.parentUniqueField EQ '{{pageid}}')	
+			parentInstanceIDVal = arguments.pageID;
+		else
+			parentInstanceIDVal = curValuesStruct['fic_#arguments.formID#_#inputPropStruct.parentUniqueField#'];
+		
 		switch (dbtype)
 		{
 			case 'Oracle':
@@ -1096,7 +1168,7 @@ History:
 			  FROM Data_FieldValue
 			 WHERE FormID = <cfqueryparam value="#dataFormID#" cfsqltype="cf_sql_integer">
 				AND FieldID = <cfqueryparam value="#dataFieldID#" cfsqltype="cf_sql_integer">
-				AND FieldValue = <cfqueryparam value="#curValuesStruct[linkedIDSelectedName]#" cfsqltype="cf_sql_varchar">
+				AND FieldValue = <cfqueryparam value="#parentInstanceIDVal#" cfsqltype="cf_sql_varchar">
 				AND VersionState = <cfqueryparam value="#request.constants.stateCURRENT#" cfsqltype="cf_sql_integer">
 				AND PageID > 0
 		</cfquery>
@@ -1378,6 +1450,8 @@ History:
 	<cfargument name="propertiesStruct" type="any" required="true" hint="Properties structure for the field in json format"> <!--- // TODO: Update to type="struct" --->
 	<cfargument name="currentValues" type="any" required="true" hint="Current values structure for the field in json format"> <!--- // TODO: Update to type="struct" --->
 	<cfargument name="fieldID" type="numeric" required="true" hint="ID of the field">
+	<cfargument name="formType" type="string" required="false" default="CustomElement" hint="Type of the form">
+	<cfargument name="pageID" type="string" required="false" default="0" hint="Page id of the current page; used only when datamanager is used in a metadata form">
 
 	<cfscript>
 		var inputPropStruct = StructNew();
@@ -1406,7 +1480,8 @@ History:
 			}
 		
 			
-			dataRecords = queryData(formID=arguments.formID,propertiesStruct=inputPropStruct,currentValues=curValuesStruct);
+			dataRecords = queryData(formID=arguments.formID,propertiesStruct=inputPropStruct,currentValues=curValuesStruct,
+										formType=arguments.formType,pageID=arguments.pageID);
 			
 			if (NOT StructKeyExists(dataRecords, 'errorMsg'))
 				displayData = getDisplayData(fieldID=arguments.fieldID, 
@@ -1444,8 +1519,10 @@ History:
 	<cfargument name="formID" type="numeric" required="true" hint="ID of the form or control type">
 	<cfargument name="propertiesStruct" type="any" required="true" hint="Properties structure for the field in json format"><!--- // Set to type="any" to handle either a json string or struture object --->
 	<cfargument name="currentValues" type="any" required="true" hint="Current values structure for the field in json format"><!--- // Set to type="any" to handle either a json string or struture object --->
-   <cfargument name="movedDataPageID" type="numeric" required="true" hint="The unique data pageid for the record from start pos">
+	<cfargument name="movedDataPageID" type="numeric" required="true" hint="The unique data pageid for the record from start pos">
 	<cfargument name="dropAfterDataPageID" type="numeric" required="true" hint="The unique data pageid for the record from end pos">
+	<cfargument name="formType" type="string" required="false" default="CustomElement" hint="Type of the form">
+	<cfargument name="pageID" type="numeric" required="false" default="0" hint="Page id of the current page; used only when datamanager is used in a metadata form">
 
    <cfscript>
 		var orderOp = '';
@@ -1502,7 +1579,9 @@ History:
 														currentValues=curValuesStruct, 
 														propertiesStruct=inputPropStruct, 
 														minPos=posStruct.minPos, 
-														maxPos=posStruct.maxPos );
+														maxPos=posStruct.maxPos,
+														formType=arguments.formType,
+														pageID=arguments.pageID );
 		</cfscript>
 			
 		<cfif rangeRecords.RecordCount AND NOT ListFindNoCase(rangeRecords.ColumnList, "ErrorMsg" )>
@@ -2058,7 +2137,46 @@ History:
 	</cfscript>
 </cffunction>
 
+
+<!------------------------------------------------------
+	getLinkedFieldValue()
+-------------------------------------------------------->
+<cffunction name="getLinkedFieldValue" returntype="string" access="private" hint="Get the linked field value depending on the field type">
+	<cfargument name="fieldType" type="string" required="true" hint="Type of the field">
+	<cfargument name="fieldValue" type="string" required="true" hint="Value of the field to compare">
+
+	<cfscript>
+		var dsn = Request.Site.Datasource;
+		var returnString = arguments.fieldValue;
+	</cfscript>
 	
+	<cfif arguments.fieldType EQ 'csextendedurl'>
+		<cfquery name="getPageInfo" DATASOURCE="#dsn#">
+			SELECT FileName, SubsiteID
+			  FROM SitePages
+			 WHERE ID = <cfqueryparam value="#arguments.fieldValue#" cfsqltype="CF_SQL_INTEGER">
+		</cfquery>
+		
+		<cfscript>
+			if (getPageInfo.RecordCount)
+				returnString = 'CP___PAGEID=#arguments.fieldValue#,#getPageInfo.FileName#,#getPageInfo.SubsiteID#';
+		</cfscript>
+	<cfelseif arguments.fieldType EQ 'img'>
+		<cfquery name="getPageInfo" DATASOURCE="#dsn#">
+			SELECT Description
+			  FROM SitePages
+			 WHERE ID = <cfqueryparam value="#arguments.fieldValue#" cfsqltype="CF_SQL_INTEGER">
+		</cfquery>
+		
+		<cfscript>
+			if (getPageInfo.RecordCount)
+				returnString = 'CPIMAGE:#arguments.fieldValue#|#getPageInfo.Description#';
+		</cfscript>
+	</cfif>
+	
+	<cfreturn returnString>
+</cffunction>
+
 </cfcomponent>
 
 

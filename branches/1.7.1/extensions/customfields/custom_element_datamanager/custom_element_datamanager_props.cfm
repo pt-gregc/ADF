@@ -40,6 +40,7 @@ History:
 	2014-01-28 - GAC - Converted to use AjaxProxy.cfm instead of calling the base.cfc directly
 	2014-02-24 - DJM - Fix for the problem of fields not loading up in available fields grid occasionally on change of association CE.
 	2014-03-17 - GAC - Added dbType="QofQ" to the handle-in-list call inside the selectedTypeFields query or queries
+	2014-07-01 - DJM - Added code to support metadata forms
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
@@ -59,7 +60,8 @@ History:
 			<tr><td class="cs_dlgLabelError">This Custom Field Type requires CommonSpot #requiredCSversion# or above.</td></tr>
 		</table>
 	</CFOUTPUT>
-<cfelse>	
+<cfelse>
+	
 <cfscript>
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
@@ -114,12 +116,50 @@ History:
 		currentValues.parentInstanceIDField = "";
 	if( not structKeyExists(currentValues, "childInstanceIDField") )
 		currentValues.childInstanceIDField = "";
-		
+	
+	elementType = '';
+	formLabel = '';
+	fieldsMethod = "getFields";
+	fieldsArgs = StructNew();
+	infoMethod = "getInfo";
+	infoArgs = StructNew();
+	isDataManagerEnabled = 1;
+
+	switch (dlgtype)
+	{
+		case 'customelement':
+			elementType = 'CustomElement';
+			infoArgs.elementID = formID;
+			fieldsArgs.elementID = formID;
+			break;
+		case 'metadata':
+			elementType = 'MetadataForm';
+			infoMethod = "getForms";
+			infoArgs.id = formID;
+			fieldsArgs.formID = formID;
+			break;
+		case 'simpleform':
+			isDataManagerEnabled = 0;
+	}
+</cfscript>
+
+<cfif isDataManagerEnabled>
+<cfscript>
+	formObj = Server.CommonSpot.ObjectFactory.getObject(elementType);
+</cfscript>
+<cfinvoke component="#formObj#" method="#infoMethod#" argumentCollection="#infoArgs#" returnvariable="parentFormDetails">
+
+<cfinvoke component="#formObj#" method="#fieldsMethod#" argumentCollection="#fieldsArgs#" returnvariable="selectedTypeFields">
+
+<cfscript>
 	customElementObj = Server.CommonSpot.ObjectFactory.getObject('CustomElement');
 	allCustomElements = customElementObj.getList(type="All", state="Active");
-	parentCustomElementDetails = customElementObj.getInfo(elementID=formID);
-	selectedTypeFields = customElementObj.getFields(elementID=formID);
 	errorMsgCustom = 'Some error occurred while trying to perform the operation.';	
+	
+	if (elementType EQ 'MetadataForm')
+		formLabel = parentFormDetails.formName;
+	else
+		formLabel = parentFormDetails.Name;
 </cfscript>
 
 <cfquery name="globalCustomElements" dbtype="query">
@@ -172,11 +212,13 @@ History:
 			showMsg('Please select a custom element.');
 			return false;
 		}
+	<cfif dlgtype NEQ 'metadata'>
 		if ( document.#formname#.#prefix#parentUniqueField.selectedIndex <= 0 )
 		{
 			showMsg('Please select a unique field for the parent custom element.');
 			return false;
 		}
+	</cfif>
 		if ( document.#formname#.#prefix#childUniqueField.selectedIndex <= 0 )
 		{
 			showMsg('Please select a unique field for the child custom element.');
@@ -1258,17 +1300,22 @@ History:
 			</td>
 		</tr>
 		<tr>
-			<td colspan="2" valign="baseline" class="cs_dlgLabel" nowrap="nowrap"><strong>#parentCustomElementDetails.Name#<br/><hr/></strong></td>
+			<td colspan="2" valign="baseline" class="cs_dlgLabel" nowrap="nowrap"><strong>#formLabel#<br/><hr/></strong></td>
 		</tr>
 		<tr>
 			<th valign="baseline" class="cs_dlgLabelBold" nowrap="nowrap">Unique Field:</th>
 			<td valign="baseline">
+				<cfif dlgtype NEQ 'metadata'>
 				<select name="#prefix#parentUniqueField" id="#prefix#parentUniqueField">
 					<option value=""> - Select - </option>
 					<cfloop query="selectedTypeFields">
 						<option value="#selectedTypeFields.ID#" <cfif currentValues.parentUniqueField EQ selectedTypeFields.ID>selected</cfif>>#selectedTypeFields.Name#</option>
 					</cfloop>
 				</select>
+				<cfelse>
+					<span class="cs_dlgLabel">CommonSpot ID</span>
+					#Server.CommonSpot.UDF.tag.input(type="hidden", name="#prefix#parentUniqueField", value="{{pageid}}")#
+				</cfif>
 			</td>
 		</tr>
 		<tr>
@@ -1297,7 +1344,7 @@ History:
 			<td colspan="2" valign="baseline" class="cs_dlgLabelSmall" nowrap="nowrap">Please choose what fields store the following data in the association custom element</td>
 		</tr>
 		<tr>
-			<th valign="baseline" class="cs_dlgLabelBold" nowrap="nowrap">#parentCustomElementDetails.Name# InstanceID Field:</th>
+			<th valign="baseline" class="cs_dlgLabelBold" nowrap="nowrap">#formLabel# InstanceID Field:</th>
 			<td valign="baseline">
 				<select name="#prefix#parentInstanceIDField" id="#prefix#parentInstanceIDField">
 				</select>
@@ -1330,4 +1377,7 @@ History:
 #Server.CommonSpot.UDF.tag.input(type="hidden", name="#prefix#childCustomElement", value=currentValues.childCustomElement)#
 #Server.CommonSpot.UDF.tag.input(type="hidden", name="#prefix#interfaceOptions", value=currentValues.interfaceOptions)#
 </cfoutput>
+<cfelse>
+	<cfoutput><tr><td colspan="2"><span id="errorMsgSpan" class="cs_dlgError">This field type could be configured for custom elements and metadata forms only.</span></td></tr></cfoutput>
+</cfif>
 </cfif>
