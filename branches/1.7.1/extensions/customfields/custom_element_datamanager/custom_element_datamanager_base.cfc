@@ -42,6 +42,7 @@ History:
 	2014-03-12 - DJM - Updated code displaying the flyover text for edit and delete icons
 	2014-04-08 - JTP - Added multi-record delete
 	2014-07-01 - DJM - Added code to support metadata forms
+	2014-07-08 - DJM - For associated element, code was check for wrong linked field
 --->
 <cfcomponent output="false" displayname="custom element datamanager_base" extends="ADF.core.Base" hint="This the base component for the Custom Element Data Manager field">
 	
@@ -354,7 +355,7 @@ History:
 		}
 		
 		if(IsNumeric(inputPropStruct.assocCustomElement))
-			linkedFldDetails = ceObj.getFields(elementID=inputPropStruct.assocCustomElement,fieldID=inputPropStruct.childInstanceIDField);
+			linkedFldDetails = ceObj.getFields(elementID=inputPropStruct.assocCustomElement,fieldID=inputPropStruct.parentInstanceIDField);
 		else
 			linkedFldDetails = ceObj.getFields(elementID=inputPropStruct.childCustomElement,fieldID=inputPropStruct.childLinkedField);
 			
@@ -515,15 +516,9 @@ History:
 			
 				if (getParentLinkedField.RecordCount)
 				{
-					parentStatementsArray[1] = ceObj.createStandardFilterStatement(customElementID=arguments.formID,fieldIDorName=getParentLinkedField.ID,operator='Equals',value=compareValueWithChild);
+					parentStatementsArray[1] = ceObj.createStandardFilterStatement(customElementID=arguments.formID,fieldIDorName=getParentLinkedField.ID,operator='Equals',value=parentInstanceIDVal);
 					
 					parentFilterArray = ceObj.createQueryEngineFilter(filterStatementArray=parentStatementsArray,filterExpression='1');
-					
-					if(linkedFldDetails.type EQ 'img')
-					{
-						compareValueWithChild = getLinkedFieldValue(fieldType=linkedFldDetails.type,fieldValue=parentInstanceIDVal);
-						parentFilterArray[1] = ReplaceNoCase(parentFilterArray[1], '| | #parentInstanceIDVal#|', '| | #compareValueWithChild#|');
-					}
 					
 					parentData = ceObj.getRecordsFromSavedFilter(elementID=arguments.formID,queryEngineFilter=parentFilterArray,columnList=getParentLinkedField.Name,orderBy=ReplaceNoCase(getParentLinkedField.Name,'FIC_',''),orderByDirection="ASC", Limit=0);
 				}
@@ -587,6 +582,7 @@ History:
 						childFilterExpression = '1';
 					}
 				}
+				
 				childFilterArray = ceObj.createQueryEngineFilter(filterStatementArray=statementsArray,filterExpression=childFilterExpression);
 				if(NOT IsNumeric(inputPropStruct.assocCustomElement) AND linkedFldDetails.type EQ 'img')
 				{
