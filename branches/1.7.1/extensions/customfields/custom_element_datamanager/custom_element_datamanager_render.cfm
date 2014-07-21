@@ -130,8 +130,12 @@ History:
 			  FROM FieldQuery
 			 WHERE InputID = <cfqueryparam value="#fieldQuery.inputID#" cfsqltype="cf_sql_integer">
 		</cfquery>
+		
 		<CFSCRIPT>
 			inputParameters = attributes.parameters[fieldQuery.inputID];
+			
+			if (NOT StructKeyExists(inputParameters, "secondaryElementType"))
+				inputParameters.secondaryElementType = "CustomElement";
 			uniqueTableAppend = fieldQuery.inputID;
 		
 			ceFormID = 0;
@@ -143,7 +147,7 @@ History:
 				ceFormID = attributes.fields.formID[1];
 			
 			elementType = '';
-			formLabel = '';
+			parentFormLabel = '';
 			infoArgs = StructNew();
 			infoMethod = "getInfo";
 			
@@ -165,19 +169,25 @@ History:
 			if (StructKeyExists(request.params,'pageID') AND elementType EQ 'MetadataForm')
 				curPageID = request.params.pageID;
 			
-			formObj = Server.CommonSpot.ObjectFactory.getObject(elementType);
+			parentElementObj = Server.CommonSpot.ObjectFactory.getObject(elementType);
 		</CFSCRIPT>
 		
-		<cfinvoke component="#formObj#" method="#infoMethod#" argumentCollection="#infoArgs#" returnvariable="parentFormDetails">
+		<cfinvoke component="#parentElementObj#" method="#infoMethod#" argumentCollection="#infoArgs#" returnvariable="parentFormDetails">
 		
 		<CFSCRIPT>
-			customElementObj = Server.CommonSpot.ObjectFactory.getObject('CustomElement');
-			childCustomElementDetails = customElementObj.getList(ID=inputParameters.childCustomElement);
+			childElementObj = Server.CommonSpot.ObjectFactory.getObject('CustomElement');
+			
+			if (IsNumeric(inputParameters.assocCustomElement))
+				childElementDetails = childElementObj.getList(ID=inputParameters.assocCustomElement);
+			else
+				childElementDetails = childElementObj.getList(ID=inputParameters.childCustomElement);
+			
+			childFormName = childElementDetails.Name;
 			
 			if (elementType EQ 'MetadataForm')
-				formLabel = parentFormDetails.formName;
+				parentFormLabel = parentFormDetails.formName;
 			else
-				formLabel = parentFormDetails.Name;
+				parentFormLabel = parentFormDetails.Name;
 			
 			if (Len(inputParameters.compOverride))
 			{
@@ -260,7 +270,7 @@ History:
 					#datamanagerObj.renderStyles(propertiesStruct=inputParameters)#
 					<table class="cs_data_manager" border="0" cellpadding="2" cellspacing="2" summary="" id="parentTable_#uniqueTableAppend#">
 					<tr><td>
-						#datamanagerObj.renderButtons(propertiesStruct=inputParameters,currentValues=attributes.currentvalues,formID=ceFormID,fieldID=fieldQuery.inputID,formType=elementType,pageID=curPageID)#
+						#datamanagerObj.renderButtons(propertiesStruct=inputParameters,currentValues=attributes.currentvalues,formID=ceFormID,fieldID=fieldQuery.inputID,parentFormType=elementType,pageID=curPageID)#
 					</td></tr>	
 					<tr><td>
 						<span id="errorMsgSpan"></span>
@@ -281,7 +291,7 @@ History:
 				</CFOUTPUT>
 			<CFELSE>
 			<CFOUTPUT><table class="cs_data_manager" border="0" cellpadding="0" cellspacing="0" summary="">
-				<tr><td class="cs_dlgLabelError">#childCustomElementDetails.Name# records can only be added once the #formLabel# record is saved.</td></tr>
+				<tr><td class="cs_dlgLabelError">#childFormName# records can only be added once the #parentFormLabel# record is saved.</td></tr>
 				</table>
 				#Server.CommonSpot.UDF.tag.input(type="hidden", name="#fqFieldName#", value="")#</CFOUTPUT>
 			</CFIF>
@@ -376,7 +386,7 @@ History:
 						returnformat: 'json',
 						formID : #ceFormID#,
 						fieldID : #fieldQuery.inputID#, 
-						formType : '#elementType#',
+						parentFormType : '#elementType#',
 						pageID : #curPageID#,
 						propertiesStruct : JSON.stringify(<cfoutput>#SerializeJSON(inputParameters)#</cfoutput>),
 						currentValues : JSON.stringify(<cfoutput>#SerializeJSON(attributes.currentvalues)#</cfoutput>)						
@@ -546,7 +556,7 @@ History:
 															formID: #ceFormID#,
 															movedDataPageID: movedDataPageID, 
 															dropAfterDataPageID: dropAfterDataPageID,
-															formType : '#elementType#',
+															parentFormType : '#elementType#',
 															pageID : #curPageID#,
 															propertiesStruct : JSON.stringify(<cfoutput>#SerializeJSON(inputParameters)#</cfoutput>),
 															currentValues : JSON.stringify(<cfoutput>#SerializeJSON(attributes.currentvalues)#</cfoutput>)
