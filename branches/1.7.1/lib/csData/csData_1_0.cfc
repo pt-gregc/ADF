@@ -1024,21 +1024,36 @@ History:
 	2009-09-14 - MFC - Updated the SQL statement to work with Oracle DB.
 	2009-09-23 - GAC - Set the request.subsitecache to [1]
 	2011-02-09 - GAC - Removed self-closing CF tag slashes
+	2015-07-25 - DMB - Modified query to work with changes in CS 9
 --->
 <cffunction name="getDefaultRenderHandlerPath" returntype="string" access="public" 
 			hint="Returns the Path for the Default Render Handler for an Element.">
 	<cfargument name="elementName" type="string" required="true">
 	<cfscript>
+		var isCS9Plus = (val(ListLast(ListFirst(Request.CP.ProductVersion, "."), " ")) >= 9);
 		var getRenderHandler = QueryNew("temp");
 		var rhpath = "";
 	</cfscript>
-	<cfquery name="getRenderHandler" datasource="#request.site.datasource#">
-		SELECT CustomElementModules.ModulePath
-		FROM   AvailableControls, CustomElementModules
-		WHERE AvailableControls.ID = CustomElementModules.ElementType
-		AND LTRIM(RTRIM(AvailableControls.ShortDesc)) = <cfqueryparam cfsqltype="cf_sql_varchar" value="#TRIM(arguments.elementName)#">
-	  	AND CustomElementModules.IsDefault = <cfqueryparam cfsqltype="cf_sql_bit" value="1">
-	</cfquery>
+	
+	<cfif isCS9Plus>
+		<cfquery name="getRenderHandler" datasource="#request.site.datasource#">
+			SELECT cem.ModulePath, 1 AS IsDefault
+		  		FROM   AvailableControls, CustomElementModules cem, ElementDefaults ed
+		    		where ed.DisplayTemplateID = 0
+		  		and AvailableControls.ID = cem.ElementType and ed.HandlerID = cem.ID
+				AND LTRIM(RTRIM(AvailableControls.ShortDesc)) = <cfqueryparam cfsqltype="cf_sql_varchar" value="#TRIM(arguments.elementName)#">
+			  
+		</cfquery>
+	<cfelse>
+		<cfquery name="getRenderHandler" datasource="#request.site.datasource#">
+			SELECT CustomElementModules.ModulePath
+				FROM   AvailableControls, CustomElementModules
+				WHERE AvailableControls.ID = CustomElementModules.ElementType
+				AND LTRIM(RTRIM(AvailableControls.ShortDesc)) = <cfqueryparam cfsqltype="cf_sql_varchar" value="#TRIM(arguments.elementName)#">
+				AND CustomElementModules.IsDefault = <cfqueryparam cfsqltype="cf_sql_bit" value="1">
+		</cfquery>
+	</cfif>
+	
 	<cfscript>
 		if ( ListLen(getRenderHandler.ModulePath,"/") LTE 1 ) 
 			rhpath = request.subsitecache[1].url & 'renderhandlers/' & getRenderHandler.ModulePath[1];
