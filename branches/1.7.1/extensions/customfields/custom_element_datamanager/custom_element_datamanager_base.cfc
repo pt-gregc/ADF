@@ -43,6 +43,7 @@ History:
 	2014-04-08 - JTP - Added multi-record delete
 	2014-07-01 - DJM - Added code to support metadata forms
 	2014-07-08 - DJM - For associated element, code was check for wrong linked field
+	2014-08-04 - DJM - Added code to check pagetype for forming CS Extended URL field value
 --->
 <cfcomponent output="false" displayname="custom element datamanager_base" extends="ADF.core.Base" hint="This the base component for the Custom Element Data Manager field">
 	
@@ -366,6 +367,8 @@ History:
 		var sessionUUID = '';
 		var sessionStruct = StructNew();
 		var cmdArgs = StructNew();
+		var nextIndex = 0;
+		var csVersion = ListFirst(ListLast(request.cp.productversion," "),".");
 		
 		if (arguments.parentFormType EQ 'CustomElement')
 			ceObj = parentObj;
@@ -568,19 +571,68 @@ History:
 				if(NOT IsNumeric(inputPropStruct.assocCustomElement))
 				{
 					if (StructKeyExists(inputPropStruct, 'secondaryElementType') AND inputPropStruct.secondaryElementType EQ 'MetadataForm')
-						statementsArray[1] = "metadata|#inputPropStruct.childCustomElement#_#inputPropStruct.childLinkedField#|=|#compareValueWithChild#"; // Have to construct directly as metadataform has no command to create standard statement"
-					else
-						statementsArray[1] = ceObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childLinkedField,operator='Equals',value=compareValueWithChild);
-					if(Len(inputPropStruct.inactiveField) AND Len(inputPropStruct.inactiveFieldValue))
 					{
-						if (StructKeyExists(inputPropStruct, 'secondaryElementType') AND inputPropStruct.secondaryElementType EQ 'MetadataForm')
-							statementsArray[2] = "metadata|#inputPropStruct.childCustomElement#_#inputPropStruct.inactiveField#|<>|#inputPropStruct.inactiveFieldValue#"; // Have to construct directly as metadataform has no command to create standard statement"
+						if (ListLen(compareValueWithChild,'||') GT 1)
+						{
+							if (csVersion GT 9)
+							{
+								statementsArray[1] = childObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childLinkedField,operator='Equals',value=ListFirst(compareValueWithChild,'||'));
+								statementsArray[2] = childObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childLinkedField,operator='Equals',value=ListLast(compareValueWithChild,'||'));
+							}
+							else
+							{
+								statementsArray[1] = "metadata|#inputPropStruct.childCustomElement#_#inputPropStruct.childLinkedField#|=|#ListFirst(compareValueWithChild,'||')#"; // Have to construct directly as metadataform has no command to create standard statement
+								statementsArray[2] = "metadata|#inputPropStruct.childCustomElement#_#inputPropStruct.childLinkedField#|=|#ListLast(compareValueWithChild,'||')#";
+							}
+							childFilterExpression = '(1 OR 2)';
+						}
 						else
-							statementsArray[2] = ceObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.inactiveField,operator='Not Equal',value=inputPropStruct.inactiveFieldValue);
-						childFilterExpression = '1 AND 2';
+						{
+							if (csVersion GT 9)
+							{
+								statementsArray[1] = childObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childLinkedField,operator='Equals',value=compareValueWithChild);
+							}
+							else
+							{
+								statementsArray[1] = "metadata|#inputPropStruct.childCustomElement#_#inputPropStruct.childLinkedField#|=|#compareValueWithChild#"; // Have to construct directly as metadataform has no command to create standard statement
+							}
+							childFilterExpression = '1';
+						}
 					}
 					else
-						childFilterExpression = '1';
+					{
+						if (ListLen(compareValueWithChild,'||') GT 1)
+						{
+							statementsArray[1] = ceObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childLinkedField,operator='Equals',value=ListFirst(compareValueWithChild,'||'));
+							statementsArray[2] = ceObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childLinkedField,operator='Equals',value=ListLast(compareValueWithChild,'||'));
+							childFilterExpression = '(1 OR 2)';
+						}
+						else
+						{
+							statementsArray[1] = ceObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childLinkedField,operator='Equals',value=compareValueWithChild);
+							childFilterExpression = '1';
+						}
+					}
+					if(Len(inputPropStruct.inactiveField) AND Len(inputPropStruct.inactiveFieldValue))
+					{
+						nextIndex = ArrayLen(statementsArray)+1;
+						if (StructKeyExists(inputPropStruct, 'secondaryElementType') AND inputPropStruct.secondaryElementType EQ 'MetadataForm')
+						{	
+							if (csVersion GT 9)
+							{
+								statementsArray[nextIndex] = childObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.inactiveField,operator='Not Equal',value=inputPropStruct.inactiveFieldValue);
+							}
+							else
+							{
+								statementsArray[nextIndex] = "metadata|#inputPropStruct.childCustomElement#_#inputPropStruct.inactiveField#|<>|#inputPropStruct.inactiveFieldValue#"; // Have to construct directly as metadataform has no command to create standard statement
+							}
+						}
+						else
+							statementsArray[nextIndex] = ceObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.inactiveField,operator='Not Equal',value=inputPropStruct.inactiveFieldValue);
+						childFilterExpression = '#childFilterExpression# AND #nextIndex#';
+					}
+					else
+						childFilterExpression = '#childFilterExpression#';
 				}
 				else
 				{						
@@ -623,7 +675,16 @@ History:
 							
 						uniqueList = application.adf.data.listRemoveDuplicates( theList );
 						if (StructKeyExists(inputPropStruct, 'secondaryElementType') AND inputPropStruct.secondaryElementType EQ 'MetadataForm')
-							statementsArray[1] = "metadata|#inputPropStruct.childCustomElement#_#inputPropStruct.childUniqueField#|inlist|#uniqueList#"; // Have to construct directly as metadataform has no command to create standard statement"
+						{
+							if (csVersion GT 9)
+							{
+								statementsArray[1] = childObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childUniqueField,operator='Value Contained In List',value=uniqueList);
+							}
+							else
+							{
+								statementsArray[1] = "metadata|#inputPropStruct.childCustomElement#_#inputPropStruct.childUniqueField#|inlist|#uniqueList#";
+							}
+						}
 						else
 							statementsArray[1] = ceObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childUniqueField,operator='Value Contained In List',value=uniqueList);
 						childFilterExpression = '1';
@@ -1240,6 +1301,8 @@ History:
 		var dbType = Request.Site.SiteDBType;
 		var intType = '';
 		var parentInstanceIDVal = 0;
+		var compareValueWithChildArr = ArrayNew(1);
+		var i = 0;
 		
 		if (arguments.parentFormType EQ 'MetadataForm' AND inputPropStruct.parentUniqueField EQ '{{pageid}}')	
 			parentInstanceIDVal = arguments.pageID;
@@ -1257,6 +1320,7 @@ History:
 		}
 			
 		compareValueWithChild = getLinkedFieldValue(fieldType=linkedFldDetails.type,fieldValue=parentInstanceIDVal);
+		compareValueWithChildArr = ListToArray(compareValueWithChild, '||');
 		
 		switch (dbtype)
 		{
@@ -1290,7 +1354,18 @@ History:
 			  FROM Data_FieldValue
 			 WHERE FormID = <cfqueryparam value="#dataFormID#" cfsqltype="cf_sql_integer">
 				AND FieldID = <cfqueryparam value="#dataFieldID#" cfsqltype="cf_sql_integer">
-				AND FieldValue = <cfqueryparam value="#compareValueWithChild#" cfsqltype="cf_sql_varchar">
+				AND <cfif ArrayLen(compareValueWithChildArr) GT 1>
+				(
+				</cfif>
+				<cfloop from="1" to="#ArrayLen(compareValueWithChildArr)#" index="i">
+					FieldValue = <cfqueryparam value="#compareValueWithChildArr[i]#" cfsqltype="cf_sql_varchar">
+					<cfif i NEQ ArrayLen(compareValueWithChildArr)>
+					OR
+					</cfif>
+				</cfloop>
+				<cfif ArrayLen(compareValueWithChildArr) GT 1>
+				)
+				</cfif>
 				AND VersionState = <cfqueryparam value="#request.constants.stateCURRENT#" cfsqltype="cf_sql_integer">
 				AND PageID > 0
 		</cfquery>
@@ -2308,14 +2383,24 @@ History:
 	
 	<cfif arguments.fieldType EQ 'csextendedurl'>
 		<cfquery name="getPageInfo" DATASOURCE="#dsn#">
-			SELECT FileName, SubsiteID
+			SELECT FileName, SubsiteID, PageType, Uploaded
 			  FROM SitePages
 			 WHERE ID = <cfqueryparam value="#arguments.fieldValue#" cfsqltype="CF_SQL_INTEGER">
 		</cfquery>
 		
 		<cfscript>
+			// Since extended url stored data differently for different page types, need to set up proper value to be checked
 			if (getPageInfo.RecordCount)
-				returnString = 'CP___PAGEID=#arguments.fieldValue#,#getPageInfo.FileName#,#getPageInfo.SubsiteID#';
+			{
+				if (getPageInfo.PageType EQ Request.Constants.pgTypeNormal AND getPageInfo.Uploaded EQ 0)
+					returnString = 'CP___PAGEID=#arguments.fieldValue#,#getPageInfo.FileName#,#getPageInfo.SubsiteID#||CP___PAGEID=#arguments.fieldValue#,#getPageInfo.FileName#';
+				else if ((getPageInfo.PageType EQ Request.Constants.pgTypeNormal AND getPageInfo.Uploaded EQ 1) OR getPageInfo.PageType EQ Request.Constants.pgTypeMultimedia OR getPageInfo.PageType EQ Request.Constants.pgTypeMultimediaPlaylist)
+					returnString = 'CP___PAGEID=#arguments.fieldValue#';
+				else if (getPageInfo.PageType EQ Request.Constants.pgTypeImage)
+					returnString = 'CP___PAGEID=#arguments.fieldValue#,#getPageInfo.FileName#';
+				else // PageType as user template,pageset,registered url
+					returnString = 'CP___PAGEID=#arguments.fieldValue#,#getPageInfo.FileName#,#getPageInfo.SubsiteID#';
+			}
 		</cfscript>
 	<cfelseif arguments.fieldType EQ 'img'>
 		<cfquery name="getPageInfo" DATASOURCE="#dsn#">
