@@ -44,6 +44,7 @@ History:
 	2014-07-01 - DJM - Added code to support metadata forms
 	2014-07-08 - DJM - For associated element, code was check for wrong linked field
 	2014-08-04 - DJM - Added code to check pagetype for forming CS Extended URL field value
+	2014-09-08 - DJM - Updated code to process data columns only when we have some data
 --->
 <cfcomponent output="false" displayname="custom element datamanager_base" extends="ADF.core.Base" hint="This the base component for the Custom Element Data Manager field">
 	
@@ -920,25 +921,27 @@ History:
 				}
 			</cfscript>					
 		</cfloop>
-			
+		
 		<cfscript>
-			convertedColumnList = StructKeyList( convertedCols ); 
 			dataColumnList_new = dataColumnList;
-			theListLen = ListLen(convertedColumnList);
-			for( i=1; i lte theListLen; i=i+1 )
+			if (childData.RecordCount)
 			{
-				str = ListGetAt( convertedColumnList, i );
-				pos = ListFindNoCase( dataColumnList, str );
-				if( pos )
-					dataColumnList_new = ListSetAt( dataColumnList_new, pos, str & '_converted' );
+				convertedColumnList = StructKeyList( convertedCols ); 
+				theListLen = ListLen(convertedColumnList);
+				for( i=1; i lte theListLen; i=i+1 )
+				{
+					str = ListGetAt( convertedColumnList, i );
+					pos = ListFindNoCase( dataColumnList, str );
+					if( pos )
+						dataColumnList_new = ListSetAt( dataColumnList_new, pos, str & '_converted' );
+				}
+					
+				if( ListFindNoCase(inputPropStruct.interfaceOptions,'editAssoc') OR ListFindNoCase(inputPropStruct.interfaceOptions,'editChild') OR ListFindNoCase(inputPropStruct.interfaceOptions,'delete') )
+				{					
+					QueryAddColumn(childData, 'Actions', 'varchar', actionColumnArray);
+					dataColumnList_new = ListPrepend(dataColumnList_new, 'Actions');
+				}	
 			}
-				
-			if( ListFindNoCase(inputPropStruct.interfaceOptions,'editAssoc') OR ListFindNoCase(inputPropStruct.interfaceOptions,'editChild') OR ListFindNoCase(inputPropStruct.interfaceOptions,'delete') )
-			{					
-				QueryAddColumn(childData, 'Actions', 'varchar', actionColumnArray);
-				dataColumnList_new = ListPrepend(dataColumnList_new, 'Actions');
-			}	
-				
 			// Logit('datacolumnlist:[#dataColumnList_new#]');	// Actions,AssocDataPageID,ChildDataPageID,ID,Name,ParentID 				
 		</cfscript>
 
