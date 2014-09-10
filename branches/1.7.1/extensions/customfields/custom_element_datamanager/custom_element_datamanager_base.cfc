@@ -45,6 +45,7 @@ History:
 	2014-07-08 - DJM - For associated element, code was check for wrong linked field
 	2014-08-04 - DJM - Added code to check pagetype for forming CS Extended URL field value
 	2014-09-08 - DJM - Updated code to process data columns only when we have some data
+	2014-09-10 - DJM - Passed extra parameter to getRecordsFromSavedFilter to fetch unpublished records when the element is a LCE
 --->
 <cfcomponent output="false" displayname="custom element datamanager_base" extends="ADF.core.Base" hint="This the base component for the Custom Element Data Manager field">
 	
@@ -562,7 +563,7 @@ History:
 					
 					parentFilterArray = ceObj.createQueryEngineFilter(filterStatementArray=parentStatementsArray,filterExpression='1');
 					
-					parentData = ceObj.getRecordsFromSavedFilter(elementID=arguments.formID,queryEngineFilter=parentFilterArray,columnList=getParentLinkedField.Name,orderBy=ReplaceNoCase(getParentLinkedField.Name,'FIC_',''),orderByDirection="ASC", Limit=0);
+					parentData = ceObj.getRecordsFromSavedFilter(elementID=arguments.formID,queryEngineFilter=parentFilterArray,columnList=getParentLinkedField.Name,orderBy=ReplaceNoCase(getParentLinkedField.Name,'FIC_',''),orderByDirection="ASC", Limit=0, currentOnly=0);
 				}
 			}
 		</cfscript>
@@ -704,7 +705,7 @@ History:
 			
 			<cfif inputPropStruct.secondaryElementType EQ 'CustomElement'>
 				<cfscript>
-					data = ceObj.getRecordsFromSavedFilter(elementID=inputPropStruct.childCustomElement,queryEngineFilter=childFilterArray,columnList=childColumnList, limit=0);					
+					data = ceObj.getRecordsFromSavedFilter(elementID=inputPropStruct.childCustomElement,queryEngineFilter=childFilterArray,columnList=childColumnList, limit=0, currentOnly=0);					
 				</cfscript>
 			<cfelse>
 				<cfscript>
