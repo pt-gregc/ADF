@@ -39,7 +39,7 @@
 		
 		debugStruct.msg = "";
 		debugStruct.logFile = "API_Element_populateCustom_pagepool.log";
-		debugStruct.logFile2 = "API_Element_populateCustom_pagepool2.log";
+		//debugStruct.logFile2 = "API_Element_populateCustom_pagepool2.log";
 		
 		// Init the return data structure
 		result.status = false;
@@ -86,8 +86,8 @@
 			{
 				usePagePool = true;
 				// Get the current Page Request and store it locally;
-				pagePoolRequestID = Request.ADF.apiPagePool.requestID;
-				//pagePoolRequestID = CreateUUID();
+				//pagePoolRequestID = Request.ADF.apiPagePool.requestID;
+				pagePoolRequestID = CreateUUID();
 				
 application.ADF.utils.doDUMP(pagePoolRequestID,"pagePoolRequestID");
 				
@@ -103,8 +103,8 @@ application.ADF.utils.doDUMP(Application.ADF.apipool,"Application.ADF.apipool");
 					debugText = "Element [#arguments.elementName#] RequestID: #pagePoolRequestID# - Conduit PageID Requested: #pagePoolParams.pageID#";
 					debugStruct.msg = _apiLogMsgWrapper(logMsg=debugStruct.msg,logEntry=debugText);
 					
-debugText = _apiLogMsgWrapper(logMsg="",logEntry=debugText);
-application.ADF.utils.logAppend(msg=debugText,logfile=debugStruct.logFile2);
+//debugText = _apiLogMsgWrapper(logMsg="",logEntry=debugText);
+//application.ADF.utils.logAppend(msg=debugText,logfile=debugStruct.logFile2);
 					
 					// check if slot in pool is returned
 					if( pagePoolParams.pageID neq 0 )
@@ -120,8 +120,8 @@ application.ADF.utils.logAppend(msg=debugText,logfile=debugStruct.logFile2);
 						debugText = "Element [#arguments.elementName#] RequestID: #pagePoolRequestID# - NO OPEN PAGE FOUND! Sleeping...";
 						debugStruct.msg = _apiLogMsgWrapper(logMsg=debugStruct.msg,logEntry=debugText);
 						
-debugText = _apiLogMsgWrapper(logMsg="",logEntry=debugText);
-application.ADF.utils.logAppend(msg=debugText,logfile=debugStruct.logFile2);
+//debugText = _apiLogMsgWrapper(logMsg="",logEntry=debugText);
+//application.ADF.utils.logAppend(msg=debugText,logfile=debugStruct.logFile2);
 						
 						// Wait for a page to be available from the conduit page pool
 						sleep(200);	
@@ -129,8 +129,8 @@ application.ADF.utils.logAppend(msg=debugText,logfile=debugStruct.logFile2);
 						debugText = "Element [#arguments.elementName#] RequestID: #pagePoolRequestID# - NO OPEN PAGE FOUND! Waking up to try again...";
 						debugStruct.msg = _apiLogMsgWrapper(logMsg=debugStruct.msg,logEntry=debugText);
 						
-debugText = _apiLogMsgWrapper(logMsg="",logEntry=debugText);
-application.ADF.utils.logAppend(msg=debugText,logfile=debugStruct.logFile2);
+//debugText = _apiLogMsgWrapper(logMsg="",logEntry=debugText);
+//application.ADF.utils.logAppend(msg=debugText,logfile=debugStruct.logFile2);
 					}
 					
 					
@@ -142,8 +142,8 @@ application.ADF.utils.logAppend(msg=debugText,logfile=debugStruct.logFile2);
 						debugText = "Element [#arguments.elementName#] RequestID: #pagePoolRequestID# - Warning: Requested a Conduit Page #pagePoolAttemptCount# Times. Max Exceeded!";
 						debugStruct.msg = _apiLogMsgWrapper(logMsg=debugStruct.msg,logEntry=debugText);
 
-debugText = _apiLogMsgWrapper(logMsg="",logEntry=debugText);
-application.ADF.utils.logAppend(msg=debugText,logfile=debugStruct.logFile2);
+//debugText = _apiLogMsgWrapper(logMsg="",logEntry=debugText);
+//application.ADF.utils.logAppend(msg=debugText,logfile=debugStruct.logFile2);
 						
 						//result.msg = debugStruct.msg;
 						//return result;	
@@ -273,9 +273,6 @@ application.ADF.utils.logAppend(msg=debugText,logfile=debugStruct.logFile2);
 				//debugText = "Element [#arguments.elementName#] RequestID: #pagePoolRequestID# - Conduit PageID Used: #contentStruct.pageID#";
 				//debugStruct.msg = _apiLogMsgWrapper(logMsg=debugStruct.msg,logEntry=debugText);
 				
-//debugText = _apiLogMsgWrapper(logMsg="",logEntry=debugText);
-//application.ADF.utils.logAppend(msg=debugText,logfile=debugStruct.logFile2);
-				
 				// Call the API to run the CCAPI Command
 				apiResponse = variables.api.runCCAPI(method="populateCustomElement",
 													 sparams=contentStruct);
@@ -344,8 +341,11 @@ application.ADF.utils.logAppend(msg=debugText,logfile=debugStruct.logFile2);
 			
 			application.ADF.utils.logAppend(msg=debugStruct.msg,logfile=debugStruct.logFile);
 
-debugText = _apiLogMsgWrapper(logMsg="",logEntry=debugText);
-application.ADF.utils.logAppend(msg=debugText,logfile=debugStruct.logFile2);
+//debugText = _apiLogMsgWrapper(logMsg="",logEntry=debugText);
+//application.ADF.utils.logAppend(msg=debugText,logfile=debugStruct.logFile2);
+
+application.ADF.utils.doDUMP(Application.ADF.apipool,"Application.ADF.apipool");
+
 		}
 		
 		// Write the log files
