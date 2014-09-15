@@ -997,9 +997,9 @@ History:
 					OR ListFindNoCase(inputPropStruct.interfaceOptions,'delete')>
 
 			<cfif ListFindNoCase(inputPropStruct.interfaceOptions,'editAssoc') AND ListFindNoCase(inputPropStruct.interfaceOptions,'editChild') AND ListFindNoCase(inputPropStruct.interfaceOptions,'delete')>
-				<cfset actionColumnWidth="85"> <!--- 65 --->
+				<cfset actionColumnWidth="87"> <!--- 65 --->
 			<cfelse>
-				<cfset actionColumnWidth="60">  <!--- 42 --->
+				<cfset actionColumnWidth="62">  <!--- 42 --->
 			</cfif>
 			
 			<cfoutput><div style="width:#actionColumnWidth#px;white-space:no-wrap;"></cfoutput>
