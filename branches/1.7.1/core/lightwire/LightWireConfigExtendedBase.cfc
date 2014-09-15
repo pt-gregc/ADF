@@ -232,7 +232,7 @@ History:
 	2014-03-07 - GAC - Updated the var'd buildError variable to init as a Structure 
 --->
 <cffunction name="loadADFAppBeanConfig" returntype="void" access="public" output="true" hint="Loads the custom apps bean config file.">
-	<cfargument name="path" type="string" required="false" default="\ADF\apps\">
+	<cfargument name="path" type="string" required="false" default="/ADF/apps/">
 	
 	<cfscript>
 		var appLibDirQry = QueryNew("temp");
@@ -650,7 +650,7 @@ History:
 	2009-05-11 - MFC - Created
 --->
 <cffunction name="directoryFiles" returntype="query" access="private" output="true" hint="Returns the files for the directory.">
-	<cfargument name="dirPath" type="string" required="true" default="\ADF\lib\com">
+	<cfargument name="dirPath" type="string" required="true">
 	<cfargument name="recurse" type="string" required="false" default="false">
 	
 	<cfset var dirQry = QueryNew("tmp")>
