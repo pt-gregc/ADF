@@ -86,19 +86,19 @@
 }
 
 .paginate_disabled_previous {
-	background-image: url('/ADF/thirdparty/jquery/datatables/images/back_disabled.jpg');
+thirdPartybackground-image: url('/ADF/thirdParty/jquery/datatables/images/back_disabled.jpg');
 }
 
 .paginate_enabled_previous {
-	background-image: url('/ADF/thirdparty/jquery/datatables/images/back_enabled.jpg');
+	background-image: url('/ADF/thirdParty/jquery/datatables/images/back_enabled.jpg');
 }
 
 .paginate_disabled_next {
-	background-image: url('/ADF/thirdparty/jquery/datatables/images/forward_disabled.jpg');
+	background-image: url('/ADF/thirdParty/jquery/datatables/images/forward_disabled.jpg');
 }
 
 .paginate_enabled_next {
-	background-image: url('/ADF/thirdparty/jquery/datatables/images/forward_enabled.jpg');
+	background-image: url('/ADF/thirdParty/jquery/datatables/images/forward_enabled.jpg');
 }
 
 
@@ -145,23 +145,23 @@ table.display td.center {
  */
 
 .sorting_asc {
-	background: url('/ADF/thirdparty/jquery/datatables/images/sort_asc.png') no-repeat center right;
+	background: url('/ADF/thirdParty/jquery/datatables/images/sort_asc.png') no-repeat center right;
 }
 
 .sorting_desc {
-	background: url('/ADF/thirdparty/jquery/datatables/images/sort_desc.png') no-repeat center right;
+	background: url('/ADF/thirdParty/jquery/datatables/images/sort_desc.png') no-repeat center right;
 }
 
 .sorting {
-	background: url('/ADF/thirdparty/jquery/datatables/images/sort_both.png') no-repeat center right;
+	background: url('/ADF/thirdParty/jquery/datatables/images/sort_both.png') no-repeat center right;
 }
 
 .sorting_asc_disabled {
-	background: url('/ADF/thirdparty/jquery/datatables/images/sort_asc_disabled.png') no-repeat center right;
+	background: url('/ADF/thirdParty/jquery/datatables/images/sort_asc_disabled.png') no-repeat center right;
 }
 
 .sorting_desc_disabled {
-	background: url('/ADF/thirdparty/jquery/datatables/images/sort_desc_disabled.png') no-repeat center right;
+	background: url('/ADF/thirdParty/jquery/datatables/images/sort_desc_disabled.png') no-repeat center right;
 }
 
 

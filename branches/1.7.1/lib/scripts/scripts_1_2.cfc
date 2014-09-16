@@ -34,10 +34,11 @@ History:
 	2013-09-05 - GAC - Updated with functions for and jQuery qTip2 JQuery ImagesLoaded
 	2013-09-27 - DMB - Added a function to load jQuery Cycle2 lib 
 	2014-05-19 - GAC - Added functions for jQuery plug-ins: jEditable, Calx, Calculation
+	2014-09-16 - GAC - Updated references to thirdparty to thirdParty for case sensitivity
 --->
 <cfcomponent displayname="scripts_1_2" extends="ADF.lib.scripts.scripts_1_1" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" value="1_2_21">
+<cfproperty name="version" value="1_2_22">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_1" type="dependency">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Scripts_1_2">
@@ -442,8 +443,8 @@ Arguments:
 History:
 	2010-05-19 - MFC - Created
 	2011-06-24 - GAC - Added CFOUTPUTS around the renderScriptOnce method call
-	2013-01-16 - MFC - Restructured the thirdparty folders & versions. Set to default load JQuery Data Tables 1.9.
-	2013-02-06 - MFC - Moved the "Restructured the thirdparty folders & versions" support code to
+	2013-01-16 - MFC - Restructured the thirdParty folders & versions. Set to default load JQuery Data Tables 1.9.
+	2013-02-06 - MFC - Moved the "Restructured the thirdParty folders & versions" support code to
 						the Scripts 1.1 to make backwards compatibable.
 	2013-11-14 - DJM - Added a loadStyle parameter
 --->
@@ -810,7 +811,7 @@ Arguments:
 	Boolean - force
 History:
 	2009-06-25 - GAC - Created
-	2013-01-16 - MFC - Restructured the thirdparty folders & versions. Set to default load version 2.0.
+	2013-01-16 - MFC - Restructured the thirdParty folders & versions. Set to default load version 2.0.
 --->
 <cffunction name="loadTableSorter" access="public" output="true" returntype="void" hint="Loads the Tablesorter Plugin Headers if not loaded."> 
 	<cfargument name="version" type="string" required="false" default="2.0" hint="Tablesorter Plugin version to load.">
@@ -846,7 +847,7 @@ Arguments:
 	Boolean - force
 History:
 	2009-06-25 - GAC - Created
-	2013-01-16 - MFC - Restructured the thirdparty folders & versions. Set to default load version 2.0.
+	2013-01-16 - MFC - Restructured the thirdParty folders & versions. Set to default load version 2.0.
 --->
 <cffunction name="loadTableSorterThemes" access="public" returntype="void" hint="Loads the Tablesorter Plugin Theme Headers if not loaded.">
 	<cfargument name="themeName" type="string" required="false" default="blue" hint="Tablesorter Theme Name (directory name)">
@@ -890,7 +891,7 @@ Arguments:
 	Boolean - force
 History:
 	2009-06-25 - GAC - Created
-	2013-01-16 - MFC - Restructured the thirdparty folders & versions. Set to default load version 2.0.
+	2013-01-16 - MFC - Restructured the thirdParty folders & versions. Set to default load version 2.0.
 --->
 <cffunction name="loadTableSorterPager" access="public" returntype="void" hint="Loads the Tablesorter Plugin Pager addon Headers if not loaded.">
 	<cfargument name="version" type="string" required="false" default="2.0" hint="Tablesorter Plugin version to load.">
@@ -963,7 +964,7 @@ History:
 	2010-02-03 - MFC - Updated path to the CSS to remove from Third Party directory.
 	2010-04-06 - MFC - Updated path to the CSS to "style".
 	2012-08-16 - GAC - Added the force parameter
-	2013-01-16 - MFC - Restructured the thirdparty folders & versions.
+	2013-01-16 - MFC - Restructured the thirdParty folders & versions.
 	 				   Removed the "tool" argument.
 	 				   Added the "version" argument.
 --->

@@ -37,10 +37,11 @@ History:
 						want or want to add. 
 	2012-08-16 - GAC - Added the force parameter to all the functions that did not already have it
 	2012-12-07 - MFC - Moved new functions to Scripts v1.2.
+	2014-09-16 - GAC - Updated references to thirdparty to thirdParty for case sensitivity
 --->
 <cfcomponent displayname="scripts_1_1" extends="ADF.lib.scripts.scripts_1_0" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" value="1_1_22">
+<cfproperty name="version" value="1_1_23">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_1" type="dependency">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Scripts_1_1">
@@ -896,7 +897,7 @@ Arguments:
 History:
 	2010-05-19 - MFC - Created
 	2011-06-24 - GAC - Added CFOUTPUTS around the renderScriptOnce method call
-	2013-02-06 - MFC - Restructured the thirdparty folders & versions.
+	2013-02-06 - MFC - Restructured the thirdParty folders & versions.
 	2013-11-14 - DJM - Added a loadStyle parameter
 --->
 <cffunction name="loadJQueryDataTables" access="public" output="true" returntype="void" hint="Loads the JQuery DataTables Headers if not loaded.">
