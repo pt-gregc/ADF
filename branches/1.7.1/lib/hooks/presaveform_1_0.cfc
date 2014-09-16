@@ -29,11 +29,12 @@ Summary:
 Version:
 	1.0
 History:
-	2013-12-09 - MFC - Created
+	2014-07-25 - GAC - Created
+	2014-09-16 - GAC - Cleaned up and removed debug code
 --->
 <cfcomponent displayname="presaveform_1_0" extends="ADF.core.Base" hint="Pre Save Form Hook functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_0">
+<cfproperty name="version" value="1_0_1">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="PreSaveForm_1_0">
 
@@ -75,15 +76,6 @@ History:
 		var changedFieldDataArray = ArrayNew(1);
 		var missingFieldsArray = ArrayNew(1);
 		var fic_formid_fieldid = "";
-
-	//application.ADF.utils.logAppend( msg=arguments.InputData, label='arguments.InputData', logfile='_ADF_debug.html' );
-
-		// Get the FormID for the Element
-		/* if( isNumeric(arguments.ceNameOrID) )
-			formID = arguments.ceNameOrID;
-		else	
-			formID = application.ADF.ceData.getFormIDByCEName(CEName=arguments.ceNameOrID);
-		*/
 		
 		// Set the FormID from the formID or the controlTypeID from the InputData Struct
 		if ( StructKeyExists(arguments.InputData, 'formID') AND IsNumeric(arguments.InputData.formID) )
@@ -118,9 +110,6 @@ History:
 				fldsAssocArray[fld] = fldsQry.ID[x];
 			}
 		}
-		
-	//application.ADF.utils.logAppend( msg=curSavedData, label='curSavedData', logfile='_ADF_debug.html' );
-	//application.ADF.utils.logAppend( msg=fldsAssocArray, label='fldsAssocArray', logfile='_ADF_debug.html' );	
 
 		// reset fld variable
 		fld = "";
@@ -141,15 +130,13 @@ History:
 					if ( StructKeyExists( curSavedData.values, fld) AND StructKeyExists( arguments.InputData,fic_formid_fieldid) )
 					{
 						if ( curSavedData.values[fld] NEQ arguments.InputData[fic_formid_fieldid])
-						{
-	//application.ADF.utils.logAppend( msg='NO MATCH fld: #fld#<br>', logfile='_debug.html' );									
+						{								
 							dSame = false;
 							ArrayAppend(changedFieldDataArray,fld);
 						}
 					}
 					else if ( StructKeyExists( curSavedData.values,fld) AND curSavedData.values[fld] NEQ "" )
-					{
-	//application.ADF.utils.logAppend( msg='NO MATCH fld: #fld#<br>', logfile='_debug.html' );									
+					{							
 						dSame = false;
 						ArrayAppend(changedFieldDataArray,fld);
 					}
@@ -175,8 +162,6 @@ History:
 		retData.FieldsMatch = fSame;
 		retData.DataMatch = dSame;
 		retData.newRecord = newRecord;
-
-	//application.ADF.utils.logAppend( msg=retData, label="retData", logfile='_ADF_debug.html' );	
 		
 		return retData;
 	</cfscript>
@@ -273,7 +258,6 @@ History:
 			{
 				// Get the field name for this element using the CMD API CustomElement object
 				fldsQry = ceObj.GetFields( formID );	
-				//fldsStruct = application.ADF.defaultFieldStruct(ceName);
 				
 				if ( NOT StructKeyExists(fldsQry, FieldName) )
 					fSame = false; 
@@ -289,19 +273,10 @@ History:
 				dSame = false;	
 		}
 
-//application.ADF.utils.logAppend( msg=arguments.InputData, label='arguments.InputData', logfile='_ADF_debug.html' );
-//application.ADF.utils.logAppend( msg=inputFieldData & "<br>", label='inputFieldData', logfile='_ADF_debug.html' );	
-//application.ADF.utils.logAppend( msg="--------------" & "<br>", label='', logfile='_ADF_debug.html' );	
-//application.ADF.utils.logAppend( msg=curSavedData, label='curSavedData', logfile='_ADF_debug.html' );
-//application.ADF.utils.logAppend( msg=curSavedFieldData & "<br>", label='curSavedFieldData', logfile='_ADF_debug.html' );
-//application.ADF.utils.logAppend( msg="--------------" & "<br>", label='', logfile='_ADF_debug.html' );	
-
 		retData.MissingFields = missingFieldsArray;
 		retData.FieldsMatch = fSame;
 		retData.DataMatch = dSame;
 		retData.newRecord = newRecord;
-
-//application.ADF.utils.logAppend( msg=retData, label='retData', logfile='_ADF_debug.html' );	
 
 		return retData;
 	</cfscript>

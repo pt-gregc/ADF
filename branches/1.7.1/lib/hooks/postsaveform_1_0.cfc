@@ -29,7 +29,7 @@ Summary:
 Version:
 	1.0
 History:
-	2014-07-25 - MFC - Created
+	2014-07-25 - GAC - Created
 --->
 <cfcomponent displayname="postsaveform_1_0" extends="ADF.core.Base" hint="Post Save Form Hook functions for the ADF Library">
 
