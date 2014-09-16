@@ -34,14 +34,15 @@ History:
 --->
 <cfcomponent displayname="date_1_0" extends="ADF.core.Base" hint="Date Utils functions for ADF Library">
 
-<cfproperty name="version" value="1_0_2">
+<cfproperty name="version" value="1_0_3">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Date_1_0">
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.	
+	Ron West
 Name:
 	$getMeridiem
 Summary:
@@ -62,6 +63,7 @@ History:
 	</cfscript>
 	<cfreturn rtnStr>
 </cffunction>
+
 <!--- //**
  * Analogous to firstDayOfMonth() function.
  *
@@ -114,10 +116,27 @@ History:
 	<cfreturn returnDate>
 </cffunction>
 
-<!--- // returns date for first of month --->
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
+Name:
+	$firstOfMonth
+Summary:
+	Returns date for first of month
+Returns:
+	Any 
+Arguments:
+	String - inMonth
+	String - inYear
+History:
+	2007-10-01 - RLW - Created
+--->
 <cffunction name="firstOfMonth" access="public" output="false" returntype="any" hint="Returns date for first of month">
 	<cfargument name="inMonth" required="true" type="string">
 	<cfargument name="inYear" required="true" type="string">
+	
 	<cfscript>
 		var firstDayDate = "";
 		try
@@ -132,10 +151,29 @@ History:
 	</cfscript>
 	<cfreturn firstDayDate>
 </cffunction>
-<!--- // returns last date of month --->
+
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
+Name:
+	$lastOfMonth
+Summary:
+	Returns last date of month
+Returns:
+	Any 
+Arguments:
+	String - inMonth
+	String - inYear
+History:
+	2007-10-01 - RLW - Created
+--->
 <cffunction name="lastOfMonth" access="public" output="false" returntype="any" hint="Returns last date of month">
 	<cfargument name="inMonth" required="true" type="string">
 	<cfargument name="inYear" required="true" type="string">
+	
 	<cfscript>
 		var lastDayDate = "";
 		var daysInThisMonth = "";
@@ -153,10 +191,12 @@ History:
 	</cfscript>
 	<cfreturn lastDayDate>
 </cffunction>
+
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
 Name:
 	$csDateFormat
 Summary:
@@ -180,10 +220,12 @@ History:
 	</cfscript>
 	<cfreturn csDate>
 </cffunction>
+
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
 Name:
 	$firstOfYear
 Summary:	
@@ -202,10 +244,12 @@ History:
 	</cfscript>
 	<cfreturn csDateFormat(theDate)>
 </cffunction>
+
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author:
+	PaperThin, Inc. 	
+	Ron West
 Name:
 	$lastOfYear
 Summary:	
@@ -224,6 +268,7 @@ History:
 	</cfscript>
 	<cfreturn csDateFormat(theDate)>
 </cffunction>
+
 <!---
 /* *************************************************************** */
 Author: 	
@@ -297,6 +342,7 @@ History:
 		return DateFormat(arguments.date,"yyyy-mm-dd") & "T" & TimeFormat(arguments.time,"HH:mm:ss") & tzStamp;
 	</cfscript>
 </cffunction>
+
 <!---
 /* *************************************************************** */
 Author: 	
