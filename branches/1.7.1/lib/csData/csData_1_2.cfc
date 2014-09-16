@@ -48,7 +48,7 @@ History:
 --->
 <cfcomponent displayname="csData_1_2" extends="ADF.lib.csData.csData_1_1" hint="CommonSpot Data Utils functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_12">
+<cfproperty name="version" value="1_2_13">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">
@@ -914,11 +914,39 @@ History:
 </cffunction>
 
 <!---
-	getPaddedID()
-		returns a uniqueID string which is 0 padded for textbased sorting 
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$getPaddedID
+Summary:
+	Builds a CommonSpot uniqueID string which is Zero (0) padded for textbased sorting
+Returns:
+	string
+Arguments:
+	String - padSize (number of chars of padding)
+History:
+	2013-12-31 - JTP - Created
+	2014-07-25 - GAC - Added a parameter to set custom pad sizes (default: 9)
 --->
-<cffunction name="getPaddedID" access="public" returntype="string">
-	<cfreturn NumberFormat( Request.Site.IDMaster.getID(), '000000009' )>
+<cffunction name="getPaddedID" access="public" returntype="string" hint="Builds a CommonSpot uniqueID string which is Zero (0) padded for textbased sorting">
+	<cfargument name="padSize" type="numeric" required="false" default="9" hint="Size of padded string">
+	
+	<cfscript>
+		var padMaskStr = "";
+		// Get a safe pad size
+		if ( IsNumeric(arguments.padsize) )
+		{
+			if ( arguments.padsize GTE 2 )
+				arguments.padsize = arguments.padsize - 1;
+			else
+				arguments.padsize = 1;
+		}	
+		// Build the string for the padding mask 		
+		padMaskStr = RepeatString("0",arguments.padsize) & 9;
+		// Pad the Unique ID
+		return NumberFormat( Request.Site.IDMaster.getID(), padMaskStr );
+	</cfscript>
 </cffunction>
 
 </cfcomponent>
