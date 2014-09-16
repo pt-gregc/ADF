@@ -54,7 +54,7 @@ History:
  *
  * @param string 	 String to format. (Required)
  * @return Returns a string.
- * @author Gyrus (eli.dickinson@gmail.comgyrus@norlonto.net)
+ * @author Gyrus (eli.dickinson@gmail.com gyrus@norlonto.net)
  * @version 3, August 30, 2006
  */ --->
 <cffunction name="HTMLSafeFormattedTextBox" access="public" returntype="string">
