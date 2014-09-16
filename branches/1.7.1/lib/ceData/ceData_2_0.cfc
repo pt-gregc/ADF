@@ -36,7 +36,7 @@ History:
 --->
 <cfcomponent displayname="ceData_2_0" extends="ADF.lib.ceData.ceData_1_1" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="2_0_27">
+<cfproperty name="version" value="2_0_28">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="CEData_2_0">
 
@@ -1852,6 +1852,7 @@ History:
 	2014-05-21 - GAC - Updated to rename method and change parameter names
 					 - Updated to add error logging
 					 - Updated to add new parameters to set the view prefix and suffix
+	2014-07-28 - GAC - Updated the logic and the function name in the logged error message
 --->
 <cffunction name="getCEFormIdViewName" access="public" returntype="string" output="true" hint="By default returns a string for the SQL view name that s prefixed with 'ce_view_' and appends the CE Form ID. (Example: ce_view_{CustomElementFormID})">
 	<cfargument name="ceFormID" type="numeric" required="false" default="0" hint="Pass the formID. Not needed if passing the  CE Name.">
@@ -1891,7 +1892,11 @@ History:
 		else 
 		{ 
 			// Error message
-			throwErrorMsg = "[ceData.buildCEFormIdViewName] No form ID was returned for provided custom element. Can not create a valid view name.";
+			if ( LEN(TRIM(arguments.ceName)) )
+				throwErrorMsg = "[ceData.getCEFormIdViewName] No form ID was returned for provided custom element: '#arguments.ceName#'. Can not create a valid view name.";
+			else
+				throwErrorMsg = "[ceData.getCEFormIdViewName] Can not create a valid view name. (FormID: '#arguments.ceFormID#')";
+				
 			// Throw and Log error
 			server.ADF.objectFactory.getBean("utils_1_2").doThrow(message=throwErrorMsg,logerror=true);	
 			//server.ADF.objectFactory.getBean("utils_1_2").logAppend(throwErrorMsg);	
