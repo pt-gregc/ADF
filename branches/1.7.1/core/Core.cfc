@@ -52,7 +52,7 @@ History:
 <cfscript>
 	variables.ADFversion = "1.7.1"; // use a dot delimited version number
 	// ADF Build Revision Number
-	variables.buildRev = "1355";
+	variables.buildRev = "1356";
 	// ADF Codename
 	variables.buildName = "River City Ransom";
 	// CS product version, get the decimal value
@@ -62,7 +62,8 @@ History:
 <cffunction name="init" output="true" returntype="void">
 	<cfscript>
 		// Check if the ADF variable does not exist in server scope
-		if ( NOT StructKeyExists(server, "ADF") ) {
+		if ( NOT StructKeyExists(server, "ADF") ) 
+		{
 			server.ADF = StructNew();
 			server.ADF.environment = StructNew();  // Stores the App and Site configuration data
 		}

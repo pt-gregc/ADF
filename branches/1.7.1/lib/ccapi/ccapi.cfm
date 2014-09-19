@@ -25,13 +25,38 @@ end user license agreement.
 		<enabled>1</enabled>
 	</logging>
 	<elements>
-		<UniqueElementName>
+		<UniqueCEConfigName>
 			<pageID>1000</pageID>
 			<subsiteID>1</subsiteID>
 			<elementType>custom</elementType>
 			<controlName>Unnamed</controlName>
-		</UniqueElementName>
+		</UniqueCEConfigName>
+		<UnqiueGlobalCEConfigName>
+			<elementType>custom</elementType>
+			<gceConduitConfig>
+				<timeout>60</timeout>
+				<customElementName>Another GCE Name</customElementName>
+			</gceConduitConfig>
+		</UnqiueGlobalCEConfigName>
 	</elements>
+	<!-- // Global Custom Element Conduit Page Pool -->
+	<gceConduitPagePool>
+		<globalTimeout>30</globalTimeout><!-- // seconds -->
+		<requestWaitTime>200</requestWaitTime><!-- // milliseconds -->
+		<logging>1</logging>
+		<conduitPages>
+			<page1>
+				<pageid>1000</pageid>
+				<csuserid>ccapiUser1</csuserid>
+				<cspassword>password</cspassword>
+			</page1>
+			<page2>
+				<pageid>1001</pageid>
+				<csuserid>ccapiUser2</csuserid>
+				<cspassword>password</cspassword>
+			</page2>
+		</conduitPages>
+	</gceConduitPagePool>
 	<wsVars>
 		<webserviceURL>#request.site.url#commonspot/webservice/cs_service.cfc?wsdl</webserviceURL>
 		<!-- // For CS 7.0.1+, 8.0.1+ and 9+ use the cs_remote.cfc -  uncomment webserviceURL below and delete the one above  -->
