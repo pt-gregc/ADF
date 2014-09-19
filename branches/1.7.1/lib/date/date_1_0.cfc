@@ -302,9 +302,8 @@ History:
 		var tzData = GetTimeZoneInfo();
 		var tzHrOffset = 0;
 		var tzMinOffset = 0;
-		var tzHrLeadingZero = 0;
-		var tzMinLeadingZero = 0;
 		var tzOperator = "+";
+
 		// Use the hourOffset value, if one is passed in
 		if ( LEN(TRIM(arguments.hourOffset)) AND IsNumeric(arguments.hourOffset) 
 				AND (arguments.hourOffset LTE 14 AND arguments.hourOffset GTE -(12)) ) 
