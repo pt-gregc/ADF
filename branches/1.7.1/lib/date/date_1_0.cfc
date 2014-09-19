@@ -34,7 +34,7 @@ History:
 --->
 <cfcomponent displayname="date_1_0" extends="ADF.core.Base" hint="Date Utils functions for ADF Library">
 
-<cfproperty name="version" value="1_0_3">
+<cfproperty name="version" value="1_0_4">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Date_1_0">
 
@@ -289,12 +289,14 @@ History:
 	2010-09-20 - MFC - Created
 	2011-03-09 - GAC - Fixes for issues with timezone, modified how the +/- operators render for the timezones
 					 - Added hourOffset and minuteOffset parameters
+	2014-09-18 - GAC - Updated by removing complex leading zero logic and replaced with NumberFormat padding
 --->
 <cffunction name="formatDateTimeISO8601" access="public" returntype="string" output="true" hint="">
 	<cfargument name="date" type="string" required="false" default="#now()#" hint="">
 	<cfargument name="time" type="string" required="false" default="#now()#" hint="">
 	<cfargument name="hourOffset" type="string" required="false" default="" hint="A value from -14 to 14 representing hour offset for a timezone">
 	<cfargument name="minuteOffset" type="string" required="false" default="" hint="A value from 1 to 59 representing minute offset for a timezone">
+	
 	<cfscript>
 		var tzStamp = "";
 		var tzData = GetTimeZoneInfo();
@@ -305,9 +307,10 @@ History:
 		var tzOperator = "+";
 		// Use the hourOffset value, if one is passed in
 		if ( LEN(TRIM(arguments.hourOffset)) AND IsNumeric(arguments.hourOffset) 
-				AND (arguments.hourOffset LTE 14 AND arguments.hourOffset GTE -(12)) ) {
+				AND (arguments.hourOffset LTE 14 AND arguments.hourOffset GTE -(12)) ) 
 			tzHrOffset = arguments.hourOffset;	
-		} else {
+		else 
+		{
 			// If hourOffset is not provided, use the GetTimeZoneInfo() values to ues Server's TimeZone information
 			// - the CF utcHourOffset value is reverse from standard offset (utcHourOffset: 5 for -05:00)
 			// - GetTimeZoneInfo() adjusts utcHourOffset for DST 
@@ -318,26 +321,23 @@ History:
 		}
 		// Use the minuteOffset value, if one is passed in
 		if ( LEN(TRIM(arguments.minuteOffset)) AND IsNumeric(arguments.minuteOffset) 
-				AND (arguments.minuteOffset LTE 59 AND arguments.minuteOffset GTE 1) ) {
+				AND (arguments.minuteOffset LTE 59 AND arguments.minuteOffset GTE 1) ) 
 			tzMinOffset = arguments.minuteOffset;	
-		} else {
+		else 
+		{
 			// If minuteOffset is not provided, use the GetTimeZoneInfo() values to use Server's TimeZone information	
 			if ( StructKeyExists(tzData,"utcMinuteOffset") )
 				tzMinOffset = tzData.utcMinuteOffset;	
 		}
-		// Count the tzHrOffest digits, do not use leading zero if there is more than 1 digit
-		if ( LEN(ABS(tzHrOffset)) GT 1 )
-			tzHrLeadingZero = "";
-		// Count the tzMinOffset digits, do not use leading zero if there is more than 1 digit
-		if ( LEN(tzMinOffset) GT 1 )	
-			tzMinLeadingZero = "";
 		// Set the timezone operator use (Proper ISO8601 format): 
 		// - (-) for timezones west of UTC (such as a zone in North America) 
 		// - (+) for timezones east of UTC (such as a zone in Germany)   
 		if ( tzHrOffset LTE 0 )
 			tzOperator = "-";
+		
 		// Build the timezone stamp
-		tzStamp = tzOperator & tzHrLeadingZero & ABS(tzHrOffset) & ":" & tzMinLeadingZero & tzMinOffset;
+		tzStamp = tzOperator & NumberFormat(ABS(tzHrOffset),"00") & ":" & NumberFormat(tzMinOffset,"00");
+		
 		// Build the string
 		return DateFormat(arguments.date,"yyyy-mm-dd") & "T" & TimeFormat(arguments.time,"HH:mm:ss") & tzStamp;
 	</cfscript>
