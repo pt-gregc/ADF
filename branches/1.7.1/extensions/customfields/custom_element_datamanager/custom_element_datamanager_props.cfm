@@ -42,12 +42,13 @@ History:
 	2014-03-17 - GAC - Added dbType="QofQ" to the handle-in-list call inside the selectedTypeFields query or queries
 	2014-07-01 - DJM - Added code to support metadata forms
 	2014-09-08 - DJM - Updated styles for Interface Options and Display Fields
+	2014-09-19 - GAC - Removed deprecated doLabel and jsLabelUpdater js calls
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "1.0.6"; 
+	fieldVersion = "1.0.7"; 
 	
 	// CS version and required Version variables
 	requiredCSversion = 9;
@@ -247,13 +248,7 @@ History:
 	jQuery.noConflict();
 	
 	fieldProperties['#typeid#'].paramFields = "#prefix#childCustomElement,#prefix#parentUniqueField,#prefix#childUniqueField,#prefix#childLinkedField,#prefix#inactiveField,#prefix#inactiveFieldValue,#prefix#displayFields,#prefix#sortByType,#prefix#sortByField,#prefix#sortByDir,#prefix#positionField,#prefix#assocCustomElement,#prefix#secondaryElementType,#prefix#interfaceOptions,#prefix#compOverride,#prefix#parentInstanceIDField,#prefix#childInstanceIDField,#prefix#widthValue,#prefix#widthUnit,#prefix#heightValue,#prefix#heightUnit,#prefix#newOptionText,#prefix#existingOptionText,#prefix#editAssocOptionText,#prefix#editChildOptionText,#prefix#deleteOptionText";
-	fieldProperties['#typeid#'].jsLabelUpdater = '#prefix#doLabel';
 	fieldProperties['#typeid#'].jsValidator = '#prefix#doValidate';
-	
-	function #prefix#doLabel(str)
-	{
-		document.#formname#.#prefix#label.value = str;
-	}
 	
 	function #prefix#toggleInputField(chkBoxObj,optionValue)
 	{
