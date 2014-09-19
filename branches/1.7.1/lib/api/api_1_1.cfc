@@ -21,16 +21,16 @@
 <!--- 
 	initApiPoolVars()
 --->
-<cffunction name="initApiPoolVars" returntype="void">
+<cffunction name="initApiPoolVars" returntype="void" output="false" access="private">
 	<cfscript>
 		variables.defaultRequestWaitTime = 200; //ms
-		variables.defaultGlobalTimeout = 30; // seconds
+		variables.defaultGlobalTimeout = 15; 	// seconds
 		
 		var adfAPIpoolVars = StructNew();
 		var adfAPIpoolConfig = StructNew();
 		
 		//-----//
-		// Build the ADF API POOL Configuration 
+		// Build the ADF API POOL Configuration data structure
 		
 		// associative array of configured pages
 		adfAPIpoolConfig.Pages = buildPoolConduitPagesFromAPIConfig();
@@ -49,7 +49,7 @@
 		adfAPIpoolConfig.logging = getLoggingFlagFromAPIConfig();
 		
 		//-----//
-		// Build the ADF API POOL Dynamic Variables. 
+		// Build the ADF API POOL data structure. 
 		
 		// associative array of available pages
 		adfAPIpoolVars.AvailablePoolPages = Duplicate(adfAPIpoolConfig.Pages); // Duplicate Config Page for the Pool Available pages
@@ -64,26 +64,6 @@
 		// Setup the Pool Vars Application variables (dynamic)
 		WritePagePool(poolData=adfAPIpoolVars);
 	</cfscript>
-	
-	<!--- // Setup the Config Values (static) --->
-	<!--- <cflock name="apiPoolConfig" type="exclusive" timeout="30">
-		<cfscript>
-			// If we are initializing then clear the apipool 
-			Application.ADF.apiPoolConfig = StructNew();
-
-			StructAppend(Application.ADF.apiPoolConfig, adfAPIpoolConfig, false);
-		</cfscript>
-	</cflock> --->
-	
-	<!--- // Setup the Pool Vars Values (dynamic) --->
-	<!--- <cflock name="apiPoolVars" type="exclusive" timeout="30">
-		<cfscript>
-			// If we are initializing then clear the apipool 
-			Application.ADF.apiPool = StructNew();
-
-			StructAppend(Application.ADF.apiPool, adfAPIpoolVars, false);
-		</cfscript>
-	</cflock> --->
 </cffunction>
 
 <!--- ///////////////////////////////////////////////////////////////// --->
@@ -93,7 +73,7 @@
 <!---	
 	getGlobalTimeoutSetting() - Page Pool request wait time value in milliseconds
 --->
-<cffunction name="getGlobalTimeoutSetting" returntype="numeric" access="public">
+<cffunction name="getGlobalTimeoutSetting" returntype="numeric" access="public" output="false">
 	<cfscript>
 		var retData = getGlobalTimeoutFromAPIConfig();
 		var apiPoolConfig = ReadPagePoolConfig();
@@ -101,14 +81,14 @@
 		if ( StructKeyExists(apiPoolConfig,"GLOBALTIMEOUT") AND IsNumeric(apiPoolConfig.GLOBALTIMEOUT) AND apiPoolConfig.GLOBALTIMEOUT GT 0 )
 			retData = apiPoolConfig.GLOBALTIMEOUT;
 
-		return retData
+		return retData;
 	</cfscript>
 </cffunction>
 
 <!---	
 	getRequestWaitTimeSetting() - Page Pool request wait time value in milliseconds
 --->
-<cffunction name="getRequestWaitTimeSetting" returntype="numeric" access="public">
+<cffunction name="getRequestWaitTimeSetting" returntype="numeric" access="public" output="false">
 	<cfscript>
 		var retData = getRequestWaitTimeFromAPIConfig();
 		var apiPoolConfig = ReadPagePoolConfig();
@@ -116,14 +96,14 @@
 		if ( StructKeyExists(apiPoolConfig,"REQUESTWAITTIME") AND IsNumeric(apiPoolConfig.requestWaitTime) AND apiPoolConfig.requestWaitTime GT 0 )
 			retData = apiPoolConfig.REQUESTWAITTIME;
 
-		return retData
+		return retData;
 	</cfscript>
 </cffunction>
 
 <!---	
 	getLoggingSetting() - Page Pool request wait time value in milliseconds
 --->
-<cffunction name="getLoggingSetting" returntype="boolean" access="public">
+<cffunction name="getLoggingSetting" returntype="boolean" access="public" output="false">
 	<cfscript>
 		var retData = false;
 		var apiPoolConfig = ReadPagePoolConfig();
@@ -131,14 +111,14 @@
 		if ( StructKeyExists(apiPoolConfig,"LOGGING") AND IsBoolean(apiPoolConfig.LOGGING) )
 			retData = apiPoolConfig.LOGGING;
 
-		return retData
+		return retData;
 	</cfscript>
 </cffunction>
 
 <!---	
 	getElementConfigTimeout(CEconfigName) - Returns timeout value for a specific ce config name in seconds
 --->
-<cffunction name="getElementConfigTimeout" returntype="string" access="public">
+<cffunction name="getElementConfigTimeout" returntype="string" access="public" output="false">
 	<cfargument name="CEconfigName" type="string" required="Yes">
 	
 	<cfscript>
@@ -156,7 +136,7 @@
 <!---	
 	getElementConfigFormID(CEconfigName) - Returns FormID value for a specific ce config name
 --->
-<cffunction name="getElementConfigFormID" returntype="numeric" access="public">
+<cffunction name="getElementConfigFormID" returntype="numeric" access="private" output="false">
 	<cfargument name="CEconfigName" type="string" required="Yes">
 	
 	<cfscript>
@@ -174,7 +154,7 @@
 <!---	
 	getElementConfigCEName(CEconfigName) - Returns CustomElementName value for a specific ce config name
 --->
-<cffunction name="getElementConfigCEName" returntype="string" access="public">
+<cffunction name="getElementConfigCEName" returntype="string" access="private" output="false">
 	<cfargument name="CEconfigName" type="string" required="Yes">
 	
 	<cfscript>
@@ -192,7 +172,7 @@
 <!---	
 	getConduitPageSubsiteID(pageid) - Returns SubsiteID for a specific Conduit Page  
 --->
-<cffunction name="getConduitPageSubsiteID" returntype="numeric" access="public">
+<cffunction name="getConduitPageSubsiteID" returntype="numeric" access="private" output="false">
 	<cfargument name="pageid" type="string" required="Yes">
 	
 	<cfscript>
@@ -210,7 +190,7 @@
 <!---	
 	getConduitPageCSUserID(pageid) - Returns CSUserID for a specific Conduit Page  
 --->
-<cffunction name="getConduitPageCSUserID" returntype="string" access="public">
+<cffunction name="getConduitPageCSUserID" returntype="string" access="private" output="false">
 	<cfargument name="pageid" type="string" required="Yes">
 	
 	<cfscript>
@@ -228,7 +208,7 @@
 <!---	
 	getConfigConduitPages() - Returns all of the Conduit Pages  
 --->
-<cffunction name="getConfigConduitPages" returntype="struct" access="public">
+<cffunction name="getConfigConduitPages" returntype="struct" access="private" output="false">
 	<cfscript>
 		var retData = StructNew();
 		var apiPoolConfig = ReadPagePoolConfig();
@@ -250,7 +230,7 @@
 		- 2) Checks if the there is an open conduit page
 			- if there is not an open conduit page adds the request to the Queue
 --->
-<cffunction name="getConduitPageFromPool" returntype="struct">
+<cffunction name="getConduitPageFromPool" returntype="struct" access="public" output="false">
 	<cfargument name="CEconfigName" type="string" required="yes">
 	<cfargument name="requestID" type="string" required="Yes">
 
@@ -296,7 +276,7 @@
 <!--- 
 	getRequestsPlaceInQueue(requestID) - gets the position of the request in the request queue
  --->
-<cffunction name="getRequestsPlaceInQueue" returntype="numeric">
+<cffunction name="getRequestsPlaceInQueue" returntype="numeric" access="private" output="false">
 	<cfargument name="requestID" type="string" required="yes">
 
 	<cfscript>
@@ -305,7 +285,7 @@
 		var addToQueue = false;
 		var requestQueue = ReadRequestQueueArray();
 	    
-	    //TODO: Add READ LOCK
+	    //TODO: Add READ LOCK (??)
 	    for( i=1; i lte ArrayLen(requestQueue); i=i+1 )
 		{
 			if ( requestQueue[i] eq arguments.requestID )
@@ -314,20 +294,10 @@
 				break;
 			}
 		}
-	    /* 
-	    if ( StructKeyExists(Application.ADF.apipool,"RequestQueueArray") AND IsArray(Application.ADF.apipool.RequestQueueArray) )
-		{
-			for( i=1; i lte ArrayLen(Application.ADF.apipool.RequestQueueArray); i=i+1 )
-			{
-				if ( Application.ADF.apipool.RequestQueueArray[i] eq arguments.requestID )
-					pos = i;
-			}
-	    }
-	    */
 		
 		if ( pos eq 0 )	// didn't find the request in the queue 
 		{
-			// TODO: Add an EXCLUSIVE LOCK with short timeout
+			// TODO: Add an EXCLUSIVE LOCK with short timeout (??)
 			// Add to queue
 			addToQueue = addRequestToQueue(requestID=arguments.requestID);
 			pos = getRequestQueueCount();
@@ -340,7 +310,7 @@
 <!--- 
 	addRequestToQueue(requestID)
  --->
-<cffunction name="addRequestToQueue" returntype="boolean">
+<cffunction name="addRequestToQueue" returntype="boolean" access="private" output="false">
 	<cfargument name="requestID" type="string" required="yes">
 	
 	<cfscript>
@@ -362,7 +332,7 @@
 <!--- 
 	getRequestQueueCount() - Count items in the Request Queue 
  --->
-<cffunction name="getRequestQueueCount" returntype="numeric">
+<cffunction name="getRequestQueueCount" returntype="numeric" access="private" output="false">
 	<cfscript>
 		var retCnt = 0;
 		var requestQueue = ReadRequestQueueArray();
@@ -376,21 +346,19 @@
 <!--- 
 	removeRequestFromQueue(requestID) - 
  --->
-<cffunction name="removeRequestFromQueue" returntype="boolean">
+<cffunction name="removeRequestFromQueue" returntype="boolean" access="private" output="false">
 	<cfargument name="queuePos" type="numeric" required="false" default="1">
 
 	<cfscript>
 		var delStatus = false;
 		var requestQueue = ReadRequestQueueArray();
 		
-	    //TODO: Add an EXCLUSIVE LOCK with short timeout
+	    //TODO: Add an EXCLUSIVE LOCK with short timeout (??)
 	    if ( ArrayLen(requestQueue) GTE arguments.queuePos )
 	  		delStatus = ArrayDeleteAt(requestQueue,arguments.queuePos);
-	  		
-	  	WriteRequestQueueArray(queueData=requestQueue);
-	    
-	    //if ( StructKeyExists(Application.ADF.apipool,"RequestQueueArray") AND ArrayLen(Application.ADF.apipool.RequestQueueArray) GTE arguments.queuePos )
-	  	//	delStatus = ArrayDeleteAt(Application.ADF.apipool.RequestQueueArray,arguments.queuePos);	
+	  	
+	  	// Update the Request Queue array	
+	  	WriteRequestQueueArray(queueData=requestQueue);	
 	 		
 		return delStatus;
 	</cfscript>
@@ -404,7 +372,7 @@
 		- if an open page is NOT found
 			1) return 0
  --->
-<cffunction name="getOpenConduitPageIDFromPool" returntype="numeric">
+<cffunction name="getOpenConduitPageIDFromPool" returntype="numeric" access="private" output="false">
 	<cfargument name="requestID" type="string" required="yes">
 	
 	<cfscript>
@@ -427,7 +395,7 @@
 					// If we are here... the Page is OPEN!!
 					retPageID = key;
 					
-					// TODO: Add excusive locking for ProcessingPoolPages
+					// TODO: Add excusive locking for ProcessingPoolPages (??)
 					
 					// Add to Processing Page Assoc array
 					processingPageData = StructNew();
@@ -437,16 +405,14 @@
 					
 					processingPages[retPageID] = processingPageData;
 					
+					// Update the Processing Pool Pages
 					WritePoolProcessingPages(pagesData=processingPages);
-					//Application.ADF.apipool.ProcessingPoolPages[retPageID] = processingPageData;
 					
-					// TODO: Add excusive locking for AvailablePoolPages
+					// TODO: Add excusive locking for AvailablePoolPages (??)
 					
-					// Remove from Available Assoc array 
+					// Remove from Available Pages Assoc array 
 					StructDelete(availablePagesInPool,retPageID);
 					WritePoolAvailablePages(pagesData=availablePagesInPool);
-					//if ( StructKeyExists(Application.ADF.apipool,"AvailablePoolPages") )
-					//	StructDelete(Application.ADF.apipool.AvailablePoolPages,retPageID);
 					
 					// Force the loop to quit once we have provided an open pageID
 					break;
@@ -461,7 +427,7 @@
 <!--- 
 	getAvailablePoolPagesCount() - Count the AVAILABLE Conduit Pages currently in the Pool
  --->
-<cffunction name="getAvailablePoolPagesCount" returntype="numeric">
+<cffunction name="getAvailablePoolPagesCount" returntype="numeric" access="private" output="false">
 	<cfscript>
 		var retCnt = 0;
 		var poolPages = ReadPoolAvailablePages();
@@ -475,7 +441,7 @@
 <!--- 
 	getProcessingPoolPagesCount() - Count the PROCESSING Conduit Pages currently being used
  --->
-<cffunction name="getProcessingPoolPagesCount" returntype="numeric">
+<cffunction name="getProcessingPoolPagesCount" returntype="numeric" access="private" output="false">
 	
 	<cfscript>
 		var retCnt = 0;
@@ -494,7 +460,7 @@
 <!--- 
 	markRequestComplete() - mark the request complete by removing the page from the processing page and put it back in available page
  --->
-<cffunction name="markRequestComplete" returntype="boolean">
+<cffunction name="markRequestComplete" returntype="boolean" access="public" output="false">
 	<cfargument name="requestID" type="string" required="yes">
 	
 	<cfscript>
@@ -526,7 +492,7 @@
 <!--- 
 	setPoolPageAsOpen(pageID)
  --->
-<cffunction name="setPoolPageAsOpen" returntype="numeric">
+<cffunction name="setPoolPageAsOpen" returntype="numeric" access="private" output="false">
 	<cfargument name="pageID" type="string" required="yes">
 	
 	<cfscript>
@@ -538,10 +504,12 @@
 		
 		var csData = server.ADF.objectFactory.getBean("csdata_1_2");
 		
+		// TODO: Add Locking (??)
 		if ( StructKeyExists(processingPoolPages,arguments.pageID) )
 		{
 			// Remove the Processing PageID from the ProcessingPoolPages
 			StructDelete(processingPoolPages,arguments.pageID);
+			// Update the Processing pages Struture
 			WritePoolProcessingPages(pagesData=processingPoolPages);
 				
 			// Add PageID back to available pages
@@ -556,41 +524,11 @@
 				
 				// Add back to the AvailablePoolPages
 				WritePoolAvailablePages(pagesData=availablePoolPages);
-				//StructAppend( Application.ADF.apipool.AVAILABLEPOOLPAGES[arguments.pageID], openPoolPage);
 				
 				retPageID = arguments.pageID;
 			}
 		}
-		
-		
-		// TODO: Add Locking
-		/* if ( StructKeyExists(Application.ADF.apipool,"ProcessingPoolPages") AND StructKeyExists(Application.ADF.apipool.ProcessingPoolPages,arguments.pageID) )
-		{
-			// Remove the Processing PageID from the ProcessingPoolPages
-			StructDelete(Application.ADF.apipool.ProcessingPoolPages,arguments.pageID);
-			
-			if ( !StructKeyExists(Application.ADF.apipool,"AVAILABLEPOOLPAGES") )
-				Application.ADF.apipool.AVAILABLEPOOLPAGES = Duplicate(configPoolPages);
-				
-			// Add PageID back to available pages
-			if ( csData.isCSPageActive(pageid=arguments.pageID) )
-			{ 	
-				if ( !StructKeyExists(Application.ADF.apipool,"AVAILABLEPOOLPAGES") )
-					Application.ADF.apipool.AVAILABLEPOOLPAGES = Duplicate(availablePagesPool);
-				
-				if ( !StructKeyExists(Application.ADF.apipool.AVAILABLEPOOLPAGES,arguments.pageID) )
-					Application.ADF.apipool.AVAILABLEPOOLPAGES[arguments.pageID] = StructNew();
-				
-				openPoolPage.SubsiteID = getConduitPageSubsiteID(pageID=arguments.PageID);  
-				openPoolPage.csuserid  = getConduitPageCSUserID(pageID=arguments.PageID); 
-				
-				// Add back to the AvailablePoolPages
-				StructAppend( Application.ADF.apipool.AVAILABLEPOOLPAGES[arguments.pageID], openPoolPage);
-				
-				retPageID = arguments.pageID;
-			}
-		}*/
-		
+
 		return retPageID;
 	</cfscript>	
 </cffunction>
@@ -598,7 +536,7 @@
 <!--- 
 	getPageIDFromProcessingRequests(requestID)
  --->
-<cffunction name="getPageIDFromProcessingRequests" returntype="numeric">
+<cffunction name="getPageIDFromProcessingRequests" returntype="numeric" access="private" output="false">
 	<cfargument name="requestID" type="string" required="yes">
 
 	<cfscript>
@@ -625,9 +563,9 @@
 <!--- ///////////////////////////////////////////////////////////////// --->
 
 <!--- 
-	getCCAPIcontrolID(csPageID,FormID,controlName)
+	getCCAPIcontrolID(csPageID,FormID,controlName) - DEV ONLY
  --->
-<cffunction name="getCCAPIcontrolID" returntype="numeric">
+<cffunction name="getCCAPIcontrolID" returntype="numeric" access="public" output="false">
 	<cfargument name="csPageID" type="numeric" required="yes">
 	<cfargument name="formID" type="numeric" required="yes">
 	<cfargument name="ControlName" type="string" required="false" default="ccapiGCEPoolControl_#arguments.csPageID#_#arguments.FormID#" hint="name to be assigned">
@@ -679,7 +617,7 @@
 <!--- 
 	getPageLockStatus(csPageID)
  --->
-<cffunction name="getPageLockStatus" returntype="struct">
+<cffunction name="getPageLockStatus" returntype="struct" access="private" output="false">
 	<cfargument name="csPageID" type="numeric" required="yes">
 	
 	<cfscript>
@@ -693,7 +631,7 @@
 <!--- 
 	IsPageLocked(csPageID)
  --->
-<cffunction name="IsPageLocked" returntype="boolean">
+<cffunction name="IsPageLocked" returntype="boolean" access="private" output="false">
 	<cfargument name="csPageID" type="numeric" required="yes">
 	
 	<cfscript>
@@ -710,7 +648,7 @@
 <!--- 
 	clearLock(csPageID) - Clears the lock for a page id passed in
  --->
-<cffunction name="clearLock" returntype="boolean" access="private">
+<cffunction name="clearLock" returntype="boolean" access="private" output="false">
 	<cfargument name="csPageID" type="numeric" required="yes">
 	
 	<cfreturn application.ADF.ccapi.clearLock(pageID=arguments.csPageID)>
@@ -723,7 +661,7 @@
 <!--- 
 	pagePoolDateTimeFormat()
 --->
-<cffunction name="pagePoolDateTimeFormat" returntype="date">	
+<cffunction name="pagePoolDateTimeFormat" returntype="date" access="public" output="false">	
 	<cfargument name="datetime" required="false" type="string" default="#now()#">
 
 	<cfscript>
@@ -741,7 +679,7 @@
 <!--- 
 	buildPoolConduitPagesFromAPIConfig() - builds the pool structure from the ccapi config values
  --->
-<cffunction name="buildPoolConduitPagesFromAPIConfig" returntype="struct" output="true">
+<cffunction name="buildPoolConduitPagesFromAPIConfig" returntype="struct" output="false" access="private">
 	<cfscript>
 		var retData = StructNew();
 		var apiConfig = getAPIConfig();
@@ -789,16 +727,9 @@
 					poolPageConfig.csuserid = poolPages[key].csuserid;
 				else
 					configNodeStatus = false;
-				
-				/*	Security issue with storing the password in Application.ADF.apiPool or Application.ADF.apiPoolConfig
-				if ( configNodeStatus AND StructKeyExists(poolPages[key],"cspassword") )
-					poolPageConfig.cspassword = poolPages[key].cspassword;
-				else
-					configNodeStatus = false;
-				*/
-				
-				// We still want to check if the PW was added to the pool page config
-				// - may want to add a quick login/logout check to make sure the userid and password are valid before adding the to the POOL
+
+				// Don't add the PW to the config struct but we still want to check if the PW was added to the pool page config
+				// - TODO: may want to add a quick login/logout check to make sure the userid and password are valid before adding the to the POOL
 				if ( configNodeStatus )
 				{
 					if ( !StructKeyExists(poolPages[key],"cspassword") OR LEN(TRIM(poolPages[key].cspassword)) EQ 0 )
@@ -822,7 +753,7 @@
 <!--- 
 	buildElementConfigFromAPIConfig() - 
  --->
-<cffunction name="buildElementConfigFromAPIConfig" returntype="struct">
+<cffunction name="buildElementConfigFromAPIConfig" returntype="struct" access="private" output="false">
 	<cfscript>
 		var retData = StructNew();
 		var poolElements = StructNew();
@@ -875,7 +806,7 @@
 <!---	
 	getGlobalTimeoutFromAPIConfig() -  Page Pool Global Timeout value in seconds
 --->
-<cffunction name="getGlobalTimeoutFromAPIConfig" returntype="numeric">
+<cffunction name="getGlobalTimeoutFromAPIConfig" returntype="numeric" access="private" output="false">
 	<cfscript>
 		var retData = variables.defaultGlobalTimeout;
 		var apiConfig = getAPIConfig();
@@ -884,14 +815,14 @@
 			AND IsNumeric(apiConfig.gceConduitPagePool.globalTimeout) AND apiConfig.gceConduitPagePool.globalTimeout GT 0 )
 			retData = apiConfig.gceConduitPagePool.globalTimeout;
 
-		return retData
+		return retData;
 	</cfscript>
 </cffunction>
 
 <!---	
 	getLoggingFlagFromAPIConfig() -  Page Pool Global Timeout value in seconds
 --->
-<cffunction name="getLoggingFlagFromAPIConfig" returntype="boolean">
+<cffunction name="getLoggingFlagFromAPIConfig" returntype="boolean" access="private" output="false">
 	<cfscript>
 		var retData = 0; // default: false
 		var apiConfig = getAPIConfig();
@@ -900,14 +831,14 @@
 			AND IsBoolean(apiConfig.gceConduitPagePool.logging) )
 			retData = apiConfig.gceConduitPagePool.logging;
 		
-		return retData
+		return retData;
 	</cfscript>
 </cffunction>
 
 <!---	
 	getRequestWaitTimeFromAPIConfig() -  Page Pool request wait time value in milliseconds from the API config
 --->
-<cffunction name="getRequestWaitTimeFromAPIConfig" returntype="boolean">
+<cffunction name="getRequestWaitTimeFromAPIConfig" returntype="boolean" access="private" output="false">
 	<cfscript>
 		var retData = variables.defaultRequestWaitTime;
 		var apiConfig = getAPIConfig();
@@ -916,14 +847,14 @@
 			AND IsNumeric(apiConfig.gceConduitPagePool.requestWaitTime) AND apiConfig.gceConduitPagePool.requestWaitTime GT 0 )
 			retData = apiConfig.gceConduitPagePool.requestWaitTime;
 		
-		return retData
+		return retData;
 	</cfscript>
 </cffunction>
 
 <!---	
 	getConduitPoolPagePasswordFromAPIConfig(pageID) - Returns Page Pool Password for a given PageID
 --->
-<cffunction name="getConduitPoolPagePasswordFromAPIConfig" returntype="string" access="public">
+<cffunction name="getConduitPoolPagePasswordFromAPIConfig" returntype="string" access="public" output="false">
 	<cfargument name="pageID" type="string" required="Yes">
 	
 	<cfscript>
@@ -956,7 +887,7 @@
 <!---	
 	ReadPagePoolConfig()
 --->
-<cffunction name="ReadPagePoolConfig" returntype="struct" access="private">	
+<cffunction name="ReadPagePoolConfig" returntype="struct" access="private" output="false">	
 	<cflock name="apiPoolConfigRead" type="read" timeout="10">
 		<cfreturn Application.ADF.apiPoolConfig>
 	</cflock>
@@ -964,7 +895,7 @@
 <!---	
 	WritePagePoolConfig(configData)
 --->
-<cffunction name="WritePagePoolConfig" returntype="void" access="private">
+<cffunction name="WritePagePoolConfig" returntype="void" access="private" output="false">
 	<cfargument name="configData" type="struct" required="Yes">	
 
 	<cflock name="apiPoolConfigWrite" type="exclusive" timeout="10">
@@ -980,7 +911,7 @@
 <!---	
 	ReadPagePool()
 --->
-<cffunction name="ReadPagePool" returntype="struct" access="private">
+<cffunction name="ReadPagePool" returntype="struct" access="private" output="false">
 	<cflock name="apiPoolVarsRead" type="read" timeout="10">
 		<cfreturn Application.ADF.apipool>
 	</cflock>
@@ -988,7 +919,7 @@
 <!---	
 	WritePagePool(poolData)
 --->
-<cffunction name="WritePagePool" returntype="void" access="private">
+<cffunction name="WritePagePool" returntype="void" access="private" output="false">
 	<cfargument name="poolData" type="struct" required="Yes">	
 	
 	<cflock name="apiPoolVarsWrite" type="exclusive" timeout="10">
@@ -1004,7 +935,7 @@
 <!---	
 	ReadPoolAvailablePages()
 --->
-<cffunction name="ReadPoolAvailablePages" returntype="struct" access="private">	
+<cffunction name="ReadPoolAvailablePages" returntype="struct" access="private" output="false">	
 	<cfscript>
 		if ( !StructKeyExists(Application.ADF.apipool,"AvailablePoolPages") OR !IsStruct(Application.ADF.apipool.AvailablePoolPages) )
 			Application.ADF.apipool.AvailablePoolPages = StructNew();
@@ -1015,7 +946,7 @@
 <!---	
 	WritePoolAvailablePages(pagesData)
 --->
-<cffunction name="WritePoolAvailablePages" returntype="void" access="private">
+<cffunction name="WritePoolAvailablePages" returntype="void" access="private" output="false">
 	<cfargument name="pagesData" type="struct" required="Yes">	
 	
 	<cfscript>
@@ -1029,7 +960,7 @@
 <!---	
 	ReadPoolProcessingPages()
 --->
-<cffunction name="ReadPoolProcessingPages" returntype="struct" access="private">
+<cffunction name="ReadPoolProcessingPages" returntype="struct" access="private" output="false">
 	<cfscript>
 		if ( !StructKeyExists(Application.ADF.apipool,"ProcessingPoolPages") OR !IsStruct(Application.ADF.apipool.ProcessingPoolPages) )
 			Application.ADF.apipool.ProcessingPoolPages = StructNew();
@@ -1040,7 +971,7 @@
 <!---	
 	WritePoolProcessingPages(pagesData)
 --->
-<cffunction name="WritePoolProcessingPages" returntype="void" access="private">
+<cffunction name="WritePoolProcessingPages" returntype="void" access="private" output="false">
 	<cfargument name="pagesData" type="struct" required="Yes">	
 
 	<cfscript>
@@ -1054,7 +985,7 @@
 <!---	
 	ReadRequestQueueArray()
 --->
-<cffunction name="ReadRequestQueueArray" returntype="array" access="private">		
+<cffunction name="ReadRequestQueueArray" returntype="array" access="private" output="false">		
 	<cfscript>
 		if ( !StructKeyExists(Application.ADF.apipool,"RequestQueueArray") OR !IsArray(Application.ADF.apipool.RequestQueueArray) )
 			Application.ADF.apipool.RequestQueueArray = ArrayNew(1);
@@ -1065,7 +996,7 @@
 <!---	
 	WriteRequestQueueArray(queueData)
 --->
-<cffunction name="WriteRequestQueueArray" returntype="void" access="private">
+<cffunction name="WriteRequestQueueArray" returntype="void" access="private" output="false">
 	<cfargument name="queueData" type="array" required="Yes">
 		
 	<cfscript>
@@ -1075,32 +1006,5 @@
 		 Application.ADF.apipool.RequestQueueArray = arguments.queueData;
 	</cfscript>
 </cffunction>
-
-
-<!--- 
-	dev methods
- --->
-
-<!---  
-	-- ReadPoolAvailablePages()
-	-- WritePoolAvailabelPages()
-	DeleteAvailabelPoolPage()
-	
-	-- ReadPoolProcessingPages()
-	-- WritePoolProcessingPages()
-	DeleteProcessingPoolPages()
-	
-	-- ReadRequestQueueArray()
-	-- WriteRequestQueueArray()
-	DeleteRequestQueueArray()
-	
-	-ReadPagePoolConfig()
-	-WriteApiPool()
-	
-	ProcessingPoolPages = StructNew();
-	AvailablePoolPages = StructNew();
-	RequestQueueArray = StructNew();  
-
---->
 
 </cfcomponent>

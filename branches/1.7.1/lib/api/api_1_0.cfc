@@ -684,13 +684,13 @@ History:
 			// Clear the API token
 			clearAPIToken();
 			// Log Success
-			if( apiConfig.logging.enabled )
+			if ( apiConfig.logging.enabled )
 				variables.utils.logAppend("#request.formattedTimestamp# - CCAPI Logout Success.", "API_Login.log");
 		}
 		else 
 		{
 			// Log Error
-			if( apiConfig.logging.enabled )
+			if ( apiConfig.logging.enabled )
 				variables.utils.logAppend("#request.formattedTimestamp# - Error Logout with the CCAPI: #logoutResult#", "API_Login.log");
 		}
 	</cfscript>
@@ -716,7 +716,7 @@ History:
 			else
 				session.ADF.API.csSession.CFToken = 0;
 			
-			if (ListLen(arguments.ssid, " ") GT 3)
+			if ( ListLen(arguments.ssid, " ") GT 3 )
 				session.ADF.API.csSession.JSessionID = ListGetAt(arguments.ssid, 3, " ");
 		}
 		setSiteURL(ListLast(arguments.ssid, " "));
@@ -744,17 +744,12 @@ History:
 	<cfscript>
 		var httpSubsiteURL = getSiteURL();
 		var subsiteData = application.ADF.csData.getSubsiteQueryByID(subsiteID=getSubsiteID());
-		//application.ADF.utils.dodump(httpSubsiteURL,"buildSubsiteFullURL - httpSubsiteURL", false);	
-		//application.ADF.utils.dodump(subsiteData,"buildSubsiteFullURL - subsiteData", false);	
-		//application.ADF.utils.dodump(request.site.CP_URL,"buildSubsiteFullURL - request.site.CP_URL", false);	
-	
+
 		// Remove the root subsite from the path
 		httpSubsiteURL = Replace(httpSubsiteURL, request.site.CP_URL, "");
-		//application.ADF.utils.dodump(httpSubsiteURL,"buildSubsiteFullURL - httpSubsiteURL", false);	
 		
 		// Add the subsite path to the string
 		httpSubsiteURL = httpSubsiteURL & subsiteData.SubSiteURL;
-		//application.ADF.utils.dodump(httpSubsiteURL,"buildSubsiteFullURL - httpSubsiteURL", false);		
 		
 		return httpSubsiteURL;
 	</cfscript>

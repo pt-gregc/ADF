@@ -54,11 +54,12 @@ History:
 		var apiResponse = "";
 		var loggingEnabled = true;
 		var logFileName = "API_Element_populateCustom.log";
-		var logErrorFileName = "API_Element_populateCustom_error.log";
+		var logErrorFileName = ListFirst(logFileName,".") & "_error." & ListLast(logFileName,".");
 		
 		var csData = server.ADF.objectFactory.getBean("csdata_1_2");
 		
 		var runPopulateCustom = true;
+		var verbose = false;
 		
 		var usePagePool = false;
 		var pagePoolRequestID = "";
@@ -68,17 +69,17 @@ History:
 		var pagePoolRequestCurrentTime = "";
 		
 		var pagePoolParams = StructNew();
-		var pagePoolMaxAttempts = 15;
+		var pagePoolMaxAttempts = 20;
 		var pagePoolAttemptCount = 0;
-		var pagePoolRequestWaitTime = variables.api.getRequestWaitTimeSetting(); //ms
-		var pagePoolRequestTimeout = variables.api.getGlobalTimeoutSetting(); // seconds
-		var pagePoolLogging = variables.api.getLoggingSetting();
+		var pagePoolRequestWaitTime = variables.api.getRequestWaitTimeSetting(); 	// ms
+		var pagePoolRequestTimeout = variables.api.getGlobalTimeoutSetting(); 		// seconds
+		var pagePoolLogging = variables.api.getLoggingSetting(); 					// boolean
 		
 		var pagePoolLog = StructNew();
 		var pagePoolLogText = "";
 		
 		pagePoolLog.msg = "";
-		pagePoolLog.logFile = "API_Element_populateCustom_pagepool.log";
+		pagePoolLog.logFile = ListFirst(logFileName,".") & "_pagePool." & ListLast(logFileName,".");
 		
 		// Init the return data structure
 		result.status = false;
@@ -94,18 +95,133 @@ History:
 			loggingEnabled = apiConfig.logging.enabled;
 		else
 			loggingEnabled = false;
-		
+
 		// Get the configuration options from the specific element node
 		if ( isStruct(apiConfig) AND StructKeyExists(apiConfig, "elements") AND StructKeyExists(apiConfig.elements,arguments.elementName) )
 			thisElementConfig = apiConfig.elements[arguments.elementName];
+			
+		// -- START - Page Pool Logic -- //	
+		// If conduit pages are configured use the Page Pool system to get the conduit pageID for the request			
+		if ( StructKeyExists(apiConfig.elements[arguments.elementName],"elementType") AND apiConfig.elements[arguments.elementName].elementType EQ "custom"
+			AND StructKeyExists(apiConfig.elements[arguments.elementName],"gceConduitConfig") AND IsStruct(apiConfig.elements[arguments.elementName].gceConduitConfig) )
+		{
+			usePagePool = true;
+			
+			// Get the current Page Request and store it locally;
+			//pagePoolRequestID = Request.ADF.apiPagePool.requestID;
+			pagePoolRequestID = CreateUUID();
+			pagePoolRequestStart = variables.API.pagePoolDateTimeFormat(Now());
+			pagePoolRequestTimeout = variables.api.getElementConfigTimeout(CEconfigName=arguments.elementName);
+			
+			pagePoolRequestEndBy = DateAdd("s",pagePoolRequestTimeout,pagePoolRequestStart);
+			
+if ( verbose )
+{			
+	variables.utils.doDUMP(pagePoolRequestID,"pagePoolRequestID");
+	variables.utils.doDUMP(pagePoolRequestStart,"pagePoolRequestStart");
+	variables.utils.doDUMP(pagePoolRequestEndBy,"pagePoolRequestEndBy");
+}
+			
+			// Run REQUEST until a Conduit page becomes available
+			while( true )
+			{
+				
+				pagePoolParams = variables.api.getConduitPageFromPool(CEconfigName=arguments.elementName, requestID=pagePoolRequestID);
+
+if ( verbose )
+{	
+	variables.utils.doDUMP(pagePoolParams.pageID,"page Pool pageID");					
+	variables.utils.doDUMP(pagePoolParams,"pagePoolParams");
+	variables.utils.doDUMP(Application.ADF.apipool,"Application.ADF.apipool");
+}	
+			
+				if ( pagePoolLogging )
+				{
+					pagePoolLogText = "Element [#arguments.elementName#] RequestID: #pagePoolRequestID# - Conduit PageID Requested: #pagePoolParams.pageID#";
+					pagePoolLog.msg = _apiLogMsgWrapper(logMsg=pagePoolLog.msg,logEntry=pagePoolLogText);
+				}
+				
+				// check if slot in pool is returned
+				if ( pagePoolParams.pageID neq 0 )
+				{	
+					arguments.forcePageID = pagePoolParams.pageID;	
+					arguments.forceSubsiteID = pagePoolParams.subsiteID;
+					arguments.forceControlID = variables.api.getCCAPIcontrolID(
+																	csPageID=pagePoolParams.pageID
+																	,formID=pagePoolParams.FormID
+																	,controlName="ccapiGCEPoolControl_#pagePoolParams.pageID#_#pagePoolParams.FormID#"
+																);
+					arguments.forceUsername = pagePoolParams.csuserid;
+			 		arguments.forcePassword = variables.api.getConduitPoolPagePasswordFromAPIConfig(pageID=pagePoolParams.pageID);
+					
+					// If a valid pageID is returned the BREAK the WHILE loop
+					break;	
+				}
+				else
+				{
+					
+					pagePoolRequestCurrentTime = variables.API.pagePoolDateTimeFormat(Now());
+					
+					// Befroe moving on check to make sure the request has not timed out - Default: 15 secs
+					if ( DateCompare(pagePoolRequestCurrentTime,pagePoolRequestEndBy,"s") GTE 1 )
+					{
+						runPopulateCustom = false;
+						if ( pagePoolLogging ) 
+						{
+							pagePoolLogText = "Element [#arguments.elementName#] RequestID: #pagePoolRequestID# - NO OPEN PAGE FOUND! Request Timed Out!!";
+							pagePoolLog.msg = _apiLogMsgWrapper(logMsg=pagePoolLog.msg,logEntry=pagePoolLogText);
+						}
+						break;
+					}
+	
+					if ( pagePoolLogging ) 
+					{
+						pagePoolLogText = "Element [#arguments.elementName#] RequestID: #pagePoolRequestID# - NO OPEN PAGE FOUND! Sleeping...";
+						pagePoolLog.msg = _apiLogMsgWrapper(logMsg=pagePoolLog.msg,logEntry=pagePoolLogText);
+					}
+					
+					// Wait for a page to be available from the conduit page pool
+					sleep(pagePoolRequestWaitTime);	 // default: 200
+					
+					if ( pagePoolLogging ) 
+					{
+						pagePoolLogText = "Element [#arguments.elementName#] RequestID: #pagePoolRequestID# - NO OPEN PAGE FOUND! Waking up to try again...";
+						pagePoolLog.msg = _apiLogMsgWrapper(logMsg=pagePoolLog.msg,logEntry=pagePoolLogText);
+					}
+				}
+
+				// Count the attempt to request a conduit page from the pool
+				pagePoolAttemptCount = pagePoolAttemptCount + 1;
+				
+				// If the attempts are greater than the max attempts use the default conduit page (and get in line to WAIT)
+				// ( DO WE KILL THE WHOLE REQUEST or DO WE USE DEFAULT CONDUIT PAGEID )
+				if ( pagePoolAttemptCount GTE pagePoolMaxAttempts)
+				{
+					// Log the issue!!  
+					runPopulateCustom = false;
+					if ( pagePoolLogging ) 
+					{
+						pagePoolLogText = "Element [#arguments.elementName#] RequestID: #pagePoolRequestID# - Warning: Requested a Conduit Page #pagePoolAttemptCount# Times. Max Exceeded!";
+						pagePoolLog.msg = _apiLogMsgWrapper(logMsg=pagePoolLog.msg,logEntry=pagePoolLogText);
+					}
+					//break;
+				}
+			}	
+		}
+		// -- END - Page Pool Logic --//	
 		
 		// Check if the "forceControlName", "forceSubsiteID", and "forcePageID" arguments are defined, 
 		// then setup the element config to bypass the config file.
-		if ( arguments.forcePageID GT 0  AND ( LEN(TRIM(arguments.controlName)) OR arguments.controlID GT 0 ) )
+		if ( arguments.forcePageID GT 0  AND ( LEN(TRIM(arguments.forceControlName)) OR arguments.forceControlID GT 0 ) )
 		{
 			// Override any value set from the config
 			thisElementConfig['pageID'] = arguments.forcePageID;
-			thisElementConfig['subsiteID'] = csData.getSubsiteIDByPageID(pageid=thisElementConfig['pageID']);
+			
+			if ( IsNumeric(arguments.forceSubsiteID) AND  arguments.forceSubsiteID GT 0 )
+				thisElementConfig['subsiteID'] = arguments.forceSubsiteID;
+			else
+				thisElementConfig['subsiteID'] = csData.getSubsiteIDByPageID(pageid=thisElementConfig['pageID']);
+					
 			thisElementConfig['elementType'] = "custom";
 			
 			// Check if we want to use the control name of control id
@@ -131,126 +247,6 @@ History:
 		{		
 			if ( StructKeyExists(thisElementConfig,"pageID") AND IsNumeric(thisElementConfig['pageID']) AND thisElementConfig['pageID'] GT 0 )	
 				thisElementConfig["subsiteID"] = csData.getSubsiteIDByPageID(pageid=thisElementConfig['pageID']);
-			
-			// -- START - Page Pool Logic -- //	
-			// If conduit pages are configured use the Page Pool system to get the conduit pageID for the request			
-			if ( StructKeyExists(apiConfig.elements[arguments.elementName],"elementType") AND apiConfig.elements[arguments.elementName].elementType EQ "custom"
-				AND StructKeyExists(apiConfig.elements[arguments.elementName],"gceConduitConfig") AND IsStruct(apiConfig.elements[arguments.elementName].gceConduitConfig) )
-			{
-				usePagePool = true;
-				
-				// Get the current Page Request and store it locally;
-				//pagePoolRequestID = Request.ADF.apiPagePool.requestID;
-				pagePoolRequestID = CreateUUID();
-				pagePoolRequestStart = variables.API.pagePoolDateTimeFormat(Now());
-				pagePoolRequestTimeout = variables.api.getElementConfigTimeout(CEconfigName=arguments.elementName);
-				
-				pagePoolRequestEndBy = DateAdd("s",pagePoolRequestTimeout,pagePoolRequestStart);
-				
-				
-application.ADF.utils.doDUMP(pagePoolRequestID,"pagePoolRequestID");
-application.ADF.utils.doDUMP(pagePoolRequestStart,"pagePoolRequestStart");
-application.ADF.utils.doDUMP(pagePoolRequestEndBy,"pagePoolRequestEndBy");
-
-				
-				// Run REQUEST until a Conduit page becomes available
-				while( true )
-				{
-					
-					pagePoolParams = variables.api.getConduitPageFromPool(CEconfigName=arguments.elementName, requestID=pagePoolRequestID);
-
-application.ADF.utils.doDUMP(pagePoolParams.pageID,"page Pool pageID");					
-application.ADF.utils.doDUMP(pagePoolParams,"pagePoolParams");
-application.ADF.utils.doDUMP(Application.ADF.apipool,"Application.ADF.apipool");
-					
-					if ( pagePoolLogging )
-					{
-						pagePoolLogText = "Element [#arguments.elementName#] RequestID: #pagePoolRequestID# - Conduit PageID Requested: #pagePoolParams.pageID#";
-						pagePoolLog.msg = _apiLogMsgWrapper(logMsg=pagePoolLog.msg,logEntry=pagePoolLogText);
-					}
-					
-					// check if slot in pool is returned
-					if ( pagePoolParams.pageID neq 0 )
-					{	
-						thisElementConfig["pageID"]	= pagePoolParams.pageID;	
-						thisElementConfig["subsiteID"] = pagePoolParams.subsiteID;
-						thisElementConfig["controlID"] = variables.api.getCCAPIcontrolID(csPageID=pagePoolParams.pageID,formID=pagePoolParams.FormID);
-						
-						// TODO: set the control name
-						thisElementConfig["controlName"] = "ccapiGCEPoolControl_#pagePoolParams.pageID#_#pagePoolParams.FormID#";
-						 
-						arguments.forceUsername = pagePoolParams.csuserid;
-				 		arguments.forcePassword = variables.api.getConduitPoolPagePasswordFromAPIConfig(pageID=pagePoolParams.pageID);
-						
-						// If a valid pageID is returned the BREAK the WHILE loop
-						break;	
-					}
-					else
-					{
-						
-						pagePoolRequestCurrentTime = variables.API.pagePoolDateTimeFormat(Now());
-						// Befroe Moving on Check to make sure the request has not timed out
-						if ( DateCompare(pagePoolRequestCurrentTime,pagePoolRequestEndBy,"s") GTE 1 )
-						{
-							runPopulateCustom = false;
-							if ( pagePoolLogging ) 
-							{
-								pagePoolLogText = "Element [#arguments.elementName#] RequestID: #pagePoolRequestID# - NO OPEN PAGE FOUND! Request Timed Out!!";
-								pagePoolLog.msg = _apiLogMsgWrapper(logMsg=pagePoolLog.msg,logEntry=pagePoolLogText);
-							}
-							break;
-						}
-						
-						
-						if ( pagePoolLogging ) 
-						{
-							pagePoolLogText = "Element [#arguments.elementName#] RequestID: #pagePoolRequestID# - NO OPEN PAGE FOUND! Sleeping...";
-							pagePoolLog.msg = _apiLogMsgWrapper(logMsg=pagePoolLog.msg,logEntry=pagePoolLogText);
-						}
-						
-						// Wait for a page to be available from the conduit page pool
-						sleep(pagePoolRequestWaitTime);	 //default:200
-						
-						if ( pagePoolLogging ) 
-						{
-							pagePoolLogText = "Element [#arguments.elementName#] RequestID: #pagePoolRequestID# - NO OPEN PAGE FOUND! Waking up to try again...";
-							pagePoolLog.msg = _apiLogMsgWrapper(logMsg=pagePoolLog.msg,logEntry=pagePoolLogText);
-						}
-					}
-					
-					
-					
-					// Count the attempt to request a conduit page from the pool
-					pagePoolAttemptCount = pagePoolAttemptCount + 1;
-					
-					// If the attempts are greater than the max attempts use the default conduit page (and get in line to WAIT)
-					// ( DO WE KILL THE WHOLE REQUEST or DO WE USE DEFAULT CONDUIT PAGEID )
-					if ( pagePoolAttemptCount GTE pagePoolMaxAttempts)
-					{
-						// Log the issue!!  
-						runPopulateCustom = false;
-						if ( pagePoolLogging ) 
-						{
-							pagePoolLogText = "Element [#arguments.elementName#] RequestID: #pagePoolRequestID# - Warning: Requested a Conduit Page #pagePoolAttemptCount# Times. Max Exceeded!";
-							pagePoolLog.msg = _apiLogMsgWrapper(logMsg=pagePoolLog.msg,logEntry=pagePoolLogText);
-						}
-						break;
-						
-						//result.msg = pagePoolLog.msg;
-						//return result;	
-						
-						// Use the default page and just wait inline like normal (OR DO WE KILL THE WHOLE REQUEST)
-						//thisElementConfig["pageID"]	= apiConfig.elements[arguments.elementName].pageID;	
-						//thisElementConfig["subsiteID"] = apiConfig.elements[arguments.elementName].subsiteID;
-						//usePagePool = false;
-						
-						//pagePoolLogText = "Element [#arguments.elementName#] RequestID: #pagePoolRequestID# - Use Default Conduit Page: #thisElementConfig["pageID"]#";
-						//pagePoolLog.msg = _apiLogMsgWrapper(logMsg=pagePoolLog.msg,logEntry=pagePoolLogText);
-					}
-				}	
-			}
-			// -- END - Page Pool Logic --//
-			
 		}
 		else 
 		{
@@ -312,8 +308,10 @@ application.ADF.utils.doDUMP(Application.ADF.apipool,"Application.ADF.apipool");
 		
 		// Following structure contains the data.  The structure keys are the 'field names'
 		contentStruct.data = arguments.data;
-		
-application.ADF.utils.doDUMP(contentStruct,"contentStruct",true);
+
+if ( verbose )		
+	variables.utils.doDUMP(contentStruct,"contentStruct",0);
+
 	</cfscript>
 	
 	<!--- LOCK to prevent multiple CCAPI calls to update 
@@ -344,10 +342,10 @@ application.ADF.utils.doDUMP(contentStruct,"contentStruct",true);
 															 sparams=contentStruct);			
 					}
 													 
-	//application.ADF.utils.dodump(apiResponse,"apiResponse",false);
+	//variables.utils.dodump(apiResponse,"apiResponse",false);
 
 	//sleepTime = (RandRange(3,7)*1000);
-	//application.ADF.utils.dodump(sleepTime,"Sleep Time",true);
+	//variables.utils.dodump(sleepTime,"Sleep Time",true);
 	//sleep(sleepTime);
 
 					// Check that the API ran
@@ -428,9 +426,10 @@ application.ADF.utils.doDUMP(contentStruct,"contentStruct",true);
 			}
 			
 			if ( pagePoolLogging )
-				application.ADF.utils.logAppend(msg=pagePoolLog.msg,logfile=pagePoolLog.logFile);
+				variables.utils.logAppend(msg=pagePoolLog.msg,logfile=pagePoolLog.logFile,useUTC=false);
 
-application.ADF.utils.doDUMP(Application.ADF.apipool,"Application.ADF.apipool");
+if ( verbose )
+	variables.utils.doDUMP(Application.ADF.apipool,"Application.ADF.apipool");
 
 		}
 		
