@@ -31,10 +31,10 @@ end user license agreement.
 			<elementType>custom</elementType>
 			<controlName>Unnamed</controlName>
 		</UniqueCEConfigName>
-		<UnqiueGlobalCEConfigName>
+		<UnqiueGlobalCEConfigName> 
 			<elementType>custom</elementType>
 			<gceConduitConfig>
-				<timeout>60</timeout>
+				<timeout>60</timeout> <!-- // optional -->
 				<customElementName>Another GCE Name</customElementName>
 			</gceConduitConfig>
 		</UnqiueGlobalCEConfigName>

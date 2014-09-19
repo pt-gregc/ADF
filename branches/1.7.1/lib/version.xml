@@ -143,8 +143,8 @@ History:
 	</v_1.6>
 	<v_1.7>
 		<ajax_1_0/>
-		<api_1_0/>
-		<apiElement_1_0/>
+		<api_1_1/>
+		<apiElement_1_1/>
 		<apiPage_1_0/>
 		<ccapi_2_0/>
 		<ccapiConfig_1_0/>
@@ -162,6 +162,8 @@ History:
 		<forms_1_1/>
 		<lightbox_1_0/>
 		<mobile_1_0/>
+		<presaveform_1_0/>
+		<postsaveform_1_0/>
 		<scheduler_1_0/>
 		<scripts_1_2/>
 		<scriptsService_1_1/>
