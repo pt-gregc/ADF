@@ -86,7 +86,7 @@
 }
 
 .paginate_disabled_previous {
-thirdPartybackground-image: url('/ADF/thirdParty/jquery/datatables/images/back_disabled.jpg');
+	background-image: url('/ADF/thirdParty/jquery/datatables/images/back_disabled.jpg');
 }
 
 .paginate_enabled_previous {
