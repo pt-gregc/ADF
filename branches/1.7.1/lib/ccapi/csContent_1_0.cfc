@@ -34,7 +34,7 @@ History:
 --->
 <cfcomponent displayname="csContent_1_0" hint="Constructs a CCAPI instance and then allows you to populate Custom Elements and Textblocks" extends="ADF.core.Base">
 
-<cfproperty name="version" value="1_0_3">
+<cfproperty name="version" value="1_0_4">
 <cfproperty name="type" value="transient">
 <cfproperty name="ccapi" type="dependency" injectedBean="ccapi_1_0">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_0">
@@ -70,6 +70,7 @@ History:
 						to logout the CCAPI if any errors.
 	2013-02-21 - GAC - Fixed typo in log text message
 	2014-05-01 - GAC - Fixed typo in the try/catch, switched ( e ANY ) to ( ANY e )
+	2014-09-19 - GAC - added the missing arrayappend for the bulkLogAppend() array
 --->
 <cffunction name="populateContent" access="public" returntype="struct" hint="Use this method to populate content for either a Textblock or Custom Element">
 	<cfargument name="elementName" type="string" required="true" hint="The name of the element from the CCAPI configuration">
@@ -236,6 +237,8 @@ History:
 				// Log the error message also
 				logStruct.msg = "#request.formattedTimestamp# - Error [Message: #e.message#] [Details: #e.Details#]";
 				logStruct.logFile = "CCAPI_populate_content_error.log";
+				arrayAppend(logArray, logStruct);
+				
 				variables.utils.bulkLogAppend(logArray);
 			}
 			
