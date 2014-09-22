@@ -1479,4 +1479,69 @@ History:
 	</cfscript>
 </cffunction>
 
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+	G. Cronkright
+Name:
+	$loadFontAwesome
+Summary:
+	Loads the Font Awesome iconic font and CSS toolkit
+Returns:
+	void
+Arguments:
+	String - Version
+	Boolean - Force
+History:
+ 	2014-09-22 - GAC - Created
+--->
+<cffunction name="loadFontAwesome" access="public" output="true" returntype="void" hint="Loads the Font Awesome iconic font and CSS toolkit">
+	<cfargument name="version" type="string" required="false" default="4.2.0" hint="Script version to load.">
+	<cfargument name="force" type="boolean" required="false" default="false" hint="Forces Font Awesome css header to load.">
+	<cfargument name="dynamicHeadRender" type="boolean" required="false" default="false" hint="Uses jQuery to load the Font Awesome css into the HEAD of the document dynamically.">
+	<cfargument name="overridePath" type="string" required="false" default="" hint="A relative path to a custom site level override font-awesome css file">
+	
+	<cfscript>
+		var outputHTML = "";
+		var thirdPartyLibPath = "/ADF/thirdParty/css/font-awesome/";
+		var scriptPath = thirdPartyLibPath & arguments.version & "/css/font-awesome.min.css"; 
+		// An ADF css extension css file that add sizes (6x-10x) 
+		var scriptPathExt = thirdPartyLibPath & arguments.version & "/css/font-awesome-ADF-ext.css";  
+	
+		if ( LEN(TRIM(arguments.overridePath)) AND FileExists(expandPath(arguments.overridePath)) )
+		{
+			scriptPath = arguments.overridePath;
+			scriptPathExt = "";
+		}
+	</cfscript>
+	
+	<cfsavecontent variable="outputHTML">
+		<cfoutput>
+		<cfif arguments.dynamicHeadRender>
+			<script>
+				jQuery(function(){
+					jQuery('<link>').attr('rel','stylesheet').attr('type','text/css').attr('href','#scriptPath#').appendTo('head'); 
+					<cfif LEN(TRIM(scriptPathExt))>
+					jQuery('<link>').attr('rel','stylesheet').attr('type','text/css').attr('href','#scriptPathExt#').appendTo('head'); 
+					</cfif>
+				});
+			</script>
+		<cfelse>
+			<link href="#scriptPath#" rel="stylesheet" type="text/css" />
+			<cfif LEN(TRIM(scriptPathExt))>
+			<link href="#scriptPathExt#" rel="stylesheet" type="text/css" />
+			</cfif>
+		</cfif>
+		</cfoutput>
+	</cfsavecontent>
+	<cfoutput>
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("fontAwesome",outputHTML)#
+		</cfif>
+	</cfoutput>
+</cffunction>
+
 </cfcomponent>
