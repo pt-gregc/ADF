@@ -143,9 +143,11 @@ History:
 	</v_1.6>
 	<v_1.7>
 		<ajax_1_0/>
-		<api_1_1/>
+		<api_1_0/>
+		<apiConduitPool_1_0/>
 		<apiElement_1_1/>
 		<apiPage_1_0/>
+		<apiKeywords_1_0/>
 		<ccapi_2_0/>
 		<ccapiConfig_1_0/>
 		<csapi_1_0/>

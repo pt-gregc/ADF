@@ -1,8 +1,42 @@
-<cfcomponent displayname="api_1_1" extends="ADF.lib.api.api_1_0" hint="">
+<!--- 
+The contents of this file are subject to the Mozilla Public License Version 1.1
+(the "License"); you may not use this file except in compliance with the
+License. You may obtain a copy of the License at http://www.mozilla.org/MPL/
 
-<cfproperty name="version" value="1_1_0">
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+the specific language governing rights and limitations under the License.
+
+The Original Code is comprised of the ADF directory
+
+The Initial Developer of the Original Code is
+PaperThin, Inc. Copyright(C) 2014.
+All Rights Reserved.
+
+By downloading, modifying, distributing, using and/or accessing any files 
+in this directory, you agree to the terms and conditions of the applicable 
+end user license agreement.
+--->
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 
+Name:
+	apiConduitPool_1_0.cfc
+Summary:
+	API Conduit Page Pool functions for the ADF Library
+Version:
+	1.0
+History:
+	2014-09-08 - GAC - Created
+--->
+
+<cfcomponent displayname="apiConduitPool_1_0" extends="ADF.core.Base" hint="">
+
+<cfproperty name="version" value="1_0_0">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
-<cfproperty name="wikiTitle" value="API">
+<cfproperty name="wikiTitle" value="API Conduit Pool">
 
 <!--- 
 	init()
@@ -36,9 +70,9 @@
 		adfAPIpoolConfig.Pages = buildPoolConduitPagesFromAPIConfig();
 		
 		adfAPIpoolConfig.Elements = buildElementConfigFromAPIConfig();
-		// CEConfigName : "poolDev"
+		// CEConfigName : "poolDevCE"
 		// - formID : 5630
-		// - ceName : "Pool Dev"
+		// - ceName : "Pool Dev Custom Element"
 		// - timeout: 30 
 		
 		// Request Wait Time in milliseconds
@@ -161,9 +195,12 @@
 		var retVal = "";
 		var apiPoolConfig = ReadPagePoolConfig();
 		
+		// Get the Custom Element Name ... if not available use the CEconfigName (in this case most likely the same value)
 		if ( StructKeyExists(apiPoolConfig,"ELEMENTS") AND StructKeyExists(apiPoolConfig.ELEMENTS,arguments.CEconfigName) 
 			AND StructKeyExists(apiPoolConfig.ELEMENTS[arguments.CEconfigName],"CustomElementName") )
 			retVal = apiPoolConfig.ELEMENTS[arguments.CEconfigName].CustomElementName;
+		else
+			retVal = arguments.CEconfigName;
 		
 		return retVal;
 	</cfscript>
@@ -559,7 +596,7 @@
 </cffunction>
 
 <!--- ///////////////////////////////////////////////////////////////// --->
-<!--- ///                 COMMONSPOT CCAPI METHODS                  /// --->
+<!--- ///          COMMONSPOT CMD API AND CCAPI METHODS             /// --->
 <!--- ///////////////////////////////////////////////////////////////// --->
 
 <!--- 
@@ -645,18 +682,29 @@
 	</cfscript>
 </cffunction>
 
+
+
+<!--- /////////////////////////////////////////////////////////////////// --->
+<!--- ///           API CONDUIT PAGE POOL UTILITY METHODS             /// --->
+<!--- /////////////////////////////////////////////////////////////////// --->
+
+<!--- 
+	getAPIConfig() 
+ --->
+<cffunction name="getAPIConfig" returntype="struct" access="private" output="false">
+	<cfset var api = server.ADF.objectFactory.getBean("api_1_0")>
+	<cfreturn api.getAPIConfig()>
+</cffunction>
+
 <!--- 
 	clearLock(csPageID) - Clears the lock for a page id passed in
  --->
 <cffunction name="clearLock" returntype="boolean" access="private" output="false">
 	<cfargument name="csPageID" type="numeric" required="yes">
-	
-	<cfreturn application.ADF.ccapi.clearLock(pageID=arguments.csPageID)>
+	<cfset var ccapi = server.ADF.objectFactory.getBean("ccapi_2_0")>
+	<cfreturn ccapi.clearLock(pageID=arguments.csPageID)>
 </cffunction>
 
-<!--- /////////////////////////////////////////////////////////////////// --->
-<!--- ///           API CONDUIT PAGE POOL UTILITY METHODS             /// --->
-<!--- /////////////////////////////////////////////////////////////////// --->
 
 <!--- 
 	pagePoolDateTimeFormat()

@@ -1,7 +1,41 @@
+<!--- 
+The contents of this file are subject to the Mozilla Public License Version 1.1
+(the "License"); you may not use this file except in compliance with the
+License. You may obtain a copy of the License at http://www.mozilla.org/MPL/
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+the specific language governing rights and limitations under the License.
+
+The Original Code is comprised of the ADF directory
+
+The Initial Developer of the Original Code is
+PaperThin, Inc. Copyright(C) 2014.
+All Rights Reserved.
+
+By downloading, modifying, distributing, using and/or accessing any files 
+in this directory, you agree to the terms and conditions of the applicable 
+end user license agreement.
+--->
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 
+Name:
+	apiElement_1_1.cfc
+Summary:
+	API Element functions for the ADF Library
+Version:
+	1.1
+History:
+	2014-09-08 - GAC - Created
+--->
 <cfcomponent displayname="apiElement_1_1" extends="ADF.lib.api.apiElement_1_0" hint="">
 
 <cfproperty name="version" value="1_1_0">
-<cfproperty name="api" type="dependency" injectedBean="api_1_1">
+<cfproperty name="api" type="dependency" injectedBean="api_1_0">
+<cfproperty name="apiConduitPool" type="dependency" injectedBean="apiConduitPool_1_0">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
 <cfproperty name="wikiTitle" value="API Elements">
 
@@ -71,9 +105,9 @@ History:
 		var pagePoolParams = StructNew();
 		var pagePoolMaxAttempts = 20;
 		var pagePoolAttemptCount = 0;
-		var pagePoolRequestWaitTime = variables.api.getRequestWaitTimeSetting(); 	// ms
-		var pagePoolRequestTimeout = variables.api.getGlobalTimeoutSetting(); 		// seconds
-		var pagePoolLogging = variables.api.getLoggingSetting(); 					// boolean
+		var pagePoolRequestWaitTime = variables.apiConduitPool.getRequestWaitTimeSetting(); 	// ms
+		var pagePoolRequestTimeout = variables.apiConduitPool.getGlobalTimeoutSetting(); 		// seconds
+		var pagePoolLogging = variables.apiConduitPool.getLoggingSetting(); 					// boolean
 		
 		var pagePoolLog = StructNew();
 		var pagePoolLogText = "";
@@ -110,8 +144,8 @@ History:
 			// Get the current Page Request and store it locally;
 			//pagePoolRequestID = Request.ADF.apiPagePool.requestID;
 			pagePoolRequestID = CreateUUID();
-			pagePoolRequestStart = variables.API.pagePoolDateTimeFormat(Now());
-			pagePoolRequestTimeout = variables.api.getElementConfigTimeout(CEconfigName=arguments.elementName);
+			pagePoolRequestStart = variables.apiConduitPool.pagePoolDateTimeFormat(Now());
+			pagePoolRequestTimeout = variables.apiConduitPool.getElementConfigTimeout(CEconfigName=arguments.elementName);
 			
 			pagePoolRequestEndBy = DateAdd("s",pagePoolRequestTimeout,pagePoolRequestStart);
 			
@@ -126,7 +160,7 @@ if ( verbose )
 			while( true )
 			{
 				
-				pagePoolParams = variables.api.getConduitPageFromPool(CEconfigName=arguments.elementName, requestID=pagePoolRequestID);
+				pagePoolParams = variables.apiConduitPool.getConduitPageFromPool(CEconfigName=arguments.elementName, requestID=pagePoolRequestID);
 
 if ( verbose )
 {	
@@ -146,13 +180,13 @@ if ( verbose )
 				{	
 					arguments.forcePageID = pagePoolParams.pageID;	
 					arguments.forceSubsiteID = pagePoolParams.subsiteID;
-					arguments.forceControlID = variables.api.getCCAPIcontrolID(
+					arguments.forceControlID = variables.apiConduitPool.getCCAPIcontrolID(
 																	csPageID=pagePoolParams.pageID
 																	,formID=pagePoolParams.FormID
 																	,controlName="ccapiGCEPoolControl_#pagePoolParams.pageID#_#pagePoolParams.FormID#"
 																);
 					arguments.forceUsername = pagePoolParams.csuserid;
-			 		arguments.forcePassword = variables.api.getConduitPoolPagePasswordFromAPIConfig(pageID=pagePoolParams.pageID);
+			 		arguments.forcePassword = variables.apiConduitPool.getConduitPoolPagePasswordFromAPIConfig(pageID=pagePoolParams.pageID);
 					
 					// If a valid pageID is returned the BREAK the WHILE loop
 					break;	
@@ -160,7 +194,7 @@ if ( verbose )
 				else
 				{
 					
-					pagePoolRequestCurrentTime = variables.API.pagePoolDateTimeFormat(Now());
+					pagePoolRequestCurrentTime = variables.apiConduitPool.pagePoolDateTimeFormat(Now());
 					
 					// Befroe moving on check to make sure the request has not timed out - Default: 15 secs
 					if ( DateCompare(pagePoolRequestCurrentTime,pagePoolRequestEndBy,"s") GTE 1 )
@@ -413,7 +447,7 @@ if ( verbose )
 	<cfscript>
 		if ( usePagePool )
 		{
-			poolPageReleased = variables.api.markRequestComplete(requestID=pagePoolRequestID);
+			poolPageReleased = variables.apiConduitPool.markRequestComplete(requestID=pagePoolRequestID);
 			
 			if ( pagePoolLogging )
 			{
