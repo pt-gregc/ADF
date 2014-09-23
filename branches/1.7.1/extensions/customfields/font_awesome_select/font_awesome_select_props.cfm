@@ -65,14 +65,6 @@ History:
 <cfoutput>
 	<script type="text/javascript"]>
 		fieldProperties['#typeid#'].paramFields = "#prefix#ShowSize,#prefix#ShowFixedWidth,#prefix#ShowBorder,#prefix#ShowSpin,#prefix#ShowPull";
-
-		// allows this field to support the orange icon (copy down to label from field name)
-		fieldProperties['#typeid#'].jsLabelUpdater = '#prefix#doLabel';
-		// handling the copy label function
-		function #prefix#doLabel(str)
-		{
-			document.#formname#.#prefix#label.value = str;
-		}
 	</script>
 	<table>
 		<tr>
