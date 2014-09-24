@@ -23,19 +23,21 @@ end user license agreement.
 Author: 	
 	PaperThin, Inc. 
 Name:
-	csContent_1_0.cfc
+	csContent_2_0.cfc
 Summary:
 	CCAPI Content functions for the ADF Library
 Version:
 	2.0
 History:
 	2012-12-27 - MFC - Created.  Direct functions to the API Element Library.
+	2014-09-23 - GAC - Updated the apiElement injectedBean dependency to version apiElement_1_1
+	//2014-09-23 - GAC - Removed the apiElement injectedBean dependency due to compatiblity issues with the new api Conduit Page Pool
 --->
 <cfcomponent displayname="csContent_2_0" extends="ADF.lib.ccapi.csContent_1_0" hint="Constructs a CCAPI instance and then allows you to populate Custom Elements and Textblocks">
 
-<cfproperty name="version" value="2_0_3">
+<cfproperty name="version" value="2_0_5">
 <cfproperty name="type" value="transient">
-<cfproperty name="apiElement" type="dependency" injectedBean="apiElement_1_0">
+<cfproperty name="apiElement" type="dependency" injectedBean="apiElement_1_1">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
 <cfproperty name="wikiTitle" value="CSContent_2_0">
 
@@ -64,7 +66,7 @@ History:
 	2013-02-21 - GAC - Fixed typo in log text message
 	2013-06-24 - MTT - Added the forceControlName and forceControlID arguments.
 	2014-05-01 - GAC - Fixed typo in the try/catch, switched ( e ANY ) to ( ANY e )
-	2014-09-22 - GAC - 
+	2014-09-23 - GAC - Updated to call the apiElement_1_1 via the server bean rather than the injectedBean dependency
 --->
 <cffunction name="populateContent" access="public" returntype="struct" hint="Use this method to populate content for either a Textblock or Custom Element">
 	<cfargument name="elementName" type="string" required="true" hint="The name of the element from the CCAPI configuration">
@@ -76,6 +78,7 @@ History:
 	<cfargument name="forceControlID" type="numeric" required="false" default="-1" hint="Field to override the element control name with the control ID.">
 
 	<cfscript>
+		//var apiElement = server.ADF.objectFactory.getBean("apiElement_1_1");
 		// Call the API apiElement Lib Component
 		var contentResult = variables.apiElement.populateCustom(elementName=arguments.elementName,
 															    data=arguments.data,

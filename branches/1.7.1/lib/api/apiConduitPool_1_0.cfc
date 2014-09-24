@@ -32,37 +32,54 @@ History:
 	2014-09-08 - GAC - Created
 --->
 
-<cfcomponent displayname="apiConduitPool_1_0" extends="ADF.core.Base" hint="">
+<cfcomponent displayname="apiConduitPool_1_0" extends="ADF.core.Base" hint="API Conduit Page Pool functions for the ADF Library">
 
 <cfproperty name="version" value="1_0_0">
+<cfproperty name="api" type="dependency" injectedBean="api_1_0">
+<cfproperty name="ccapi" type="dependency" injectedBean="ccapi_2_0">
+<cfproperty name="csData" type="dependency" injectedBean="csData_1_2">
+<cfproperty name="ceData" type="dependency" injectedBean="ceData_2_0">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
 <cfproperty name="wikiTitle" value="API Conduit Pool">
 
+<cfscript>
+	// API Pool Default Variables
+	variables.defaultApiPoolRequestWaitTime = 200; // ms
+	variables.defaultApiPoolGlobalTimeout = 15; 	// seconds
+</cfscript>
+
 <!--- 
-	init()
+	postInit()
 --->
-<cffunction name="init">
+<cffunction name="postInit">
 	<cfscript>
-		super.init();
-		
+	
 		// initialize the API POOL memory variables
 		initApiPoolVars();
 		
-		return this;
 	</cfscript>
 </cffunction>
 
-<!--- 
-	initApiPoolVars()
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 
+Name:
+	$initApiPoolVars
+Summary:
+	Initializes the API Conduit Page Pool variables
+Returns:
+	Void
+Arguments:
+	None
+History:
+	2014-09-08 - GAC - Created
 --->
-<cffunction name="initApiPoolVars" returntype="void" output="false" access="private">
+<cffunction name="initApiPoolVars" returntype="void" output="false" access="private" hint="Initializes the API Conduit Page Pool variables">
 	<cfscript>
-		variables.defaultRequestWaitTime = 200; //ms
-		variables.defaultGlobalTimeout = 15; 	// seconds
-		
 		var adfAPIpoolVars = StructNew();
 		var adfAPIpoolConfig = StructNew();
-		
+
 		//-----//
 		// Build the ADF API POOL Configuration data structure
 		
@@ -104,10 +121,22 @@ History:
 <!--- ///                PAGE POOL CONFIG SETTINGS                  /// --->
 <!--- ///////////////////////////////////////////////////////////////// --->
 
-<!---	
-	getGlobalTimeoutSetting() - Page Pool request wait time value in milliseconds
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 
+Name:
+	$getGlobalTimeoutSetting()
+Summary:
+	Returns Page Pool Global Timeout value in milliseconds from the API Pool configuration settings
+Returns:
+	Numeric
+Arguments:
+	None
+History:
+	2014-09-08 - GAC - Created
 --->
-<cffunction name="getGlobalTimeoutSetting" returntype="numeric" access="public" output="false">
+<cffunction name="getGlobalTimeoutSetting" returntype="numeric" access="public" output="false" hint="Returns Page Pool Global Timeout value in milliseconds API Pool configuration settings">
 	<cfscript>
 		var retData = getGlobalTimeoutFromAPIConfig();
 		var apiPoolConfig = ReadPagePoolConfig();
@@ -119,10 +148,22 @@ History:
 	</cfscript>
 </cffunction>
 
-<!---	
-	getRequestWaitTimeSetting() - Page Pool request wait time value in milliseconds
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 
+Name:
+	$getRequestWaitTimeSetting()
+Summary:
+	Returns the Page Pool request wait time value in milliseconds from the API Pool configuration Settings
+Returns:
+	Numeric
+Arguments:
+	None
+History:
+	2014-09-08 - GAC - Created
 --->
-<cffunction name="getRequestWaitTimeSetting" returntype="numeric" access="public" output="false">
+<cffunction name="getRequestWaitTimeSetting" returntype="numeric" access="public" output="false" hint="Returns the Page Pool request wait time value in milliseconds API Pool configuration settings">
 	<cfscript>
 		var retData = getRequestWaitTimeFromAPIConfig();
 		var apiPoolConfig = ReadPagePoolConfig();
@@ -134,10 +175,22 @@ History:
 	</cfscript>
 </cffunction>
 
-<!---	
-	getLoggingSetting() - Page Pool request wait time value in milliseconds
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 
+Name:
+	$getLoggingSetting()
+Summary:
+	Returns the Page Pool Logging enabled status from the API Pool configuration settings
+Returns:
+	Boolean
+Arguments:
+	None
+History:
+	2014-09-08 - GAC - Created
 --->
-<cffunction name="getLoggingSetting" returntype="boolean" access="public" output="false">
+<cffunction name="getLoggingSetting" returntype="boolean" access="public" output="false" hint="Returns the Page Pool Logging enabled status from the API Pool configuration settings">
 	<cfscript>
 		var retData = false;
 		var apiPoolConfig = ReadPagePoolConfig();
@@ -149,10 +202,22 @@ History:
 	</cfscript>
 </cffunction>
 
-<!---	
-	getElementConfigTimeout(CEconfigName) - Returns timeout value for a specific ce config name in seconds
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 
+Name:
+	$getElementConfigTimeout(CEconfigName)
+Summary:
+	 Returns timeout value for a specific ce config name in seconds
+Returns:
+	String
+Arguments:
+	String - CEconfigName
+History:
+	2014-09-08 - GAC - Created
 --->
-<cffunction name="getElementConfigTimeout" returntype="string" access="public" output="false">
+<cffunction name="getElementConfigTimeout" returntype="string" access="public" output="false" hint="Returns timeout value for a specific ce config name in seconds">
 	<cfargument name="CEconfigName" type="string" required="Yes">
 	
 	<cfscript>
@@ -167,10 +232,22 @@ History:
 	</cfscript>
 </cffunction>
 
-<!---	
-	getElementConfigFormID(CEconfigName) - Returns FormID value for a specific ce config name
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 
+Name:
+	$getElementConfigFormID(CEconfigName)
+Summary:
+	Returns FormID value for a specific ce config name
+Returns:
+	String
+Arguments:
+	String - CEconfigName
+History:
+	2014-09-08 - GAC - Created
 --->
-<cffunction name="getElementConfigFormID" returntype="numeric" access="private" output="false">
+<cffunction name="getElementConfigFormID" returntype="numeric" access="private" output="false" hint="Returns FormID value for a specific ce config name">
 	<cfargument name="CEconfigName" type="string" required="Yes">
 	
 	<cfscript>
@@ -180,7 +257,7 @@ History:
 		if ( StructKeyExists(apiPoolConfig,"ELEMENTS") AND StructKeyExists(apiPoolConfig.ELEMENTS,arguments.CEconfigName) 
 			AND StructKeyExists(apiPoolConfig.ELEMENTS[arguments.CEconfigName],"FormID") AND IsNumeric(apiPoolConfig.ELEMENTS[arguments.CEconfigName].FormID) )
 			retVal = apiPoolConfig.ELEMENTS[arguments.CEconfigName].FormID;
-		
+			
 		return retVal;
 	</cfscript>
 </cffunction>
@@ -539,7 +616,7 @@ History:
 		var processingPoolPages = ReadPoolProcessingPages();
 		var availablePoolPages = ReadPoolAvailablePages();
 		
-		var csData = server.ADF.objectFactory.getBean("csdata_1_2");
+		//var csData = server.ADF.objectFactory.getBean("csdata_1_2");
 		
 		// TODO: Add Locking (??)
 		if ( StructKeyExists(processingPoolPages,arguments.pageID) )
@@ -550,7 +627,7 @@ History:
 			WritePoolProcessingPages(pagesData=processingPoolPages);
 				
 			// Add PageID back to available pages
-			if ( csData.isCSPageActive(pageid=arguments.pageID) )
+			if ( variables.csData.isCSPageActive(pageid=arguments.pageID) )
 			{ 	
 				
 				if ( !StructKeyExists(availablePoolPages,arguments.pageID) )
@@ -692,8 +769,8 @@ History:
 	getAPIConfig() 
  --->
 <cffunction name="getAPIConfig" returntype="struct" access="private" output="false">
-	<cfset var api = server.ADF.objectFactory.getBean("api_1_0")>
-	<cfreturn api.getAPIConfig()>
+	<!--- <cfset var api = server.ADF.objectFactory.getBean("api_1_0")> --->
+	<cfreturn variables.api.getAPIConfig()>
 </cffunction>
 
 <!--- 
@@ -701,8 +778,8 @@ History:
  --->
 <cffunction name="clearLock" returntype="boolean" access="private" output="false">
 	<cfargument name="csPageID" type="numeric" required="yes">
-	<cfset var ccapi = server.ADF.objectFactory.getBean("ccapi_2_0")>
-	<cfreturn ccapi.clearLock(pageID=arguments.csPageID)>
+	<!--- <cfset var ccapi = server.ADF.objectFactory.getBean("ccapi_2_0")> --->
+	<cfreturn variables.ccapi.clearLock(pageID=arguments.csPageID)>
 </cffunction>
 
 
@@ -738,7 +815,7 @@ History:
 		var poolPageConfig = StructNew();
 		
 		var configNodeStatus = true;
-		var csData = server.ADF.objectFactory.getBean("csdata_1_2");
+		//var csData = server.ADF.objectFactory.getBean("csdata_1_2");
 		
 		// Do we have a Conduit Page Pool in the Config element
 		if ( StructKeyExists(apiConfig,"gceConduitPagePool") AND StructKeyExists(apiConfig.gceConduitPagePool,"conduitPages") )
@@ -754,13 +831,13 @@ History:
 				if ( StructKeyExists(poolPages[key],"pageid") AND IsNumeric(poolPages[key].pageid) AND poolPages[key].pageid GT 0 )
 				{
 					// Make sure the config pageid value is an active page 
-					if ( csData.isCSPageActive(pageid=poolPages[key].pageid) )
+					if ( variables.csData.isCSPageActive(pageid=poolPages[key].pageid) )
 					{
 						// Set the Conduit PageID
 						poolPageID = poolPages[key].pageid;
 						
 						// Set the Conduit SubsiteID
-						poolPageConfig.subsiteID  = csData.getSubsiteIDByPageID(pageid=poolPageID);
+						poolPageConfig.subsiteID  = variables.csData.getSubsiteIDByPageID(pageid=poolPageID);
 						 
 						if ( poolPageConfig.subsiteID LTE 0 )
 						 	configNodeStatus = false;
@@ -809,7 +886,9 @@ History:
 		var key = "";
 		var poolPageID = 0;
 		var i = 1;
-		var ceData = server.ADF.objectFactory.getBean("cedata_2_0");
+		
+		//var ceData = server.ADF.objectFactory.getBean("cedata_2_0");
+		
 		var timeoutDefault = getGlobalTimeoutFromAPIConfig(); 
 		
 		if ( StructKeyExists(apiConfig,"elements") )
@@ -832,12 +911,12 @@ History:
 					if ( StructKeyExists(poolElements,"formID") AND IsNumeric(poolElements.formID) AND poolElements.formID GT 0 )
 					{
 						retData[key].formID = poolElements.formID;
-						retData[key].customElementName = ceData.getCENameByFormID(FormID=poolElements.formID);
+						retData[key].customElementName = variables.ceData.getCENameByFormID(FormID=poolElements.formID);
 					}
 					else if ( StructKeyExists(poolElements,"customElementName") AND LEN(TRIM(poolElements.customElementName)) )
 					{
 						retData[key].customElementName = poolElements.customElementName;
-						retData[key].formID = ceData.getFormIDByCEName(CEName=poolElements.customElementName);
+						retData[key].formID = variables.ceData.getFormIDByCEName(CEName=poolElements.customElementName);
 					}
 				}		
 			}
@@ -856,7 +935,7 @@ History:
 --->
 <cffunction name="getGlobalTimeoutFromAPIConfig" returntype="numeric" access="private" output="false">
 	<cfscript>
-		var retData = variables.defaultGlobalTimeout;
+		var retData = variables.defaultApiPoolGlobalTimeout;
 		var apiConfig = getAPIConfig();
 		
 		if ( StructKeyExists(apiConfig,"gceConduitPagePool") AND StructKeyExists(apiConfig.gceConduitPagePool,"globalTimeout")  
@@ -888,7 +967,7 @@ History:
 --->
 <cffunction name="getRequestWaitTimeFromAPIConfig" returntype="boolean" access="private" output="false">
 	<cfscript>
-		var retData = variables.defaultRequestWaitTime;
+		var retData = variables.defaultApiPoolRequestWaitTime;
 		var apiConfig = getAPIConfig();
 		
 		if ( StructKeyExists(apiConfig,"gceConduitPagePool") AND StructKeyExists(apiConfig.gceConduitPagePool,"requestWaitTime") 

@@ -35,6 +35,7 @@ History:
 
 <cfproperty name="version" value="1_1_0">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
+<cfproperty name="csData" type="dependency" injectedBean="csData_1_2">
 <cfproperty name="apiConduitPool" type="dependency" injectedBean="apiConduitPool_1_0">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
 <cfproperty name="wikiTitle" value="API Elements">
@@ -79,7 +80,7 @@ History:
 	<cfargument name="forcePassword" type="string" required="false" default="" hint="Field to override the password used to login to the conduit page."> 
 	
 	<cfscript>
-		var apiConfig = "";
+		var apiConfig = variables.api.getAPIConfig();
 		var result = structNew();
 		var logStruct = structNew();
 		var logArray = arrayNew(1);
@@ -90,7 +91,7 @@ History:
 		var logFileName = "API_Element_populateCustom.log";
 		var logErrorFileName = ListFirst(logFileName,".") & "_error." & ListLast(logFileName,".");
 		
-		var csData = server.ADF.objectFactory.getBean("csdata_1_2");
+		//var csData = server.ADF.objectFactory.getBean("csdata_1_2");
 		
 		var runPopulateCustom = true;
 		var verbose = false;
@@ -119,10 +120,7 @@ History:
 		result.status = false;
 		result.msg = "";
 		result.data = StructNew();
-		
-		// Check the element is in the API Config file and defined		
-		apiConfig = variables.api.getAPIConfig();
-		
+
 		// Set the logging flag
 		if ( isStruct(apiConfig) AND StructKeyExists(apiConfig, "logging")
 				AND StructKeyExists(apiConfig.logging, "enabled") AND IsBoolean(apiConfig.logging.enabled) )
@@ -130,7 +128,8 @@ History:
 		else
 			loggingEnabled = false;
 
-		// Get the configuration options from the specific element node
+		// Check to make sure element config name is in the API Config file
+		//  - Get the configuration options from the specified element node
 		if ( isStruct(apiConfig) AND StructKeyExists(apiConfig, "elements") AND StructKeyExists(apiConfig.elements,arguments.elementName) )
 			thisElementConfig = apiConfig.elements[arguments.elementName];
 			
@@ -254,7 +253,7 @@ if ( verbose )
 			if ( IsNumeric(arguments.forceSubsiteID) AND  arguments.forceSubsiteID GT 0 )
 				thisElementConfig['subsiteID'] = arguments.forceSubsiteID;
 			else
-				thisElementConfig['subsiteID'] = csData.getSubsiteIDByPageID(pageid=thisElementConfig['pageID']);
+				thisElementConfig['subsiteID'] = variables.csData.getSubsiteIDByPageID(pageid=thisElementConfig['pageID']);
 					
 			thisElementConfig['elementType'] = "custom";
 			
@@ -268,7 +267,7 @@ if ( verbose )
 		{
 			// Override with the PageID passed in from the arguments.data
 			thisElementConfig["pageID"] = arguments.data.pageID;
-			thisElementConfig['subsiteID'] = csData.getSubsiteIDByPageID(pageid=thisElementConfig['pageID']);
+			thisElementConfig['subsiteID'] = variables.csData.getSubsiteIDByPageID(pageid=thisElementConfig['pageID']);
 			thisElementConfig['elementType'] = "custom";
 			
 			// Check if controlName or the controlID were passed in via the data structure
@@ -280,7 +279,7 @@ if ( verbose )
 		else if ( isStruct(apiConfig) AND StructKeyExists(apiConfig, "elements") AND StructKeyExists(apiConfig.elements,arguments.elementName) ) 
 		{		
 			if ( StructKeyExists(thisElementConfig,"pageID") AND IsNumeric(thisElementConfig['pageID']) AND thisElementConfig['pageID'] GT 0 )	
-				thisElementConfig["subsiteID"] = csData.getSubsiteIDByPageID(pageid=thisElementConfig['pageID']);
+				thisElementConfig["subsiteID"] = variables.csData.getSubsiteIDByPageID(pageid=thisElementConfig['pageID']);
 		}
 		else 
 		{
