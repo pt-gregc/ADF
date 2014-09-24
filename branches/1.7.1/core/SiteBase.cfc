@@ -33,11 +33,13 @@ History:
 	2011-04-05 - MFC - Updated the version property.
 	2011-09-27 - GAC - Updated most of the comment blocks to follow the ADF standard
 	2014-02-26 - GAC - Updated for version 1.7.0
+	2014-09-24 - GAC - Added a loadLibraryPostInit method for loading postInit methods 
+	                   in lib components after application.ADF is built
 --->
 <cfcomponent displayname="SiteBase" extends="ADF.core.AppBase">
 
 <cfproperty name="version" value="1_7_1">
-<cfproperty name="file-version" value="4">
+<cfproperty name="file-version" value="5">
 
 <!---
 /* *************************************************************** */
@@ -201,6 +203,7 @@ History:
 						LIB component overrides.
 	2011-09-27 - GAC - Replaced the getADFversion calls with getDecimalADFVersion so it will read the XML file even if extra version digits
 						are added to the ADFvesrion variable
+	2014-09-24 - GAC - Added a call to loadLibraryPostInit() to load the postInit methods found in the loaded ADF lib components 
 --->
 <cffunction name="loadLibrary" access="private" returntype="void" hint="Loads the latest ADF library components into the application space">
 	<cfargument name="loadVersion" type="string" required="false" default="#getDecimalADFVersion()#" hint="Pass in the specific ADF version you would like to load">
@@ -246,6 +249,9 @@ History:
 			// Load the bean into application space
 			application.ADF[ListGetAt(localLibKeys,i)] = application.ADF.objectFactory.getBean(application.ADF.library[ListGetAt(localLibKeys,i)]);
 		}
+		
+		// After the application.ADF is built load PostInit methods found in Library components
+		loadLibraryPostInit();
 	</cfscript>
 </cffunction>
 
@@ -335,7 +341,7 @@ History:
 		// Check if the file exist on the site
 		if ( fileExists( configPath ) ) {
 			configStruct = server.ADF.objectFactory.getBean("CoreConfig").getConfigViaXML(configPath);
-			application.ADF.proxyWhiteList = server.ADF.objectFactory.getBean("Data_1_0").structMerge(application.ADF.proxyWhiteList, configStruct, true);
+			application.ADF.proxyWhiteList = server.ADF.objectFactory.getBean("data_1_2").structMerge(application.ADF.proxyWhiteList, configStruct, true);
 		}
 	</cfscript>
 </cffunction>
@@ -533,7 +539,7 @@ History:
 				else
 				{
 					// Build the Error Struct
-					buildError.ADFmethodName = "API Config";
+					buildError.ADFmethodName = "loadSiteAPIConfig";
 					buildError.details = "API Configuration CFM (or XML) file is not a valid data format. [#request.site.name# - #request.site.id#].";
 					// Add the errorStruct to the server.ADF.buildErrors Array
 					ArrayAppend(server.ADF.buildErrors,buildError);
@@ -543,11 +549,57 @@ History:
 		catch (any exception)
 		{
 			// Build the Error Struct
-			buildError.ADFmethodName = "API Config";
+			buildError.ADFmethodName = "loadSiteAPIConfig";
 			//buildError.details = "API Configuration CFM (or XML) file is not setup for this site [#request.site.name# - #request.site.id#].";
 			buildError.details = exception;
 			// Add the errorStruct to the server.ADF.buildErrors Array
 			ArrayAppend(server.ADF.buildErrors, buildError);
+		}
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$loadLibraryPostInit
+Summary:
+	Loads the postInit methods found in the loaded ADF lib components 
+Returns:
+	Void
+Arguments:
+	NA
+History:
+	2014-09-23 - GAC - Created
+--->
+<cffunction name="loadLibraryPostInit" access="public" returnType="void" hint="Loads the postInit methods found in the loaded ADF lib components.">
+	<cfscript>
+		var libKey = "";
+		var libkeyExcludeList = "Base,BeanConfig,ObjectFactory,Library"; 
+				
+		// Loop over the loaded application.ADF components
+		for ( libKey IN application.ADF )
+		{
+			// Look for a postInit method in each of the loaded Library objects
+			if ( !ListFindNoCase(libkeyExcludeList,libKey) AND IsObject(application.ADF[libKey]) 
+					AND StructKeyExists(application.ADF[libKey],"postInit") )
+			{	
+				try
+				{
+					// Run the PostInit method
+					application.ADF[libKey].postInit();
+				}
+				catch (any exception)
+				{
+					// Build the Error Struct
+					buildError.ADFmethodName = "loadLibraryPostInit";
+					//buildError.details = "Unable to load the postInit() method in the #libKey# library component";
+					buildError.details = exception;
+					// Add the errorStruct to the server.ADF.buildErrors Array
+					ArrayAppend(server.ADF.buildErrors, buildError);
+				}	
+			}
 		}
 	</cfscript>
 </cffunction>
