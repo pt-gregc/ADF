@@ -641,6 +641,10 @@ History:
 				
 				retPageID = arguments.pageID;
 			}
+			else
+			{
+					//TODO: Add logging	
+			}
 		}
 
 		return retPageID;
@@ -680,9 +684,9 @@ History:
 	getCCAPIcontrolID(csPageID,FormID,controlName) - DEV ONLY
  --->
 <cffunction name="getCCAPIcontrolID" returntype="numeric" access="public" output="false">
-	<cfargument name="csPageID" type="numeric" required="yes">
-	<cfargument name="formID" type="numeric" required="yes">
-	<cfargument name="ControlName" type="string" required="false" default="ccapiGCEPoolControl_#arguments.csPageID#_#arguments.FormID#" hint="name to be assigned">
+	<cfargument name="csPageID" type="numeric" required="yes" hint="CCAPI conduit pageID">
+	<cfargument name="formID" type="numeric" required="yes" hint="Custom Element FormID / ContolTypeID">
+	<cfargument name="ControlName" type="string" required="false" default="ccapiGCEPoolControl_#arguments.csPageID#_#arguments.FormID#" hint="ControlName to be assigned to the control instance record.">
 	
 	<cfscript>
 		var retValue = 0;
@@ -702,7 +706,7 @@ History:
 		<cfset controlID = request.site.IDMaster.getID()>
 		<cfset CreationDate = Application.ADF.date.csDateFormat(Now(),Now())>
 		
-		<cfquery name="qryControlInstance" datasource="#request.site.datasource#">
+		<cfquery name="updateControlInstance" datasource="#request.site.datasource#">
 			INSERT INTO controlinstance 
 			(
 				PageID,ControlID,ControlName,ControlType,ParentControlID,ParentControlType,CreationDate,OwnerID
@@ -804,7 +808,7 @@ History:
 <!--- 
 	buildPoolConduitPagesFromAPIConfig() - builds the pool structure from the ccapi config values
  --->
-<cffunction name="buildPoolConduitPagesFromAPIConfig" returntype="struct" output="false" access="private">
+<cffunction name="buildPoolConduitPagesFromAPIConfig" returntype="struct" output="true" access="private">
 	<cfscript>
 		var retData = StructNew();
 		var apiConfig = getAPIConfig();
@@ -821,11 +825,12 @@ History:
 		if ( StructKeyExists(apiConfig,"gceConduitPagePool") AND StructKeyExists(apiConfig.gceConduitPagePool,"conduitPages") )
 		{
 			poolPages = apiConfig.gceConduitPagePool.conduitPages;
-			
+
 			// Rip through the gceConduitPagePool nodes and find element that have conduit pool pages configured	
 			for ( key IN poolPages )
 			{
 				poolPageConfig = StructNew();			
+				configNodeStatus = true;
 				
 				// Make sure we have a valid pageID
 				if ( StructKeyExists(poolPages[key],"pageid") AND IsNumeric(poolPages[key].pageid) AND poolPages[key].pageid GT 0 )
@@ -844,17 +849,42 @@ History:
 					}
 					else
 						configNodeStatus = false;
+					
+					if ( configNodeStatus )	
+						poolPageConfig.pageURL = variables.csData.getCSPageURL(pageID=poolPageID);
+					
+				}
+				// If PageURL is configured, make sure it converts to a valid pageID
+				else if ( StructKeyExists(poolPages[key],"pageURL") AND LEN(TRIM(poolPages[key].pageURL)) )
+				{
+					// Add the Page URL to the page pool config struct
+					poolPageConfig.pageURL = poolPages[key].pageURL;
+					
+					poolPageID = variables.csData.getCSPageIDByURL(csPageURL=poolPageConfig.pageURL);
+					
+					// Make sure the pageid value valid and an active page 
+					if ( IsNumeric(poolPageID) AND poolPageID GT 0 AND variables.csData.isCSPageActive(pageid=poolPageID) )
+					{
+						// Set the Conduit SubsiteID
+						poolPageConfig.subsiteID  = variables.csData.getSubsiteIDByPageID(pageid=poolPageID);
+						 
+						if ( poolPageConfig.subsiteID LTE 0 )
+						 	configNodeStatus = false;
+					}
+					else
+						configNodeStatus = false;	
 				}
 				else
 					configNodeStatus = false;
 				
+				// Make sure the page has a configured CSUserID
 				if ( configNodeStatus AND StructKeyExists(poolPages[key],"csuserid") AND LEN(TRIM(poolPages[key].csuserid)) )
 					poolPageConfig.csuserid = poolPages[key].csuserid;
 				else
 					configNodeStatus = false;
 
 				// Don't add the PW to the config struct but we still want to check if the PW was added to the pool page config
-				// - TODO: may want to add a quick login/logout check to make sure the userid and password are valid before adding the to the POOL
+				// - TODO: we may want to add a quick login/logout check to make sure the userid and password are valid before adding the to the POOL
 				if ( configNodeStatus )
 				{
 					if ( !StructKeyExists(poolPages[key],"cspassword") OR LEN(TRIM(poolPages[key].cspassword)) EQ 0 )
@@ -864,11 +894,16 @@ History:
 				// If we successfully build a pool page config node, then add it to the array 	
 				if ( configNodeStatus AND !StructKeyExists(retData, poolPageID) )	
 					retData[poolPageID]	= poolPageConfig;
+				else
+				{
+					// TODO: Add logging	
+				}
 			}
 		}
 		else
 		{
-			// No GCE Conduit Page Pool nodes configured	
+			// No GCE Conduit Page Pool nodes configured
+			// TODO: Add logging		
 		}
 		
 		return retData;
@@ -918,6 +953,10 @@ History:
 						retData[key].customElementName = poolElements.customElementName;
 						retData[key].formID = variables.ceData.getFormIDByCEName(CEName=poolElements.customElementName);
 					}
+				}
+				else
+				{
+					// TODO: Add logging					
 				}		
 			}
 		}
