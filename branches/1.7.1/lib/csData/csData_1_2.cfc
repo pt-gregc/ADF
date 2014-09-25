@@ -45,10 +45,11 @@ History:
 					 - Updated the createUniquePageTitle,getCSPageIDByTitle functions
 	2014-02-24 - GAC - Added getCSFileURL function based on the old getCSPageURL function
 	2014-03-16 - JTP - Added getPaddedID function
+	2014-09-25 - GAC - Added getCSPageIDByURL function		
 --->
 <cfcomponent displayname="csData_1_2" extends="ADF.lib.csData.csData_1_1" hint="CommonSpot Data Utils functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_13">
+<cfproperty name="version" value="1_2_14">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">
@@ -948,5 +949,31 @@ History:
 		return NumberFormat( Request.Site.IDMaster.getID(), padMaskStr );
 	</cfscript>
 </cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$getCSPageIDByURL
+Summary:
+	Given a page URL get the pageID. 
+Returns:
+	Numeric csPageID
+Arguments:
+	String  csPageURLS
+History:
+	2014-09-25 - GAC - Created
+--->
+<cffunction name="getCSPageIDByURL" access="public" returntype="numeric" output="false">
+	<cfargument name="csPageURL" type="string" required="true">
+	<cfscript>
+		var csPageID = 0;
+		var pageQry = getCSPageDataByURL(csPageURL=arguments.csPageURL);
+		if ( pageQry.recordCount )
+			csPageID = pageQry.ID;
+		return csPageID;
+	</cfscript>
+</cffunction>	
 
 </cfcomponent>
