@@ -291,7 +291,7 @@ History:
 				</CFOUTPUT>
 			<CFELSE>
 			<CFOUTPUT><table class="cs_data_manager" border="0" cellpadding="0" cellspacing="0" summary="">
-				<tr><td class="cs_dlgLabelError">#childFormName# records can only be added once the #parentFormLabel# record is saved.</td></tr>
+				<tr><td class="cs_dlgLabel">#childFormName# records can only be added once the #parentFormLabel# record is saved.</td></tr>
 				</table>
 				#Server.CommonSpot.UDF.tag.input(type="hidden", name="#fqFieldName#", value="")#</CFOUTPUT>
 			</CFIF>
