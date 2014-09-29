@@ -26,9 +26,10 @@ Name:
 Summary:
 	Common functions for the padding settings custom field
 Version:
-	1.0.0
+	1.0
 History:
 	2014-09-15 - Created
+	2014-09-29 - GAC - Added a Padding Value normalization method to remove the label from the default values
 --->
 <cfcomponent displayname="padding_settings_base" extends="ADF.core.Base" output="false" hint="Common functions for the padding settings custom field">
 
@@ -60,17 +61,19 @@ History:
 	<cfargument name="value" type="string" required="Yes">
 	<cfargument name="possibleValues" type="string" required="Yes">
 	
+	<cfset var index="">
+	
 	<cfif arguments.show>
 		<cfoutput>
 			#arguments.label#
 			<select id="#arguments.FieldID#_#arguments.Name#" name="#arguments.FieldID#_#arguments.Name#" onchange="onChange_#FieldID#();">
 				<cfloop index="index" list="#arguments.possibleValues#">
-					<option <cfif arguments.value eq index>selected="selected"</cfif>>#index#</option>
+					<option<cfif TRIM(arguments.value) eq TRIM(index)> selected="selected"</cfif>>#TRIM(index)#</option>
 				</cfloop>
-			</select>
+			</select>px&nbsp;&nbsp;
 		</cfoutput>	
 	<cfelse>
-		<cfoutput><input type="hidden" id="#arguments.FieldID#_#arguments.Name#" name="#arguments.FieldID#_#arguments.Name#" value="#arguments.value#"></cfoutput>
+		<cfoutput><input type="hidden" id="#arguments.FieldID#_#arguments.Name#" name="#arguments.FieldID#_#arguments.Name#" value="#TRIM(arguments.value)#"></cfoutput>
 	</cfif>
 </cffunction>
 
@@ -103,11 +106,49 @@ History:
 	<cfif arguments.show>
 		<cfoutput>
 			#arguments.label#
-			<input type="text" id="#arguments.FieldID#_#arguments.Name#" name="#arguments.FieldID#_#arguments.Name#" value="#arguments.value#" size="4" onKeyUp="onChange_#FieldID#();">
+			<input type="text" id="#arguments.FieldID#_#arguments.Name#" name="#arguments.FieldID#_#arguments.Name#" value="#TRIM(arguments.value)#" size="4" onKeyUp="onChange_#FieldID#();" style="text-align:right;">px&nbsp;&nbsp;
 		</cfoutput>	
 	<cfelse>
-		<cfoutput><input type="hidden" id="#arguments.FieldID#_#arguments.Name#" name="#arguments.FieldID#_#arguments.Name#" value="#arguments.value#"></cfoutput>
+		<cfoutput><input type="hidden" id="#arguments.FieldID#_#arguments.Name#" name="#arguments.FieldID#_#arguments.Name#" value="#TRIM(arguments.value)#"></cfoutput>
 	</cfif>
 </cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 
+Name:
+	$normalizePaddingValues
+Summary:
+	Removes the labels from the padding strings added via the CFT props
+Returns:
+	Void
+Arguments:
+	String - PaddingValues
+	String - Delimiter
+History:
+	2014-09-29 - Created
+--->
+<cffunction name="normalizePaddingValues" access="public" output="false" returntype="string" hint="">
+	<cfargument name="PaddingValues" type="string" required="false" default="">
+	<cfargument name="delimiter" type="string" required="false" default=",">
+	
+	<cfscript>
+		var retStr = "";
+		var item = "";
+		
+		for ( i=1; i LTE ListLen(arguments.PaddingValues,arguments.delimiter); i=i+1 )
+		{
+			item = ListGetAt(arguments.PaddingValues,i,arguments.delimiter);	
+			if ( FindNoCase("px",item) )
+				item = TRIM(ReplaceNoCase(item,"px",""));
+				
+			retStr = ListAppend(retStr,item,arguments.delimiter);
+		}
+		
+		return retStr;
+	</cfscript>
+</cffunction>
+
 
 </cfcomponent>

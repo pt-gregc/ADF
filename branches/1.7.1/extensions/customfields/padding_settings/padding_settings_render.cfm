@@ -31,6 +31,7 @@ Version:
 	1.0.0
 History:
 	2014-09-15 - Created
+	2014-09-29 - GAC - Added Padding Value normalization to remove the label from the default values
 --->
 
 <cfscript>
@@ -61,22 +62,34 @@ History:
 		xparams.fieldID = fqFieldName;
 	if ( (NOT StructKeyExists(xparams, "fieldClass")) OR ( LEN(TRIM(xparams.fieldClass)) LTE 0) )
 		xparams.fieldClass = "";
+	
+	// Remove any labels from the possibleValues String
+	if ( StructKeyExists(xparams, "possibleValues") AND LEN(TRIM(xparams.possibleValues)) )
+		xparams.possibleValues = application.ADF.paddingSettings.normalizePaddingValues(PaddingValues=xparams.possibleValues);
+	else
+		xparams.possibleValues = "";
 		
 	if( CurrentValue eq '' )
 	{
-		top = xparams.top;	
-		right = xparams.right;	
-		bottom = xparams.bottom;	
-		left = xparams.left;	
-		CurrentValue = top & ' ' & right & ' ' & bottom & ' ' & left;
+		top = application.ADF.paddingSettings.normalizePaddingValues(PaddingValues=xparams.top);	
+		right = application.ADF.paddingSettings.normalizePaddingValues(PaddingValues=xparams.right);	
+		bottom = application.ADF.paddingSettings.normalizePaddingValues(PaddingValues=xparams.bottom);	
+		left = application.ADF.paddingSettings.normalizePaddingValues(PaddingValues=xparams.left);	
 	}		
 	else
 	{
-		top = ListGetAt( currentValue, 1, ' ' );
-		right = ListGetAt( currentValue, 2, ' ' );
-		bottom = ListGetAt( currentValue, 3, ' ' );
-		left = ListGetAt( currentValue, 4, ' ' );
+		//top = ListGetAt( currentValue, 1, ' ' );
+		//right = ListGetAt( currentValue, 2, ' ' );
+		//bottom = ListGetAt( currentValue, 3, ' ' );
+		//left = ListGetAt( currentValue, 4, ' ' );
+		
+		top = application.ADF.paddingSettings.normalizePaddingValues(PaddingValues=ListGetAt( currentValue, 1, ' ' ) );	
+		right = application.ADF.paddingSettings.normalizePaddingValues(PaddingValues=ListGetAt( currentValue, 2, ' ' ) );	
+		bottom = application.ADF.paddingSettings.normalizePaddingValues(PaddingValues=ListGetAt( currentValue, 3, ' ' ) );	
+		left = application.ADF.paddingSettings.normalizePaddingValues(PaddingValues=ListGetAt( currentValue, 4, ' ' ) );	
 	}
+	
+	currentValue = top & 'px ' & right & 'px ' & bottom & 'px ' & left & 'px';
 	
 	if( NOT StructKeyExists( xparams, 'ShowTop' ) )
 		xparams.ShowTop = 0;
@@ -89,7 +102,6 @@ History:
 		
 	// TODO: add a function that strips the px off of each value in the possible values string
 	// TODO: make sure each value int the possible values string is numeric
-	
 	// TODO: strip the px of of the current value string before converting to individual values
 </cfscript>
 
@@ -120,7 +132,7 @@ History:
 				
 				<!--- // TODO: Add a JS function to parse the input values and build the valid padding string --->
 				
-				jQuery('###xparams.fieldID#').val(t + ' ' + r + ' ' + b + ' ' + l); 
+				jQuery('###xparams.fieldID#').val(t + 'px ' + r + 'px ' + b + 'px ' + l + 'px'); 
 			}
 		</script>
 	</cfoutput>

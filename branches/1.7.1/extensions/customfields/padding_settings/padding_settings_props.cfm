@@ -30,6 +30,7 @@ Version:
 	1.0.0
 History:
 	2014-09-15 - Created
+	2014-09-29 - GAC - Added Padding Value normalization to remove the label from the default values
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
@@ -41,32 +42,33 @@ History:
 // writedump( var="#currentValues#", expand="no" );
 	
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "1.0"; 
+	fieldVersion = "1.0.1"; 
 	
 	// initialize some of the attributes variables
-	left = '0px';
-	right = '0px';
-	top = '0px';
-	bottom = '0px';
+	top = 0;
+	left = 0;
+	right = 0;
+	bottom = 0;
 	
-	showleft = 0;
-	showright = 0;
-	showtop = 0;
-	showbottom = 0;
+	showTop = 1;
+	showRight = 1;
+	showBottom = 1;
+	showLeft = 1;
 	
-	PossibleValues = '';
+	// Possible Values List
+	PossibleValues = '10,9,8,7,6,5,4,3,2,1,0';
 	
 	if( StructKeyExists(currentValues, "PossibleValues") )
-		PossibleValues = currentValues.PossibleValues;
+		PossibleValues = application.ADF.paddingSettings.normalizePaddingValues(PaddingValues=currentValues.PossibleValues);
 	
 	if( StructKeyExists(currentValues, "Top") )
-		top = currentValues.Top;
+		top = application.ADF.paddingSettings.normalizePaddingValues(PaddingValues=currentValues.top);
 	if( StructKeyExists(currentValues, "Right") )	
-		right = currentValues.right;
+		right = application.ADF.paddingSettings.normalizePaddingValues(PaddingValues=currentValues.right);
 	if( StructKeyExists(currentValues, "Bottom") )	
-		Bottom = currentValues.Bottom;
+		Bottom = application.ADF.paddingSettings.normalizePaddingValues(PaddingValues=currentValues.bottom);
 	if( StructKeyExists(currentValues, "Left") )	
-		left = currentValues.Left;
+		left = application.ADF.paddingSettings.normalizePaddingValues(PaddingValues=currentValues.left);
 
 	if( StructKeyExists(currentValues, "ShowTop") )
 		ShowTop = currentValues.ShowTop;
@@ -86,10 +88,9 @@ History:
 		<tr>
 			<td class="cs_dlgLabelSmall" nowrap="nowrap" valign="top">Possible Values:</td>
 			<td class="cs_dlgLabelSmall">
-				<input type="text" name="#prefix#PossibleValues" id="#prefix#PossibleValues" class="cs_dlgControl" value="#PossibleValues#" size="40">
+				<input type="text" name="#prefix#PossibleValues" id="#prefix#PossibleValues" class="cs_dlgControl" value="#PossibleValues#" size="60">
 				<br/>If Possible Values are specified, then the user is presented with a selection list of values. 
 				<br/>Otherwise an input control will be presented.
-				<br/>Example Possible Values List: 10px,9px,8px,7px,6px,5px,5px,3px,2px,1px,0px
 				<br/><br/>
 			</td>
 		</tr>
@@ -108,25 +109,25 @@ History:
 		<tr>
 			<td class="cs_dlgLabelSmall" nowrap="nowrap" valign="top">Top Default:</td>
 			<td class="cs_dlgLabelSmall">
-				<input type="text" name="#prefix#Top" id="#prefix#Top" class="cs_dlgControl" value="#top#" size="6">
+				<input type="text" name="#prefix#Top" id="#prefix#Top" class="cs_dlgControl" value="#top#" size="4" style="text-align:right;">px
 			</td>
 		</tr>
 		<tr>
 			<td class="cs_dlgLabelSmall" nowrap="nowrap" valign="top">Right Default:</td>
 			<td class="cs_dlgLabelSmall">
-				<input type="text" name="#prefix#Right" id="#prefix#Right" class="cs_dlgControl" value="#right#" size="6">
+				<input type="text" name="#prefix#Right" id="#prefix#Right" class="cs_dlgControl" value="#right#" size="4" style="text-align:right;">px
 			</td>
 		</tr>
 		<tr>
 			<td class="cs_dlgLabelSmall" nowrap="nowrap" valign="top">Bottom Default:</td>
 			<td class="cs_dlgLabelSmall">
-				<input type="text" name="#prefix#Bottom" id="#prefix#Bottom" class="cs_dlgControl" value="#bottom#" size="6">
+				<input type="text" name="#prefix#Bottom" id="#prefix#Bottom" class="cs_dlgControl" value="#bottom#" size="4" style="text-align:right;">px
 			</td>
 		</tr>
 		<tr>
 			<td class="cs_dlgLabelSmall" nowrap="nowrap" valign="top">Left Default:</td>
 			<td class="cs_dlgLabelSmall">
-				<input type="text" name="#prefix#Left" id="#prefix#Left" class="cs_dlgControl" value="#left#" size="6">
+				<input type="text" name="#prefix#Left" id="#prefix#Left" class="cs_dlgControl" value="#left#" size="4" style="text-align:right;">px
 			</td>
 		</tr>
 	</table>
