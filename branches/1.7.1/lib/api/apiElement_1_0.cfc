@@ -229,9 +229,9 @@ History:
 		2012-02-24 - MFC - LOCK to prevent multiple CCAPI calls to update 
 							custom elements through a single CCAPI page.
 							Prevents the "security-exception -- conflict" error message.
-		2014-09-12 - GAC - Updated the LOCK name to include the SiteID and the PageID
+		2014-09-12 - GAC - Updated the LOCK name to include the SiteID
 	 --->
-	<cflock type="exclusive" name="CCAPIPopulateContent-#Request.SiteID#-#contentStruct.pageID#" timeout="30">
+	<cflock type="exclusive" name="CCAPIPopulateContent-#Request.SiteID#" timeout="30">
 		<cfscript>
 			// Error handling
 			try 
