@@ -576,7 +576,7 @@ History:
 <cffunction name="loadLibraryPostInit" access="public" returnType="void" hint="Loads the postInit methods found in the loaded ADF lib components.">
 	<cfscript>
 		var libKey = "";
-		var libkeyExcludeList = "Base,BeanConfig,ObjectFactory,Library"; 
+		var libkeyExcludeList = "Base,BeanConfig,ObjectFactory,Library,ApiPool,ApiPoolConfig,proxyWhitelist"; 
 				
 		// Loop over the loaded application.ADF components
 		for ( libKey IN application.ADF )
