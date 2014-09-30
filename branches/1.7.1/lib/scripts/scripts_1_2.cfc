@@ -1004,10 +1004,11 @@ Arguments:
 History:
 	2013-01-01 - MFC - Based on 1.1. Changed the theme loading folders for 1.9.
 	2013-02-06 - MFC - Changed the theme loading folders for 1.10.
-					   Updated the IF statement to check the decimal places is only 1 length. 
+					   Updated the IF statement to check the decimal places is only 1 length.
+	2014-09-30 - GAC - Changed the theme loading folders for 1.11. 
 --->
 <cffunction name="loadJQueryUI" access="public" output="true" returntype="void" hint="Loads the JQuery UI Headers if not loaded."> 
-	<cfargument name="version" type="string" required="false" default="1.10" hint="JQuery version to load.">
+	<cfargument name="version" type="string" required="false" default="1.11" hint="JQuery version to load.">
 	<cfargument name="themeName" type="string" required="false" default="ui-lightness" hint="UI Theme Name (directory name)">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery UI script header to load.">
 	<cfscript>
