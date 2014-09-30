@@ -91,7 +91,7 @@ History:
 		var logFileName = "API_Element_populateCustom.log";
 		var logErrorFileName = ListFirst(logFileName,".") & "_error." & ListLast(logFileName,".");
 		
-		//var csData = server.ADF.objectFactory.getBean("csdata_1_2");
+		var populateCustomLockName = "CCAPIPopulateContent-#Request.SiteID#";
 		
 		var runPopulateCustom = true;
 		var verbose = false;
@@ -148,12 +148,12 @@ History:
 			
 			pagePoolRequestEndBy = DateAdd("s",pagePoolRequestTimeout,pagePoolRequestStart);
 			
-if ( verbose )
-{			
-	variables.utils.doDUMP(pagePoolRequestID,"pagePoolRequestID");
-	variables.utils.doDUMP(pagePoolRequestStart,"pagePoolRequestStart");
-	variables.utils.doDUMP(pagePoolRequestEndBy,"pagePoolRequestEndBy");
-}
+			if ( verbose )
+			{			
+				variables.utils.doDUMP(pagePoolRequestID,"pagePoolRequestID");
+				variables.utils.doDUMP(pagePoolRequestStart,"pagePoolRequestStart");
+				variables.utils.doDUMP(pagePoolRequestEndBy,"pagePoolRequestEndBy");
+			}
 			
 			// Run REQUEST until a Conduit page becomes available
 			while( true )
@@ -161,12 +161,12 @@ if ( verbose )
 				
 				pagePoolParams = variables.apiConduitPool.getConduitPageFromPool(CEconfigName=arguments.elementName, requestID=pagePoolRequestID);
 
-if ( verbose )
-{	
-	variables.utils.doDUMP(pagePoolParams.pageID,"page Pool pageID");					
-	variables.utils.doDUMP(pagePoolParams,"pagePoolParams");
-	variables.utils.doDUMP(Application.ADF.apipool,"Application.ADF.apipool");
-}	
+				if ( verbose )
+				{	
+					variables.utils.doDUMP(pagePoolParams.pageID,"page Pool pageID");					
+					variables.utils.doDUMP(pagePoolParams,"pagePoolParams");
+					variables.utils.doDUMP(Application.ADF.apipool,"Application.ADF.apipool");
+				}	
 			
 				if ( pagePoolLogging )
 				{
@@ -342,24 +342,29 @@ if ( verbose )
 		// Following structure contains the data.  The structure keys are the 'field names'
 		contentStruct.data = arguments.data;
 
-if ( verbose )		
-	variables.utils.doDUMP(contentStruct,"contentStruct",0);
-
+		if ( verbose )		
+			variables.utils.doDUMP(contentStruct,"contentStruct",0);
 	</cfscript>
 	
-	<!--- LOCK to prevent multiple CCAPI calls to update 
-			custom elements through a single CCAPI page.
-			Prevents the "security-exception -- conflict" error message.
+	<!--- 
+		2012-02-24 - MFC - LOCK to prevent multiple CCAPI calls to update 
+							custom elements through a single CCAPI page.
+							Prevents the "security-exception -- conflict" error message.
+		2014-09-12 - GAC - Updated the LOCK name to include the SiteID
+						 - If the using th pagePool also add the PageID to the Lock Name
 	 --->
 	<cfif runPopulateCustom>
-		<cflock type="exclusive" name="CCAPIPopulateContent-#Request.SiteID#-#contentStruct.pageID#" timeout="30">
+	
+		<!--- // If using PagePool use both the siteID and the PageID for the LOCK name --->
+		<cfif usePagePool>
+			<cfset populateCustomLockName = "CCAPIPopulateContent-#Request.SiteID#-#contentStruct.pageID#">
+		</cfif>
+		
+		<cflock type="exclusive" name="#populateCustomLockName#" timeout="30">
 			<cfscript>
 				// Error handling
 				try 
 				{
-					//pagePoolLogText = "Element [#arguments.elementName#] RequestID: #pagePoolRequestID# - Conduit PageID Used: #contentStruct.pageID#";
-					//pagePoolLog.msg = _apiLogMsgWrapper(logMsg=pagePoolLog.msg,logEntry=pagePoolLogText);
-				
 					// Call the API to run the CCAPI Command
 					if ( LEN(TRIM(arguments.forceUsername)) AND LEN(TRIM(arguments.forcePassword)) )
 					{
@@ -375,12 +380,6 @@ if ( verbose )
 															 sparams=contentStruct);			
 					}
 													 
-	//variables.utils.dodump(apiResponse,"apiResponse",false);
-
-	//sleepTime = (RandRange(3,7)*1000);
-	//variables.utils.dodump(sleepTime,"Sleep Time",true);
-	//sleep(sleepTime);
-
 					// Check that the API ran
 					if ( apiResponse.status )
 					{	
@@ -461,8 +460,8 @@ if ( verbose )
 			if ( pagePoolLogging )
 				variables.utils.logAppend(msg=pagePoolLog.msg,logfile=pagePoolLog.logFile,useUTC=false);
 
-if ( verbose )
-	variables.utils.doDUMP(Application.ADF.apipool,"Application.ADF.apipool");
+			if ( verbose )
+				variables.utils.doDUMP(Application.ADF.apipool,"Application.ADF.apipool");
 
 		}
 		

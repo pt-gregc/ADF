@@ -51,7 +51,7 @@ History:
 <!--- 
 	postInit()
 --->
-<cffunction name="postInit">
+<cffunction name="postInit" returntype="void" output="false" access="public" hint="Runs by default after the standard ADF has been built by the loadLibrary command.">
 	<cfscript>
 	
 		// initialize the API POOL memory variables
@@ -763,8 +763,6 @@ History:
 	</cfscript>
 </cffunction>
 
-
-
 <!--- /////////////////////////////////////////////////////////////////// --->
 <!--- ///           API CONDUIT PAGE POOL UTILITY METHODS             /// --->
 <!--- /////////////////////////////////////////////////////////////////// --->
@@ -808,7 +806,7 @@ History:
 <!--- 
 	buildPoolConduitPagesFromAPIConfig() - builds the pool structure from the ccapi config values
  --->
-<cffunction name="buildPoolConduitPagesFromAPIConfig" returntype="struct" output="true" access="private">
+<cffunction name="buildPoolConduitPagesFromAPIConfig" returntype="struct" output="false" access="private">
 	<cfscript>
 		var retData = StructNew();
 		var apiConfig = getAPIConfig();

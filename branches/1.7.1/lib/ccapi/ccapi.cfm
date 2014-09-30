@@ -34,14 +34,14 @@ end user license agreement.
 		<UnqiueGlobalCEConfigName> 
 			<elementType>custom</elementType>
 			<gceConduitConfig>
-				<timeout>60</timeout> <!-- // optional -->
+				<timeout>30</timeout> <!-- // optional -->
 				<customElementName>Another GCE Name</customElementName>
 			</gceConduitConfig>
 		</UnqiueGlobalCEConfigName>
 	</elements>
 	<!-- // Global Custom Element Conduit Page Pool -->
 	<gceConduitPagePool>
-		<globalTimeout>30</globalTimeout><!-- // seconds -->
+		<globalTimeout>15</globalTimeout><!-- // seconds -->
 		<requestWaitTime>200</requestWaitTime><!-- // milliseconds -->
 		<logging>1</logging>
 		<conduitPages>
