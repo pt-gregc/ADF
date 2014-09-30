@@ -30,7 +30,7 @@ Version:
 	1.0.0
 History:
 	2014-09-15 - Created
-	2014-09-29 - GAC - Added an updated list of icon classes and code via a FileRead of a CSV file 
+	2014-09-29 - GAC - Added an updated list of icon classes and codes using csvToArray on FA icon text data in a CSV text file 
 --->
 <cfscript>
 	// the fields current value
@@ -71,22 +71,20 @@ History:
 	
 	// Get the Full File Path to the IconDataFile
 	iconDataFilePath = ExpandPath(xparams.iconDataFile);
-	iconDataQry = QueryNew("class,code");
+	iconDataArr = ArrayNew(1);
 	
 	// Make sure the data file exists
 	if ( FileExists(iconDataFilePath) )
 	{
-		// Read in the icon data
-		iconData = FileRead(iconDataFilePath); 
 		// Convert the CSV file to a qry
-		iconDataQry = application.ADF.data.csvToQuery(csvString=iconData);
+		iconDataArr = application.ADF.data.csvToArray(file=iconDataFilePath,Delimiter=",");
 	}
 	
 	// Build the Font Awesome Icons array
 	fontArray = ArrayNew(1);
-	for ( q=1; q LTE iconDataQry.RecordCount; q=q+1 )
+	for ( a=1; a LTE ArrayLen(iconDataArr); a=a+1 )
 	{
-		ArrayAppend( fontArray, '#iconDataQry.CLASS[q]#,#iconDataQry.CODE[q]#' ); 
+		ArrayAppend( fontArray, '#iconDataArr[a][1]#,#iconDataArr[a][2]#' ); 
 	}
 
 	// Set the curval

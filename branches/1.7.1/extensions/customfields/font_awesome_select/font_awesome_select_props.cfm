@@ -53,7 +53,7 @@ History:
 	
 	defaultFAversion = "4.2.0";	
 	// Default file path to the CSV file that contain the icon class name and codes
-	iconDataFile = "/ADF/thirdParty/css/font-awesome/#defaultFAversion#/data/icon-data.csv";
+	defaultIconDataFile = "/ADF/thirdParty/css/font-awesome/#defaultFAversion#/data/icon-data.csv";
 	
 	if( StructKeyExists(currentValues, "ShowSize") )
 		ShowSize = currentValues.ShowSize;
@@ -65,8 +65,11 @@ History:
 		ShowSpin = currentValues.ShowSpin;
 	if( StructKeyExists(currentValues, "ShowPull") )	
 		ShowPull = currentValues.ShowPull;
-	if( StructKeyExists(currentValues, "iconDataFile") )	
+		
+	if( StructKeyExists(currentValues, "iconDataFile") AND LEN(TRIM(currentValues.iconDataFile)) )	
 		iconDataFile = currentValues.iconDataFile;
+	else
+		iconDataFile = defaultIconDataFile;
 </cfscript>
 
 <cfoutput>
@@ -90,7 +93,7 @@ History:
 				<input type="text" name="#prefix#iconDataFile" id="#prefix#iconDataFile" class="cs_dlgControl" value="#iconDataFile#" size="60">
 				<br/>Specify a relative path to a comma-delimited icon data file.
 				<br/>If left blank, will use the default Icon data file.
-				<br/><br/>
+				<!--- <br/>Default Icon Data File Path: #defaultIconDataFile# --->
 			</td>
 		</tr>
 	</table>
