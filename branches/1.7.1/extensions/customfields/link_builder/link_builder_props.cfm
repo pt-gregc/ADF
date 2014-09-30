@@ -57,7 +57,7 @@ History:
 		currentValues.actionPage = "#request.subsitecache[1].url#";
 </cfscript>
 <cfoutput>
-	<script type="text/javascript"]>
+	<script type="text/javascript">
 		fieldProperties['#typeid#'].paramFields = "#prefix#fieldID,#prefix#fieldClass,#prefix#actionPage";
 		// allows this field to have a common onSubmit Validator
 		//fieldProperties['#typeid#'].jsValidator = '#prefix#doValidate';
