@@ -42,18 +42,19 @@ History:
 	2013-05-21 - MFC - Modified - New v1.6.2 branch.
 	2013-10-21 - GAC - Modified - Added 'file-version' property for ADF core files 
 	2014-02-26 - GAC - Modified - New v1.7.0 branch.
+	2014-02-26 - GAC - Modified - New v1.7.1 branch.
 --->
 <cfcomponent name="Core" hint="Core component for Application Development Framework">
 
-<cfproperty name="version" value="1_7_0">
+<cfproperty name="version" value="1_7_1">
 <cfproperty name="file-version" value="6">
 
 <cfscript>
-	variables.ADFversion = "1.7.0"; // use a dot delimited version number
+	variables.ADFversion = "1.7.1"; // use a dot delimited version number
 	// ADF Build Revision Number
-	variables.buildRev = "1292";
+	variables.buildRev = "1390";
 	// ADF Codename
-	variables.buildName = "Spy Hunter II";
+	variables.buildName = "River City Ransom";
 	// CS product version, get the decimal value
 	variables.csVersion = Val(ListLast(request.cp.productversion, " "));
 </cfscript>
@@ -61,7 +62,8 @@ History:
 <cffunction name="init" output="true" returntype="void">
 	<cfscript>
 		// Check if the ADF variable does not exist in server scope
-		if ( NOT StructKeyExists(server, "ADF") ) {
+		if ( NOT StructKeyExists(server, "ADF") ) 
+		{
 			server.ADF = StructNew();
 			server.ADF.environment = StructNew();  // Stores the App and Site configuration data
 		}

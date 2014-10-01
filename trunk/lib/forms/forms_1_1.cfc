@@ -97,7 +97,8 @@ History:
 	<cfargument name="lbAction" type="string" required="false" default="norefresh" hint="The action, either norefresh or refreshparent">
 	<cfargument name="customizedFinalHtml" type="string" required="false" default="" hint="Allows you to pass in custom HTML that will display after submit">
 	<cfargument name="callback" type="string" required="false" default="" hint="Optional callback code that will get called on submit">
-
+	<cfargument name="behaveAsSimpleForm" type="Boolean" required="no" default="0" hint="Optional parameter to treat the form as simple form or not">
+	
 	<cfscript>
 		var udfResults = '';
 		var APIPostToNewWindow = false;
@@ -154,7 +155,7 @@ History:
 
 	<!--- HTML for the form --->
 	<cfsavecontent variable="rtnHTML">
-		<cfset udfResults = server.CommonSpot.UDF.UI.RenderSimpleForm(arguments.dataPageID, arguments.formID, APIPostToNewWindow, formResultHTML)>
+		<cfset udfResults = server.CommonSpot.UDF.UI.RenderSimpleForm(arguments.dataPageID, arguments.formID, APIPostToNewWindow, formResultHTML, arguments.behaveAsSimpleForm)>
 		<cfoutput>
 			<cfscript>
 				// ADF Lightbox needs to be forced to load the browser-all.js into

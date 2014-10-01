@@ -58,11 +58,12 @@ History:
 	2014-01-03 - GAC - Added the fieldVersion variable
 	2014-01-17 - TP  - Aded the abiltiy to render checkboxes, radio buttons as well as a selection list
 	2014-01-30 - GAC - Moved into a v1_0 version subfolder
+	2014-09-19 - GAC - Removed deprecated doLabel and jsLabelUpdater js calls
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <cfscript>
-	fieldVersion = "1.0.15"; // Variable for the version of the field - Display in Props UI
+	fieldVersion = "1.0.16"; // Variable for the version of the field - Display in Props UI
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
@@ -137,15 +138,8 @@ History:
 <cfoutput>
 <script type="text/javascript">
 	fieldProperties['#typeid#'].paramFields = "#prefix#customElement,#prefix#valueField,#prefix#displayField,#prefix#renderField,#prefix#defaultVal,#prefix#fldName,#prefix#forceScripts,#prefix#displayFieldBuilder,#prefix#activeFlagField,#prefix#activeFlagValue,#prefix#addButton,#prefix#multipleSelect,#prefix#sortByField,#prefix#renderSelectOption,#prefix#fieldtype,#prefix#multipleSelectSize,#prefix#widthValue,#prefix#heightValue,#prefix#renderClearSelectionLink";
-	// allows this field to support the orange icon (copy down to label from field name)
-	fieldProperties['#typeid#'].jsLabelUpdater = '#prefix#doLabel';
 	// allows this field to have a common onSubmit Validator
 	fieldProperties['#typeid#'].jsValidator = '#prefix#doValidate';
-	// handling the copy label function
-	function #prefix#doLabel(str) 
-	{
-		document.#formname#.#prefix#label.value = str;
-	}
 	
 	function #prefix#doValidate()
 	{

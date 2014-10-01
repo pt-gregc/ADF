@@ -44,12 +44,13 @@ History:
 	2013-12-05 - GAC - Added standard CS text formatting to the props options 
 	2014-01-02 - GAC - Added the CFSETTING tag to disable CF Debug results in the props module
 	2014-01-03 - GAC - Added the fieldVersion variable
+	2014-09-19 - GAC - Removed deprecated doLabel and jsLabelUpdater js calls
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "1.2.3"; 
+	fieldVersion = "1.2.4"; 
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
@@ -67,28 +68,23 @@ History:
 
    //This will override the default values with the current values.
    currentValueArray = StructKeyArray(currentValues);
-   for(i=1;i<=ArrayLen(currentValueArray);i++){
-      if(StructKeyExists(defaultValues,currentValueArray[i])){
+   for(i=1;i<=ArrayLen(currentValueArray);i++)
+   {
+      if(StructKeyExists(defaultValues,currentValueArray[i]))
+	  {
          defaultValues[currentValueArray[i]] = currentValues[currentValueArray[i]];
       }
    }
 </cfscript>
 <cfoutput>
-	
 	<script language="JavaScript" type="text/javascript">
 		// register the fields with global props object
 		fieldProperties['#typeid#'].paramFields = '#prefix#chooserCFCName,#prefix#forceScripts,#prefix#minSelections,#prefix#maxSelections,#prefix#loadAvailable';
-		// allows this field to support the orange icon (copy down to label from field name)
-		fieldProperties['#typeid#'].jsLabelUpdater = '#prefix#doLabel';
 		// allows this field to have a common onSubmit Validator
 		fieldProperties['#typeid#'].jsValidator = '#prefix#doValidate';
-		// handling the copy label function
-		function #prefix#doLabel(str)
+
+		function #prefix#doValidate()
 		{
-			document.#formname#.#prefix#label.value = str;
-		}
-		function #prefix#doValidate(){
-			
 			// Check the chooserCFCName
 			if ( document.getElementById('#prefix#chooserCFCName').value.length <= 0 ) {
 				alert("Please enter the Chooser CFC Name property field.");

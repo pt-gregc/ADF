@@ -53,7 +53,7 @@ Arguments:
 	String - ISO8601DateTime
 History:
 	2011-03-08 - GAC - Added
-	2011-03-09 - GAC - Update - Added ParseDateTime() and returnFormat=Data - from the comments of Ben's blog post
+	2011-03-09 - GAC - Update - Added ParseDateTime() and returnFormat=Date - from the comments of Ben's blog post
 	2011-03-10 - GAC - Removed ReplaceFirst and changed to REReplace CF function.
 --->
 <cffunction name="ISOToDateTime" access="public" returntype="date" output="false" hint="Converts an ISO 8601 date/time stamp with optional dashes to a ColdFusion date/time stamp.">

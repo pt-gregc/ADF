@@ -38,8 +38,8 @@ History:
 --->
 <cfcomponent name="Base" hint="Base component for Custom Application Common Framework">
 
-<cfproperty name="version" value="1_7_0">
-<cfproperty name="file-version" value="3">
+<cfproperty name="version" value="1_7_1">
+<cfproperty name="file-version" value="4">
 	
 <cffunction name="init" output="true" returntype="any">
 	<cfscript>
@@ -181,6 +181,105 @@ History:
 			return true;
 		return false;
 	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 
+	PaperThin, Inc.	
+	G. Cronkright
+Name:
+	doLog
+Summary:
+	A local private method to create cs formatted log files during the build process
+Returns:
+	Boolean
+Arguments:
+	Any - msg
+	String - logFile
+	Boolean - addTimeStamp
+	String - logDir
+	String - label
+History:
+	2014-03-24 - GAC - Created
+--->
+<!--- // doLog(msg="foo",logFile="logFile.log") --->
+<cffunction name="doLog" access="private" returntype="void" output="false" hint="A local private method to create cs formatted log files">
+	<cfargument name="msg" type="any" required="true" hint="if this value is NOT a simple string then the value gets converted to sting output using CFDUMP">
+	<cfargument name="logFile" type="string" required="false" default="ADF_log.log">
+	<cfargument name="addTimeStamp" type="boolean" required="false" default="true" hint="Adds a date stamp to the file name">
+	<cfargument name="logDir" type="string" required="false" default="#request.cp.commonSpotDir#logs/">
+	<cfargument name="label" type="string" required="false" default="" hint="Adds a text label to the log entry">
+	
+	<cfscript>
+		var logFileName = ListDeleteAt(arguments.logFile,ListLen(arguments.logFile,"."), ".");
+		var logFileExt = ListLast(arguments.logFile,".");
+		var safeLogName = REReplaceNoCase(logFileName,"[\W]","","ALL");
+		var utcNow = mid(dateConvert('local2utc', now()), 6, 19);
+		var logFileNameWithExt = request.site.name & "." & safeLogName & "." & logFileExt;
+		
+		if( arguments.addTimeStamp )
+			logFileNameWithExt = dateFormat(now(), "yyyymmdd") & "." & logFileNameWithExt;
+			
+		if( len(arguments.label) )
+			arguments.label = arguments.label & "-";
+			
+		if ( !isSimpleValue(arguments.msg) )
+			arguments.msg = doOutput(arguments.msg,"#arguments.label#msg-#dateFormat(Now(), 'yyyy-mm-dd')# #timeFormat(Now(), 'HH:mm:ss')#",0,1);
+	</cfscript>
+	
+	<cflock timeout="30" throwontimeout="Yes" name="#safeLogName#FileLock" type="EXCLUSIVE">
+		<cffile action="append" file="#arguments.logDir##logFileNameWithExt#" output="#utcNow# (UTC) - #arguments.label# #arguments.msg#" addnewline="true" fixnewline="true">
+	</cflock>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 
+	PaperThin, Inc.	
+	G. Cronkright
+Name:
+	doOutput
+Summary:
+	A local private method to output debug data to the page during the build process
+Returns:
+	Boolean
+Arguments:
+	String - msg
+	String - label
+	Boolean - expand
+	Numeric - returnInVar
+History:
+	2014-03-24 - GAC - Created
+--->
+<!--- // doOutput(msg="foo",label="bar") --->
+<cffunction name="doOutput" access="private" returntype="string" output="true" hint="A local private method to output debug data to the page during the build process">
+	<cfargument name="msg" type="any" required="true">
+	<cfargument name="label" required="no" type="string" default="no label">
+	<cfargument name="expand" required="no" type="boolean" default="true">
+	<cfargument name="returnInVar" required="no" type="boolean" default="0">
+	
+	<cfscript>
+		var resultHTML = "";
+	</cfscript>
+	
+	<!--- // process the dump and save it to the return variable --->
+	<cfsavecontent variable="resultHTML">
+		<cfif IsSimpleValue(arguments.msg)>
+			<cfoutput><div><cfif LEN(TRIM(arguments.label)) AND arguments.expand EQ true><strong>#arguments.label#:</strong> </cfif>#arguments.msg#</div></cfoutput>
+		<cfelse>
+			<cfdump var="#arguments.msg#" label="#arguments.label#" expand="#arguments.expand#">
+		</cfif>
+	</cfsavecontent>
+
+	<!--- // output the dump in place or pass to the return of the function --->
+	<cfif !arguments.returnInVar>
+		<!--- // outputing the dump in place so set the return to an empty string to avoid duplicate output --->
+		<cfoutput>#resultHTML#</cfoutput>
+		<cfreturn "">
+	<cfelse>
+		<cfreturn resultHTML>	
+	</cfif>
 </cffunction>
 
 </cfcomponent>
