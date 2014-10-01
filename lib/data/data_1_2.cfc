@@ -35,7 +35,7 @@ History:
 --->
 <cfcomponent displayname="data_1_2" extends="ADF.lib.data.data_1_1" hint="Data Utils component functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_8">
+<cfproperty name="version" value="1_2_9">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Data_1_2">
 
@@ -65,6 +65,7 @@ History:
 	<cfargument name="structDataB" type="struct" required="true" hint="">
 	<cfargument name="excludeKeyList" type="string" required="false" default="" hint="">
 	<cfargument name="objectFieldKeyList" type="any" required="false" default="" hint="">
+	
 	<cfscript>
 		var isDifferent = false;
 		var tempStructDataA = Duplicate(arguments.structDataA);
@@ -91,6 +92,7 @@ Arguments:
 	Struct - structDataA
 	Struct - structDataB
 	String - excludeKeyList
+	Any - objectFieldKeyList
 History:
 	2012-10-19 - GAC - Created - MOVE INTO THE ADF V1.6
 	2012-12-31 - Added 'objectFieldKeyList' argument for complex fields.
@@ -100,6 +102,7 @@ History:
 	<cfargument name="structDataB" type="struct" required="true" hint="">
 	<cfargument name="excludeKeyList" type="string" required="false" default="" hint="">
 	<cfargument name="objectFieldKeyList" type="any" required="false" default="" hint="">
+	
 	<cfscript>
 		var isEqual = false;
 		var i=1;
@@ -125,7 +128,8 @@ History:
 			{
 				// Compare the object fields
 				if ( isJSON(arguments.structDataA[currentKey])
-						AND isJSON(arguments.structDataB[currentKey]) ) {
+						AND isJSON(arguments.structDataB[currentKey]) ) 
+				{
 					// Set into variables to run the comparison
 					dataAObjectValue = deserializeJSON(arguments.structDataA[currentKey]);
 					dataBObjectValue = deserializeJSON(arguments.structDataB[currentKey]);
@@ -171,6 +175,7 @@ History:
 	<cfargument name="list" type="string" required="true" hint="">
 	<cfargument name="value" type="string" required="false" default="" hint="">
 	<cfargument name="delimiters" type="string" required="false" default="," hint="Delimiter for the list.  Defualt is comma. (Optional)">
+	
 	<cfscript>
 		var retStr = arguments.list;
 		if ( NOT listFindNoCase(arguments.list,arguments.value,arguments.delimiters) )
@@ -199,6 +204,7 @@ History:
 <cffunction name="stripHTMLtags" access="public" returntype="string" hint="Removes HTML tags from a text string">
 	<cfargument name="str" type="string" required="true">
 	<cfargument name="replaceStr" type="string" default="" required="false">
+	
 	<cfscript>
 		var findStr = "<[^>]*>";
 		return REREPLACE(arguments.str,findStr,arguments.replaceStr,'all');
@@ -223,6 +229,7 @@ History:
 --->
 <cffunction name="unescapeHTMLentities" access="public" returntype="string" hint="Converts HTML entities back to thier text values">
 	<cfargument name="str" type="string" required="true">
+	
 	<cfscript>
 		return server.commonspot.udf.html.unescape(arguments.str);
 	</cfscript>
@@ -244,6 +251,7 @@ History:
 */ --->
 <cffunction name="filterInternationlChars" access="public" returntype="string" output="false" hint="Will replace chars in a string to be used to create a folder with valid equivalent replacements">
 	<cfargument name="fileName" type="string" required="true" hint="">
+	
 	<cfscript>
 		var bad_chars="#chr(47)#,#chr(92)#,#chr(42)#,#chr(38)#,#chr(37)#,#chr(36)#,#chr(191)#,#chr(198)#,#chr(199)#,#chr(208)#,#chr(209)#,#chr(221)#,#chr(222)#,#chr(223)#,#chr(230)#,#chr(231)#,#chr(240)#,#chr(241)#,#chr(247)#,#chr(248)#,#chr(253)#,#chr(254)#,#chr(255)#";
 		var good_chars="#chr(45)#,#chr(45)#,#chr(45)#,#chr(45)#,#chr(45)#,#chr(45)#,#chr(45)#,#chr(65)#,#chr(67)#,#chr(68)#,#chr(78)#,#chr(89)#,#chr(73)#,#chr(66)#,#chr(97)#,#chr(99)#,#chr(111)#,#chr(110)#,#chr(45)#,#chr(111)#,#chr(121)#,#chr(49)#,#chr(121)#";
@@ -330,6 +338,7 @@ History:
     <cfargument name="query" type="query" required="yes" hint="The query to be sorted">
     <cfargument name="columnName" type="string" required="no" default="" hint="The name of the column to be sorted">
     <cfargument name="orderType" type="string" required="no" default="asc" hint="The sort type. Options: asc, desc">
+    
     <cfscript>
 		var qResult = queryNew("null");
 		var qColumnsList = arguments.query.columnList;
@@ -341,6 +350,7 @@ History:
 		if ( ListFindNoCase(orderTypeDefaults,arguments.orderType) )
 			orderTypeOption = arguments.orderType;
 	</cfscript>
+    
     <cftry>
 		<cfquery name="qResult" dbtype="query">
 			SELECT #qColumnsList#
@@ -381,7 +391,7 @@ History:
 					   Added null value protection logic around the ORDER BY statement
 	2014-02-05 - GAC - Updated to handle reserved words
 					 - Updated to auto-detect numeric and date comparisons. So now passing a column type is not needed unless forcing a specific type.
-	2013-02-06 - GAC - Updated the FORCE and AUT0-DETECT columnTpye logic. 
+	2013-02-06 - GAC - Updated the FORCE and AUTO-DETECT columnType logic. 
 					 - Updated the generated SQL output and error logging.
 					 - Added safety checks for the custom sort column name
 	2014-03-05 - JTP - Var declarations
@@ -514,13 +524,15 @@ History:
 --->
 <cffunction name="getOrdinalSuffixforNumber" access="public" output="false" returntype="string" hint="This function returns the 2 character english text ordinal for numbers.">
 	<cfargument name="number" type="numeric" required="true" hint="">
+	
 	<cfscript>
 		// if the right 2 digits are 11, 12, or 13, set number to them.
   		// Otherwise we just want the digit in the one's place.
   		var two=Right(arguments.number,2);
   		var ordinal="";
   		
-  		switch(two) {
+  		switch(two) 
+		{
        		case "11": 
        		case "12": 
        		case "13": { arguments.number = two; break; }
@@ -528,7 +540,8 @@ History:
   		}
 
 		// 1st, 2nd, 3rd, everything else is "th"
-		switch(arguments.number) {
+		switch(arguments.number) 
+		{
 			case "1": { ordinal = "st"; break; }
 			case "2": { ordinal = "nd"; break; }
 			case "3": { ordinal = "rd"; break; }
@@ -560,6 +573,7 @@ History:
 --->
 <cffunction name="numberToOrdinal" access="public" output="false" returntype="string" hint="Returns an Ordinal string version of a number from a numeric value.">
 	<cfargument name="number" type="numeric" required="true" hint="">
+	
 	<cfscript>
 		return cardinalToOrdinal(NumberAsString(number));
 	</cfscript>
@@ -588,6 +602,7 @@ History:
 --->
 <cffunction name="cardinalToOrdinal" access="public" output="false" returntype="string" hint="This function converts cardinal number strings to ordinal number strings..">
 	<cfargument name="cardinalString" type="string" required="true" hint="">
+	
 	<cfscript>  
 		var resultString = "";        // Generated result to return
 	 	var lastCardinal = "";        // Last word in cardinal number string
@@ -601,23 +616,29 @@ History:
   
 		// Is lastCardinal a special case?
 		TempNum = listFindNoCase(cardinalSpecialStrings,lastCardinal);
-		if (TempNum GT 0) {
+		if (TempNum GT 0) 
+		{
 		  	resultString = ListAppend(resultString,ListGetAt(ordinalSpecialStrings,TempNum)," ");
 		} 
-		else {
-		    if (ListFindNoCase(Right(lastCardinal,2),"en")) {
+		else 
+		{
+		    if (ListFindNoCase(Right(lastCardinal,2),"en")) 
+			{
 		      // Last word ends with "en", add "th"
 		      resultString = ListAppend(resultString,lastCardinal & "th"," ");
 		    } 
-		    if (ListFindNoCase(Right(lastCardinal,1),"d")) {
+		    if (ListFindNoCase(Right(lastCardinal,1),"d")) 
+			{
 		      // Last word ends with "d", add "th"
 		      resultString = ListAppend(resultString,lastCardinal & "th"," ");
 		    } 
-		    if (ListFindNoCase(Right(lastCardinal,1),"y")) {
+		    if (ListFindNoCase(Right(lastCardinal,1),"y")) 
+			{
 		      // Last word ends with "y", delete "y", add "ieth"
 		      resultString = ListAppend(resultString, Left(lastCardinal,Len(lastCardinal) - 1) & "ieth"," ");
 		    } 
-		    if (ListFindNoCase(Right(lastCardinal,3),"ion")) {
+		    if (ListFindNoCase(Right(lastCardinal,3),"ion")) 
+			{
 		      // Last word ends with "ion", add "th"
 		      resultString = ListAppend(resultString,lastCardinal & "th"," ");
 		    } 
@@ -634,7 +655,7 @@ Author:
 Name:
 	$IsListDifferent
 Summary:
-	Compares two lists and then returns a true if they are different or not
+	Compares two lists and then returns a true if they are different
 Returns:
 	Boolean
 Arguments:
@@ -648,6 +669,7 @@ History:
 	<cfargument name="list1" type="string" required="false" default="" hint="First list to compare">
 	<cfargument name="list2" type="string" required="false" default="" hint="Second list to compare">
 	<cfargument name="delimiters" type="string" required="false" default="," hint="Delimiter for all lists.  Defualt is comma. (Optional)">
+	
 	<cfscript>
 		 var isDifferent = true;
 		 var listDifferences = listDiff(list1=arguments.list1,list2=arguments.list2,delimiters=arguments.delimiters);
@@ -683,6 +705,7 @@ History:
 	<cfargument name="list1" type="string" required="false" default="" hint="First list to compare">
 	<cfargument name="list2" type="string" required="false" default="" hint="Second list to compare">
 	<cfargument name="delimiters" type="string" required="false" default="," hint="Delimiter for all lists.  Defualt is comma. (Optional)">
+	
 	<cfscript>
 		var listReturn = "";
 		var position = 1;	
@@ -735,6 +758,7 @@ History:
 	<cfargument name="tableName" type="string" required="true">
 	<cfargument name="datasourseName" type="string" required="false" default="#Request.Site.DataSource#">
 	<cfargument name="databaseType" type="string" required="false" default="#Request.Site.SiteDBType#">
+	
 	<cfscript>
 		var verifyDB = '';
 		var verifySourceDB = QueryNew("temp");

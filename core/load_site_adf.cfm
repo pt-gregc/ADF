@@ -39,10 +39,16 @@ History:
 	2013-01-23 - MFC - Increased the CFLOCK timeout to "300".
 	2013-01-24 - MFC - Setup the "Session.ADF" space if it doesn't exist for the users session
 	2013-12-05 - GAC - Removed the login check logic from around URL resetADF checks to allow the not logged in message to display (when not a forced Reset) and the user is not logged in 
+	2014-05-27 - GAC - Added a ADFdumpVar processing method call to help with securing the rendered output
+					 - Added the ADF and fileVersion local variables
+					 - Added the label to simple value dumps
  --->
 <!--- // Lock around the entire load ADF processing --->
 <cflock timeout="300" type="exclusive" name="ADF-RESET-LOAD-SITE">
 	<cfscript>
+		adfVersion = "1.7.1";
+		adfFileVersion = "13"; 
+		
 		// Initialize the RESET TYPE variable
 		// Determine what kind of reset is needed (if any)
 		adfResetType = "";
@@ -108,9 +114,15 @@ History:
 				// [DRM] = 2014-01-08 - Moved msg to cfhtmlhead, same reasoning as with reset msg above
 				//Anything that is not a-z or 0-9 or '.' or '[' or ']'
 				regularExpression = '[^a-z0-9\.\[\]]]*';
-				if (Len(url.ADFDumpVar) GT 0 and !ReFindNoCase(regularExpression,url.ADFDumpVar)) {
-					utilsObj = CreateObject("component","ADF.lib.utils.utils_1_0");
-					adfDumpMsg = utilsObj.dodump(evaluate(url.ADFDumpVar), #url.ADFDumpVar#, false, true);
+				if ( Len(url.ADFDumpVar) GT 0 and !ReFindNoCase(regularExpression,url.ADFDumpVar) ) {
+					utilsObj = CreateObject("component","ADF.lib.utils.utils_1_2");
+					// [GAC] 2014-05-27 - Added a security fix for the ADF dump var command
+					adfDumpVarData = utilsObj.processADFDumpVar(dumpVarStr=url.ADFDumpVar,sanitize=true);
+					// [GAC] 2014-05-27 - Dump the processed ADFdumpVar data 
+					if ( IsSimpleValue(adfDumpVarData) )
+						adfDumpMsg = utilsObj.dodump(adfDumpVarData, url.ADFDumpVar, true, true);
+					else
+						adfDumpMsg = utilsObj.dodump(adfDumpVarData, url.ADFDumpVar, false, true);
 				}
 				else {
 					// 2012-01-10 - MFC - Added span tag with ID around the reset message.

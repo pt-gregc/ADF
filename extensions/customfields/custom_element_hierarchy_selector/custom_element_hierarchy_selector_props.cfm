@@ -33,13 +33,14 @@ ADF Requirements:
 History:
 	2014-01-16 - DJM - Created
 	2014-01-29 - GAC - Converted to use AjaxProxy and the ADF Lib
+	2014-09-19 - GAC - Removed deprecated doLabel and jsLabelUpdater js calls
 --->
 
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "1.0.1"; 
+	fieldVersion = "1.0.2"; 
 	
 	requiredVersion = 9;
 	productVersion = ListFirst(ListLast(request.cp.productversion," "),".");
@@ -147,14 +148,8 @@ History:
 	
 	fieldProperties['#typeid#'].paramFields = "#prefix#customElement,#prefix#parentField,#prefix#displayField,#prefix#valueField,#prefix#selectionType,#prefix#widthValue,#prefix#rootValue,#prefix#rootNodeText,#prefix#heightValue,#prefix#cookieField,#prefix#filterCriteria,#prefix#useUdef";
 	fieldProperties['#typeid#'].defaultValueField = '#prefix#defaultValue';
-	fieldProperties['#typeid#'].jsLabelUpdater = '#prefix#doLabel';
 	fieldProperties['#typeid#'].jsValidator = '#prefix#doValidate';
-	
-	function #prefix#doLabel(str)
-	{
-		document.#formname#.#prefix#label.value = str;
-	}
-	
+
 	function #prefix#doValidate()
 	{
 		var isSelected = 0;

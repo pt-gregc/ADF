@@ -34,14 +34,15 @@ History:
 --->
 <cfcomponent displayname="date_1_0" extends="ADF.core.Base" hint="Date Utils functions for ADF Library">
 
-<cfproperty name="version" value="1_0_2">
+<cfproperty name="version" value="1_0_4">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Date_1_0">
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.	
+	Ron West
 Name:
 	$getMeridiem
 Summary:
@@ -62,6 +63,7 @@ History:
 	</cfscript>
 	<cfreturn rtnStr>
 </cffunction>
+
 <!--- //**
  * Analogous to firstDayOfMonth() function.
  *
@@ -114,10 +116,27 @@ History:
 	<cfreturn returnDate>
 </cffunction>
 
-<!--- // returns date for first of month --->
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
+Name:
+	$firstOfMonth
+Summary:
+	Returns date for first of month
+Returns:
+	Any 
+Arguments:
+	String - inMonth
+	String - inYear
+History:
+	2007-10-01 - RLW - Created
+--->
 <cffunction name="firstOfMonth" access="public" output="false" returntype="any" hint="Returns date for first of month">
 	<cfargument name="inMonth" required="true" type="string">
 	<cfargument name="inYear" required="true" type="string">
+	
 	<cfscript>
 		var firstDayDate = "";
 		try
@@ -132,10 +151,29 @@ History:
 	</cfscript>
 	<cfreturn firstDayDate>
 </cffunction>
-<!--- // returns last date of month --->
+
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
+Name:
+	$lastOfMonth
+Summary:
+	Returns last date of month
+Returns:
+	Any 
+Arguments:
+	String - inMonth
+	String - inYear
+History:
+	2007-10-01 - RLW - Created
+--->
 <cffunction name="lastOfMonth" access="public" output="false" returntype="any" hint="Returns last date of month">
 	<cfargument name="inMonth" required="true" type="string">
 	<cfargument name="inYear" required="true" type="string">
+	
 	<cfscript>
 		var lastDayDate = "";
 		var daysInThisMonth = "";
@@ -153,10 +191,12 @@ History:
 	</cfscript>
 	<cfreturn lastDayDate>
 </cffunction>
+
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
 Name:
 	$csDateFormat
 Summary:
@@ -180,10 +220,12 @@ History:
 	</cfscript>
 	<cfreturn csDate>
 </cffunction>
+
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
 Name:
 	$firstOfYear
 Summary:	
@@ -202,10 +244,12 @@ History:
 	</cfscript>
 	<cfreturn csDateFormat(theDate)>
 </cffunction>
+
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author:
+	PaperThin, Inc. 	
+	Ron West
 Name:
 	$lastOfYear
 Summary:	
@@ -224,6 +268,7 @@ History:
 	</cfscript>
 	<cfreturn csDateFormat(theDate)>
 </cffunction>
+
 <!---
 /* *************************************************************** */
 Author: 	
@@ -244,25 +289,27 @@ History:
 	2010-09-20 - MFC - Created
 	2011-03-09 - GAC - Fixes for issues with timezone, modified how the +/- operators render for the timezones
 					 - Added hourOffset and minuteOffset parameters
+	2014-09-18 - GAC - Updated by removing complex leading zero logic and replaced with NumberFormat padding
 --->
 <cffunction name="formatDateTimeISO8601" access="public" returntype="string" output="true" hint="">
 	<cfargument name="date" type="string" required="false" default="#now()#" hint="">
 	<cfargument name="time" type="string" required="false" default="#now()#" hint="">
 	<cfargument name="hourOffset" type="string" required="false" default="" hint="A value from -14 to 14 representing hour offset for a timezone">
 	<cfargument name="minuteOffset" type="string" required="false" default="" hint="A value from 1 to 59 representing minute offset for a timezone">
+	
 	<cfscript>
 		var tzStamp = "";
 		var tzData = GetTimeZoneInfo();
 		var tzHrOffset = 0;
 		var tzMinOffset = 0;
-		var tzHrLeadingZero = 0;
-		var tzMinLeadingZero = 0;
 		var tzOperator = "+";
+
 		// Use the hourOffset value, if one is passed in
 		if ( LEN(TRIM(arguments.hourOffset)) AND IsNumeric(arguments.hourOffset) 
-				AND (arguments.hourOffset LTE 14 AND arguments.hourOffset GTE -(12)) ) {
+				AND (arguments.hourOffset LTE 14 AND arguments.hourOffset GTE -(12)) ) 
 			tzHrOffset = arguments.hourOffset;	
-		} else {
+		else 
+		{
 			// If hourOffset is not provided, use the GetTimeZoneInfo() values to ues Server's TimeZone information
 			// - the CF utcHourOffset value is reverse from standard offset (utcHourOffset: 5 for -05:00)
 			// - GetTimeZoneInfo() adjusts utcHourOffset for DST 
@@ -273,30 +320,28 @@ History:
 		}
 		// Use the minuteOffset value, if one is passed in
 		if ( LEN(TRIM(arguments.minuteOffset)) AND IsNumeric(arguments.minuteOffset) 
-				AND (arguments.minuteOffset LTE 59 AND arguments.minuteOffset GTE 1) ) {
+				AND (arguments.minuteOffset LTE 59 AND arguments.minuteOffset GTE 1) ) 
 			tzMinOffset = arguments.minuteOffset;	
-		} else {
+		else 
+		{
 			// If minuteOffset is not provided, use the GetTimeZoneInfo() values to use Server's TimeZone information	
 			if ( StructKeyExists(tzData,"utcMinuteOffset") )
 				tzMinOffset = tzData.utcMinuteOffset;	
 		}
-		// Count the tzHrOffest digits, do not use leading zero if there is more than 1 digit
-		if ( LEN(ABS(tzHrOffset)) GT 1 )
-			tzHrLeadingZero = "";
-		// Count the tzMinOffset digits, do not use leading zero if there is more than 1 digit
-		if ( LEN(tzMinOffset) GT 1 )	
-			tzMinLeadingZero = "";
 		// Set the timezone operator use (Proper ISO8601 format): 
 		// - (-) for timezones west of UTC (such as a zone in North America) 
 		// - (+) for timezones east of UTC (such as a zone in Germany)   
 		if ( tzHrOffset LTE 0 )
 			tzOperator = "-";
+		
 		// Build the timezone stamp
-		tzStamp = tzOperator & tzHrLeadingZero & ABS(tzHrOffset) & ":" & tzMinLeadingZero & tzMinOffset;
+		tzStamp = tzOperator & NumberFormat(ABS(tzHrOffset),"00") & ":" & NumberFormat(tzMinOffset,"00");
+		
 		// Build the string
 		return DateFormat(arguments.date,"yyyy-mm-dd") & "T" & TimeFormat(arguments.time,"HH:mm:ss") & tzStamp;
 	</cfscript>
 </cffunction>
+
 <!---
 /* *************************************************************** */
 Author: 	

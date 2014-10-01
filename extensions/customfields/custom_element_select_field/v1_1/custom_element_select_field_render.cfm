@@ -60,14 +60,14 @@ History:
     				 - Moved the Field to Data Mask code out to an new ADF from_1_1 function
 	2013-11-14 - GAC - Updated the selected value to be an empty string if the stored value or the default value does not match available records from the bound element
 	2013-11-15 - GAC - Converted the CFT to the ADF standard CFT format using the forms.wrapFieldHTML method
-	2014-01-17 - TP  - Added the abiltiy to render checkboxes, radio buttons as well as a selection list
+	2014-01-17 - TP  - Added the ability to render checkboxes, radio buttons as well as a selection list
 	2014-01-30 - DJM - Removed Active Field and Value fields and replaced with a filter criteria option
 	2014-01-30 - GAC - Moved into a v1_1 version subfolder
-	2014-02-27 - GAC - Added backwards compatiblity logic to allow field use the prior version of the CFT if installed on a pre-CS9 site
+	2014-02-27 - GAC - Added backwards compatibility logic to allow field use the prior version of the CFT if installed on a pre-CS9 site
 	2014-03-07 - JTP - Fixed issue if duplicate items in list. Caused selected value to be duplicated. Also limit results if read-only.
 	2014-03-07 - DJM - Created Custom_Element_Select_Field_base.cfc for CFT specific methods
 	2014-03-23 - JTP - Changed to have 'Select All' / 'Deselect All' links
-	2014-03-24 - JTP - Added logic to sort selction list by display value if specified in props
+	2014-03-24 - JTP - Added logic to sort selection list by display value if specified in props
 	
 To Do:
 	2014-04-08 - JTP - Currently we are NOT sorting the list if displayed as checkboxes/radio buttons and user choose sort by display value

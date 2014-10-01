@@ -35,7 +35,7 @@ History:
 --->
 <cfcomponent displayname="ccapi" extends="ADF.core.Base" hint="CCAPI functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_2">
+<cfproperty name="version" value="1_0_3">
 <cfproperty name="CoreConfig" type="dependency" injectedBean="CoreConfig">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_1">
 <cfproperty name="wikiTitle" value="CCAPI">
@@ -103,11 +103,17 @@ History:
 	2009-11-19 - GAC - Modified to load a XML CCAPI config values from a ccapi.CFM file (if available)
 	2010-03-05 - GAC - Removed the loggingEnabled() function call from the try/catch
 	2012-01-26 - MFC - Updated the config error message.
+	2014-05-21 - GAC - Updated to use the csAppsURL so the site's mapping path is included to help for a
+						more accurate ExpandPath() when on a multi-site install
 --->
 <cffunction name="loadCCAPIConfig" access="public" returntype="void">
-	<cfset var CCAPIConfig = StructNew()>
-	<cfset var configAppXMLPath = ExpandPath("#request.site.csAppsWebURL#config/ccapi.xml")>
-	<cfset var configAppCFMPath = request.site.csAppsWebURL & "config/ccapi.cfm">
+
+	<cfscript>
+		var CCAPIConfig = StructNew();
+		var configAppXMLPath = ExpandPath("#request.site.csAppsURL#config/ccapi.xml");
+		var configAppCFMPath = request.site.csAppsURL & "config/ccapi.cfm";
+	</cfscript>
+
 	<cftry>
 		<cfscript>
 			// config data should be loaded here
