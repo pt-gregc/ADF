@@ -43,18 +43,19 @@ History:
 	2013-10-21 - GAC - Modified - Added 'file-version' property for ADF core files 
 	2014-02-26 - GAC - Modified - New v1.7.0 branch.
 	2014-02-26 - GAC - Modified - New v1.7.1 branch.
+	2014-10-01 - GAC - Updated for version 1.7.2
 --->
 <cfcomponent name="Core" hint="Core component for Application Development Framework">
 
-<cfproperty name="version" value="1_7_1">
+<cfproperty name="version" value="1_7_2">
 <cfproperty name="file-version" value="6">
 
 <cfscript>
-	variables.ADFversion = "1.7.1"; // use a dot delimited version number
+	variables.ADFversion = "1.7.2"; // use a dot delimited version number
 	// ADF Build Revision Number
-	variables.buildRev = "1390";
+	variables.buildRev = "1397";
 	// ADF Codename
-	variables.buildName = "River City Ransom";
+	variables.buildName = "TBD";
 	// CS product version, get the decimal value
 	variables.csVersion = Val(ListLast(request.cp.productversion, " "));
 </cfscript>

@@ -35,10 +35,11 @@ History:
 	2011-09-27 - GAC - Added a getADFminorVersion to only return first two version digits
 	2013-10-21 - GAC - Added 'file-version' property for ADF core files
 	2014-02-26 - GAC - Updated for version 1.7.0
+	2014-10-01 - GAC - Updated for version 1.7.2
 --->
 <cfcomponent name="Base" hint="Base component for Custom Application Common Framework">
 
-<cfproperty name="version" value="1_7_1">
+<cfproperty name="version" value="1_7_2">
 <cfproperty name="file-version" value="4">
 	
 <cffunction name="init" output="true" returntype="any">
