@@ -83,8 +83,8 @@ History:
 	2009-07-12 - RLW - added a check for "pageExists" prior to creating the page
 	2009-07-15 - RLW - changed the return format to structure and built consistent struct response
 	2011-06-21 - MFC - Added logout call at the end of the process.
-	2012-02-24 - MFC - Added TRY-CATCH around processing to logout the CCAPI if any errors.
-	2014-05-01 - GAC - Fixed typo in the try/catch, switched ( e ANY ) to ( ANY e )
+	2012-02-24 - MFC - Added TRY-CATCH around processing 
+						to logout the CCAPI if any errors.
 --->
 <cffunction name="createPage" access="public" output="true" returntype="struct" hint="Creates a page using the argument data passed in">
 	<cfargument name="stdMetadata" type="struct" required="true" hint="Standard Metadata would include 'Title, Description, TemplateId, SubsiteID etc...'">
@@ -167,8 +167,7 @@ History:
 			if( variables.ccapi.loggingEnabled() and arrayLen(logArray) )
 				variables.utils.bulkLogAppend(logArray);
 		}
-		catch ( ANY e )
-		{
+		catch (e ANY){
 			// Error caught, send back the error message
 			result.pageCreated = false;
 			result.msg = e.message;
@@ -203,8 +202,8 @@ Arguments:
 History:
 	2008-12-08 - MFC - Created
 	2011-02-09 - RAK - Var'ing un-var'd variables
-	2012-02-24 - MFC - Added TRY-CATCH around processing to logout the CCAPI if any errors.
-	2014-05-01 - GAC - Fixed typo in the try/catch, switched ( e ANY ) to ( ANY e )
+	2012-02-24 - MFC - Added TRY-CATCH around processing 
+					to logout the CCAPI if any errors.
 --->
 <cffunction name="deletePage" access="public" output="true" returntype="struct" hint="Deletes the page based on the argument data">
 	<cfargument name="deletePageData" type="struct" required="true" hint="Standard Metadata like 'PageID, SubsiteID'">		
@@ -216,7 +215,6 @@ History:
 		var logStruct = structNew();
 		var logArray = arrayNew(1);
 		var result = structNew();
-		
 		result.pageDeleted = false;
 		result.msg = "";
 		// construct the CCAPI object
@@ -255,8 +253,7 @@ History:
 			if( variables.ccapi.loggingEnabled() )
 				variables.utils.bulkLogAppend(logArray);
 		}
-		catch ( ANY e )
-		{
+		catch (e ANY){
 			// Error caught, send back the error message
 			result.pageDeleted = false;
 			result.msg = e.message;

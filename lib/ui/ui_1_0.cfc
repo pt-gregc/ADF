@@ -387,10 +387,6 @@ History:
 						CD_DialogName = request.params.title;
 					else
 						CD_DialogName = "";
-						
-					if( StructKeyExists(request.params,"width") )
-						CD_MainTableWidth = request.params.width;
-						
 					CD_Title=CD_DialogName;
 					CD_IncludeTableTop=1;
 					CD_CheckLock=0;

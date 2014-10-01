@@ -34,7 +34,6 @@ History:
 	2013-10-24 - GAC - Updated to handle ADF CCAPI_1_0, ADF CCAPI_2_0 and ADF API_1_0 testing
 	2014-04-04 - GAC - Updated to pass the remote flag to CCAPI_2_0 
 					 - Also added some additional comments to the config options
-	2014-05-01 - PH  - Fixed a Typo 
 --->
 
 <!--- // Use this file to test to see if the CommonSpot is allowing a user to login to the CCAPI web service --->
@@ -234,7 +233,7 @@ ccapiConfig.password = "password";
 	<cfoutput>
 		<br />
 		<p>
-			<strong>== ADF COMMAND API 1.0  ==</strong><br />
+			<strong>== ADF CAMMAND API 1.0  ==</strong><br />
 			(If you are logged in to CommonSpot this test will log you out.)
 		</p>
 	</cfoutput>

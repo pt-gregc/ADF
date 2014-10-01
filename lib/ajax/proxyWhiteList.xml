@@ -3,7 +3,6 @@
 	<ceData_1_0>deleteCE,getFormIDByCEName,getCEData</ceData_1_0>
 	<ceData_1_1>getFormIDByCEName,getTabsFromFormID</ceData_1_1>
 	<csData_1_0>getSubsiteID,getSiteTemplates,getSubsiteStruct,getPagesBySubsiteID,getPageDataArray</csData_1_0>
-	<csData_1_1>getCSPageDataByURL,getElementsByPageID</csData_1_1>
 	<data_1_1>makeUUID</data_1_1>
 	<ajaxService_1_0>addSubsite,loadGeneralChooser</ajaxService_1_0>
 	<forms_1_0>renderAddEditForm,renderDeleteForm</forms_1_0>
@@ -17,7 +16,7 @@
 	<!-- This determines what Custom Elements you can get from getCEData, acts as a whitelist. -->
 	<getCEDataSecurity></getCEDataSecurity>
 	<!-- ADF Custom Field Types -->
-	<customElementDataManager_1_0>getFields,getFieldIDList,getAllForms,renderGrid,onDrop,DeleteSelectedRecords</customElementDataManager_1_0>
+	<customElementDataManager_1_0>getFields,getFieldIDList,getGlobalCE,renderGrid,onDrop,DeleteSelectedRecords</customElementDataManager_1_0>
 	<customElementHierarchySelector_1_0>getFields</customElementHierarchySelector_1_0>
 	<customElementSelect_1_0>renderCustomElementSelect</customElementSelect_1_0>
 </settings>

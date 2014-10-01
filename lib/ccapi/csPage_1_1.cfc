@@ -95,7 +95,6 @@ History:
 	2012-02-24 - MFC - Added TRY-CATCH around processing to logout the CCAPI if any errors.
 	2013-07-01 - GAC - Fixed an issue with the createPage operation that was calling the application.ADF.csPage.createPage() instead of the local createPage() 
 	2014-03-05 - JTP - Var declarations
-	2014-05-01 - GAC - Fixed typo in the try/catch, switched ( e ANY ) to ( ANY e )
 --->	
 <cffunction name="copyPage" access="public" returntype="boolean" hint="Duplicates the page from source to destination using destination template. ">
 	<cfargument name="sourcePageID" type="numeric" required="true">
@@ -229,8 +228,7 @@ History:
 			//Log our success!
 			variables.utils.logAppend("Page '#stdMetadata.name#' created in subsiteID: #stdMetadata.subsiteID# succesfully.","copyPageLog.txt");
 		}
-		catch ( ANY e )
-		{
+		catch (e ANY){
 			// Error caught
 			// Log the error message also
 			logStruct.msg = "#request.formattedTimestamp# - Error [Message: #e.message#] [Details: #e.Details#]";

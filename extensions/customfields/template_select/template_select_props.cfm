@@ -35,13 +35,12 @@ History:
 	2013-03-12 - GAC - Updated to allow a list of template name or template page ids to be added to exclude
 	2014-01-02 - GAC - Added the CFSETTING tag to disable CF Debug results in the props module
 	2014-01-03 - GAC - Added the fieldVersion variable
-	2014-09-19 - GAC - Removed deprecated doLabel and jsLabelUpdater js calls
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "1.0.1"; 
+	fieldVersion = "1.0"; 
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
@@ -75,9 +74,15 @@ History:
 	<script language="JavaScript" type="text/javascript">
 		// register the fields with global props object
 		fieldProperties['#typeid#'].paramFields = '#prefix#filterList,#prefix#appBeanName,#prefix#appPropsVarName';
+		// allows this field to support the orange icon (copy down to label from field name)
+		fieldProperties['#typeid#'].jsLabelUpdater = '#prefix#doLabel';
 		// allows this field to have a common onSubmit Validator
 		//fieldProperties['#typeid#'].jsValidator = '#prefix#doValidate';
-
+		// handling the copy label function
+		function #prefix#doLabel(str)
+		{
+			document.#formname#.#prefix#label.value = str;
+		}
 	/*	function #prefix#doValidate()
 		{
 			//set the default msgvalue

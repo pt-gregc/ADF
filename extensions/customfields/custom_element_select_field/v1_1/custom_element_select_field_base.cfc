@@ -33,7 +33,6 @@ ADF Requirements:
 	cedata_2_0
 History:
 	2014-03-07 - GAC - Created
-	2014-09-16 - DJM - Fixed issue when the currentValue is empty string or comma
 --->
 
 <cfcomponent output="false" displayname="custom element select field_base" extends="ADF.core.Base" hint="This the base component for the Custom Element Select field">
@@ -290,10 +289,10 @@ History:
 	<cfif arguments.isReadOnly AND StructKeyExists(ceData, 'ResultQuery')>
 		<cfquery name="ceData.ResultQuery" dbtype="query">
 			select * from ceData.ResultQuery
-				<cfif ListLen(currentValue) gt 1>
-					where #inputPropStruct.ValueField# IN ( #ListQualify(currentValue, "'")# )
-				<cfelse>
+				<cfif ListLen(currentValue) eq 1>
 					where #inputPropStruct.ValueField# = '#currentValue#'
+				<cfelse>
+					where #inputPropStruct.ValueField# IN ( #ListQualify(currentValue, "'")# )
 				</cfif>
 		</cfquery>
 	</cfif>

@@ -34,7 +34,7 @@ History:
 --->
 <cfcomponent name="Config" hint="Config component for Application Development Framework" extends="ADF.core.Base">
 
-<cfproperty name="version" value="1_7_1">
+<cfproperty name="version" value="1_7_0">
 <cfproperty name="file-version" value="3">
 	
 <!---

@@ -35,7 +35,7 @@ History:
 --->
 <cfcomponent displayname="ceData_1_1" extends="ADF.lib.ceData.ceData_1_0" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="1_1_11">
+<cfproperty name="version" value="1_1_10">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_1">
 <cfproperty name="wikiTitle" value="CEData_1_1">
@@ -1530,9 +1530,9 @@ History:
 		var dataPageIDList = '';
 		var scheduleParams = "";
 		var manualCompare = false;
-      	var syncKey = '';
-      	var currSrcElementKey = ""; // Stores the current source element key for building the 'srcElementStruct'.
-      	var dupSrcDataPageIDList = ""; // List for DataPageIDs for duplicate recs in source data.
+      var syncKey = '';
+      var currSrcElementKey = ""; // Stores the current source element key for building the 'srcElementStruct'.
+      var dupSrcDataPageIDList = ""; // List for DataPageIDs for duplicate recs in source data.
 		var newElement = '';
 
 		returnStruct.success = false;
@@ -1905,17 +1905,11 @@ History:
 		2011-03-01 - RAK - Security determining if you can get the CEData is set in the proxyWhitelist files
 	--->
 	<cfscript>
-		var csSecurity = server.ADF.objectFactory.getBean("csSecurity_1_2");
-		var utils = server.ADF.objectFactory.getBean("utils_1_2");
-	
-		if ( NOT csSecurity.validateProxy("getCEDataSecurity",arguments.customElementName)) 
-		{
+		if(NOT csSecurity.validateProxy("getCEDataSecurity",arguments.customElementName)){
 			/*Security failed. Append to the log and return nothing useful.*/
-			utils.logAppend("Get CEData call to non-whitelisted element: #arguments.customElementName#","getCEDataSecurityException.txt");
+			application.ADF.utils.logAppend("Get CEData call to non-whitelisted element: #arguments.customElementName#","getCEDataSecurityException.txt");
 			return ArrayNew(1);
-		}
-		else
-		{
+		}else{
 			/*Passed security! Pass off to parent.*/
 			return super.getCEData(
 				arguments.customElementName,

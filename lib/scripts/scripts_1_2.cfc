@@ -33,12 +33,10 @@ History:
 	2013-03-01 - GAC - Updated jQuery iCalendar comment headers
 	2013-09-05 - GAC - Updated with functions for and jQuery qTip2 JQuery ImagesLoaded
 	2013-09-27 - DMB - Added a function to load jQuery Cycle2 lib 
-	2014-05-19 - GAC - Added functions for jQuery plug-ins: jEditable, Calx, Calculation
-	2014-09-16 - GAC - Updated references to thirdparty to thirdParty for case sensitivity
 --->
 <cfcomponent displayname="scripts_1_2" extends="ADF.lib.scripts.scripts_1_1" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" value="1_2_22">
+<cfproperty name="version" value="1_2_18">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_1" type="dependency">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Scripts_1_2">
@@ -209,10 +207,9 @@ History:
 	2012-12-07 - MFC - Based on 1.1.  Set to default load JQuery 1.8.
 	2013-02-06 - MFC - Set default to 1.9 and load JQuery Migrate Plugin when 
 						loading v1.9 or greater.
-	2014-05-05 - GAC - Updated the default jQuery version to 1.11
 --->
 <cffunction name="loadJQuery" access="public" returntype="void" hint="Loads the JQuery Headers if not loaded.">
-	<cfargument name="version" type="string" required="false" default="1.11" hint="JQuery version to load.">
+	<cfargument name="version" type="string" required="false" default="1.9" hint="JQuery version to load.">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfargument name="noConflict" type="boolean" required="false" default="0" hint="JQuery no conflict flag.">
 	<cfscript>
@@ -358,78 +355,6 @@ History:
 <!---
 /* *************************************************************** */
 Author: 	
-	PaperThin, Inc.	
-	G. Cronkright
-Name:
-	$loadJQueryCalculation
-Summary:
-	Loads the jQuery Calculation
-Returns:
-	None
-Arguments:
-	String - version - version to load.
-	Boolean - force - Forces script header to load.
-History:
-	2013-05-16 - GAC - Added
---->
-<cffunction name="loadJQueryCalculation" access="public" output="true" returntype="void" hint="Loads the jQuery Calculation Headers if not loaded.">
-	<cfargument name="version" type="string" required="false" default="0.4" hint="Version to load.">
-	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces script header to load.">
-	<cfset var outputHTML = "">
-	<cfset var thirdPartyLibPath = "/ADF/thirdParty/jquery/calculation">
-	<cfsavecontent variable="outputHTML">
-		<cfoutput>
-			<script type="text/javascript" src="#thirdPartyLibPath#/#arguments.version#/jquery.calculation.min.js"></script>
-		</cfoutput>
-	</cfsavecontent>
-	<cfoutput>
-		<cfif arguments.force>
-			#outputHTML#
-		<cfelse>
-			#variables.scriptsService.renderScriptOnce("jquerycalculation",outputHTML)#
-		</cfif>
-	</cfoutput>
-</cffunction>
-
-<!---
-/* *************************************************************** */
-Author: 	
-	PaperThin, Inc.	
-	G. Cronkright
-Name:
-	$loadJQueryCalcX
-Summary:
-	Loads the jQuery CalcX
-Returns:
-	None
-Arguments:
-	String - version - version to load.
-	Boolean - force - Forces script header to load.
-History:
-	2013-05-16 - GAC - Added
---->
-<cffunction name="loadJQueryCalcX" access="public" output="true" returntype="void" hint="Loads the jQuery CalcX Headers if not loaded.">
-	<cfargument name="version" type="string" required="false" default="1.1" hint="Version to load.">
-	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces script header to load.">
-	<cfset var outputHTML = "">
-	<cfset var thirdPartyLibPath = "/ADF/thirdParty/jquery/calcx">
-	<cfsavecontent variable="outputHTML">
-		<cfoutput>
-			<script type="text/javascript" src="#thirdPartyLibPath#/#arguments.version#/jquery.calx.min.js"></script>
-		</cfoutput>
-	</cfsavecontent>
-	<cfoutput>
-		<cfif arguments.force>
-			#outputHTML#
-		<cfelse>
-			#variables.scriptsService.renderScriptOnce("jquerycalcx",outputHTML)#
-		</cfif>
-	</cfoutput>
-</cffunction>
-
-<!---
-/* *************************************************************** */
-Author: 	
 	PaperThin, Inc.
 Name:
 	$loadJQueryDataTables
@@ -443,8 +368,8 @@ Arguments:
 History:
 	2010-05-19 - MFC - Created
 	2011-06-24 - GAC - Added CFOUTPUTS around the renderScriptOnce method call
-	2013-01-16 - MFC - Restructured the thirdParty folders & versions. Set to default load JQuery Data Tables 1.9.
-	2013-02-06 - MFC - Moved the "Restructured the thirdParty folders & versions" support code to
+	2013-01-16 - MFC - Restructured the thirdparty folders & versions. Set to default load JQuery Data Tables 1.9.
+	2013-02-06 - MFC - Moved the "Restructured the thirdparty folders & versions" support code to
 						the Scripts 1.1 to make backwards compatibable.
 	2013-11-14 - DJM - Added a loadStyle parameter
 --->
@@ -455,42 +380,6 @@ History:
 	<cfscript>
 		super.loadJQueryDataTables(version=arguments.version, force=arguments.force, loadStyles=arguments.loadStyles);
 	</cfscript>
-</cffunction>
-
-<!---
-/* *************************************************************** */
-Author: 	
-	PaperThin, Inc.	
-	G. Cronkright
-Name:
-	$loadJQueryJeditable
-Summary:
-	Loads the jQuery JEditable
-Returns:
-	None
-Arguments:
-	String - version - version to load.
-	Boolean - force - Forces script header to load.
-History:
-	2013-05-16 - GAC - Added
---->
-<cffunction name="loadJQueryJeditable" access="public" output="true" returntype="void" hint="Loads the jQuery JEditable Headers if not loaded.">
-	<cfargument name="version" type="string" required="false" default="1.7" hint="Version to load.">
-	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces script header to load.">
-	<cfset var outputHTML = "">
-	<cfset var thirdPartyLibPath = "/ADF/thirdParty/jquery/jeditable">
-	<cfsavecontent variable="outputHTML">
-		<cfoutput>
-			<script type="text/javascript" src="#thirdPartyLibPath#/#arguments.version#/jquery.jeditable.min.js"></script>
-		</cfoutput>
-	</cfsavecontent>
-	<cfoutput>
-		<cfif arguments.force>
-			#outputHTML#
-		<cfelse>
-			#variables.scriptsService.renderScriptOnce("jqueryjeditable",outputHTML)#
-		</cfif>
-	</cfoutput>
 </cffunction>
 
 <!---
@@ -534,42 +423,6 @@ History:
 <!---
 /* *************************************************************** */
 Author: 	
-	PaperThin, Inc.	
-	G. Cronkright
-Name:
-	$loadJQueryImagesLoaded
-Summary:
-	Loads the jQuery Images Loaded Headers if not loaded.
-Returns:
-	None
-Arguments:
-	String - version - version to load.
-	Boolean - force - Forces script header to load.
-History:
-	2013-09-04 - GAC - Added
---->
-<cffunction name="loadJQueryImagesLoaded" access="public" output="true" returntype="void" hint="Loads the JQuery Headers if not loaded.">
-	<cfargument name="version" type="string" required="false" default="3.0" hint="Version to load.">
-	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces script header to load.">
-	<cfset var outputHTML = "">
-	<cfset var thirdPartyLibPath = "/ADF/thirdParty/jquery/imagesloaded">
-	<cfsavecontent variable="outputHTML">
-		<cfoutput>
-			<script type="text/javascript" src="#thirdPartyLibPath#/#arguments.version#/imagesloaded.pkgd.min.js"></script>
-		</cfoutput>
-	</cfsavecontent>
-	<cfoutput>
-		<cfif arguments.force>
-			#outputHTML#
-		<cfelse>
-			#variables.scriptsService.renderScriptOnce("jqueryimagesloaded",outputHTML)#
-		</cfif>
-	</cfoutput>
-</cffunction>
-
-<!---
-/* *************************************************************** */
-Author: 	
 	PaperThin, Inc.
 	D. Beckstrom
 Name:
@@ -589,7 +442,7 @@ History:
 					   Set the default to v1.3.
 --->
 <cffunction name="loadJQueryMobile" access="public" output="true" returntype="void" hint="Loads the JQuery Mobile script if not loaded.">
-	<cfargument name="version" type="string" required="false" default="1.4" hint="JQuery Mobile version to load.">
+	<cfargument name="version" type="string" required="false" default="1.3" hint="JQuery Mobile version to load.">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery Mobile to load.">
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
@@ -811,7 +664,7 @@ Arguments:
 	Boolean - force
 History:
 	2009-06-25 - GAC - Created
-	2013-01-16 - MFC - Restructured the thirdParty folders & versions. Set to default load version 2.0.
+	2013-01-16 - MFC - Restructured the thirdparty folders & versions. Set to default load version 2.0.
 --->
 <cffunction name="loadTableSorter" access="public" output="true" returntype="void" hint="Loads the Tablesorter Plugin Headers if not loaded."> 
 	<cfargument name="version" type="string" required="false" default="2.0" hint="Tablesorter Plugin version to load.">
@@ -847,7 +700,7 @@ Arguments:
 	Boolean - force
 History:
 	2009-06-25 - GAC - Created
-	2013-01-16 - MFC - Restructured the thirdParty folders & versions. Set to default load version 2.0.
+	2013-01-16 - MFC - Restructured the thirdparty folders & versions. Set to default load version 2.0.
 --->
 <cffunction name="loadTableSorterThemes" access="public" returntype="void" hint="Loads the Tablesorter Plugin Theme Headers if not loaded.">
 	<cfargument name="themeName" type="string" required="false" default="blue" hint="Tablesorter Theme Name (directory name)">
@@ -891,7 +744,7 @@ Arguments:
 	Boolean - force
 History:
 	2009-06-25 - GAC - Created
-	2013-01-16 - MFC - Restructured the thirdParty folders & versions. Set to default load version 2.0.
+	2013-01-16 - MFC - Restructured the thirdparty folders & versions. Set to default load version 2.0.
 --->
 <cffunction name="loadTableSorterPager" access="public" returntype="void" hint="Loads the Tablesorter Plugin Pager addon Headers if not loaded.">
 	<cfargument name="version" type="string" required="false" default="2.0" hint="Tablesorter Plugin version to load.">
@@ -964,7 +817,7 @@ History:
 	2010-02-03 - MFC - Updated path to the CSS to remove from Third Party directory.
 	2010-04-06 - MFC - Updated path to the CSS to "style".
 	2012-08-16 - GAC - Added the force parameter
-	2013-01-16 - MFC - Restructured the thirdParty folders & versions.
+	2013-01-16 - MFC - Restructured the thirdparty folders & versions.
 	 				   Removed the "tool" argument.
 	 				   Added the "version" argument.
 --->
@@ -1004,11 +857,10 @@ Arguments:
 History:
 	2013-01-01 - MFC - Based on 1.1. Changed the theme loading folders for 1.9.
 	2013-02-06 - MFC - Changed the theme loading folders for 1.10.
-					   Updated the IF statement to check the decimal places is only 1 length.
-	2014-09-30 - GAC - Changed the theme loading folders for 1.11. 
+					   Updated the IF statement to check the decimal places is only 1 length. 
 --->
 <cffunction name="loadJQueryUI" access="public" output="true" returntype="void" hint="Loads the JQuery UI Headers if not loaded."> 
-	<cfargument name="version" type="string" required="false" default="1.11" hint="JQuery version to load.">
+	<cfargument name="version" type="string" required="false" default="1.10" hint="JQuery version to load.">
 	<cfargument name="themeName" type="string" required="false" default="ui-lightness" hint="UI Theme Name (directory name)">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery UI script header to load.">
 	<cfscript>
@@ -1458,6 +1310,42 @@ History:
 <!---
 /* *************************************************************** */
 Author: 	
+	PaperThin, Inc.	
+	G. Cronkright
+Name:
+	$loadJQueryImagesLoaded
+Summary:
+	Loads the jQuery Images Loaded Headers if not loaded.
+Returns:
+	None
+Arguments:
+	String - version - version to load.
+	Boolean - force - Forces script header to load.
+History:
+	2013-09-04 - GAC - Added
+--->
+<cffunction name="loadJQueryImagesLoaded" access="public" output="true" returntype="void" hint="Loads the JQuery Headers if not loaded.">
+	<cfargument name="version" type="string" required="false" default="3.0" hint="Version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces script header to load.">
+	<cfset var outputHTML = "">
+	<cfset var thirdPartyLibPath = "/ADF/thirdParty/jquery/imagesloaded">
+	<cfsavecontent variable="outputHTML">
+		<cfoutput>
+			<script type="text/javascript" src="#thirdPartyLibPath#/#arguments.version#/imagesloaded.pkgd.min.js"></script>
+		</cfoutput>
+	</cfsavecontent>
+	<cfoutput>
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("jqueryimagesloaded",outputHTML)#
+		</cfif>
+	</cfoutput>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
 	PaperThin, Inc.
 	G. Cronkright
 Name:
@@ -1478,71 +1366,6 @@ History:
 	<cfscript>
 		super.loadUploadify(version=arguments.version, force=arguments.force);
 	</cfscript>
-</cffunction>
-
-<!---
-/* *************************************************************** */
-Author:
-	PaperThin, Inc.
-	G. Cronkright
-Name:
-	$loadFontAwesome
-Summary:
-	Loads the Font Awesome iconic font and CSS toolkit
-Returns:
-	void
-Arguments:
-	String - Version
-	Boolean - Force
-History:
- 	2014-09-22 - GAC - Created
---->
-<cffunction name="loadFontAwesome" access="public" output="true" returntype="void" hint="Loads the Font Awesome iconic font and CSS toolkit">
-	<cfargument name="version" type="string" required="false" default="4.2.0" hint="Script version to load.">
-	<cfargument name="force" type="boolean" required="false" default="false" hint="Forces Font Awesome css header to load.">
-	<cfargument name="dynamicHeadRender" type="boolean" required="false" default="false" hint="Uses jQuery to load the Font Awesome css into the HEAD of the document dynamically.">
-	<cfargument name="overridePath" type="string" required="false" default="" hint="A relative path to a custom site level override font-awesome css file">
-	
-	<cfscript>
-		var outputHTML = "";
-		var thirdPartyLibPath = "/ADF/thirdParty/css/font-awesome/";
-		var scriptPath = thirdPartyLibPath & arguments.version & "/css/font-awesome.min.css"; 
-		// An ADF css extension css file that add sizes (6x-10x) 
-		var scriptPathExt = thirdPartyLibPath & arguments.version & "/css/font-awesome-ADF-ext.css";  
-	
-		if ( LEN(TRIM(arguments.overridePath)) AND FileExists(expandPath(arguments.overridePath)) )
-		{
-			scriptPath = arguments.overridePath;
-			scriptPathExt = "";
-		}
-	</cfscript>
-	
-	<cfsavecontent variable="outputHTML">
-		<cfoutput>
-		<cfif arguments.dynamicHeadRender>
-			<script>
-				jQuery(function(){
-					jQuery('<link>').attr('rel','stylesheet').attr('type','text/css').attr('href','#scriptPath#').appendTo('head'); 
-					<cfif LEN(TRIM(scriptPathExt))>
-					jQuery('<link>').attr('rel','stylesheet').attr('type','text/css').attr('href','#scriptPathExt#').appendTo('head'); 
-					</cfif>
-				});
-			</script>
-		<cfelse>
-			<link href="#scriptPath#" rel="stylesheet" type="text/css" />
-			<cfif LEN(TRIM(scriptPathExt))>
-			<link href="#scriptPathExt#" rel="stylesheet" type="text/css" />
-			</cfif>
-		</cfif>
-		</cfoutput>
-	</cfsavecontent>
-	<cfoutput>
-		<cfif arguments.force>
-			#outputHTML#
-		<cfelse>
-			#variables.scriptsService.renderScriptOnce("fontAwesome",outputHTML)#
-		</cfif>
-	</cfoutput>
 </cffunction>
 
 </cfcomponent>

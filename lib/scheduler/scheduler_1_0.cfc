@@ -39,7 +39,7 @@ History:
 --->
 <cfcomponent displayname="scheduler_1_0" extends="ADF.core.Base" hint="Scheduler base for the ADF">
 	
-<cfproperty name="version" value="1_0_7">
+<cfproperty name="version" value="1_0_6">
 <cfproperty name="type" value="singleton">
 <cfproperty name="scripts" type="dependency" injectedBean="scripts_1_2">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
@@ -563,7 +563,6 @@ History:
 	2010-12-21 - GAC - Added task name filter
 	2012-11-29 - GAC - Updated to handle getting the CFSCHEDULED tasks list from RAILO
 	2013-06-12 - GAC - Fixed a variable name issue in the taskName filter loop
-	2014-04-16 - GAC - Changed the case of the call to data lib 
 --->
 <cffunction name="getScheduledTasks" returntype="array" output="no" access="public" hint="Obtain an Array of CF scheduled tasks ">
 	<cfargument name="taskNameFilter" type="string" required="false" default="" hint="Used to only display Scheduled Task Names that contain this filter value">	
@@ -596,7 +595,7 @@ History:
 		<cfif taskQuery.RecordCount>
 			<cfscript>
 				// Convert the Scheduled task query from Railo to a Array of Struts
-				result = variables.data.queryToArrayOfStructures(queryData=taskQuery,keysToLowercase=true);
+				result = variables.DATA.queryToArrayOfStructures(queryData=taskQuery,keysToLowercase=true);
 				// Now convert Railo specific keys names to ACF compatible key names
 				for ( a=1; a LTE ArrayLen(result); a=a+1 ) {
 					for (key in result[a]) {

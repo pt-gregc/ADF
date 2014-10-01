@@ -753,6 +753,7 @@ History:
 	<cfif (NOT variables.scriptsService.isScriptLoaded("ADFLightbox")) OR (arguments.force)>
 		<!--- Load the ADF Lightbox Framework script --->
 		<cfoutput>
+		<!-- ADF Lightbox Framework Loaded @ #now()# -->
 		<script type='text/javascript' src='/ADF/extensions/lightbox/#arguments.version#/js/framework.js'></script>
 		<!--- Load lightbox override styles --->
 		<link href="/ADF/extensions/lightbox/#arguments.version#/css/lightbox_overrides.css" rel="stylesheet" type="text/css">

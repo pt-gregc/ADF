@@ -40,7 +40,7 @@ History:
 --->
 <cfcomponent displayname="csData_1_0" extends="ADF.core.Base" hint="CommonSpot Data Utils functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_8">
+<cfproperty name="version" value="1_0_7">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_0">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_0">
@@ -502,17 +502,14 @@ Returns:
 	String fixedString
 Arguments:
 	String stringToFix
-	Boolean makeLowerCase [Default: false]
-	Boolean addDashes [Default: true]
+	Boolean makeLowerCase [Default - false]
 History:
 	2009-07-01 - RLW - Created
 	2010-07-29 - MFC - Implemented the makeLowerCase argument
-	2014-09-09 - GAC - Added an argument to set whether or not replace spaces and other non-alpha/numeric chars with dashes
 --->
 <cffunction name="makeCSSafe" access="public" returntype="String" hint="">
 	<cfargument name="stringToFix" type="string" required="true" hint="The string that needs to be fixed">
-	<cfargument name="makeLowerCase" type="Boolean" required="false" default="false" hint="Determine whether or not the string returned should be lowercase">
-	<cfargument name="addDashes" type="Boolean" required="false" default="true" hint="Determine whether or not to replace spaces and other non-alpha/numeric chars with dashes">
+	<cfargument name="makeLowerCase" type="Boolean" required="false" default="false" hint="Determine wether or not the string returned should be lowercase">
 	<cfscript>
 		var fixedString = arguments.stringToFix;
 		// replace leading and trailing characters 
@@ -521,19 +518,15 @@ History:
 		fixedString = rereplace(fixedString,"[^[:alnum:]]*$", "");
 		// remove apofixedStringophies
 		fixedString = Replace(fixedString,"'","","ALL");
-		
 		// replace groups of non alphanumerical with dashes
-		if ( arguments.addDashes )
-			fixedString = REReplace(fixedString,"[^[:alnum:]]+","-","ALL");
-
+		fixedString = REReplace(fixedString,"[^[:alnum:]]+","-","ALL");
 		// Check if we want the lowercase
 		if ( arguments.makeLowerCase ) {
 			// to lower case
 			fixedString = LCase(fixedString);		
-		}
-		
-		return fixedString;	
+		}		
 	</cfscript>
+	<cfreturn fixedString>
 </cffunction>
 
 <!---
@@ -1031,36 +1024,21 @@ History:
 	2009-09-14 - MFC - Updated the SQL statement to work with Oracle DB.
 	2009-09-23 - GAC - Set the request.subsitecache to [1]
 	2011-02-09 - GAC - Removed self-closing CF tag slashes
-	2015-07-25 - DMB - Modified query to work with changes in CS 9
 --->
 <cffunction name="getDefaultRenderHandlerPath" returntype="string" access="public" 
 			hint="Returns the Path for the Default Render Handler for an Element.">
 	<cfargument name="elementName" type="string" required="true">
 	<cfscript>
-		var isCS9Plus = (val(ListLast(ListFirst(Request.CP.ProductVersion, "."), " ")) >= 9);
 		var getRenderHandler = QueryNew("temp");
 		var rhpath = "";
 	</cfscript>
-	
-	<cfif isCS9Plus>
-		<cfquery name="getRenderHandler" datasource="#request.site.datasource#">
-			SELECT cem.ModulePath, 1 AS IsDefault
-		  		FROM   AvailableControls, CustomElementModules cem, ElementDefaults ed
-		    		where ed.DisplayTemplateID = 0
-		  		and AvailableControls.ID = cem.ElementType and ed.HandlerID = cem.ID
-				AND LTRIM(RTRIM(AvailableControls.ShortDesc)) = <cfqueryparam cfsqltype="cf_sql_varchar" value="#TRIM(arguments.elementName)#">
-			  
-		</cfquery>
-	<cfelse>
-		<cfquery name="getRenderHandler" datasource="#request.site.datasource#">
-			SELECT CustomElementModules.ModulePath
-				FROM   AvailableControls, CustomElementModules
-				WHERE AvailableControls.ID = CustomElementModules.ElementType
-				AND LTRIM(RTRIM(AvailableControls.ShortDesc)) = <cfqueryparam cfsqltype="cf_sql_varchar" value="#TRIM(arguments.elementName)#">
-				AND CustomElementModules.IsDefault = <cfqueryparam cfsqltype="cf_sql_bit" value="1">
-		</cfquery>
-	</cfif>
-	
+	<cfquery name="getRenderHandler" datasource="#request.site.datasource#">
+		SELECT CustomElementModules.ModulePath
+		FROM   AvailableControls, CustomElementModules
+		WHERE AvailableControls.ID = CustomElementModules.ElementType
+		AND LTRIM(RTRIM(AvailableControls.ShortDesc)) = <cfqueryparam cfsqltype="cf_sql_varchar" value="#TRIM(arguments.elementName)#">
+	  	AND CustomElementModules.IsDefault = <cfqueryparam cfsqltype="cf_sql_bit" value="1">
+	</cfquery>
 	<cfscript>
 		if ( ListLen(getRenderHandler.ModulePath,"/") LTE 1 ) 
 			rhpath = request.subsitecache[1].url & 'renderhandlers/' & getRenderHandler.ModulePath[1];

@@ -35,13 +35,12 @@ History:
 					 - Also added the appBeanName and appPropsVarName props to allow porps to be overridden by an app												
 	2014-01-02 - GAC - Added the CFSETTING tag to disable CF Debug results in the props module
 	2014-01-03 - GAC - Added the fieldVersion variable
-	2014-09-19 - GAC - Removed deprecated doLabel and jsLabelUpdater js calls
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "1.0.1"; 
+	fieldVersion = "1.0"; 
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
@@ -77,61 +76,67 @@ History:
 	<script type="text/javascript">
 		// this establishes that we have a parameter
 		fieldProperties['#typeid#'].paramFields = "#prefix#allowSubsiteAdd,#prefix#uiTheme,#prefix#filterList,#prefix#appBeanName,#prefix#appPropsVarName";
+		// add the default function for the orange copy down icon
+		fieldProperties['#typeid#'].jsLabelUpdater = '#prefix#doLabel';
+		function #prefix#doLabel(str)
+		{
+			document.#formname#.#prefix#label.value = str;
+		}
 	</script>
-	<table>
-		<input type="hidden" name="#prefix#allowSubsiteAdd" id="#prefix#allowSubsiteAdd" value="#currentValues.allowSubsiteAdd#">
-		<!--- // TODO: future enhancement --->
-		<!--- <tr>
-			<td class="cs_DlgLabel">Allow Subsite Add</td>
-			<td class="cs_DlgLabel">
-				<select name="#prefix#allowSubsiteAdd" id="#prefix#allowSubsiteAdd" size="1">
-					<option value="Yes"<cfif currentValues.allowSubsiteAdd eq "Yes"> selected="selected"</cfif>>Yes</option>
-					<option value="No"<cfif currentValues.allowSubsiteAdd eq "No"> selected="selected"</cfif>>No</option>
-				</select>
-			</td>
-		</tr> --->
-		<tr>
-			<td class="cs_dlgLabelSmall">UI Theme:</td>
-			<td class="cs_dlgLabelSmall">
-				<input type="text" name="#prefix#uiTheme" id="#prefix#uiTheme" class="cs_dlgControl" value="#currentValues.uiTheme#" size="40">
-			</td>
-		</tr>
-		<tr>
-			<td class="cs_dlgLabelSmall" valign="top">Subsite Name Filter List:</td>
-			<td class="cs_dlgLabelSmall">
-				<!--- <input type="text" name="#prefix#filterList" id="#prefix#filterList" class="cs_dlgControl" value="#currentValues.filterList#" size="40"> --->
-				<textarea type="text" name="#prefix#filterList" id="#prefix#filterList" class="cs_dlgControl" rows="3" cols="60" wrap="soft">#currentValues.filterList#</textarea>
-				<br/><span>(Comma-Delimited list of Subsite Names OR SubsiteIDs to exclude. Using Subsite Names excludes the any child subsites.)</span>
-			</td>
-		</tr>
-		<tr>
-			<td class="cs_dlgLabelSmall" colspan="2"><hr></td>
-		</tr>
-		<tr>
-			<td class="cs_dlgLabelSmall" colspan="2">
-				<strong>Optional ADF App PROPS Override Settings:</strong>
-				<br/><span>(IMPORTANT: If configured correctly these settings will override the entries above!)</span> 
-			</td>
-		</tr>
-		<tr>
-			<td class="cs_dlgLabelSmall" valign="top">App Bean Name:</td>
-			<td class="cs_dlgLabelSmall">
-				<input type="text" name="#prefix#appBeanName" id="#prefix#appBeanName" class="cs_dlgControl" value="#currentValues.appBeanName#" size="40">
-				<br/><span>Please enter the ADF Applications's AppName to override these configuration settings.</span>
-			</td>
-		</tr>
-		<tr>
-			<td class="cs_dlgLabelSmall" valign="top">App Props Variable Name:</td>
-			<td class="cs_dlgLabelSmall">
-				<input type="text" name="#prefix#appPropsVarName" id="#prefix#appPropsVarName" class="cs_dlgControl" value="#currentValues.appPropsVarName#" size="40">
-				<br/><span>Please enter the App Props Variable name that contains PROPS keys and values to override.</span> 
-			</td>
-		</tr>
-		<tr>
+<table>
+	<input type="hidden" name="#prefix#allowSubsiteAdd" id="#prefix#allowSubsiteAdd" value="#currentValues.allowSubsiteAdd#">
+	<!--- // TODO: future enhancement --->
+	<!--- <tr>
+		<td class="cs_DlgLabel">Allow Subsite Add</td>
+		<td class="cs_DlgLabel">
+			<select name="#prefix#allowSubsiteAdd" id="#prefix#allowSubsiteAdd" size="1">
+				<option value="Yes"<cfif currentValues.allowSubsiteAdd eq "Yes"> selected="selected"</cfif>>Yes</option>
+				<option value="No"<cfif currentValues.allowSubsiteAdd eq "No"> selected="selected"</cfif>>No</option>
+			</select>
+		</td>
+	</tr> --->
+	<tr>
+		<td class="cs_dlgLabelSmall">UI Theme:</td>
+		<td class="cs_dlgLabelSmall">
+			<input type="text" name="#prefix#uiTheme" id="#prefix#uiTheme" class="cs_dlgControl" value="#currentValues.uiTheme#" size="40">
+		</td>
+	</tr>
+	<tr>
+		<td class="cs_dlgLabelSmall" valign="top">Subsite Name Filter List:</td>
+		<td class="cs_dlgLabelSmall">
+			<!--- <input type="text" name="#prefix#filterList" id="#prefix#filterList" class="cs_dlgControl" value="#currentValues.filterList#" size="40"> --->
+			<textarea type="text" name="#prefix#filterList" id="#prefix#filterList" class="cs_dlgControl" rows="3" cols="60" wrap="soft">#currentValues.filterList#</textarea>
+			<br/><span>(Comma-Delimited list of Subsite Names OR SubsiteIDs to exclude. Using Subsite Names excludes the any child subsites.)</span>
+		</td>
+	</tr>
+	<tr>
+		<td class="cs_dlgLabelSmall" colspan="2"><hr></td>
+	</tr>
+	<tr>
+		<td class="cs_dlgLabelSmall" colspan="2">
+			<strong>Optional ADF App PROPS Override Settings:</strong>
+			<br/><span>(IMPORTANT: If configured correctly these settings will override the entries above!)</span> 
+		</td>
+	</tr>
+	<tr>
+		<td class="cs_dlgLabelSmall" valign="top">App Bean Name:</td>
+		<td class="cs_dlgLabelSmall">
+			<input type="text" name="#prefix#appBeanName" id="#prefix#appBeanName" class="cs_dlgControl" value="#currentValues.appBeanName#" size="40">
+			<br/><span>Please enter the ADF Applications's AppName to override these configuration settings.</span>
+		</td>
+	</tr>
+	<tr>
+		<td class="cs_dlgLabelSmall" valign="top">App Props Variable Name:</td>
+		<td class="cs_dlgLabelSmall">
+			<input type="text" name="#prefix#appPropsVarName" id="#prefix#appPropsVarName" class="cs_dlgControl" value="#currentValues.appPropsVarName#" size="40">
+			<br/><span>Please enter the App Props Variable name that contains PROPS keys and values to override.</span> 
+		</td>
+	</tr>
+	<tr>
 			<td class="cs_dlgLabelSmall" colspan="2" style="font-size:7pt;">
 				<hr />
 				ADF Custom Field v#fieldVersion#
 			</td>
 		</tr>
-	</table>
+</table>
 </cfoutput>

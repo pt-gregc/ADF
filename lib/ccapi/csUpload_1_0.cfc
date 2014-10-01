@@ -57,8 +57,8 @@ Arguments:
 	Struct data - the data for the element
 History:
 	2009-06-12 - MFC - Created
-	2012-02-24 - MFC - Added TRY-CATCH around processing to logout the CCAPI if any errors.
-	2014-05-01 - GAC - Fixed typo in the try/catch, switched ( e ANY ) to ( ANY e )
+	2012-02-24 - MFC - Added TRY-CATCH around processing 
+						to logout the CCAPI if any errors.
 --->
 <cffunction name="uploadImage" access="public" returntype="struct" hint="Use this method to upload images into the Image Gallery">
 		<cfargument name="subsiteid" type="numeric" required="true">
@@ -115,8 +115,7 @@ History:
 				if( variables.ccapi.loggingEnabled() and arrayLen(logArray) )
 					variables.utils.bulkLogAppend(logArray);
 			}
-			catch ( ANY e )
-			{
+			catch (e ANY){
 				// Error caught, send back the error message
 				result.uploadCompleted = false;
 				result.uploadResponse = e.message;
@@ -150,8 +149,8 @@ Arguments:
 History:
 	2010-01-15 - GAC - Created
 	2011-02-09 - GAC - Removed self-closing CF tag slashes
-	2012-02-24 - MFC - Added TRY-CATCH around processing to logout the CCAPI if any errors.
-	2014-05-01 - GAC - Fixed typo in the try/catch, switched ( e ANY ) to ( ANY e )
+	2012-02-24 - MFC - Added TRY-CATCH around processing 
+						to logout the CCAPI if any errors.
 --->
 <cffunction name="uploadDocument" access="public" returntype="struct" hint="Use this method to upload a document into the upload folder of an designated subsite">
 	<cfargument name="subsiteid" type="numeric" required="true">
@@ -210,8 +209,7 @@ History:
 			if( variables.ccapi.loggingEnabled() and arrayLen(logArray) )
 				variables.utils.bulkLogAppend(logArray);
 		}
-		catch ( ANY e )
-		{
+		catch (e ANY){
 			// Error caught, send back the error message
 			result.uploadCompleted = false;
 			result.uploadResponse = e.message;

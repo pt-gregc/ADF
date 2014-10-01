@@ -42,13 +42,12 @@ History:
 	2012-04-13 - GAC - Added an optional parameter to assign a CSS property to the textarea field resizing handle
 	2014-01-02 - GAC - Added the CFSETTING tag to disable CF Debug results in the props module
 	2014-01-03 - GAC - Added the fieldVersion variable
-	2014-09-19 - GAC - Removed deprecated doLabel and jsLabelUpdater js calls
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "2.0.1"; 
+	fieldVersion = "2.0"; 
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
@@ -80,9 +79,15 @@ History:
 		// register the fields with global props object
 		fieldProperties['#typeid#'].paramFields = '#prefix#fldClass,#prefix#fldName,#prefix#columns,#prefix#rows,#prefix#wrap,#prefix#useUdef,#prefix#resizeHandleOption'; //,#prefix#maxLength
 		fieldProperties['#typeid#'].defaultValueField = '#prefix#defaultValue';
+		// allows this field to support the orange icon (copy down to label from field name)
+		fieldProperties['#typeid#'].jsLabelUpdater = '#prefix#doLabel';
 		// allows this field to have a common onSubmit Validator
 		fieldProperties['#typeid#'].jsValidator = '#prefix#doValidate';
-
+		// handling the copy label function
+		function #prefix#doLabel(str)
+		{
+			document.#formname#.#prefix#label.value = str;
+		}
 		function #prefix#doValidate()
 		{
 			if ( !checkinteger(document.#formname#.#prefix#columns.value) )

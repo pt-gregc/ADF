@@ -98,7 +98,7 @@ Adds a constructor property to a bean.
 - PropertyValue:any:required - The value of the property to add. Can be of any simple or complex type (anything from a string or a boolean to a struct or even an object that isn't being managed by LightWire).
 --->
 
-<cfproperty name="version" value="1_7_1">
+<cfproperty name="version" value="1_7_0">
 <cfproperty name="update" value="1">
 
 <cffunction name="init" output="true" returntype="any" hint="I initialize the config bean.">

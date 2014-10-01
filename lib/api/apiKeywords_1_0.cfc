@@ -55,7 +55,6 @@ Arguments:
 	String - keywordList			
 History:
 	2012-10-22 - MFC/GAC - Created
-	2014-09-16 - GAC  - Updated the pageCmdResult inside the catch block
 --->
 <cffunction name="setForObject" access="public" returntype="struct" hint="Adds a keywords to an object. If a keyword does not exit, CommonSpot creates and adds it.">
 	<cfargument name="csPageID" type="numeric" required="true" hint="numeric commonspot page id">
@@ -65,16 +64,14 @@ History:
 		// Use the CS 6.x Command API to SET page keywords
 		var kwComponent = server.CommonSpot.api.getObject('keywords');
 		var kwCmdResults = "";
-		try 
-		{
+		try {
 			kwCmdResults = kwComponent.setForObject(arguments.csPageID,arguments.keywordList);
 			pageCmdResult["CMDSTATUS"] = true;
 			pageCmdResult["CMDRESULTS"] = kwCmdResults;
 		} 
-		catch (any e) 
-		{
+		catch (any e) {
 			pageCmdResult["CMDSTATUS"] = false;
-			pageCmdResult["CMDRESULTS"] = e;
+			pageCmdResult["CMDRESULTS"] = kwCmdResults;
 		}
 		return pageCmdResult;
 	</cfscript>

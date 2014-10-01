@@ -45,11 +45,10 @@ History:
 					 - Updated the createUniquePageTitle,getCSPageIDByTitle functions
 	2014-02-24 - GAC - Added getCSFileURL function based on the old getCSPageURL function
 	2014-03-16 - JTP - Added getPaddedID function
-	2014-09-25 - GAC - Added getCSPageIDByURL function		
 --->
 <cfcomponent displayname="csData_1_2" extends="ADF.lib.csData.csData_1_1" hint="CommonSpot Data Utils functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_14">
+<cfproperty name="version" value="1_2_12">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">
@@ -915,65 +914,11 @@ History:
 </cffunction>
 
 <!---
-/* *************************************************************** */
-Author: 	
-	PaperThin, Inc.
-Name:
-	$getPaddedID
-Summary:
-	Builds a CommonSpot uniqueID string which is Zero (0) padded for textbased sorting
-Returns:
-	string
-Arguments:
-	String - padSize (number of chars of padding)
-History:
-	2013-12-31 - JTP - Created
-	2014-07-25 - GAC - Added a parameter to set custom pad sizes (default: 9)
+	getPaddedID()
+		returns a uniqueID string which is 0 padded for textbased sorting 
 --->
-<cffunction name="getPaddedID" access="public" returntype="string" hint="Builds a CommonSpot uniqueID string which is Zero (0) padded for textbased sorting">
-	<cfargument name="padSize" type="numeric" required="false" default="9" hint="Size of padded string">
-	
-	<cfscript>
-		var padMaskStr = "";
-		// Get a safe pad size
-		if ( IsNumeric(arguments.padsize) )
-		{
-			if ( arguments.padsize GTE 2 )
-				arguments.padsize = arguments.padsize - 1;
-			else
-				arguments.padsize = 1;
-		}	
-		// Build the string for the padding mask 		
-		padMaskStr = RepeatString("0",arguments.padsize) & 9;
-		// Pad the Unique ID
-		return NumberFormat( Request.Site.IDMaster.getID(), padMaskStr );
-	</cfscript>
+<cffunction name="getPaddedID" access="public" returntype="string">
+	<cfreturn NumberFormat( Request.Site.IDMaster.getID(), '000000009' )>
 </cffunction>
-
-<!---
-/* *************************************************************** */
-Author: 	
-	PaperThin, Inc.
-Name:
-	$getCSPageIDByURL
-Summary:
-	Given a page URL get the pageID. 
-Returns:
-	Numeric csPageID
-Arguments:
-	String  csPageURLS
-History:
-	2014-09-25 - GAC - Created
---->
-<cffunction name="getCSPageIDByURL" access="public" returntype="numeric" output="false">
-	<cfargument name="csPageURL" type="string" required="true">
-	<cfscript>
-		var csPageID = 0;
-		var pageQry = getCSPageDataByURL(csPageURL=arguments.csPageURL);
-		if ( pageQry.recordCount )
-			csPageID = pageQry.ID;
-		return csPageID;
-	</cfscript>
-</cffunction>	
 
 </cfcomponent>

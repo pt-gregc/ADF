@@ -76,7 +76,6 @@ History:
 	2013-02-22 - MFC - Added the "formBeanName" into the attributes.
 	2013-10-15 - GAC - Updated the App Level Override Parameters comments
 					 - Removed 'themeName' value from the paramsExceptionList in the appOverrideCSParams function. 
-	2014-05-01 - GAC - Added an extra <br> tag with in EDIT MODE to be able to see the custom script element indicator when not showing the 'ADD' button
 --->
 
 <!--- // Optional ADF App Override Attributes for the Custom Script Parameters tab --->
@@ -105,11 +104,6 @@ History:
 			// Load jquery cookie to remember the last tab visited
 			application.ADF.scripts.loadJQueryCookie();	
 			application.ADF.scripts.loadADFLightbox();
-			
-			// Check for CS Author Mode
-			csMode = "";
-			if ( StructKeyExists(request,"renderstate") AND StructKeyExists(request.renderstate,"rendermode") ) 
-				csMode = request.renderstate.rendermode;
 			
 			// Bean Name for the Add Button
 			beanName = "Forms_1_1";
@@ -260,9 +254,6 @@ History:
 							<br/>
 							<br/>
 						</cfif>
-					</cfif>
-					<cfif ListFindNoCase("author,edit",csMode)>
-					<br/>
 					</cfif>
 					<CFMODULE TEMPLATE="/commonspot/utilities/ct-render-named-element.cfm"
 						elementtype="datasheet"

@@ -36,7 +36,7 @@ History:
 --->
 <cfcomponent displayname="ccapiConfig" extends="ADF.core.Base" hint="CCAPI configuration">
 	
-<cfproperty name="version" value="1_0_1">
+<cfproperty name="version" value="1_0_">
 <cfproperty name="CoreConfig" type="dependency" injectedBean="CoreConfig">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_1">
 <cfproperty name="ceData" type="dependency" injectedBean="ceData_1_1">
@@ -82,21 +82,17 @@ History:
 	2009-11-19 - GAC - Modified to load a XML CCAPI config values from a ccapi.CFM file (if available)
 	2010-03-05 - GAC - Removed the loggingEnabled() function call from the try/catch
 	2011-03-19 - RLW - Added support for the Custom Element configuration
-	2014-05-21 - GAC - Update to use the csAppsURL so the site's mapping path is included to help for a
-						more accurate ExpandPath() when on a multi-site install
 --->
 <cffunction name="loadCCAPIConfig" access="public" returntype="void" hint="Load CCAPI Config">
-	
 	<cfscript>
-		var CCAPIConfig = StructNew();	
-		var configAppXMLPath = ExpandPath("#request.site.csAppsURL#config/ccapi.xml");
-		var configAppCFMPath = request.site.csAppsURL & "config/ccapi.cfm";
+		var CCAPIConfig = StructNew();
+		var configAppXMLPath = ExpandPath("#request.site.csAppsWebURL#config/ccapi.xml");
+		var configAppCFMPath = request.site.csAppsWebURL & "config/ccapi.cfm";
 		var configElementData = arrayNew(1);
 		var CCAPIPageQry = queryNew("");
 		var CCAPIPageID = 0;
 		var tmpWSVars = structNew();
 	</cfscript>
-	
 	<cftry>
 		<cfscript>
 			// config data should be loaded here
@@ -104,12 +100,10 @@ History:
 			// CCAPIConfig = server.ADF.environment[request.site.id].ccapi;
 			
 			// check to see if there is a custom element record for the config
-			if( variables.ceData.elementExists(variables.configElementName) )
-			{
+			if( variables.ceData.elementExists(variables.configElementName) ){
 				// get the data from the element
 				ConfigElementData = variables.ceData.getCEData(variables.configElementName);
-				if( arrayLen(configElementData) )
-				{
+				if( arrayLen(configElementData) ){
 					CCAPIConfig.logging = structNew();
 					// check if logging is enabled
 					if( len(configElementData[1].values.enableLogging) and configElementData[1].values.enableLogging eq 1 )
@@ -129,19 +123,16 @@ History:
 					if( structKeyExists(configElementData[1].values, "elements") and listLen(configElementData[1].values.elements) )
 						CCAPIConfig.elements = getElementsFromElementMap();
 					// process the elements dynamically based on registred CCAPI page
-					if( len(ConfigElementData[1].values.CCAPIPage) )
-					{
+					if( len(ConfigElementData[1].values.CCAPIPage) ){
 						// convert the CCAPIPage url into the pageID
 						CCAPIPageQry = variables.csData.getCSPageDataByURL(ConfigElementData[1].values.CCAPIPage);
-						if( CCAPIPageQry.recordCount )
-						{
+						if( CCAPIPageQry.recordCount ){
 							CCAPIPageID = CCAPIPageQry.ID;
 							CCAPIConfig.elements = getElementsFromCCAPIPage(CCAPIPageID);
 						}
 					}
 				}
 			}
-			
 			// Pass a Logical path for the CFM file to the getConfigViaXML() since it will be read via CFINCLUDE
 			else if ( FileExists(ExpandPath(configAppCFMPath)) )
 				CCAPIConfig = server.ADF.objectFactory.getBean("CoreConfig").getConfigViaXML(configAppCFMPath);
