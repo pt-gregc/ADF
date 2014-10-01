@@ -42,6 +42,8 @@ History:
 	variables.CE_FIELD = "";
 	variables.SEARCH_FIELDS = "";
 	variables.ORDER_FIELD = "";
+	// Display Text for the Chooser Items ( Defaults to the ORDER_FIELD )
+	//variables.DISPLAY_FIELD = "";
 	
 	// STYLES
 	variables.MAIN_WIDTH = 580;

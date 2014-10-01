@@ -64,8 +64,8 @@ History:
 						Updated IF block for CCAPI login
 	2011-02-09 - RAK - Var'ing un-var'd variables
 	2011-04-27 - MFC - Added Parent SubsiteID to the success log.
-	2012-02-24 - MFC - Added TRY-CATCH around processing 
-					to logout the CCAPI if any errors.
+	2012-02-24 - MFC - Added TRY-CATCH around processing to logout the CCAPI if any errors.
+	2014-05-01 - GAC - Fixed typo in the try/catch, switched ( e ANY ) to ( ANY e )
 --->
 <cffunction name="createSubsite" access="public" returntype="struct" hint="Creates the subsite based on argument data">
 	<cfargument name="subsiteData" type="struct" required="true" hint="Subsite Data struct ex: subsiteData['name'], subsiteData['displayName'], subsiteData['description']">
@@ -133,7 +133,8 @@ History:
 			if( variables.ccapi.loggingEnabled() )
 				variables.utils.bulkLogAppend(logArray);
 		}
-		catch (e ANY){
+		catch ( ANY e )
+		{
 			// Error caught, send back the error message
 			result.subsiteCreated = false;
 			result.response = e.message;
@@ -151,9 +152,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	M. Carroll
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
 Name:
 	$buildSubsitesFromPath
 Summary:

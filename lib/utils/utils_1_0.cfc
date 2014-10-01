@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="utils_1_0" extends="ADF.core.Base" hint="Util functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_8">
+<cfproperty name="version" value="1_0_9">
 <cfproperty name="type" value="singleton">
 <cfproperty name="ceData" type="dependency" injectedBean="ceData_1_0">
 <cfproperty name="wikiTitle" value="Utils_1_0">
@@ -54,7 +54,7 @@ History:
  *
  * @param string 	 String to format. (Required)
  * @return Returns a string.
- * @author Gyrus (eli.dickinson@gmail.comgyrus@norlonto.net)
+ * @author Gyrus (eli.dickinson@gmail.com gyrus@norlonto.net)
  * @version 3, August 30, 2006
  */ --->
 <cffunction name="HTMLSafeFormattedTextBox" access="public" returntype="string">
@@ -94,6 +94,7 @@ History:
 	2013-11-20 - GAC - Added hints to the msg, addTimeStamp and the label arguments
 	2013-12-05 - DRM - Create formatted UTC timestamp in local code, avoids crash logging ADF startup errors when ADF isn't built yet
 	                   default logFile to adf-debug.log, instead of debug.log
+	2014-09-19 - GAC - Add a parameter to make the UTC timestamp optional
 --->
 <cffunction name="logAppend" access="public" returntype="void">
 	<cfargument name="msg" type="any" required="true" hint="if this value is NOT a simple string then the value gets converted to sting output using CFDUMP">
@@ -101,14 +102,20 @@ History:
 	<cfargument name="addTimeStamp" type="boolean" required="false" default="true" hint="Adds a date stamp to the file name">
 	<cfargument name="logDir" type="string" required="false" default="#request.cp.commonSpotDir#logs/">
 	<cfargument name="label" type="string" required="false" default="" hint="Adds a text label to the log entry">
+	<cfargument name="useUTC" type="boolean" required="false" default="true" hint="Converts the timestamp in the entry and the filename to UTC">
+	
 	<cfscript>
 		var logFileName = arguments.logFile;
-		var utcNow = mid(dateConvert('local2utc', now()), 6, 19);
+		var dateTimeStamp = mid(now(), 6, 19);
 		
 		if( arguments.addTimeStamp )
 			logFileName = dateFormat(now(), "yyyymmdd") & "." & request.site.name & "." & logFileName;
+		
 		if( len(arguments.label) )
 			arguments.label = arguments.label & "-";
+			
+		if ( arguments.useUTC )
+			dateTimeStamp = mid(dateConvert('local2utc', dateTimeStamp), 6, 19) & " (UTC)";
 	</cfscript>
 	<cftry>
 		<!--- Check if the file exists --->
@@ -116,9 +123,9 @@ History:
 			<cfdirectory action="create" directory="#arguments.logdir#">
 		</cfif>
 		<cfif NOT isSimpleValue(arguments.msg)>
-			<cfset arguments.msg = doDump(arguments.msg,"#arguments.label#msg-#application.ADF.date.csDateFormat(now(),now())#",0,1)>
+			<cfset arguments.msg = doDump(arguments.msg,"#arguments.label# - #dateTimeStamp#",0,1)>
 		</cfif>
-		<cffile action="append" file="#arguments.logDir##logFileName#" output="#utcNow# (UTC) - #arguments.label# #arguments.msg#" addnewline="true" fixnewline="true">
+		<cffile action="append" file="#arguments.logDir##logFileName#" output="#dateTimeStamp# - #arguments.label# #arguments.msg#" addnewline="true" fixnewline="true">
 		<cfcatch type="any">
 			<cfdump var="#arguments.logDir##logFileName#" label="Log File: #arguments.logDir##logFileName#" />
 			<cfdump expand="false" label="LogAppend() Error" var="#cfcatch#" />
@@ -342,13 +349,20 @@ Arguments:
 	String taskname - Scheduled task name
 History:
 	2009-04-16 - MFC - Created
+	2014-05-01 - ACW - in ACF 10, if you do not have a task called 'foo', run <cfschedule action="delete" task="foo"> will cause CF exception, message is 'The following task could not be found: foo.'
 --->
 <cffunction name="deleteScheduledTask" access="public" returntype="any">
 	<cfargument name="taskName" type="string" required="true">
 	
 	<!--- Delete scheduled task --->
-	<cfschedule action="delete"	task="#arguments.taskName#">
-
+	<cftry>
+		<cfschedule action="delete" task="#arguments.taskName#">
+		<cfcatch>
+			<cfif cfcatch.message NEQ 'The following task could not be found: #arguments.taskName#.'> <!--- ACF 10 only --->
+				<cfrethrow>
+			</cfif>
+		</cfcatch>
+	</cftry>
 </cffunction>
 
 <!---

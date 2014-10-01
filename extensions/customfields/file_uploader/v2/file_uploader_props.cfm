@@ -36,12 +36,13 @@ History:
 	2012-07-08 - SFS - Added comment to the bean name field to clarify what to enter and where the config component should go.
 	2014-01-02 - GAC - Added the CFSETTING tag to disable CF Debug results in the props module
 	2014-01-03 - GAC - Added the fieldVersion variable
+    2014-09-19 - GAC - Removed deprecated doLabel and jsLabelUpdater js calls
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "2.0"; 
+	fieldVersion = "2.0.1"; 
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
@@ -56,11 +57,6 @@ History:
 <cfoutput>
 	<script type="text/javascript">
 		fieldProperties['#typeid#'].paramFields = "#prefix#beanName";
-		// handling the copy label function
-		function #prefix#doLabel(str){
-			document.#formname#.#prefix#label.value = str;
-		}
-	
 	</script>
 	<table>
 		<tr>

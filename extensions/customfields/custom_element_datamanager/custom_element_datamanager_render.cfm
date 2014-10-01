@@ -43,6 +43,8 @@ History:
 	2014-03-12 - DJM - Added code for overlay while loading datamanager, updated flyover text for edit and delete icons, 
 						modified code for allowing resize of datamanager after load
 	2014-04-08 - JTP - Added logic for multi-record delete
+	2014-05-29 - DJM - Moved hideOverlay() call out of the if else condition.
+	2014-07-01 - DJM - Added code to support metadata forms
 --->
 <cfscript>
 	requiredCSversion = 9;
@@ -84,7 +86,7 @@ History:
 			newData = 0;
 		else
 			newData = 1;
-	}
+	}	
 	request.showSaveAndContinue = newData;	// forces showing or hiding of 'Save & Continue' button
 </cfscript>
 
@@ -122,9 +124,18 @@ History:
 		<CFOUTPUT><CFIF fieldpermission gt 0>#row_and_labelcell#<CFELSE><tr><td></td><td></CFIF></CFOUTPUT>
 	</cfif>
 	
-	<CFIF fieldpermission gt 0>
+	<CFIF fieldpermission gt 0>	
+		<cfquery name="getFieldDetails" dbtype="query">
+			SELECT [Action]
+			  FROM FieldQuery
+			 WHERE InputID = <cfqueryparam value="#fieldQuery.inputID#" cfsqltype="cf_sql_integer">
+		</cfquery>
+		
 		<CFSCRIPT>
 			inputParameters = attributes.parameters[fieldQuery.inputID];
+			
+			if (NOT StructKeyExists(inputParameters, "secondaryElementType"))
+				inputParameters.secondaryElementType = "CustomElement";
 			uniqueTableAppend = fieldQuery.inputID;
 		
 			ceFormID = 0;
@@ -134,10 +145,49 @@ History:
 				ceFormID = Request.Params.formID;
 			else if (StructKeyExists(attributes, 'fields'))
 				ceFormID = attributes.fields.formID[1];
+			
+			elementType = '';
+			parentFormLabel = '';
+			infoArgs = StructNew();
+			infoMethod = "getInfo";
+			
+			switch (getFieldDetails.Action)
+			{
+				case 'special':
+					elementType = 'MetadataForm';
+					infoMethod = "getForms";
+					infoArgs.id = formID;
+					break;
+				default:
+					elementType = 'CustomElement';
+					infoArgs.elementID = formID;
+					break;
+							
+			}
+			
+			curPageID = 0;
+			if (StructKeyExists(request.params,'pageID') AND elementType EQ 'MetadataForm')
+				curPageID = request.params.pageID;
+			
+			parentElementObj = Server.CommonSpot.ObjectFactory.getObject(elementType);
+		</CFSCRIPT>
 		
-			customElementObj = Server.CommonSpot.ObjectFactory.getObject('CustomElement');
-			childCustomElementDetails = customElementObj.getList(ID=inputParameters.childCustomElement);
-			parentCustomElementDetails = customElementObj.getInfo(elementID=ceFormID);
+		<cfinvoke component="#parentElementObj#" method="#infoMethod#" argumentCollection="#infoArgs#" returnvariable="parentFormDetails">
+		
+		<CFSCRIPT>
+			childElementObj = Server.CommonSpot.ObjectFactory.getObject('CustomElement');
+			
+			if (IsNumeric(inputParameters.assocCustomElement))
+				childElementDetails = childElementObj.getList(ID=inputParameters.assocCustomElement);
+			else
+				childElementDetails = childElementObj.getList(ID=inputParameters.childCustomElement);
+			
+			childFormName = childElementDetails.Name;
+			
+			if (elementType EQ 'MetadataForm')
+				parentFormLabel = parentFormDetails.formName;
+			else
+				parentFormLabel = parentFormDetails.Name;
 			
 			if (Len(inputParameters.compOverride))
 			{
@@ -215,12 +265,12 @@ History:
 		</CFIF>
 	
 		<CFIF inputParameters.childCustomElement neq ''>
-			<CFIF newData EQ 0>
+			<CFIF newData EQ 0 OR (elementType EQ 'metadataForm' AND curPageID GT 0)>
 				<CFOUTPUT>
 					#datamanagerObj.renderStyles(propertiesStruct=inputParameters)#
 					<table class="cs_data_manager" border="0" cellpadding="2" cellspacing="2" summary="" id="parentTable_#uniqueTableAppend#">
 					<tr><td>
-						#datamanagerObj.renderButtons(propertiesStruct=inputParameters,currentValues=attributes.currentvalues,formID=ceFormID,fieldID=fieldQuery.inputID)#
+						#datamanagerObj.renderButtons(propertiesStruct=inputParameters,currentValues=attributes.currentvalues,formID=ceFormID,fieldID=fieldQuery.inputID,parentFormType=elementType,pageID=curPageID)#
 					</td></tr>	
 					<tr><td>
 						<span id="errorMsgSpan"></span>
@@ -241,7 +291,7 @@ History:
 				</CFOUTPUT>
 			<CFELSE>
 			<CFOUTPUT><table class="cs_data_manager" border="0" cellpadding="0" cellspacing="0" summary="">
-				<tr><td class="cs_dlgLabelError">#childCustomElementDetails.Name# records can only be added once the #parentCustomElementDetails.Name# record is saved.</td></tr>
+				<tr><td class="cs_dlgLabel">#childFormName# records can only be added once the #parentFormLabel# record is saved.</td></tr>
 				</table>
 				#Server.CommonSpot.UDF.tag.input(type="hidden", name="#fqFieldName#", value="")#</CFOUTPUT>
 			</CFIF>
@@ -336,6 +386,8 @@ History:
 						returnformat: 'json',
 						formID : #ceFormID#,
 						fieldID : #fieldQuery.inputID#, 
+						parentFormType : '#elementType#',
+						pageID : #curPageID#,
 						propertiesStruct : JSON.stringify(<cfoutput>#SerializeJSON(inputParameters)#</cfoutput>),
 						currentValues : JSON.stringify(<cfoutput>#SerializeJSON(attributes.currentvalues)#</cfoutput>)						
 				 };
@@ -442,14 +494,14 @@ History:
 								jQuery("##parentTable_#uniqueTableAppend#").find('.dataTables_scrollBody').css('width', "#widthVal#");
 								jQuery("##parentTable_#uniqueTableAppend#").find('.dataTables_scrollBody.dataTable').css('width', "#widthVal#");
 								jQuery("##parentTable_#uniqueTableAppend#").find('.dataTables_scrollBody').css('width', ResizeWindow());
-								
-								if (displayOverlay == 1)
-									commonspotNonDashboard.util.hideMessageOverlay('datamanager_#uniqueTableAppend#');
 							}
 							else
 							{
 								jQuery("##parentTable_#uniqueTableAppend#").find('.dataTables_scrollBody').css('height', "30px");
 							}
+							
+							if (displayOverlay == 1)
+									commonspotNonDashboard.util.hideMessageOverlay('datamanager_#uniqueTableAppend#');
 						
 							if (res#uniqueTableAppend#.aaData.length > 1)
 							{
@@ -504,8 +556,10 @@ History:
 															formID: #ceFormID#,
 															movedDataPageID: movedDataPageID, 
 															dropAfterDataPageID: dropAfterDataPageID,
+															parentFormType : '#elementType#',
+															pageID : #curPageID#,
 															propertiesStruct : JSON.stringify(<cfoutput>#SerializeJSON(inputParameters)#</cfoutput>),
-															currentValues : JSON.stringify(<cfoutput>#SerializeJSON(attributes.currentvalues)#</cfoutput>)						
+															currentValues : JSON.stringify(<cfoutput>#SerializeJSON(attributes.currentvalues)#</cfoutput>)
 													 	};
 											
 													jQuery.post( '#ajaxComURL#', 

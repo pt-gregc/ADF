@@ -34,10 +34,15 @@ History:
 --->
 <cfcomponent displayname="api" extends="ADF.core.Base" hint="CCAPI functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_8">
+<cfproperty name="version" value="1_0_9">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
 <cfproperty name="wikiTitle" value="API">
 
+<!---
+/* *************************************************************** */
+History:
+	2012-12-20 - MFC - Created
+--->
 <cffunction name="init">
 	<cfscript>
 		super.init();
@@ -54,11 +59,17 @@ History:
 	</cfscript>
 </cffunction>
 
+<!---
+/* *************************************************************** */
+History:
+	2012-12-20 - MFC - Created
+--->
 <cffunction name="initSession" access="private">
 	<cfscript>
 		// Check if the session space does NOT exist, then setup the variables
 		
-		if ( NOT StructKeyExists(session.ADF,"API") ) {
+		if ( NOT StructKeyExists(session.ADF,"API") ) 
+		{
 			session.ADF.API = StructNew();
 			// Init the API Config Settings
 			initAPIConfig();
@@ -91,21 +102,35 @@ History:
 	</cfscript>
 </cffunction>
 
+<!---
+/* *************************************************************** */
+History:
+	2012-12-20 - MFC - Created
+--->
 <cffunction name="initAPIConfig" access="public">
 	<cfscript>
 		// Get the user account from the CCAPI Config
 		var apiConfig = getAPIConfig();
+		
 		// Set the setSiteURL
-		if ( isStruct(apiConfig) AND StructKeyExists(apiConfig, "wsVars") ) {
+		if ( isStruct(apiConfig) AND StructKeyExists(apiConfig, "wsVars") ) 
+		{
 			setSiteURL(apiConfig.wsVars.siteURL);
 			setSubsiteID(apiConfig.wsVars.subsiteID);
 		}
 	</cfscript>
 </cffunction>
 
+<!---
+/* *************************************************************** */
+History:
+	2012-12-20 - MFC - Created
+--->
 <cffunction name="login" access="public" output="true">
 	<cfargument name="remote" type="boolean" required="false" default="false">
 	<cfargument name="forceSubsiteID" type="numeric" required="false" default="0">
+	<cfargument name="forceUsername" type="string" required="false" default="" hint="Field to override the CCAPI username used to login to the conduit page.">
+	<cfargument name="forcePassword" type="string" required="false" default="" hint="Field to override the password used to login to the conduit page.">
 	
 	<cfscript>
 		// Get the user account from the CCAPI Config
@@ -114,7 +139,20 @@ History:
 		//var command = StructNew();
 		var command = '';
 		var retDataCmd = "";
+		var userName = "";
+		var password = "";
+		
+		if ( LEN(TRIM(arguments.forceUsername)) )
+			userName = arguments.forceUsername;
+		else
+			userName = apiConfig.wsVars.csuserid;
+		
+		if ( LEN(TRIM(arguments.forcePassword))  )
+			password = arguments.forcePassword;
+		else
+			password = apiConfig.wsVars.cspassword;
 	</cfscript>
+	
 	<cftry>
 		<cfscript>
 			// Setup the Session space
@@ -150,25 +188,28 @@ History:
 					setRemoteflag(arguments.remote);
 				
 				// Check if we want to remote login
-				if ( getRemoteFlag() ){
+				if ( getRemoteFlag() )
+				{
 					 
 					command = StructNew();
 					command['Target'] = "Login";
 					command['Method'] = "doLogin";
-					command['Args'] = StructNew();
-					command['Args']['userName'] = apiConfig.wsVars.csuserid;
-					command['Args']['password'] = apiConfig.wsVars.cspassword;
 					
+					command['Args'] = StructNew();
+					command['Args']['userName'] = userName;
+					command['Args']['password'] = password;
+						
 					/*
 					command = '
 						<Command>
 							<Target>Login</Target>
 							<Method>doLogin</Method>
 							<Args>
-								<userName>#apiConfig.wsVars.csuserid#</userName>
-								<password>#apiConfig.wsVars.cspassword#</password>
+								<userName>#userName#</userName>
+								<password>#password#</password>
 							</Args>
-						</Command>';
+						</Command>
+						';
 					 */
 					 
 					// Run command and return Array
@@ -180,17 +221,19 @@ History:
 						 AND StructKeyExists(retDataCmd[1], "data") )
 						loginCmd = retDataCmd[1].data;
 				}
-				else {
+				else 
+				{
 					// Login via ColdFusion
-					loginCmd = this.loginComponent.doLogin(userName=apiConfig.wsVars.csuserid,
-														   password=apiConfig.wsVars.cspassword);
+					loginCmd = this.loginComponent.doLogin(userName=userName,
+														   password=password);
 				}
 
 				if ( isStruct(loginCmd)
 						AND StructKeyExists(loginCmd, "LoginResult") EQ 1
 						AND StructKeyExists(loginCmd, "SessionCookies")
 						AND StructKeyExists(loginCmd.SessionCookies, "cfID")
-						AND StructKeyExists(loginCmd.SessionCookies, "cfToken") ){
+						AND StructKeyExists(loginCmd.SessionCookies, "cfToken") )
+				{
 					// Login Success
 					session.ADF.API.csSession = loginCmd.SessionCookies;
 					setAPIToken();
@@ -199,28 +242,41 @@ History:
 						variables.utils.logAppend("#request.formattedTimestamp# - Success logging in to API. [LoginResult:#loginCmd.LoginResult#] [Token:#getAPIToken()#] [SubSiteID:#getSubsiteID()#]", "API_Login.log");
 					
 				}
-				else if ( isStruct(loginCmd) AND StructKeyExists(loginCmd, "LoginResult") EQ 2 ){
+				else if ( isStruct(loginCmd) AND StructKeyExists(loginCmd, "LoginResult") EQ 2 )
+				{
 					// Need Password Change
 					clearAPIToken();
 					if( apiConfig.logging.enabled )
 						variables.utils.logAppend("#request.formattedTimestamp# - Error logging in to API. Password needs to be changed. [LoginResult:#loginCmd.LoginResult#]", "API_Login.log");
 				}
-				else if ( isStruct(loginCmd) AND StructKeyExists(loginCmd, "LoginResult") EQ 0 ){
+				else if ( isStruct(loginCmd) AND StructKeyExists(loginCmd, "LoginResult") EQ 0 )
+				{
 					// Login Failed
 					clearAPIToken();
 					if( apiConfig.logging.enabled )
 						variables.utils.logAppend("#request.formattedTimestamp# - Error logging in to API. Login Failed. [LoginResult:#loginCmd.LoginResult#]", "API_Login.log");
 				}
-				else {
+				else 
+				{
 					// Error with Login
 					clearAPIToken();
 					if( apiConfig.logging.enabled )
 						variables.utils.logAppend("#request.formattedTimestamp# - Error logging in to API.", "API_Login.log");
 				}
-		
 		</cfscript>
 		<cfcatch>
-			<cfdump var="#cfcatch#" label="cfcatch" expand="false">
+			<!--- // TODO:  fix this. Generate a better error to be displayed on the page --->
+			<!--- <cfdump var="#cfcatch#" label="cfcatch" expand="false"> --->
+			
+			<cfoutput>
+				<div>#cfcatch.Message#</div> 
+				<!--- <div>#cfcatch.details#</div> ---> 
+			</cfoutput>
+			
+			<cfif apiConfig.logging.enabled>
+				<cfset variables.utils.logAppend("#cfcatch#", "API_Login_Error.html")>
+			</cfif>
+			
 			<!--- <cfscript>
 				// Error - Clear the CS Session
 				session.ADF.API.csSession = StructNew();
@@ -233,7 +289,12 @@ History:
 	<cfreturn this>
 </cffunction>
 
-<!--- // 2013-10-25 - GAC - Updated to check login status local or remote --->
+<!---
+/* *************************************************************** */
+History:
+	2012-12-20 - MFC - Created
+	2013-10-25 - GAC - Updated to check login status local or remote
+--->
 <cffunction name="isLoggedIn" access="public">
 	<cfscript>
 		//var command = StructNew();
@@ -245,19 +306,22 @@ History:
 		initSession();
 		
 		// Check if the session token is defined
-		if ( LEN(getAPIToken()) ) {
+		if ( LEN(getAPIToken()) ) 
+		{
 		
-			if ( getRemoteFlag() ){
+			if ( getRemoteFlag() )
+			{
 				// Login via ColdFusion
 				command = StructNew();
 				command['Target'] = "Login";
 				command['Method'] = "isLoggedIn";
 				/* 
 				command = '
-					<Command>
-				      <Target>Login</Target>
-				      <Method>isLoggedIn</Method>
-				   </Command>';
+						<Command>
+					      <Target>Login</Target>
+					      <Method>isLoggedIn</Method>
+					   </Command>
+				   ';
 				 */
 				// Run command and return Array
 				retDataCmd = runRemote(commandStruct=command, authCommand=false);
@@ -270,7 +334,8 @@ History:
 					loginStatus = retDataCmd[1].data;
 
 			}
-			else {
+			else 
+			{
 				// Login via ColdFusion
 				loginStatus = this.loginComponent.isLoggedIn();	
 			}
@@ -280,8 +345,13 @@ History:
 	</cfscript>
 </cffunction>
 
-<!--- // 2013-10-25 - GAC - Updated to return a logout status --->
-<!--- // 				  - Updated to logout local or remote --->
+<!---
+/* *************************************************************** */
+History:
+	2012-12-20 - MFC - Created
+	2013-10-25 - GAC - Updated to return a logout status
+				  	  - Updated to logout local or remote 
+--->
 <cffunction name="logout" access="public">
 	<cfscript>
 		// Get the user account from the CCAPI Config
@@ -291,7 +361,8 @@ History:
 		var logoutMsg = "Success:1";
 		var logoutStatus = true;
 		
-		try {
+		try 
+		{
 			// Setup the Session space
 			initSession();
 			
@@ -311,7 +382,8 @@ History:
 				// Run command and return Array
 				retDataCmd = runRemote(commandStruct=command, authCommand=false);
 			}	
-			else {
+			else 
+			{
 				// logout via ColdFusion
 				this.loginComponent.doLogout();	// Returns VOID
 			}
@@ -324,12 +396,14 @@ History:
 			clearAPIToken();
 			
 		}
-		catch (any e) {
+		catch (any e) 
+		{
 			logoutMsg = "Error:" & e.message;
 			logoutStatus = false;
 		}
 		
-		if( apiConfig.logging.enabled ) {
+		if( apiConfig.logging.enabled ) 
+		{
 			if ( logoutStatus )
 				variables.utils.logAppend("#request.formattedTimestamp# - API Logout Success.", "API_Login.log");
 			else			
@@ -340,6 +414,11 @@ History:
 	</cfscript>	
 </cffunction>
 
+<!---
+/* *************************************************************** */
+History:
+	2012-12-20 - MFC - Created
+--->
 <cffunction name="runRemote" access="public" returntype="any" output="true" hint="Runs the Command API locally via HTML/XML.">
 	<cfargument name="commandStruct" type="struct" required="false" hint="Command collection as Structure.">
 	<cfargument name="commandArgsXML" type="String" required="false" hint="Command collection as XML.">
@@ -359,12 +438,14 @@ History:
 		// Psuedo overloading the arguments
 		// Check if the commands collection is a structure
 		if ( isStruct(arguments.commandStruct)
-				AND StructCount(arguments.commandStruct) GT 0 ){
+				AND StructCount(arguments.commandStruct) GT 0 )
+		{
 			commandXML = server.CommonSpot.UDF.Util.serializeBean(commandStruct);
 			// Trim off the surrounding "<struct></struct>" tags
 			commandXML = MID(commandXML,9,LEN(commandXML)-17);
 		}
-		else if ( LEN(arguments.commandArgsXML) ){
+		else if ( LEN(arguments.commandArgsXML) )
+		{
 			commandXML = arguments.commandArgsXML;
 		}
 		
@@ -410,12 +491,22 @@ History:
 			<!--- <cfdump var="#httpSubsiteURL#" label="httpSubsiteURL" expand="false"> --->
 		</cfcatch>
 	</cftry>
+	
 	<cfreturn "">
 </cffunction>
 
+<!---
+/* *************************************************************** */
+History:
+	2012-12-20 - MFC - Created
+	2014-05-01 - GAC - Fixed typo in the try/catch around the populateCustomElement call, switched (e ANY) to (ANY e)
+	2014-09-10 - GAC - Updated to fix bogus status=true results from the populateCustomElement() call.
+--->
 <cffunction name="runCCAPI" access="public" returntype="any" output="true" hint="Runs the Content Creation API.">
 	<cfargument name="method" type="String" required="true">
 	<cfargument name="sparams" type="Struct" required="true">
+	<cfargument name="forceUsername" type="string" required="false" default="" hint="Field to override the CCAPI username used to login to the conduit page.">
+	<cfargument name="forcePassword" type="string" required="false" default="" hint="Field to override the password used to login to the conduit page.">
 	
 	<cfscript>
 		var wsObj = "";
@@ -432,43 +523,61 @@ History:
 		// Set the flag to make all CCAPI commands as remote
 		//setRemoteFlag(true);
 		
+		
 		// Check if we are not logged OR not logged into the correct subsite
-		if ( NOT isLoggedIn() OR (getSubsiteID() NEQ sparams.subsiteID ) ) {
+		if ( NOT isLoggedIn() OR (getSubsiteID() NEQ sparams.subsiteID) ) 
+		{
 			// Login with the Public API
 			//login(remote=true, forceSubsiteID=sparams.subsiteID);
 			//login(forceSubsiteID=sparams.subsiteID);
 			
 			// Login through the CCAPI
-			setSubsiteID(sparams.subsiteID);
-			ccapiLogin();
+			if ( LEN(TRIM(arguments.forceUsername)) AND LEN(TRIM(arguments.forcePassword))  )
+			{
+				ccapiLogin(forceUsername=arguments.forceUsername,forcePassword=arguments.forcePassword,forceSubsiteID=sparams.subsiteID);
+			}
+			else
+			{	
+				//setSubsiteID(sparams.subsiteID);
+				ccapiLogin(forceSubsiteID=sparams.subsiteID);
+			}
 		}
 		
 		wsObj = getWebService();
 		
 		// If the web service is setup and the login token is valid
-		if ( LEN(getAPIToken()) ) {
-		
-			try {
-				switch (arguments.method){
+		if ( LEN(getAPIToken()) ) 
+		{
+			try 
+			{
+				switch (arguments.method)
+				{
 					// Populate Custom Element Record
 					case "populateCustomElement":
 						
-						result.data = wsObj.populateCustomElement(ssid=getAPIToken(), sparams=arguments.sparams);
-						result.status = true;
+						result.data = wsObj.populateCustomElement(ssid=getAPIToken(), sparams=arguments.sparams);						
+//application.ADF.utils.dodump(result,"result",false);
+						
+						if ( IsSimpleValue(result.data) AND FindNoCase("success",result.data) )
+							result.status = true;					
+//application.ADF.utils.dodump(result,"result",false);
+
 						break;
 					// Populate a Text Block
 					case "populateTextBlock":
 						break;
 				}
 			}
-			catch (e ANY){
+			catch (ANY e)
+			{
 				// Error caught, send back the error message
 				result.status = false;
 				result.msg = e.message;
 				result.data = e;
 			}
 		}
-		else {
+		else 
+		{
 			result.status = false;
 			result.msg = "Error loading the Web Service.";
 		}
@@ -477,34 +586,74 @@ History:
 	</cfscript>
 </cffunction>
 
+<!---
+/* *************************************************************** */
+History:
+	2012-12-20 - MFC - Created
+--->
 <cffunction name="runLocal" access="public" returntype="any" output="true" hint="Runs the Command API locally via ColdFusion.">
 </cffunction>
 
+<!--- // CCAPI FUNCTIONS --->
 
-
-<!--- CCAPI FUNCTIONS --->
-<cffunction name="ccapiLogin" access="public" returntype="void">
+<!---
+/* *************************************************************** */
+History:
+	2012-12-20 - MFC - Created
+	2014-09-15 - GAC - Updated to add forceSubsiteID, forceUsername and forcePassword parameters
+--->
+<cffunction name="ccapiLogin" access="public" returntype="void" output="true">
+	<cfargument name="forceSubsiteID" type="numeric" required="false" default="0">
+	<cfargument name="forceUsername" type="string" required="false" default="" hint="Field to override the CCAPI username used to login to the conduit page.">
+	<cfargument name="forcePassword" type="string" required="false" default="" hint="Field to override the password used to login to the conduit page.">
+	
 	<cfscript>
 		// Get the user account from the CCAPI Config
 		var apiConfig = getAPIConfig();
 		var wsObj = getWebService();
 		var error = '';
+		var loginResult = '';
+		var userName = '';
+		var password = '';
 		
-		var loginResult = wsObj.csLogin(site = getSiteURL(),
-										csUserID = apiConfig.wsVars.csuserid,
-										csPassword = apiConfig.wsVars.cspassword,
+		if ( LEN(TRIM(arguments.forceUsername)) )
+			userName = arguments.forceUsername;
+		else
+			userName = apiConfig.wsVars.csuserid;
+		
+		if ( LEN(TRIM(arguments.forcePassword))  )
+			password = arguments.forcePassword;
+		else
+			password = apiConfig.wsVars.cspassword;
+			
+		// Check if we want to force login to a specific subsite
+		if ( arguments.forceSubsiteID GT 0 )
+			setSubsiteID(arguments.forceSubsiteID);
+		else
+			setSubsiteID(apiConfig.wsVars.subsiteID);
+		
+		loginResult = wsObj.csLogin(site = getSiteURL(),
+										csUserID = userName,
+										csPassword = password,
 										subSiteID = getSubsiteID(),
 										subSiteURL = '');
+										
+//application.ADF.utils.doDUMP(loginResult,"loginResult",1);										
 		
 		// Verify that the login was successful and set the Token
-		if ( ListFirst(loginResult, ":") is "Success" ){
+		if ( ListFirst(loginResult, ":") is "Success" )
+		{
 			// Process the SSID
 			processSSID(ssid=ListRest(loginResult, ":"));
+			
+//application.ADF.utils.doDUMP(session.ADF.api,"session.ADF.api",1);
+
 			// Log Success
 			if( apiConfig.logging.enabled )
 				variables.utils.logAppend("#request.formattedTimestamp# - Success logging in to CCAPI. [Token:#getAPIToken()#], [SubSiteID:#getSubsiteID()#]", "API_Login.log");
 		}
-		else {
+		else 
+		{
 			// Clear the Token
 			clearAPIToken();
 			error = ListRest(loginResult, ":");
@@ -515,7 +664,12 @@ History:
 	</cfscript>
 </cffunction>
 
-<!--- // 2014-04-10 - GAC - Fixed variable name in log output --->
+<!--- 
+/* *************************************************************** */
+History:
+	2012-12-26 - MFC - Created
+	2014-04-10 - GAC - Fixed variable name in log output
+--->
 <cffunction name="ccapiLogout" access="public" returntype="void">
 	<cfscript>
 		// Get the user account from the CCAPI Config
@@ -525,21 +679,28 @@ History:
 		var logoutResult = wsObj.csLogout(ssid=getAPIToken());
 		
 		// Verify that the login was successful and set the Token
-		if ( ListFirst(logoutResult, ":") is "Success" ){
+		if ( ListFirst(logoutResult, ":") is "Success" )
+		{
 			// Clear the API token
 			clearAPIToken();
 			// Log Success
-			if( apiConfig.logging.enabled )
+			if ( apiConfig.logging.enabled )
 				variables.utils.logAppend("#request.formattedTimestamp# - CCAPI Logout Success.", "API_Login.log");
 		}
-		else {
+		else 
+		{
 			// Log Error
-			if( apiConfig.logging.enabled )
+			if ( apiConfig.logging.enabled )
 				variables.utils.logAppend("#request.formattedTimestamp# - Error Logout with the CCAPI: #logoutResult#", "API_Login.log");
 		}
 	</cfscript>
 </cffunction>
 
+<!---
+/* *************************************************************** */
+History:
+	2012-12-20 - MFC - Created
+--->
 <cffunction name="processSSID" access="private" returnType="void" output="no" hint="Splits the specified SSID And returnt a struct of information stored in SSID.">
 	<cfargument name="ssid" type="string" required="yes">
 
@@ -547,14 +708,15 @@ History:
 		var result = StructNew();
 		var cookieInfo = ArrayNew(1);
 
-		if ( Len(arguments.ssid) GT 0 ) {
+		if ( Len(arguments.ssid) GT 0 ) 
+		{
 			session.ADF.API.csSession.CFID = ListFirst(arguments.ssid, " ");
 			if ( ListLen(arguments.ssid, " ") GTE 2 )
 				session.ADF.API.csSession.CFToken = ListGetAt(arguments.ssid, 2, " ");
 			else
 				session.ADF.API.csSession.CFToken = 0;
 			
-			if (ListLen(arguments.ssid, " ") GT 3)
+			if ( ListLen(arguments.ssid, " ") GT 3 )
 				session.ADF.API.csSession.JSessionID = ListGetAt(arguments.ssid, 3, " ");
 		}
 		setSiteURL(ListLast(arguments.ssid, " "));
@@ -582,17 +744,12 @@ History:
 	<cfscript>
 		var httpSubsiteURL = getSiteURL();
 		var subsiteData = application.ADF.csData.getSubsiteQueryByID(subsiteID=getSubsiteID());
-		//application.ADF.utils.dodump(httpSubsiteURL,"buildSubsiteFullURL - httpSubsiteURL", false);	
-		//application.ADF.utils.dodump(subsiteData,"buildSubsiteFullURL - subsiteData", false);	
-		//application.ADF.utils.dodump(request.site.CP_URL,"buildSubsiteFullURL - request.site.CP_URL", false);	
-	
+
 		// Remove the root subsite from the path
 		httpSubsiteURL = Replace(httpSubsiteURL, request.site.CP_URL, "");
-		//application.ADF.utils.dodump(httpSubsiteURL,"buildSubsiteFullURL - httpSubsiteURL", false);	
 		
 		// Add the subsite path to the string
 		httpSubsiteURL = httpSubsiteURL & subsiteData.SubSiteURL;
-		//application.ADF.utils.dodump(httpSubsiteURL,"buildSubsiteFullURL - httpSubsiteURL", false);		
 		
 		return httpSubsiteURL;
 	</cfscript>
@@ -624,11 +781,13 @@ History:
 		if( isStruct(apiConfig) AND structKeyExists(apiConfig, "wsVars") AND structKeyExists(apiConfig.wsVars,"webserviceURL") AND LEN(apiConfig.wsVars.webserviceURL) ) 
 			wsURL = apiConfig.wsVars.webserviceURL;
 
-		if ( getRemoteFlag() AND LEN(TRIM(wsURL)) ) {
+		if ( getRemoteFlag() AND LEN(TRIM(wsURL)) ) 
+		{
 			// Call the remote Web Service
 			return createObject("webService", wsURL);
 		}
-		else {	
+		else 
+		{	
 		
 			// Use the config webservice URL value to determine the correct wsPath
 			if ( FindNoCase(wsURL,"cs_remote") )
@@ -640,14 +799,26 @@ History:
 	</cfscript>
 </cffunction>
 
+
 <!--- // Private GETTERS/SETTERS --->
-<!--- // 10-25-2013 - can NOT be private since we are being injected in to ccapi_2_0 --->
+
+<!---
+/* *************************************************************** */
+History:
+	2012-12-20 - MFC - Created
+	2013-10-25 - GAC - can NOT be private since we are being injected in to ccapi_2_0
+--->
 <cffunction name="setSubsiteID" access="public" returntype="void" hint="Set the subsiteID"> 
 	<cfargument name="subsiteID" type="numeric" required="true" hint="subsiteID to set">
 	<cfset session.ADF.API.subsiteID = arguments.subsiteID>
 </cffunction>
 
-<!--- // - can NOT be private since we are being injected in to ccapi_2_0 --->
+<!---
+/* *************************************************************** */
+History:
+	2012-12-20 - MFC - Created
+	2013-10-25 - GAC - can NOT be private since we are being injected in to ccapi_2_0
+--->
 <cffunction name="getSubsiteID" access="public" returntype="numeric" hint="Get the subsiteID">
 	<cfreturn session.ADF.API.subsiteID>
 </cffunction>
@@ -656,12 +827,14 @@ History:
 	<cfargument name="siteURL" type="string" required="true" hint="Site URL to set">
 	<cfscript>
 		// Check the length to see is defined
-		if ( LEN(arguments.siteURL) ){
+		if ( LEN(arguments.siteURL) )
+		{
 			session.ADF.API.siteURL = arguments.siteURL;
 			//	Set the remote status
 			//setRemoteFlag(true);
 		}
-		else {
+		else 
+		{
 			// If the config site URL is not undefined, then make commands against the current site URL
 			session.ADF.API.siteURL = request.site.url;
 			//	Set the remote status
@@ -674,37 +847,72 @@ History:
 	</cfscript>
 </cffunction>
 
+<!---
+/* *************************************************************** */
+History:
+	2012-12-20 - MFC - Created
+--->
 <cffunction name="getSiteURL" access="private" returntype="string" hint="Get the Site URL for Remote Commands.">
 	<cfreturn session.ADF.API.siteURL>
 </cffunction>
 
+<!---
+/* *************************************************************** */
+History:
+	2012-12-20 - MFC - Created
+--->
 <cffunction name="setAPIToken" access="private" returntype="void" hint="set the ccapi token">
 	<cfscript>
-		session.ADF.API.token = "#session.ADF.API.csSession.cfID# #session.ADF.API.csSession.cfToken#";
+		session.ADF.API.token = session.ADF.API.csSession.cfID & " " & session.ADF.API.csSession.cfToken;
 		if ( LEN(session.ADF.API.csSession.JSessionID) )
-			session.ADF.API.token = session.ADF.API.token & " #session.ADF.API.csSession.JSessionID#";
-		session.ADF.API.token = session.ADF.API.token & " #getSiteURL()#";
+			session.ADF.API.token = session.ADF.API.token & " " & session.ADF.API.csSession.JSessionID;
+		session.ADF.API.token = session.ADF.API.token & " " & getSiteURL();
 	</cfscript>
 </cffunction>
 
+<!---
+/* *************************************************************** */
+History:
+	2012-12-20 - MFC - Created
+--->
 <cffunction name="clearAPIToken" access="private" returntype="void">
 	<cfset session.ADF.API.token = "">
 </cffunction>
 
-<!--- // 10-25-2013 - Set to public to be able to access the current users login token  --->
+<!---
+/* *************************************************************** */
+History:
+	2012-12-20 - MFC - Created
+	2013-10-25 - GAC - Set to public to be able to access the current users login token
+--->
 <cffunction name="getAPIToken" access="public" returntype="string" hint="get the ccapi token">
 	<cfreturn session.ADF.API.token>
 </cffunction>
 
+<!---
+/* *************************************************************** */
+History:
+	2012-12-20 - MFC - Created
+--->
 <cffunction name="setRemoteFlag" access="private" returntype="void" hint="Set the Remote Flag">
 	<cfargument name="remoteFlag" type="boolean" required="true">
 	<cfset session.ADF.API.remote = arguments.remoteFlag>
 </cffunction>
 
+<!---
+/* *************************************************************** */
+History:
+	2012-12-20 - MFC - Created
+--->
 <cffunction name="getRemoteFlag" access="private" returntype="boolean" hint="Get the Remote Flag">
 	<cfreturn session.ADF.API.remote>
 </cffunction>
 
+<!---
+/* *************************************************************** */
+History:
+	2012-12-20 - MFC - Created
+--->
 <cffunction name="getAPIConfig" access="public" returntype="struct">
 	<cfscript>
 		var tempStruct = structNew();
@@ -721,13 +929,15 @@ History:
 		tempStruct.wsVars.subsiteID = 1;
 		tempStruct.wsVars.cssites = "";
 		
-		if ( NOT StructKeyExists(server.ADF.environment, request.site.id) ) {
+		if ( NOT StructKeyExists(server.ADF.environment, request.site.id) ) 
+		{
 			//return tempStruct;
 			server.ADF.environment[request.site.id] = StructNew();
 			StructInsert(server.ADF.environment[request.site.id], "apiConfig", tempStruct);
 		}
 		// Build the temporary config if nothing is defined at the site config level
-		else if ( NOT StructKeyExists(server.ADF.environment[request.site.id], "apiConfig") ) {
+		else if ( NOT StructKeyExists(server.ADF.environment[request.site.id], "apiConfig") ) 
+		{
 			// Insert into the Site Config
 			StructInsert(server.ADF.environment[request.site.id], "apiConfig", tempStruct, true);
 		}
