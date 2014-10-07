@@ -31,10 +31,11 @@ History:
 	2011-04-05 - MFC - Updated the version property
 	2013-10-21 - GAC - Added 'file-version' property for ADF core files 
 	2014-02-26 - GAC - Updated for version 1.7.0
+	2014-10-01 - GAC - Updated for version 1.7.2
 --->
 <cfcomponent name="Config" hint="Config component for Application Development Framework" extends="ADF.core.Base">
 
-<cfproperty name="version" value="1_7_1">
+<cfproperty name="version" value="1_7_2">
 <cfproperty name="file-version" value="3">
 	
 <!---

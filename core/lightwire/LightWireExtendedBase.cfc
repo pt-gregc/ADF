@@ -29,11 +29,12 @@ History:
 	2013-10-21 - GAC - Added 'file-version' property for ADF core files 
 	2014-02-26 - GAC - Updated for version 1.7.0
 	2014-03-24 - GAC - Added doLog and doOutput local private function to assit with debugging
+	2014-10-01 - GAC - Updated for version 1.7.2
 --->
 
 <cfcomponent name="LightWireExtendedBase" extends="ADF.thirdParty.lightwire.LightWire" output="false">
 
-<cfproperty name="version" value="1_7_1">
+<cfproperty name="version" value="1_7_2">
 <cfproperty name="file-version" value="3">
 
 <!---

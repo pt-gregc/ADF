@@ -33,6 +33,7 @@ History:
 	2012-03-08 - MFC - Updated the styles for the buttons to align left and be a fixed width.
 	2012-08-27 - MFC - Updated the styles for the buttons to be fixed width.
 	2012-09-18 - MFC - Add a blank sort value to field.
+	2014-10-03 - GAC - Added renderOnce login around the .ds-icon style block
 --->
 <cfscript>
 	//Path to open the ligthbox to
@@ -76,18 +77,21 @@ History:
 			<cfif not eparam.permitClientSideSort>
 				#headerData#
 			</cfif>
-			<style>
-				.ds-icons {
-					padding: 1px 5px;
-					text-decoration: none;
-					margin-left: 5px;
-					margin-right: 5px;
-					width: 16px;
-				}
-				.ds-icons:hover{
-					cursor:pointer;
-				}
-			</style>
+			<cfif !StructKeyExists(request,"dsEditDeleteRenderOnce")>
+				<style>
+					.ds-icons {
+						padding: 1px 5px;
+						text-decoration: none;
+						margin-left: 5px;
+						margin-right: 5px;
+						width: 16px;
+					}
+					.ds-icons:hover{
+						cursor:pointer;
+					}
+				</style>
+				<cfset request.dsEditDeleteRenderOnce = true>
+			</cfif>
 			<table>
 				<tr>
 					<td>
