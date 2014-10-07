@@ -35,6 +35,7 @@ History:
 	2014-04-04 - GAC - Updated to pass the remote flag to CCAPI_2_0 
 					 - Also added some additional comments to the config options
 	2014-05-01 - PH  - Fixed a Typo 
+	2014-10-04 - GAC  - Fixed divs that weren't closed properly 
 --->
 
 <!--- // Use this file to test to see if the CommonSpot is allowing a user to login to the CCAPI web service --->
@@ -108,7 +109,7 @@ ccapiConfig.password = "password";
 <!--- STANDARD CS CCAPI --->
 <cfoutput><p><strong>== STANDARD CS CCAPI ==</strong></p></cfoutput>
 
-<cfoutput><div>Standard CCAPI config settings<div></cfoutput>
+<cfoutput><div>Standard CCAPI config settings</div></cfoutput>
 <cfdump var="#ccapiConfig#" label="ccapiConfig" expand="false">
 
 <cfif doCCAPIdump>
@@ -135,7 +136,7 @@ ccapiConfig.password = "password";
 		</cfscript>
 		
 		<cfif verboseOutput>
-			<cfoutput><div>CCAPI Object<div></cfoutput>
+			<cfoutput><div>CCAPI Object</div></cfoutput>
 			<cfdump var="#ccapiObj#" label="" expand="false">
 			<!---<cfexit>--->
 		</cfif>
