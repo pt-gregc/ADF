@@ -1642,7 +1642,7 @@ Summary:
 	Example: "ce_view_{CustomElementFormID}"
 	
 	Option: 1.8 (ADF 1.8)
-	Example: "vCE_{CustomElementFormID}"
+	Example: "vCE_{CustomElementName}"
 Returns:
 	string
 Arguments:

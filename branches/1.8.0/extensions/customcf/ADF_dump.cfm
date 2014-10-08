@@ -31,6 +31,7 @@ Summary:
 History:
 	2009-06-4 - GAC - Created
 	2010-08-12 - GAC - Modified
+	2014-10-08 - GAC - Removed version declarations from the loadJQuery and loadJQueryUI calls
 --->
 
 <cfoutput>
@@ -55,8 +56,8 @@ History:
 	
 	<!--- // Direct ADF lib method calls  --->
 	<!--- <cfscript>
-		application.ADF.scripts.loadJQuery('1.3.2');
-		application.ADF.scripts.loadJQueryUI('1.7.1');
+		application.ADF.scripts.loadJQuery();
+		application.ADF.scripts.loadJQueryUI();
 	</cfscript> --->
 	
 <cfelse>

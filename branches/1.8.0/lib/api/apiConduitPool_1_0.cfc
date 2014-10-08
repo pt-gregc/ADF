@@ -30,11 +30,12 @@ Version:
 	1.0
 History:
 	2014-09-08 - GAC - Created
+	2014-10-08 - GAC - Updated dev comments
 --->
 
 <cfcomponent displayname="apiConduitPool_1_0" extends="ADF.core.Base" hint="API Conduit Page Pool functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_0">
+<cfproperty name="version" value="1_0_1">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <cfproperty name="ccapi" type="dependency" injectedBean="ccapi_2_0">
 <cfproperty name="csData" type="dependency" injectedBean="csData_1_2">
@@ -355,7 +356,7 @@ History:
 		results.PageID = 0;
 		results.Status = false;
 	</cfscript>   
-	 
+	
 	<!--- // LOCK the apiPoolVars when REQUESTING an available page --->
 	<cflock name="apiPoolVarsRequest" type="exclusive" timeout="10">
 		<cfscript>	
@@ -399,7 +400,7 @@ History:
 		var addToQueue = false;
 		var requestQueue = ReadRequestQueueArray();
 	    
-	    //TODO: Add READ LOCK (??)
+	  	// LOCKing handle here by the parent calling method getConduitPageFromPool()
 	    for( i=1; i lte ArrayLen(requestQueue); i=i+1 )
 		{
 			if ( requestQueue[i] eq arguments.requestID )
@@ -411,7 +412,7 @@ History:
 		
 		if ( pos eq 0 )	// didn't find the request in the queue 
 		{
-			// TODO: Add an EXCLUSIVE LOCK with short timeout (??)
+			// LOCKing handle here by the parent calling method getConduitPageFromPool()
 			// Add to queue
 			addToQueue = addRequestToQueue(requestID=arguments.requestID);
 			pos = getRequestQueueCount();
@@ -467,7 +468,7 @@ History:
 		var delStatus = false;
 		var requestQueue = ReadRequestQueueArray();
 		
-	    //TODO: Add an EXCLUSIVE LOCK with short timeout (??)
+	    // LOCKing handle here by the parent calling method getConduitPageFromPool()
 	    if ( ArrayLen(requestQueue) GTE arguments.queuePos )
 	  		delStatus = ArrayDeleteAt(requestQueue,arguments.queuePos);
 	  	
@@ -509,7 +510,7 @@ History:
 					// If we are here... the Page is OPEN!!
 					retPageID = key;
 					
-					// TODO: Add excusive locking for ProcessingPoolPages (??)
+					// LOCKing handle here by the parent calling method getConduitPageFromPool()
 					
 					// Add to Processing Page Assoc array
 					processingPageData = StructNew();
@@ -522,7 +523,7 @@ History:
 					// Update the Processing Pool Pages
 					WritePoolProcessingPages(pagesData=processingPages);
 					
-					// TODO: Add excusive locking for AvailablePoolPages (??)
+					// LOCKing handle here by the parent calling method getConduitPageFromPool()
 					
 					// Remove from Available Pages Assoc array 
 					StructDelete(availablePagesInPool,retPageID);
@@ -618,7 +619,7 @@ History:
 		
 		//var csData = server.ADF.objectFactory.getBean("csdata_1_2");
 		
-		// TODO: Add Locking (??)
+		// LOCKing handle here by the parent calling method getConduitPageFromPool()
 		if ( StructKeyExists(processingPoolPages,arguments.pageID) )
 		{
 			// Remove the Processing PageID from the ProcessingPoolPages

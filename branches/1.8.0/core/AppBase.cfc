@@ -35,11 +35,11 @@ History:
 	2013-04-25 - MFC - Added "validateAppBeanExists" function.
 	2013-10-21 - GAC - Added 'file-version' property for ADF core files 
 	2014-02-26 - GAC - Updated for version 1.7.0
-	2014-10-01 - GAC - Updated for version 1.7.2
+	2014-10-07 - GAC - Updated for version 1.8.0
 --->
 <cfcomponent name="AppBase" extends="ADF.core.Base" hint="App Base component for the ADF">
 
-<cfproperty name="version" value="1_7_2">
+<cfproperty name="version" value="1_8_0">
 <cfproperty name="file-version" value="3">
 
 <cffunction name="init" output="true" returntype="any">

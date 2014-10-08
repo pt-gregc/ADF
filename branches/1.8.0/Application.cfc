@@ -27,7 +27,7 @@ Name:
 Summary:
 	Application file.
 Version:
-	1.7.2
+	1.8.0
 History:
 	2009-06-17 - RLW - Created
 	2011-01-19 - RAK - Fixed typo in utils
@@ -38,15 +38,15 @@ History:
 	2012-08-08 - MFC - Added structKeyExists check for "request.params".
 	2013-10-21 - GAC - Added version and 'file-version' property for ADF core file 
 	2014-02-26 - GAC - Updated for version 1.7.0
-	2014-10-01 - GAC - Updated for version 1.7.2
+	2014-10-07 - GAC - Updated for version 1.8.0
 --->
 <cfcomponent>
 	
-	<cfproperty name="version" value="1_7_2">
+	<cfproperty name="version" value="1_8_0">
 	<cfproperty name="file-version" value="1">
 	
 	<cfset this.sessionManagement = true>
-	<!--- // todo - alias mapping --->
+	<!--- // TODO add alias mapping --->
 	<!--- <cfset this.mapping["/ADF"] = ExpandPath("/ADF")> --->
 	
 	<cffunction name="onRequestStart" access="public" returntype="any">

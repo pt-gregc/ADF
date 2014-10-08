@@ -27,16 +27,16 @@ Name:
 Summary:
 	ADF Component for loading the ADF, ADF apps, proxys, and Library into the site.
 Version:
-	1.7.2
+	1.8.0
 History:
 	2011-07-11 - MFC - Updated for ADF V1.5.
 	2013-10-21 - GAC - Added the enable/disable Development Mode function call
 	2014-02-26 - GAC - Updated for version 1.7.0
-	2014-10-01 - GAC - Updated for version 1.7.2
+	2014-10-07 - GAC - Updated for version 1.8.0
 --->
 <cfcomponent name="ADF" extends="ADF.core.SiteBase">
 	
-<cfproperty name="version" value="1_7_2">
+<cfproperty name="version" value="1_8_0">
 <cfproperty name="file-version" value="7">
 
 <cffunction name="init" returntype="void" access="public">

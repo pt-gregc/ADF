@@ -18,11 +18,28 @@ in this directory, you agree to the terms and conditions of the applicable
 end user license agreement.
 --->
 
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin Inc.
+	M. Carroll
+Name:
+	link_builder_actions.cfm
+Summary:
+	Custom field to build the link records.
+	This field generates a collection of links for the field.
+Version:
+	1.0.0
+History:
+	2010-09-15 - MFC - Created
+	2014-10-08 - GAC - Removed version declarations from the loadJQuery and loadJQueryUI calls
+--->
+
 <!--- Check the params --->
 <cfscript>
 	// Create a script obj
-	application.ADF.scripts.loadJQuery("1.3.2");
-	application.ADF.scripts.loadJQueryUI("1.7.2", "ui-lightness");
+	application.ADF.scripts.loadJQuery();
+	application.ADF.scripts.loadJQueryUI();
 	application.ADF.scripts.loadADFLightbox();
 	
 	// Action Param
