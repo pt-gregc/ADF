@@ -45,12 +45,13 @@ History:
 	2014-01-02 - GAC - Added the CFSETTING tag to disable CF Debug results in the props module
 	2014-01-03 - GAC - Added the fieldVersion variable
 	2014-09-19 - GAC - Removed deprecated doLabel and jsLabelUpdater js calls
+	2014-10-10 - GAC - Added a new props field to allow the app name used for resolving the Chooser Bean Name to be specified
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "1.2.4"; 
+	fieldVersion = "1.2.5"; 
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
@@ -61,6 +62,7 @@ History:
 	//Setup the default values
 	defaultValues = StructNew();
 	defaultValues.chooserCFCName = "";
+	defaultValues.chooserAppName = "";
     defaultValues.forceScripts = "0";
     defaultValues.minSelections = "0";
     defaultValues.maxSelections = "0";
@@ -79,7 +81,7 @@ History:
 <cfoutput>
 	<script language="JavaScript" type="text/javascript">
 		// register the fields with global props object
-		fieldProperties['#typeid#'].paramFields = '#prefix#chooserCFCName,#prefix#forceScripts,#prefix#minSelections,#prefix#maxSelections,#prefix#loadAvailable';
+		fieldProperties['#typeid#'].paramFields = '#prefix#chooserCFCName,#prefix#chooserAppName,#prefix#forceScripts,#prefix#minSelections,#prefix#maxSelections,#prefix#loadAvailable';
 		// allows this field to have a common onSubmit Validator
 		fieldProperties['#typeid#'].jsValidator = '#prefix#doValidate';
 
@@ -99,8 +101,18 @@ History:
 			<td class="cs_dlgLabelBold" nowrap="nowrap">Chooser Bean Name:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" id="#prefix#chooserCFCName" name="#prefix#chooserCFCName" value="#defaultValues.chooserCFCName#" size="50"><br />
-				Name of the Object Factory Bean that will be rendering and populating the chooser data.
-				<br />(i.e. profileGC). Note: Do NOT include ".cfc" in the name.
+				Name of the Object Factory Bean that will be used when rendering and
+				<br />populating chooser data. (i.e. profileGC).
+				<br />Note: Do NOT include ".cfc" in the name.
+			</td>
+		</tr>
+		<tr valign="top">
+			<td class="cs_dlgLabelBold" nowrap="nowrap">Chooser App Name:</td>
+			<td class="cs_dlgLabelSmall">
+				<input type="text" id="#prefix#chooserAppName" name="#prefix#chooserAppName" value="#defaultValues.chooserAppName#" size="50"><br />
+				The App Name that will be used to resolve the Chooser Bean Name
+				<br />entered above. (i.e. ptProfile).
+				<br />Note: This is optional. If left blank, it will use the first matching Bean Name found in the ADF object.
 			</td>
 		</tr>
 		<tr valign="top">
