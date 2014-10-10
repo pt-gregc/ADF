@@ -42,7 +42,7 @@ History:
 --->
 <cfcomponent>
 	
-	<cfproperty name="version" value="1_8_0">
+	<cfproperty name="version" value="1_8_1">
 	<cfproperty name="file-version" value="1">
 	
 	<cfset this.sessionManagement = true>

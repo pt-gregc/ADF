@@ -34,7 +34,7 @@ History:
 
 <cfcomponent name="LightWireExtendedBase" extends="ADF.thirdParty.lightwire.LightWire" output="false">
 
-<cfproperty name="version" value="1_8_0">
+<cfproperty name="version" value="1_8_1">
 <cfproperty name="file-version" value="3">
 
 <!---
