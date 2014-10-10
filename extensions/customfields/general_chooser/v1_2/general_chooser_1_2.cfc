@@ -99,6 +99,7 @@ Arguments:
 	
 History:
 	2009-11-13 - MFC - Created
+	2014-10-10 - GAC - Added appName to the parameters being filtered
 --->
 <cffunction name="controller" access="public" returntype="string" hint="">
 	<cfscript>
@@ -110,16 +111,17 @@ History:
 		// loop through request.params parameters to get arguments
 		for( itm=1; itm lte listLen(structKeyList(arguments)); itm=itm+1 ) {
 			thisParam = listGetAt(structKeyList(arguments), itm);
-			if( thisParam neq "method" and thisParam neq "bean" and thisParam neq "chooserMethod" ) 
+			if( thisParam neq "method" and thisParam neq "bean" and thisParam neq "chooserMethod" and thisParam neq "appName" ) 
 			{
 				argStr = listAppend(argStr, "#thisParam#='#arguments[thisParam]#'");
 			}
 		}
+
 		if( len(argStr) )
 			reHTML = Evaluate("#arguments.chooserMethod#(#argStr#)");
 		else
 			reHTML = Evaluate("#arguments.chooserMethod#()");
-			
+		
 		return reHTML;
 	</cfscript>
 </cffunction>

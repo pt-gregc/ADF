@@ -33,12 +33,21 @@ History:
 	2013-07-03 - GAC - Added getCEDataViewList and getCEDataViewNumericList functions to be used by the getCEDataView function
 	2013-10-23 - GAC - Removed the cfproperty dependency for the data_1_2 lib and injected directly in the required methods
 	2013-01-15 - GAC - Removed obsolete dev funtions: buildViewforCE and buildViewCodeforCE
+	2014-10-09 - GAC - Updated the BuildView and the BuildRealTypeView methods to use the ADF 1.8 SQL View Naming convention: "vCE_{CustomElementName}" 
 --->
 <cfcomponent displayname="ceData_2_0" extends="ADF.lib.ceData.ceData_1_1" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="2_0_28">
+<cfproperty name="version" value="2_0_29">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="CEData_2_0">
+
+<cfscript>
+	variables.SQLViewNameADFVersion = "1.8"; 
+</cfscript>
+
+<cffunction name="getSQLViewNameADFVersion" access="public" returntype="string" hint="Returns the SQL View Naming Convention ADF Version">
+	<cfreturn variables.SQLViewNameADFVersion>
+</cffunction>
 
 <!---
 /* ************************************************************** */
@@ -177,6 +186,7 @@ History:
 	2013-12-06 - DRM - Accept and pass fieldTypes for the 'new' buildRealTypeView
 	2014-04-04 - DRM - Accept and pass options to the 'new' buildRealTypeView
 	2014-05-30 - GAC - Updated to use the getCEViewName method instead of the DEPRECATED getViewTableName method
+	2014-10-09 - GAC - Update to use the ADF 1.8 SQL View Naming convention: "vCE_{CustomElementName}"
 --->
 <cffunction name="buildRealTypeView" access="public" returntype="boolean" hint="Builds an element view for the passed in element name">
 	<cfargument name="elementName" type="string" required="true" hint="element name to build the view table off of">
@@ -188,8 +198,8 @@ History:
 		arguments.viewName = trim(arguments.viewName);
 		if ( len(arguments.viewName) eq 0 )
 		{
-			// ADF 1.6 SQL View Naming using the ce_view_{FormID} convention
-			arguments.viewName = getCEViewName(ceName=arguments.elementName,type="adfversion",version="1.6");
+			// ADF 1.8 SQL View Naming using the vCE_{CustomElementName} convention
+			arguments.viewName = getCEViewName(ceName=arguments.elementName,type="adfversion",version=getSQLViewNameADFVersion());
 		}
 		// Call the SUPER function to build the view table
 		return super.buildRealTypeView(argumentCollection=arguments);
@@ -222,6 +232,7 @@ History: - some carried over from original in ptCalendar app
 		Honor Request.Params.adfRebuildSQLViews as well as arguments.forceRebuild
 	2014-04-04 - DRM - Accept and pass options to the 'new' version of buildRealTypeView ceData_1_1
 	2014-05-30 - GAC - Updated to use the getCEViewName method instead of the DEPRECATED getViewTableName method
+	2014-10-09 - GAC - Update to use the ADF 1.8 SQL View Naming convention: "vCE_{CustomElementName}"
 --->
 <cffunction name="buildView" access="public" returntype="boolean" output="false" hint="Rebuilds the requested View.">
 	<cfargument name="ceName" type="string" required="true" hint="Name of custom element to base view off of.">
@@ -238,8 +249,8 @@ History: - some carried over from original in ptCalendar app
 		if ( LEN(arguments.viewName) EQ 0 )
 		{
 			// if no view name passed in, calc the default name here, to check if view exists; should use same algorithm as buildRealTypeView
-			// - Use ADF 1.6 SQL View Naming convention: ce_view_{FormID} 
-			arguments.viewName = getCEViewName(ceName=arguments.ceName,type="adfversion",version="1.6"); 
+			// - Use ADF 1.8 SQL View Naming convention: "vCE_{CustomElementName}"
+			arguments.viewName = getCEViewName(ceName=arguments.ceName,type="adfversion",version=getSQLViewNameADFVersion()); 
 		}
 		
 		buildNow = buildNow or not server.ADF.objectFactory.getBean("data_1_2").verifyTableExists(tableName=arguments.viewName);
@@ -604,6 +615,7 @@ History:
 	2014-04-04 - GAC - Changed the cfscript thow to the utils.doThow with logging option
 	2014-05-30 - GAC - Changed the utils lib to load from the server getBean instead of using Application.ADF.utils
 	2014-06-05 - GAC - Updated to use the getCEViewName method instead of the DEPRECATED getViewTableName method
+	2014-10-09 - GAC - Update to use the ADF 1.8 SQL View Naming convention: "vCE_{CustomElementName}"
 --->
 <cffunction name="getCEDataView" access="public" returntype="array" output="true">
 	<cfargument name="customElementName" type="string" required="true">
@@ -616,7 +628,7 @@ History:
 	<cfargument name="itemListDelimiter" type="string" required="false" default="," hint="Only valid for the 'selected','notselected', 'list', 'numericList' and 'searchInList' queryTypes">
 	
 	<cfscript>
-		var viewTableName = getCEViewName(ceName=arguments.customElementName,type="adfversion",version="1.6");
+		var viewTableName = getCEViewName(ceName=arguments.customElementName,type="adfversion",version=getSQLViewNameADFVersion());
 		var ceViewQry = QueryNew("null");
 		var dataArray = ArrayNew(1);
 		var viewTableExists = false;
@@ -773,6 +785,7 @@ History:
 	2014-02-21 - GAC - Added itemList delimiter option
 	2014-03-05 - JTP - Var declarations
 	2014-06-05 - GAC - Updated to use the getCEViewName method instead of the DEPRECATED getViewTableName method
+	2014-10-09 - GAC - Update to use the ADF 1.8 SQL View Naming convention: "vCE_{CustomElementName}"
 --->
 <cffunction name="getCEDataViewBetween" access="public" returntype="Query" output="true">
 	<cfargument name="customElementName" type="string" required="true">
@@ -809,7 +822,7 @@ History:
 		if ( LEN(arguments.overrideViewTableName) )
 			viewTableName = arguments.overrideViewTableName;
 		else
-			viewTableName = getCEViewName(ceName=arguments.customElementName,type="adfversion",version="1.6");
+			viewTableName = getCEViewName(ceName=arguments.customElementName,type="adfversion",version=getSQLViewNameADFVersion());
 	</cfscript>
 	<cftry>
 		<!--- Check the ITEMS arg is correct with 2 values for the span --->
@@ -849,6 +862,7 @@ History:
 	2013-01-11 - MFC - Created
 	2014-03-05 - JTP - Var declarations
 	2014-06-05 - GAC - Updated to use the getCEViewName method instead of the DEPRECATED getViewTableName method
+	2014-10-09 - GAC - Update to use the ADF 1.8 SQL View Naming convention: "vCE_{CustomElementName}"
 --->
 <cffunction name="getCEDataViewGreaterThan" access="public" returntype="Query" output="true">
 	<cfargument name="customElementName" type="string" required="true">
@@ -883,7 +897,7 @@ History:
 		if ( LEN(arguments.overrideViewTableName) )
 			viewTableName = arguments.overrideViewTableName;
 		else
-			viewTableName = getCEViewName(ceName=arguments.customElementName,type="adfversion",version="1.6");
+			viewTableName = getCEViewName(ceName=arguments.customElementName,type="adfversion",version=getSQLViewNameADFVersion());
 	</cfscript>
 	<cftry>
 		<cfquery name="ceViewQry" datasource="#request.site.datasource#">
@@ -916,6 +930,7 @@ Arguments:
 History:
 	2013-01-11 - MFC - Created
 	2014-06-05 - GAC - Updated to use the getCEViewName method instead of the DEPRECATED getViewTableName method
+	2014-10-09 - GAC - Update to use the ADF 1.8 SQL View Naming convention: "vCE_{CustomElementName}"
 --->
 <cffunction name="getCEDataViewMulti" access="public" returntype="Query" output="true">
 	<cfargument name="customElementName" type="string" required="true">
@@ -931,7 +946,7 @@ History:
 		if ( LEN(arguments.overrideViewTableName) )
 			viewTableName = arguments.overrideViewTableName;
 		else
-			viewTableName = getCEViewName(ceName=arguments.customElementName,type="adfversion",version="1.6");
+			viewTableName = getCEViewName(ceName=arguments.customElementName,type="adfversion",version=getSQLViewNameADFVersion());
 	</cfscript>
 	<cftry>
 		<cfquery name="ceViewQry" datasource="#request.site.datasource#">
@@ -977,6 +992,7 @@ History:
 	2014-02-21 - GAC - Added itemListDelimiter parameter
 	2014-03-05 - JTP - Var declarations
 	2014-06-05 - GAC - Updated to use the getCEViewName method instead of the DEPRECATED getViewTableName method
+	2014-10-09 - GAC - Update to use the ADF 1.8 SQL View Naming convention: "vCE_{CustomElementName}"
 --->
 <cffunction name="getCEDataViewNotSelected" access="public" returntype="Query" output="true">
 	<cfargument name="customElementName" type="string" required="true">
@@ -1013,7 +1029,7 @@ History:
 		if ( LEN(arguments.overrideViewTableName) )
 			viewTableName = arguments.overrideViewTableName;
 		else
-			viewTableName = getCEViewName(ceName=arguments.customElementName,type="adfversion",version="1.6");
+			viewTableName = getCEViewName(ceName=arguments.customElementName,type="adfversion",version=getSQLViewNameADFVersion());
 	</cfscript>
 	<cftry>
 		<!--- Check that the Arguments are specified --->
@@ -1058,6 +1074,7 @@ History:
 	2013-01-11 - MFC - Created
 	2014-01-03 - GAC - Updated SQL 'IN' statements to use the CS module 'handle-in-list.cfm'
 	2014-06-05 - GAC - Updated to use the getCEViewName method instead of the DEPRECATED getViewTableName method
+	2014-10-09 - GAC - Update to use the ADF 1.8 SQL View Naming convention: "vCE_{CustomElementName}"
 --->
 <cffunction name="getCEDataViewSearch" access="public" returntype="Query" output="true">
 	<cfargument name="customElementName" type="string" required="true">
@@ -1077,7 +1094,7 @@ History:
 		if ( LEN(arguments.overrideViewTableName) )
 			viewTableName = arguments.overrideViewTableName;
 		else
-			viewTableName = getCEViewName(ceName=arguments.customElementName,type="adfversion",version="1.6");
+			viewTableName = getCEViewName(ceName=arguments.customElementName,type="adfversion",version=getSQLViewNameADFVersion());
 	</cfscript>
 	<cftry>
 		<!--- Get the exlcuded items if defined --->
@@ -1139,6 +1156,7 @@ History:
 					 - Added logic is a searchFields is passed but no Item value then look of null or empty strings
 	2014-03-05 - JTP - Var declarations
 	2014-06-05 - GAC - Updated to use the getCEViewName method instead of the DEPRECATED getViewTableName method
+	2014-10-09 - GAC - Update to use the ADF 1.8 SQL View Naming convention: "vCE_{CustomElementName}"
 --->
 <cffunction name="getCEDataViewSearchInList" access="public" returntype="Query" output="true">
 	<cfargument name="customElementName" type="string" required="true">
@@ -1178,7 +1196,7 @@ History:
 		if ( LEN(arguments.overrideViewTableName) )
 			viewTableName = arguments.overrideViewTableName;
 		else
-			viewTableName = getCEViewName(ceName=arguments.customElementName,type="adfversion",version="1.6");
+			viewTableName = getCEViewName(ceName=arguments.customElementName,type="adfversion",version=getSQLViewNameADFVersion());
 	</cfscript>
 	<cftry>
 		<cfquery name="ceViewQry" datasource="#request.site.datasource#">
@@ -1240,6 +1258,7 @@ History:
 	2014-02-21 - GAC - Added itemListDelimiter parameter
 	2014-03-05 - JTP - Var declarations
 	2014-06-05 - GAC - Updated to use the getCEViewName method instead of the DEPRECATED getViewTableName method
+	2014-10-09 - GAC - Update to use the ADF 1.8 SQL View Naming convention: "vCE_{CustomElementName}"
 --->
 <cffunction name="getCEDataViewSelected" access="public" returntype="Query" output="true">
 	<cfargument name="customElementName" type="string" required="true">
@@ -1276,7 +1295,7 @@ History:
 		if ( LEN(arguments.overrideViewTableName) )
 			viewTableName = arguments.overrideViewTableName;
 		else
-			viewTableName = getCEViewName(ceName=arguments.customElementName,type="adfversion",version="1.6");
+			viewTableName = getCEViewName(ceName=arguments.customElementName,type="adfversion",version=getSQLViewNameADFVersion());
 	</cfscript>
 	<cftry>
 		<cfquery name="ceViewQry" datasource="#request.site.datasource#">
@@ -1322,6 +1341,7 @@ History:
 	2014-02-21 - GAC - Added itemListDelimiter parameter
 	2014-03-05 - JTP - Var declarations
 	2014-06-05 - GAC - Updated to use the getCEViewName method instead of the DEPRECATED getViewTableName method
+	2014-10-09 - GAC - Update to use the ADF 1.8 SQL View Naming convention: "vCE_{CustomElementName}"
 --->
 <cffunction name="getCEDataViewList" access="public" returntype="Query" output="true" hint="Queries the CE Data View table for the Query Type of 'List'.">
 	<cfargument name="customElementName" type="string" required="true">
@@ -1339,17 +1359,9 @@ History:
 		if ( LEN(arguments.overrideViewTableName) )
 			viewTableName = arguments.overrideViewTableName;
 		else
-			viewTableName = getCEViewName(ceName=arguments.customElementName,type="adfversion",version="1.6");
+			viewTableName = getCEViewName(ceName=arguments.customElementName,type="adfversion",version=getSQLViewNameADFVersion());
 	</cfscript>
-	
-	<!--- // queryType eq list get the listID's first that match the input --->
-	<!--- <cfquery name="getListItemIDs" datasource="#request.site.datasource#">
-		SELECT DISTINCT listID
-		FROM data_listItems
-		WHERE <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="strItemValue" LIST="#preserveSingleQuotes(arguments.item)#" cfsqltype="cf_sql_varchar">
-		<!---WHERE strItemValue in (<cfqueryparam cfsqltype="cf_sql_varchar" value="#preserveSingleQuotes(arguments.item)#" list="true">)--->
-	</cfquery> --->
-	
+
 	<cftry>
 		<cfquery name="ceViewQry" datasource="#request.site.datasource#">
 			SELECT *
@@ -1399,6 +1411,7 @@ History:
 	2014-01-03 - GAC - Updated SQL 'IN' statements to use the CS module 'handle-in-list.cfm'
 	2014-02-21 - GAC - Added itemListDelimiter parameter
 	2014-06-05 - GAC - Updated to use the getCEViewName method instead of the DEPRECATED getViewTableName method
+	2014-10-09 - GAC - Update to use the ADF 1.8 SQL View Naming convention: "vCE_{CustomElementName}"
 --->
 <cffunction name="getCEDataViewNumericList" access="public" returntype="Query" output="true" hint="Queries the CE Data View table for the Query Type of 'NumericList'.">
 	<cfargument name="customElementName" type="string" required="true">
@@ -1415,7 +1428,7 @@ History:
 		if ( LEN(arguments.overrideViewTableName) )
 			viewTableName = arguments.overrideViewTableName;
 		else
-			viewTableName = getCEViewName(ceName=arguments.customElementName,type="adfversion",version="1.6");
+			viewTableName = getCEViewName(ceName=arguments.customElementName,type="adfversion",version=getSQLViewNameADFVersion());
 	</cfscript>
 	
 	<cftry>
@@ -1642,7 +1655,7 @@ Summary:
 	Example: "ce_view_{CustomElementFormID}"
 	
 	Option: 1.8 (ADF 1.8)
-	Example: "vCE_{CustomElementFormID}"
+	Example: "vCE_{CustomElementName}"
 Returns:
 	string
 Arguments:

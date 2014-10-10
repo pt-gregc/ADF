@@ -34,12 +34,13 @@ History:
 	2010-09-15 - MFC - Created
 	2011-02-09 - RAK - Fixing issue where deletions were not processing properly
 	2013-02-20 - MFC - Replaced Jquery "$" references.
+	2014-10-08 - GAC - Removed version declarations from the loadJQuery and loadJQueryUI calls
 --->
 <!--- Check the params --->
 <cfscript>
 	// Create a script obj
-	application.ADF.scripts.loadJQuery("1.3.2");
-	application.ADF.scripts.loadJQueryUI("1.7", "ui-lightness");
+	application.ADF.scripts.loadJQuery();
+	application.ADF.scripts.loadJQueryUI();
 	application.ADF.scripts.loadADFLightbox();
 	
 	// Action Param

@@ -28,12 +28,12 @@ History:
 	2009-08-14 - MFC - Created
 	2013-10-21 - GAC - Added 'file-version' property for ADF core files 
 	2014-02-26 - GAC - Updated for version 1.7.0
-	2014-10-01 - GAC - Updated for version 1.7.2
+	2014-10-07 - GAC - Updated for version 1.8.0
 --->
 
 <cfcomponent name="SiteBeanConfig" extends="ADF.core.lightwire.LightWireConfigExtendedBase" hint="A LightWire configuration bean.">
 
-<cfproperty name="version" value="1_7_2">
+<cfproperty name="version" value="1_8_0">
 <cfproperty name="file-version" value="1">
 
 <!--- 
