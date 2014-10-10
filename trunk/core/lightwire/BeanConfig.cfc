@@ -28,7 +28,7 @@ Summary:
 	BeanConfig component for Custom Application Common Framework
 History:
 	2014-02-26 - GAC - Updated for version 1.7.0
-	2014-10-01 - GAC - Updated for version 1.7.2
+	2014-10-07 - GAC - Updated for version 1.8.0
 --->
 
 <cfcomponent name="BeanConfig" extends="ADF.core.lightwire.LightWireConfigExtendedBase" hint="A LightWire configuration bean.">
@@ -99,7 +99,7 @@ Adds a constructor property to a bean.
 - PropertyValue:any:required - The value of the property to add. Can be of any simple or complex type (anything from a string or a boolean to a struct or even an object that isn't being managed by LightWire).
 --->
 
-<cfproperty name="version" value="1_7_2">
+<cfproperty name="version" value="1_8_0">
 <cfproperty name="update" value="1">
 
 <cffunction name="init" output="true" returntype="any" hint="I initialize the config bean.">

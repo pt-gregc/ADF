@@ -53,6 +53,7 @@ History:
 	2013-12-02 - GAC - Added a new callback function for the the edit/delete to reload the selected items after an edit or a delete
 					 - Updated to allow 'ADD NEW' to be used multiple times before submit
 	2014-03-20 - GAC - Force the keys in the formData object from the 'ADD NEW' callback to lowercase so it is sure to match js_fieldName_CE_FIELD  value 
+	2014-10-10 - GAC - Added a new props field to allow the app name used for resolving the Chooser Bean Name to be specified
 --->
 <cfscript>
 	// the fields current value
@@ -74,8 +75,18 @@ History:
 	if( NOT StructKeyExists(xParams, "maxSelections") )
 		xParams.maxSelections = "0"; //	0 = infinite selections are possible
 	if( NOT StructKeyExists(xParams, "loadAvailable") )
-		xParams.loadAvailable = "0"; //	0 = infinite selections are possible
-	
+		xParams.loadAvailable = "0"; //	0 = boolean - 0/1
+		
+	if ( NOT StructKeyExists(xParams,"chooserCFCName") )
+		xParams.chooserCFCName = "";
+	else
+		xParams.chooserCFCName = TRIM(xParams.chooserCFCName);
+		
+	if ( NOT StructKeyExists(xParams,"chooserAppName") )
+		xParams.chooserAppName = "";
+	else
+		xParams.chooserAppName = TRIM(xParams.chooserAppName);
+		
 	// find if we need to render the simple form field
 	renderSimpleFormField = false;
 	if ( (StructKeyExists(request, "simpleformexists")) AND (request.simpleformexists EQ 1) )
@@ -186,6 +197,9 @@ History:
 			// load the initial list items based on the top terms from the chosen facet
 			jQuery.get( #xParams.fieldID#_ajaxProxyURL,
 			{ 	
+				<cfif LEN(xParams.chooserAppName)>
+				appName: '#xParams.chooserAppName#',
+				</cfif>
 				bean: '#xParams.chooserCFCName#',
 				method: 'controller',
 				chooserMethod: 'getSelections',
@@ -345,7 +359,8 @@ History:
 	<!--- //Load the General Chooser Styles --->
 	#application.ADF.utils.runCommand(beanName=xParams.chooserCFCName,
 											methodName="loadStyles",
-											args=initArgs)#
+											args=initArgs,
+											appName=xParams.chooserAppName)#
 	<!--- <tr>
 		<td class="cs_dlgLabelSmall" colspan="2">
 			
@@ -372,7 +387,8 @@ History:
 			<div id="#xParams.fieldID#-gc-top-area-instructions" class="cs_dlgLabelSmall">
 				#TRIM(application.ADF.utils.runCommand(beanName=xParams.chooserCFCName,
 															methodName="loadChooserInstructions",
-															args=initArgs))#
+															args=initArgs,
+															appName=xParams.chooserAppName))#
 			</div>
 			
 			<div id="#xParams.fieldID#-gc-main-area" class="cs_dlgLabelSmall">
@@ -383,40 +399,34 @@ History:
 						<!--- Load the Search Box --->
 						#application.ADF.utils.runCommand(beanName=xParams.chooserCFCName,
 															methodName="loadSearchBox",
-															args=initArgs)#
+															args=initArgs,
+															appName=xParams.chooserAppName)#
 					</div>									
 					<!--- SECTION 2 - TOP RIGHT --->
 					<div id="#xParams.fieldID#-gc-section2">
 						<!--- Load the Add New Link --->
 						#application.ADF.utils.runCommand(beanName=xParams.chooserCFCName,
 															methodName="loadAddNewLink",
-															args=initArgs)#
+															args=initArgs,
+															appName=xParams.chooserAppName)#
 					</div>
 				</div>
 				
 				<!--- SECTION 3 --->
 				<div id="#xParams.fieldID#-gc-section3">
-					
-					<!--- // Instructions --->
-					<!--- <div id="#xParams.fieldID#-gc-top-area-instructions">
-						#TRIM(application.ADF.utils.runCommand(beanName=xParams.chooserCFCName,
-															methodName="loadChooserInstructions",
-															args=initArgs))#
-						<!--- Select the records you want to include in the selections by dragging 
-							items into or out of the 'Available Items' list. Order the columns 
-							within the datasheet by dragging items within the 'Selected Items' field. --->
-					</div> --->
 				
 					<!--- Select Boxes --->
 					<div id="#xParams.fieldID#-gc-select-left-box-label">
 						#TRIM(application.ADF.utils.runCommand(beanName=xParams.chooserCFCName,
 															methodName="loadAvailableLabel",
-															args=initArgs))#
+															args=initArgs,
+															appName=xParams.chooserAppName))#
 					</div>
 					<div id="#xParams.fieldID#-gc-select-right-box-label">
 						#TRIM(application.ADF.utils.runCommand(beanName=xParams.chooserCFCName,
 															methodName="loadSelectedLabel",
-															args=initArgs))#
+															args=initArgs,
+															appName=xParams.chooserAppName))#
 					</div>
 					<div id="#xParams.fieldID#-gc-select-left-box">
 						<ul id="#xParams.fieldID#-sortable1" class="connectedSortable">
@@ -428,7 +438,8 @@ History:
 							<cfif xParams.loadAvailable>
 								#application.ADF.utils.runCommand(beanName=xParams.chooserCFCName,
 																methodName="getSelections",
-																args=selectionsArg)#
+																args=selectionsArg,
+																appName=xParams.chooserAppName)#
 							</cfif>
 						</ul>
 					</div>
@@ -443,7 +454,8 @@ History:
 								</cfscript>
 								#application.ADF.utils.runCommand(beanName=xParams.chooserCFCName,
 																methodName="getSelections",
-																args=selectionsArg)#
+																args=selectionsArg,
+																appName=xParams.chooserAppName)#
 							</cfif>
 						</ul>
 					</div>
