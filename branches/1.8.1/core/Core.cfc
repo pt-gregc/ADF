@@ -55,7 +55,7 @@ History:
 	// ADF Build Revision Number
 	variables.buildRev = "1412";
 	// ADF Codename
-	variables.buildName = "TBA";
+	variables.buildName = "Centipede";
 	// CS product version, get the decimal value
 	variables.csVersion = Val(ListLast(request.cp.productversion, " "));
 </cfscript>
