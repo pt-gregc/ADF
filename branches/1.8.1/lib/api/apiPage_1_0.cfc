@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="apiPage" extends="ADF.core.Base" hint="API Page functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_6">
+<cfproperty name="version" value="1_0_7">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
 <cfproperty name="wikiTitle" value="API Page">
@@ -54,6 +54,7 @@ Arguments:
 History:
 	2013-01-02 - MFC - Created
 	2013-07-07 - GAC - Fixed an issue with the publicationDate and the PublicReleaseDate
+	2014-10-28 - AW@EA - Fixed issue with expirationWarningMsg and misplaced newExpirationDate variables
 --->
 <cffunction name="create" access="public" returntype="struct" hint="Creates a page.">
 	<cfargument name="pageData" type="struct" required="true" hint="a structure that contains page the required fields as page data.">
@@ -86,8 +87,8 @@ History:
 			newExpirationAction = arguments.pageData.expirationAction;
 		if ( StructKeyExists(arguments.pageData,"expirationRedirectURL") )
 			newExpirationRedirectURL = arguments.pageData.expirationRedirectURL;
-		if ( StructKeyExists(arguments.pageData,"expirationDate") )
-			newExpirationDate = arguments.pageData.expirationWarningMsg;
+		if ( StructKeyExists(arguments.pageData,"expirationWarningMsg") )
+			expirationWarningMsg = arguments.pageData.expirationWarningMsg;
 		
 		if ( StructKeyExists(arguments.pageData,"metadata") )
 			newMetadata = arguments.pageData.metadata;
@@ -107,7 +108,7 @@ History:
 		                                            expirationDate=newExpirationDate,
 		                                            expirationAction=newExpirationAction,
 		                                            expirationRedirectURL=newExpirationRedirectURL,
-		                                            expirationWarningMsg=newExpirationDate,
+		                                            expirationWarningMsg=expirationWarningMsg,
 		                                            metadata=newMetadata);
 		    
 		    // Activate the page
