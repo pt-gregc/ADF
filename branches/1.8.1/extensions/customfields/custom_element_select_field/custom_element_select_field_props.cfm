@@ -58,8 +58,18 @@ History:
 	2014-01-03 - GAC - Added the fieldVersion variable
 	2014-01-17 - TP  - Aded the abiltiy to render checkboxes, radio buttons as well as a selection list
 	2014-01-30 - GAC - Added redirect CFINCLUDE to point to custom_element_select_field/v1_1/custom_element_select_field_props.cfm
+	2014-10-29 - GAC - Added the version detection to the pass-through props file
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
-<cfset useCFTversion = "v1_1">
+<cfscript>
+	// Custom Element Select Field v1_1 requires CommonSpot 9+, so use the v1_0 props file if using CommonSpot 8 or below 
+	useCFTversion = "v1_1";
+	requiredCSversion = 9;
+	csVersion = ListFirst(ListLast(request.cp.productversion," "),".");
+	
+	if ( csVersion LT requiredCSversion )
+		useCFTversion = "v1_0";
+</cfscript>
+
 <cfinclude template="/ADF/extensions/customfields/custom_element_select_field/#useCFTversion#/custom_element_select_field_props.cfm">
