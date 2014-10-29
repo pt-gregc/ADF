@@ -30,11 +30,11 @@ Version
 History:
 	2011-01-26 - GAC - Created
 	2011-10-04 - GAC - Updated csSecurity dependency to csSecurity_1_1
-	2013-11-18 - GAC - Updated the lib dependencies to csSecurity_1_2, utils_1_2, data_1_2
+	2013-11-18 - GAC - Updated the lib dependencies to csSecurity_1_2, utils_1_2, data_1_2	
 --->
 <cfcomponent displayname="ajax" extends="ADF.core.Base" hint="AJAX functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_7">
+<cfproperty name="version" value="1_0_8">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_2">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
@@ -68,7 +68,9 @@ History:
 	2012-03-12 - GAC - Added logic to the reString error struct to check if a message key was returned
 	2013-10-18 - MS  - Updated to comment out the verbose error messages which caused security issues
 	2013-10-19 - GAC - Updated to use application.ADF.siteDevMode to control the verbose error msgs 
-	2013-03-17 - JTP - Added logic to log if runCommand fails
+	2014-03-17 - JTP - Added logic to log if runCommand fails
+	2014-10-15 - GAC - Set the application.ADF.stieDevMode to a local stieDevMode variable
+					 - Updated a application.utils.logAppend call to use the local utils.logAppend()
 --->
 <!--- // ATTENTION: 
 		Do not call is method directly. Call from inside the AjaxProxy.cfm file (method properties are subject to change) 
@@ -97,6 +99,8 @@ History:
 		var strFormatsList = "string,plain,html,text,txt";
 		// list of parameters in request.params to exclude
 		var argExcludeList = "bean,method,appName,addMainTable,returnFormat,debug";
+		var siteDevMode = application.ADF.siteDevMode;
+		
 		// initalize the reString key of the result struct
 		result.reString = "";
 		// Since we are relying on the request.params scope make sure the main params are available
@@ -130,7 +134,7 @@ History:
 				} 
 				catch( Any e ) 
 				{
-					application.adf.utils.logAppend( msg=cfcatch, label='Error in AjaxProxy calling utils.runCommand()', logfile='adf-ajax-proxy.html' );				
+					variables.utils.logAppend( msg=cfcatch, label='Error in AjaxProxy calling utils.runCommand()', logfile='adf-ajax-proxy.html' );				
 					debug = 1;
 					hasCommandError = 1; // try/catch thows and error skip the runCommand return data processing
 					// Set Error output to the return String
@@ -138,7 +142,7 @@ History:
 				}	
 				
 				// Build the DUMP for debugging the RAW value of result.reString
-				if ( debug AND application.ADF.siteDevMode ) 
+				if ( debug AND siteDevMode ) 
 				{
 					// If the variable result.reString doesn't exist set the debug output to the string: void 
 					if ( !StructKeyExists(result,"reString") ){debugRaw="void";}else{debugRaw=result.reString;}
@@ -194,7 +198,7 @@ History:
 						if ( isStruct(result.reString) or isArray(result.reString) or isObject(result.reString) ) {
 							hasProcessingError = 1; 
 							// 2012-03-10 - GAC - we need to check if we have a 'message' before we can output it
-							if ( StructKeyExists(result.reString,"message") AND application.ADF.siteDevMode )
+							if ( StructKeyExists(result.reString,"message") AND siteDevMode )
 								result.reString = "Error: Unable to convert the return value into string. [" & result.reString.message & "]";
 							else
 								result.reString = "Error: Unable to convert the return value into string.";
@@ -210,7 +214,7 @@ History:
 			else 
 			{
 				hasProcessingError = 1; 
-				if ( !application.ADF.siteDevMode ) 
+				if ( !siteDevMode ) 
 				{
 					result.reString = "Error: The request is not accessible remotely via Ajax Proxy.";
 					// TODO: Do Proxy Logging				
@@ -225,7 +229,7 @@ History:
 			}
 			
 			// build the dump for debugging the Processed value of result.reString
-			if ( debug AND application.ADF.siteDevMode AND passedSecurity AND ListFindNoCase(strFormatsList,returnformat) EQ 0 ) 
+			if ( debug AND siteDevMode AND passedSecurity AND ListFindNoCase(strFormatsList,returnformat) EQ 0 ) 
 			{
 				// If the variable reHTML doesn't exist set the debug output to the string: void 
 				if ( !StructKeyExists(result,"reString") ){debugProcessed="void";}else{debugProcessed=result.reString;}
@@ -233,7 +237,7 @@ History:
 			}
 		
 			// pass the debug dumps to the reHTML for output
-			if ( debug AND application.ADF.siteDevMode ) 
+			if ( debug AND siteDevMode ) 
 			{
 				if ( hasCommandError OR (IsSimpleValue(debugRaw) AND debugRaw EQ "void") ) 
 				{

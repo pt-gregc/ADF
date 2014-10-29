@@ -27,7 +27,7 @@ Name:
 Summary:
 	Application file.
 Version:
-	1.8.0
+	1.8.1
 History:
 	2009-06-17 - RLW - Created
 	2011-01-19 - RAK - Fixed typo in utils
