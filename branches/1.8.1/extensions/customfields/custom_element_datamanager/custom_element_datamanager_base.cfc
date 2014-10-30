@@ -46,6 +46,7 @@ History:
 	2014-08-04 - DJM - Added code to check pagetype for forming CS Extended URL field value
 	2014-09-08 - DJM - Updated code to process data columns only when we have some data
 	2014-09-10 - DJM - Passed extra parameter to getRecordsFromSavedFilter to fetch unpublished records when the element is a LCE
+	2014-10-30 - DJM - Handling of commas within values
 --->
 <cfcomponent output="false" displayname="custom element datamanager_base" extends="ADF.core.Base" hint="This the base component for the Custom Element Data Manager field">
 	
@@ -360,7 +361,7 @@ History:
 		var assocColPos = 0;
 		var displayColsArray = ArrayNew(1);
 		var uniqueList = '';
-		var theList = '';
+		var simpleValuesArray = ArrayNew(1);
 		var j = 0;
 		var parentInstanceIDVal = 0;
 		var compareValueWithChild = '';
@@ -371,6 +372,9 @@ History:
 		var cmdArgs = StructNew();
 		var nextIndex = 0;
 		var csVersion = ListFirst(ListLast(request.cp.productversion," "),".");
+		var k = 0;
+		var valuesWithCommaArray = ArrayNew(1);
+		var stmtNewPos = 0;
 		
 		if (arguments.parentFormType EQ 'CustomElement')
 			ceObj = parentObj;
@@ -671,25 +675,62 @@ History:
 						ids = assocData[assocReqFieldName];
 						
 						// build list of values
-						theList = '';
+						simpleValuesArray = ArrayNew(1);
+						valuesWithCommaArray = ArrayNew(1);
 						for( j=1; j lte assocData.recordCount; j = j+1 )
-							theList = ListAppend( theList, assocData[assocReqFieldName][j] );
-							
-						uniqueList = application.adf.data.listRemoveDuplicates( theList );
-						if (StructKeyExists(inputPropStruct, 'secondaryElementType') AND inputPropStruct.secondaryElementType EQ 'MetadataForm')
 						{
-							if (csVersion GT 9)
+							if ( ArrayFindNoCase(simpleValuesArray, assocData[assocReqFieldName][j]) EQ 0 AND ArrayFindNoCase(valuesWithCommaArray, assocData[assocReqFieldName][j]) EQ 0 )
 							{
-								statementsArray[1] = childObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childUniqueField,operator='Value Contained In List',value=uniqueList);
+								if (ListLen(assocData[assocReqFieldName][j]) GT 1)
+									ArrayAppend( valuesWithCommaArray, assocData[assocReqFieldName][j] );
+								else
+									ArrayAppend( simpleValuesArray, assocData[assocReqFieldName][j] );
+							}
+						}	
+						uniqueList = ArrayToList( simpleValuesArray );
+						
+						if ( ListLen(uniqueList) )
+						{
+							if (StructKeyExists(inputPropStruct, 'secondaryElementType') AND inputPropStruct.secondaryElementType EQ 'MetadataForm')
+							{
+								if (csVersion GT 9)
+								{
+									statementsArray[1] = childObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childUniqueField,operator='Value Contained In List',value=uniqueList);
+								}
+								else
+								{
+									statementsArray[1] = "metadata|#inputPropStruct.childCustomElement#_#inputPropStruct.childUniqueField#|inlist|#uniqueList#";
+								}
 							}
 							else
+								statementsArray[1] = ceObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childUniqueField,operator='Value Contained In List',value=uniqueList);
+							childFilterExpression = '1';
+						}
+						if ( ArrayLen(valuesWithCommaArray) )
+						{
+							for ( k=1; k LTE ArrayLen(valuesWithCommaArray);k=k+1 )
 							{
-								statementsArray[1] = "metadata|#inputPropStruct.childCustomElement#_#inputPropStruct.childUniqueField#|inlist|#uniqueList#";
+								stmtNewPos = ArrayLen(statementsArray) + 1;
+								if (StructKeyExists(inputPropStruct, 'secondaryElementType') AND inputPropStruct.secondaryElementType EQ 'MetadataForm')
+								{
+									if (csVersion GT 9)
+									{
+										statementsArray[stmtNewPos] = childObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childUniqueField,operator='Equals',value=valuesWithCommaArray[k]);
+									}
+									else
+									{
+										statementsArray[stmtNewPos] = "metadata|#inputPropStruct.childCustomElement#_#inputPropStruct.childUniqueField#|=|#valuesWithCommaArray[k]#";
+									}
+								}
+								else
+									statementsArray[stmtNewPos] = ceObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childUniqueField,operator='Equals',value=valuesWithCommaArray[k]);
+								if ( Len(childFilterExpression) )
+								{
+									childFilterExpression = '#childFilterExpression# OR ';
+								}
+								childFilterExpression = '#childFilterExpression##Int(stmtNewPos)#';
 							}
 						}
-						else
-							statementsArray[1] = ceObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childUniqueField,operator='Value Contained In List',value=uniqueList);
-						childFilterExpression = '1';
 					}
 				}
 				
