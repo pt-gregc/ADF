@@ -36,12 +36,13 @@ History:
 	2014-01-02 - GAC - Added the CFSETTING tag to disable CF Debug results in the props module
 	2014-01-03 - GAC - Added the fieldVersion variable
 	2014-09-19 - GAC - Removed deprecated doLabel and jsLabelUpdater js calls
+	2014-10-31 - GAC - Added the editOnce option
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "1.0.1"; 
+	fieldVersion = "1.0.2"; 
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
@@ -51,6 +52,7 @@ History:
 	
 	// Setup the default values
 	defaultValues.filterList = "";
+	defaultValues.editOnce = 0;
 	
 	//-- App Override Variables --//
 	defaultValues.appBeanName = "";
@@ -74,7 +76,7 @@ History:
 <cfoutput>
 	<script language="JavaScript" type="text/javascript">
 		// register the fields with global props object
-		fieldProperties['#typeid#'].paramFields = '#prefix#filterList,#prefix#appBeanName,#prefix#appPropsVarName';
+		fieldProperties['#typeid#'].paramFields = '#prefix#filterList,#prefix#editOnce,#prefix#appBeanName,#prefix#appPropsVarName';
 		// allows this field to have a common onSubmit Validator
 		//fieldProperties['#typeid#'].jsValidator = '#prefix#doValidate';
 
@@ -97,6 +99,20 @@ History:
 			<td class="cs_dlgLabelSmall">
 				<textarea type="text" name="#prefix#filterList" id="#prefix#filterList" class="cs_dlgControl" rows="3" cols="60" wrap="soft">#currentValues.filterList#</textarea>
 				<br/><span>(Comma-Delimited list of Templates Names OR Template Page IDs to exclude. Using a part of a Template Name excludes all templates that contain that part in the name.)</span>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2" class="cs_dlgLabelSmall">
+				<strong>Action Properties:</strong>
+			</td>
+		</tr>
+		<tr>
+			<td class="cs_dlgLabelSmall">Edit Once:</td>
+			<td class="cs_dlgLabelSmall">
+				<input type="radio" name="#prefix#editOnce" id="#prefix#editOnce" value="0" <cfif currentValues.editOnce EQ 0>checked</cfif>>False
+				<input type="radio" name="#prefix#editOnce" id="#prefix#editOnce" value="1" <cfif currentValues.editOnce EQ 1>checked</cfif>>True
+				<br/><span>Select the True to allow the field to only be edited once on creation of the record.  
+					This will lock the value in and make the field disabled.</span>
 			</td>
 		</tr>
 		<tr>

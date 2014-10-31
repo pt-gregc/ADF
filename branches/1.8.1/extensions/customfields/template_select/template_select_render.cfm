@@ -36,6 +36,7 @@ History:
 	2012-02-06 - MFC - Updated scripts to load with the site ADF
 	2013-02-20 - MFC - Replaced Jquery "$" references.
 	2013-03-08 - GAC - Updated to use the wrapFieldHTML function
+	2014-10-31 - GAC - Added the editOnce option
 --->
 <cfscript>
 	// the fields current value
@@ -44,7 +45,9 @@ History:
 	xparams = parameters[fieldQuery.inputID];
 	
 	if ( NOT StructKeyExists(xparams, "filterList") OR LEN(xparams.filterList) LTE 0 )
-		xparams.filterList = "";	
+		xparams.filterList = "";
+	if ( NOT StructKeyExists(xparams, "editOnce") )
+		xparams.editOnce = 0;	
 		
 	//-- App Override Variables --//
 	if ( NOT StructKeyExists(xparams, "appBeanName") OR LEN(xparams.appBeanName) LTE 0 )
@@ -86,6 +89,9 @@ History:
 
 	//-- Read Only Check w/ cs6 fieldPermission parameter --
 	readOnly = application.ADF.forms.isFieldReadOnly(xparams,variables.fieldPermission);
+	
+	if ( LEN(currentValue) AND xparams.editOnce )
+		readOnly = true;
 </cfscript>
 <cfoutput>
 	<script type="text/javascript">
