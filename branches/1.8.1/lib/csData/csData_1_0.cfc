@@ -40,7 +40,7 @@ History:
 --->
 <cfcomponent displayname="csData_1_0" extends="ADF.core.Base" hint="CommonSpot Data Utils functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_8">
+<cfproperty name="version" value="1_0_9">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_0">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_0">
@@ -108,17 +108,27 @@ History:
 	2009-10-22 - MFC - Updated: Added IF block to get the uploaded doc page url.
 	2013-08-23 - GAC - Update to return template URLs as well as page URLs
 	2014-01-14 - JTP - Updated to use the CommonSpot ct-decipher-linkurl module call
+	2014-11-03 - GAC - Added logic for backwards compatibility for expected behavior of this function
+					 - Added a parameter to allow new broken-link={pageid} to be returned instead of an empty string
 --->
 <cffunction name="getCSPageURL" access="public" returntype="string">
 	<cfargument name="pageID" type="numeric" required="true">
-	<cfscript>
-		var csPageURL = "";
-	</cfscript>
-	 <cfif arguments.PageID neq 0>
+	<cfargument name="renderBrokenLink" type="boolean" default="false" required="false" hint="set to true to return broken-link={pageid} instead of an empty string">
+	
+	<cfset var csPageURL = "">
+	
+	<cfif arguments.PageID neq 0>
           <CFMODULE TEMPLATE="/commonspot/utilities/ct-decipher-linkurl.cfm"
 	          PageID="#arguments.PageID#"
 	          VarName="csPageURL">
-     </cfif> 
+	          
+	        <!--- // Added for backwards compatiblity with how this method has always worked --->
+	        <!--- // -  Will return empty string if the pageID could not be found --->
+	    	<cfif FindNoCase("broken-link-",csPageURL) AND !arguments.renderBrokenLink>
+				<cfset csPageURL = "">
+			</cfif> 
+    </cfif> 
+	
 	<cfreturn csPageURL>
 </cffunction>
 
