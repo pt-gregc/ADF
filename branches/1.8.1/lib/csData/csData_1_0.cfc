@@ -40,7 +40,7 @@ History:
 --->
 <cfcomponent displayname="csData_1_0" extends="ADF.core.Base" hint="CommonSpot Data Utils functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_9">
+<cfproperty name="version" value="1_0_11">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_0">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_0">
@@ -109,24 +109,40 @@ History:
 	2013-08-23 - GAC - Update to return template URLs as well as page URLs
 	2014-01-14 - JTP - Updated to use the CommonSpot ct-decipher-linkurl module call
 	2014-11-03 - GAC - Added logic for backwards compatibility for expected behavior of this function
-					 - Added a parameter to allow new broken-link={pageid} to be returned instead of an empty string
+					 - Added a parameter to allow the 'broken-link-{pageid}' string to be returned instead of an empty string
+	2014-11-11 - GAC - Added try/catch around ct-decipher-linkurl CS Module to log when pageID can not be converted to a URL
 --->
 <cffunction name="getCSPageURL" access="public" returntype="string">
 	<cfargument name="pageID" type="numeric" required="true">
 	<cfargument name="renderBrokenLink" type="boolean" default="false" required="false" hint="set to true to return broken-link={pageid} instead of an empty string">
 	
-	<cfset var csPageURL = "">
+	<cfscript>
+		var csPageURL = "";
+		var logMsg = "";
+	</cfscript>
 	
 	<cfif arguments.PageID neq 0>
-          <CFMODULE TEMPLATE="/commonspot/utilities/ct-decipher-linkurl.cfm"
-	          PageID="#arguments.PageID#"
-	          VarName="csPageURL">
-	          
-	        <!--- // Added for backwards compatiblity with how this method has always worked --->
-	        <!--- // -  Will return empty string if the pageID could not be found --->
-	    	<cfif FindNoCase("broken-link-",csPageURL) AND !arguments.renderBrokenLink>
-				<cfset csPageURL = "">
-			</cfif> 
+		<cftry>
+			<CFMODULE TEMPLATE="/commonspot/utilities/ct-decipher-linkurl.cfm"
+				PageID="#arguments.PageID#"
+				VarName="csPageURL">
+				
+			<cfcatch type="any">
+				<cfscript>
+					// If ct-decipher-linkurl module blows up handle the exception
+					csPageURL = "broken-link-#arguments.pageID#";
+					
+					logMsg = "[csData_1_0.getCSPageURL] Error attempting to decipher CS PageID: #arguments.pageID##Chr(10)##cfcatch.message##Chr(10)#Details: #cfcatch.detail#";
+					server.ADF.objectFactory.getBean("utils_1_2").logAppend(logMsg);
+				</cfscript>
+			</cfcatch>   
+		</cftry>     
+		
+        <!--- // Added for backwards compatiblity with how this method has always worked --->
+        <!--- // -  Will return empty string if the pageID could not be found --->
+    	<cfif FindNoCase("broken-link-",csPageURL) AND !arguments.renderBrokenLink>
+			<cfset csPageURL = "">
+		</cfif> 
     </cfif> 
 	
 	<cfreturn csPageURL>
@@ -1303,25 +1319,75 @@ History:
 						find the first non-numeric character.
 	2011-06-24 - RLW - Added "imageID" into the structure returned
 	2011-09-06 - RAK - Removed the bulk of the logic to get the ID and replaced it with a single regular expression
+	2014-11-07 - GAC - Updated to output most of the standard render mode filter data keys using the CS CMD API (cs version dependant)
 --->
 <cffunction name="decipherCPIMAGE" access="public" returntype="struct" hint="Returns the proper structure for an image based on the 'CPIMAGE:' text provided by CEData() calls">
 	<cfargument name="cpimage" type="string" required="true" hint="The 'CPIMAGE:' text that is returned from the CEData() call">
+	
 	<cfscript>
+		var retData = structNew();
 		var imageData = structNew();
 		var imageID = "";
+		var csVersion = ListFirst(ListLast(request.cp.productversion," "),".");
+		var requiredCSversion = 8;
+		var imgComponent = "";
+		var imageData =  StructNew();
+		var reqProtocol = "http://";
+		var reResults = "";
+		
 		//Search for a string that starts with CPIMAGE: and then in the second result set return all the numbers
-		var reResults = reFind("^CPIMAGE:([0-9]*)",arguments.cpimage ,0,true);
-		if(ArrayLen(reResults.LEN) gt 1){
+		reResults = reFind("^CPIMAGE:([0-9]*)",arguments.cpimage ,0,true);
+		
+		if ( ArrayLen(reResults.LEN) gt 1 )
+		{
 			//If we have more than 1 result we found the ID
 			//Get the ID out of the string by getting the mid to length of the second result in the RE find.
 			imageID = Mid(arguments.cpimage,reResults.pos[2],reResults.len[2]);
 		}
-		if( len(imageID) ){
-			imageData.resolvedURL.serverRelative = getImagePageURL(imageID);
-			imageData.imageID = imageID;
+		
+		if( IsNumeric(imageID) )
+		{
+			// imageID is not found in the standard render mode filter data struct 
+			// - but we will add it since this method has returned it in the past
+			retData.imageID = imageID; 	
+			
+			// Original Image Data return Struct
+			if ( csVersion LT requiredCSversion )
+			{ 
+				retData.resolvedURL.serverRelative = getImagePageURL(imageID);
+			}
+			else
+			{
+				// Get Image Data using the CS CMD API image object
+				imgComponent = Server.CommonSpot.api.getObject('image');
+				imageData = imgComponent.getInfo(imageID=imageID);
+				
+				if ( !StructIsEmpty(imageData) )
+				{
+					retData.resolvedURL = StructNew();
+					retData.resolvedURL.serverRelative = imageData.URL;
+					
+					if ( cgi.https EQ "on" )
+						reqProtocol = "https://";
+					
+					retData.resolvedURL.Absolute = reqProtocol & request.CGIVars.SERVER_NAME & imageData.URL;
+					
+					retData.OrigHeight = imageData.OrigHeight;
+					retData.OrigWidth = imageData.OrigWidth;
+					retData.SubsiteID = imageData.SubsiteID;
+					retData.FileName = imageData.FileName;
+					retData.AltText = imageData.Description;
+					retData.OrigSize = imageData.Size;
+					
+					// Other standard render mode image keys (not in the CMD API image data)
+					// - ImageFound - boolean (1/0)
+					// - MIMEType - string (eg. image/png) 
+				}
+			}
 		}
+		
+		return retData;
 	</cfscript>
-	<cfreturn imageData>
 </cffunction>
 
 <!---

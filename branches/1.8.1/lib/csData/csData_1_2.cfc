@@ -49,7 +49,7 @@ History:
 --->
 <cfcomponent displayname="csData_1_2" extends="ADF.lib.csData.csData_1_1" hint="CommonSpot Data Utils functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_14">
+<cfproperty name="version" value="1_2_15">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">
@@ -807,32 +807,56 @@ History:
 					 - Var'ing un-var'd variables
 					 - Fixed the function to be backward compatible with ACF8
 	2014-01-14 - JTP - Updated to use the CommonSpot ct-decipher-linkurl module call
+	2014-11-11 - GAC - Added try/catch around ct-decipher-linkurl the CS Modules to log when the passed in value could not be converted to a URL				 
 --->
 <cffunction name="parseCSURL" access="public" returntype="string" output="false" displayname="parseDatasheetURL" hint="Converts a CommonSpot URL that contain a pageID url parameter to a standard URL">
-     <cfargument name="str" type="string" required="true" hint="Provide a string value that is a CommonSpot URL that contains a pageid key/value pair">
-     <cfscript>
+    <cfargument name="str" type="string" required="true" hint="Provide a string value that is a CommonSpot URL that contains a pageid key/value pair">
+
+	<cfscript>
           var targetURL = '';
           var matchArray = REMatchNoCase("PAGEID=[\d]+", arguments.str);
           var PageID = 0;
-
+          var errorStr = "";
+		  var logMsg = "";
+		  
           // If str is a pageID use it
-          if( isNumeric(str) )
+          if ( isNumeric(str) )
               PageID = int(str);
           // Check to see if the string contains a 'PAGEID='
           else if ( arrayLen(matchArray) GT 0 )
               pageID = int( ReReplaceNoCase(matchArray[1],"PAGEID=","") );         
      </cfscript>  
 
-     <cfif PageID neq 0>
-          <CFMODULE TEMPLATE="/commonspot/utilities/ct-decipher-linkurl.cfm"
-	          PageID="#PageID#"
-	          VarName="targetURL">
-     <cfelse>     
-          <CFMODULE TEMPLATE="/commonspot/utilities/ct-decipher-linkurl.cfm"
-	          URL="#arguments.str#"
-	          VarName="targetURL">
-     </cfif>      
-
+	<cftry>  
+	     <cfif PageID neq 0>
+	          <CFMODULE TEMPLATE="/commonspot/utilities/ct-decipher-linkurl.cfm"
+		          PageID="#PageID#"
+		          VarName="targetURL">
+		         
+	     <cfelse>     
+	          <CFMODULE TEMPLATE="/commonspot/utilities/ct-decipher-linkurl.cfm"
+		          URL="#arguments.str#"
+		          VarName="targetURL">
+	     </cfif>
+	    
+	    <!--- // If ct-decipher-linkurl module blows up handle the exception --->   
+ 		<cfcatch type="any">
+			<cfscript>
+				// Set the targetURL to the broken-link-{pageid} text
+				targetURL = "broken-link-#PageID#";
+				
+				if ( PageID neq 0 )
+					errorStr = "CS Page ID: #pageID#";
+				else
+					errorStr = "URL: #arguments.str#";
+				
+				// Create Log Msg 
+				logMsg = "[csData_1_2.parseCSURL] Error attempting to decipher #errorStr##Chr(10)##cfcatch.message##Chr(10)#Details: #cfcatch.detail#";	
+				server.ADF.objectFactory.getBean("utils_1_2").logAppend(logMsg);
+			</cfscript>
+		</cfcatch>   
+	</cftry>  
+		
      <cfreturn targetURL>
 </cffunction>
 
@@ -851,6 +875,7 @@ Arguments:
 	Example argument: var containing "CP___PAGEID=48083,index.cfm,646" 
 History:
 	2013-10-02 - DMB - Created
+	2014-11-11 - GAC - Removed the reference to application.ADF.csdata... since we are in csdata
 --->
 <cffunction name="decipherCPPAGEID" access="public" returntype="string" output="true">
 	<cfargument name="cpPageID" type="string" required="true">
@@ -858,11 +883,12 @@ History:
 		var strPageID = "";
 		var strURL = "";
 
-		if (arguments.cpPageID contains "CP___PAGEID=") {
+		if (arguments.cpPageID contains "CP___PAGEID=") 
+		{
 			strPageID = replacenocase(arguments.cpPageID,"CP___PAGEID=","");
 			strPageID = listFirst(strPageID,",");
 			// Get the url for this PageID
-			strURL = application.ADF.csData.getCSPageURL(strPageID);
+			strURL = getCSPageURL(strPageID);
 		}
 		return strURL;
 	</cfscript>
