@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="data_1_0" extends="ADF.core.Base" hint="Data Utils component functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_5">
+<cfproperty name="version" value="1_0_6">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Data_1_0">
 
@@ -944,6 +944,7 @@ Arguments:
 	String colDelim
 History:
 	2009-08-25 - RLW - Added
+	2014-12-03 - GAC - Updated the script formatting, moved the return inside the cfscript tags and added a missing semicolon
 --->
 <cffunction name="csvToQuery" access="public" returntype="query" hint="Converts a CSV file into a Query">
 	<cfargument name="csvString" type="string" required="true" hint="The actual CSV content">
@@ -951,7 +952,7 @@ History:
 	<cfargument name="colDelim" type="string" required="false" default="," hint="The delimeter between each column. Defaults to comma">
 	
 	<cfscript>
-		var newQuery = QueryNew("");
+		var newQuery = QueryNew("temp");
 		var arrayCol = ArrayNew(1);
 		var i = 1;
 		var j = 1;
@@ -962,16 +963,19 @@ History:
 		
 		for(i=1; i le arrayLen(arrayCol); i=i+1) queryAddColumn(newQuery, arrayCol[i], ArrayNew(1));
 		
-		for(i=2; i le listLen(arguments.csvString,arguments.rowDelim); i=i+1) {
+		for(i=2; i le listLen(arguments.csvString,arguments.rowDelim); i=i+1) 
+		{
 			queryAddRow(newQuery);
-			for(j=1; j le arrayLen(arrayCol); j=j+1) {
-				if(listLen(listGetAt(arguments.csvString,i,arguments.rowDelim),arguments.colDelim) ge j) {
+			for(j=1; j le arrayLen(arrayCol); j=j+1) 
+			{
+				if ( listLen(listGetAt(arguments.csvString,i,arguments.rowDelim),arguments.colDelim) gte j ) 
+				{
 					querySetCell(newQuery, arrayCol[j],listGetAt(listGetAt(arguments.csvString,i,arguments.rowDelim),j,arguments.colDelim), i-1);
 				}
 			}
 		}
 		
-		return newQuery
+		return newQuery;
 	</cfscript>
 </cffunction>
 
