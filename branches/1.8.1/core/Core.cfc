@@ -53,7 +53,7 @@ History:
 <cfscript>
 	variables.ADFversion = "1.8.1"; // use a dot delimited version number
 	// ADF Build Revision Number
-	variables.buildRev = "1436";
+	variables.buildRev = "1437";
 	// ADF Codename
 	variables.buildName = "Centipede";
 	// CS product version, get the decimal value
@@ -169,7 +169,7 @@ Arguments:
 History:
 	2013-10-19 - GAC - Created
 --->
-<cffunction name="getSiteDevModeStatus" access="public" returntype="numeric">
+<cffunction name="getSiteDevModeStatus" access="public" returntype="boolean">
 	<Cfscript>
 		var status = false;
 		if ( StructKeyExists(application,"ADF") AND StructKeyExists(application.ADF,"siteDevMode") AND IsBoolean(application.ADF.siteDevMode) AND application.ADF.siteDevMode ) 

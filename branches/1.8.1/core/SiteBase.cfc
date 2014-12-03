@@ -271,6 +271,7 @@ Arguments:
 	Void
 History:
 	2011-03-20 - RLW - Created
+	2014-12-03 - GAC - Updated to use the renamed deserializeXMLstr method due to conflict with new CF11 deserializeXML function
 --->
 <cffunction name="loadLibVersions" access="public" returnType="struct" hint="Loads the mapping between library component versions and ADF versions">
 	<cfscript>
@@ -280,7 +281,7 @@ History:
 	<!--- // read the XML file from the /ADF/lib directory --->
 	<cffile action="read" file="#expandPath('/ADF/lib/')#version.xml" variable="versionXMLStr">
 	<!--- // deserialize the XML into CF --->
-	<cfset rtnData = deserializeXML(versionXMLStr)>
+	<cfset rtnData = deserializeXMLstring(XMLString=versionXMLStr)>
 	<cfreturn rtnData>
 </cffunction>
 

@@ -56,6 +56,7 @@ History:
 	2011-03-20 - RLW - Modified to use the new deserializeXML function loaded into Base.
 	2013-01-23 - MFC - Added ADF Build Error handling.
 	2014-03-05 - JTP - Var declarations
+	2014-12-03 - GAC - Updated to use the renamed deserializeXMLstring method due to conflict with new CF11 deserializeXML function
 --->
 <cffunction name="getConfigViaXML" access="public" returntype="struct" output="true">
 	<cfargument name="filePath" type="string" required="true">
@@ -85,7 +86,7 @@ History:
 			<cffile action="read" file="#configPath#" variable="configXML">
 		</cfif>
 		<cftry>
-			<cfset configStruct = deserializeXML(configXML)>
+			<cfset configStruct = deserializeXMLstring(XMLString=configXML)>
 			<cfcatch>
 				<!--- // TODO: this needs some error catching --->
 				<!--- <cfdump var="#cfcatch#" lablel="cfcatch" expand="false"> --->

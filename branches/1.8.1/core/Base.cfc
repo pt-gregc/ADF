@@ -131,17 +131,18 @@ Author:
 	PaperThin, Inc.
 	Ron West
 Name:
-	$deserializeXML
+	$deserializeXMLstring
 Summary:
-	Converts XML into CF struct
+	Converts XML string into CF struct
 Returns:
 	Struct rtnData
 Arguments:
 	String XMLString
 History:
  	2011-03-20 - RLW - Created
+	2014-12-03 - GAC - Renamed due to conflict with new CF11 deserializeXML function
 --->
-<cffunction name="deserializeXML" access="public" returnType="struct" hint="Converts XML into CF Struct">
+<cffunction name="deserializeXMLstring" access="public" returnType="struct" hint="Converts XML string into CF Struct">
 	<cfargument name="XMLString" type="string" required="true" hint="XML String to be deserialized into CF">
 	<cfscript>
 		var rtnData = structNew();
