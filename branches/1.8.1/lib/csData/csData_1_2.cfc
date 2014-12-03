@@ -49,7 +49,7 @@ History:
 --->
 <cfcomponent displayname="csData_1_2" extends="ADF.lib.csData.csData_1_1" hint="CommonSpot Data Utils functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_15">
+<cfproperty name="version" value="1_2_16">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">
@@ -843,7 +843,7 @@ History:
  		<cfcatch type="any">
 			<cfscript>
 				// Set the targetURL to the broken-link-{pageid} text
-				targetURL = "broken-link-#PageID#";
+				targetURL = "broken-link-#PageID#--see-logs";
 				
 				if ( PageID neq 0 )
 					errorStr = "CS Page ID: #pageID#";
@@ -851,7 +851,9 @@ History:
 					errorStr = "URL: #arguments.str#";
 				
 				// Create Log Msg 
-				logMsg = "[csData_1_2.parseCSURL] Error attempting to decipher #errorStr##Chr(10)##cfcatch.message##Chr(10)#Details: #cfcatch.detail#";	
+				logMsg = "[csData_1_2.parseCSURL] Error attempting to decipher #errorStr# using the ct-decipher-linkurl module#Chr(10)##cfcatch.message#";
+				if ( StructKeyExists(cfcatch,"detail") AND LEN(TRIM(cfcatch.detail)) )
+						logMsg = logMsg & "#Chr(10)#Details: #cfcatch.detail#";	
 				server.ADF.objectFactory.getBean("utils_1_2").logAppend(logMsg);
 			</cfscript>
 		</cfcatch>   
