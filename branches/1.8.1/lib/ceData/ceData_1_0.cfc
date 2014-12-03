@@ -37,27 +37,36 @@ History:
 --->
 <cfcomponent displayname="ceData_1_0" extends="ADF.core.Base" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_16">
+<cfproperty name="version" value="1_0_18">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_0">
 <cfproperty name="wikiTitle" value="CEData_1_0">
 
 <!---
-/**
-* Sorts an array of structures based on a key in the structures.
-*
-* @param aofS       Array of structures.
-* @param key        Key to sort by.
-* @param sortOrder  Order to sort by, asc or desc.
-* @param sortType   Text, textnocase, numeric, or time.
-* @param delim      Delimiter used for temporary data storage. Must not exist in data. Defaults to a period.
-* @param datefield  Used for time sorting, the basis for the construction of the array for sorting times.
-* @return Returns a sorted array.
-* @author Nathan Dintenfass (nathan@changemedia.com)
-* @version 1, December 10, 2001
-*/
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$arrayOfCEDataSort
+Summary:
+	Sorts an CE data array of structures.
+
+	Based on the ArrayOfStructsSort by Nathan Dintenfass From CFLib
+Returns:
+	Array 
+Arguments:
+	Array - aOfS
+	String - Key
+	String - sortOrder
+	String - sortType
+	String - delim
+	String - datefield
+Usage:
+	application.ADF.ceData.arrayOfCEDataSort(aOfS,key,sortOrder,sortType,Delim,dateField)
+History:
+	2009-03-02 - Created	
 --->
-<cffunction name="arrayOfCEDataSort" access="public" returntype="array">
+<cffunction name="arrayOfCEDataSort" access="public" returntype="array" hint="Sorts an CE data array of structures.">
 	<cfargument name="aOfS" type="array" required="true">
 	<cfargument name="key" type="string" required="true">
 	<cfargument name="sortOrder" type="string" required="false" default="asc">
