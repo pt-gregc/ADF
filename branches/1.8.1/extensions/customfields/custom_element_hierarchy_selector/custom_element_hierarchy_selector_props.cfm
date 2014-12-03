@@ -40,7 +40,7 @@ History:
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "1.0.2"; 
+	fieldVersion = "1.0.3"; 
 	
 	requiredVersion = 9;
 	productVersion = ListFirst(ListLast(request.cp.productversion," "),".");
@@ -427,7 +427,9 @@ History:
 				#Server.CommonSpot.udf.tag.checkboxRadio(type="radio", name="#prefix#selectionType", value="single", label="Single", checked=(currentValues.selectionType EQ '' OR currentValues.selectionType EQ 'single'), labelClass="cs_dlgLabelSmall")#&nbsp;
 				<br/>
 				#Server.CommonSpot.udf.tag.checkboxRadio(type="radio", name="#prefix#selectionType", value="multiple", label="Multiple", checked=(currentValues.selectionType EQ 'multiple'), labelClass="cs_dlgLabelSmall")#&nbsp;
-				<br/>
+				<br/><!--- 'cascade up' --->
+				#Server.CommonSpot.udf.tag.checkboxRadio(type="radio", name="#prefix#selectionType", value="multiAutoParents", label="Multiple (auto select parents)", checked=(currentValues.selectionType EQ 'multiAutoParents'), labelClass="cs_dlgLabelSmall")#&nbsp;
+				<br/><!--- 'cascade down' --->
 				#Server.CommonSpot.udf.tag.checkboxRadio(type="radio", name="#prefix#selectionType", value="multiAuto", label="Multiple (auto select children)", checked=(currentValues.selectionType EQ 'multiAuto'), labelClass="cs_dlgLabelSmall")#&nbsp;
 			</td>
 		</tr>
@@ -454,7 +456,7 @@ History:
 			</td>
 		</tr>
 		</CFOUTPUT>
-		<CFSET caption="Enter the option from your option list that you want selected by default.">
+		<CFSET caption="Enter the valid values from selected Values Field that you want selected by default.">
 		<CFINCLUDE template="/commonspot/metadata/form_control/input_control/default_value.cfm">
 		<CFOUTPUT>
 		<tr>

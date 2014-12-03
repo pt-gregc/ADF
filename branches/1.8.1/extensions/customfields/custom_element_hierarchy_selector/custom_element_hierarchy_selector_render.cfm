@@ -156,6 +156,16 @@ History:
 			else
 				triState = false;
 			
+			// Set the 'auto select parent' property (bMult: true, triState:false)	
+			autoSelectParents = false;
+			if ( inputParameters.selectionType EQ "multiAutoParents" )
+			{
+				bMult = true;
+				triState = false;
+				autoSelectParents = true;
+			}
+			
+			
 			// Prepend the current values with fieldID
 			fldCurValArray = ListToArray(attributes.currentvalues[fqFieldName]);
 			fldCurValWithFldID = '';
@@ -214,7 +224,11 @@ History:
 						"checkbox" : {
 							"keep_selected_style" : false, 
 							"three_state" : #triState#
+							<cfif autoSelectParents> 
+							,"cascade" : ""
+							</cfif>
 						},
+						
 						<cfif bMult>												
 						"plugins" : [ "checkbox" ]
 						</cfif>
@@ -237,8 +251,29 @@ History:
 			
 			jQuery('##jstree_#fqFieldName#').on("changed.jstree", function (e, data) 
 			{
+				
+				<cfif autoSelectParents> 
+				// Selection Actions for Auto Select Parents
+		    	if ( data.action == "select_node" ) 
+		    	{
+		        	CascadeUp_#fqFieldName#(jQuery(this),data.node, 'select_node');
+			    }
+				else if ( data.action == "deselect_node" ) 
+				{
+		        	CascadeDown_#fqFieldName#(jQuery(this),data.node, 'deselect_node');
+		    	}	
+				</cfif>
+				
+				// Pass the selected Nodes to the CFT Hidden field
+				setSelectedNodes_#fqFieldName#(data.selected);
+			});
+			
+			// Adde selected Items to the hidden field
+			function setSelectedNodes_#fqFieldName#(selectedNodesList)
+			{
+				//console.log(selectedNodesList);
+				
 				// Loop over values and remove the prefix from each value
-				var selectedNodesList = data.selected;
 				var selectedNodesArray = selectedNodesList.toString().split(",");
 				var selectedNodesIDList = '';
 				var fieldID = '#fieldQuery.inputID#';
@@ -255,8 +290,13 @@ History:
 					else
 						selectedNodesIDList = selectedNode;
 				}
-				document.getElementById('#fqFieldName#').value = selectedNodesIDList;
-			});
+				
+				// Sort the NodeID list before adding them to the hidden field
+				// - Sorting the node list allows items with the same selection to be grouped together
+				selectedNodesIDList = sortNodeIDs_#fqFieldName#(selectedNodesIDList);
+				
+				jQuery('###fqFieldName#').val(selectedNodesIDList);
+			}
 
 			function MakeOpen_#fqFieldName#(node)
 			{
@@ -273,6 +313,59 @@ History:
 					MakeOpen_#fqFieldName#(parent);
 				}	
 			}
+			
+			// Sort the IDs of the Nodes
+			function sortNodeIDs_#fqFieldName#(idList)
+			{
+		        var listIsNumeric = _isNumericList_#fqFieldName#(idList);
+		        var valuesArray = idList.split(",");
+		        
+		        if ( listIsNumeric )
+		        {
+		            // If the list has all numeric values sort the list as numbers
+					valuesArray = valuesArray.sort(function(a,b){
+		                return a-b;
+		            });
+		        }
+		        else
+		        {
+		        	// Use non-numeric / case-insenstive sort if the list has Alpha chars 
+					valuesArray = valuesArray.sort(function (a, b) {
+		                return a.toLowerCase().localeCompare(b.toLowerCase());
+		        	});          
+		        }
+		       return valuesArray.join(",");
+		    }
+	    
+			// Determine if the list do not contain any Alpha values
+		    function _isNumericList_#fqFieldName#(valuesList)
+		    {
+		        var valuesArray = valuesList.split(",");
+		        var listItem = '';
+		        
+		        for ( var i=0; i < valuesArray.length; i++) 
+		        {
+		            listItem = valuesArray[i];
+		            if ( !jQuery.isNumeric(listItem) )
+		                return false;
+
+		        }   
+		        return true;
+		    }
+		    
+			<cfif autoSelectParents> 
+			function CascadeUp_#fqFieldName#(treeObject,inNode,inCommand) {
+				ParentNode = treeObject.jstree('get_parent', inNode);
+				treeObject.jstree(inCommand, ParentNode);
+			    
+			}
+
+			function CascadeDown_#fqFieldName#(treeObject,inNode,inCommand) {
+			   ChildrenNodes = jQuery.makeArray(treeObject.jstree('get_children_dom', inNode));
+		       treeObject.jstree(inCommand, ChildrenNodes);
+			}
+			</cfif>
+						
 			// -->
 		</script>
 		</cfoutput>
