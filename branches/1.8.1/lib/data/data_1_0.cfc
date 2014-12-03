@@ -33,17 +33,22 @@ History:
 --->
 <cfcomponent displayname="data_1_0" extends="ADF.core.Base" hint="Data Utils component functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_3">
+<cfproperty name="version" value="1_0_5">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Data_1_0">
 
-<!--- * Remove elements from one array which exist in another array.
-*
-* @param baseArray      Main array of values. (Required)
-* @param deleteArray      Array of values to delete. (Required)
-* @return Returns an array.
-* @author Jason Rushton (jason@iworks.com)
-* @version 1, April 11, 2008
+<!--- 
+/* *************************************************************** */
+	From CFLib
+
+Summary:
+	Remove elements from one array which exist in another array.
+	
+	@param baseArray      Main array of values. (Required)
+	@param deleteArray      Array of values to delete. (Required)
+	@return Returns an array.
+	@author Jason Rushton (jason@iworks.com)
+	@version 1, April 11, 2008
  --->
 <cffunction name="arraydeletearray" access="public" returntype="array">
 	<cfargument name="baseArray" type="array" required="yes">
@@ -54,18 +59,20 @@ History:
 </cffunction>
 
 <!---
-/**
-* Sorts an array of structures based on a key in the structures.
-*
-* @param aofS      Array of structures.
-* @param key      Key to sort by.
-* @param sortOrder      Order to sort by, asc or desc.
-* @param sortType      Text, textnocase, or numeric.
-* @param delim      Delimiter used for temporary data storage. Must not exist in data. Defaults to a period.
-* @return Returns a sorted array.
-* @author Nathan Dintenfass (nathan@changemedia.com)
-* @version 1, December 10, 2001
-*/
+/* *************************************************************** */
+	From CFLib
+
+Summary:
+	Sorts an array of structures based on a key in the structures.
+
+	@param aofS      Array of structures.
+	@param key      Key to sort by.
+	@param sortOrder      Order to sort by, asc or desc.
+	@param sortType      Text, textnocase, or numeric.
+	@param delim      Delimiter used for temporary data storage. Must not exist in data. Defaults to a period.
+	@return Returns a sorted array.
+	@author Nathan Dintenfass (nathan@changemedia.com)
+	@version 1, December 10, 2001
 --->
 <cffunction name="arrayOfStructsSort" access="public" returntype="array">
 	<cfargument name="aOfS" type="array" required="true">
@@ -112,38 +119,41 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	M. Carroll
+/* *************************************************************** */
+	From CFLib	
+	
 Name:
 	$arrayOfStructuresToQuery
 Summary:
-	Returns Query from Array of Structures
+	From CFLib
+
+	Converts an array of structures to a CF Query Object.
+	
+	6-19-02: Minor revision by Rob Brooks-Bilson (rbils@amkor.com)
+	Update to handle empty array passed in. Mod by Nathan Dintenfass. Also no longer using list func.
+
+	@param Array      The array of structures to be converted to a query object. Assumes each array element contains structure with same (Required)
+	@return Returns a query object.
+	@author David Crawford (rbils@amkor.comdcrawford@acteksoft.com)
+	@version 2, March 19, 2003
 Returns:
 	Query
 Arguments:
 	Array
 	Boolean - forceColsToVarchar
+	Boolean - allowComplexValues
 History:
 	2009-01-20 - MFC - Created
 	2011-09-01 - GAC - Modified - Added a flag to force all query columns to be varchar datatype
 	2012-09-21 - AW  - Updated - Updates to support Railo
+	2014-11-20 - GAC - Added a parameter to allow complex value to be returned in a query column
 --->
 <cffunction name="arrayOfStructuresToQuery" access="public" returntype="query">
 	<cfargument name="theArray" type="array" required="true">
-	<cfargument name="forceColsToVarchar" type="boolean" default="false" required="false">	
+	<cfargument name="forceColsToVarchar" type="boolean" default="false" required="false" hint="Will force all of the query columns to varchar.">	
+	<cfargument name="allowComplexValues" type="boolean" default="false" required="false" hint="Will allow complex values to be returned in a query column if the forceColsToVarchar not true.">
+		
 	<cfscript>
-		/**
-		* Converts an array of structures to a CF Query Object.
-		* 6-19-02: Minor revision by Rob Brooks-Bilson (rbils@amkor.com)
-		*
-		* Update to handle empty array passed in. Mod by Nathan Dintenfass. Also no longer using list func.
-		*
-		* @param Array      The array of structures to be converted to a query object. Assumes each array element contains structure with same (Required)
-		* @return Returns a query object.
-		* @author David Crawford (rbils@amkor.comdcrawford@acteksoft.com)
-		* @version 2, March 19, 2003
-		*/
 		var colNames = "";
 		var theQuery = QueryNew("tmp");
 		var i = 0;
@@ -161,8 +171,11 @@ History:
 		colNames = structKeyArray(arguments.theArray[1]);
 		col_num = ArrayLen(colNames);
 		//build the query based on the colNames
-		if (arguments.forceColsToVarchar)
-			theQuery = queryNew(arrayToList(colNames), RepeatString("varchar,", col_num));    
+		if ( arguments.forceColsToVarchar )
+		{
+			theQuery = queryNew(arrayToList(colNames), RepeatString("varchar,", col_num));  
+			arguments.allowComplexValues = false;  
+		}
 		else
 			theQuery = queryNew(arrayToList(colNames));
 		//add the right number of rows to the query
@@ -174,10 +187,11 @@ History:
 			for(j=1; j LTE col_num; j=j+1)
 			{
 				foo = '';
-				if (StructKeyExists(item, colNames[j]))
+				if ( StructKeyExists(item, colNames[j]) )
 					foo = item[colNames[j]];
 
-				if (NOT IsSimpleValue(foo))
+				// Clear the value for this cell if it is not a Simple Value and allowComplexValues is false
+				if ( !arguments.allowComplexValues AND !IsSimpleValue(foo) )
 					foo = '';
 
 				querySetCell(theQuery, colNames[j], foo, i);
@@ -188,18 +202,21 @@ History:
 
 </cffunction>
 
-<!--- ///**
-	* Sorts a two dimensional array by the specified column in the second dimension.
-	*
-	* @param arrayToSort	A two-dimensional array to sort.
-	* @param sortColumn		Which index of the array is to be used to do the sorting, a number (1-n)
-	* @param type			What kind of sort to do, (numeric, text, textnocase)
-	* @param delim      Delimiter used for temporary data storage. Must not exist in data. Defaults to a period.
-	* @return Returns an array.
-	* @author Robert West (robert.west@digiphilic.com)
-	* @version 1, October 8, 2002
-	* @history Updated list conversion code so that if the data contained commas the function would still work. Now uses a period as the delimiter.
-	*/
+<!--- 
+/* *************************************************************** */
+	From CFLib
+	
+Summary:
+	Sorts a two dimensional array by the specified column in the second dimension.
+
+	@param arrayToSort	A two-dimensional array to sort.
+	@param sortColumn		Which index of the array is to be used to do the sorting, a number (1-n)
+	@param type			What kind of sort to do, (numeric, text, textnocase)
+	@param delim      Delimiter used for temporary data storage. Must not exist in data. Defaults to a period.
+	@return Returns an array.
+	@author Robert West (robert.west@digiphilic.com)
+	@version 1, October 8, 2002
+	@history Updated list conversion code so that if the data contained commas the function would still work. Now uses a period as the delimiter.
 --->
 <cffunction name="ArraySort2D" access="public" returntype="array">
 	<cfargument name="arrayToSort" type="array" required="yes">
@@ -244,7 +261,9 @@ History:
 
 <!---
 /* *************************************************************** */
-Author: 	M. Carroll
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
 Name:
 	$CSVToArray
 Summary:
@@ -263,11 +282,10 @@ History:
 						Updated the comment header for the credits.
 --->
 <cffunction name="CSVToArray" access="public" returntype="array" output="false" hint="Takes a CSV file or CSV data value and converts it to an array of arrays based on the given field delimiter. Line delimiter is assumed to be new line / carriage return related.">
-	<!--- Define arguments. --->
-	<cfargument name="File" type="string" required="false" default="" hint="The optional file containing the CSV data."/>
-	<cfargument name="CSV" type="string" required="false" default="" hint="The CSV text data (if the file was not used)." />
-	<cfargument name="Delimiter" type="string" required="false" default="," hint="The data field delimiter."/>
-	<cfargument name="Trim" type="boolean" required="false" default="true" hint="Flags whether or not to trim the END of the file for line breaks and carriage returns."/>
+	<cfargument name="File" type="string" required="false" default="" hint="The optional file containing the CSV data.">
+	<cfargument name="CSV" type="string" required="false" default="" hint="The CSV text data (if the file was not used).">
+	<cfargument name="Delimiter" type="string" required="false" default="," hint="The data field delimiter.">
+	<cfargument name="Trim" type="boolean" required="false" default="true" hint="Flags whether or not to trim the END of the file for line breaks and carriage returns.">
 
 	<!--- Define the local scope. --->
 	<cfset var _LOCAL = StructNew() />
@@ -416,14 +434,16 @@ History:
 </cffunction>
 
 <!---
-/**
-* Returns TRUE if the string is a valid CF UUID.
-*
-* @param str     String to be checked. (Required)
-* @return Returns a boolean.
-* @author Jason Ellison (jgedev@hotmail.com)
-* @version 1, November 24, 2003
-*/
+/* *************************************************************** */
+	From CFLib
+	
+Summary:
+	Returns TRUE if the string is a valid CF UUID.
+
+	@param str     String to be checked. (Required)
+	@return Returns a boolean.
+	@author Jason Ellison (jgedev@hotmail.com)
+	@version 1, November 24, 2003
 --->
 <cffunction name="isCFUUID" access="public" returntype="boolean">
 	<cfargument name="inStr" type="string" required="true">
@@ -434,21 +454,21 @@ History:
 </cffunction>
 
 <!---
-/**
- * From CFLib on 12/08/2008
- *
- * Returns elements in list1 that are found in list2.
- * Based on ListCompare by Rob Brooks-Bilson (rbils@amkor.com)
- *
- * @param List1 	 Full list of delimited values.
- * @param List2 	 Delimited list of values you want to compare to List1.
- * @param Delim1 	 Delimiter used for List1.  Default is the comma.
- * @param Delim2 	 Delimiter used for List2.  Default is the comma.
- * @param Delim3 	 Delimiter to use for the list returned by the function.  Default is the comma.
- * @return Returns a delimited list of values.
- * @author Michael Slatoff (michael@slatoff.com)
- * @version 1, August 20, 2001
- */
+/* *************************************************************** */
+	From CFLib on 12/08/2008
+
+Summary:
+	Returns elements in list1 that are found in list2.
+ 	Based on ListCompare by Rob Brooks-Bilson (rbils@amkor.com)
+
+	@param List1 	 Full list of delimited values.
+	@param List2 	 Delimited list of values you want to compare to List1.
+	@param Delim1 	 Delimiter used for List1.  Default is the comma.
+	@param Delim2 	 Delimiter used for List2.  Default is the comma.
+	@param Delim3 	 Delimiter to use for the list returned by the function.  Default is the comma.
+	@return Returns a delimited list of values.
+	@author Michael Slatoff (michael@slatoff.com)
+	@version 1, August 20, 2001
  --->
 <cffunction name="ListInCommon" access="public" returntype="String">
 	<cfargument name="list1" type="String" required="true">
@@ -472,13 +492,22 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	M. Carroll
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
 Name:
 	$QueryToXML
-Summary:
-	Returns XML for a Query
+Summary:	
+	Generates an XMLDoc object from a basic CF Query.
+	
+	@param query      The query to transform. (Required)
+	@param rootElement      Name of the root node. (Default is "query.") (Optional)
+	@param row      Name of each row. Default is "row." (Optional)
+	@param nodeMode      Defines the structure of the resulting XML. Options are 1) "values" (default), which makes each value of each column mlText of individual nodes; 2) "columns", which makes each value of each column an attribute of a node for that column; 3) "rows", which makes each row a node, with the column names as attributes. (Optional)
+	@return Returns a string.
+	@author Nathan Dintenfass (nathan@changemedia.com)
+	@version 2, November 15, 2002
 Returns:
 	Array
 Arguments:
@@ -492,19 +521,6 @@ History:
 	<cfargument name="rowName" type="string" required="false" default="row">
 
 	<cfscript>
-		/**
-		* Generates an XMLDoc object from a basic CF Query.
-		*
-		* @param query      The query to transform. (Required)
-		* @param rootElement      Name of the root node. (Default is "query.") (Optional)
-		* @param row      Name of each row. Default is "row." (Optional)
-		* @param nodeMode      Defines the structure of the resulting XML. Options are 1) "values" (default), which makes each value of each column mlText of individual nodes; 2) "columns", which makes each value of each column an attribute of a node for that column; 3) "rows", which makes each row a node, with the column names as attributes. (Optional)
-		* @return Returns a string.
-		* @author Nathan Dintenfass (nathan@changemedia.com)
-		* @version 2, November 15, 2002
-		*/
-
-	    //the default name of the root element
 	    var root = "query";
 	    //the default name of each row
 	    var row = "row";
@@ -561,9 +577,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	M. Carroll
+/* *************************************************************** */
+Author: 
+	PaperThin, Inc.
+	M. Carroll
 Name:
 	$sortArrayByIDList
 Summary:
@@ -613,9 +630,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Sam Smith
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Sam Smith
 Name:
 	$trimStringByWordCount
 Summary:
@@ -660,9 +678,10 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
 Name:
 	$getBinaryDocFile
 Summary:
@@ -689,45 +708,41 @@ History:
 		<cfset request.binaryDoc = binaryDoc>
 	</cfif>
 </cffunction>
+
 <!---
-	/* ***************************************************************
-	/*
-	Author: 	Ron West
-	Name:
-		$queryToArrayOfStructures
-	Summary:	
-		Converts a query to an array of structures
-	Returns:
-		Array rtnArray
-	Arguments:
-		Query queryData
-	History:
-		2009-07-05 - RLW - Created
-		2011-02-07 - GAC - Added parameter to force all StructKeys to lowercase 
-	--->
+/* *************************************************************** */
+Author: 
+	PaperThin, Inc.	
+	Ron West
+Name:
+	$queryToArrayOfStructures
+Summary:	
+	Converts a query to an array of structures
+	
+	This library is part of the Common Function Library Project. An open source
+	collection of UDF libraries designed for ColdFusion 5.0 and higher. For more information,
+	please see the web site at:
+		
+		http://www.cflib.org
+		
+	License:
+	This code may be used freely. 
+	You may modify this code as you see fit, however, this header, and the header
+	for the functions must remain intact.
+	
+	This code is provided as is.  We make no warranty or guarantee.  Use of this code is at your own risk.
+Returns:
+	Array rtnArray
+Arguments:
+	Query queryData
+History:
+	2009-07-05 - RLW - Created
+	2011-02-07 - GAC - Added parameter to force all StructKeys to lowercase 
+--->
 <cffunction name="queryToArrayOfStructures" access="public" returntype="Array" hint="Converts a query to an array of structures">
 	<cfargument name="queryData" type="query" required="true" hint="The query that will be converted into an array of structures">
 	<cfargument name="keysToLowercase" type="boolean" required="false" default="false" hint="Use to convert struct key to lowercase">
-	<!---
-	This library is part of the Common Function Library Project. An open source
-		collection of UDF libraries designed for ColdFusion 5.0 and higher. For more information,
-		please see the web site at:
-			
-			http://www.cflib.org
-			
-		Warning:
-		You may not need all the functions in this library. If speed
-		is _extremely_ important, you may want to consider deleting
-		functions you do not plan on using. Normally you should not
-		have to worry about the size of the library.
-			
-		License:
-		This code may be used freely. 
-		You may modify this code as you see fit, however, this header, and the header
-		for the functions must remain intact.
-		
-		This code is provided as is.  We make no warranty or guarantee.  Use of this code is at your own risk.
-	--->		
+	
 	<cfscript>
 		/**
 		 * Converts a query object into an array of structures.
@@ -752,34 +767,27 @@ History:
 			}
 			arrayAppend(theArray,duplicate(thisRow));
 		}
+		return theArray;
 	</cfscript>
-	<cfreturn theArray>
 </cffunction>
+
 <!---
-/**
+/* *************************************************************** */
  * From CFLib on 07/02/2009
- *
- * Converts a URL query string to a structure.
- *
- * @param qs      Query string to parse. Defaults to cgi.query_string. (Optional)
- * @return Returns a struct.
- * @author Malessa Brisbane (cflib@brisnicki.com)
- * @version 1, April 11, 2006
- */
+
+Summary:
+	Converts a URL query string to a structure.
+
+	@param qs      Query string to parse. Defaults to cgi.query_string. (Optional)
+	@return Returns a struct.
+	@author Malessa Brisbane (cflib@brisnicki.com)
+	@version 1, April 11, 2006
  --->
 <cffunction name="queryStringToStruct" access="public" returntype="struct">
 	<cfargument name="inString" type="String" required="true">
 	
 	<cfscript>
-		/**
-		* Converts a URL query string to a structure.
-		*
-		* @param qs      Query string to parse. Defaults to cgi.query_string. (Optional)
-		* @return Returns a struct.
-		* @author Malessa Brisbane (cflib@brisnicki.com)
-		* @version 1, April 11, 2006
-		*/
-		 //var to hold the final structure
+		//var to hold the final structure
 	    var struct = StructNew();
 	    //vars for use in the loop, so we don't have to evaluate lists and arrays more than once
 	    var i = 1;
@@ -807,25 +815,23 @@ History:
 	    return struct;
 	</cfscript>
 </cffunction>
+
 <!---
+/* *************************************************************** */
+	From cflib.org
 
-From cflib.org
+Summary:
+	Makes a struct for all values in a given column(s) of a query.
 
-/**
-* Makes a struct for all values in a given column(s) of a query.
-*
-* @param query      The query to operate on (Required)
-* @param keyColumn      The name of the column to use for the key in the struct (Required)
-* @param valueColumn      The name of the column in the query to use for the values in the struct (defaults to whatever the keyColumn is) (Optional)
-* @param reverse      Boolean value for whether to go through the query in reverse (default is false) (Optional)
-* @return struct
-* @author Nathan Dintenfass (nathan@changemedia.com)
-* @version 1, July 9, 2003
-*/
-
+	@param query      The query to operate on (Required)
+	@param keyColumn      The name of the column to use for the key in the struct (Required)
+	@param valueColumn      The name of the column in the query to use for the values in the struct (defaults to whatever the keyColumn is) (Optional)
+	@param reverse      Boolean value for whether to go through the query in reverse (default is false) (Optional)
+	@return struct
+	@author Nathan Dintenfass (nathan@changemedia.com)
+	@version 1, July 9, 2003
 History:
 	2009-07-30 - RLW - Created
-
 --->
 <cffunction name="queryColumnsToStruct" access="public" returntype="Struct" hint="">
 	<cfargument name="query" type="query" required="true" hint="The query to convert">
@@ -849,13 +855,15 @@ History:
 	        ii = ii + increment;
 	        rowsGotten = rowsGotten + 1;        
 	    }
+	    return struct;
 	</cfscript>
-	<cfreturn struct>
 </cffunction>
+
 <!---
-/* ***************************************************************
-/*
-Author: 	M. Carroll
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
 Name:
 	$structFindRecurse
 Summary:
@@ -877,86 +885,78 @@ History:
 		var currKey = ListFirst(arguments.keyList);  // Current Key Variable
 
 		// Check if current key exists in the struct
-		if ( StructKeyExists(arguments.dataStruct, currKey) ){
+		if ( StructKeyExists(arguments.dataStruct, currKey) )
+		{
 			// Check if we still have a sub struct
-			if ( isStruct(arguments.dataStruct[currKey]) ) {
+			if ( isStruct(arguments.dataStruct[currKey]) ) 
+			{
 				// Recurse the remaining struct
 				return structFindRecurse(arguments.dataStruct[currKey], ListDeleteAt(arguments.keyList,1));				
-			} else {
+			} 
+			else 
+			{
 				// Found what we needed, so return the struct key value
 				return arguments.dataStruct[currKey];
 			}
-		} else {
+		} 
+		else 
+		{
 			// No match found, return empty string
 			return "";
 		}
 	</cfscript>
 </cffunction>
+
 <!---
-	/* ***************************************************************
-	/*
-	Author: 	Ron West
-	Name:
-		$csvToQuery
-	Summary:	
-		Converts a CSV file into a Query
-	Returns:
-		Query csvQuery
-	Arguments:
-		String csvString
-		String rowDelim
-		String colDelim
-	History:
-		2009-08-25 - RLW - Created
-	--->
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
+Name:
+	$csvToQuery
+Summary:	
+	Transform a CSV formatted string with header column into a query object.
+	
+	@param cvsString 	 CVS Data. (Required)
+	@param rowDelim 	 Row delimiter. Defaults to CHR(10). (Optional)
+	@param colDelim 	 Column delimiter. Defaults to a comma. (Optional)
+	@return Returns a query. 
+	@author Tony Brandner (tony@brandners.com) 
+	@version 1, September 30, 2005 
+	
+	This library is part of the Common Function Library Project. An open source
+	collection of UDF libraries designed for ColdFusion 5.0 and higher. For more information,
+	please see the web site at:
+		
+		http://www.cflib.org
+		
+	License:
+	This code may be used freely. 
+	You may modify this code as you see fit, however, this header, and the header
+	for the functions must remain intact.
+	
+	This code is provided as is.  We make no warranty or guarantee.  Use of this code is at your own risk.
+Returns:
+	Query csvQuery
+Arguments:
+	String csvString
+	String rowDelim
+	String colDelim
+History:
+	2009-08-25 - RLW - Added
+--->
 <cffunction name="csvToQuery" access="public" returntype="query" hint="Converts a CSV file into a Query">
 	<cfargument name="csvString" type="string" required="true" hint="The actual CSV content">
 	<cfargument name="rowDelim" type="string" required="false" default="#chr(10)#" hint="The delimiter between each row. Defaults to carriage return">
 	<cfargument name="colDelim" type="string" required="false" default="," hint="The delimeter between each column. Defaults to comma">
-	<!---
-	This library is part of the Common Function Library Project. An open source
-		collection of UDF libraries designed for ColdFusion 5.0 and higher. For more information,
-		please see the web site at:
-			
-			http://www.cflib.org
-			
-		Warning:
-		You may not need all the functions in this library. If speed
-		is _extremely_ important, you may want to consider deleting
-		functions you do not plan on using. Normally you should not
-		have to worry about the size of the library.
-			
-		License:
-		This code may be used freely. 
-		You may modify this code as you see fit, however, this header, and the header
-		for the functions must remain intact.
-		
-		This code is provided as is.  We make no warranty or guarantee.  Use of this code is at your own risk.
-	--->
+	
 	<cfscript>
-	/**
-	 * Transform a CSV formatted string with header column into a query object.
-	 * 
-	 * @param cvsString 	 CVS Data. (Required)
-	 * @param rowDelim 	 Row delimiter. Defaults to CHR(10). (Optional)
-	 * @param colDelim 	 Column delimiter. Defaults to a comma. (Optional)
-	 * @return Returns a query. 
-	 * @author Tony Brandner (tony@brandners.com) 
-	 * @version 1, September 30, 2005 
-	 */
-	//function csvToQuery(csvString){
-		//var rowDelim = chr(10);
-		//var colDelim = ",";
-		//var numCols = 1;
 		var newQuery = QueryNew("");
 		var arrayCol = ArrayNew(1);
 		var i = 1;
 		var j = 1;
 		
 		arguments.csvString = trim(arguments.csvString);
-		
-		//if(arrayLen(arguments) GE 2) arguments.rowDelim = arguments[2];
-		//if(arrayLen(arguments) GE 3) arguments.colDelim = arguments[3];
 	
 		arrayCol = listToArray(listFirst(arguments.csvString,arguments.rowDelim),arguments.colDelim);
 		
@@ -971,14 +971,15 @@ History:
 			}
 		}
 		
-	//}
+		return newQuery
 	</cfscript>
-	<cfreturn newQuery>
 </cffunction>
+
 <!---
-/* ***************************************************************
-/*
-Author: 	M. Carroll
+/* *************************************************************** */
+Author: 
+	PaperThin, Inc.	
+	M. Carroll
 Name:
 	$structMerge
 Summary:
@@ -1026,10 +1027,13 @@ History:
 				// Check if have a sub-structure remaining
 				if ( isStruct(retStruct[currKey]) AND isStruct(arguments.struct2[currKey]) )
 					StructInsert(retStruct, currKey, structMerge(retStruct[currKey], arguments.struct2[currKey]), true);
-				else if ( isStruct(arguments.struct2[currKey]) ){
+				else if ( isStruct(arguments.struct2[currKey]) )
+				{
 					// Check if we still have a struct in arguments.struct2[currKey]
 					StructInsert(retStruct, currKey, arguments.struct2[currKey], true);
-				}else if(arguments.mergeValues and isSimpleValue(retStruct[currKey]) and isSimpleValue(struct2[currKey])){
+				}
+				else if(arguments.mergeValues and isSimpleValue(retStruct[currKey]) and isSimpleValue(struct2[currKey]))
+				{
 					//Check to see if we have simple values that can have a list merge
 					StructInsert(retStruct, currKey, listAppend(retStruct[currKey],struct2[currKey]), true);
 				}
@@ -1042,100 +1046,90 @@ History:
 		return retStruct;
 	</cfscript>
 </cffunction>
-<!---
-	/* ***************************************************************
-	/*
-	Author: 	Ron West
-	Name:
-		$queryToCSV
-	Summary:	
-		Converts a CF Query into a CSV string
-	Returns:
-		String csv
-	Arguments:
-		Query data
-		String headers
-		String cols
-	History:
-		2009-08-27 - RLW - Created
-	--->
-<cffunction name="queryToCSV" access="public" returntype="string" hint="Converts a CF Query into a CSV string">
 
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
+Name:
+	$queryToCSV
+Summary:	
+	Converts a CF Query into a CSV string
+	
+	@param query      The query to transform. (Required)
+	@param headers      A list of headers to use for the first row of the CSV string. Defaults to cols. (Optional)
+	@param cols      The columns from the query to transform. Defaults to all the columns. (Optional)
+	@return Returns a string.
+	@author adgnot sebastien (sadgnot@ogilvy.net)
+	@version 1, June 26, 2002
+Returns:
+	String csv
+Arguments:
+	Query data
+	String headers
+	String cols
+History:
+	2009-08-27 - RLW - Created
+--->
+<cffunction name="queryToCSV" access="public" returntype="string" hint="Converts a CF Query into a CSV string">
 	<cfargument name="data" type="query" required="true" hint="The Query to be converted">
 	<cfargument name="headers" type="string" required="false" default="" hint="A comma separated list of strings to be used as column headers">
 	<cfargument name="cols" type="string" required="false" default="" hint="A comma separated list of column names from query to be converted">
+	
 	<cfscript>
-		/**
-		* Transform a query result into a csv formatted variable.
-		*
-		* @param query      The query to transform. (Required)
-		* @param headers      A list of headers to use for the first row of the CSV string. Defaults to cols. (Optional)
-		* @param cols      The columns from the query to transform. Defaults to all the columns. (Optional)
-		* @return Returns a string.
-		* @author adgnot sebastien (sadgnot@ogilvy.net)
-		* @version 1, June 26, 2002
-		*/
-		//function QueryToCsv(arguments.data){
-		    var csv = "";
-		    //var cols = "";
-		    //var headers = "";
-		    var i = 1;
-		    var j = 1;
-		    
-		    //if(arrayLen(arguments) gte 2) headers = arguments[2];
-		    //if(arrayLen(arguments) gte 3) cols = arguments[3];
-		    
-		    if(arguments.cols is "") arguments.cols = arguments.data.columnList;
-		    if(arguments.headers IS "") arguments.headers = arguments.cols;
-		    
-		    arguments.headers = listToArray(arguments.headers);
-		    
-		    for(i=1; i lte arrayLen(arguments.headers); i=i+1){
-		        csv = csv & """" & arguments.headers[i] & """,";
-		    }
-		
-		    csv = csv & chr(13) & chr(10);
-		    
-		    arguments.cols = listToArray(arguments.cols);
-		    
-		    for(i=1; i lte arguments.data.recordCount; i=i+1){
-		        for(j=1; j lte arrayLen(arguments.cols); j=j+1){
-		            csv = csv & """" & arguments.data[arguments.cols[j]][i] & """,";
-		        }        
-		        csv = csv & chr(13) & chr(10);
-		    }
-		    //return csv;
-		//}
-	</cfscript>
-	<cfreturn csv>
-</cffunction>
-<!---
-	/* ***************************************************************
-	/*
-	Author: 	Ron West
-	Name:
-		$queryConcat
-	Summary:	
-		Concatenate two queries together
-	Returns:
-		Query rtnQuery
-	Arguments:
-		Query query1
-		Query query2
-	History:
-		2009-09-07 - RLW - Created
+		var csv = "";
+	    var i = 1;
+	    var j = 1;
+	    
+	    if(arguments.cols is "") arguments.cols = arguments.data.columnList;
+	    if(arguments.headers IS "") arguments.headers = arguments.cols;
+	    
+	    arguments.headers = listToArray(arguments.headers);
+	    
+	    for(i=1; i lte arrayLen(arguments.headers); i=i+1)
+		{
+	        csv = csv & """" & arguments.headers[i] & """,";
+	    }
+	
+	    csv = csv & chr(13) & chr(10);
+	    
+	    arguments.cols = listToArray(arguments.cols);
+	    
+	    for(i=1; i lte arguments.data.recordCount; i=i+1)
+		{
+	        for(j=1; j lte arrayLen(arguments.cols); j=j+1)
+			{
+	            csv = csv & """" & arguments.data[arguments.cols[j]][i] & """,";
+	        }        
+	        csv = csv & chr(13) & chr(10);
+	    }
 
-This library is part of the Common Function Library Project. An open source
+		return csv;
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 
+	PaperThin, Inc.	
+	Ron West
+Name:
+	$queryConcat
+Summary:	
+	Concatenate two queries together
+
+	@param q1 	 First query. (Optional)
+    @param q2 	 Second query. (Optional)
+	@return Returns a query. 
+	@author Chris Dary (umbrae@gmail.com) 
+	@version 1, February 23, 2006 
+	
+	This library is part of the Common Function Library Project. An open source
 	collection of UDF libraries designed for ColdFusion 5.0 and higher. For more information,
 	please see the web site at:
 		
 		http://www.cflib.org
-		
-	Warning:
-	You may not need all the functions in this library. If speed
-	is _extremely_ important, you may want to consider deleting
-	functions you do not plan on using. Normally you should not
-	have to worry about the size of the library.
 		
 	License:
 	This code may be used freely. 
@@ -1143,39 +1137,43 @@ This library is part of the Common Function Library Project. An open source
 	for the functions must remain intact.
 	
 	This code is provided as is.  We make no warranty or guarantee.  Use of this code is at your own risk.
+Returns:
+	Query rtnQuery
+Arguments:
+	Query query1
+	Query query2
+History:
+	2009-09-07 - RLW - Created
 --->
 <cffunction name="queryConcat" access="public" returntype="Query" hint="Concatenate two queries together">
 	<cfargument name="q1" type="query" required="true" hint="The first query to start with">
 	<cfargument name="q2" type="query" required="true" hint="The second query - note must have the same columns as the first query">
-	<cfscript>
-		/**
-		 * Concatenate two queries together.
-		 * 
-		 * @param q1 	 First query. (Optional)
-		 * @param q2 	 Second query. (Optional)
-		 * @return Returns a query. 
-		 * @author Chris Dary (umbrae@gmail.com) 
-		 * @version 1, February 23, 2006 
-		 */
+	
+	<cfscript>	 
 		var row = "";
 		var col = "";
 		
-		if(arguments.q1.columnList NEQ arguments.q2.columnList) {
+		if ( arguments.q1.columnList NEQ arguments.q2.columnList ) 
+		{
 			return arguments.q1;
 		}
 		
-		for(row=1; row LTE arguments.q2.recordCount; row=row+1) {
-		 queryAddRow(arguments.q1);
-		 for(col=1; col LTE listLen(arguments.q1.columnList); col=col+1)
-			querySetCell(arguments.q1,ListGetAt(arguments.q1.columnList,col), arguments.q2[ListGetAt(arguments.q1.columnList,col)][row]);
+		for(row=1; row LTE arguments.q2.recordCount; row=row+1) 
+		{
+			queryAddRow(arguments.q1);
+			 for(col=1; col LTE listLen(arguments.q1.columnList); col=col+1)
+				querySetCell(arguments.q1,ListGetAt(arguments.q1.columnList,col), arguments.q2[ListGetAt(arguments.q1.columnList,col)][row]);
 		}
+		
+		return q1;
 	</cfscript>
-	<cfreturn q1>
 </cffunction>
+
 <!---
-/* ***************************************************************
-/*
-Author: 	M. Carroll
+/* *************************************************************** */
+Author:
+	PaperThin, Inc. 	
+	M. Carroll
 Name:
 	$getTagAttribute
 Summary:
@@ -1201,13 +1199,16 @@ History:
 		var endAttr = "";
 		var retAttrVal = "";		
 			
-		if ( beginAttr GT 0 ) {
+		if ( beginAttr GT 0 ) 
+		{
 			// Check if we have a quote around the value
-			if ( (possibleQuote EQ """") OR (possibleQuote EQ "'") ) {
+			if ( (possibleQuote EQ """") OR (possibleQuote EQ "'") ) 
+			{
 				// Find the closing quote 
 				endAttr = findNoCase(possibleQuote, arguments.tag, firstEqual + 2);
 			}
-			else {
+			else 
+			{
 				// No quote, then find the next space
 				endAttr = findNoCase(" ", arguments.tag, firstEqual);
 			}
@@ -1217,14 +1218,22 @@ History:
 	</cfscript>
 	<cfreturn retAttrVal>
 </cffunction>
+
 <!---
-/* ***************************************************************
-/*
-Author: 	Ron West
+/* *************************************************************** */
+Author: 
+	PaperThin, Inc.	
+	Ron West
 Name:
 	$deleteFromList
 Summary:	
 	Removes an item from a list
+	
+	@param variable      An item, or a list of items, to remove from the list. (Required)
+	@param qs      The actual list to parse. Can be blank. (Optional)
+	@return Returns a string.
+	@author Alessandro Chisari (ruchizzy@hotmail.com)
+	@version 1, May 17, 2006
 Returns:
 	String list
 Arguments:
@@ -1237,16 +1246,6 @@ History:
 	<cfargument name="list" type="string" required="true" hint="The list with the value that is to be removed">
 	<cfargument name="listValue" type="string" required="true" hint="The value to remove from the list">
 	<cfscript>
-		/**
-		* Delete items from a list.
-		*
-		* @param variable      An item, or a list of items, to remove from the list. (Required)
-		* @param qs      The actual list to parse. Can be blank. (Optional)
-		* @return Returns a string.
-		* @author Alessandro Chisari (ruchizzy@hotmail.com)
-		* @version 1, May 17, 2006
-		*/
-		//var to hold the final string
 		var string = "";
 		//vars for use in the loop, so we don't have to evaluate lists and arrays more than once
 		var ii = 1;
@@ -1257,7 +1256,8 @@ History:
 		//put the query string into an array for easier looping
 		array = listToArray(arguments.list,",");
 		//now, loop over the array and rebuild the string
-		for(ii = 1; ii lte arrayLen(array); ii = ii + 1){
+		for(ii = 1; ii lte arrayLen(array); ii = ii + 1)
+		{
 			thisIndex = array[ii];
 			thisVar = thisIndex;
 			//if this is the var, edit it to the value, otherwise, just append
@@ -1267,10 +1267,14 @@ History:
 	</cfscript>
 	<cfreturn string>
 </cffunction>
-<!---
- 	From CFLib on 11/02/2009 [MFC]
 
+<!---
+/* *************************************************************** */
+	From CFLib on 11/02/2009 [MFC]
+
+Summary:
 	Capitalizes the first letter in each word.
+
 	Made udf use strlen, rkc 3/12/02
 	v2 by Sean Corfield.
 	
@@ -1296,18 +1300,19 @@ History:
 
     <cfreturn newstr />
 </cffunction>
+
 <!---
 /* *************************************************************** */
 	From CFLib on 11/13/2009 [MFC]
-/**
-	* Concatenates two arrays.
-	*
-	* @param a1      The first array.
-	* @param a2      The second array.
-	* @return Returns an array.
-	* @author Craig Fisher (craig@altainetractive.com)
-	* @version 1, September 13, 2001
-	*/
+
+Summary:
+	Concatenates two arrays.
+
+	@param a1      The first array.
+	@param a2      The second array.
+	@return Returns an array.
+	@author Craig Fisher (craig@altainetractive.com)
+	@version 1, September 13, 2001
 --->
 <cffunction name="ArrayConcat" access="public" returntype="array" hint="">
 	<cfargument name="a1" type="array" required="true" hint="">
@@ -1315,30 +1320,32 @@ History:
 	
 	<cfscript>
 	    var i=1;
-	    if ((NOT IsArray(a1)) OR (NOT IsArray(a2))) {
+	    if ((NOT IsArray(a1)) OR (NOT IsArray(a2))) 
+	    {
 	        writeoutput("Error in <Code>ArrayConcat()</code>! Correct usage: ArrayConcat(<I>Array1</I>, <I>Array2</I>) -- Concatenates Array2 to the end of Array1");
 	        return 0;
 	    }
-	    for (i=1;i LTE ArrayLen(a2);i=i+1) {
+	    for (i=1;i LTE ArrayLen(a2);i=i+1) 
+	    {
 	        ArrayAppend(a1, Duplicate(a2[i]));
 	    }
 	    return a1;
 	</cfscript>
 </cffunction>
+
 <!---
 /* *************************************************************** */
 	From CFLib on 11/16/2009 [MFC]
-	
-/**
-* Rounds a number to a specific number of decimal places by using Java's math library.
-*
-* @param numberToRound      The number to round. (Required)
-* @param numberOfPlaces      The number of decimal places. (Required)
-* @param mode      The rounding mode. Defaults to even. (Optional)
-* @return Returns a number.
-* @author Peter J. Farrell (pjf@maestropublishing.com)
-* @version 1, March 3, 2006
-*/
+
+Summary:
+	Rounds a number to a specific number of decimal places by using Java's math library.
+
+	@param numberToRound      The number to round. (Required)
+	@param numberOfPlaces      The number of decimal places. (Required)
+	@param mode      The rounding mode. Defaults to even. (Optional)
+	@return Returns a number.
+	@author Peter J. Farrell (pjf@maestropublishing.com)
+	@version 1, March 3, 2006
 --->
 <cffunction name="decimalRound" access="public" returntype="numeric" hint="">
 	<cfargument name="numberToRound" type="numeric" required="true" hint="">
@@ -1350,16 +1357,20 @@ History:
 		var mode = "even";
 		var result = "";
 		
-		if (ArrayLen(arguments) GTE 3) {
+		if (ArrayLen(arguments) GTE 3) 
 		    mode = arguments[3];
-		}
 		
 		bd.init(arguments.numberToRound);
-		if (mode IS "up") {
+		if (mode IS "up") 
+		{
 		    bd = bd.setScale(arguments.numberOfPlaces, bd.ROUND_HALF_UP);
-		} else if (mode IS "down") {
+		} 
+		else if (mode IS "down") 
+		{
 		    bd = bd.setScale(arguments.numberOfPlaces, bd.ROUND_HALF_DOWN);
-		} else {
+		} 
+		else 
+		{
 		    bd = bd.setScale(arguments.numberOfPlaces, bd.ROUND_HALF_EVEN);
 		}
 		result = bd.toString();
@@ -1369,22 +1380,23 @@ History:
 		return result;
 	</cfscript>
 </cffunction>
+
 <!---
 /* *************************************************************** */
 	From CFLib on 11/17/2009 [MFC]
+
+Summary:	
+	Remove duplicates from a list.
 	
-/**
-* Remove duplicates from a list.
-*
-* @param lst      List to parse. (Required)
-* @param delim      List delimiter. Defaults to a comma. (Optional)
-* @return Returns a string.
-* @author Keith Gaughan (keith@digital-crew.com)
-* @version 1, August 22, 2005
-*/
+	@param lst      List to parse. (Required)
+	@param delim      List delimiter. Defaults to a comma. (Optional)
+	@return Returns a string.
+	@author Keith Gaughan (keith@digital-crew.com)
+	@version 1, August 22, 2005
 --->
 <cffunction name="listRemoveDuplicates" access="public" returntype="string" hint="">
 	<cfargument name="lst" type="string" required="true">
+	
 	<cfscript>
 		var i = 0;
 		var delim = ",";
@@ -1401,57 +1413,66 @@ History:
 		return structKeyList(set, delim);
 	</cfscript>
 </cffunction>
+
 <!---
 /* *************************************************************** */
 	From CFLib on 12/10/2009 [MFC]
-/**
-* Converts a structure to a URL query string.
-*
-* @param struct      Structure of key/value pairs you want converted to URL parameters
-* @param keyValueDelim      Delimiter for the keys/values. Default is the equal sign (=).
-* @param queryStrDelim      Delimiter separating url parameters. Default is the ampersand (&).
-* @return Returns a string.
-* @author Erki Esken (erki@dreamdrummer.com)
-* @version 1, December 17, 2001
+
+Summary:
+	Converts a structure to a URL query string.
+
+	@param struct      Structure of key/value pairs you want converted to URL parameters
+	@param keyValueDelim      Delimiter for the keys/values. Default is the equal sign (=).
+	@param queryStrDelim      Delimiter separating url parameters. Default is the ampersand (&).
+	@return Returns a string.
+	@author Erki Esken (erki@dreamdrummer.com)
+	@version 1, December 17, 2001
 */
 --->
 <cffunction name="StructToQueryString" access="public" returntype="string" hint="">
 	<cfargument name="struct" type="struct" required="true" hint="">
+	
 	<cfscript>
 		var qstr = "";
 		var delim1 = "=";
 		var delim2 = "&";
 		
-		switch (ArrayLen(Arguments)) {
-		case "3":
-		delim2 = Arguments[3];
-		case "2":
-		delim1 = Arguments[2];
+		switch (ArrayLen(Arguments)) 
+		{
+			case "3":
+				delim2 = Arguments[3];
+			case "2":
+				delim1 = Arguments[2];
 		}
 		    
-		for (key in struct) {
-		qstr = ListAppend(qstr, URLEncodedFormat(LCase(key)) & delim1 & URLEncodedFormat(struct[key]), delim2);
+		for (key in struct) 
+		{
+			qstr = ListAppend(qstr, URLEncodedFormat(LCase(key)) & delim1 & URLEncodedFormat(struct[key]), delim2);
 		}
 		return qstr;
 	</cfscript>
-	
 </cffunction>
+
 <!---
 /* *************************************************************** */
 	From CFLib on 12/17/2009 [MFC]
-	
-Display rss feed.
-Changes by Raymond Camden and Steven (v2 support amount)
 
-@param feedURL      RSS URL. (Required)
-@param amount      Restricts the amount of items returned. Defaults to number of items in the feed. (Optional)
-@return Returns a query.
-@author Jose Diaz-Salcedo (bleachedbug@gmail.com)
-@version 2, November 20, 2008
+Summary:	
+	Display rss feed.
+	
+	Changes by Raymond Camden and Steven (v2 support amount)
+
+	@param feedURL      RSS URL. (Required)
+	@param amount      Restricts the amount of items returned. Defaults to number of items in the feed. (Optional)
+	@return Returns a query.
+	@author Jose Diaz-Salcedo (bleachedbug@gmail.com)
+	@version 2, November 20, 2008
+History:
 	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
 <cffunction name="cfRssFeed" access="public" returntype="query" output=false>
-    <cfargument name="feedUrl" type="string" required="true"/>
+    <cfargument name="feedUrl" type="string" required="true">
+	
     <cfset var news_file = arguments.feedurl>
     <cfset var rss = "">
     <cfset var items = "">
@@ -1460,6 +1481,7 @@ Changes by Raymond Camden and Steven (v2 support amount)
     <cfset var row = "">
     <cfset var title = "">
     <cfset var link = "">
+	
     <cfscript>
 		var description = '';
 	</cfscript>
@@ -1500,11 +1522,9 @@ Changes by Raymond Camden and Steven (v2 support amount)
         <cfset querySetCell(rssItems, "title", title, row)>
         <cfset querySetCell(rssItems, "description", description, row)>
         <cfset querySetCell(rssItems, "link", link, row)>
-
     </cfloop>
 
-    <cfreturn rssItems />
-
+    <cfreturn rssItems>
 </cffunction>
 
 <!---

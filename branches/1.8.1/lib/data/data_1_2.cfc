@@ -35,7 +35,7 @@ History:
 --->
 <cfcomponent displayname="data_1_2" extends="ADF.lib.data.data_1_1" hint="Data Utils component functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_9">
+<cfproperty name="version" value="1_2_10">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Data_1_2">
 
@@ -385,6 +385,8 @@ Arguments:
 	String - orderList
 	String - orderColumnName
 	String - orderListDelimiter
+Usage:
+	application.ADF.data.QuerySortByOrderedList(query,columnNam,columnTypee,orderList);
 History:
 	2013-01-10 - MFC - Created
 	2013-10-23 - GAC - Renamed and cleaned up debug code in the method  
