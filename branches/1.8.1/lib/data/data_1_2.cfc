@@ -32,10 +32,11 @@ History:
 	2012-12-31 - MFC/GAC - Created - New v1.2
 	2013-02-28 - GAC - Added new string to number and number to string functions
 	2013-09-06 - GAC - Added the listDiff and IsListDifferent functions
+	2014-12-03 - GAC - Added the isNumericList function
 --->
 <cfcomponent displayname="data_1_2" extends="ADF.lib.data.data_1_1" hint="Data Utils component functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_10">
+<cfproperty name="version" value="1_2_11">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Data_1_2">
 
@@ -800,6 +801,42 @@ History:
 			<cfreturn false>
 		</cfcatch>
 	</cftry>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	G. Cronkright
+Name:
+	$isNumericList
+Summary:
+	Checks to make sure all values is a list are numeric. 
+	Returns true/false.
+Returns:
+	boolean
+Arguments:
+	String - list
+	String - delimiter
+History:
+	2014-12-03 - GAC - Created
+--->
+<cffunction name="isNumericList" returntype="boolean" access="public" output="false" hint="Checks to make sure all values is a list are numeric.">
+	<cfargument name="list" type="string" required="false" default="" hist="A delimited list of values.">
+	<cfargument name="delimiter" type="string" required="false" default="," hint="Delimiter for the list.  Defualt is comma. (Optional)">
+	
+	<cfscript>
+        var listItem = '';
+        var i = 0;
+        
+        for ( i=1; i LTE ListLen(arguments.list,arguments.delimiter); i=i+1 ) 
+        {
+            listItem = ListGetAt(arguments.list,i,arguments.delimiter);
+            if ( !isNumeric(listItem) )
+                return false;
+        }   
+        return true;
+	</cfscript>
 </cffunction>
 
 </cfcomponent>
