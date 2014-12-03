@@ -38,10 +38,61 @@ History:
 --->
 <cfcomponent displayname="scripts_1_2" extends="ADF.lib.scripts.scripts_1_1" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" value="1_2_22">
+<cfproperty name="version" value="1_2_23">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_1" type="dependency">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Scripts_1_2">
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin Inc.
+	Greg Cronkright
+Name:
+	$loadBootstrap
+Summary:
+	Loads the Bootstrap Headers if not loaded.
+Returns:
+	None
+Arguments:
+	String - version  - major.minor version only ()
+	Boolean - force - Forces the Bootstrap headers to load
+	Boolean - useDefaultTheme -  Loads the default bootstrap theme by default
+History:
+	2014-12-03 - GAC - Created
+--->
+<cffunction name="loadBootstrap" access="public" output="true" returntype="void" hint="Loads the Bootstrap Headers if not loaded.">
+	<cfargument name="version" type="string" required="false" default="3.3" hint="Bootstrap version to load.">
+	<cfargument name="force" type="boolean" required="false" default="false" hint="Forces the Bootstrap headers to load.">
+	<cfargument name="useDefaultTheme" type="boolean" required="false" default="true" hint="Loads the default bootstrap theme css file.">
+	
+	<cfscript>
+		var outputHTML = "";
+		var thirdPartyLibPath = "/ADF/thirdParty/bootstrap/";
+		var scriptPath = ""; 
+		
+		// Only use the major.minor version numbers and strip .maintenance/.build number if passed in
+		arguments.version = variables.scriptsService.getMajorMinorVersion(arguments.version);
+		
+		scriptPath = thirdPartyLibPath & arguments.version & "/"; 
+	</cfscript>
+	<cfsavecontent variable="outputHTML">
+		<cfoutput>
+		<link href="#scriptPath#css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+		<cfif useDefaultTheme>
+		<link href="#scriptPath#css/bootstrap-theme.min.css" rel="stylesheet" type="text/css" />
+		</cfif>
+		<script type="text/javascript" src="#scriptPath#js/bootstrap.min.js" charset="utf-8"></script>
+		</cfoutput>
+	</cfsavecontent>
+	<cfoutput>
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("bootstrap",outputHTML)#
+		</cfif>
+	</cfoutput>
+</cffunction>
 
 <!---
 /* *************************************************************** */
@@ -121,8 +172,7 @@ History:
 </cffunction>
 
 <!---
-/* ***************************************************************
-/*
+/* *************************************************************** */
 Author:
 	Fig Leaf Software
 	Mike Tangorre (mtangorre@figleaf.com)
@@ -152,6 +202,79 @@ History:
 			#outputHTML#
 		<cfelse>
 			#variables.scriptsService.renderScriptOnce("fileUploader",outputHTML)#
+		</cfif>
+	</cfoutput>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+	G. Cronkright
+Name:
+	$loadFontAwesome
+Summary:
+	Loads the Font Awesome iconic font and CSS toolkit
+Returns:
+	void
+Arguments:
+	String - Version
+	Boolean - Force
+History:
+ 	2014-09-22 - GAC - Created
+	2014-12-03 - GAC - Fixed the the major.minor version consistency issue to remove the .maintenance/.build number if passed in
+--->
+<cffunction name="loadFontAwesome" access="public" output="true" returntype="void" hint="Loads the Font Awesome iconic font and CSS toolkit">
+	<cfargument name="version" type="string" required="false" default="4.2" hint="Script version to load.">
+	<cfargument name="force" type="boolean" required="false" default="false" hint="Forces Font Awesome css header to load.">
+	<cfargument name="dynamicHeadRender" type="boolean" required="false" default="false" hint="Uses jQuery to load the Font Awesome css into the HEAD of the document dynamically.">
+	<cfargument name="overridePath" type="string" required="false" default="" hint="A relative path to a custom site level override font-awesome css file">
+	
+	<cfscript>
+		var outputHTML = "";
+		var thirdPartyLibPath = "/ADF/thirdParty/css/font-awesome/";
+		var scriptPath = ""; 
+		var scriptPathExt = ""; 
+		
+		// Only use the major.minor version numbers and strip .maintenance/.build number if passed in
+		arguments.version = variables.scriptsService.getMajorMinorVersion(arguments.version); 
+	
+		scriptPath = thirdPartyLibPath & arguments.version & "/css/font-awesome.min.css"; 
+		// An ADF css extension css file that add sizes (6x-10x) 
+		scriptPathExt = thirdPartyLibPath & arguments.version & "/css/font-awesome-ADF-ext.css"; 
+	
+		// If an overridePath is passed in and valid load that .css file instead
+		if ( LEN(TRIM(arguments.overridePath)) AND ListLast(arguments.overridePath,".") EQ "css" AND FileExists(expandPath(arguments.overridePath)) )
+		{
+			scriptPath = arguments.overridePath;
+			scriptPathExt = "";
+		}
+	</cfscript>
+	
+	<cfsavecontent variable="outputHTML">
+		<cfoutput>
+		<cfif arguments.dynamicHeadRender>
+			<script>
+				jQuery(function(){
+					jQuery('<link>').attr('rel','stylesheet').attr('type','text/css').attr('href','#scriptPath#').appendTo('head'); 
+					<cfif LEN(TRIM(scriptPathExt))>
+					jQuery('<link>').attr('rel','stylesheet').attr('type','text/css').attr('href','#scriptPathExt#').appendTo('head'); 
+					</cfif>
+				});
+			</script>
+		<cfelse>
+			<link href="#scriptPath#" rel="stylesheet" type="text/css" />
+			<cfif LEN(TRIM(scriptPathExt))>
+			<link href="#scriptPathExt#" rel="stylesheet" type="text/css" />
+			</cfif>
+		</cfif>
+		</cfoutput>
+	</cfsavecontent>
+	<cfoutput>
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("fontAwesome",outputHTML)#
 		</cfif>
 	</cfoutput>
 </cffunction>
@@ -210,6 +333,7 @@ History:
 	2013-02-06 - MFC - Set default to 1.9 and load JQuery Migrate Plugin when 
 						loading v1.9 or greater.
 	2014-05-05 - GAC - Updated the default jQuery version to 1.11
+	2014-12-03 - GAC - Updated to fix the version detection logic for the loadMigratePlugin
 --->
 <cffunction name="loadJQuery" access="public" returntype="void" hint="Loads the JQuery Headers if not loaded.">
 	<cfargument name="version" type="string" required="false" default="1.11" hint="JQuery version to load.">
@@ -222,10 +346,13 @@ History:
 		// Make the version backwards compatiable to remove minor build numbers.
 		arguments.version = variables.scriptsService.getMajorMinorVersion(arguments.version);
 
-		// Check that we are loading v1.9 or greater
-		if ( (arguments.version EQ 1.9) OR (LEN(ListLast(arguments.version, ".")) GTE 2) ) {
-			// If forcing, then load migrate plugin
-			//	OR the jquery script is NOT loaded yet
+		// Check that we are loading v1.9 or greater (eg. 1.9.x, 1.11.x or 2.x load the Migrate plugin)
+		if ( 
+				(ListFirst(arguments.version,".") EQ 1 AND ListLast(arguments.version,".") GTE 9) 
+					OR (ListFirst(arguments.version,".") GTE 2) 
+			) 
+		{
+			// If forcing, then load migrate plugin OR the jquery script is NOT loaded yet
 			if ( arguments.force OR NOT variables.scriptsService.isScriptLoaded("jQuery") )
 				loadMigratePlugin = true;	
 		}
@@ -1478,71 +1605,6 @@ History:
 	<cfscript>
 		super.loadUploadify(version=arguments.version, force=arguments.force);
 	</cfscript>
-</cffunction>
-
-<!---
-/* *************************************************************** */
-Author:
-	PaperThin, Inc.
-	G. Cronkright
-Name:
-	$loadFontAwesome
-Summary:
-	Loads the Font Awesome iconic font and CSS toolkit
-Returns:
-	void
-Arguments:
-	String - Version
-	Boolean - Force
-History:
- 	2014-09-22 - GAC - Created
---->
-<cffunction name="loadFontAwesome" access="public" output="true" returntype="void" hint="Loads the Font Awesome iconic font and CSS toolkit">
-	<cfargument name="version" type="string" required="false" default="4.2.0" hint="Script version to load.">
-	<cfargument name="force" type="boolean" required="false" default="false" hint="Forces Font Awesome css header to load.">
-	<cfargument name="dynamicHeadRender" type="boolean" required="false" default="false" hint="Uses jQuery to load the Font Awesome css into the HEAD of the document dynamically.">
-	<cfargument name="overridePath" type="string" required="false" default="" hint="A relative path to a custom site level override font-awesome css file">
-	
-	<cfscript>
-		var outputHTML = "";
-		var thirdPartyLibPath = "/ADF/thirdParty/css/font-awesome/";
-		var scriptPath = thirdPartyLibPath & arguments.version & "/css/font-awesome.min.css"; 
-		// An ADF css extension css file that add sizes (6x-10x) 
-		var scriptPathExt = thirdPartyLibPath & arguments.version & "/css/font-awesome-ADF-ext.css";  
-	
-		if ( LEN(TRIM(arguments.overridePath)) AND FileExists(expandPath(arguments.overridePath)) )
-		{
-			scriptPath = arguments.overridePath;
-			scriptPathExt = "";
-		}
-	</cfscript>
-	
-	<cfsavecontent variable="outputHTML">
-		<cfoutput>
-		<cfif arguments.dynamicHeadRender>
-			<script>
-				jQuery(function(){
-					jQuery('<link>').attr('rel','stylesheet').attr('type','text/css').attr('href','#scriptPath#').appendTo('head'); 
-					<cfif LEN(TRIM(scriptPathExt))>
-					jQuery('<link>').attr('rel','stylesheet').attr('type','text/css').attr('href','#scriptPathExt#').appendTo('head'); 
-					</cfif>
-				});
-			</script>
-		<cfelse>
-			<link href="#scriptPath#" rel="stylesheet" type="text/css" />
-			<cfif LEN(TRIM(scriptPathExt))>
-			<link href="#scriptPathExt#" rel="stylesheet" type="text/css" />
-			</cfif>
-		</cfif>
-		</cfoutput>
-	</cfsavecontent>
-	<cfoutput>
-		<cfif arguments.force>
-			#outputHTML#
-		<cfelse>
-			#variables.scriptsService.renderScriptOnce("fontAwesome",outputHTML)#
-		</cfif>
-	</cfoutput>
 </cffunction>
 
 </cfcomponent>
