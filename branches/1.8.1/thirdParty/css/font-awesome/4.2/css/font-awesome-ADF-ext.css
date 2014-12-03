@@ -1,7 +1,9 @@
 /*!
- *  Font Awesome 4.2.0  - ADF Extension 
- *  Used to add additional font-awesome sizes
+ *  Font Awesome 4.2  - ADF Extension 
+ *  Used to add additional font-awesome options
  */
+
+/* additional font-awesome icon sizes */
 .fa-6x {
   font-size: 6em;
 }
