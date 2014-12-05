@@ -44,11 +44,12 @@ History:
 	2014-02-26 - GAC - Modified - New v1.7.0 branch.
 	2014-02-26 - GAC - Modified - New v1.7.1 branch.
 	2014-10-07 - GAC - Updated for version 1.8.0
+	2014-12-03 - GAC - Updates for Adobe ColdFusion 11 compatibility
 --->
 <cfcomponent name="Core" hint="Core component for Application Development Framework">
 
 <cfproperty name="version" value="1_8_1">
-<cfproperty name="file-version" value="6">
+<cfproperty name="file-version" value="7">
 
 <cfscript>
 	variables.ADFversion = "1.8.1"; // use a dot delimited version number
@@ -168,6 +169,7 @@ Arguments:
 	NA
 History:
 	2013-10-19 - GAC - Created
+	2014-12-03 - GAC - Updated the returnType to boolean
 --->
 <cffunction name="getSiteDevModeStatus" access="public" returntype="boolean">
 	<Cfscript>

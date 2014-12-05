@@ -36,11 +36,12 @@ History:
 	2014-09-24 - GAC - Added a loadLibraryPostInit method for loading postInit methods 
 	                   in lib components after application.ADF is built
 	2014-10-07 - GAC - Updated for version 1.8.0
+	2014-12-03 - GAC - Updates for Adobe ColdFusion 11 compatibility
 --->
 <cfcomponent displayname="SiteBase" extends="ADF.core.AppBase">
 
 <cfproperty name="version" value="1_8_1">
-<cfproperty name="file-version" value="5">
+<cfproperty name="file-version" value="6">
 
 <!---
 /* *************************************************************** */

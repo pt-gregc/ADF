@@ -32,11 +32,12 @@ History:
 	2013-10-21 - GAC - Added 'file-version' property for ADF core files 
 	2014-02-26 - GAC - Updated for version 1.7.0
 	2014-10-07 - GAC - Updated for version 1.8.0
+	2014-12-03 - GAC - Updates for Adobe ColdFusion 11 compatibility
 --->
 <cfcomponent name="Config" hint="Config component for Application Development Framework" extends="ADF.core.Base">
 
 <cfproperty name="version" value="1_8_1">
-<cfproperty name="file-version" value="3">
+<cfproperty name="file-version" value="4">
 	
 <!---
 /* *************************************************************** */
