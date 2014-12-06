@@ -1323,6 +1323,7 @@ History:
 	2011-06-24 - RLW - Added "imageID" into the structure returned
 	2011-09-06 - RAK - Removed the bulk of the logic to get the ID and replaced it with a single regular expression
 	2014-11-07 - GAC - Updated to output most of the standard render mode filter data keys using the CS CMD API (cs version dependant)
+	2014-12-05 - GAC - Removed duplicate 'var'd imageData' variable 
 --->
 <cffunction name="decipherCPIMAGE" access="public" returntype="struct" hint="Returns the proper structure for an image based on the 'CPIMAGE:' text provided by CEData() calls">
 	<cfargument name="cpimage" type="string" required="true" hint="The 'CPIMAGE:' text that is returned from the CEData() call">
@@ -1334,7 +1335,6 @@ History:
 		var csVersion = ListFirst(ListLast(request.cp.productversion," "),".");
 		var requiredCSversion = 8;
 		var imgComponent = "";
-		var imageData =  StructNew();
 		var reqProtocol = "http://";
 		var reResults = "";
 		
