@@ -45,6 +45,7 @@ History:
 	2014-04-08 - JTP - Added logic for multi-record delete
 	2014-05-29 - DJM - Moved hideOverlay() call out of the if else condition.
 	2014-07-01 - DJM - Added code to support metadata forms
+	2014-12-15 - DJM - Modified setting up of newData variable to fix issue with editing record for GCE
 --->
 <cfscript>
 	requiredCSversion = 9;
@@ -59,24 +60,39 @@ History:
 	ajaxBeanName = 'customElementDataManager';
 </cfscript>
 
+<cfquery name="getFieldDetails" dbtype="query">
+	SELECT [Action]
+	  FROM FieldQuery
+	 WHERE InputID = <cfqueryparam value="#fieldQuery.inputID#" cfsqltype="cf_sql_integer">
+</cfquery>
+		
 <!--- can not trust 'newdata' form variable being passed in for local custom elements --->
-<cfif StructKeyExists(request.params,'pageid') 
-			AND StructKeyExists(request.params,'controlid') 
-			AND StructKeyExists(request.params,'controlTypeID')
-			AND request.params.controlID gt 0>
-	<cfquery name="qry" datasource="#request.site.datasource#">
-		select count(*) as CNT 
-			from data_fieldValue
-		where FormID = <cfqueryparam cfsqltype="CF_SQL_INTEGER" value="#request.params.controlTypeID#">
-			AND PageID = <cfqueryparam cfsqltype="CF_SQL_INTEGER" value="#request.params.PageID#">
-			AND ControlID = <cfqueryparam cfsqltype="CF_SQL_INTEGER" value="#request.params.controlID#">
+<cfif getFieldDetails.Action EQ ''>
+	<cfquery name="getClass" dbtype="query">
+		SELECT ClassID
+		  FROM FieldQuery
+		 WHERE InputID = <cfqueryparam value="#fieldQuery.inputID#" cfsqltype="cf_sql_integer">
 	</cfquery>
-	<cfscript>
-		if( qry.cnt eq 0 )
-			newData = 1;
-		else
-			newData = 0;	
-	</cfscript>
+	<cfif getClass.ClassID NEQ 1>
+		<cfif StructKeyExists(request.params,'pageid') 
+					AND StructKeyExists(request.params,'controlid') 
+					AND StructKeyExists(request.params,'controlTypeID')
+					AND request.params.controlID gt 0>
+			<cfquery name="qry" datasource="#request.site.datasource#">
+				select count(*) as CNT 
+					from data_fieldValue
+				where FormID = <cfqueryparam cfsqltype="CF_SQL_INTEGER" value="#request.params.controlTypeID#">
+					AND PageID = <cfqueryparam cfsqltype="CF_SQL_INTEGER" value="#request.params.PageID#">
+					AND ControlID = <cfqueryparam cfsqltype="CF_SQL_INTEGER" value="#request.params.controlID#">
+			</cfquery>
+			<cfscript>
+				if( qry.cnt eq 0 )
+					newData = 1;
+				else
+					newData = 0;	
+			</cfscript>
+		</cfif>
+	</cfif>
 </cfif>
 
 <cfscript>
@@ -124,13 +140,7 @@ History:
 		<CFOUTPUT><CFIF fieldpermission gt 0>#row_and_labelcell#<CFELSE><tr><td></td><td></CFIF></CFOUTPUT>
 	</cfif>
 	
-	<CFIF fieldpermission gt 0>	
-		<cfquery name="getFieldDetails" dbtype="query">
-			SELECT [Action]
-			  FROM FieldQuery
-			 WHERE InputID = <cfqueryparam value="#fieldQuery.inputID#" cfsqltype="cf_sql_integer">
-		</cfquery>
-		
+	<CFIF fieldpermission gt 0>		
 		<CFSCRIPT>
 			inputParameters = attributes.parameters[fieldQuery.inputID];
 			
