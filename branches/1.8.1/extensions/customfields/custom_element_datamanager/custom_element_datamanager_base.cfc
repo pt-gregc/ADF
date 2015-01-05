@@ -47,6 +47,7 @@ History:
 	2014-09-08 - DJM - Updated code to process data columns only when we have some data
 	2014-09-10 - DJM - Passed extra parameter to getRecordsFromSavedFilter to fetch unpublished records when the element is a LCE
 	2014-10-30 - DJM - Handling of commas within values
+	2015-01-05 - DJM - Added code to append '...' against 'add' buttons if not already present
 --->
 <cfcomponent output="false" displayname="custom element datamanager_base" extends="ADF.core.Base" hint="This the base component for the Custom Element Data Manager field">
 	
@@ -177,6 +178,9 @@ History:
 					buttonLabel = "Add New #ceName#...";
 			}
 		}
+		
+		if (Right(buttonLabel,3) NEQ '...')
+			buttonLabel = buttonLabel & '...';
 			
 		return buttonLabel;
 	</cfscript>
@@ -277,6 +281,9 @@ History:
 					buttonLabel = "Add New #ceName#...";
 			}
 		}
+		
+		if (Right(buttonLabel,3) NEQ '...')
+			buttonLabel = buttonLabel & '...';
 				
 		return buttonLabel;
 	</cfscript>
