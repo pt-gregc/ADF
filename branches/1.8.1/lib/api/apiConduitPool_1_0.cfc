@@ -31,11 +31,13 @@ Version:
 History:
 	2014-09-08 - GAC - Created
 	2014-10-08 - GAC - Updated dev comments
+	2014-12-19 - GAC - Updated apiConfig logic to protect against apiConfig config issues
+					 - Added additional header comments 
 --->
 
 <cfcomponent displayname="apiConduitPool_1_0" extends="ADF.core.Base" hint="API Conduit Page Pool functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_1">
+<cfproperty name="version" value="1_0_2">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <cfproperty name="ccapi" type="dependency" injectedBean="ccapi_2_0">
 <cfproperty name="csData" type="dependency" injectedBean="csData_1_2">
@@ -49,8 +51,15 @@ History:
 	variables.defaultApiPoolGlobalTimeout = 15; 	// seconds
 </cfscript>
 
-<!--- 
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 
+Name: 
 	postInit()
+	
+History:
+	2014-09-08 - GAC - Created
 --->
 <cffunction name="postInit" returntype="void" output="false" access="public" hint="Runs by default after the standard ADF has been built by the loadLibrary command.">
 	<cfscript>
@@ -263,8 +272,14 @@ History:
 	</cfscript>
 </cffunction>
 
-<!---	
-	getElementConfigCEName(CEconfigName) - Returns CustomElementName value for a specific ce config name
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 
+Name:	
+	$getElementConfigCEName(CEconfigName) - Returns CustomElementName value for a specific ce config name
+History:
+	2014-09-08 - GAC - Created
 --->
 <cffunction name="getElementConfigCEName" returntype="string" access="private" output="false">
 	<cfargument name="CEconfigName" type="string" required="Yes">
@@ -284,8 +299,14 @@ History:
 	</cfscript>
 </cffunction>
 
-<!---	
-	getConduitPageSubsiteID(pageid) - Returns SubsiteID for a specific Conduit Page  
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 
+Name:	
+	$getConduitPageSubsiteID(pageid) - Returns SubsiteID for a specific Conduit Page 
+History:
+	2014-09-08 - GAC - Created 
 --->
 <cffunction name="getConduitPageSubsiteID" returntype="numeric" access="private" output="false">
 	<cfargument name="pageid" type="string" required="Yes">
@@ -302,8 +323,14 @@ History:
 	</cfscript>
 </cffunction>
 
-<!---	
-	getConduitPageCSUserID(pageid) - Returns CSUserID for a specific Conduit Page  
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 
+Name:	
+	$getConduitPageCSUserID(pageid) - Returns CSUserID for a specific Conduit Page
+History:
+	2014-09-08 - GAC - Created  
 --->
 <cffunction name="getConduitPageCSUserID" returntype="string" access="private" output="false">
 	<cfargument name="pageid" type="string" required="Yes">
@@ -320,8 +347,14 @@ History:
 	</cfscript>
 </cffunction>
 
-<!---	
-	getConfigConduitPages() - Returns all of the Conduit Pages  
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 	
+Name:
+	$getConfigConduitPages() - Returns all of the Conduit Pages
+History:
+	2014-09-08 - GAC - Created  
 --->
 <cffunction name="getConfigConduitPages" returntype="struct" access="private" output="false">
 	<cfscript>
@@ -339,11 +372,17 @@ History:
 <!--- ///                   PAGE POOL PROCESSING                    /// --->
 <!--- ///////////////////////////////////////////////////////////////// --->
 
-<!--- 
-	getConduitPageFromPool(CEconfigName,requestID) - gets a page ID for a conduit page from the Conduit Page Pool
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 
+Name: 
+	$getConduitPageFromPool(CEconfigName,requestID) - gets a page ID for a conduit page from the Conduit Page Pool
 		- 1) Checks if the Request is at the top of the Queue 
 		- 2) Checks if the there is an open conduit page
 			- if there is not an open conduit page adds the request to the Queue
+History:
+	2014-09-08 - GAC - Created
 --->
 <cffunction name="getConduitPageFromPool" returntype="struct" access="public" output="false">
 	<cfargument name="CEconfigName" type="string" required="yes">
@@ -388,8 +427,14 @@ History:
 	<cfreturn results>
 </cffunction>
 
-<!--- 
-	getRequestsPlaceInQueue(requestID) - gets the position of the request in the request queue
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 
+Name: 
+	$getRequestsPlaceInQueue(requestID) - gets the position of the request in the request queue
+History:
+	2014-09-08 - GAC - Created
  --->
 <cffunction name="getRequestsPlaceInQueue" returntype="numeric" access="private" output="false">
 	<cfargument name="requestID" type="string" required="yes">
@@ -422,8 +467,14 @@ History:
 	</cfscript>
 </cffunction>
 
-<!--- 
-	addRequestToQueue(requestID)
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 
+Name:	
+	$addRequestToQueue(requestID)
+History:
+	2014-09-08 - GAC - Created
  --->
 <cffunction name="addRequestToQueue" returntype="boolean" access="private" output="false">
 	<cfargument name="requestID" type="string" required="yes">
@@ -444,8 +495,14 @@ History:
 	</cfscript>
 </cffunction>
 
-<!--- 
-	getRequestQueueCount() - Count items in the Request Queue 
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 	
+Name:	
+	$getRequestQueueCount() - Count items in the Request Queue 
+History:
+	2014-09-08 - GAC - Created
  --->
 <cffunction name="getRequestQueueCount" returntype="numeric" access="private" output="false">
 	<cfscript>
@@ -458,8 +515,14 @@ History:
 	</cfscript>
 </cffunction>
 
-<!--- 
-	removeRequestFromQueue(requestID) - 
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 	
+Name:	
+	$removeRequestFromQueue(requestID) - 
+History:
+	2014-09-08 - GAC - Created
  --->
 <cffunction name="removeRequestFromQueue" returntype="boolean" access="private" output="false">
 	<cfargument name="queuePos" type="numeric" required="false" default="1">
@@ -479,13 +542,19 @@ History:
 	</cfscript>
 </cffunction>
 
-<!--- 
-	getOpenConduitPageIDFromPool(CEconfigName,requestID) - returns a pageid for a page that is open for use
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 	
+Name:	
+	$getOpenConduitPageIDFromPool(CEconfigName,requestID) - returns a pageid for a page that is open for use
 		- if an open page is found...
 			1) add the page to the processing assoc array
 			2) remove the page for the available assoc array 
 		- if an open page is NOT found
 			1) return 0
+History:
+	2014-09-08 - GAC - Created
  --->
 <cffunction name="getOpenConduitPageIDFromPool" returntype="numeric" access="private" output="false">
 	<cfargument name="requestID" type="string" required="yes">
@@ -539,8 +608,14 @@ History:
 	</cfscript>
 </cffunction>
 
-<!--- 
-	getAvailablePoolPagesCount() - Count the AVAILABLE Conduit Pages currently in the Pool
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 	
+Name:	
+	$getAvailablePoolPagesCount() - Count the AVAILABLE Conduit Pages currently in the Pool
+History:
+	2014-09-08 - GAC - Created
  --->
 <cffunction name="getAvailablePoolPagesCount" returntype="numeric" access="private" output="false">
 	<cfscript>
@@ -553,8 +628,14 @@ History:
 	</cfscript>
 </cffunction>
 
-<!--- 
-	getProcessingPoolPagesCount() - Count the PROCESSING Conduit Pages currently being used
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 	
+Name:	
+	$getProcessingPoolPagesCount() - Count the PROCESSING Conduit Pages currently being used
+History:
+	2014-09-08 - GAC - Created
  --->
 <cffunction name="getProcessingPoolPagesCount" returntype="numeric" access="private" output="false">
 	
@@ -572,9 +653,15 @@ History:
 <!--- ///                  POOL REQUEST COMPLETION                  /// --->
 <!--- ///////////////////////////////////////////////////////////////// --->
 
-<!--- 
-	markRequestComplete() - mark the request complete by removing the page from the processing page and put it back in available page
- --->
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 
+Name:	
+	$markRequestComplete() - mark the request complete by removing the page from the processing page and put it back in available page
+History:
+	2014-09-08 - GAC - Created 
+--->
 <cffunction name="markRequestComplete" returntype="boolean" access="public" output="false">
 	<cfargument name="requestID" type="string" required="yes">
 	
@@ -604,8 +691,14 @@ History:
 	</cfscript>
 </cffunction>
 
-<!--- 
-	setPoolPageAsOpen(pageID)
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 	
+Name:	
+	$setPoolPageAsOpen(pageID)
+History:
+	2014-09-08 - GAC - Created
  --->
 <cffunction name="setPoolPageAsOpen" returntype="numeric" access="private" output="false">
 	<cfargument name="pageID" type="string" required="yes">
@@ -652,9 +745,15 @@ History:
 	</cfscript>	
 </cffunction>
 
-<!--- 
-	getPageIDFromProcessingRequests(requestID)
- --->
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 	
+Name:	
+	$getPageIDFromProcessingRequests(requestID)
+History:
+	2014-09-08 - GAC - Created 
+--->
 <cffunction name="getPageIDFromProcessingRequests" returntype="numeric" access="private" output="false">
 	<cfargument name="requestID" type="string" required="yes">
 
@@ -681,9 +780,15 @@ History:
 <!--- ///          COMMONSPOT CMD API AND CCAPI METHODS             /// --->
 <!--- ///////////////////////////////////////////////////////////////// --->
 
-<!--- 
-	getCCAPIcontrolID(csPageID,FormID,controlName) - DEV ONLY
- --->
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 
+Name:	
+	$getCCAPIcontrolID(csPageID,FormID,controlName) - DEV ONLY
+History:
+	2014-09-08 - GAC - Created 
+--->
 <cffunction name="getCCAPIcontrolID" returntype="numeric" access="public" output="false">
 	<cfargument name="csPageID" type="numeric" required="yes" hint="CCAPI conduit pageID">
 	<cfargument name="formID" type="numeric" required="yes" hint="Custom Element FormID / ContolTypeID">
@@ -733,9 +838,15 @@ History:
 	<cfreturn retValue>
 </cffunction>
 
-<!--- 
-	getPageLockStatus(csPageID)
- --->
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 
+Name:	
+	$getPageLockStatus(csPageID)
+History:
+	2014-09-08 - GAC - Created 
+--->
 <cffunction name="getPageLockStatus" returntype="struct" access="private" output="false">
 	<cfargument name="csPageID" type="numeric" required="yes">
 	
@@ -747,8 +858,14 @@ History:
 	</cfscript>
 </cffunction>
 
-<!--- 
-	IsPageLocked(csPageID)
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 	
+Name:	
+	$IsPageLocked(csPageID)
+History:
+	2014-09-08 - GAC - Created
  --->
 <cffunction name="IsPageLocked" returntype="boolean" access="private" output="false">
 	<cfargument name="csPageID" type="numeric" required="yes">
@@ -768,16 +885,28 @@ History:
 <!--- ///           API CONDUIT PAGE POOL UTILITY METHODS             /// --->
 <!--- /////////////////////////////////////////////////////////////////// --->
 
-<!--- 
-	getAPIConfig() 
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 	
+Name:	
+	$getAPIConfig() 
+History:
+	2014-09-08 - GAC - Created
  --->
 <cffunction name="getAPIConfig" returntype="struct" access="private" output="false">
 	<!--- <cfset var api = server.ADF.objectFactory.getBean("api_1_0")> --->
 	<cfreturn variables.api.getAPIConfig()>
 </cffunction>
 
-<!--- 
-	clearLock(csPageID) - Clears the lock for a page id passed in
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 	
+Name:	
+	$clearLock(csPageID) - Clears the lock for a page id passed in
+History:
+	2014-09-08 - GAC - Created
  --->
 <cffunction name="clearLock" returntype="boolean" access="private" output="false">
 	<cfargument name="csPageID" type="numeric" required="yes">
@@ -785,9 +914,14 @@ History:
 	<cfreturn variables.ccapi.clearLock(pageID=arguments.csPageID)>
 </cffunction>
 
-
-<!--- 
-	pagePoolDateTimeFormat()
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 	
+Name:	
+	$pagePoolDateTimeFormat()
+History:
+	2014-09-08 - GAC - Created
 --->
 <cffunction name="pagePoolDateTimeFormat" returntype="date" access="public" output="false">	
 	<cfargument name="datetime" required="false" type="string" default="#now()#">
@@ -804,8 +938,15 @@ History:
 <!--- ///        BUILD CONFIG AND POOL FROM THE API CONFIG            /// --->
 <!--- /////////////////////////////////////////////////////////////////// --->
 
-<!--- 
-	buildPoolConduitPagesFromAPIConfig() - builds the pool structure from the ccapi config values
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 	
+Name:	
+	$buildPoolConduitPagesFromAPIConfig() - builds the pool structure from the ccapi config values
+History:
+	2014-09-08 - GAC - Created
+	2014-12-18 - GAC - Added additional logic to protect against bad apiConfig data
  --->
 <cffunction name="buildPoolConduitPagesFromAPIConfig" returntype="struct" output="false" access="private">
 	<cfscript>
@@ -825,78 +966,86 @@ History:
 		{
 			poolPages = apiConfig.gceConduitPagePool.conduitPages;
 
-			// Rip through the gceConduitPagePool nodes and find element that have conduit pool pages configured	
-			for ( key IN poolPages )
-			{
-				poolPageConfig = StructNew();			
-				configNodeStatus = true;
-				
-				// Make sure we have a valid pageID
-				if ( StructKeyExists(poolPages[key],"pageid") AND IsNumeric(poolPages[key].pageid) AND poolPages[key].pageid GT 0 )
+			if ( IsStruct(poolPages) )
+			{	
+				// Rip through the gceConduitPagePool nodes and find element that have conduit pool pages configured	
+				for ( key IN poolPages )
 				{
-					// Make sure the config pageid value is an active page 
-					if ( variables.csData.isCSPageActive(pageid=poolPages[key].pageid) )
+					poolPageConfig = StructNew();			
+					configNodeStatus = true;
+					
+					// Make sure we have a valid pageID
+					if ( StructKeyExists(poolPages[key],"pageid") AND IsNumeric(poolPages[key].pageid) AND poolPages[key].pageid GT 0 )
 					{
-						// Set the Conduit PageID
-						poolPageID = poolPages[key].pageid;
+						// Make sure the config pageid value is an active page 
+						if ( variables.csData.isCSPageActive(pageid=poolPages[key].pageid) )
+						{
+							// Set the Conduit PageID
+							poolPageID = poolPages[key].pageid;
+							
+							// Set the Conduit SubsiteID
+							poolPageConfig.subsiteID  = variables.csData.getSubsiteIDByPageID(pageid=poolPageID);
+							 
+							if ( poolPageConfig.subsiteID LTE 0 )
+							 	configNodeStatus = false;
+						}
+						else
+							configNodeStatus = false;
 						
-						// Set the Conduit SubsiteID
-						poolPageConfig.subsiteID  = variables.csData.getSubsiteIDByPageID(pageid=poolPageID);
-						 
-						if ( poolPageConfig.subsiteID LTE 0 )
-						 	configNodeStatus = false;
+						if ( configNodeStatus )	
+							poolPageConfig.pageURL = variables.csData.getCSPageURL(pageID=poolPageID);
+						
+					}
+					// If PageURL is configured, make sure it converts to a valid pageID
+					else if ( StructKeyExists(poolPages[key],"pageURL") AND LEN(TRIM(poolPages[key].pageURL)) )
+					{
+						// Add the Page URL to the page pool config struct
+						poolPageConfig.pageURL = poolPages[key].pageURL;
+						
+						poolPageID = variables.csData.getCSPageIDByURL(csPageURL=poolPageConfig.pageURL);
+						
+						// Make sure the pageid value valid and an active page 
+						if ( IsNumeric(poolPageID) AND poolPageID GT 0 AND variables.csData.isCSPageActive(pageid=poolPageID) )
+						{
+							// Set the Conduit SubsiteID
+							poolPageConfig.subsiteID  = variables.csData.getSubsiteIDByPageID(pageid=poolPageID);
+							 
+							if ( poolPageConfig.subsiteID LTE 0 )
+							 	configNodeStatus = false;
+						}
+						else
+							configNodeStatus = false;	
 					}
 					else
 						configNodeStatus = false;
 					
-					if ( configNodeStatus )	
-						poolPageConfig.pageURL = variables.csData.getCSPageURL(pageID=poolPageID);
-					
-				}
-				// If PageURL is configured, make sure it converts to a valid pageID
-				else if ( StructKeyExists(poolPages[key],"pageURL") AND LEN(TRIM(poolPages[key].pageURL)) )
-				{
-					// Add the Page URL to the page pool config struct
-					poolPageConfig.pageURL = poolPages[key].pageURL;
-					
-					poolPageID = variables.csData.getCSPageIDByURL(csPageURL=poolPageConfig.pageURL);
-					
-					// Make sure the pageid value valid and an active page 
-					if ( IsNumeric(poolPageID) AND poolPageID GT 0 AND variables.csData.isCSPageActive(pageid=poolPageID) )
-					{
-						// Set the Conduit SubsiteID
-						poolPageConfig.subsiteID  = variables.csData.getSubsiteIDByPageID(pageid=poolPageID);
-						 
-						if ( poolPageConfig.subsiteID LTE 0 )
-						 	configNodeStatus = false;
-					}
+					// Make sure the page has a configured CSUserID
+					if ( configNodeStatus AND StructKeyExists(poolPages[key],"csuserid") AND LEN(TRIM(poolPages[key].csuserid)) )
+						poolPageConfig.csuserid = poolPages[key].csuserid;
 					else
-						configNodeStatus = false;	
+						configNodeStatus = false;
+	
+					// Don't add the PW to the config struct but we still want to check if the PW was added to the pool page config
+					// - TODO: we may want to add a quick login/logout check to make sure the userid and password are valid before adding the to the POOL
+					if ( configNodeStatus )
+					{
+						if ( !StructKeyExists(poolPages[key],"cspassword") OR LEN(TRIM(poolPages[key].cspassword)) EQ 0 )
+							configNodeStatus = false;			
+					} 					
+						
+					// If we successfully build a pool page config node, then add it to the array 	
+					if ( configNodeStatus AND !StructKeyExists(retData, poolPageID) )	
+						retData[poolPageID]	= poolPageConfig;
+					else
+					{
+						// TODO: Add logging	
+					}
 				}
-				else
-					configNodeStatus = false;
-				
-				// Make sure the page has a configured CSUserID
-				if ( configNodeStatus AND StructKeyExists(poolPages[key],"csuserid") AND LEN(TRIM(poolPages[key].csuserid)) )
-					poolPageConfig.csuserid = poolPages[key].csuserid;
-				else
-					configNodeStatus = false;
-
-				// Don't add the PW to the config struct but we still want to check if the PW was added to the pool page config
-				// - TODO: we may want to add a quick login/logout check to make sure the userid and password are valid before adding the to the POOL
-				if ( configNodeStatus )
-				{
-					if ( !StructKeyExists(poolPages[key],"cspassword") OR LEN(TRIM(poolPages[key].cspassword)) EQ 0 )
-						configNodeStatus = false;			
-				} 					
-					
-				// If we successfully build a pool page config node, then add it to the array 	
-				if ( configNodeStatus AND !StructKeyExists(retData, poolPageID) )	
-					retData[poolPageID]	= poolPageConfig;
-				else
-				{
-					// TODO: Add logging	
-				}
+			}
+			else
+			{
+				// The GCE Conduit Page Pool nodes is configured incorrectly (not returning as a structure)
+				// TODO: Add logging		
 			}
 		}
 		else
@@ -909,8 +1058,15 @@ History:
 	</cfscript>
 </cffunction>
 
-<!--- 
-	buildElementConfigFromAPIConfig() - 
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 
+Name:	
+	$buildElementConfigFromAPIConfig() - 
+History:
+	2014-09-08 - GAC - Created
+	2014-12-18 - GAC - Added additional logic to protect against bad apiConfig data
  --->
 <cffunction name="buildElementConfigFromAPIConfig" returntype="struct" access="private" output="false">
 	<cfscript>
@@ -925,40 +1081,53 @@ History:
 		
 		var timeoutDefault = getGlobalTimeoutFromAPIConfig(); 
 		
-		if ( StructKeyExists(apiConfig,"elements") )
+		if ( IsStruct(apiConfig) )
 		{
-			// Rip through the element nodes and find elements that have conduit pool pages configured	
-			for ( key IN apiConfig.elements )
+			if ( StructKeyExists(apiConfig,"elements") AND IsStruct(apiConfig.elements) )
 			{
-				if ( StructKeyExists(apiConfig.elements[key],"elementType") AND apiConfig.elements[key].elementType EQ "custom"
-					AND StructKeyExists(apiConfig.elements[key],"gceConduitConfig") AND IsStruct(apiConfig.elements[key].gceConduitConfig) )
+				// Rip through the element nodes and find elements that have conduit pool pages configured	
+				for ( key IN apiConfig.elements )
 				{
-					poolElements = apiConfig.elements[key].gceConduitConfig;
-					
-					if ( !StructKeyExists(retData, key) )
-						retData[key] = StructNew();
-					
-					retData[key].timeout = timeoutDefault;
-					if ( StructKeyExists(poolElements,"timeout") AND IsNumeric(poolElements.timeout) AND poolElements.timeout GT 0 )
-						retData[key].timeout = poolElements.timeout;
-					
-					if ( StructKeyExists(poolElements,"formID") AND IsNumeric(poolElements.formID) AND poolElements.formID GT 0 )
+					if ( StructKeyExists(apiConfig.elements[key],"elementType") AND apiConfig.elements[key].elementType EQ "custom"
+						AND StructKeyExists(apiConfig.elements[key],"gceConduitConfig") AND IsStruct(apiConfig.elements[key].gceConduitConfig) )
 					{
-						retData[key].formID = poolElements.formID;
-						retData[key].customElementName = variables.ceData.getCENameByFormID(FormID=poolElements.formID);
+						poolElements = apiConfig.elements[key].gceConduitConfig;
+						
+						if ( !StructKeyExists(retData, key) )
+							retData[key] = StructNew();
+						
+						retData[key].timeout = timeoutDefault;
+						if ( StructKeyExists(poolElements,"timeout") AND IsNumeric(poolElements.timeout) AND poolElements.timeout GT 0 )
+							retData[key].timeout = poolElements.timeout;
+						
+						if ( StructKeyExists(poolElements,"formID") AND IsNumeric(poolElements.formID) AND poolElements.formID GT 0 )
+						{
+							retData[key].formID = poolElements.formID;
+							retData[key].customElementName = variables.ceData.getCENameByFormID(FormID=poolElements.formID);
+						}
+						else if ( StructKeyExists(poolElements,"customElementName") AND LEN(TRIM(poolElements.customElementName)) )
+						{
+							retData[key].customElementName = poolElements.customElementName;
+							retData[key].formID = variables.ceData.getFormIDByCEName(CEName=poolElements.customElementName);
+						}
 					}
-					else if ( StructKeyExists(poolElements,"customElementName") AND LEN(TRIM(poolElements.customElementName)) )
+					else
 					{
-						retData[key].customElementName = poolElements.customElementName;
-						retData[key].formID = variables.ceData.getFormIDByCEName(CEName=poolElements.customElementName);
-					}
+						// TODO: Add logging					
+					}		
 				}
-				else
-				{
-					// TODO: Add logging					
-				}		
 			}
+			else
+			{
+				// TODO: Add logging
+				// apiConfig.elements is not building correctly (should be a structure of CCAPI element and settings)				
+			}	
 		}
+		else
+		{
+			// TODO: Add logging
+			// apiConfig is not building correctly (should be a structure of CCAPI config settings)				
+		}		
 		
 		return retData;
 	</cfscript>
@@ -968,8 +1137,14 @@ History:
 <!--- ///       GET CONFIG AND POOL VALUES FROM THE API CONFIG        /// --->
 <!--- /////////////////////////////////////////////////////////////////// --->
 
-<!---	
-	getGlobalTimeoutFromAPIConfig() -  Page Pool Global Timeout value in seconds
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 	
+Name:	
+	$getGlobalTimeoutFromAPIConfig() -  Page Pool Global Timeout value in seconds
+History:
+	2014-09-08 - GAC - Created
 --->
 <cffunction name="getGlobalTimeoutFromAPIConfig" returntype="numeric" access="private" output="false">
 	<cfscript>
@@ -984,8 +1159,14 @@ History:
 	</cfscript>
 </cffunction>
 
-<!---	
-	getLoggingFlagFromAPIConfig() -  Page Pool Global Timeout value in seconds
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 	
+Name:	
+	$getLoggingFlagFromAPIConfig() -  Page Pool Global Timeout value in seconds
+History:
+	2014-09-08 - GAC - Created
 --->
 <cffunction name="getLoggingFlagFromAPIConfig" returntype="boolean" access="private" output="false">
 	<cfscript>
@@ -1000,8 +1181,14 @@ History:
 	</cfscript>
 </cffunction>
 
-<!---	
-	getRequestWaitTimeFromAPIConfig() -  Page Pool request wait time value in milliseconds from the API config
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 	
+Name:	
+	$getRequestWaitTimeFromAPIConfig() -  Page Pool request wait time value in milliseconds from the API config
+History:
+	2014-09-08 - GAC - Created
 --->
 <cffunction name="getRequestWaitTimeFromAPIConfig" returntype="boolean" access="private" output="false">
 	<cfscript>
@@ -1016,8 +1203,15 @@ History:
 	</cfscript>
 </cffunction>
 
-<!---	
-	getConduitPoolPagePasswordFromAPIConfig(pageID) - Returns Page Pool Password for a given PageID
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 	
+Name:	
+	$getConduitPoolPagePasswordFromAPIConfig(pageID) - Returns Page Pool Password for a given PageID
+History:
+	2014-09-08 - GAC - Created
+	2014-12-18 - GAC - Added additional logic to protect against bad apiConfig data
 --->
 <cffunction name="getConduitPoolPagePasswordFromAPIConfig" returntype="string" access="public" output="false">
 	<cfargument name="pageID" type="string" required="Yes">
@@ -1049,16 +1243,29 @@ History:
 <!--- ///               CONFIG AND POOL DAO METHODS                 /// --->
 <!--- ///////////////////////////////////////////////////////////////// --->
 
-<!---	
-	ReadPagePoolConfig()
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 	
+Name:	
+	$ReadPagePoolConfig()
+History:
+	2014-09-08 - GAC - Created
 --->
 <cffunction name="ReadPagePoolConfig" returntype="struct" access="private" output="false">	
 	<cflock name="apiPoolConfigRead" type="read" timeout="10">
 		<cfreturn Application.ADF.apiPoolConfig>
 	</cflock>
 </cffunction>
-<!---	
-	WritePagePoolConfig(configData)
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 	
+Name:	
+	$WritePagePoolConfig(configData)
+History:
+	2014-09-08 - GAC - Created
 --->
 <cffunction name="WritePagePoolConfig" returntype="void" access="private" output="false">
 	<cfargument name="configData" type="struct" required="Yes">	
@@ -1073,16 +1280,29 @@ History:
 	</cflock>
 </cffunction>
 
-<!---	
-	ReadPagePool()
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 
+Name:	
+	$ReadPagePool()
+History:
+	2014-09-08 - GAC - Created
 --->
 <cffunction name="ReadPagePool" returntype="struct" access="private" output="false">
 	<cflock name="apiPoolVarsRead" type="read" timeout="10">
 		<cfreturn Application.ADF.apipool>
 	</cflock>
 </cffunction>
-<!---	
-	WritePagePool(poolData)
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 	
+Name:	
+	$WritePagePool(poolData)
+History:
+	2014-09-08 - GAC - Created
 --->
 <cffunction name="WritePagePool" returntype="void" access="private" output="false">
 	<cfargument name="poolData" type="struct" required="Yes">	
@@ -1097,8 +1317,14 @@ History:
 	</cflock>
 </cffunction>
 
-<!---	
-	ReadPoolAvailablePages()
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 
+Name:	
+	$ReadPoolAvailablePages()
+History:
+	2014-09-08 - GAC - Created
 --->
 <cffunction name="ReadPoolAvailablePages" returntype="struct" access="private" output="false">	
 	<cfscript>
@@ -1108,8 +1334,15 @@ History:
 		return Application.ADF.apipool.AvailablePoolPages;
 	</cfscript>
 </cffunction>
-<!---	
-	WritePoolAvailablePages(pagesData)
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 
+Name:	
+	$WritePoolAvailablePages(pagesData)
+History:
+	2014-09-08 - GAC - Created
 --->
 <cffunction name="WritePoolAvailablePages" returntype="void" access="private" output="false">
 	<cfargument name="pagesData" type="struct" required="Yes">	
@@ -1122,8 +1355,14 @@ History:
 	</cfscript>
 </cffunction>
 
-<!---	
-	ReadPoolProcessingPages()
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 	
+Name:	
+	$ReadPoolProcessingPages()
+History:
+	2014-09-08 - GAC - Created
 --->
 <cffunction name="ReadPoolProcessingPages" returntype="struct" access="private" output="false">
 	<cfscript>
@@ -1133,8 +1372,15 @@ History:
 		return Application.ADF.apipool.ProcessingPoolPages;
 	</cfscript>
 </cffunction>
-<!---	
-	WritePoolProcessingPages(pagesData)
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 
+Name:	
+	$WritePoolProcessingPages(pagesData)
+History:
+	2014-09-08 - GAC - Created
 --->
 <cffunction name="WritePoolProcessingPages" returntype="void" access="private" output="false">
 	<cfargument name="pagesData" type="struct" required="Yes">	
@@ -1147,8 +1393,14 @@ History:
 	</cfscript>
 </cffunction>
 
-<!---	
-	ReadRequestQueueArray()
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 	
+Name:	
+	$ReadRequestQueueArray()
+History:
+	2014-09-08 - GAC - Created
 --->
 <cffunction name="ReadRequestQueueArray" returntype="array" access="private" output="false">		
 	<cfscript>
@@ -1158,8 +1410,15 @@ History:
 		return Application.ADF.apipool.RequestQueueArray;
 	</cfscript>
 </cffunction>
-<!---	
-	WriteRequestQueueArray(queueData)
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 
+Name:	
+	$WriteRequestQueueArray(queueData)
+History:
+	2014-09-08 - GAC - Created
 --->
 <cffunction name="WriteRequestQueueArray" returntype="void" access="private" output="false">
 	<cfargument name="queueData" type="array" required="Yes">
