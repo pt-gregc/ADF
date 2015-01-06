@@ -40,7 +40,7 @@ History:
 --->
 <cfcomponent displayname="csData_1_0" extends="ADF.core.Base" hint="CommonSpot Data Utils functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_12">
+<cfproperty name="version" value="1_0_13">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_0">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_0">
@@ -1784,24 +1784,35 @@ Arguments:
 	Boolean recurse
 	Boolean includeDocs
 	Boolean includeExternalURLs
+	Boolean includeTemplates
 History:
 	2010-01-27 - RLW - Created
 	2014-01-03 - GAC - Updated SQL 'IN' statements to use the CS module 'handle-in-list.cfm'
+	2015-01-05 - GAC - Added logic to include templates in the returned results
 --->
 <cffunction name="getPagesBySubsiteID" access="public" returntype="array">
 	<cfargument name="subsiteID" type="numeric" required="true">
     <cfargument name="recurse" type="boolean" required="false" default="false">
-    <cfargument name="includeDocs" type="boolean" required="true" default="true">
-    <cfargument name="includeExternalURLs" type="boolean" required="true" default="true">
+    <cfargument name="includeDocs" type="boolean" required="false" default="true">
+    <cfargument name="includeExternalURLs" type="boolean" required="false" default="true">
+	<cfargument name="includeTemplates" type="boolean" required="false" default="false">
+	
     <cfscript>
     	var pageQry = queryNew("");
 		var subsiteList = arguments.subsiteID;
-		var pageTypeList = 0;
+		var pageTypeList = 0; // 0 = Pages
 		var uploaded = 0;
+
 		if( arguments.includeDocs )
 			uploaded = "0,1";
+
+		//pageTypeList = "0,3";
 		if( arguments.includeExternalURLs )
-			pageTypeList = "0,3";
+			pageTypeList = ListAppend(pageTypeList,3); // 3 = External URLs	
+			
+		if ( arguments.includeTemplates )
+			pageTypeList = ListAppend(pageTypeList,1); // 1 = Templates
+			
 		if( arguments.recurse and structKeyExists(request.subsiteCache, arguments.subsiteID) )
 		{
 			subsiteList = request.subsiteCache[arguments.subsiteID].descendantList;
@@ -1809,16 +1820,15 @@ History:
 			subsiteList = listAppend(subsiteList, arguments.subsiteID);
 		}
     </cfscript>
+	
    	<cfquery name="pageQry" datasource="#request.site.datasource#">
    		SELECT 	ID, filename, title, subsiteID, uploaded, pageType, DocType
 		FROM 	sitePages
 		WHERE <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="subsiteID" LIST="#subsiteList#" cfsqltype="cf_sql_numeric">
-		<!--- where subsiteID in (<cfqueryparam cfsqltype="cf_sql_numeric" value="#subsiteList#" list="true">) --->
 		AND <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="uploaded" LIST="#uploaded#" cfsqltype="cf_sql_numeric">
-		<!--- and uploaded in (<cfqueryparam cfsqltype="cf_sql_numeric" value="#uploaded#" list="true">) --->
 		AND <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="pageType" LIST="#pageTypeList#" cfsqltype="cf_sql_numeric">
-		<!--- and pageType in (<cfqueryparam cfsqltype="cf_sql_numeric" value="#pageTypeList#" list="true">) --->
-   	</cfquery>
+	</cfquery>
+	
     <cfreturn variables.data.queryToArrayOfStructures(pageQry)>
 </cffunction>
 
