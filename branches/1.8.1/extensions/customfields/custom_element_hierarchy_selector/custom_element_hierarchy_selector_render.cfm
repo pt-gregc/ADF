@@ -35,6 +35,7 @@ History:
 	2014-01-29 - GAC - Converted to use AjaxProxy and the ADF Lib
 	2014-02-27 - JTP - Updated the variable that is used in the validation message
 	2014-04-03 - JTP - Made root node expand when initially opening
+	2014-01-09 - GAC - Updated to load initially selected nodes until after the tree has completely loaded
 --->
 
 <cfscript>
@@ -43,10 +44,6 @@ History:
 	
 	// ADF Bean Name
 	ajaxBeanName = 'customElementHierarchySelector';
-	
-	// OLD STUFF 
-	// TODO: DELETE
-	componentPath_OLD = "#request.site.csAppsURL#components";
 </cfscript>
 
 <cfparam name="attributes.callingElement" default="">
@@ -222,8 +219,8 @@ History:
 						},
 
 						"checkbox" : {
-							"keep_selected_style" : false, 
-							"three_state" : #triState#
+							"keep_selected_style" : false 
+							,"three_state" : #triState#
 							<cfif autoSelectParents> 
 							,"cascade" : ""
 							</cfif>
@@ -233,25 +230,54 @@ History:
 						"plugins" : [ "checkbox" ]
 						</cfif>
 					});
+										
+					// Load initially selected nodes for this tree
+					loadInitialSelectedNodes_#fqFieldName#();
 				
-				// set current selection
-				var tmp = '#fldCurValWithFldID#';
-				if ( tmp != '' ) 
-				{
-					var arr = tmp.split(",");
-					jQuery('##jstree_#fqFieldName#').jstree( "select_node", arr );
-					for( var i=0; i < arr.length; i++ )
+				/* MOVED TO TO ITS OWN FUNCTION - also updated to load after tree has complete loaded
+					// set current selection
+					var tmp = '#fldCurValWithFldID#';
+					if ( tmp != '' ) 
 					{
-						var node = arr[i];
-						MakeOpen_#fqFieldName#(node);
-					}			
-				}	
-				jQuery('##jstree_#fqFieldName#').jstree( "open_node", '#fieldQuery.InputID#_#inputParameters.rootValue#' );
+						var arr = tmp.split(",");
+				
+						jQuery('##jstree_#fqFieldName#').jstree( "select_node", arr );
+					
+						for( var i=0; i < arr.length; i++ )
+						{
+							var node = arr[i];
+							MakeOpen_#fqFieldName#(node);
+						}			
+					}
+				
+					jQuery('##jstree_#fqFieldName#').jstree( "open_node", '#fieldQuery.InputID#_#inputParameters.rootValue#' );
+				*/ 
+			}
+			
+			function loadInitialSelectedNodes_#fqFieldName#()
+			{
+				// Wait until tree is loaded before loading the initial selection			
+				jQuery('##jstree_#fqFieldName#').bind("loaded.jstree", function (e, data) {
+					
+					// set current selection
+					var tmp = '#fldCurValWithFldID#';
+									
+					if ( tmp != '' ) 
+					{
+						// convert string to array
+						var arr = tmp.split(",");
+						
+						jQuery('##jstree_#fqFieldName#').jstree("select_node", arr , true); 
+					}
+					
+					<cfif LEN(TRIM(inputParameters.rootValue))>
+					jQuery('##jstree_#fqFieldName#').jstree( "open_node", '#fieldQuery.InputID#_#inputParameters.rootValue#' );		
+        			</cfif>
+				});
 			}
 			
 			jQuery('##jstree_#fqFieldName#').on("changed.jstree", function (e, data) 
 			{
-				
 				<cfif autoSelectParents> 
 				// Selection Actions for Auto Select Parents
 		    	if ( data.action == "select_node" ) 
@@ -268,11 +294,9 @@ History:
 				setSelectedNodes_#fqFieldName#(data.selected);
 			});
 			
-			// Adde selected Items to the hidden field
+			// Add selected Items to the hidden field
 			function setSelectedNodes_#fqFieldName#(selectedNodesList)
 			{
-				//console.log(selectedNodesList);
-				
 				// Loop over values and remove the prefix from each value
 				var selectedNodesArray = selectedNodesList.toString().split(",");
 				var selectedNodesIDList = '';
@@ -334,7 +358,7 @@ History:
 		                return a.toLowerCase().localeCompare(b.toLowerCase());
 		        	});          
 		        }
-		       return valuesArray.join(",");
+		        return valuesArray.join(",");
 		    }
 	    
 			// Determine if the list do not contain any Alpha values
@@ -352,6 +376,12 @@ History:
 		        }   
 		        return true;
 		    }
+			
+			function GetParentNode_#fqFieldName#(inNode)
+			{
+				var ParentNode = jQuery('##jstree_#fqFieldName#').jstree('get_parent', inNode);
+				return ParentNode;
+			}
 		    
 			<cfif autoSelectParents> 
 			function CascadeUp_#fqFieldName#(treeObject,inNode,inCommand) {
