@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="apiPage" extends="ADF.core.Base" hint="API Page functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_7">
+<cfproperty name="version" value="1_0_8">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
 <cfproperty name="wikiTitle" value="API Page">
@@ -354,9 +354,11 @@ Arguments:
 History:
 	2012-10-22 - GAC - Created
 	2013-04-29 - MFC - Removed reference to function "DOERRORLOGGING" that was removed.
+	2015-01-09 - GAC - Fixed issues with expirationWarningMsg and newExpirationDate variables
 --->
 <cffunction name="saveInfo" access="public" returntype="struct" hint="Updates the properties for a page (standard and custom)">
 	<cfargument name="pageData" type="struct" required="true" hint="a structure that contains page the required fields as page data.">
+	
 	<cfscript>
 		var pageResult = StructNew();
 		// Use the CS 6.x Command API to SET page Metadata
@@ -367,6 +369,7 @@ History:
 		var newExpirationDate = "";
 		var newExpirationAction = "";
 		var newExpirationRedirectURL = "";
+		var newExpirationWarningMsg = "";
 		var newMetadata = ArrayNew(1);
 		       
 		// Build the Optional Field Nodes	
@@ -380,8 +383,8 @@ History:
 			newExpirationAction = arguments.pageData.expirationAction;
 		if ( StructKeyExists(arguments.pageData,"expirationRedirectURL") )
 			newExpirationRedirectURL = arguments.pageData.expirationRedirectURL;
-		if ( StructKeyExists(arguments.pageData,"expirationDate") )
-			newExpirationDate = arguments.pageData.expirationWarningMsg;
+		if ( StructKeyExists(arguments.pageData,"expirationWarningMsg") )
+			newExpirationWarningMsg = arguments.pageData.expirationWarningMsg;
 		
 		if ( StructKeyExists(arguments.pageData,"metadata") )
 			newMetadata = arguments.pageData.metadata;
@@ -398,7 +401,7 @@ History:
 		                                            expirationDate=newExpirationDate,
 		                                            expirationAction=newExpirationAction,
 		                                            expirationRedirectURL=newExpirationRedirectURL,
-		                                            expirationWarningMsg=newExpirationDate,
+		                                            expirationWarningMsg=newExpirationWarningMsg,
 		                                            metadata=newMetadata);
 		    
 		    // Check the return status has a LENGTH
