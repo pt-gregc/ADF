@@ -30,9 +30,12 @@ Version:
 	1.3
 History:
 	2015-01-08 - GAC - Created - New v1.3	
-	2015-01-08 - GAC - Added isTemplate function	
+	2015-01-08 - GAC - Added isTemplate function
+	2015-01-09 - GAC - Added CMD API versions of the Metadata functions that return standard and custom metadata 
+					   from CS Pages, Registered URLs and Uploaded Documents
+	
 --->
-<cfcomponent displayname="csData_1_2" extends="ADF.lib.csData.csData_1_2" hint="CommonSpot Data Utils functions for the ADF Library">
+<cfcomponent displayname="csData_1_3" extends="ADF.lib.csData.csData_1_2" hint="CommonSpot Data Utils functions for the ADF Library">
 
 <cfproperty name="version" value="1_3_0">
 <cfproperty name="type" value="singleton">
