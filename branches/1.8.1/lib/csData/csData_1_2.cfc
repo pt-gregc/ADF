@@ -50,7 +50,7 @@ History:
 --->
 <cfcomponent displayname="csData_1_2" extends="ADF.lib.csData.csData_1_1" hint="CommonSpot Data Utils functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_17">
+<cfproperty name="version" value="1_2_18">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">
@@ -1020,7 +1020,8 @@ Arguments:
 History:
 	2015-01-05 - GAC - Created
 --->
-<cffunction name="isTemplate" access="public" returntype="boolean" output="false">
+<!--- // MOVED TO csData_1_3 --->
+<!--- <cffunction name="isTemplate" access="public" returntype="boolean" output="false">
 	<cfargument name="csPageID" type="numeric" required="true">
 	
 	<cfscript>
@@ -1030,6 +1031,6 @@ History:
 			isTemplate = true;
 		return isTemplate;
 	</cfscript>
-</cffunction>
+</cffunction> --->
 
 </cfcomponent>
