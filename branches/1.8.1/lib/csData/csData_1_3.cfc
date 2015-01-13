@@ -33,11 +33,11 @@ History:
 	2015-01-08 - GAC - Added isTemplate function
 	2015-01-09 - GAC - Added CMD API versions of the Metadata functions that return standard and custom metadata 
 					   from CS Pages, Registered URLs and Uploaded Documents
-	
+	2015-01-13 - GAC - Added getCSObjectStandardMetadata
 --->
 <cfcomponent displayname="csData_1_3" extends="ADF.lib.csData.csData_1_2" hint="CommonSpot Data Utils functions for the ADF Library">
 
-<cfproperty name="version" value="1_3_0">
+<cfproperty name="version" value="1_3_1">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">
@@ -78,7 +78,7 @@ Author:
 Name:
 	$getCSObjectMetadata
 Summary:
-	Gets the standard and custom metadata for an commonspot object (page,doc,url) from its pageID
+	Gets the standard and custom metadata for a commonspot object (page,doc,url) from its pageID
 Returns:
 	Struct
 Arguments:
@@ -86,7 +86,7 @@ Arguments:
 Usage:
 	application.ADF.csData.getCSObjectMetadata(csPageID)
 History:
-	2013-07-24 - GAC - Created 
+	2014-07-24 - GAC - Created 
 --->
 <cffunction name="getCSObjectMetadata" returntype="struct" access="public" hint="Gets the standard and custom metadata for an commonspot object (page,doc,url) from its pageID">
 	<cfargument name="csPageID" type="numeric" required="true" hint="a commonspot pageid">
@@ -164,6 +164,48 @@ History:
 		}
 		
 		return retStr;
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+	Greg Cronkright
+Name:
+	$getCSObjectStandardMetadata
+Summary:
+	Gets the standard metadata for a commonspot object (page,doc,url) from its pageID
+Returns:
+	Struct
+Arguments:
+	Numeric csPageID
+Usage:
+	application.ADF.csData.getCSObjectStandardMetadata(csPageID)
+History:
+	2015-01-13 - GAC - Created 
+--->
+<cffunction name="getCSObjectStandardMetadata" returntype="struct" access="public" hint="Gets the standard metadata for a commonspot object (page,doc,url) from its pageID">
+	<cfargument name="csPageID" type="numeric" required="true" hint="a commonspot pageid">
+
+	<cfscript>
+		var retMetadata = StructNew();
+		var objType = getCSObjectType(csPageID=arguments.csPageID);
+		
+		switch(objType)
+		{
+			case "commonspot page":
+		         retMetadata = getPageStandardMetadata(csPageID=arguments.csPageID);
+		         break;
+		    case "uploaded document":
+		         retMetadata = getUploadedDocStandardMetadata(csPageID=arguments.csPageID);
+		         break;
+		    case "registered URL":
+		         retMetadata = getRegisteredURLStandardMetadata(csPageID=arguments.csPageID);
+		         break;		
+		}
+			
+		return retMetadata;
 	</cfscript>
 </cffunction>
 
@@ -269,7 +311,7 @@ Author:
 	PaperThin, Inc.
 	Greg Cronkright
 Name:
-	$getCustomMetadata
+	$getCSObjectCustomMetadata
 Summary:
 	Returns custom metadata for a commonspot object (page,url,doc)
 Returns:
@@ -277,7 +319,7 @@ Returns:
 Arguments:
 	Numeric csPageID
 Usage:
-	application.ADF.csData.getRegisteredURLStandardMetadata(csPageID)
+	application.ADF.csData.getCSObjectCustomMetadata(csPageID)
 History:
 	2014-07-23 - GAC - Created 
 --->
