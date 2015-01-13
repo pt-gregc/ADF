@@ -55,10 +55,12 @@ History:
 	2013-01-02 - MFC - Created
 	2013-07-07 - GAC - Fixed an issue with the publicationDate and the PublicReleaseDate
 	2014-10-28 - AW@EA - Fixed issue with expirationWarningMsg and misplaced newExpirationDate variables
+	2015-01-13 - GAC - Fixed issue with newExpirationWarningMsg variable 
 --->
 <cffunction name="create" access="public" returntype="struct" hint="Creates a page.">
 	<cfargument name="pageData" type="struct" required="true" hint="a structure that contains page the required fields as page data.">
 	<cfargument name="activatePage" type="numeric" required="false" default="1" hint="Flag to make the new page active or inactive"> 
+	
 	<cfscript>
 		var pageResult = StructNew();
 		// Use the CS 6.x Command API to SET page Metadata
@@ -69,6 +71,7 @@ History:
 		var newExpirationDate = "";
 		var newExpirationAction = "";
 		var newExpirationRedirectURL = "";
+		var newExpirationWarningMsg = "";
 		var newMetadata = ArrayNew(1);
 		var activateState = "";
 		
@@ -88,7 +91,7 @@ History:
 		if ( StructKeyExists(arguments.pageData,"expirationRedirectURL") )
 			newExpirationRedirectURL = arguments.pageData.expirationRedirectURL;
 		if ( StructKeyExists(arguments.pageData,"expirationWarningMsg") )
-			expirationWarningMsg = arguments.pageData.expirationWarningMsg;
+			newExpirationWarningMsg = arguments.pageData.expirationWarningMsg;
 		
 		if ( StructKeyExists(arguments.pageData,"metadata") )
 			newMetadata = arguments.pageData.metadata;
@@ -108,7 +111,7 @@ History:
 		                                            expirationDate=newExpirationDate,
 		                                            expirationAction=newExpirationAction,
 		                                            expirationRedirectURL=newExpirationRedirectURL,
-		                                            expirationWarningMsg=expirationWarningMsg,
+		                                            expirationWarningMsg=newExpirationWarningMsg,
 		                                            metadata=newMetadata);
 		    
 		    // Activate the page
