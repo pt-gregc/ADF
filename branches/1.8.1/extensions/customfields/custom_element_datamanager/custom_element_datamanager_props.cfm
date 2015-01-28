@@ -43,6 +43,7 @@ History:
 	2014-07-01 - DJM - Added code to support metadata forms
 	2014-09-08 - DJM - Updated styles for Interface Options and Display Fields
 	2014-09-19 - GAC - Removed deprecated doLabel and jsLabelUpdater js calls
+	2015-01-28 - DJM - Added timeout to resize frame function call to avoid multiple scrollbars
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
@@ -938,7 +939,7 @@ History:
 			document.#formname#.#prefix#displayFields.value = "";
 			updateFieldsOnAssocCEChange(selectedAssoc,selectedType,selectedChild);
 		}
-		checkFrameSize();
+		window.setTimeout("checkFrameSize(1)",100);
 	}
 	
 	updateFieldsOnAssocCEChange = function(selectedAssoc,selectedType,selectedChild){
@@ -951,7 +952,8 @@ History:
 		{
 			document.getElementById('newOption').style.display = "none";
 			document.getElementById('editChildOption').style.display = "none";
-			document.getElementById('twoJoinInputs').style.display = "";
+			if (selectedChild != "")
+				document.getElementById('twoJoinInputs').style.display = "";
 			document.getElementById('threeJoinInputs').style.display = "none";
 			document.getElementById('secondaryElementInputs').style.display = "none";
 			return;
@@ -1129,7 +1131,7 @@ History:
 			document.#formname#.#prefix#displayFields.value = "";
 			updateFieldsOnChildCEChange(selectedChild,selectedAssoc,selectedType);
 		}
-		checkFrameSize();
+		checkFrameSize(1);
 	}
 	
 	updateFieldsOnChildCEChange = function(selectedChild,selectedAssoc,selectedType){
