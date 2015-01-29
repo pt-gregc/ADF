@@ -99,6 +99,7 @@ History:
 		var logStruct = structNew();
 		var logArray = arrayNew(1);
 		var result = structNew();
+		
 		result.pageCreated = false;
 		result.newPageID = 0;
 		result.msg = "";
@@ -219,6 +220,7 @@ History:
 		
 		result.pageDeleted = false;
 		result.msg = "";
+		
 		// construct the CCAPI object
 		variables.ccapi.initCCAPI();
 		
