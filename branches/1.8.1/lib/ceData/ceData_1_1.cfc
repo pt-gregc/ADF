@@ -1073,7 +1073,7 @@ History:
 						if (arguments.useFICPrefix eq 0)
 							colAlias = fieldNameNoFIC;
 						colAlias = _escapeSQLReservedWord(colAlias);
-						sql = "MAX(#sql# END) AS #colAlias#,";
+						sql = "SUM(#sql# END) AS #colAlias#,";
 						writeOutput(indent & trim(sql) & chr(10));
 					}
 				</cfscript>
