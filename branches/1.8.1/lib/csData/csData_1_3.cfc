@@ -37,7 +37,7 @@ History:
 --->
 <cfcomponent displayname="csData_1_3" extends="ADF.lib.csData.csData_1_2" hint="CommonSpot Data Utils functions for the ADF Library">
 
-<cfproperty name="version" value="1_3_1">
+<cfproperty name="version" value="1_3_2">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">
@@ -57,14 +57,15 @@ Arguments:
 	Numeric  csPageID
 History:
 	2015-01-05 - GAC - Created
+	2015-01-28 - GAC - Update to use the getCSObjectType() method
 --->
 <cffunction name="isTemplate" access="public" returntype="boolean" hint="Given a CS pageID return if the page is a CommonSpot Template.">
 	<cfargument name="csPageID" type="numeric" required="true">
 	
 	<cfscript>
 		var isTemplate = false;
-		var templateQry = getTemplateByID(templateID=arguments.csPageID);
-		if ( templateQry.recordCount )
+		var objType = getCSObjectType(csPageID=arguments.csPageID);
+		if ( objType EQ "user template" )
 			isTemplate = true;
 		return isTemplate;
 	</cfscript>
@@ -86,7 +87,8 @@ Arguments:
 Usage:
 	application.ADF.csData.getCSObjectMetadata(csPageID)
 History:
-	2014-07-24 - GAC - Created 
+	2014-07-24 - GAC - Created
+	2015-01-28 - GAC - Added Standard Metadata for Templates. 
 --->
 <cffunction name="getCSObjectMetadata" returntype="struct" access="public" hint="Gets the standard and custom metadata for an commonspot object (page,doc,url) from its pageID">
 	<cfargument name="csPageID" type="numeric" required="true" hint="a commonspot pageid">
@@ -101,7 +103,8 @@ History:
 		
 		switch(objType)
 		{
-			case "commonspot page":
+			case "commonspot page": 
+			case "user template":
 		         sMetadata = getPageStandardMetadata(csPageID=arguments.csPageID);
 		         isCSobject = true;
 		         break;
@@ -183,18 +186,22 @@ Arguments:
 Usage:
 	application.ADF.csData.getCSObjectStandardMetadata(csPageID)
 History:
-	2015-01-13 - GAC - Created 
+	2015-01-13 - GAC - Created
+	2015-01-28 - GAC - Added Standard Metadata for Templates.
+					 - Added objectType key
 --->
 <cffunction name="getCSObjectStandardMetadata" returntype="struct" access="public" hint="Gets the standard metadata for a commonspot object (page,doc,url) from its pageID">
 	<cfargument name="csPageID" type="numeric" required="true" hint="a commonspot pageid">
 
 	<cfscript>
+		var reData = StructNew();
 		var retMetadata = StructNew();
 		var objType = getCSObjectType(csPageID=arguments.csPageID);
 		
 		switch(objType)
 		{
-			case "commonspot page":
+			case "commonspot page": 
+			case "user template":
 		         retMetadata = getPageStandardMetadata(csPageID=arguments.csPageID);
 		         break;
 		    case "uploaded document":
@@ -204,8 +211,14 @@ History:
 		         retMetadata = getRegisteredURLStandardMetadata(csPageID=arguments.csPageID);
 		         break;		
 		}
+		
+		// Duplicate the LOCKED Struture and add the object type string 
+		reData = Duplicate(retMetadata);
+
+		if ( !StructIsEmpty(reData) )
+			reData["objectType"] = objType;
 			
-		return retMetadata;
+		return reData;
 	</cfscript>
 </cffunction>
 
