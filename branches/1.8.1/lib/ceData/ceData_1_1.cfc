@@ -1025,6 +1025,7 @@ History:
 		var indent = repeatString(chr(9), 5) & " ";
 		var createViewResult = "";
 		var logMsg = "";
+		var oper = '';
 
 		intType = dbTypeStrs.intType;
 		andNotEmptyStr = dbTypeStrs.andNotEmptyStr;
@@ -1040,12 +1041,14 @@ History:
 					dataType = arguments.fieldDatatypes[fieldNameNoFIC];
 					sql = "";
 					defaultValue = "";
+					oper = 'MAX';
+					
 					switch(dataType)
 					{
 						case "omit":
 							break;
 						case "shortText":
-							sql = "FieldValue";
+							sql = "FieldValue";							
 							break;
 						case "longText":
 							sql = dbTypeStrs.memoValueExpr;
@@ -1053,10 +1056,12 @@ History:
 						case "integer":
 							sql = "CAST(FieldValue AS #intType#)";
 							defaultValue = "0";
+							oper = 'SUM';
 							break;
 						case "float":
 							sql = "CAST(FieldValue AS DECIMAL(7,2))";
 							defaultValue = "0.0";
+							oper = 'SUM';
 							break;
 					}
 					if (dataType != "omit")
@@ -1073,7 +1078,7 @@ History:
 						if (arguments.useFICPrefix eq 0)
 							colAlias = fieldNameNoFIC;
 						colAlias = _escapeSQLReservedWord(colAlias);
-						sql = "SUM(#sql# END) AS #colAlias#,";
+						sql = "#oper#(#sql# END) AS #colAlias#,";
 						writeOutput(indent & trim(sql) & chr(10));
 					}
 				</cfscript>
