@@ -31,10 +31,11 @@ Version:
 History:
 	2013-12-09 - MFC - Created
 	2014-08-04 - GAC - Added new methods getCEFieldID and getCEFieldName
+	2015-02-06 - GAC - Added the new method renderHiddenControlsFromQueryString
 --->
 <cfcomponent displayname="fields_1_0" extends="ADF.core.Base" hint="Custom Field Type functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_2">
+<cfproperty name="version" value="1_0_3">
 <cfproperty name="type" value="transient">
 <cfproperty name="wikiTitle" value="Fields_1_0">
 
@@ -406,6 +407,63 @@ History:
 			fieldName = ReplaceNoCase( qry.FieldName, 'FIC_', '', 'ALL' );
 		
 		return fieldName;
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$renderHiddenControlsFromQueryString
+Summary:
+	Renders hidden input controls based on the url query string
+Returns:
+	String 
+Arguments:
+	String queryString
+	String excludedKeyList
+	Boolean preventDups 
+	String tagClass
+	String tagIDprefix
+History:
+	2015-02-04 - GAC - Created
+Usage:
+	renderHiddenControlsFromQueryString(URLparams,excludedFieldList,preventDups)
+ --->
+<cffunction name="renderHiddenControlsFromQueryString" returntype="string" access="public" hint="Render hidden input controls based on a url query string">
+	<cfargument name="queryString" type="string" required="false" default="" hint="URL query sting to parse">
+	<cfargument name="excludedKeyList" type="string" required="false" default="" hint="The query param key list for controls that should NOT rendered has hidden input controls.">
+	<cfargument name="preventDups" type="boolean" required="false" default="true" hint="Set to true to prevent duplicate hidden input controls.">
+	<cfargument name="tagClass" type="string" required="false" default="" hint="A class or space delimited list of classes to be added to the input control.">
+ 	<cfargument name="tagIDprefix" type="string" required="false" default="" hint="A prefix to be added key to make the ID for the input control unique on the form.">
+	
+	<cfscript>
+		var retHTML = "";
+		var qParamData = application.ADF.data.queryStringToStruct(inString=arguments.queryString);
+		var qKey = "";
+		var qValue = "";
+		var qKeyList = "";
+		
+		for ( qKey in qParamData ) 
+		{
+			qValue = qParamData[qKey];
+			if ( LEN(TRIM(qValue)) 
+				AND ListFindNoCase(arguments.excludedKeyList,qKey,",") EQ 0 
+				AND ListFindNoCase(qKeyList, qKey) EQ 0 )
+			{
+				retHTML = retHTML & '<input type="hidden" name="#qKey#" value="#qValue#"';
+				retHTML = retHTML & ' id="#tagIDprefix##qKey#"';
+				if ( LEN(TRIM(arguments.tagClass)) )
+					retHTML = retHTML & ' class="#arguments.tagClass#"';
+				retHTML = retHTML & ' />';
+				// Build a key list so we can check for and prevent dups
+				if ( arguments.preventDups )
+					qKeyList = ListAppend(qKeyList,qKey);
+			}
+		}
+		
+		return retHTML;
 	</cfscript>
 </cffunction>
 
