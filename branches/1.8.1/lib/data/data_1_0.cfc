@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="data_1_0" extends="ADF.core.Base" hint="Data Utils component functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_6">
+<cfproperty name="version" value="1_0_7">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Data_1_0">
 
@@ -644,6 +644,8 @@ Arguments:
 	String - The string to modify
 	Words - The number of words to display
 	useEllipsis - boolean - Option to turn off the Ellipsis [...] at the end of the trimed string
+Usage:
+	application.ADF.data.trimStringByWordCount(str,words,useEllipsis)
 History:
 	2009-05-31 - SFS - Copied from CFlib.org.
 	Originally written by David Grant (david@insite.net)
@@ -778,13 +780,17 @@ History:
 Summary:
 	Converts a URL query string to a structure.
 
-	@param qs      Query string to parse. Defaults to cgi.query_string. (Optional)
+	@param inString      Query string to parse. Defaults to Request.CGIVars.query_string. (Optional)
 	@return Returns a struct.
 	@author Malessa Brisbane (cflib@brisnicki.com)
 	@version 1, April 11, 2006
+	
+History:
+	2015-02-05 - GAC - Updated so the inString parameter has a default value of Request.CGIVars.QUERY_STRING
+					 - Updated to use getToken() to get the value after the equal sign (=)
  --->
 <cffunction name="queryStringToStruct" access="public" returntype="struct">
-	<cfargument name="inString" type="String" required="true">
+	<cfargument name="inString" type="string" required="false" default="#Request.CGIVars.QUERY_STRING#">
 	
 	<cfscript>
 		//var to hold the final structure
@@ -803,14 +809,20 @@ Summary:
 	    //put the query string into an array for easier looping
 	    qsarray = listToArray(qs, "&");
 	    //now, loop over the array and build the struct
-	    for (i = 1; i lte arrayLen(qsarray); i = i + 1){
+	    for ( i=1; i lte arrayLen(qsarray); i=i+1 )
+	    {
 	        pairi = qsarray[i]; // current pair
-	        keyi = listFirst(pairi,"="); // current key
-	        valuei = urlDecode(listLast(pairi,"="));// current value
-	        // check if key already added to struct
-	        if (structKeyExists(struct,keyi)) struct[keyi] = listAppend(struct[keyi],valuei); // add value to list
-	        else structInsert(struct,keyi,valuei); // add new key/value pair
+	        keyi = listFirst(pairi,"="); 				// current key
+	        valuei =  urlDecode(getToken(pairi,2,"=")); // current value
+	        //valuei = urlDecode(listLast(pairi,"="));	// returns the first value if no value is after the equal sign
+	       
+		    // check if key already added to struct
+	        if ( structKeyExists(struct,keyi) ) 
+	        	struct[keyi] = listAppend(struct[keyi],valuei); // add value to list
+	        else 
+	        	structInsert(struct,keyi,valuei); // add new key/value pair
 	    }
+	    
 	    // return the struct
 	    return struct;
 	</cfscript>
