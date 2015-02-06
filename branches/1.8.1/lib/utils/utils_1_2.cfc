@@ -37,7 +37,7 @@ History:
 --->
 <cfcomponent displayname="utils_1_2" extends="ADF.lib.utils.utils_1_1" hint="Util functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_12">
+<cfproperty name="version" value="1_2_13">
 <cfproperty name="type" value="singleton">
 <cfproperty name="ceData" type="dependency" injectedBean="ceData_2_0">
 <cfproperty name="csData" type="dependency" injectedBean="csData_1_2">
@@ -66,6 +66,7 @@ History:
 					 - Updated logic so when an appName is passed in to make sure runCommand() use the app object when attempting invoke the component
 					 - Updated to use application.ADF.siteDevMode to control the verbose error msgs
 					 - Better error logging and reporting when in DevMode
+	2015-02-06 - GAC - Updated error messages to all start with "Error:" for consistency and easier parsing
 --->
 <cffunction name="runCommand" access="public" returntype="Any" hint="Runs the given command" output="true">
 	<cfargument name="beanName" type="string" required="true" default="" hint="Name of the bean you would like to call">
@@ -152,12 +153,12 @@ History:
 				<cfcatch>
 					<cfscript>
 						hasError = true;
-						errorSafeMsg = "Error calling utils.RunCommand() method. Check the Error logs for more details.";
+						errorSafeMsg = "Error: Calling the RunCommand() method failed. Check the Error logs for more details.";
 						
 						if ( LEN(arguments.appName) ) 
-							errorLogLabel = "Error calling utils.RunCommand() method. #arguments.appName#.#arguments.beanName#.#arguments.methodName#";
+							errorLogLabel = "Error: Calling the utils.RunCommand() method failed. #arguments.appName#.#arguments.beanName#.#arguments.methodName#";
 						else
-							errorLogLabel = "Error calling utils.RunCommand() method. #arguments.beanName#.#arguments.methodName#";
+							errorLogLabel = "Error: Calling the utils.RunCommand() method failed. #arguments.beanName#.#arguments.methodName#";
 						
 						errorLogMsg = cfcatch;
 					</cfscript>
@@ -289,22 +290,25 @@ History:
 		<cfset rtn.prevlink = "">
 	</cfif>
 
-	<!--- // Complicated code to help determine which page numbers to show in pagination --->
+	<!--- // Code to help determine which page numbers to show in pagination --->
 	<cfif arguments.page LTE arguments.listLimit>
 		<cfset listStart = 2>
+		<cfset listEnd = arguments.listLimit + 1>
 	<cfelseif arguments.page GTE maxPage - (arguments.listLimit - 1)>
 		<cfset listStart = maxPage - arguments.listLimit>
+		<cfset listEnd = maxPage - 1>
 	<cfelse>
 		<cfset listStart = arguments.page - 2>
+		<cfset listEnd = arguments.page + 2>
 	</cfif>
 
-	<cfif arguments.page LTE arguments.listLimit>
+	<!-- <cfif arguments.page LTE arguments.listLimit>
 		<cfset listEnd = arguments.listLimit + 1>
 	<cfelseif arguments.page GTE maxPage - (arguments.listLimit - 1)>
 		<cfset listEnd = maxPage - 1>
 	<cfelse>
 		<cfset listEnd = arguments.page + 2>
-	</cfif>
+	</cfif> --->
 
 	<cfset rtn.pagelinks = ArrayNew(1)>
 	<cfloop from="1" to="#maxPage#" index="pg">
