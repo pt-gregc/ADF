@@ -44,6 +44,7 @@ History:
 	2014-09-08 - DJM - Updated styles for Interface Options and Display Fields
 	2014-09-19 - GAC - Removed deprecated doLabel and jsLabelUpdater js calls
 	2015-01-28 - DJM - Added timeout to resize frame function call to avoid multiple scrollbars
+	2015-02-10 - DJM - Added code to hide text inputs related to secondary element when it is set as none
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
@@ -952,6 +953,9 @@ History:
 		{
 			document.getElementById('newOption').style.display = "none";
 			document.getElementById('editChildOption').style.display = "none";
+			document.getElementById('newOptionTextSpan').style.display = "none";
+			document.getElementById('editChildOptionTextSpan').style.display = "none";			
+
 			if (selectedChild != "")
 				document.getElementById('twoJoinInputs').style.display = "";
 			document.getElementById('threeJoinInputs').style.display = "none";
@@ -964,11 +968,15 @@ History:
 			{				
 				document.getElementById('newOption').style.display = "";
 				document.getElementById('editChildOption').style.display = "";
+				document.getElementById('newOptionTextSpan').style.display = "";
+				document.getElementById('editChildOptionTextSpan').style.display = "";	
 			}
 			else
 			{
 				document.getElementById('newOption').style.display = "none";
 				document.getElementById('editChildOption').style.display = "none";
+				document.getElementById('newOptionTextSpan').style.display = "none";
+				document.getElementById('editChildOptionTextSpan').style.display = "none";	
 			}
 			var selecetdAssocText = jQuery("option:selected",jQuery("###prefix#assocCustomElementSelect")).text();
 			document.getElementById("addNewOpt").innerHTML = "Allow 'Add New " + selecetdAssocText + "'";

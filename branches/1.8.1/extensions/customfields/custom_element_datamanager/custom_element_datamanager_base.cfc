@@ -48,6 +48,7 @@ History:
 	2014-09-10 - DJM - Passed extra parameter to getRecordsFromSavedFilter to fetch unpublished records when the element is a LCE
 	2014-10-30 - DJM - Handling of commas within values
 	2015-01-05 - DJM - Added code to append '...' against 'add' buttons if not already present
+	2015-02-10 - DJM - Added code fix the issue when parent linked value has '&' in it
 --->
 <cfcomponent output="false" displayname="custom element datamanager_base" extends="ADF.core.Base" hint="This the base component for the Custom Element Data Manager field">
 	
@@ -140,7 +141,7 @@ History:
 		if (arguments.parentFormType EQ 'MetadataForm' AND inputPropStruct.parentUniqueField EQ '{{pageid}}')	
 			parentInstanceIDVal = arguments.pageID;
 		else
-			parentInstanceIDVal = curValuesStruct['fic_#arguments.formID#_#inputPropStruct.parentUniqueField#'];
+			parentInstanceIDVal = URLEncodedFormat(curValuesStruct['fic_#arguments.formID#_#inputPropStruct.parentUniqueField#']);
 		
 		
 		assocParameters = ListAppend(assocParameters, 'csAssoc_ParentInstanceID=#parentInstanceIDVal#', '&');
@@ -207,7 +208,7 @@ History:
 		if (arguments.parentFormType EQ 'MetadataForm' AND inputPropStruct.parentUniqueField EQ '{{pageid}}')	
 			parentInstanceIDVal = arguments.pageID;
 		else
-			parentInstanceIDVal = curValuesStruct['fic_#arguments.formID#_#inputPropStruct.parentUniqueField#'];
+			parentInstanceIDVal = URLEncodedFormat(curValuesStruct['fic_#arguments.formID#_#inputPropStruct.parentUniqueField#']);
 	</cfscript>
 		
 	<cfsavecontent variable="renderData">
