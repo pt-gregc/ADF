@@ -37,7 +37,7 @@ History:
 --->
 <cfcomponent displayname="csData_1_3" extends="ADF.lib.csData.csData_1_2" hint="CommonSpot Data Utils functions for the ADF Library">
 
-<cfproperty name="version" value="1_3_2">
+<cfproperty name="version" value="1_3_3">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">
@@ -149,6 +149,7 @@ Usage:
 	application.ADF.csData.getCSObjectType(csPageID)
 History:
 	2014-07-23 - GAC - Created 
+	2015-03-02 - GAC - Updated to query the SitePages db directly due to CMD API limitation
 --->
 <cffunction name="getCSObjectType" returntype="string" access="public" hint="Returns the commonspot object type from a pageid">
 	<cfargument name="csPageID" type="numeric" required="true" hint="a commonspot pageid">
@@ -158,16 +159,43 @@ History:
 		var contentComponent = Server.CommonSpot.api.getObject('Content');
 		var objInfo = StructNew();
 		
-		if ( arguments.csPageID GT 0 )	
+		/*if ( arguments.csPageID GT 0 )	
 		{
 			objInfo = contentComponent.getSummary(id=arguments.csPageID);
 		
 			if ( StructKeyExists(objInfo,"ObjectType") )
-				retStr = objInfo.ObjectType;	
-		}
-		
-		return retStr;
+				retStr = objInfo.ObjectType;
+		}*/
 	</cfscript>
+	
+	<cfif arguments.csPageID GT 0 >
+		<cfquery name="pageQry" datasource="#request.site.datasource#">
+		   SELECT pageType, doctype, Uploaded
+			FROM 	sitePages
+			WHERE ID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.csPageID#">
+		</cfquery>
+
+		<!--- pagetype = 1 or 2 & DOCTYPE = 1 or "" : cs template --->
+		<!--- pagetype = 0 & DOCTYPE = 0 & Uploaded = 0 : cs page  --->
+		<!--- pagetype = 0 & DOCTYPE = string & Uploaded = 1 : uploaded doc  --->
+		<!--- pagetype = 8 : regurl & DOCTYPE = string //  8 = External URLs	 --->
+		<!--- <cfdump var="#pageQry#" expand=true> --->
+
+		<cfscript>
+			if ( pageQry.pageType EQ 2 AND pageQry.DOCTYPE EQ "" AND pageQry.Uploaded EQ 0 )
+				retStr = "base template"; 	
+			else if ( pageQry.pageType EQ 1 AND (pageQry.DOCTYPE EQ 0 OR pageQry.DOCTYPE EQ "") AND pageQry.Uploaded EQ 0 )
+				retStr = "user template"; 	
+			else if ( pageQry.pageType EQ 0 AND pageQry.DOCTYPE EQ 0 AND pageQry.Uploaded EQ 0)
+				retStr = "commonspot page"; 
+			else if ( pageQry.pageType EQ 0 AND !IsNumeric(pageQry.DOCTYPE) AND pageQry.Uploaded EQ 1 )
+			  	retStr = "uploaded document"; 
+			else if ( pageQry.pageType EQ 8 AND !IsNumeric(pageQry.DOCTYPE) AND pageQry.Uploaded EQ 0 )
+				retStr = "registered URL";   
+		</cfscript>
+	</cfif>
+	
+	<cfreturn retStr>
 </cffunction>
 
 <!---
