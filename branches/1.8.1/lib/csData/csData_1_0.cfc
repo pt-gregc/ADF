@@ -167,27 +167,76 @@ Arguments:
 History:
 	2009-05-27 - MFC - Created
 	2011-02-09 - RAK - Var'ing un-var'd variables
+	2015-03-03 - DJM - Updated code to set the image filename depending on the CS version
 --->
 <cffunction name="getImagePageURL" returntype="String" access="public">
 	<cfargument name="pageid" type="numeric" required="true">
 	<cfscript>
 		var retURL = '';
 		var sitePageMap = '';
+		var csVersion = ListFirst(ListLast(request.cp.productversion," "),".");
+		var requiredCSVersion = 10;
+		var imgGalleryObj = '';
+		var galleryDetails = '';
+		var getLargestSpec = '';
+		var sizeSpecifications = QueryNew('');
+		var vNewFileName = '';
+		var orderByClause = 'Width DESC';
 	</cfscript>
+	
 	<cfquery name="sitePageMap" datasource="#request.site.datasource#">
 		SELECT	SitePages.SubSiteID, SitePages.FileName
+	<cfif csVersion GTE requiredCSVersion>
+		, ImageGallery.GalleryID
+	</cfif>
 		FROM    SitePages INNER JOIN
 		        	SubSites ON SitePages.SubSiteID = SubSites.ID
+	<cfif csVersion GTE requiredCSVersion>
+		INNER JOIN
+					ImageGallery ON ImageGallery.PageID = SitePages.ID
+	</cfif>
 		WHERE	SitePages.ID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.pageid#">
 	</cfquery>
+	
+	<cfif sitePageMap.RecordCount>
+		<cfscript>
+			vNewFileName = sitePageMap.FileName;
+		</cfscript>
+		
+		<cfif csVersion GTE requiredCSVersion>
+			<cfscript>
+				imgGalleryObj = Server.CommonSpot.api.getObject('ImageGallery');
+				galleryDetails = imgGalleryObj.getInfo(id=sitePageMap.GalleryID);			
+			</cfscript>
+			
+			<cfif galleryDetails.SizeRestrictionType NEQ 1>
+				<cfscript>
+					sizeSpecifications = imgGalleryObj.getSizeList(id=sitePageMap.galleryID);
+					if (galleryDetails.SizeRestrictionType EQ 4)
+						orderByClause = 'Height DESC';
+				</cfscript>
+				
+				<cfif sizeSpecifications.RecordCount>
+					<cfquery name="getLargestSpec" dbtype="query">
+						SELECT ID, Width, Height
+						FROM SizeSpecifications
+						ORDER BY #orderByClause#
+					</cfquery>
+					
+					<cfscript>
+						vNewFileName = imgGalleryObj.getImageFileName(baseFileName=sitePageMap.FileName, id=sitePageMap.GalleryID, width=getLargestSpec.Width[1], height=getLargestSpec.Height[1]);
+					</cfscript>
+				</cfif>
+			</cfif>
+		</cfif>
+		
+		<cfscript>
+			retURL = request.subsitecache[sitePageMap.SubSiteID].imagesUrl & vNewFileName;
+		</cfscript>
+	</cfif>
+	
 	<cfscript>
-		if ( sitePageMap.RecordCount ) 
-		{
-			retURL = request.subsitecache[sitePageMap.SubSiteID].imagesUrl & sitePageMap.FileName;
-			return retURL;
-		}
-		else
-			return "";
+		return retURL;
 	</cfscript>
 </cffunction>
 
