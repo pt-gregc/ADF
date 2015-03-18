@@ -37,7 +37,7 @@ History:
 --->
 <cfcomponent displayname="csData_1_3" extends="ADF.lib.csData.csData_1_2" hint="CommonSpot Data Utils functions for the ADF Library">
 
-<cfproperty name="version" value="1_3_3">
+<cfproperty name="version" value="1_3_4">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">
@@ -156,16 +156,6 @@ History:
 	
 	<cfscript>
 		var retStr = "";
-		var contentComponent = Server.CommonSpot.api.getObject('Content');
-		var objInfo = StructNew();
-		
-		/*if ( arguments.csPageID GT 0 )	
-		{
-			objInfo = contentComponent.getSummary(id=arguments.csPageID);
-		
-			if ( StructKeyExists(objInfo,"ObjectType") )
-				retStr = objInfo.ObjectType;
-		}*/
 	</cfscript>
 	
 	<cfif arguments.csPageID GT 0 >
@@ -175,23 +165,27 @@ History:
 			WHERE ID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.csPageID#">
 		</cfquery>
 
-		<!--- pagetype = 1 or 2 & DOCTYPE = 1 or "" : cs template --->
-		<!--- pagetype = 0 & DOCTYPE = 0 & Uploaded = 0 : cs page  --->
-		<!--- pagetype = 0 & DOCTYPE = string & Uploaded = 1 : uploaded doc  --->
-		<!--- pagetype = 8 : regurl & DOCTYPE = string //  8 = External URLs	 --->
-		<!--- <cfdump var="#pageQry#" expand=true> --->
+		<!--- // pageType, DocType and Uploaded values // 
+			pagetype = 1 or 2 & DOCTYPE = 1 or "" : cs template 
+			pagetype = 0 & DOCTYPE = 0 & Uploaded = 0 : cs page 
+			pagetype = 0 & DOCTYPE = string & Uploaded = 1 : uploaded doc
+			pagetype = 8 : regurl & DOCTYPE = string //  8 = External URLs	 
+		// --->
 
 		<cfscript>
-			if ( pageQry.pageType EQ 2 AND pageQry.DOCTYPE EQ "" AND pageQry.Uploaded EQ 0 )
-				retStr = "base template"; 	
-			else if ( pageQry.pageType EQ 1 AND (pageQry.DOCTYPE EQ 0 OR pageQry.DOCTYPE EQ "") AND pageQry.Uploaded EQ 0 )
-				retStr = "user template"; 	
-			else if ( pageQry.pageType EQ 0 AND pageQry.DOCTYPE EQ 0 AND pageQry.Uploaded EQ 0)
-				retStr = "commonspot page"; 
-			else if ( pageQry.pageType EQ 0 AND !IsNumeric(pageQry.DOCTYPE) AND pageQry.Uploaded EQ 1 )
-			  	retStr = "uploaded document"; 
-			else if ( pageQry.pageType EQ 8 AND !IsNumeric(pageQry.DOCTYPE) AND pageQry.Uploaded EQ 0 )
-				retStr = "registered URL";   
+			if ( pageQry.RecordCount )
+			{
+				if ( pageQry.pageType EQ 2 AND pageQry.DOCTYPE EQ "" AND pageQry.Uploaded EQ 0 )
+					retStr = "base template"; 	
+				else if ( pageQry.pageType EQ 1 AND (pageQry.DOCTYPE EQ 0 OR pageQry.DOCTYPE EQ "") AND pageQry.Uploaded EQ 0 )
+					retStr = "user template"; 	
+				else if ( pageQry.pageType EQ 0 AND pageQry.DOCTYPE EQ 0 AND pageQry.Uploaded EQ 0)
+					retStr = "commonspot page"; 
+				else if ( pageQry.pageType EQ 0 AND !IsNumeric(pageQry.DOCTYPE) AND pageQry.Uploaded EQ 1 )
+				  	retStr = "uploaded document"; 
+				else if ( pageQry.pageType EQ 8 AND !IsNumeric(pageQry.DOCTYPE) AND pageQry.Uploaded EQ 0 )
+					retStr = "registered URL";  
+			} 
 		</cfscript>
 	</cfif>
 	
