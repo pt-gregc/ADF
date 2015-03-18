@@ -40,7 +40,7 @@ History:
 --->
 <cfcomponent displayname="csData_1_0" extends="ADF.core.Base" hint="CommonSpot Data Utils functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_13">
+<cfproperty name="version" value="1_0_14">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_0">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_0">
@@ -875,30 +875,51 @@ Arguments:
 	String csPageURL
 History:
 	2009-07-24 - SFS - Created
-	2010-12-22 - GAC - Modified - Added VAR scoped variables for both queries
+	2010-12-22 - GAC - VAR scoped variables for both queries
+	2015-03-13 - GAC - Updated to handle CS URLs with PageID params
 --->
 <cffunction name="getCSPageDataByURL" access="public" returntype="query" hint="Returns a query containing the page ID and page title of the page URL provided">
 	<cfargument name="csPageURL" type="string" required="true">
-	<cfset var getSubsiteID = QueryNew("ID")>
-	<cfset var getPageData = QueryNew("ID,Title")>
-	<cfset var csPageData = QueryNew("ID,Title")>
-	<cfquery name="getSubsiteID" datasource="#request.site.datasource#">
-		select ID
-		from SubSites
-		where subsiteURL = <cfqueryparam cfsqltype="cf_sql_varchar" value="#listDeleteAt(arguments.csPageURL,Listlen(arguments.csPageURL,"/"),"/")#/">
-	</cfquery>
-	<cfif getSubsiteID.recordcount>
+	
+	<cfscript>
+		var getSubsiteID = QueryNew("ID");
+		var getPageData = QueryNew("ID,Title");
+		
+		var csPageID = 0;
+		var matchRegEx = "PAGEID=[\d]+";
+		var matchArray = ArrayNew(1);
+		
+		if ( ArrayLen(REMatchNoCase(matchRegEx, arguments.csPageURL)) )
+		{
+		 	matchArray = REMatchNoCase(matchRegEx, arguments.csPageURL);
+		 	csPageID = int( ReReplaceNoCase(matchArray[1],"PAGEID=","") );   	
+		}
+	</cfscript>
+	
+	<!--- // if we have the PageID... lets just query to sitepage by ID --->
+	<cfif IsNumeric(csPageID) AND csPageID GT 0>
 		<cfquery name="getPageData" datasource="#request.site.datasource#">
 			select ID, title
 			from sitePages
-			where filename = <cfqueryparam cfsqltype="cf_sql_varchar" value="#ListLast(arguments.csPageURL,"/")#">
-			and subsiteID = <cfqueryparam cfsqltype="cf_sql_integer" value="#getSubsiteID.ID#">
+			where ID = <cfqueryparam cfsqltype="cf_sql_integer" value="#csPageID#">
 		</cfquery>
-		<cfif getPageData.recordCount>
-			<cfset csPageData = getPageData>
+	<cfelse>
+		<cfquery name="getSubsiteID" datasource="#request.site.datasource#">
+			select ID
+			from SubSites
+			where subsiteURL = <cfqueryparam cfsqltype="cf_sql_varchar" value="#listDeleteAt(arguments.csPageURL,Listlen(arguments.csPageURL,"/"),"/")#/">
+		</cfquery>
+		<cfif getSubsiteID.recordcount>
+			<cfquery name="getPageData" datasource="#request.site.datasource#">
+				select ID, title
+				from sitePages
+				where filename = <cfqueryparam cfsqltype="cf_sql_varchar" value="#ListLast(arguments.csPageURL,"/")#">
+				and subsiteID = <cfqueryparam cfsqltype="cf_sql_integer" value="#getSubsiteID.ID#">
+			</cfquery>
 		</cfif>
 	</cfif>
-	<cfreturn csPageData>
+	
+	<cfreturn getPageData>
 </cffunction>
 
 <!---
@@ -1373,6 +1394,7 @@ History:
 	2011-09-06 - RAK - Removed the bulk of the logic to get the ID and replaced it with a single regular expression
 	2014-11-07 - GAC - Updated to output most of the standard render mode filter data keys using the CS CMD API (cs version dependant)
 	2014-12-05 - GAC - Removed duplicate 'var'd imageData' variable 
+	2015-03-18 - GAC - Updated to account for private images when using the CMD API to get additional image data
 --->
 <cffunction name="decipherCPIMAGE" access="public" returntype="struct" hint="Returns the proper structure for an image based on the 'CPIMAGE:' text provided by CEData() calls">
 	<cfargument name="cpimage" type="string" required="true" hint="The 'CPIMAGE:' text that is returned from the CEData() call">
@@ -1381,6 +1403,7 @@ History:
 		var retData = structNew();
 		var imageData = structNew();
 		var imageID = "";
+		var imageURL = "";
 		var csVersion = ListFirst(ListLast(request.cp.productversion," "),".");
 		var requiredCSversion = 8;
 		var imgComponent = "";
@@ -1399,45 +1422,65 @@ History:
 		
 		if( IsNumeric(imageID) )
 		{
+			imageURL = getImagePageURL(pageid=imageID);
+			
 			// imageID is not found in the standard render mode filter data struct 
 			// - but we will add it since this method has returned it in the past
 			retData.imageID = imageID; 	
 			
+			retData.resolvedURL = StructNew();
+			retData.resolvedURL.serverRelative = imageURL;
+			
+			if ( cgi.https EQ "on" )
+				reqProtocol = "https://";
+					
+			retData.resolvedURL.Absolute = reqProtocol & request.CGIVars.SERVER_NAME & imageURL;
+					
+			//retData.OrigHeight = "";
+			//retData.OrigWidth = "";
+			//retData.SubsiteID = "";
+			retData.FileName = ListLast(imageURL,"/");
+			//retData.AltText = "";
+			//retData.OrigSize = "";
+			
+			//retData.errorMsg = "";
+			retData.privateImage = false;
+			
 			// Original Image Data return Struct
-			if ( csVersion LT requiredCSversion )
+			if ( csVersion GTE requiredCSversion )
 			{ 
-				retData.resolvedURL.serverRelative = getImagePageURL(imageID);
-			}
-			else
-			{
-				// Get Image Data using the CS CMD API image object
-				imgComponent = Server.CommonSpot.api.getObject('image');
-				imageData = imgComponent.getInfo(imageID=imageID);
-				
-				if ( !StructIsEmpty(imageData) )
+				try 
 				{
-					retData.resolvedURL = StructNew();
-					retData.resolvedURL.serverRelative = imageData.URL;
+					// Get Image Data using the CS CMD API image object
+					imgComponent = Server.CommonSpot.api.getObject('image');
+					imageData = imgComponent.getInfo(imageID=imageID);
 					
-					if ( cgi.https EQ "on" )
-						reqProtocol = "https://";
+					if ( !StructIsEmpty(imageData) )
+					{
+						retData.OrigHeight = imageData.OrigHeight;
+						retData.OrigWidth = imageData.OrigWidth;
+						retData.SubsiteID = imageData.SubsiteID;
+						retData.FileName = imageData.FileName;
+						retData.AltText = imageData.Description;
+						retData.OrigSize = imageData.Size;
 					
-					retData.resolvedURL.Absolute = reqProtocol & request.CGIVars.SERVER_NAME & imageData.URL;
-					
-					retData.OrigHeight = imageData.OrigHeight;
-					retData.OrigWidth = imageData.OrigWidth;
-					retData.SubsiteID = imageData.SubsiteID;
-					retData.FileName = imageData.FileName;
-					retData.AltText = imageData.Description;
-					retData.OrigSize = imageData.Size;
-					
-					// Other standard render mode image keys (not in the CMD API image data)
-					// - ImageFound - boolean (1/0)
-					// - MIMEType - string (eg. image/png) 
+						// Other standard render mode image keys (not in the CMD API image data)
+						// - ImageFound - boolean (1/0)
+						// - MIMEType - string (eg. image/png) 
+					}
 				}
-			}
+				catch ( any expt ) 
+				{
+					if ( StructKeyExists(expt,"message") AND LEN(TRIM(expt.message)) )
+					{ 
+						retData.errorMsg = expt.message;
+						if ( FindNoCase("private image",expt.message) )
+							retData.privateImage = true;
+					}
+					//WriteDump(expt, 0);
+				}
+			}		
 		}
-		
 		return retData;
 	</cfscript>
 </cffunction>
