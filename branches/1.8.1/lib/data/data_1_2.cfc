@@ -33,10 +33,11 @@ History:
 	2013-02-28 - GAC - Added new string to number and number to string functions
 	2013-09-06 - GAC - Added the listDiff and IsListDifferent functions
 	2014-12-03 - GAC - Added the isNumericList function
+	2015-02-13 - GAC - Added the tagValueCleanup function
 --->
 <cfcomponent displayname="data_1_2" extends="ADF.lib.data.data_1_1" hint="Data Utils component functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_12">
+<cfproperty name="version" value="1_2_13">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Data_1_2">
 
@@ -338,6 +339,7 @@ History:
 	2015-02-06 - GAC - Added code to protect against reserved word usage as well as columns with spaces query column names	 
 					 - Added fix for query of query case sensitivity issue
 					 - Updated error handling to write a log file and return no records (will help not mask the error as much)
+	2015-02-13 - GAC - Reorganized the code and update the comments
 Usage:
 	Application.ADF.data.QuerySort(query,columnName,orderType)
 --->
@@ -358,17 +360,18 @@ Usage:
 		var logMsg = "[data_1_2.QuerySort]";
 		var createQueryResult = "";
 		
+		// Protect against reserved words or columns with spaces query column names	
+		// - Wrap the query column names in brackets ([])
+		// - ONLY brackets are needed since this is a CF query of queries
+		newColList = "[" & Replace(qColumnsList,",","],[","all") & "]";
+		
+		// Make sure the Column that is used to ORDER BY is one of available columns
 		if ( LEN(TRIM(arguments.columnName)) AND ListFindNoCase(qColumnsList,arguments.columnName) )
 			orderCol = arguments.columnName;
 
 		if ( ListFindNoCase(orderTypeDefaults,arguments.orderType) )
 			orderTypeOption = arguments.orderType;
-		
-		// Protect against reserved words or columns with spaces query column names	
-		// - Wrap the query column names in brackets ([])
-		// - ONLY brackets are needed since this is a CF query of queries
-		newColList = "[" & Replace(qColumnsList,",","],[","all") & "]";
-	
+
 		// A saftey catch so there is always a custom sort orderColumnAlias defined
 		if ( LEN(TRIM(arguments.orderColumnAlias)) EQ 0 )
 			arguments.orderColumnAlias = "recSortCol";
@@ -421,7 +424,7 @@ Usage:
 			<!--- <cfdump var="#cfcatch#" label="cfcatch" expand="false"> --->
 			<!--- <cfreturn arguments.query> --->
 			
-			<!--- // If there was a problem don't return any results... returning incorrect results just masks the issue --->
+			<!--- // If there was a problem don't return any results... returning incorrect or unsorted results just masks the issue --->
 			<cfreturn QueryNew("#qColumnsList#")>
 		</cfcatch>
 	</cftry>    
@@ -904,6 +907,108 @@ History:
                 return false;
         }   
         return true;
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Name:
+	$tagValueCleanup
+Summary:
+	Removes the tag and string between <script> <object><iframe><style><meta> and <link> tags
+	                         
+	@author         Saman W Jayasekara (sam @ cflove . org)                   
+	@version 1.1    May 22, 2010              
+Returns:
+	string
+Arguments:
+	String - str
+	String - action -  cleanup or find 
+History:
+	2015-02-13 - GAC - Added
+--->
+<cffunction name="tagValueCleanup" access="public" returntype="string" hint="Removes the tag and string between <script> <object><iframe><style><meta> and <link> tags."> 
+	<cfargument name="str"    type="string" required="yes" hint="String"> 
+	<cfargument name="action" type="string" required="no" default="cleanup" hint="If [cleanup], this will clean up the string and output new string, if [find], this will output a value or zero"> 
+	
+	<cfset var retStr = "">
+	 
+	<cfswitch expression="#arguments.action#"> 
+		<cfcase value="cleanup"> 
+			<cfset retStr = ReReplaceNoCase(arguments.str,"<script.*?</*.script*.>|<applet.*?</*.applet*.>|<embed.*?</*.embed*.>|<ilayer.*?</*.ilayer*.>|<frame.*?</*.frame*.>|<object.*?</*.object*.>|<iframe.*?</*.iframe*.>|<style.*?</*.style*.>|<meta([^>]*[^/])>|<link([^>]*[^/])>|<script([^>]*[^/])>", "", "ALL")> 
+			<cfset retStr = retStr.ReplaceAll("<\w+[^>]*\son\w+=.*[ /]*>|<script.*/*>|</*.script>|<[^>]*(javascript:)[^>]*>|<[^>]*(onClick:)[^>]*>|<[^>]*(onDblClick:)[^>]*>|<[^>]*(onMouseDown:)[^>]*>|<[^>]*(onMouseOut:)[^>]*>|<[^>]*(onMouseUp:)[^>]*>|<[^>]*(onMouseOver:)[^>]*>|<[^>]*(onBlur:)[^>]*>|<[^>]*(onFocus:)[^>]*>|<[^>]*(onSelect:)[^>]*>","") > 
+			<cfset retStr = reReplaceNoCase(retStr, "</?(script|applet|embed|ilayer|frame|iframe|frameset|style|link)[^>]*>","","all")> 
+		</cfcase> 
+		<cfdefaultcase> 
+			<cfset retStr = REFindNoCase("<script.*?</script*.>|<applet.*?</applet*.>|<embed.*?</embed*.>|<ilayer.*?</ilayer*.>|<frame.*?</frame*.>|<object.*?</object*.>|<iframe.*?</iframe*.>|<style.*?</style*.>|<meta([^>]*[^/])>|<link([^>]*[^/])>|<\w+[^>]*\son\w+=.*[ /]*>|<[^>]*(javascript:)[^>]*>|<[^>]*(onClick:)[^>]*>|<[^>]*(onDblClick:)[^>]*>|<[^>]*(onMouseDown:)[^>]*>|<[^>]*(onMouseOut:)[^>]*>|<[^>]*(onMouseUp:)[^>]*>|<[^>]*(onMouseOver:)[^>]*>|<[^>]*(onBlur:)[^>]*>|<[^>]*(onFocus:)[^>]*>|<[^>]*(onSelect:)[^>]*>",arguments.str)> 
+		</cfdefaultcase> 
+	</cfswitch> 
+ 	
+	<cfreturn retStr> 
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$parseRequestParamsToFilteredParams
+Summary:
+	Converts a CommonSpot Request Params structure to a structure that only includes allowed params
+	and removes any excluded params.
+Returns:
+	Struct
+Arguments:
+	Struct - paramsStruct
+	String - allowedParams
+	String - excludedParams
+	Boolean - preventDups
+Usage:
+	convertRequestParamsToFilteredParams(paramsStruct,allowedParams,excludedParams,preventDups)
+History:
+	2015-02-24 - Created
+ --->
+<cffunction name="convertRequestParamsToFilteredParams" access="public" returntype="struct" hint="Converts a CommonSpot Request Params structure to a structure that only includes allowed params and removes any excluded params.">
+	<cfargument name="paramsStruct" type="struct" required="false" default="#request.params#" hint="request.params data structure to parse">
+	<cfargument name="allowedParamList" type="string" required="false" default="" hint="comma-delimited list of allowed query or form params">
+	<cfargument name="excludedParamList" type="string" required="false" default="" hint="comma-delimited list of excluded query or form params">
+	<cfargument name="preventDups" type="boolean" required="false" default="true" hint="Set to true to prevent duplicate hidden input controls.">
+	
+	<cfscript>
+		var retData = StructNew();
+	   	var paramsData = StructNew();
+		var aKey = "";
+		var pKey = "";
+		var paramDupList = "";
+		
+		// Rebuild the paramData struct will only the allowed params
+		// !!! if no allowed params are passed, then allow the whole request.params struct to pass through !!!
+		if ( ListLen(arguments.allowedParamList) EQ 0 )
+			paramsData = arguments.paramsStruct;
+		else
+	   	{
+		   	for ( aKey IN arguments.paramsStruct )
+			{
+				if ( ListFindNoCase(arguments.allowedParamList,aKey,",") )	
+					paramsData[aKey] = arguments.paramsStruct[aKey]; 
+			}
+	   	}
+		
+		// Loop over the paramData from request.Params to build the retData without the excluded params
+		for ( pKey IN paramsData ) 
+		{
+			if ( ListFindNoCase(arguments.excludedParamList,pKey,",") EQ 0 
+				AND ListFindNoCase(paramDupList,pKey,",") EQ 0 )
+			{
+				retData[pKey] = paramsData[pKey];
+				
+				// Build a key list so we can check for and prevent dups
+				if ( arguments.preventDups )
+					paramDupList = ListAppend(paramDupList,pKey,",");
+			}
+		}
+	   	
+	   	return retData;		
 	</cfscript>
 </cffunction>
 
