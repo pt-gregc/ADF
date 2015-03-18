@@ -46,11 +46,12 @@ History:
 	2014-02-24 - GAC - Added getCSFileURL function based on the old getCSPageURL function
 	2014-03-16 - JTP - Added getPaddedID function
 	2014-09-25 - GAC - Added getCSPageIDByURL function	
-	2015-01-05 - GAC - Added isTemplate function	
+	2015-01-05 - GAC - Added isTemplate function
+	2015-01-08 - GAC - Moved isTemplated to csData_1_3	
 --->
 <cfcomponent displayname="csData_1_2" extends="ADF.lib.csData.csData_1_1" hint="CommonSpot Data Utils functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_18">
+<cfproperty name="version" value="1_2_19">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">
@@ -990,7 +991,7 @@ Summary:
 Returns:
 	Numeric csPageID
 Arguments:
-	String  csPageURLS
+	String  csPageURL
 History:
 	2014-09-25 - GAC - Created
 --->
@@ -999,38 +1000,12 @@ History:
 	<cfscript>
 		var csPageID = 0;
 		var pageQry = getCSPageDataByURL(csPageURL=arguments.csPageURL);
+		
 		if ( pageQry.recordCount )
-			csPageID = pageQry.ID;
+			csPageID = pageQry.ID;	
+	
 		return csPageID;
 	</cfscript>
 </cffunction>	
-
-<!---
-/* *************************************************************** */
-Author: 	
-	PaperThin, Inc.
-Name:
-	$isTemplate
-Summary:
-	Given a CS pageID return if the page is a CommonSpot Template. 
-Returns:
-	Boolean 
-Arguments:
-	Numeric  csPageID
-History:
-	2015-01-05 - GAC - Created
---->
-<!--- // MOVED TO csData_1_3 --->
-<!--- <cffunction name="isTemplate" access="public" returntype="boolean" output="false">
-	<cfargument name="csPageID" type="numeric" required="true">
-	
-	<cfscript>
-		var isTemplate = false;
-		var templateQry = getTemplateByID(templateID=arguments.csPageID);
-		if ( templateQry.recordCount )
-			isTemplate = true;
-		return isTemplate;
-	</cfscript>
-</cffunction> --->
 
 </cfcomponent>
