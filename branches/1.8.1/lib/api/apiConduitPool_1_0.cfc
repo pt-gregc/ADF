@@ -37,7 +37,7 @@ History:
 
 <cfcomponent displayname="apiConduitPool_1_0" extends="ADF.core.Base" hint="API Conduit Page Pool functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_2">
+<cfproperty name="version" value="1_0_3">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <cfproperty name="ccapi" type="dependency" injectedBean="ccapi_2_0">
 <cfproperty name="csData" type="dependency" injectedBean="csData_1_2">
@@ -579,7 +579,7 @@ History:
 					// If we are here... the Page is OPEN!!
 					retPageID = key;
 					
-					// LOCKing handle here by the parent calling method getConduitPageFromPool()
+					// LOCKing handled here by the parent calling method getConduitPageFromPool()
 					
 					// Add to Processing Page Assoc array
 					processingPageData = StructNew();
@@ -592,7 +592,7 @@ History:
 					// Update the Processing Pool Pages
 					WritePoolProcessingPages(pagesData=processingPages);
 					
-					// LOCKing handle here by the parent calling method getConduitPageFromPool()
+					// LOCKing handled here by the parent calling method getConduitPageFromPool()
 					
 					// Remove from Available Pages Assoc array 
 					StructDelete(availablePagesInPool,retPageID);
@@ -712,7 +712,7 @@ History:
 		
 		//var csData = server.ADF.objectFactory.getBean("csdata_1_2");
 		
-		// LOCKing handle here by the parent calling method getConduitPageFromPool()
+		// LOCKing handled here by the parent calling method getConduitPageFromPool()
 		if ( StructKeyExists(processingPoolPages,arguments.pageID) )
 		{
 			// Remove the Processing PageID from the ProcessingPoolPages
@@ -1253,7 +1253,7 @@ History:
 	2014-09-08 - GAC - Created
 --->
 <cffunction name="ReadPagePoolConfig" returntype="struct" access="private" output="false">	
-	<cflock name="apiPoolConfigRead" type="read" timeout="10">
+	<cflock name="apiPoolConfig" type="readonly" timeout="10">
 		<cfreturn Application.ADF.apiPoolConfig>
 	</cflock>
 </cffunction>
@@ -1270,7 +1270,7 @@ History:
 <cffunction name="WritePagePoolConfig" returntype="void" access="private" output="false">
 	<cfargument name="configData" type="struct" required="Yes">	
 
-	<cflock name="apiPoolConfigWrite" type="exclusive" timeout="10">
+	<cflock name="apiPoolConfig" type="exclusive" timeout="10">
 		<cfscript>
 			if ( !StructKeyExists(Application.ADF,"apiPoolConfig") )
 				Application.ADF.apiPoolConfig = StructNew();
@@ -1288,9 +1288,10 @@ Name:
 	$ReadPagePool()
 History:
 	2014-09-08 - GAC - Created
+	2015-02-18 - GAC - Updated the lock name and the lock type
 --->
 <cffunction name="ReadPagePool" returntype="struct" access="private" output="false">
-	<cflock name="apiPoolVarsRead" type="read" timeout="10">
+	<cflock name="apiPoolVars" type="readonly" timeout="10">
 		<cfreturn Application.ADF.apipool>
 	</cflock>
 </cffunction>
@@ -1303,11 +1304,12 @@ Name:
 	$WritePagePool(poolData)
 History:
 	2014-09-08 - GAC - Created
+	2015-02-18 - GAC - Updated the lock name
 --->
 <cffunction name="WritePagePool" returntype="void" access="private" output="false">
 	<cfargument name="poolData" type="struct" required="Yes">	
 	
-	<cflock name="apiPoolVarsWrite" type="exclusive" timeout="10">
+	<cflock name="apiPoolVars" type="exclusive" timeout="10">
 		<cfscript>
 			if ( !StructKeyExists(Application.ADF,"apipool") )
 				Application.ADF.apipool = StructNew();
