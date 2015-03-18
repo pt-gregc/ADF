@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="data_1_0" extends="ADF.core.Base" hint="Data Utils component functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_7">
+<cfproperty name="version" value="1_0_8">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Data_1_0">
 
@@ -788,6 +788,8 @@ Summary:
 History:
 	2015-02-05 - GAC - Updated so the inString parameter has a default value of Request.CGIVars.QUERY_STRING
 					 - Updated to use getToken() to get the value after the equal sign (=)
+	2015-03-18 - GAC - Updated to use listRest() to get the value after the first equal sigin (=), just in case 
+						there maybe more than one equal sign in (=) the string between each ampersand (&) delimiter
  --->
 <cffunction name="queryStringToStruct" access="public" returntype="struct">
 	<cfargument name="inString" type="string" required="false" default="#Request.CGIVars.QUERY_STRING#">
@@ -795,7 +797,6 @@ History:
 	<cfscript>
 		//var to hold the final structure
 	    var struct = StructNew();
-	    //vars for use in the loop, so we don't have to evaluate lists and arrays more than once
 	    var i = 1;
 	    var pairi = "";
 	    var keyi = "";
@@ -813,9 +814,8 @@ History:
 	    {
 	        pairi = qsarray[i]; // current pair
 	        keyi = listFirst(pairi,"="); 				// current key
-	        valuei =  urlDecode(getToken(pairi,2,"=")); // current value
-	        //valuei = urlDecode(listLast(pairi,"="));	// returns the first value if no value is after the equal sign
-	       
+			valuei =  urlDecode(listRest(pairi,"="));   // current value
+	        
 		    // check if key already added to struct
 	        if ( structKeyExists(struct,keyi) ) 
 	        	struct[keyi] = listAppend(struct[keyi],valuei); // add value to list
@@ -844,11 +844,12 @@ Summary:
 	@version 1, July 9, 2003
 History:
 	2009-07-30 - RLW - Created
+	2015-03-12 - GAC - Updated default value for the valueColumn to arguments.keyColumn 
 --->
 <cffunction name="queryColumnsToStruct" access="public" returntype="Struct" hint="">
 	<cfargument name="query" type="query" required="true" hint="The query to convert">
 	<cfargument name="keyColumn" type="string" required="true" hint="The name of the column in the query to use as the key for the structure">
-	<cfargument name="valueColumn" type="string" required="false" default="#arguments.keyValue#" hint="The name of the column in the query to use as the value for the structure"> 
+	<cfargument name="valueColumn" type="string" required="false" default="#arguments.keyColumn#" hint="The name of the column in the query to use as the value for the structure"> 
 	<cfargument name="reverse" type="boolean" required="false" default="false" hint="Load the structure by reversing through the query">
 	<cfscript>
 	    var struct = structNew();
