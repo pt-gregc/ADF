@@ -35,10 +35,12 @@ History:
 	2013-09-27 - DMB - Added a function to load jQuery Cycle2 lib 
 	2014-05-19 - GAC - Added functions for jQuery plug-ins: jEditable, Calx, Calculation
 	2014-09-16 - GAC - Updated references to thirdparty to thirdParty for case sensitivity
+	2015-02-17 - GAC - Added a loadJQueryTimeAgo function to load version 1.4 by default	
+
 --->
 <cfcomponent displayname="scripts_1_2" extends="ADF.lib.scripts.scripts_1_1" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" value="1_2_23">
+<cfproperty name="version" value="1_2_24">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_1" type="dependency">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Scripts_1_2">
@@ -1070,6 +1072,32 @@ History:
 			#variables.scriptsService.renderScriptOnce("jQueryTemplates",outputHTML)#
 		</cfif>
 	</cfoutput>
+</cffunction>
+
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$loadJQueryTimeAgo
+Summary:	
+	Loads the TimeAgo (automatically updating fuzzy timestamps) plugin for jQuery
+Returns:
+	Void
+Arguments:
+	String - version - "1.4"
+	Boolean - Force
+History:
+ 	2015-02-17 - GAC - Based on 1.1.  Set to default load version 1.4.
+--->
+<cffunction name="loadJQueryTimeAgo" access="public" output="true" returntype="void" hint="Loads the TimeAgo (automatically updating fuzzy timestamps) plugin for jQuery"> 
+	<cfargument name="version" type="string" required="false" default="1.4" hint="jCycle version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
+	<cfscript>
+		// Call the super function
+		super.loadJQueryTimeAgo(version=arguments.version,force=arguments.force);
+	</cfscript>
 </cffunction>
 
 <!---
