@@ -35,7 +35,7 @@ History:
 --->
 <cfcomponent displayname="ceData_1_1" extends="ADF.lib.ceData.ceData_1_0" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="1_1_11">
+<cfproperty name="version" value="1_1_12">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_1">
 <cfproperty name="wikiTitle" value="CEData_1_1">
@@ -1002,6 +1002,7 @@ Arguments:
 	logViewSQL - boolean
 History:
 	2014-04-04 - DRM - Created
+	2015-01-08 - GAC - Updated the VersionState operator in the WHERE clause from >= to be just = 2 to avoid including WIP data
 --->
 <cffunction name="_buildAggregateView" returntype="boolean" hint="Builds an element view for the passed in element name" access="private">
 	<cfargument name="formID" type="numeric" required="yes" hint="formID of element to build a view for">
@@ -1086,7 +1087,7 @@ History:
 --->					 PageID, ControlID, FormID
 			  FROM Data_FieldValue
 			 WHERE FormID = #formID#
-				AND VersionState >= 2
+				AND VersionState = 2
 				AND PageID > 0
 		 GROUP BY PageID, ControlID, FormID
 		</cfquery>
