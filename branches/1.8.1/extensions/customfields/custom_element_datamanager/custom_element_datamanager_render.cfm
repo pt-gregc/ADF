@@ -46,6 +46,7 @@ History:
 	2014-05-29 - DJM - Moved hideOverlay() call out of the if else condition.
 	2014-07-01 - DJM - Added code to support metadata forms
 	2014-12-15 - DJM - Modified setting up of newData variable to fix issue with editing record for GCE
+	2015-03-19 - DJM - Added code to check for elementtype for honoring newData variable to fix metadata form issue
 --->
 <cfscript>
 	requiredCSversion = 9;
@@ -275,7 +276,7 @@ History:
 		</CFIF>
 	
 		<CFIF inputParameters.childCustomElement neq ''>
-			<CFIF newData EQ 0 OR (elementType EQ 'metadataForm' AND curPageID GT 0)>
+			<CFIF (elementType NEQ 'metadataForm' AND newData EQ 0) OR (elementType EQ 'metadataForm' AND curPageID GT 0)>
 				<CFOUTPUT>
 					#datamanagerObj.renderStyles(propertiesStruct=inputParameters)#
 					<table class="cs_data_manager" border="0" cellpadding="2" cellspacing="2" summary="" id="parentTable_#uniqueTableAppend#">
