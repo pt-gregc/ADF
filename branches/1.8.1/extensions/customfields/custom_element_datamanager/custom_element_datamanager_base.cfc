@@ -49,6 +49,7 @@ History:
 	2014-10-30 - DJM - Handling of commas within values
 	2015-01-05 - DJM - Added code to append '...' against 'add' buttons if not already present
 	2015-02-10 - DJM - Added code fix the issue when parent linked value has '&' in it
+	2015-04-02 - DJM - Modified getDisplayData() code to always return the Actions column
 --->
 <cfcomponent output="false" displayname="custom element datamanager_base" extends="ADF.core.Base" hint="This the base component for the Custom Element Data Manager field">
 	
@@ -874,7 +875,7 @@ History:
 		var fieldUpdValue = '';
 		var dataColumnList_new = '';
 		var theListLen = 0;
-		var actionColumnWidth = '';
+		var actionColumnWidth = 0;
 		
 		dataColumnArray = ListToArray(dataColumnList);
 	</cfscript>
@@ -984,14 +985,11 @@ History:
 					pos = ListFindNoCase( dataColumnList, str );
 					if( pos )
 						dataColumnList_new = ListSetAt( dataColumnList_new, pos, str & '_converted' );
-				}
-					
-				if( ListFindNoCase(inputPropStruct.interfaceOptions,'editAssoc') OR ListFindNoCase(inputPropStruct.interfaceOptions,'editChild') OR ListFindNoCase(inputPropStruct.interfaceOptions,'delete') )
-				{					
-					QueryAddColumn(childData, 'Actions', 'varchar', actionColumnArray);
-					dataColumnList_new = ListPrepend(dataColumnList_new, 'Actions');
 				}	
 			}
+			
+			QueryAddColumn(childData, 'Actions', 'varchar', actionColumnArray);
+			dataColumnList_new = ListPrepend(dataColumnList_new, 'Actions');
 			// Logit('datacolumnlist:[#dataColumnList_new#]');	// Actions,AssocDataPageID,ChildDataPageID,ID,Name,ParentID 				
 		</cfscript>
 

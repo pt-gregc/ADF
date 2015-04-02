@@ -47,6 +47,7 @@ History:
 	2014-07-01 - DJM - Added code to support metadata forms
 	2014-12-15 - DJM - Modified setting up of newData variable to fix issue with editing record for GCE
 	2015-03-19 - DJM - Added code to check for elementtype for honoring newData variable to fix metadata form issue
+	2015-04-02 - DJM - Modified code to handle show/hide of Actions column returned
 --->
 <cfscript>
 	requiredCSversion = 9;
@@ -436,6 +437,10 @@ History:
 					{
 						var columnsArray = columnsList.split(',');
 						var hasActionColumn = 0;
+						var displayActionColumn = 0;
+						<cfif ListFindNoCase(inputParameters.interfaceOptions,'editAssoc') OR ListFindNoCase(inputParameters.interfaceOptions,'editChild') OR ListFindNoCase(inputParameters.interfaceOptions,'delete')>
+							displayActionColumn = 1;
+						</cfif>
 					
 						if (columnsList != 'ERRORMSG')
 						{
@@ -447,8 +452,15 @@ History:
 								}
 								else if (columnsArray[i] == "Actions")
 								{
-									var obj = { "sTitle": columnsArray[i], "mDataProp": i+1, "sWidth": actionColumnWidth + "px" };
-									hasActionColumn = 1;
+									if (res#uniqueTableAppend#.aaData.length > 0 && displayActionColumn == 1)
+									{
+										var obj = { "sTitle": columnsArray[i], "mDataProp": i+1, "sWidth": actionColumnWidth + "px" };
+										hasActionColumn = 1;
+									}
+									else
+									{
+										var obj = {"bVisible": false, "mDataProp": i+1};
+									}
 								}
 								else
 								{
