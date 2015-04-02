@@ -50,6 +50,7 @@ History:
 	2015-01-05 - DJM - Added code to append '...' against 'add' buttons if not already present
 	2015-02-10 - DJM - Added code fix the issue when parent linked value has '&' in it
 	2015-04-02 - DJM - Modified getDisplayData() code to always return the Actions column
+	2015-04-02 - DJM - Modified code for CS Extended URL to compare with just the pageID value instead of the whole value stored in DB
 --->
 <cfcomponent output="false" displayname="custom element datamanager_base" extends="ADF.core.Base" hint="This the base component for the Custom Element Data Manager field">
 	
@@ -384,6 +385,8 @@ History:
 		var k = 0;
 		var valuesWithCommaArray = ArrayNew(1);
 		var stmtNewPos = 0;
+		var operatorToUseStr = 'Equals';
+		var operatorToUseSymbol = '=';
 		
 		if (arguments.parentFormType EQ 'CustomElement')
 			ceObj = parentObj;
@@ -412,7 +415,14 @@ History:
 		}
 			
 		if (linkedFldDetails.type NEQ 'img')
+		{
 			compareValueWithChild = getLinkedFieldValue(fieldType=linkedFldDetails.type,fieldValue=parentInstanceIDVal);
+			if (linkedFldDetails.type EQ 'csextendedurl')
+			{
+				operatorToUseStr = 'Contains';
+				operatorToUseSymbol = 'like';
+			}
+		}
 		else
 			compareValueWithChild = parentInstanceIDVal;
 			
@@ -591,13 +601,13 @@ History:
 						{
 							if (csVersion GT 9)
 							{
-								statementsArray[1] = childObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childLinkedField,operator='Equals',value=ListFirst(compareValueWithChild,'||'));
-								statementsArray[2] = childObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childLinkedField,operator='Equals',value=ListLast(compareValueWithChild,'||'));
+								statementsArray[1] = childObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childLinkedField,operator=operatorToUseStr,value=ListFirst(compareValueWithChild,'||'));
+								statementsArray[2] = childObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childLinkedField,operator=operatorToUseStr,value=ListLast(compareValueWithChild,'||'));
 							}
 							else
 							{
-								statementsArray[1] = "metadata|#inputPropStruct.childCustomElement#_#inputPropStruct.childLinkedField#|=|#ListFirst(compareValueWithChild,'||')#"; // Have to construct directly as metadataform has no command to create standard statement
-								statementsArray[2] = "metadata|#inputPropStruct.childCustomElement#_#inputPropStruct.childLinkedField#|=|#ListLast(compareValueWithChild,'||')#";
+								statementsArray[1] = "metadata|#inputPropStruct.childCustomElement#_#inputPropStruct.childLinkedField#|#operatorToUseSymbol#|#ListFirst(compareValueWithChild,'||')#"; // Have to construct directly as metadataform has no command to create standard statement
+								statementsArray[2] = "metadata|#inputPropStruct.childCustomElement#_#inputPropStruct.childLinkedField#|#operatorToUseSymbol#|#ListLast(compareValueWithChild,'||')#";
 							}
 							childFilterExpression = '(1 OR 2)';
 						}
@@ -605,11 +615,11 @@ History:
 						{
 							if (csVersion GT 9)
 							{
-								statementsArray[1] = childObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childLinkedField,operator='Equals',value=compareValueWithChild);
+								statementsArray[1] = childObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childLinkedField,operator=operatorToUseStr,value=compareValueWithChild);
 							}
 							else
 							{
-								statementsArray[1] = "metadata|#inputPropStruct.childCustomElement#_#inputPropStruct.childLinkedField#|=|#compareValueWithChild#"; // Have to construct directly as metadataform has no command to create standard statement
+								statementsArray[1] = "metadata|#inputPropStruct.childCustomElement#_#inputPropStruct.childLinkedField#|#operatorToUseSymbol#|#compareValueWithChild#"; // Have to construct directly as metadataform has no command to create standard statement
 							}
 							childFilterExpression = '1';
 						}
@@ -618,13 +628,13 @@ History:
 					{
 						if (ListLen(compareValueWithChild,'||') GT 1)
 						{
-							statementsArray[1] = ceObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childLinkedField,operator='Equals',value=ListFirst(compareValueWithChild,'||'));
-							statementsArray[2] = ceObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childLinkedField,operator='Equals',value=ListLast(compareValueWithChild,'||'));
+							statementsArray[1] = ceObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childLinkedField,operator=operatorToUseStr,value=ListFirst(compareValueWithChild,'||'));
+							statementsArray[2] = ceObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childLinkedField,operator=operatorToUseStr,value=ListLast(compareValueWithChild,'||'));
 							childFilterExpression = '(1 OR 2)';
 						}
 						else
 						{
-							statementsArray[1] = ceObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childLinkedField,operator='Equals',value=compareValueWithChild);
+							statementsArray[1] = ceObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childLinkedField,operator=operatorToUseStr,value=compareValueWithChild);
 							childFilterExpression = '1';
 						}
 					}
@@ -985,7 +995,7 @@ History:
 					pos = ListFindNoCase( dataColumnList, str );
 					if( pos )
 						dataColumnList_new = ListSetAt( dataColumnList_new, pos, str & '_converted' );
-				}	
+				}
 			}
 			
 			QueryAddColumn(childData, 'Actions', 'varchar', actionColumnArray);
@@ -1777,7 +1787,7 @@ History:
 			logError = true;	
 		}										
 	</cfscript>		
-
+	
 	<!-- // If error is generated log it --->
 	<cfif logError>
 		<cfmodule template="/commonspot/utilities/log-append.cfm" comment="Error in custom_element_datamanager_base.cfc RenderGrid() #e.message# #e.detail#">
@@ -2443,14 +2453,16 @@ History:
 			// Since extended url stored data differently for different page types, need to set up proper value to be checked
 			if (getPageInfo.RecordCount)
 			{
-				if (getPageInfo.PageType EQ Request.Constants.pgTypeNormal AND getPageInfo.Uploaded EQ 0)
+				// Just set to compare with pageID instead of the whole string as certain actions like move in CS do not update the value in DB
+				/*if (getPageInfo.PageType EQ Request.Constants.pgTypeNormal AND getPageInfo.Uploaded EQ 0)
 					returnString = 'CP___PAGEID=#arguments.fieldValue#,#getPageInfo.FileName#,#getPageInfo.SubsiteID#||CP___PAGEID=#arguments.fieldValue#,#getPageInfo.FileName#';
 				else if ((getPageInfo.PageType EQ Request.Constants.pgTypeNormal AND getPageInfo.Uploaded EQ 1) OR getPageInfo.PageType EQ Request.Constants.pgTypeMultimedia OR getPageInfo.PageType EQ Request.Constants.pgTypeMultimediaPlaylist)
 					returnString = 'CP___PAGEID=#arguments.fieldValue#';
 				else if (getPageInfo.PageType EQ Request.Constants.pgTypeImage)
 					returnString = 'CP___PAGEID=#arguments.fieldValue#,#getPageInfo.FileName#';
 				else // PageType as user template,pageset,registered url
-					returnString = 'CP___PAGEID=#arguments.fieldValue#,#getPageInfo.FileName#,#getPageInfo.SubsiteID#';
+					returnString = 'CP___PAGEID=#arguments.fieldValue#,#getPageInfo.FileName#,#getPageInfo.SubsiteID#';*/
+				returnString = 'CP___PAGEID=#arguments.fieldValue#';
 			}
 		</cfscript>
 	<cfelseif arguments.fieldType EQ 'img'>
@@ -2470,5 +2482,3 @@ History:
 </cffunction>
 
 </cfcomponent>
-
-
