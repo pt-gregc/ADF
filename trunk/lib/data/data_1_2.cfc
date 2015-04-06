@@ -32,10 +32,12 @@ History:
 	2012-12-31 - MFC/GAC - Created - New v1.2
 	2013-02-28 - GAC - Added new string to number and number to string functions
 	2013-09-06 - GAC - Added the listDiff and IsListDifferent functions
+	2014-12-03 - GAC - Added the isNumericList function
+	2015-02-13 - GAC - Added the tagValueCleanup function
 --->
 <cfcomponent displayname="data_1_2" extends="ADF.lib.data.data_1_1" hint="Data Utils component functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_9">
+<cfproperty name="version" value="1_2_13">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Data_1_2">
 
@@ -327,42 +329,103 @@ Summary:
 Returns:
 	query 
 Arguments:
-	query - query
-	string - orderColumn
-	string - orderType
+	Query - query
+	String - orderColumn
+	String - orderType
+	String - orderColumnAlias
 History:
 	2013-10-23 - GAC - Created
-	2014-02-05 - GAC - Removed the requirement for an orderType in the order by statement. 
+	2014-02-05 - GAC - Removed the requirement for an orderType in the order by statement.
+	2015-02-06 - GAC - Added code to protect against reserved word usage as well as columns with spaces query column names	 
+					 - Added fix for query of query case sensitivity issue
+					 - Updated error handling to write a log file and return no records (will help not mask the error as much)
+	2015-02-13 - GAC - Reorganized the code and update the comments
+Usage:
+	Application.ADF.data.QuerySort(query,columnName,orderType)
 --->
-<cffunction name="QuerySort" displayname="QuerySort" access="public" hint="Sort a query based on a custom list" returntype="query" output="false">
+<cffunction name="QuerySort" displayname="QuerySort" access="public" hint="Sort a query based on a custom list" returntype="query" output="true">
     <cfargument name="query" type="query" required="yes" hint="The query to be sorted">
     <cfargument name="columnName" type="string" required="no" default="" hint="The name of the column to be sorted">
     <cfargument name="orderType" type="string" required="no" default="asc" hint="The sort type. Options: asc, desc">
-    
+	<cfargument name="orderColumnAlias" type="string" required="no" default="xRecSortCol" hint="The alias for the column name used for sorting. Must be unique and not a column the original query">
+	
     <cfscript>
 		var qResult = queryNew("null");
 		var qColumnsList = arguments.query.columnList;
+		var newColList = "";
 		var orderCol = "";
 		var orderTypeDefaults = "asc,desc";
 		var orderTypeOption = "";
-		if ( ListFindNoCase(qColumnsList,arguments.columnName) )
+		var logSQL = (structKeyExists(Request.Params,"adfLogQuerySQL") and Request.Params.adfLogQuerySQL eq 1);
+		var logMsg = "[data_1_2.QuerySort]";
+		var createQueryResult = "";
+		
+		// Protect against reserved words or columns with spaces query column names	
+		// - Wrap the query column names in brackets ([])
+		// - ONLY brackets are needed since this is a CF query of queries
+		newColList = "[" & Replace(qColumnsList,",","],[","all") & "]";
+		
+		// Make sure the Column that is used to ORDER BY is one of available columns
+		if ( LEN(TRIM(arguments.columnName)) AND ListFindNoCase(qColumnsList,arguments.columnName) )
 			orderCol = arguments.columnName;
+
 		if ( ListFindNoCase(orderTypeDefaults,arguments.orderType) )
 			orderTypeOption = arguments.orderType;
+
+		// A saftey catch so there is always a custom sort orderColumnAlias defined
+		if ( LEN(TRIM(arguments.orderColumnAlias)) EQ 0 )
+			arguments.orderColumnAlias = "recSortCol";
+			
+		// Also make sure the orderColumnAlias is unique and not one of the query columns
+		if ( ListFindNoCase(qColumnsList,arguments.orderColumnAlias) )
+			arguments.orderColumnAlias = "xNew" & arguments.orderColumnAlias;
 	</cfscript>
     
     <cftry>
 		<cfquery name="qResult" dbtype="query">
-			SELECT #qColumnsList#
+			SELECT #newColList#<cfif LEN(TRIM(orderCol))>,LOWER([#orderCol#]) AS [#arguments.orderColumnAlias#]</cfif>
 			FROM arguments.query
 			<cfif LEN(TRIM(orderCol))>
-			ORDER BY #orderCol# #orderTypeOption#
+			ORDER BY [#arguments.orderColumnAlias#] #orderTypeOption#
 			</cfif>
 		</cfquery>
+		
+		<!--- // If requested... log the generated SQL --->
+		<cfif logSQL>
+			<cfset logMsg = logMsg & " Generated Query SQL:">
+			<cfif StructKeyExists(createQueryResult,"sql")>
+				<cfset logMsg = logMsg & "#chr(10)#SQL:#chr(10)##createQueryResult.sql#">
+			</cfif>
+			<cfif StructKeyExists(createQueryResult,"sqlparameters")>
+				<cfset logMsg = logMsg & "#chr(10)#PARAMS:#chr(10)##ArrayToList(createQueryResult.sqlparameters)#">
+			</cfif>
+			<cfset logMsg = logMsg & "#repeatString("-", 50)#">
+			<cfset application.ADF.utils.logAppend(logMsg,"ADFlogQuerySQL.log")>
+		</cfif>
+		
     	<cfreturn qResult>
+		
 		<cfcatch>
-			<cfdump var="#cfcatch#" label="cfcatch" expand="false">
-			<cfreturn arguments.query>
+			<!--- // Build an Error Log entry --->
+			<cfset logMsg = logMsg & " Error building query: #cfcatch.message#">
+			<cfif StructKeyExists(cfcatch,"detail")>
+				<cfset logMsg = logMsg & "#chr(10)#Detail: #cfcatch.detail#">
+			</cfif>
+			<cfif StructKeyExists(cfcatch,"sql")>
+				<!--- // Include the generated sql in the error log --->
+				<cfset logMsg = logMsg & "#chr(10)#SQL:#chr(10)##cfcatch.sql#">
+			</cfif>
+			<cfif StructKeyExists(cfcatch,"where")>
+				<cfset logMsg = logMsg & "#chr(10)#PARAMS:#chr(10)##cfcatch.where#">
+			</cfif>
+			<cfset logMsg = logMsg & "#repeatString("-", 50)#">
+			<cfset application.ADF.utils.logAppend(logMsg)> 
+
+			<!--- <cfdump var="#cfcatch#" label="cfcatch" expand="false"> --->
+			<!--- <cfreturn arguments.query> --->
+			
+			<!--- // If there was a problem don't return any results... returning incorrect or unsorted results just masks the issue --->
+			<cfreturn QueryNew("#qColumnsList#")>
 		</cfcatch>
 	</cftry>    
 </cffunction>
@@ -383,8 +446,12 @@ Arguments:
 	String - columnName
 	String - columnType
 	String - orderList
-	String - orderColumnName
+	String - orderColumnAlias
 	String - orderListDelimiter
+Deprecated Arguments:	
+	String - orderColumnName ( replaced by orderColumnAlias)
+Usage:
+	application.ADF.data.QuerySortByOrderedList(query,columnNam,columnTypee,orderList);
 History:
 	2013-01-10 - MFC - Created
 	2013-10-23 - GAC - Renamed and cleaned up debug code in the method  
@@ -395,27 +462,28 @@ History:
 					 - Updated the generated SQL output and error logging.
 					 - Added safety checks for the custom sort column name
 	2014-03-05 - JTP - Var declarations
+	2015-02-06 - GAC - Updated the orderColumnName parameter to be orderColumnAlias. The parameter name orderColumnName was misleading.
+					 - Added backward compatibity for the deprecated Parameter "orderColumnName"
+					 - Changed the qColumnsList LOOP to a use REPLACE instead to add the brackets around reserved words 
 --->
 <cffunction name="QuerySortByOrderedList" displayname="QuerySortByOrderedList" access="public" hint="Sort a query based on a custom ordered list" returntype="query" output="false">
     <cfargument name="query" type="query" required="yes" hint="The query to be sorted">
     <cfargument name="columnName" type="string" required="yes" hint="The name of the column to be sorted">
     <cfargument name="columnType" type="string" required="no" default="" hint="The column type. Not needed will auto-detect. But possible override values: numeric, varchar, date">
     <cfargument name="orderList" type="string" required="yes" hint="The list used to sort the query">
-	<cfargument name="orderColumnName" type="string" required="no" default="recSortCol" hint="The name of the column containing the order number. Must be unique and not a column the orginal query"> 
+	<cfargument name="orderColumnAlias" type="string" required="no" default="xRecSortCol" hint="The alias for the column containing the order number. Must be unique and not a column the original query"> 
 	<cfargument name="orderListDelimiter" type="string" required="no" default=",">
-	
+				
     <cfscript>
 		var qResult = queryNew("null");
 		var qColumnsList = arguments.query.columnList;
 		var orderItem = "";
 		var columnTypesAllowed = "varchar,numeric,date";
 		var columnTypeOverride = "";
-		var n = 1;
-		var newCol = "";
 		var newColList = "";
 		var criteriaValue = "";
 		var logSQL = (structKeyExists(Request.Params,"adfLogQuerySQL") and Request.Params.adfLogQuerySQL eq 1);
-		var logMsg = "";
+		var logMsg = "[data_1_2.QuerySortByOrderedList]";
 		var createQueryResult = '';
 		
 		// If a columnType is passed in set it as the override Column Type
@@ -423,26 +491,28 @@ History:
 			columnTypeOverride = arguments.columnType;
 		
 		// Protect against reserved words or columns with spaces query column names	
-		for ( n=1; n LTE ListLen(qColumnsList); n=n+1 ) {
-			newCol = "[" & ListGetAt(qColumnsList,n) & "]";
-			newColList = ListAppend(newColList,newCol);
-		}
+		// - Wrap the query column names in brackets ([])
+		// - ONLY brackets are needed since this is a CF query of queries
+		newColList = "[" & Replace(qColumnsList,",","],[","all") & "]";
 		
-		// A saftey catch so there is always a custom sort ORDERCOLUMNNAME defined
-		if ( LEN(TRIM(arguments.orderColumnName)) EQ 0 )
-			arguments.orderColumnName = "recSortCol";
+		// Backwards compatiblity code to handle PARAMETER change
+		if ( StructKeyExists(arguments,"orderColumnName") AND LEN(TRIM(arguments.orderColumnName)) )
+			arguments.orderColumnAlias = arguments.orderColumnName;
+		
+		// A saftey catch so there is always a custom sort orderColumnAlias defined
+		if ( LEN(TRIM(arguments.orderColumnAlias)) EQ 0 )
+			arguments.orderColumnAlias = "recSortCol";
 			
-		// Also make sure the ORDERCOLUMNNAME is unique and not one of the query columns
-		if ( ListFindNoCase(qColumnsList,arguments.orderColumnName) )
-			arguments.orderColumnName = "xNew" & arguments.orderColumnName;
+		// Also make sure the orderColumnAlias is unique and not one of the query columns
+		if ( ListFindNoCase(qColumnsList,arguments.orderColumnAlias) )
+			arguments.orderColumnAlias = "xNew" & arguments.orderColumnAlias;
 	</cfscript>
 		
     <!--- // Make the order list unique to avoid duplicating query records --->
     <cftry>
-		
 		<cfquery name="qResult" dbtype="query" result="createQueryResult">
 			<cfloop from="1" to="#listLen(arguments.orderList, arguments.orderListDelimiter)#" index="orderItem">
-				SELECT #newColList#, #orderItem# AS [#arguments.orderColumnName#]
+				SELECT #newColList#, #orderItem# AS [#arguments.orderColumnAlias#]
 				FROM arguments.query
 				<!--- // Set the Criteria Value for the WHERE clause --->
 				<cfset criteriaValue = listGetAt(arguments.orderList, orderItem, arguments.orderListDelimiter)>
@@ -462,12 +532,12 @@ History:
 				</cfif>
 			</cfloop>
 			
-			ORDER BY [#arguments.orderColumnName#]
+			ORDER BY [#arguments.orderColumnAlias#]
 		</cfquery>
 		
 		<!--- // If requested... log the generated SQL --->
 		<cfif logSQL>
-			<cfset logMsg = "[data_1_2.QuerySortByOrderedList] generated Query SQL:">
+			<cfset logMsg = logMsg & " Generated Query SQL:">
 			<cfif StructKeyExists(createQueryResult,"sql")>
 				<cfset logMsg = logMsg & "#chr(10)#SQL:#chr(10)##createQueryResult.sql#">
 			</cfif>
@@ -483,7 +553,10 @@ History:
 		
 		<cfcatch>
 			<!--- // Build an Error Log entry --->
-			<cfset logMsg = "[data_1_2.QuerySortByOrderedList] Error building query: #cfcatch.message##chr(10)#Detail: #cfcatch.detail#">
+			<cfset logMsg = logMsg & " Error building query: #cfcatch.message#">
+			<cfif StructKeyExists(cfcatch,"detail")>
+				<cfset logMsg = logMsg & "#chr(10)#Detail: #cfcatch.detail#">
+			</cfif>
 			<cfif StructKeyExists(cfcatch,"sql")>
 				<!--- // Include the generated sql in the error log --->
 				<cfset logMsg = logMsg & "#chr(10)#SQL:#chr(10)##cfcatch.sql#">
@@ -493,6 +566,7 @@ History:
 			</cfif>
 			<cfset logMsg = logMsg & "#repeatString("-", 50)#">
 			<cfset application.ADF.utils.logAppend(logMsg)> 
+			
 			<!--- <cfdump var="#cfcatch#" label="cfcatch" expand="false"> --->
 			
 			<!--- // If there was a problem don't return any results... returning incorrect results just masks the issue --->
@@ -798,6 +872,144 @@ History:
 			<cfreturn false>
 		</cfcatch>
 	</cftry>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	G. Cronkright
+Name:
+	$isNumericList
+Summary:
+	Checks to make sure all values is a list are numeric. 
+	Returns true/false.
+Returns:
+	boolean
+Arguments:
+	String - list
+	String - delimiter
+History:
+	2014-12-03 - GAC - Created
+--->
+<cffunction name="isNumericList" returntype="boolean" access="public" output="false" hint="Checks to make sure all values is a list are numeric.">
+	<cfargument name="list" type="string" required="false" default="" hist="A delimited list of values.">
+	<cfargument name="delimiter" type="string" required="false" default="," hint="Delimiter for the list.  Defualt is comma. (Optional)">
+	
+	<cfscript>
+        var listItem = '';
+        var i = 0;
+        
+        for ( i=1; i LTE ListLen(arguments.list,arguments.delimiter); i=i+1 ) 
+        {
+            listItem = ListGetAt(arguments.list,i,arguments.delimiter);
+            if ( !isNumeric(listItem) )
+                return false;
+        }   
+        return true;
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Name:
+	$tagValueCleanup
+Summary:
+	Removes the tag and string between <script> <object><iframe><style><meta> and <link> tags
+	                         
+	@author         Saman W Jayasekara (sam @ cflove . org)                   
+	@version 1.1    May 22, 2010              
+Returns:
+	string
+Arguments:
+	String - str
+	String - action -  cleanup or find 
+History:
+	2015-02-13 - GAC - Added
+--->
+<cffunction name="tagValueCleanup" access="public" returntype="string" hint="Removes the tag and string between <script> <object><iframe><style><meta> and <link> tags."> 
+	<cfargument name="str"    type="string" required="yes" hint="String"> 
+	<cfargument name="action" type="string" required="no" default="cleanup" hint="If [cleanup], this will clean up the string and output new string, if [find], this will output a value or zero"> 
+	
+	<cfset var retStr = "">
+	 
+	<cfswitch expression="#arguments.action#"> 
+		<cfcase value="cleanup"> 
+			<cfset retStr = ReReplaceNoCase(arguments.str,"<script.*?</*.script*.>|<applet.*?</*.applet*.>|<embed.*?</*.embed*.>|<ilayer.*?</*.ilayer*.>|<frame.*?</*.frame*.>|<object.*?</*.object*.>|<iframe.*?</*.iframe*.>|<style.*?</*.style*.>|<meta([^>]*[^/])>|<link([^>]*[^/])>|<script([^>]*[^/])>", "", "ALL")> 
+			<cfset retStr = retStr.ReplaceAll("<\w+[^>]*\son\w+=.*[ /]*>|<script.*/*>|</*.script>|<[^>]*(javascript:)[^>]*>|<[^>]*(onClick:)[^>]*>|<[^>]*(onDblClick:)[^>]*>|<[^>]*(onMouseDown:)[^>]*>|<[^>]*(onMouseOut:)[^>]*>|<[^>]*(onMouseUp:)[^>]*>|<[^>]*(onMouseOver:)[^>]*>|<[^>]*(onBlur:)[^>]*>|<[^>]*(onFocus:)[^>]*>|<[^>]*(onSelect:)[^>]*>","") > 
+			<cfset retStr = reReplaceNoCase(retStr, "</?(script|applet|embed|ilayer|frame|iframe|frameset|style|link)[^>]*>","","all")> 
+		</cfcase> 
+		<cfdefaultcase> 
+			<cfset retStr = REFindNoCase("<script.*?</script*.>|<applet.*?</applet*.>|<embed.*?</embed*.>|<ilayer.*?</ilayer*.>|<frame.*?</frame*.>|<object.*?</object*.>|<iframe.*?</iframe*.>|<style.*?</style*.>|<meta([^>]*[^/])>|<link([^>]*[^/])>|<\w+[^>]*\son\w+=.*[ /]*>|<[^>]*(javascript:)[^>]*>|<[^>]*(onClick:)[^>]*>|<[^>]*(onDblClick:)[^>]*>|<[^>]*(onMouseDown:)[^>]*>|<[^>]*(onMouseOut:)[^>]*>|<[^>]*(onMouseUp:)[^>]*>|<[^>]*(onMouseOver:)[^>]*>|<[^>]*(onBlur:)[^>]*>|<[^>]*(onFocus:)[^>]*>|<[^>]*(onSelect:)[^>]*>",arguments.str)> 
+		</cfdefaultcase> 
+	</cfswitch> 
+ 	
+	<cfreturn retStr> 
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$parseRequestParamsToFilteredParams
+Summary:
+	Converts a CommonSpot Request Params structure to a structure that only includes allowed params
+	and removes any excluded params.
+Returns:
+	Struct
+Arguments:
+	Struct - paramsStruct
+	String - allowedParams
+	String - excludedParams
+	Boolean - preventDups
+Usage:
+	convertRequestParamsToFilteredParams(paramsStruct,allowedParams,excludedParams,preventDups)
+History:
+	2015-02-24 - Created
+ --->
+<cffunction name="convertRequestParamsToFilteredParams" access="public" returntype="struct" hint="Converts a CommonSpot Request Params structure to a structure that only includes allowed params and removes any excluded params.">
+	<cfargument name="paramsStruct" type="struct" required="false" default="#request.params#" hint="request.params data structure to parse">
+	<cfargument name="allowedParamList" type="string" required="false" default="" hint="comma-delimited list of allowed query or form params">
+	<cfargument name="excludedParamList" type="string" required="false" default="" hint="comma-delimited list of excluded query or form params">
+	<cfargument name="preventDups" type="boolean" required="false" default="true" hint="Set to true to prevent duplicate hidden input controls.">
+	
+	<cfscript>
+		var retData = StructNew();
+	   	var paramsData = StructNew();
+		var aKey = "";
+		var pKey = "";
+		var paramDupList = "";
+		
+		// Rebuild the paramData struct will only the allowed params
+		// !!! if no allowed params are passed, then allow the whole request.params struct to pass through !!!
+		if ( ListLen(arguments.allowedParamList) EQ 0 )
+			paramsData = arguments.paramsStruct;
+		else
+	   	{
+		   	for ( aKey IN arguments.paramsStruct )
+			{
+				if ( ListFindNoCase(arguments.allowedParamList,aKey,",") )	
+					paramsData[aKey] = arguments.paramsStruct[aKey]; 
+			}
+	   	}
+		
+		// Loop over the paramData from request.Params to build the retData without the excluded params
+		for ( pKey IN paramsData ) 
+		{
+			if ( ListFindNoCase(arguments.excludedParamList,pKey,",") EQ 0 
+				AND ListFindNoCase(paramDupList,pKey,",") EQ 0 )
+			{
+				retData[pKey] = paramsData[pKey];
+				
+				// Build a key list so we can check for and prevent dups
+				if ( arguments.preventDups )
+					paramDupList = ListAppend(paramDupList,pKey,",");
+			}
+		}
+	   	
+	   	return retData;		
+	</cfscript>
 </cffunction>
 
 </cfcomponent>

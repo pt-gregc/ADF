@@ -45,6 +45,9 @@ History:
 	2014-04-08 - JTP - Added logic for multi-record delete
 	2014-05-29 - DJM - Moved hideOverlay() call out of the if else condition.
 	2014-07-01 - DJM - Added code to support metadata forms
+	2014-12-15 - DJM - Modified setting up of newData variable to fix issue with editing record for GCE
+	2015-03-19 - DJM - Added code to check for elementtype for honoring newData variable to fix metadata form issue
+	2015-04-02 - DJM - Modified code to handle show/hide of Actions column returned
 --->
 <cfscript>
 	requiredCSversion = 9;
@@ -59,24 +62,39 @@ History:
 	ajaxBeanName = 'customElementDataManager';
 </cfscript>
 
+<cfquery name="getFieldDetails" dbtype="query">
+	SELECT [Action]
+	  FROM FieldQuery
+	 WHERE InputID = <cfqueryparam value="#fieldQuery.inputID#" cfsqltype="cf_sql_integer">
+</cfquery>
+		
 <!--- can not trust 'newdata' form variable being passed in for local custom elements --->
-<cfif StructKeyExists(request.params,'pageid') 
-			AND StructKeyExists(request.params,'controlid') 
-			AND StructKeyExists(request.params,'controlTypeID')
-			AND request.params.controlID gt 0>
-	<cfquery name="qry" datasource="#request.site.datasource#">
-		select count(*) as CNT 
-			from data_fieldValue
-		where FormID = <cfqueryparam cfsqltype="CF_SQL_INTEGER" value="#request.params.controlTypeID#">
-			AND PageID = <cfqueryparam cfsqltype="CF_SQL_INTEGER" value="#request.params.PageID#">
-			AND ControlID = <cfqueryparam cfsqltype="CF_SQL_INTEGER" value="#request.params.controlID#">
+<cfif getFieldDetails.Action EQ ''>
+	<cfquery name="getClass" dbtype="query">
+		SELECT ClassID
+		  FROM FieldQuery
+		 WHERE InputID = <cfqueryparam value="#fieldQuery.inputID#" cfsqltype="cf_sql_integer">
 	</cfquery>
-	<cfscript>
-		if( qry.cnt eq 0 )
-			newData = 1;
-		else
-			newData = 0;	
-	</cfscript>
+	<cfif getClass.ClassID NEQ 1>
+		<cfif StructKeyExists(request.params,'pageid') 
+					AND StructKeyExists(request.params,'controlid') 
+					AND StructKeyExists(request.params,'controlTypeID')
+					AND request.params.controlID gt 0>
+			<cfquery name="qry" datasource="#request.site.datasource#">
+				select count(*) as CNT 
+					from data_fieldValue
+				where FormID = <cfqueryparam cfsqltype="CF_SQL_INTEGER" value="#request.params.controlTypeID#">
+					AND PageID = <cfqueryparam cfsqltype="CF_SQL_INTEGER" value="#request.params.PageID#">
+					AND ControlID = <cfqueryparam cfsqltype="CF_SQL_INTEGER" value="#request.params.controlID#">
+			</cfquery>
+			<cfscript>
+				if( qry.cnt eq 0 )
+					newData = 1;
+				else
+					newData = 0;	
+			</cfscript>
+		</cfif>
+	</cfif>
 </cfif>
 
 <cfscript>
@@ -124,13 +142,7 @@ History:
 		<CFOUTPUT><CFIF fieldpermission gt 0>#row_and_labelcell#<CFELSE><tr><td></td><td></CFIF></CFOUTPUT>
 	</cfif>
 	
-	<CFIF fieldpermission gt 0>	
-		<cfquery name="getFieldDetails" dbtype="query">
-			SELECT [Action]
-			  FROM FieldQuery
-			 WHERE InputID = <cfqueryparam value="#fieldQuery.inputID#" cfsqltype="cf_sql_integer">
-		</cfquery>
-		
+	<CFIF fieldpermission gt 0>		
 		<CFSCRIPT>
 			inputParameters = attributes.parameters[fieldQuery.inputID];
 			
@@ -265,7 +277,7 @@ History:
 		</CFIF>
 	
 		<CFIF inputParameters.childCustomElement neq ''>
-			<CFIF newData EQ 0 OR (elementType EQ 'metadataForm' AND curPageID GT 0)>
+			<CFIF (elementType NEQ 'metadataForm' AND newData EQ 0) OR (elementType EQ 'metadataForm' AND curPageID GT 0)>
 				<CFOUTPUT>
 					#datamanagerObj.renderStyles(propertiesStruct=inputParameters)#
 					<table class="cs_data_manager" border="0" cellpadding="2" cellspacing="2" summary="" id="parentTable_#uniqueTableAppend#">
@@ -425,6 +437,10 @@ History:
 					{
 						var columnsArray = columnsList.split(',');
 						var hasActionColumn = 0;
+						var displayActionColumn = 0;
+						<cfif ListFindNoCase(inputParameters.interfaceOptions,'editAssoc') OR ListFindNoCase(inputParameters.interfaceOptions,'editChild') OR ListFindNoCase(inputParameters.interfaceOptions,'delete')>
+							displayActionColumn = 1;
+						</cfif>
 					
 						if (columnsList != 'ERRORMSG')
 						{
@@ -436,8 +452,15 @@ History:
 								}
 								else if (columnsArray[i] == "Actions")
 								{
-									var obj = { "sTitle": columnsArray[i], "mDataProp": i+1, "sWidth": actionColumnWidth + "px" };
-									hasActionColumn = 1;
+									if (res#uniqueTableAppend#.aaData.length > 0 && displayActionColumn == 1)
+									{
+										var obj = { "sTitle": columnsArray[i], "mDataProp": i+1, "sWidth": actionColumnWidth + "px" };
+										hasActionColumn = 1;
+									}
+									else
+									{
+										var obj = {"bVisible": false, "mDataProp": i+1};
+									}
 								}
 								else
 								{

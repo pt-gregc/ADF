@@ -46,6 +46,7 @@ History:
 					 - Updated the wrapFieldHTML explanation comment block
 	2012-04-13 - GAC - Fixed an issue with the Textarea Field ID not getting a value if a xparams.fldName was not entered in the props 
 					 - Added an optional parameter to assign a CSS property to the textarea field resizing handle
+	2014-12-15 - GAC - Fixed the Default Value and the user defined expression functionality
 --->
 <cfscript>
 	// the fields current value
@@ -72,8 +73,27 @@ History:
 		xparams.fldClass = "";
 	if ( NOT StructKeyExists(xparams,"resizeHandleOption" ) )
 		xparams.resizeHandleOption = "default";
-	if ( NOT LEN(currentvalue) AND StructKeyExists(xparams,"defaultValue") )
-		currentValue = xparams.defaultValue;
+		
+	//if ( NOT LEN(currentvalue) AND StructKeyExists(xparams,"defaultValue") )
+	//	currentValue = xparams.defaultValue;
+	
+	// if no current value entered
+	if ( NOT LEN(currentValue) )
+	{
+		// reset the currentValue to the currentDefault
+		try
+		{
+			// if there is a user defined function for the default value
+			if ( xParams.useUDef )
+				currentValue = evaluate(xParams.currentDefault);
+			else // standard text value
+				currentValue = xParams.currentDefault;
+		}
+		catch( any e)
+		{
+			; // let the current default value stand
+		}
+	}
 	
 	// Valid Textarea resize handle options
 	resizeOptions = "none,both,horizontal,vertical"; 

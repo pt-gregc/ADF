@@ -23,7 +23,7 @@ end user license agreement.
 Author: 	
 	PaperThin, Inc. 
 Name:
-	ccapi.cfc
+	ccapi_1_0.cfc
 Summary:
 	CCAPI functions for the ADF Library
 Version:
@@ -32,10 +32,11 @@ History:
 	2009-06-17 - RLW - Created
 	2010-02-18 - RLW - Changed web service object to use direct CF component call
 	2011-01-25 - MFC - Update to v1.0.1. Updated dependency to Utils_1_1.
+	2014-10-16 - GAC - Fixed the component display name
 --->
-<cfcomponent displayname="ccapi" extends="ADF.core.Base" hint="CCAPI functions for the ADF Library">
+<cfcomponent displayname="ccapi_1_0" extends="ADF.core.Base" hint="CCAPI functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_3">
+<cfproperty name="version" value="1_0_4">
 <cfproperty name="CoreConfig" type="dependency" injectedBean="CoreConfig">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_1">
 <cfproperty name="wikiTitle" value="CCAPI">

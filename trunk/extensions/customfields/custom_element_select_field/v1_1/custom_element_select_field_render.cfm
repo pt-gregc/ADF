@@ -68,7 +68,8 @@ History:
 	2014-03-07 - DJM - Created Custom_Element_Select_Field_base.cfc for CFT specific methods
 	2014-03-23 - JTP - Changed to have 'Select All' / 'Deselect All' links
 	2014-03-24 - JTP - Added logic to sort selection list by display value if specified in props
-	
+	2014-11-06 - GAC - Fixed the conditional logic around the xparams.defaultVal expression parsing
+
 To Do:
 	2014-04-08 - JTP - Currently we are NOT sorting the list if displayed as checkboxes/radio buttons and user choose sort by display value
 --->
@@ -153,12 +154,13 @@ To Do:
 	readOnly = application.ADF.forms.isFieldReadOnly(xparams,variables.fieldPermission, fqFieldName, attributes.currentValues);	
 		
 	// Check if we do not have a current value then set to the default
-	if ( (LEN(currentValue) LTE 0) OR (currentValue EQ "") ) 
+	if ( LEN(TRIM(currentValue)) EQ 0 ) 
 	{
-		if ( (TRIM(LEFT(xparams.defaultVal,1)) EQ "[") AND (TRIM(RIGHT(xparams.defaultVal,1)) EQ "]") ) 
+		if ( (LEFT(TRIM(xparams.defaultVal),1) EQ "[") AND (RIGHT(TRIM(xparams.defaultVal),1) EQ "]") ) 
 		{
 			// Trim the [] from the expression
 			xparams.defaultVal = MID(xparams.defaultVal, 2, LEN(xparams.defaultVal)-2);
+			
 			//2011-01-06 - RAK - Added error catching on eval failure.
 			try{
 				currentValue = Evaluate(xparams.defaultVal);

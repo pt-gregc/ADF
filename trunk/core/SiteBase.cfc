@@ -36,11 +36,12 @@ History:
 	2014-09-24 - GAC - Added a loadLibraryPostInit method for loading postInit methods 
 	                   in lib components after application.ADF is built
 	2014-10-07 - GAC - Updated for version 1.8.0
+	2014-12-03 - GAC - Updates for Adobe ColdFusion 11 compatibility
 --->
 <cfcomponent displayname="SiteBase" extends="ADF.core.AppBase">
 
-<cfproperty name="version" value="1_8_0">
-<cfproperty name="file-version" value="5">
+<cfproperty name="version" value="1_8_1">
+<cfproperty name="file-version" value="6">
 
 <!---
 /* *************************************************************** */
@@ -271,6 +272,7 @@ Arguments:
 	Void
 History:
 	2011-03-20 - RLW - Created
+	2014-12-03 - GAC - Updated to use the renamed deserializeXMLstr method due to conflict with new CF11 deserializeXML function
 --->
 <cffunction name="loadLibVersions" access="public" returnType="struct" hint="Loads the mapping between library component versions and ADF versions">
 	<cfscript>
@@ -280,7 +282,7 @@ History:
 	<!--- // read the XML file from the /ADF/lib directory --->
 	<cffile action="read" file="#expandPath('/ADF/lib/')#version.xml" variable="versionXMLStr">
 	<!--- // deserialize the XML into CF --->
-	<cfset rtnData = deserializeXML(versionXMLStr)>
+	<cfset rtnData = deserializeXMLstring(XMLString=versionXMLStr)>
 	<cfreturn rtnData>
 </cffunction>
 

@@ -34,7 +34,7 @@ History:
 ---> 
 <cfcomponent displayname="csPage_1_1" extends="ADF.lib.ccapi.csPage_1_0" hint="Constructs a CCAPI instance and then creates or deletes a page with the given information">
 
-<cfproperty name="version" value="1_1_3">
+<cfproperty name="version" value="1_1_4">
 <cfproperty name="type" value="transient">
 <cfproperty name="ccapi" type="dependency" injectedBean="ccapi_1_0">
 <cfproperty name="csData" type="dependency" injectedBean="csData_1_1">
@@ -96,6 +96,7 @@ History:
 	2013-07-01 - GAC - Fixed an issue with the createPage operation that was calling the application.ADF.csPage.createPage() instead of the local createPage() 
 	2014-03-05 - JTP - Var declarations
 	2014-05-01 - GAC - Fixed typo in the try/catch, switched ( e ANY ) to ( ANY e )
+	2015-02-03 - GAC - Updated catch block to check for e.Message and e.Details structkeys
 --->	
 <cffunction name="copyPage" access="public" returntype="boolean" hint="Duplicates the page from source to destination using destination template. ">
 	<cfargument name="sourcePageID" type="numeric" required="true">
@@ -233,7 +234,12 @@ History:
 		{
 			// Error caught
 			// Log the error message also
-			logStruct.msg = "#request.formattedTimestamp# - Error [Message: #e.message#] [Details: #e.Details#]";
+			logStruct.msg = "#request.formattedTimestamp# - Error";
+			if ( StructKeyExists(e,"Message") AND LEN(TRIM(e.Message)) )
+				logStruct.msg = logStruct.msg & " [Message: #e.Message#]";
+			if ( StructKeyExists(e,"Details") AND LEN(TRIM(e.Details)) )
+				logStruct.msg = logStruct.msg & " [Details: #e.Details#]";
+				
 			logStruct.logFile = "copyPageLog_errors.log";
 			ArrayAppend( logArray, logStruct );
 			variables.utils.bulkLogAppend(logArray);

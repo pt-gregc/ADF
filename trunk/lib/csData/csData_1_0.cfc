@@ -40,7 +40,7 @@ History:
 --->
 <cfcomponent displayname="csData_1_0" extends="ADF.core.Base" hint="CommonSpot Data Utils functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_8">
+<cfproperty name="version" value="1_0_15">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_0">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_0">
@@ -108,17 +108,46 @@ History:
 	2009-10-22 - MFC - Updated: Added IF block to get the uploaded doc page url.
 	2013-08-23 - GAC - Update to return template URLs as well as page URLs
 	2014-01-14 - JTP - Updated to use the CommonSpot ct-decipher-linkurl module call
+	2014-11-03 - GAC - Added logic for backwards compatibility for expected behavior of this function
+					 - Added a parameter to allow the 'broken-link-{pageid}' string to be returned instead of an empty string
+	2014-11-11 - GAC - Added try/catch around ct-decipher-linkurl CS Module to log when pageID can not be converted to a URL
 --->
 <cffunction name="getCSPageURL" access="public" returntype="string">
 	<cfargument name="pageID" type="numeric" required="true">
+	<cfargument name="renderBrokenLink" type="boolean" default="false" required="false" hint="set to true to return broken-link={pageid} instead of an empty string">
+	
 	<cfscript>
 		var csPageURL = "";
+		var logMsg = "";
 	</cfscript>
-	 <cfif arguments.PageID neq 0>
-          <CFMODULE TEMPLATE="/commonspot/utilities/ct-decipher-linkurl.cfm"
-	          PageID="#arguments.PageID#"
-	          VarName="csPageURL">
-     </cfif> 
+	
+	<cfif arguments.PageID neq 0>
+		<cftry>
+			<CFMODULE TEMPLATE="/commonspot/utilities/ct-decipher-linkurl.cfm"
+				PageID="#arguments.PageID#"
+				VarName="csPageURL">
+				
+			<cfcatch type="any">
+				<cfscript>
+					// If ct-decipher-linkurl module blows up handle the exception
+					csPageURL = "broken-link-#arguments.pageID#--see-logs";
+					
+					logMsg = "[csData_1_0.getCSPageURL] Error attempting to decipher CS PageID: #arguments.pageID# using the ct-decipher-linkurl module#Chr(10)##cfcatch.message#";
+					if ( StructKeyExists(cfcatch,"detail") AND LEN(TRIM(cfcatch.detail)) )
+						logMsg = logMsg & "#Chr(10)#Details: #cfcatch.detail#";
+						
+					server.ADF.objectFactory.getBean("utils_1_2").logAppend(logMsg);
+				</cfscript>
+			</cfcatch>   
+		</cftry>     
+		
+        <!--- // Added for backwards compatiblity with how this method has always worked --->
+        <!--- // -  Will return empty string if the pageID could not be found --->
+    	<cfif FindNoCase("broken-link-",csPageURL) AND !arguments.renderBrokenLink>
+			<cfset csPageURL = "">
+		</cfif> 
+    </cfif> 
+	
 	<cfreturn csPageURL>
 </cffunction>
 
@@ -138,27 +167,76 @@ Arguments:
 History:
 	2009-05-27 - MFC - Created
 	2011-02-09 - RAK - Var'ing un-var'd variables
+	2015-03-03 - DJM - Updated code to set the image filename depending on the CS version
 --->
 <cffunction name="getImagePageURL" returntype="String" access="public">
 	<cfargument name="pageid" type="numeric" required="true">
 	<cfscript>
 		var retURL = '';
 		var sitePageMap = '';
+		var csVersion = ListFirst(ListLast(request.cp.productversion," "),".");
+		var requiredCSVersion = 10;
+		var imgGalleryObj = '';
+		var galleryDetails = '';
+		var getLargestSpec = '';
+		var sizeSpecifications = QueryNew('');
+		var vNewFileName = '';
+		var orderByClause = 'Width DESC';
 	</cfscript>
+	
 	<cfquery name="sitePageMap" datasource="#request.site.datasource#">
 		SELECT	SitePages.SubSiteID, SitePages.FileName
+	<cfif csVersion GTE requiredCSVersion>
+		, ImageGallery.GalleryID
+	</cfif>
 		FROM    SitePages INNER JOIN
 		        	SubSites ON SitePages.SubSiteID = SubSites.ID
+	<cfif csVersion GTE requiredCSVersion>
+		INNER JOIN
+					ImageGallery ON ImageGallery.PageID = SitePages.ID
+	</cfif>
 		WHERE	SitePages.ID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.pageid#">
 	</cfquery>
+	
+	<cfif sitePageMap.RecordCount>
+		<cfscript>
+			vNewFileName = sitePageMap.FileName;
+		</cfscript>
+		
+		<cfif csVersion GTE requiredCSVersion>
+			<cfscript>
+				imgGalleryObj = Server.CommonSpot.api.getObject('ImageGallery');
+				galleryDetails = imgGalleryObj.getInfo(id=sitePageMap.GalleryID);			
+			</cfscript>
+			
+			<cfif galleryDetails.SizeRestrictionType NEQ 1>
+				<cfscript>
+					sizeSpecifications = imgGalleryObj.getSizeList(id=sitePageMap.galleryID);
+					if (galleryDetails.SizeRestrictionType EQ 4)
+						orderByClause = 'Height DESC';
+				</cfscript>
+				
+				<cfif sizeSpecifications.RecordCount>
+					<cfquery name="getLargestSpec" dbtype="query">
+						SELECT ID, Width, Height
+						FROM SizeSpecifications
+						ORDER BY #orderByClause#
+					</cfquery>
+					
+					<cfscript>
+						vNewFileName = imgGalleryObj.getImageFileName(baseFileName=sitePageMap.FileName, id=sitePageMap.GalleryID, width=getLargestSpec.Width[1], height=getLargestSpec.Height[1]);
+					</cfscript>
+				</cfif>
+			</cfif>
+		</cfif>
+		
+		<cfscript>
+			retURL = request.subsitecache[sitePageMap.SubSiteID].imagesUrl & vNewFileName;
+		</cfscript>
+	</cfif>
+	
 	<cfscript>
-		if ( sitePageMap.RecordCount ) 
-		{
-			retURL = request.subsitecache[sitePageMap.SubSiteID].imagesUrl & sitePageMap.FileName;
-			return retURL;
-		}
-		else
-			return "";
+		return retURL;
 	</cfscript>
 </cffunction>
 
@@ -797,30 +875,52 @@ Arguments:
 	String csPageURL
 History:
 	2009-07-24 - SFS - Created
-	2010-12-22 - GAC - Modified - Added VAR scoped variables for both queries
+	2010-12-22 - GAC - VAR scoped variables for both queries
+	2015-03-13 - GAC - Updated to handle CS URLs with PageID params
+	2015-04-01 - GAC - Updated to test the csPageURL as a slash separated list with more than 0 items when attempting match the subsiteURL in the Subsites table 
 --->
 <cffunction name="getCSPageDataByURL" access="public" returntype="query" hint="Returns a query containing the page ID and page title of the page URL provided">
 	<cfargument name="csPageURL" type="string" required="true">
-	<cfset var getSubsiteID = QueryNew("ID")>
-	<cfset var getPageData = QueryNew("ID,Title")>
-	<cfset var csPageData = QueryNew("ID,Title")>
-	<cfquery name="getSubsiteID" datasource="#request.site.datasource#">
-		select ID
-		from SubSites
-		where subsiteURL = <cfqueryparam cfsqltype="cf_sql_varchar" value="#listDeleteAt(arguments.csPageURL,Listlen(arguments.csPageURL,"/"),"/")#/">
-	</cfquery>
-	<cfif getSubsiteID.recordcount>
+	
+	<cfscript>
+		var getSubsiteID = QueryNew("ID");
+		var getPageData = QueryNew("ID,Title");
+		
+		var csPageID = 0;
+		var matchRegEx = "PAGEID=[\d]+";
+		var matchArray = ArrayNew(1);
+		
+		if ( ArrayLen(REMatchNoCase(matchRegEx, arguments.csPageURL)) )
+		{
+		 	matchArray = REMatchNoCase(matchRegEx, arguments.csPageURL);
+		 	csPageID = int( ReReplaceNoCase(matchArray[1],"PAGEID=","") );   	
+		}
+	</cfscript>
+	
+	<!--- // if we have the PageID... lets just query to sitepage by ID --->
+	<cfif IsNumeric(csPageID) AND csPageID GT 0>
 		<cfquery name="getPageData" datasource="#request.site.datasource#">
 			select ID, title
 			from sitePages
-			where filename = <cfqueryparam cfsqltype="cf_sql_varchar" value="#ListLast(arguments.csPageURL,"/")#">
-			and subsiteID = <cfqueryparam cfsqltype="cf_sql_integer" value="#getSubsiteID.ID#">
+			where ID = <cfqueryparam cfsqltype="cf_sql_integer" value="#csPageID#">
 		</cfquery>
-		<cfif getPageData.recordCount>
-			<cfset csPageData = getPageData>
+	<cfelseif ListLen(csPageURL,"/") GT 0>
+		<cfquery name="getSubsiteID" datasource="#request.site.datasource#">
+			select ID
+			from SubSites
+			where subsiteURL = <cfqueryparam cfsqltype="cf_sql_varchar" value="#listDeleteAt(arguments.csPageURL,Listlen(arguments.csPageURL,"/"),"/")#/">
+		</cfquery>
+		<cfif getSubsiteID.recordcount>
+			<cfquery name="getPageData" datasource="#request.site.datasource#">
+				select ID, title
+				from sitePages
+				where filename = <cfqueryparam cfsqltype="cf_sql_varchar" value="#ListLast(arguments.csPageURL,"/")#">
+				and subsiteID = <cfqueryparam cfsqltype="cf_sql_integer" value="#getSubsiteID.ID#">
+			</cfquery>
 		</cfif>
 	</cfif>
-	<cfreturn csPageData>
+	
+	<cfreturn getPageData>
 </cffunction>
 
 <!---
@@ -1293,25 +1393,97 @@ History:
 						find the first non-numeric character.
 	2011-06-24 - RLW - Added "imageID" into the structure returned
 	2011-09-06 - RAK - Removed the bulk of the logic to get the ID and replaced it with a single regular expression
+	2014-11-07 - GAC - Updated to output most of the standard render mode filter data keys using the CS CMD API (cs version dependant)
+	2014-12-05 - GAC - Removed duplicate 'var'd imageData' variable 
+	2015-03-18 - GAC - Updated to account for private images when using the CMD API to get additional image data
 --->
 <cffunction name="decipherCPIMAGE" access="public" returntype="struct" hint="Returns the proper structure for an image based on the 'CPIMAGE:' text provided by CEData() calls">
 	<cfargument name="cpimage" type="string" required="true" hint="The 'CPIMAGE:' text that is returned from the CEData() call">
+	
 	<cfscript>
+		var retData = structNew();
 		var imageData = structNew();
 		var imageID = "";
+		var imageURL = "";
+		var csVersion = ListFirst(ListLast(request.cp.productversion," "),".");
+		var requiredCSversion = 8;
+		var imgComponent = "";
+		var reqProtocol = "http://";
+		var reResults = "";
+		
 		//Search for a string that starts with CPIMAGE: and then in the second result set return all the numbers
-		var reResults = reFind("^CPIMAGE:([0-9]*)",arguments.cpimage ,0,true);
-		if(ArrayLen(reResults.LEN) gt 1){
+		reResults = reFind("^CPIMAGE:([0-9]*)",arguments.cpimage ,0,true);
+		
+		if ( ArrayLen(reResults.LEN) gt 1 )
+		{
 			//If we have more than 1 result we found the ID
 			//Get the ID out of the string by getting the mid to length of the second result in the RE find.
 			imageID = Mid(arguments.cpimage,reResults.pos[2],reResults.len[2]);
 		}
-		if( len(imageID) ){
-			imageData.resolvedURL.serverRelative = getImagePageURL(imageID);
-			imageData.imageID = imageID;
+		
+		if( IsNumeric(imageID) )
+		{
+			imageURL = getImagePageURL(pageid=imageID);
+			
+			// imageID is not found in the standard render mode filter data struct 
+			// - but we will add it since this method has returned it in the past
+			retData.imageID = imageID; 	
+			
+			retData.resolvedURL = StructNew();
+			retData.resolvedURL.serverRelative = imageURL;
+			
+			if ( cgi.https EQ "on" )
+				reqProtocol = "https://";
+					
+			retData.resolvedURL.Absolute = reqProtocol & request.CGIVars.SERVER_NAME & imageURL;
+					
+			//retData.OrigHeight = "";
+			//retData.OrigWidth = "";
+			//retData.SubsiteID = "";
+			retData.FileName = ListLast(imageURL,"/");
+			//retData.AltText = "";
+			//retData.OrigSize = "";
+			
+			//retData.errorMsg = "";
+			retData.privateImage = false;
+			
+			// Original Image Data return Struct
+			if ( csVersion GTE requiredCSversion )
+			{ 
+				try 
+				{
+					// Get Image Data using the CS CMD API image object
+					imgComponent = Server.CommonSpot.api.getObject('image');
+					imageData = imgComponent.getInfo(imageID=imageID);
+					
+					if ( !StructIsEmpty(imageData) )
+					{
+						retData.OrigHeight = imageData.OrigHeight;
+						retData.OrigWidth = imageData.OrigWidth;
+						retData.SubsiteID = imageData.SubsiteID;
+						retData.FileName = imageData.FileName;
+						retData.AltText = imageData.Description;
+						retData.OrigSize = imageData.Size;
+					
+						// Other standard render mode image keys (not in the CMD API image data)
+						// - ImageFound - boolean (1/0)
+						// - MIMEType - string (eg. image/png) 
+					}
+				}
+				catch ( any expt ) 
+				{
+					if ( StructKeyExists(expt,"message") AND LEN(TRIM(expt.message)) )
+					{ 
+						retData.errorMsg = expt.message;
+						if ( FindNoCase("private image",expt.message) )
+							retData.privateImage = true;
+					}
+					//WriteDump(expt, 0);
+				}
+			}		
 		}
+		return retData;
 	</cfscript>
-	<cfreturn imageData>
 </cffunction>
 
 <!---
@@ -1705,24 +1877,35 @@ Arguments:
 	Boolean recurse
 	Boolean includeDocs
 	Boolean includeExternalURLs
+	Boolean includeTemplates
 History:
 	2010-01-27 - RLW - Created
 	2014-01-03 - GAC - Updated SQL 'IN' statements to use the CS module 'handle-in-list.cfm'
+	2015-01-05 - GAC - Added logic to include templates in the returned results
 --->
 <cffunction name="getPagesBySubsiteID" access="public" returntype="array">
 	<cfargument name="subsiteID" type="numeric" required="true">
     <cfargument name="recurse" type="boolean" required="false" default="false">
-    <cfargument name="includeDocs" type="boolean" required="true" default="true">
-    <cfargument name="includeExternalURLs" type="boolean" required="true" default="true">
+    <cfargument name="includeDocs" type="boolean" required="false" default="true">
+    <cfargument name="includeExternalURLs" type="boolean" required="false" default="true">
+	<cfargument name="includeTemplates" type="boolean" required="false" default="false">
+	
     <cfscript>
     	var pageQry = queryNew("");
 		var subsiteList = arguments.subsiteID;
-		var pageTypeList = 0;
+		var pageTypeList = 0; // 0 = Pages
 		var uploaded = 0;
+
 		if( arguments.includeDocs )
 			uploaded = "0,1";
+
+		//pageTypeList = "0,3";
 		if( arguments.includeExternalURLs )
-			pageTypeList = "0,3";
+			pageTypeList = ListAppend(pageTypeList,3); // 3 = External URLs	
+			
+		if ( arguments.includeTemplates )
+			pageTypeList = ListAppend(pageTypeList,1); // 1 = Templates
+			
 		if( arguments.recurse and structKeyExists(request.subsiteCache, arguments.subsiteID) )
 		{
 			subsiteList = request.subsiteCache[arguments.subsiteID].descendantList;
@@ -1730,16 +1913,15 @@ History:
 			subsiteList = listAppend(subsiteList, arguments.subsiteID);
 		}
     </cfscript>
+	
    	<cfquery name="pageQry" datasource="#request.site.datasource#">
    		SELECT 	ID, filename, title, subsiteID, uploaded, pageType, DocType
 		FROM 	sitePages
 		WHERE <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="subsiteID" LIST="#subsiteList#" cfsqltype="cf_sql_numeric">
-		<!--- where subsiteID in (<cfqueryparam cfsqltype="cf_sql_numeric" value="#subsiteList#" list="true">) --->
 		AND <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="uploaded" LIST="#uploaded#" cfsqltype="cf_sql_numeric">
-		<!--- and uploaded in (<cfqueryparam cfsqltype="cf_sql_numeric" value="#uploaded#" list="true">) --->
 		AND <CFMODULE TEMPLATE="/commonspot/utilities/handle-in-list.cfm" FIELD="pageType" LIST="#pageTypeList#" cfsqltype="cf_sql_numeric">
-		<!--- and pageType in (<cfqueryparam cfsqltype="cf_sql_numeric" value="#pageTypeList#" list="true">) --->
-   	</cfquery>
+	</cfquery>
+	
     <cfreturn variables.data.queryToArrayOfStructures(pageQry)>
 </cffunction>
 

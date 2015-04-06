@@ -41,7 +41,7 @@ History:
 --->
 <cfcomponent displayname="scripts_1_1" extends="ADF.lib.scripts.scripts_1_0" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" value="1_1_23">
+<cfproperty name="version" value="1_1_24">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_1" type="dependency">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Scripts_1_1">
@@ -1986,14 +1986,20 @@ History:
  	2011-03-08 - GAC - Created
 	2011-06-24 - GAC - Added CFOUTPUTS around the renderScriptOnce method call
 	2012-08-16 - GAC - Added the force parameter
+	2015-02-17 - GAC - Updated path to allow for version folders
 --->
 <cffunction name="loadJQueryTimeAgo" access="public" output="true" returntype="void" hint="Loads the TimeAgo (automatically updating fuzzy timestamps) plugin for jQuery">
-	<cfargument name="version" type="string" required="false" default="0.9.3" hint="Script version to load.">
+	<cfargument name="version" type="string" required="false" default="0.9" hint="Script version to load.">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
-	<cfset var outputHTML = "">
+	<cfscript>
+		var outputHTML = "";
+		var thirdPartyLibPath = "/ADF/thirdParty/jquery/timeago";
+		// Make the version backwards compatiable to remove minor build numbers.
+		arguments.version = variables.scriptsService.getMajorMinorVersion(arguments.version);
+	</cfscript>
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
-			<script type='text/javascript' src='/ADF/thirdParty/jquery/timeago/jquery.timeago-#arguments.version#.js'></script>
+			<script type='text/javascript' src='#thirdPartyLibPath#/#arguments.version#/jquery.timeago-#arguments.version#.js'></script>
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>

@@ -30,10 +30,11 @@ Version:
 	1.0
 History:
 	2012-12-26 - MFC - Created
+	2015-02-27 - GAC - Added the deletePageRedirects method
 --->
 <cfcomponent displayname="apiPage" extends="ADF.core.Base" hint="API Page functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_6">
+<cfproperty name="version" value="1_0_9">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
 <cfproperty name="wikiTitle" value="API Page">
@@ -54,10 +55,13 @@ Arguments:
 History:
 	2013-01-02 - MFC - Created
 	2013-07-07 - GAC - Fixed an issue with the publicationDate and the PublicReleaseDate
+	2014-10-28 - AW@EA - Fixed issue with expirationWarningMsg and misplaced newExpirationDate variables
+	2015-01-13 - GAC - Fixed issue with newExpirationWarningMsg variable 
 --->
 <cffunction name="create" access="public" returntype="struct" hint="Creates a page.">
 	<cfargument name="pageData" type="struct" required="true" hint="a structure that contains page the required fields as page data.">
 	<cfargument name="activatePage" type="numeric" required="false" default="1" hint="Flag to make the new page active or inactive"> 
+	
 	<cfscript>
 		var pageResult = StructNew();
 		// Use the CS 6.x Command API to SET page Metadata
@@ -68,6 +72,7 @@ History:
 		var newExpirationDate = "";
 		var newExpirationAction = "";
 		var newExpirationRedirectURL = "";
+		var newExpirationWarningMsg = "";
 		var newMetadata = ArrayNew(1);
 		var activateState = "";
 		
@@ -86,8 +91,8 @@ History:
 			newExpirationAction = arguments.pageData.expirationAction;
 		if ( StructKeyExists(arguments.pageData,"expirationRedirectURL") )
 			newExpirationRedirectURL = arguments.pageData.expirationRedirectURL;
-		if ( StructKeyExists(arguments.pageData,"expirationDate") )
-			newExpirationDate = arguments.pageData.expirationWarningMsg;
+		if ( StructKeyExists(arguments.pageData,"expirationWarningMsg") )
+			newExpirationWarningMsg = arguments.pageData.expirationWarningMsg;
 		
 		if ( StructKeyExists(arguments.pageData,"metadata") )
 			newMetadata = arguments.pageData.metadata;
@@ -107,7 +112,7 @@ History:
 		                                            expirationDate=newExpirationDate,
 		                                            expirationAction=newExpirationAction,
 		                                            expirationRedirectURL=newExpirationRedirectURL,
-		                                            expirationWarningMsg=newExpirationDate,
+		                                            expirationWarningMsg=newExpirationWarningMsg,
 		                                            metadata=newMetadata);
 		    
 		    // Activate the page
@@ -140,18 +145,28 @@ Summary:
 Returns:
 	Struct
 Arguments:
-	Numeric csPageID			
+	Numeric csPageID	
+	Boolean removeRedirects 		
 History:
 	2012-10-25 - MFC/GAC - Created
+	2015-02-27 - GAC - Added a parameter to ignoreWarnings and delete the page even if error is thrown from the api delete page command
+				     - Added a parameter to remove page redirects before attempting to delete the page
 --->
 <cffunction name="delete" access="public" returntype="struct" hint="Deletes a page or template.">
 	<cfargument name="csPageID" type="numeric" required="true" hint="numeric commonspot page id">
+	<cfargument name="ignoreWarnings" type="boolean"  default="false" required="false" hint="a flag to delete the page even if page warning are thrown. Use with caution!">
+	<cfargument name="removeRedirects" type="boolean" default="false" required="false" hint="a flag for removing page redirects so the page can be deleted.">
+	
 	<cfscript>
 		var pageCmdResult = StructNew();
 		// Use the CS 6.x Command API to delete the page whose pageID was passed in
 		var pageComponent = server.CommonSpot.api.getObject('page');
+
+		if ( arguments.removeRedirects )
+			deletePageRedirects(csPageID=arguments.csPageID);
+		
 		try {
-			pageComponent.delete(arguments.csPageID,0);
+			pageComponent.delete(arguments.csPageID,arguments.ignoreWarnings);
 			pageCmdResult["CMDSTATUS"] = true;
 			pageCmdResult["CMDRESULTS"] = true;
 		} 
@@ -353,9 +368,11 @@ Arguments:
 History:
 	2012-10-22 - GAC - Created
 	2013-04-29 - MFC - Removed reference to function "DOERRORLOGGING" that was removed.
+	2015-01-09 - GAC - Fixed issues with expirationWarningMsg and newExpirationDate variables
 --->
 <cffunction name="saveInfo" access="public" returntype="struct" hint="Updates the properties for a page (standard and custom)">
 	<cfargument name="pageData" type="struct" required="true" hint="a structure that contains page the required fields as page data.">
+	
 	<cfscript>
 		var pageResult = StructNew();
 		// Use the CS 6.x Command API to SET page Metadata
@@ -366,6 +383,7 @@ History:
 		var newExpirationDate = "";
 		var newExpirationAction = "";
 		var newExpirationRedirectURL = "";
+		var newExpirationWarningMsg = "";
 		var newMetadata = ArrayNew(1);
 		       
 		// Build the Optional Field Nodes	
@@ -379,8 +397,8 @@ History:
 			newExpirationAction = arguments.pageData.expirationAction;
 		if ( StructKeyExists(arguments.pageData,"expirationRedirectURL") )
 			newExpirationRedirectURL = arguments.pageData.expirationRedirectURL;
-		if ( StructKeyExists(arguments.pageData,"expirationDate") )
-			newExpirationDate = arguments.pageData.expirationWarningMsg;
+		if ( StructKeyExists(arguments.pageData,"expirationWarningMsg") )
+			newExpirationWarningMsg = arguments.pageData.expirationWarningMsg;
 		
 		if ( StructKeyExists(arguments.pageData,"metadata") )
 			newMetadata = arguments.pageData.metadata;
@@ -397,12 +415,12 @@ History:
 		                                            expirationDate=newExpirationDate,
 		                                            expirationAction=newExpirationAction,
 		                                            expirationRedirectURL=newExpirationRedirectURL,
-		                                            expirationWarningMsg=newExpirationDate,
+		                                            expirationWarningMsg=newExpirationWarningMsg,
 		                                            metadata=newMetadata);
 		    
 		    // Check the return status has a LENGTH
 		    pageResult["CMDSTATUS"] = true;
-		    pageResult["CMDRESULTS"] = "";
+		    pageResult["CMDRESULTS"] = pageCmdResults;
 		}
 		catch (any e) {
 		    pageResult["CMDSTATUS"] = false;
@@ -411,6 +429,70 @@ History:
 		}
 		return pageResult;
 		</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$deletePageRedirects
+Summary:
+	Deletes a commonspot page redirects using the public command API
+	http://{servername}commonspot/help/api_help/content/components/redirects/delete.html
+Returns:
+	Struct
+Arguments:
+	Numeric csPageID			
+History:
+	2015-02-27 - GAC - Created
+--->
+<cffunction name="deletePageRedirects" access="public" returntype="struct" hint="Deletes a commonspot page redirects using the public command API.">
+	<cfargument name="csPageID" type="numeric" required="true" hint="numeric commonspot page id">
+	
+	<cfscript>
+		var pageResult = StructNew();
+		var pageCmdResult = StructNew();
+		// Use the CS 6.x Command API to delete the page whose pageID was passed in
+		var redirectComponent = server.CommonSpot.api.getObject('Redirects');
+		var redirectQry = redirectComponent.getListForPage(pageID=csPageID);
+		var redirectIDlist = ValueList(redirectQry.ID); 
+		
+		try 
+		{
+			if ( LEN(TRIM(redirectIDlist)) )
+			{
+				pageCmdResult = redirectComponent.delete(idList=redirectIDlist);
+				
+				if ( StructKeyExists(pageCmdResult,"success") AND pageCmdResult.success EQ 1 ) 
+				{
+					pageResult["CMDSTATUS"] = true;
+					pageResult["CMDRESULTS"] = true;
+				}
+				else
+				{
+					pageResult["CMDSTATUS"] = false;
+					pageResult["CMDRESULTS"] = pageCmdResult;		
+				}
+			}
+			else
+			{
+				pageResult["CMDSTATUS"] = true;
+				pageResult["CMDRESULTS"] = "No Redirect IDs Found for this CommonSpot PageID";		
+			}
+		} 
+		catch (any e) 
+		{
+			pageResult["CMDSTATUS"] = false;
+			if ( StructKeyExists(e,"Reason") AND StructKeyExists(e['Reason'],"pageID") ) 
+				pageResult["CMDRESULTS"] = e['Reason']['pageID']; 
+			else if ( StructKeyExists(e,"message") )
+				pageResult["CMDRESULTS"] = e.message;
+			else
+				pageResult["CMDRESULTS"] = e;
+		}
+		return pageResult;
+	</cfscript>
 </cffunction>
 
 </cfcomponent>

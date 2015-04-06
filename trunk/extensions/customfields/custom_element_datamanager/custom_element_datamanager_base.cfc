@@ -46,6 +46,11 @@ History:
 	2014-08-04 - DJM - Added code to check pagetype for forming CS Extended URL field value
 	2014-09-08 - DJM - Updated code to process data columns only when we have some data
 	2014-09-10 - DJM - Passed extra parameter to getRecordsFromSavedFilter to fetch unpublished records when the element is a LCE
+	2014-10-30 - DJM - Handling of commas within values
+	2015-01-05 - DJM - Added code to append '...' against 'add' buttons if not already present
+	2015-02-10 - DJM - Added code fix the issue when parent linked value has '&' in it
+	2015-04-02 - DJM - Modified getDisplayData() code to always return the Actions column
+	2015-04-02 - DJM - Modified code for CS Extended URL to compare with just the pageID value instead of the whole value stored in DB
 --->
 <cfcomponent output="false" displayname="custom element datamanager_base" extends="ADF.core.Base" hint="This the base component for the Custom Element Data Manager field">
 	
@@ -138,7 +143,7 @@ History:
 		if (arguments.parentFormType EQ 'MetadataForm' AND inputPropStruct.parentUniqueField EQ '{{pageid}}')	
 			parentInstanceIDVal = arguments.pageID;
 		else
-			parentInstanceIDVal = curValuesStruct['fic_#arguments.formID#_#inputPropStruct.parentUniqueField#'];
+			parentInstanceIDVal = URLEncodedFormat(curValuesStruct['fic_#arguments.formID#_#inputPropStruct.parentUniqueField#']);
 		
 		
 		assocParameters = ListAppend(assocParameters, 'csAssoc_ParentInstanceID=#parentInstanceIDVal#', '&');
@@ -176,6 +181,9 @@ History:
 					buttonLabel = "Add New #ceName#...";
 			}
 		}
+		
+		if (Right(buttonLabel,3) NEQ '...')
+			buttonLabel = buttonLabel & '...';
 			
 		return buttonLabel;
 	</cfscript>
@@ -202,7 +210,7 @@ History:
 		if (arguments.parentFormType EQ 'MetadataForm' AND inputPropStruct.parentUniqueField EQ '{{pageid}}')	
 			parentInstanceIDVal = arguments.pageID;
 		else
-			parentInstanceIDVal = curValuesStruct['fic_#arguments.formID#_#inputPropStruct.parentUniqueField#'];
+			parentInstanceIDVal = URLEncodedFormat(curValuesStruct['fic_#arguments.formID#_#inputPropStruct.parentUniqueField#']);
 	</cfscript>
 		
 	<cfsavecontent variable="renderData">
@@ -276,6 +284,9 @@ History:
 					buttonLabel = "Add New #ceName#...";
 			}
 		}
+		
+		if (Right(buttonLabel,3) NEQ '...')
+			buttonLabel = buttonLabel & '...';
 				
 		return buttonLabel;
 	</cfscript>
@@ -360,7 +371,7 @@ History:
 		var assocColPos = 0;
 		var displayColsArray = ArrayNew(1);
 		var uniqueList = '';
-		var theList = '';
+		var simpleValuesArray = ArrayNew(1);
 		var j = 0;
 		var parentInstanceIDVal = 0;
 		var compareValueWithChild = '';
@@ -371,6 +382,11 @@ History:
 		var cmdArgs = StructNew();
 		var nextIndex = 0;
 		var csVersion = ListFirst(ListLast(request.cp.productversion," "),".");
+		var k = 0;
+		var valuesWithCommaArray = ArrayNew(1);
+		var stmtNewPos = 0;
+		var operatorToUseStr = 'Equals';
+		var operatorToUseSymbol = '=';
 		
 		if (arguments.parentFormType EQ 'CustomElement')
 			ceObj = parentObj;
@@ -399,7 +415,14 @@ History:
 		}
 			
 		if (linkedFldDetails.type NEQ 'img')
+		{
 			compareValueWithChild = getLinkedFieldValue(fieldType=linkedFldDetails.type,fieldValue=parentInstanceIDVal);
+			if (linkedFldDetails.type EQ 'csextendedurl')
+			{
+				operatorToUseStr = 'Contains';
+				operatorToUseSymbol = 'like';
+			}
+		}
 		else
 			compareValueWithChild = parentInstanceIDVal;
 			
@@ -578,13 +601,13 @@ History:
 						{
 							if (csVersion GT 9)
 							{
-								statementsArray[1] = childObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childLinkedField,operator='Equals',value=ListFirst(compareValueWithChild,'||'));
-								statementsArray[2] = childObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childLinkedField,operator='Equals',value=ListLast(compareValueWithChild,'||'));
+								statementsArray[1] = childObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childLinkedField,operator=operatorToUseStr,value=ListFirst(compareValueWithChild,'||'));
+								statementsArray[2] = childObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childLinkedField,operator=operatorToUseStr,value=ListLast(compareValueWithChild,'||'));
 							}
 							else
 							{
-								statementsArray[1] = "metadata|#inputPropStruct.childCustomElement#_#inputPropStruct.childLinkedField#|=|#ListFirst(compareValueWithChild,'||')#"; // Have to construct directly as metadataform has no command to create standard statement
-								statementsArray[2] = "metadata|#inputPropStruct.childCustomElement#_#inputPropStruct.childLinkedField#|=|#ListLast(compareValueWithChild,'||')#";
+								statementsArray[1] = "metadata|#inputPropStruct.childCustomElement#_#inputPropStruct.childLinkedField#|#operatorToUseSymbol#|#ListFirst(compareValueWithChild,'||')#"; // Have to construct directly as metadataform has no command to create standard statement
+								statementsArray[2] = "metadata|#inputPropStruct.childCustomElement#_#inputPropStruct.childLinkedField#|#operatorToUseSymbol#|#ListLast(compareValueWithChild,'||')#";
 							}
 							childFilterExpression = '(1 OR 2)';
 						}
@@ -592,11 +615,11 @@ History:
 						{
 							if (csVersion GT 9)
 							{
-								statementsArray[1] = childObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childLinkedField,operator='Equals',value=compareValueWithChild);
+								statementsArray[1] = childObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childLinkedField,operator=operatorToUseStr,value=compareValueWithChild);
 							}
 							else
 							{
-								statementsArray[1] = "metadata|#inputPropStruct.childCustomElement#_#inputPropStruct.childLinkedField#|=|#compareValueWithChild#"; // Have to construct directly as metadataform has no command to create standard statement
+								statementsArray[1] = "metadata|#inputPropStruct.childCustomElement#_#inputPropStruct.childLinkedField#|#operatorToUseSymbol#|#compareValueWithChild#"; // Have to construct directly as metadataform has no command to create standard statement
 							}
 							childFilterExpression = '1';
 						}
@@ -605,13 +628,13 @@ History:
 					{
 						if (ListLen(compareValueWithChild,'||') GT 1)
 						{
-							statementsArray[1] = ceObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childLinkedField,operator='Equals',value=ListFirst(compareValueWithChild,'||'));
-							statementsArray[2] = ceObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childLinkedField,operator='Equals',value=ListLast(compareValueWithChild,'||'));
+							statementsArray[1] = ceObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childLinkedField,operator=operatorToUseStr,value=ListFirst(compareValueWithChild,'||'));
+							statementsArray[2] = ceObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childLinkedField,operator=operatorToUseStr,value=ListLast(compareValueWithChild,'||'));
 							childFilterExpression = '(1 OR 2)';
 						}
 						else
 						{
-							statementsArray[1] = ceObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childLinkedField,operator='Equals',value=compareValueWithChild);
+							statementsArray[1] = ceObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childLinkedField,operator=operatorToUseStr,value=compareValueWithChild);
 							childFilterExpression = '1';
 						}
 					}
@@ -671,25 +694,62 @@ History:
 						ids = assocData[assocReqFieldName];
 						
 						// build list of values
-						theList = '';
+						simpleValuesArray = ArrayNew(1);
+						valuesWithCommaArray = ArrayNew(1);
 						for( j=1; j lte assocData.recordCount; j = j+1 )
-							theList = ListAppend( theList, assocData[assocReqFieldName][j] );
-							
-						uniqueList = application.adf.data.listRemoveDuplicates( theList );
-						if (StructKeyExists(inputPropStruct, 'secondaryElementType') AND inputPropStruct.secondaryElementType EQ 'MetadataForm')
 						{
-							if (csVersion GT 9)
+							if ( ArrayFindNoCase(simpleValuesArray, assocData[assocReqFieldName][j]) EQ 0 AND ArrayFindNoCase(valuesWithCommaArray, assocData[assocReqFieldName][j]) EQ 0 )
 							{
-								statementsArray[1] = childObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childUniqueField,operator='Value Contained In List',value=uniqueList);
+								if (ListLen(assocData[assocReqFieldName][j]) GT 1)
+									ArrayAppend( valuesWithCommaArray, assocData[assocReqFieldName][j] );
+								else
+									ArrayAppend( simpleValuesArray, assocData[assocReqFieldName][j] );
+							}
+						}	
+						uniqueList = ArrayToList( simpleValuesArray );
+						
+						if ( ListLen(uniqueList) )
+						{
+							if (StructKeyExists(inputPropStruct, 'secondaryElementType') AND inputPropStruct.secondaryElementType EQ 'MetadataForm')
+							{
+								if (csVersion GT 9)
+								{
+									statementsArray[1] = childObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childUniqueField,operator='Value Contained In List',value=uniqueList);
+								}
+								else
+								{
+									statementsArray[1] = "metadata|#inputPropStruct.childCustomElement#_#inputPropStruct.childUniqueField#|inlist|#uniqueList#";
+								}
 							}
 							else
+								statementsArray[1] = ceObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childUniqueField,operator='Value Contained In List',value=uniqueList);
+							childFilterExpression = '1';
+						}
+						if ( ArrayLen(valuesWithCommaArray) )
+						{
+							for ( k=1; k LTE ArrayLen(valuesWithCommaArray);k=k+1 )
 							{
-								statementsArray[1] = "metadata|#inputPropStruct.childCustomElement#_#inputPropStruct.childUniqueField#|inlist|#uniqueList#";
+								stmtNewPos = ArrayLen(statementsArray) + 1;
+								if (StructKeyExists(inputPropStruct, 'secondaryElementType') AND inputPropStruct.secondaryElementType EQ 'MetadataForm')
+								{
+									if (csVersion GT 9)
+									{
+										statementsArray[stmtNewPos] = childObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childUniqueField,operator='Equals',value=valuesWithCommaArray[k]);
+									}
+									else
+									{
+										statementsArray[stmtNewPos] = "metadata|#inputPropStruct.childCustomElement#_#inputPropStruct.childUniqueField#|=|#valuesWithCommaArray[k]#";
+									}
+								}
+								else
+									statementsArray[stmtNewPos] = ceObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childUniqueField,operator='Equals',value=valuesWithCommaArray[k]);
+								if ( Len(childFilterExpression) )
+								{
+									childFilterExpression = '#childFilterExpression# OR ';
+								}
+								childFilterExpression = '#childFilterExpression##Int(stmtNewPos)#';
 							}
 						}
-						else
-							statementsArray[1] = ceObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childUniqueField,operator='Value Contained In List',value=uniqueList);
-						childFilterExpression = '1';
 					}
 				}
 				
@@ -825,7 +885,7 @@ History:
 		var fieldUpdValue = '';
 		var dataColumnList_new = '';
 		var theListLen = 0;
-		var actionColumnWidth = '';
+		var actionColumnWidth = 0;
 		
 		dataColumnArray = ListToArray(dataColumnList);
 	</cfscript>
@@ -936,13 +996,10 @@ History:
 					if( pos )
 						dataColumnList_new = ListSetAt( dataColumnList_new, pos, str & '_converted' );
 				}
-					
-				if( ListFindNoCase(inputPropStruct.interfaceOptions,'editAssoc') OR ListFindNoCase(inputPropStruct.interfaceOptions,'editChild') OR ListFindNoCase(inputPropStruct.interfaceOptions,'delete') )
-				{					
-					QueryAddColumn(childData, 'Actions', 'varchar', actionColumnArray);
-					dataColumnList_new = ListPrepend(dataColumnList_new, 'Actions');
-				}	
 			}
+			
+			QueryAddColumn(childData, 'Actions', 'varchar', actionColumnArray);
+			dataColumnList_new = ListPrepend(dataColumnList_new, 'Actions');
 			// Logit('datacolumnlist:[#dataColumnList_new#]');	// Actions,AssocDataPageID,ChildDataPageID,ID,Name,ParentID 				
 		</cfscript>
 
@@ -1730,7 +1787,7 @@ History:
 			logError = true;	
 		}										
 	</cfscript>		
-
+	
 	<!-- // If error is generated log it --->
 	<cfif logError>
 		<cfmodule template="/commonspot/utilities/log-append.cfm" comment="Error in custom_element_datamanager_base.cfc RenderGrid() #e.message# #e.detail#">
@@ -2396,14 +2453,16 @@ History:
 			// Since extended url stored data differently for different page types, need to set up proper value to be checked
 			if (getPageInfo.RecordCount)
 			{
-				if (getPageInfo.PageType EQ Request.Constants.pgTypeNormal AND getPageInfo.Uploaded EQ 0)
+				// Just set to compare with pageID instead of the whole string as certain actions like move in CS do not update the value in DB
+				/*if (getPageInfo.PageType EQ Request.Constants.pgTypeNormal AND getPageInfo.Uploaded EQ 0)
 					returnString = 'CP___PAGEID=#arguments.fieldValue#,#getPageInfo.FileName#,#getPageInfo.SubsiteID#||CP___PAGEID=#arguments.fieldValue#,#getPageInfo.FileName#';
 				else if ((getPageInfo.PageType EQ Request.Constants.pgTypeNormal AND getPageInfo.Uploaded EQ 1) OR getPageInfo.PageType EQ Request.Constants.pgTypeMultimedia OR getPageInfo.PageType EQ Request.Constants.pgTypeMultimediaPlaylist)
 					returnString = 'CP___PAGEID=#arguments.fieldValue#';
 				else if (getPageInfo.PageType EQ Request.Constants.pgTypeImage)
 					returnString = 'CP___PAGEID=#arguments.fieldValue#,#getPageInfo.FileName#';
 				else // PageType as user template,pageset,registered url
-					returnString = 'CP___PAGEID=#arguments.fieldValue#,#getPageInfo.FileName#,#getPageInfo.SubsiteID#';
+					returnString = 'CP___PAGEID=#arguments.fieldValue#,#getPageInfo.FileName#,#getPageInfo.SubsiteID#';*/
+				returnString = 'CP___PAGEID=#arguments.fieldValue#';
 			}
 		</cfscript>
 	<cfelseif arguments.fieldType EQ 'img'>
@@ -2423,5 +2482,3 @@ History:
 </cffunction>
 
 </cfcomponent>
-
-

@@ -34,7 +34,7 @@ History:
 ---> 
 <cfcomponent displayname="csPage_1_0" extends="ADF.core.Base" hint="Constructs a CCAPI instance and then creates or deletes a page with the given information">
 
-<cfproperty name="version" value="1_0_2">
+<cfproperty name="version" value="1_0_3">
 <cfproperty name="type" value="transient">
 <cfproperty name="ccapi" type="dependency" injectedBean="ccapi_1_0">
 <cfproperty name="csData" type="dependency" injectedBean="csData_1_0">
@@ -85,11 +85,13 @@ History:
 	2011-06-21 - MFC - Added logout call at the end of the process.
 	2012-02-24 - MFC - Added TRY-CATCH around processing to logout the CCAPI if any errors.
 	2014-05-01 - GAC - Fixed typo in the try/catch, switched ( e ANY ) to ( ANY e )
+	2015-02-03 - GAC - Updated catch block to check for the e.Details structkey
 --->
 <cffunction name="createPage" access="public" output="true" returntype="struct" hint="Creates a page using the argument data passed in">
 	<cfargument name="stdMetadata" type="struct" required="true" hint="Standard Metadata would include 'Title, Description, TemplateId, SubsiteID etc...'">
 	<cfargument name="custMetadata" type="struct" required="true" hint="Custom Metadata would be any custom metadata for the new page ex. customMetadata['formName']['fieldname']">
 	<cfargument name="activatePage" type="numeric" required="false" default="1" hint="Flag to make the new page active or inactive"> 
+	
 	<cfscript>
 		var pageData = structNew();
 		var ws = "";
@@ -99,6 +101,7 @@ History:
 		var logStruct = structNew();
 		var logArray = arrayNew(1);
 		var result = structNew();
+		
 		result.pageCreated = false;
 		result.newPageID = 0;
 		result.msg = "";
@@ -174,7 +177,10 @@ History:
 			result.msg = e.message;
 			
 			// Log the error message also
-			logStruct.msg = "#request.formattedTimestamp# - Error [Message: #e.message#] [Details: #e.Details#]";
+			logStruct.msg = "#request.formattedTimestamp# - Error [Message: #e.message#]";
+			if ( StructKeyExists(e,"Details") AND LEN(TRIM(e.Details)) )
+				logStruct.msg = logStruct.msg & " [Details: #e.Details#]";
+
 			logStruct.logFile = "CCAPI_create_pages_errors.log";
 			variables.utils.bulkLogAppend(logArray);
 		}
@@ -205,9 +211,11 @@ History:
 	2011-02-09 - RAK - Var'ing un-var'd variables
 	2012-02-24 - MFC - Added TRY-CATCH around processing to logout the CCAPI if any errors.
 	2014-05-01 - GAC - Fixed typo in the try/catch, switched ( e ANY ) to ( ANY e )
+	2015-02-03 - GAC - Updated catch block to check for the e.Details structkey
 --->
 <cffunction name="deletePage" access="public" output="true" returntype="struct" hint="Deletes the page based on the argument data">
 	<cfargument name="deletePageData" type="struct" required="true" hint="Standard Metadata like 'PageID, SubsiteID'">		
+	
 	<cfscript>
 		var deletePageResult = '';
 		var logoutResult = '';
@@ -219,6 +227,7 @@ History:
 		
 		result.pageDeleted = false;
 		result.msg = "";
+		
 		// construct the CCAPI object
 		variables.ccapi.initCCAPI();
 		
@@ -262,7 +271,11 @@ History:
 			result.msg = e.message;
 			
 			// Log the error message also
-			logStruct.msg = "#request.formattedTimestamp# - Error [Message: #e.message#] [Details: #e.Details#]";
+			logStruct.msg = "#request.formattedTimestamp# - Error";
+			logStruct.msg = logStruct.msg & " [Message: #e.Message#]";
+			if ( StructKeyExists(e,"Details") AND LEN(TRIM(e.Details)) )
+				logStruct.msg = logStruct.msg & " [Details: #e.Details#]";
+			
 			logStruct.logFile = "CCAPI_delete_pages_errors.log";
 			variables.utils.bulkLogAppend(logArray);
 		}

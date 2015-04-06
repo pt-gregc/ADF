@@ -62,6 +62,7 @@ History:
 	2013-11-15 - GAC - Converted the CFT to the ADF standard CFT format using the forms.wrapFieldHTML method
 	2014-01-17 - TP  - Added the abiltiy to render checkboxes, radio buttons as well as a selection list
 	2014-01-30 - GAC - Moved into a v1_0 version subfolder
+	2014-11-06 - GAC - Fixed the conditional logic around the xparams.defaultVal expression parsing
 --->
 <cfscript>
 	// the fields current value
@@ -147,11 +148,10 @@ History:
 	else if( StructKeyExists(xparams, "displayField") AND LEN(xparams.displayField) AND xparams.displayField neq "--Other--" ) 
 		ceDataArray = application.ADF.cedata.arrayOfCEDataSort(ceDataArray, xparams.displayField);
 
-
 	// Check if we do not have a current value then set to the default
-	if ( (LEN(currentValue) LTE 0) OR (currentValue EQ "") ) 
+	if ( LEN(TRIM(currentValue)) EQ 0 ) 
 	{
-		if ( (TRIM(LEFT(xparams.defaultVal,1)) EQ "[") AND (TRIM(RIGHT(xparams.defaultVal,1)) EQ "]") ) 
+		if ( (LEFT(TRIM(xparams.defaultVal),1) EQ "[") AND (RIGHT(TRIM(xparams.defaultVal),1) EQ "]") ) 
 		{
 			// Trim the [] from the expression
 			xparams.defaultVal = MID(xparams.defaultVal, 2, LEN(xparams.defaultVal)-2);

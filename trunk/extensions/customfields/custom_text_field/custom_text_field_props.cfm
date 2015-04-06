@@ -39,6 +39,7 @@ History:
 	2014-01-02 - GAC - Added the CFSETTING tag to disable CF Debug results in the props module
 	2014-01-03 - GAC - Added the fieldVersion variable
 	2014-09-19 - GAC - Removed deprecated doLabel and jsLabelUpdater js calls
+	2014-01-09 - GAC - Updated a typo in the Edit Once props description
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
@@ -115,7 +116,7 @@ History:
 			<td class="cs_dlgLabelSmall">
 				<input type="radio" name="#prefix#editOnce" id="#prefix#editOnce" value="0" <cfif currentValues.editOnce EQ 0>checked</cfif>>False
 				<input type="radio" name="#prefix#editOnce" id="#prefix#editOnce" value="1" <cfif currentValues.editOnce EQ 1>checked</cfif>>True
-				<br/><span>Select the True to allow the field to only be edited once on creation of the record.  
+				<br/><span>Select True to allow the field to only be edited once on creation of the record.  
 					This will lock the value in and make the field disabled.</span>
 			</td>
 		</tr>
