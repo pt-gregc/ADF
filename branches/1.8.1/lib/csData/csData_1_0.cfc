@@ -40,7 +40,7 @@ History:
 --->
 <cfcomponent displayname="csData_1_0" extends="ADF.core.Base" hint="CommonSpot Data Utils functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_14">
+<cfproperty name="version" value="1_0_15">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_0">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_0">
@@ -877,6 +877,7 @@ History:
 	2009-07-24 - SFS - Created
 	2010-12-22 - GAC - VAR scoped variables for both queries
 	2015-03-13 - GAC - Updated to handle CS URLs with PageID params
+	2015-04-01 - GAC - Updated to test the csPageURL as a slash separated list with more than 0 items when attempting match the subsiteURL in the Subsites table 
 --->
 <cffunction name="getCSPageDataByURL" access="public" returntype="query" hint="Returns a query containing the page ID and page title of the page URL provided">
 	<cfargument name="csPageURL" type="string" required="true">
@@ -903,7 +904,7 @@ History:
 			from sitePages
 			where ID = <cfqueryparam cfsqltype="cf_sql_integer" value="#csPageID#">
 		</cfquery>
-	<cfelse>
+	<cfelseif ListLen(csPageURL,"/") GT 0>
 		<cfquery name="getSubsiteID" datasource="#request.site.datasource#">
 			select ID
 			from SubSites
