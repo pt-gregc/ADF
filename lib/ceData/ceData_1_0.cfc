@@ -37,27 +37,36 @@ History:
 --->
 <cfcomponent displayname="ceData_1_0" extends="ADF.core.Base" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_15">
+<cfproperty name="version" value="1_0_18">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_0">
 <cfproperty name="wikiTitle" value="CEData_1_0">
 
 <!---
-/**
-* Sorts an array of structures based on a key in the structures.
-*
-* @param aofS       Array of structures.
-* @param key        Key to sort by.
-* @param sortOrder  Order to sort by, asc or desc.
-* @param sortType   Text, textnocase, numeric, or time.
-* @param delim      Delimiter used for temporary data storage. Must not exist in data. Defaults to a period.
-* @param datefield  Used for time sorting, the basis for the construction of the array for sorting times.
-* @return Returns a sorted array.
-* @author Nathan Dintenfass (nathan@changemedia.com)
-* @version 1, December 10, 2001
-*/
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$arrayOfCEDataSort
+Summary:
+	Sorts an CE data array of structures.
+
+	Based on the ArrayOfStructsSort by Nathan Dintenfass From CFLib
+Returns:
+	Array 
+Arguments:
+	Array - aOfS
+	String - Key
+	String - sortOrder
+	String - sortType
+	String - delim
+	String - datefield
+Usage:
+	application.ADF.ceData.arrayOfCEDataSort(aOfS,key,sortOrder,sortType,Delim,dateField)
+History:
+	2009-03-02 - Created	
 --->
-<cffunction name="arrayOfCEDataSort" access="public" returntype="array">
+<cffunction name="arrayOfCEDataSort" access="public" returntype="array" hint="Sorts an CE data array of structures.">
 	<cfargument name="aOfS" type="array" required="true">
 	<cfargument name="key" type="string" required="true">
 	<cfargument name="sortOrder" type="string" required="false" default="asc">
@@ -1484,27 +1493,83 @@ Author:
 Name:
 	$getCEForCategory
 Summary:
-	Returns a query of the CE's name and form ID that are in the Category argument.
+	Returns a query of active CE names and form IDs for specified active Category or Category ID
 Returns:
 	Query
 Arguments:
-	String - categoryName - Category Nam
+	String - categoryName - Category Name
+	String - categoryID - Category ID
+	Boolean - allCats - true/false
 History:
 	2009-09-09 - MFC - Created
+	2014-10-29 - GAC - Updated for CommonSpot 9 to use the CMD API to get the CE Categories and the CE Elements
+					 - Added the categoryID parameter to filter by Category ID
+					 - Added the allCats parameter to return all Custom Elements all Categories
 --->
-<cffunction name="getCEForCategory" access="public" returntype="query" hint="Returns a query of the CE's name and form ID that are in the Category argument.">
-	<cfargument name="categoryName" type="string" required="true" hint="Category Name">
+<cffunction name="getCEForCategory" access="public" returntype="query" hint="Returns a query of active CE names and form IDs for specified active Category or Category ID.">
+	<cfargument name="categoryName" type="string" required="false" default="" hint="A Category Name used to get a list of Custom Elements">
+	<cfargument name="categoryID" type="string" required="false" default="" hint="If CategoryName is null will use the Category ID to get a list of Custom Elements">
+	<cfargument name="allCats" type="boolean" required="false" default="false" hint="If allCats is true it will ignore both the CategoryName and CategoryID and the return Custom Element records ordered by category name">
 	
-	<cfset var ceQry = QueryNew("tmp")>
-	<cfquery name="ceQry" datasource="#request.site.datasource#">
-		SELECT  ControlCategoryLookup.Category, FormControl.FormName, FormControl.ID
-		FROM    AvailableControls INNER JOIN
-	                ControlCategoryLookup ON AvailableControls.CategoryID = ControlCategoryLookup.ID INNER JOIN
-	                FormControl ON AvailableControls.ID = FormControl.ID
-		WHERE   (AvailableControls.ElementState = 0)
-		AND	   	ControlCategoryLookup.Category = <cfqueryparam value="#arguments.categoryName#" cfsqltype="cf_sql_varchar">
-	</cfquery>
-	<cfreturn ceQry>
+	<cfscript>
+		var ceJoinQry = QueryNew("tmp");
+		var csCmdApiVersion = 9;
+		var useCMDapi = (val(ListLast(ListFirst(Request.CP.ProductVersion, "."), " ")) >= csCmdApiVersion);
+		var catComponent = "";
+		var ceComponent  = "";
+		var catsQry = QueryNew("tmp");
+		var ceQry = QueryNew("tmp");
+	</cfscript>
+	
+	<cfif useCMDapi>
+		<cfscript>
+			catComponent = Server.CommonSpot.api.getObject('Categories');
+			ceComponent = Server.CommonSpot.api.getObject('CustomElement');
+			
+			// Get the Categories for Custom Elements using the CMD API 
+			catsQry = catComponent.getList(type='Element'); 
+			// Get All of the Custom Element using the CMD API
+			ceQry = ceComponent.getList(); 
+		</cfscript>
+		
+		<!--- // JOIN the Element Categories and Custom Elements in to one query --->
+		<cfquery name="ceJoinQry" dbtype="query">
+			SELECT  catsQry.ID AS CategoryID, catsQry.Name AS Category, ceQry.Name AS FormName, ceQry.ID
+			FROM    ceQry, catsQry 
+			WHERE   ceQry.CategoryID = catsQry.ID
+			AND    ceQry.State = 'Active'
+			AND    catsQry.IsActive = 1
+			<cfif arguments.allCats EQ false>
+				<cfif LEN(TRIM(arguments.categoryName)) NEQ 0>
+				AND	  lcase(catsQry.Name) = <cfqueryparam value="#lcase(arguments.categoryName)#" cfsqltype="cf_sql_varchar">
+				<cfelseif IsNumeric(arguments.categoryID)>
+				AND	  catsQry.ID = <cfqueryparam value="#arguments.categoryID#" cfsqltype="cf_sql_integer">
+				</cfif>
+			</cfif>
+			ORDER BY catsQry.Name, ceQry.Name
+		</cfquery>
+	<cfelse>
+		<!--- // Get the Element Categories and Custom Element directly using the PRE-CMD API db query --->
+		<!--- // - The ControlCategoryLookup table is no longer avaialbe in CommonSpot 9.x --->
+		<cfquery name="ceJoinQry" datasource="#request.site.datasource#">
+			SELECT  ControlCategoryLookup.ID, ControlCategoryLookup.Category, FormControl.FormName, FormControl.ID
+			FROM    AvailableControls INNER JOIN
+		                ControlCategoryLookup ON AvailableControls.CategoryID = ControlCategoryLookup.ID INNER JOIN
+		                FormControl ON AvailableControls.ID = FormControl.ID
+			WHERE   (AvailableControls.ElementState = 0)
+			<!--- AND	   	ControlCategoryLookup.Category = <cfqueryparam value="#arguments.categoryName#" cfsqltype="cf_sql_varchar"> --->
+			<cfif arguments.allCats EQ false>
+				<cfif LEN(TRIM(arguments.categoryName)) NEQ 0>
+				AND	  lcase(ControlCategoryLookup.Category) = <cfqueryparam value="#lcase(arguments.categoryName)#" cfsqltype="cf_sql_varchar">
+				<cfelseif IsNumeric(arguments.categoryID)>
+				AND	  ControlCategoryLookup.ID = <cfqueryparam value="#arguments.categoryID#" cfsqltype="cf_sql_integer">
+				</cfif>
+			</cfif>
+			ORDER BY ControlCategoryLookup.Category, FormControl.FormName
+		</cfquery>
+	</cfif>
+	
+	<cfreturn ceJoinQry>
 </cffunction>
 
 <!---

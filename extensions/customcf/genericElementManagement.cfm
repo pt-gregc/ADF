@@ -47,8 +47,11 @@ Custom Script Parameters Tab Examples:
 	showAddButtons=true,false,true 
 	useAddButtonSecurity=true
 	customAddButtonText=Add New Item 1, Add New Item 2, Add New Three
+	customTabLabels=One, Two, Three
 	appBeanName = ptBlog
 	appParamsVarName = elementManagementParams
+	configVersion = 2.0
+	
 History:
 	2011-09-01 - RAK - Created
 	2011-09-01 - RAK - Added multiple element support
@@ -77,7 +80,13 @@ History:
 	2013-10-15 - GAC - Updated the App Level Override Parameters comments
 					 - Removed 'themeName' value from the paramsExceptionList in the appOverrideCSParams function. 
 	2014-05-01 - GAC - Added an extra <br> tag with in EDIT MODE to be able to see the custom script element indicator when not showing the 'ADD' button
+	2014-10-24 - GAC - Added a script config version to allow for updates that would otherwise break previously configured datasheets
+					 - Updated the Datasheet Control Name in the <cfmodule> to use the FormID as the uniqueID... so Datasheet configs don't break if the element name changes
+					 - Added a option for custom "Tab Labels" when building multiple datasheets on the same page
 --->
+
+<!--- // The version of this custom script code --->
+<cfset scriptVersion = "2.0.1">
 
 <!--- // Optional ADF App Override Attributes for the Custom Script Parameters tab --->
 <!--- // !!!! DO NOT MODIFY THIS OVERRIDE LOGIC to force changes via the Custom Script Parameters from the CommonSpot UI!!! --->
@@ -90,6 +99,16 @@ History:
 													paramsExceptionList="appBeanName,appParamsVarName"
 												);
 	}
+	
+	// This is the default script Configuration Version
+	// - FYI: v2 will break any existing v1 datasheet configurations
+	// - Only use v2 on new datasheet setups! For a new setups "configVersion=2.0" can be passed via the custom script parameters dialog. 
+	scriptConfigVersion = "1.0";
+	
+	// Check to see if the attribute 'configVersion' was passed in.
+	//- This will override the default version of this script 
+	if ( StructKeyExists(attributes,"configVersion") AND LEN(TRIM(attributes.configVersion)) )
+		scriptConfigVersion = attributes.configVersion;		
 </cfscript>
 
 <cfoutput>
@@ -132,7 +151,8 @@ History:
 			// Set the Add Button Defualt Text
 			addButtonTextDefault = "Add New {{elementName}}";
 			customAddButtonTextList = "";
-			
+			tabLabelsList = "";
+			 
 			// Check to see if the attribute 'showAddButtons' was passed in with a list of display option values
 			// - attributes.showAddButtons=false takes presidence over enableAddButton=true
 			if ( StructKeyExists(attributes,"showAddButtons") AND LEN(TRIM(attributes.showAddButtons)) )
@@ -143,9 +163,10 @@ History:
 				else
 					displayAddButtonList = attributes.showAddButtons;
 			}
-					
+				
 			// Build structure with CEName as the key and the 'Add Button' display option as the value
-			for ( a=1;a LTE ListLen(attributes.elementName);a=a+1 ){
+			for ( a=1;a LTE ListLen(attributes.elementName);a=a+1 )
+			{
 				ce = TRIM(ListGetAt(attributes.elementName,a));
 				
 				// Build a structure Key (without spaces) based on the CEName
@@ -156,6 +177,7 @@ History:
 				// set the display value for each 'Add Button' for each element tab
 				if ( a LTE ListLen(displayAddButtonList) )
 					abtn = ListGetAt(displayAddButtonList,a);	
+					
 				// Set the elementName key of the struct with the status value
 				if ( IsBoolean(abtn) )
 					displayAddBtnOptions[elmt] = abtn;
@@ -173,24 +195,32 @@ History:
 				enableAddButton = false;	
 
 			// Check to see if the attribute 'customAddButtonText' was passed in with a list of display values
-			if ( StructKeyExists(attributes,"customAddButtonText") AND LEN(TRIM(attributes.showAddButtons)) )
+			if ( StructKeyExists(attributes,"customAddButtonText") )
 				customAddButtonTextList = attributes.customAddButtonText;
+				
+			// Check to see if the attribute 'customTabLabels' was passed in with a list of display values
+			if ( StructKeyExists(attributes,"customTabLabels") AND LEN(TRIM(attributes.customTabLabels)) )
+				tabLabelsList = attributes.customTabLabels;
+			else
+				tabLabelsList = attributes.elementName;	
 			
 			// Check the list of elements to see if need the tabs.
 			//	Set flag to render tabs or not
 			//  Set the class name for the surrounding div based on if
 			//		we are rendering tabs or not.
-			if ( ListLen(attributes.elementName) GT 1 ) {
+			if ( ListLen(attributes.elementName) GT 1 ) 
+			{
 				renderTabFormat = true;
 				divClass = "tabs";
 			}
-			else {
+			else 
+			{
 				renderTabFormat = false;			
 				divClass = "no-tabs";
 			}	
 		</cfscript>
 		<style>
-			a.ui-button:hover{
+			a.ui-button:hover {
 				cursor:pointer;
 			}
 			a.ui-button {
@@ -201,6 +231,7 @@ History:
 			jQuery(document).ready(function(){
 				// Load jquery cookie to remember the last tab visited
 				jQuery('##tabs').tabs( { cookie: { expires: 30 } } );
+				
 				// Hover states on the static widgets
 				jQuery("a.ui-button").hover(
 					function() {
@@ -216,8 +247,8 @@ History:
 			<!--- Check if we want to render tabs --->
 			<cfif renderTabFormat>
 				<ul>
-					<cfloop from="1" to="#listLen(attributes.elementName)#" index="i">
-						<li><a href="##tabs-#i#" title="tabs-#i#">#TRIM(ListGetAt(attributes.elementName,i))#</a></li>
+					<cfloop from="1" to="#listLen(tabLabelsList)#" index="i">
+						<li><a href="##tabs-#i#" title="tabs-#i#">#TRIM(ListGetAt(tabLabelsList,i))#</a></li>
 					</cfloop>
 				</ul>
 			</cfif>
@@ -226,9 +257,26 @@ History:
 					<cfscript>
 						ceName = TRIM(ListGetAt(attributes.elementName,i));
 						// Build an 'elementName' based on the CEName without spaces 
-						// for the datasheet  "ct-render-named-element.cfm" call 
-						custel = REREPLACE(ceName,"[\s]","","all");
-						customControlName = "customManagementFor#custel#";
+						custEl = REREPLACE(ceName,"[\s]","","all"); 
+						custElID = application.ADF.ceData.getFormIDByCEName(CEName=ceName);
+						
+						if ( ListFirst(scriptConfigVersion,".") LTE 1 )
+						{
+							// Use custel for the datasheet  "ct-render-named-element.cfm" call 
+							controlSuffix = custEl; 
+							
+							// ^ Using the ceName in the datasheet control name does NOT allow account for the case 
+							//   when the Name of the Custom Element changes since changing that will break the existing datasheet configurations 
+							//   IMPORTANT -- this will be deprecated in ADF 2.0 ---
+						}
+						else
+						{
+							// Updated to allow for configuration of the v2 of this script
+							// Better solution ... will keep the datasheet config even if the element name changes
+							controlSuffix = custElID;
+						}
+						
+						customControlName = "customManagementFor" & controlSuffix; 
 					</cfscript>
 					<cfif renderTabFormat>
 					<br/>
@@ -264,9 +312,20 @@ History:
 					<cfif ListFindNoCase("author,edit",csMode)>
 					<br/>
 					</cfif>
-					<CFMODULE TEMPLATE="/commonspot/utilities/ct-render-named-element.cfm"
-						elementtype="datasheet"
-						elementName="#customControlName#">
+					<cfif ListFirst(scriptConfigVersion,".") LTE 1>
+						<CFMODULE TEMPLATE="/commonspot/utilities/ct-render-named-element.cfm"
+							elementtype="datasheet"
+							elementName="#customControlName#">
+					<cfelse>
+						<!--- // For v2 of this script make sure the custom element exists --->
+						<cfif custElID GT 0>
+							<CFMODULE TEMPLATE="/commonspot/utilities/ct-render-named-element.cfm"
+								elementtype="datasheet"
+								elementName="#customControlName#">
+						<cfelse>
+							The custom element specified in the 'elementName=' parameter of this custom script does not exist.
+						</cfif>
+					</cfif>
 				</div>
 			</cfloop>
 		</div>

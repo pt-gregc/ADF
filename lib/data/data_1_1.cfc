@@ -34,7 +34,7 @@ History:
 --->
 <cfcomponent displayname="data_1_1" extends="ADF.lib.data.data_1_0" hint="Data Utils component functions for the ADF Library">
 
-<cfproperty name="version" value="1_1_3">
+<cfproperty name="version" value="1_1_4">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Data_1_1">
 
@@ -426,7 +426,7 @@ History:
 		  ( SELECT * FROM ARGUMENTS.QueryTwo )
      </cfquery>
 
- <!--- Return the new query. --->
+ 	 <!--- // Return the new query. --->
      <cfreturn NewQuery />
  </cffunction>
 
@@ -521,19 +521,24 @@ Returns:
 Arguments:
 	array - aOfS - Array of structure data set.
 	string - orderByKeyList - Structure keys to sort the Array.
-	Boolean - forceColsToVarchar  
+	Boolean - forceColsToVarchar
+	Boolean - allowComplexValues
+Usage:
+	application.ptCourseCatalog.data.arrayOfStructsSortMultiKeys(aOfS,orderByKeyList,forceColsToVarchar);  
 History:
 	2011-04-04 - MFC - Created
-	2011-09-01 - GAC - Modified - Added a flag to force all query columns to be varchar datatype
+	2011-09-01 - GAC - Added a flag to force all query columns to be varchar datatype
+	2014-11-20 - GAC - Added a parameter to allow complex value to be returned in a query column
 --->
 <cffunction name="arrayOfStructsSortMultiKeys" access="public" returntype="array" output="true" hint="Sorts an Array Of Structures based on the multiple structure keys.">
 	<cfargument name="aOfS" type="array" required="true" hint="Array of structures">
 	<cfargument name="orderByKeyList" type="string" required="true" hint="List of keys to order by">
 	<cfargument name="forceColsToVarchar" type="boolean" default="false" required="false" hint="Force the columnts to evaluate via varchar">
-	
+	<cfargument name="allowComplexValues" type="boolean" default="false" required="false" hint="Will allow complex values to be returned in a query column if the forceColsToVarchar not true.">
+		
 	<cfscript>
 		// Make the array an query
-		var aOfSQry = arrayOfStructuresToQuery(theArray=arguments.aOfS,forceColsToVarchar=arguments.forceColsToVarchar);
+		var aOfSQry = arrayOfStructuresToQuery(theArray=arguments.aOfS,forceColsToVarchar=arguments.forceColsToVarchar,allowComplexValues=arguments.allowComplexValues);
 		var sortedQry = "";
 	</cfscript>
 	<!--- Query the data set to ORDER BY --->

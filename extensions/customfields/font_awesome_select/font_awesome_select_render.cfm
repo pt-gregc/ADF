@@ -27,16 +27,19 @@ Name:
 Summary:
 	renders field for font awesome icon custom field type
 Version:
-	1.0.0
+	1.0
 History:
 	2014-09-15 - Created
 	2014-09-29 - GAC - Added an updated list of icon classes and codes using csvToArray on FA icon text data in a CSV text file 
+	2014-12-03 - GAC - Updated to fix for bad version folder "Major.Minor.Maintenance" for thirdParty folder. Now is only "Major.Minor" version folder.
 --->
 <cfscript>
 	// the fields current value
 	currentValue = attributes.currentValues[fqFieldName];
 	// the param structure which will hold all of the fields from the props dialog
 	xparams = parameters[fieldQuery.inputID];
+	
+	cftErrMsg = "";
 	
 	if( NOT StructKeyExists(xparams,'ShowSize') )
 		xparams.ShowSize = 0;
@@ -49,9 +52,20 @@ History:
 	if( NOT StructKeyExists(xparams,'ShowPull') )
 		xparams.ShowPull = 0;
 	
-	defaultFAversion = "4.2.0";	
-	if( NOT StructKeyExists(xparams,'iconDataFile') OR LEN(TRIM(xparams.iconDataFile)) )
-		xparams.iconDataFile = "/ADF/thirdParty/css/font-awesome/#defaultFAversion#/data/icon-data.csv";
+	defaultFAversion = "4.2";
+	defaultIconDataFile = "/ADF/thirdParty/css/font-awesome/#defaultFAversion#/data/icon-data.csv";
+		
+	if( NOT StructKeyExists(xparams,'iconDataFile') OR LEN(TRIM(xparams.iconDataFile)) EQ 0 )
+	{
+		xparams.iconDataFile = defaultIconDataFile;
+	}
+	
+	// Fix for bad version folder "Major.Minor.Maintenance". Should only be "Major.Minor" version.
+	// - If the "4.2.0" folder is found, use the default icon data file value 
+	if ( FindNoCase("/ADF/thirdParty/css/font-awesome/4.2.0/",xparams.iconDataFile) ) 
+	{		
+		xparams.iconDataFile = defaultIconDataFile;	
+	}
 
 	// Validate if the property field has been defined
 	if ( NOT StructKeyExists(xparams, "fldID") OR LEN(xparams.fldID) LTE 0 )
@@ -78,6 +92,10 @@ History:
 	{
 		// Convert the CSV file to a qry
 		iconDataArr = application.ADF.data.csvToArray(file=iconDataFilePath,Delimiter=",");
+	}
+	else
+	{
+		cftErrMsg = "Unable to load icon data file!<br/>'#xparams.iconDataFile#'";
 	}
 	
 	// Build the Font Awesome Icons array
@@ -299,6 +317,7 @@ History:
 			<input class="clsPushButton" type="button" value="Clear" style="padding: 1px 5px; vertical-align: baseline;" onclick="clearInput()">
 			<input type="hidden" name="#fqFieldName#" id="#xparams.fldID#" value="#currentValue#"> 			
 			<div class="cols-3-outer">
+			<cfif LEN(TRIM(cftErrMsg))>#cftErrMsg#</cfif>
 			<div class="cols-3">
 				<ul>
 					<cfset selected_index = ''>

@@ -33,15 +33,168 @@ History:
 	2013-02-26 - MFC - Updated the Injection Dependencies to use the ADF v1.6 lib versions.
 	2014-04-04 - GAC - Added the doThow method with logging options
 	2014-05-27 - GAC - Added new methods to help secure ADFdumpVar: processADFDumpVar and sanitizeADFDumpVarData
+	2014-10-16 - GAC - Added and updated version of the runCommand method to better handle app based components and logging
 --->
 <cfcomponent displayname="utils_1_2" extends="ADF.lib.utils.utils_1_1" hint="Util functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_11">
+<cfproperty name="version" value="1_2_13">
 <cfproperty name="type" value="singleton">
 <cfproperty name="ceData" type="dependency" injectedBean="ceData_2_0">
 <cfproperty name="csData" type="dependency" injectedBean="csData_1_2">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
 <cfproperty name="wikiTitle" value="Utils_1_2">
+
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+	Ryan Kahn
+Name:
+	$runCommand
+Summary:
+	Runs the given command in from a beanName and methodName (with and optional appName)
+Returns:
+	Any
+Arguments:
+	string - beanName
+	string - methodName
+	struct - args
+	string - appName
+	boolean - softFail
+History:
+	2014-10-15 - GAC - Added to a new utils_1_2 lib component
+					 - Updated logic so when an appName is passed in to make sure runCommand() use the app object when attempting invoke the component
+					 - Updated to use application.ADF.siteDevMode to control the verbose error msgs
+					 - Better error logging and reporting when in DevMode
+	2015-02-06 - GAC - Updated error messages to all start with "Error:" for consistency and easier parsing
+--->
+<cffunction name="runCommand" access="public" returntype="Any" hint="Runs the given command" output="true">
+	<cfargument name="beanName" type="string" required="true" default="" hint="Name of the bean you would like to call">
+	<cfargument name="methodName" type="string" required="true" default="" hint="Name of the method you would like to call">
+	<cfargument name="args" type="Struct" required="false" default="#StructNew()#" hint="Structure of arguments for the speicified call">
+	<cfargument name="appName" type="string" required="false" default="" hint="Pass in an App Name to allow the method to be exectuted from an app bean">
+	<cfargument name="softFail" type="boolean" required="false" default="false" hint="If true, will look for the BEAN even if the AppName does not exist.">
+	
+	<cfscript>
+		var result = StructNew();
+		var bean = "";
+		var errorMsg = "";
+		var errorSafeMsg = "";
+		var errorLogLabel = "";
+		var hasError = false;
+		var siteDevMode = application.ADF.siteDevMode;
+		
+		arguments.appName = TRIM(arguments.appName);
+		arguments.beanName = TRIM(arguments.beanName);
+		arguments.methodName = TRIM(arguments.methodName);
+				
+		// if there has been an app name passed through go directly to that
+		if( LEN(arguments.appName) AND !arguments.softFail )
+		{
+			if ( StructKeyExists(application, arguments.appName) )
+			{
+				if ( StructKeyExists(application[arguments.appName],arguments.beanName) )
+				{
+					bean = application[arguments.appName][arguments.beanName];
+				}
+				else
+				{
+					hasError = true;
+					errorSafeMsg = "Error: The provided appName/beanName combination were not found and could used to reference a component! Check the Error logs for more details.";		
+					errorLogMsg = "Error: The provided appName/beanName '#arguments.appName#.#arguments.beanName#' was not found and could not be used to reference a component! Attempting to call the Method: '#arguments.methodName#'";
+				}
+			}
+			else
+			{
+				hasError = true;
+				errorSafeMsg = "Error: The provided appName was not found and could not be used to reference a component! Check the Error logs for more details.";		
+				errorLogMsg = "Error: The provided appName '#arguments.appName#'  was not found and could not be used to reference a component! Attempting to call the Bean:'#arguments.beanName#' and Method: '#arguments.methodName#'";
+			}
+		}
+		else
+		{
+			// if the softFail argument is true and an appName is passed in try to use appName.beanName first
+			// - after that it will try to find a matching component object based on just the beanName 
+			// - first in the application.ADF object and then looking through the server.ADF
+			if( LEN(arguments.appName) 
+				AND StructKeyExists(application, arguments.appName)
+				AND StructKeyExists(application[arguments.appName],arguments.beanName) )
+			{
+				bean = application[arguments.appName][arguments.beanName];
+			}
+			else if ( application.ADF.objectFactory.containsBean(arguments.beanName) )
+			{
+				bean = application.ADF.objectFactory.getBean(arguments.beanName);
+			}
+			else if ( server.ADF.objectFactory.containsBean(arguments.beanName) )
+			{
+				bean = server.ADF.objectFactory.getBean(arguments.beanName);
+			}
+			else if ( StructKeyExists(application.ADF,arguments.beanName) )
+			{
+				bean = application.ADF[arguments.beanName];
+			}
+		}
+	</cfscript>
+	
+	<!--- <cfoutput>
+		#arguments.appName#.#arguments.beanName#.#arguments.methodName#<br>
+		#application.ADF.utils.doDUMP(bean,"bean",0)#<br>
+	</cfoutput> --->
+	
+	<!--- // Completely skip the cfinvoke if we already hit an error above --->
+	<cfif !hasError>
+		<cfif isObject(bean)>
+			<cftry>
+				<cfinvoke component = "#bean#"
+					  method = "#arguments.methodName#"
+					  returnVariable = "result.reData"
+					  argumentCollection = "#arguments.args#">
+				<cfcatch>
+					<cfscript>
+						hasError = true;
+						errorSafeMsg = "Error: Calling the RunCommand() method failed. Check the Error logs for more details.";
+						
+						if ( LEN(arguments.appName) ) 
+							errorLogLabel = "Error: Calling the utils.RunCommand() method failed. #arguments.appName#.#arguments.beanName#.#arguments.methodName#";
+						else
+							errorLogLabel = "Error: Calling the utils.RunCommand() method failed. #arguments.beanName#.#arguments.methodName#";
+						
+						errorLogMsg = cfcatch;
+					</cfscript>
+				</cfcatch>
+			</cftry>
+		<cfelse>
+			<cfscript>
+				hasError = true;
+				errorSafeMsg = "Error: The Bean is not an Object and could not be used as a component! Check the Error logs for more details.";
+				
+				if ( LEN(arguments.appName) ) 
+					errorLogMsg = "Error: The Bean '#arguments.appName#.#arguments.beanName#' is not an Object and could not be used as a component! Attempting to call the Method: '#arguments.methodName#'";
+				else
+					errorLogMsg = "Error: The Bean '#arguments.beanName#' is not an Object and could not be used as a component! Attempting to call the Method: '#arguments.methodName#'";
+			</cfscript>
+		</cfif>
+	</cfif>
+	
+	<cfscript>
+		if ( hasError )
+		{
+			if ( siteDevMode )
+				result.reData = errorLogMsg;
+			else
+				result.reData = errorSafeMsg;
+			
+			logAppend(msg=errorLogMsg,label=errorLogLabel,logfile='adf-run-command.html');	
+		}
+		
+		// Check to make sure the result.returnData was not destroyed by a method that returns void
+		if ( StructKeyExists(result,"reData") )
+			return result.reData;
+		else
+			return;
+	</cfscript>		 
+</cffunction>
 
 <!---
 /* *************************************************************** */
@@ -137,22 +290,25 @@ History:
 		<cfset rtn.prevlink = "">
 	</cfif>
 
-	<!--- // Complicated code to help determine which page numbers to show in pagination --->
+	<!--- // Code to help determine which page numbers to show in pagination --->
 	<cfif arguments.page LTE arguments.listLimit>
 		<cfset listStart = 2>
+		<cfset listEnd = arguments.listLimit + 1>
 	<cfelseif arguments.page GTE maxPage - (arguments.listLimit - 1)>
 		<cfset listStart = maxPage - arguments.listLimit>
+		<cfset listEnd = maxPage - 1>
 	<cfelse>
 		<cfset listStart = arguments.page - 2>
+		<cfset listEnd = arguments.page + 2>
 	</cfif>
 
-	<cfif arguments.page LTE arguments.listLimit>
+	<!-- <cfif arguments.page LTE arguments.listLimit>
 		<cfset listEnd = arguments.listLimit + 1>
 	<cfelseif arguments.page GTE maxPage - (arguments.listLimit - 1)>
 		<cfset listEnd = maxPage - 1>
 	<cfelse>
 		<cfset listEnd = arguments.page + 2>
-	</cfif>
+	</cfif> --->
 
 	<cfset rtn.pagelinks = ArrayNew(1)>
 	<cfloop from="1" to="#maxPage#" index="pg">

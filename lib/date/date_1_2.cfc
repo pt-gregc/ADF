@@ -34,7 +34,7 @@ History:
 --->
 <cfcomponent displayname="date_1_2" extends="ADF.lib.date.date_1_1" hint="Date Utils functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_1">
+<cfproperty name="version" value="1_2_2">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Date_1_2">
 	
@@ -296,10 +296,11 @@ Arguments:
 History:
 	2011-07-12 - GAC - Created
 	2013-02-28 - GAC - Moved in to the date_1_2 lib of the ADF
+	2014-12-10 - GAC - Updated the addQty parameter to have a default of 1 
 --->
 <cffunction name="getNextFirstOfWeekDate" access="public" returntype="string" output="true" hint="Returns the next first of the week date from a given date.">
 	<cfargument name="inDate" type="string" required="true">
-	<cfargument name="addQty" type="numeric" required="true">
+	<cfargument name="addQty" type="numeric" required="false" default="1">
 	<cfscript>
 		var retDate = firstDayOfWeek(arguments.inDate);
 		var addType = "ww"; // week
@@ -455,9 +456,11 @@ Arguments:
 History:
  	2009-12-11 - RLW - Created
 	2013-02-28 - GAC - Moved in to the date_1_2 lib of the ADF
+	2015-01-05 - GAC - Updated to remove the 2 years greater or less than Now() limitation
 --->
 <cffunction name="calculateMonthsYears" access="public" returntype="struct" output="true" hint="Returns the month and years (next/previous) based on the passed in date">
 	<cfargument name="inDate" type="date" required="true">
+	
 	<cfscript>
 		var dates = structNew();
 		var refDate = createDate(year(arguments.inDate), month(arguments.inDate), 1);
@@ -465,19 +468,24 @@ History:
 		// set the next and previous months
 		dates.nextMonth = month(dateadd('M',1,refDate));
 		dates.nextYear = year(dateadd('Y',1,refDate));
+		
 		// reset year if next month is january
 		if( dates.nextMonth eq 1 )
 			dates.nextYear = dates.nextYear + 1;
+			
 		dates.lastMonth = month(dateadd('M',-1,refDate));
 		dates.lastYear = year(dateadd('Y',-1,refDate));
-		// check to make sure that next/last year is not more than 2 years away
-		if( dates.nextYear gt year(dateAdd("yyyy", 2, now())) ) {
-			dates.nextYear = year(now());
-			dates.nextMonth = month(now());
+		
+		// check to make sure that next/last year is not more than 2 years away from refDate
+		if( dates.nextYear gt year(dateAdd("yyyy", 2, refDate)) ) 
+		{
+			dates.nextYear = year(dateAdd("yyyy", 2, refDate));
+			dates.nextMonth = month(refDate);
 		}
-		else if( dates.lastYear lt year(dateAdd("yyyy", -2, now())) ) {
-			dates.lastYear = year(now());
-			dates.lastMonth = month(now());
+		else if( dates.lastYear lt year(dateAdd("yyyy", -2, refDate)) ) 
+		{
+			dates.lastYear = year(dateAdd("yyyy", -2, refDate));
+			dates.lastMonth = month(refDate);
 		}
 		return dates;
 	</cfscript>

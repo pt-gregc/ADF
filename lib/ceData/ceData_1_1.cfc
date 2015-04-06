@@ -35,7 +35,7 @@ History:
 --->
 <cfcomponent displayname="ceData_1_1" extends="ADF.lib.ceData.ceData_1_0" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="1_1_11">
+<cfproperty name="version" value="1_1_12">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_1">
 <cfproperty name="wikiTitle" value="CEData_1_1">
@@ -1002,6 +1002,7 @@ Arguments:
 	logViewSQL - boolean
 History:
 	2014-04-04 - DRM - Created
+	2015-01-08 - GAC - Updated the VersionState operator in the WHERE clause from >= to be just = 2 to avoid including WIP data
 --->
 <cffunction name="_buildAggregateView" returntype="boolean" hint="Builds an element view for the passed in element name" access="private">
 	<cfargument name="formID" type="numeric" required="yes" hint="formID of element to build a view for">
@@ -1025,6 +1026,7 @@ History:
 		var indent = repeatString(chr(9), 5) & " ";
 		var createViewResult = "";
 		var logMsg = "";
+		var oper = '';
 
 		intType = dbTypeStrs.intType;
 		andNotEmptyStr = dbTypeStrs.andNotEmptyStr;
@@ -1040,12 +1042,14 @@ History:
 					dataType = arguments.fieldDatatypes[fieldNameNoFIC];
 					sql = "";
 					defaultValue = "";
+					oper = 'MAX';
+					
 					switch(dataType)
 					{
 						case "omit":
 							break;
 						case "shortText":
-							sql = "FieldValue";
+							sql = "FieldValue";							
 							break;
 						case "longText":
 							sql = dbTypeStrs.memoValueExpr;
@@ -1053,10 +1057,12 @@ History:
 						case "integer":
 							sql = "CAST(FieldValue AS #intType#)";
 							defaultValue = "0";
+							oper = 'SUM';
 							break;
 						case "float":
 							sql = "CAST(FieldValue AS DECIMAL(7,2))";
 							defaultValue = "0.0";
+							oper = 'SUM';
 							break;
 					}
 					if (dataType != "omit")
@@ -1073,7 +1079,7 @@ History:
 						if (arguments.useFICPrefix eq 0)
 							colAlias = fieldNameNoFIC;
 						colAlias = _escapeSQLReservedWord(colAlias);
-						sql = "MAX(#sql# END) AS #colAlias#,";
+						sql = "#oper#(#sql# END) AS #colAlias#,";
 						writeOutput(indent & trim(sql) & chr(10));
 					}
 				</cfscript>
@@ -1081,7 +1087,7 @@ History:
 --->					 PageID, ControlID, FormID
 			  FROM Data_FieldValue
 			 WHERE FormID = #formID#
-				AND VersionState >= 2
+				AND VersionState = 2
 				AND PageID > 0
 		 GROUP BY PageID, ControlID, FormID
 		</cfquery>
@@ -1340,7 +1346,8 @@ History:
 				result.andNotEmptyStr = " AND LENGTH(FieldValue) <> 0";
 				break;
 			case 'MySQL':
-				result.intType = "UNSIGNED";
+				// result.intType = "UNSIGNED";
+				result.intType = "SIGNED";
 				result.memoValueExpr = "MemoValue";
 				result.andNotEmptyStr = " AND LENGTH(FieldValue) <> 0";
 				break;

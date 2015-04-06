@@ -43,12 +43,13 @@ History:
 	2014-01-02 - GAC - Added the CFSETTING tag to disable CF Debug results in the props module
 	2014-01-03 - GAC - Added the fieldVersion variable
 	2014-09-19 - GAC - Removed deprecated doLabel and jsLabelUpdater js calls
+	2014-12-15 - GAC - Fixed the Default Value and the user defined expression functionality
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "2.0.1"; 
+	fieldVersion = "2.0.2"; 
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
@@ -67,18 +68,25 @@ History:
 		currentValues.rows = "4";
 	if ( not StructKeyExists(currentValues, 'wrap') )
 		currentValues.wrap = "virtual";
+	if (  not StructKeyExists(currentValues, 'resizeHandleOption') )
+		currentValues.resizeHandleOption = "default";
+		
 	if ( not StructKeyExists(currentValues, 'defaultValue') )
 		currentValues.defaultValue = '';
 	if ( not StructKeyExists(currentValues, 'useUdef') )
 		currentValues.useUdef = 0;	
-	if (  not StructKeyExists(currentValues, 'resizeHandleOption') )
-		currentValues.resizeHandleOption = "default";
+		
+	//if ( not structKeyExists(attributes.currentValues, 'useUdef') )
+	//	attributes.currentValues.useUdef = 0;
 </cfscript>
+
+<!--- <cfparam name="currentValues.useUDef" default="0">
+<cfparam name="currentValues.defaultValue" default=""> --->
 
 <cfoutput>
 	<script language="JavaScript" type="text/javascript">
 		// register the fields with global props object
-		fieldProperties['#typeid#'].paramFields = '#prefix#fldClass,#prefix#fldName,#prefix#columns,#prefix#rows,#prefix#wrap,#prefix#useUdef,#prefix#resizeHandleOption'; //,#prefix#maxLength
+		fieldProperties['#typeid#'].paramFields = '#prefix#fldClass,#prefix#fldName,#prefix#columns,#prefix#rows,#prefix#wrap,#prefix#useUdef,#prefix#resizeHandleOption,#prefix#currentDefault'; //,#prefix#maxLength
 		fieldProperties['#typeid#'].defaultValueField = '#prefix#defaultValue';
 		// allows this field to have a common onSubmit Validator
 		fieldProperties['#typeid#'].jsValidator = '#prefix#doValidate';
@@ -147,5 +155,11 @@ History:
 <cfset useTextArea = 1>
 <cfinclude template="/commonspot/metadata/form_control/input_control/default_value.cfm">
 <cfoutput>
+		<tr>
+			<td class="cs_dlgLabelSmall" colspan="2" style="font-size:7pt;">
+				<hr />
+				ADF Custom Field v#fieldVersion#
+			</td>
+		</tr>
 	</table>
 </cfoutput>

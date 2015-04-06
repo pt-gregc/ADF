@@ -37,7 +37,7 @@ History:
 --->
 <cfcomponent displayname="ceData_2_0" extends="ADF.lib.ceData.ceData_1_1" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="2_0_29">
+<cfproperty name="version" value="2_0_30">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="CEData_2_0">
 
@@ -616,6 +616,7 @@ History:
 	2014-05-30 - GAC - Changed the utils lib to load from the server getBean instead of using Application.ADF.utils
 	2014-06-05 - GAC - Updated to use the getCEViewName method instead of the DEPRECATED getViewTableName method
 	2014-10-09 - GAC - Update to use the ADF 1.8 SQL View Naming convention: "vCE_{CustomElementName}"
+	2014-12-03 - GAC - Moved the QuerySortByOrderedList method call to getCEDataViewSelected() method SINCE IT IS ONLY USED FOR queryType=SELECTED 
 --->
 <cffunction name="getCEDataView" access="public" returntype="array" output="true">
 	<cfargument name="customElementName" type="string" required="true">
@@ -743,9 +744,14 @@ History:
 			utils.dodump(exception, "CFCATCH", false);	
 		}
 	
-		if ( ceViewQry.recordCount ) {
+		if ( ceViewQry.recordCount ) 
+		{
+			// Flip the query back into the CE Data Array Format
+			dataArray = buildCEDataArrayFromQuery(ceDataQuery=ceViewQry);
+			
+			// MOVED into the getCEDataViewSelected() method ---  SINCE IT IS ONLY USED FOR queryType=SELECTED ... 
 			// Check if we are processing the selected list
-			if ( arguments.queryType EQ "selected" and len(arguments.customElementFieldName) and len(arguments.item) ) 
+			/*if ( arguments.queryType EQ "selected" and len(arguments.customElementFieldName) and len(arguments.item) ) 
 			{
 				// Order the return data by the order the list was passed in
 				// --IMPORTANT: We CAN NOT use the local 'variables.data.QuerySortByOrderedList' since this LIB is extended by the general_chooser.cfc
@@ -755,9 +761,7 @@ History:
 																								   orderList=arguments.item,
 																								   orderListDelimiter=arguments.itemListDelimiter);
 				//utils.dodump(ceViewQry, "ceViewQry", false);
-			}
-			// Flip the query back into the CE Data Array Format
-			dataArray = buildCEDataArrayFromQuery(ceDataQuery=ceViewQry);
+			}*/
 		}
 		
 		return dataArray;
@@ -1259,6 +1263,7 @@ History:
 	2014-03-05 - JTP - Var declarations
 	2014-06-05 - GAC - Updated to use the getCEViewName method instead of the DEPRECATED getViewTableName method
 	2014-10-09 - GAC - Update to use the ADF 1.8 SQL View Naming convention: "vCE_{CustomElementName}"
+	2014-11-18 - GAC - Updated to sort by the order of the selected items that are passed in (same as getCEData(queryType="selected"))
 --->
 <cffunction name="getCEDataViewSelected" access="public" returntype="Query" output="true">
 	<cfargument name="customElementName" type="string" required="true">
@@ -1297,6 +1302,7 @@ History:
 		else
 			viewTableName = getCEViewName(ceName=arguments.customElementName,type="adfversion",version=getSQLViewNameADFVersion());
 	</cfscript>
+	
 	<cftry>
 		<cfquery name="ceViewQry" datasource="#request.site.datasource#">
 			SELECT *
@@ -1316,6 +1322,21 @@ History:
 			<cfdump var="#cfcatch#" label="cfcatch" expand="false">
 		</cfcatch>
 	</cftry>
+	
+	<cfscript>
+		// Check if we are processing the selected list
+		if ( ceViewQry.RecordCount GT 1 AND len(arguments.customElementFieldName) and listlen(arguments.item,arguments.ItemListDelimiter) GT 1 ) 
+		{
+			// Order the return data by the order the list was passed in
+			// --IMPORTANT: We CAN NOT use the local 'variables.data.QuerySortByOrderedList' since this LIB is extended by the general_chooser.cfc
+			ceViewQry = server.ADF.objectFactory.getBean("data_1_2").QuerySortByOrderedList(query=ceViewQry, 
+																							   columnName=arguments.customElementFieldName, 
+																							   columnType="varchar",
+																							   orderList=arguments.item,
+																								orderListDelimiter = arguments.ItemListDelimiter);
+		} 
+	</cfscript>
+	
 	<cfreturn ceViewQry>
 </cffunction>
 
@@ -1387,6 +1408,7 @@ History:
 			<cfdump var="#cfcatch#" label="cfcatch" expand="false">
 		</cfcatch>
 	</cftry>
+	
 	<cfreturn ceViewQry>
 </cffunction>
 
@@ -1663,6 +1685,7 @@ Arguments:
 History:
 	2014-05-21 - GAC - Created
 	2014-05-30 - GAC - Added addtional logic to handle bad versions or and empty version being passed in
+	2014-11-21 - GAC - Moved the server.ADF.ojectFactory.getBean() call down in to the conditional logic
 --->
 <cffunction name="getCEViewNameMigrate" access="public" returntype="string" output="true" hint="Returns a string for the SQL view name based on the version of the ADF that is passed in">
 	<cfargument name="ceName" type="string" required="false" default="">
@@ -1671,7 +1694,7 @@ History:
 		var retFormID = 0;
 		var retViewName = "";
 		var defaultADFversion = application.ADF.version;
-		var utils = server.ADF.objectFactory.getBean("utils_1_2");
+		var utilsLib = "utils_1_2";
 		
 		arguments.ceName = TRIM(arguments.ceName);
 		arguments.adfVersion = TRIM(arguments.adfVersion);
@@ -1680,13 +1703,13 @@ History:
 			arguments.adfVersion = defaultADFversion;
 		
 		// If the passed in version is less than 1.6  then use the ADF 1.5 SQL View Name convention
-		if ( utils.versionCompare(versionA=arguments.adfVersion,versionB="1.6") LT 0 )
+		if ( server.ADF.objectFactory.getBean(utilsLib).versionCompare(versionA=arguments.adfVersion,versionB="1.6") LT 0 )
 		{
 			// Generate the view name using the ADF 1.5 SQL View Name convention
 			retViewName = getCEViewNameADF_1_5(ceName=arguments.ceName);
 		}
 		// If the passed in version is less than 1.8  then use the ADF 1.6 SQLView Name convention
-		else if (  utils.versionCompare(versionA=arguments.adfVersion,versionB="1.8") LT 0 )
+		else if (  server.ADF.objectFactory.getBean(utilsLib).versionCompare(versionA=arguments.adfVersion,versionB="1.8") LT 0 )
 		{
 			// Generate the view name using the ADF 1.6 & 1.7 SQL View Name convention
 			retViewName = getCEViewNameADF_1_6(ceName=arguments.ceName);

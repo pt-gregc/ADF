@@ -26,7 +26,7 @@ Name:
 Summary:
 	ADF Library Version XML 
 Version:
-	1.8.0
+	1.8.1
 History:
 	2011-03-19 - RLW - created
 	2011-06-24 - RLW - Added csUpload to version 1.0 and version 1.5.
@@ -185,6 +185,7 @@ History:
 		<apiElement_1_1/>
 		<apiPage_1_0/>
 		<apiKeywords_1_0/>
+		<apiTextBlock_1_0/>
 		<ccapi_2_0/>
 		<ccapiConfig_1_0/>
 		<csapi_1_0/>
@@ -193,7 +194,7 @@ History:
 		<csContent_2_0/>
 		<csSubsite_1_0/>
 		<csPage_2_0/>
-		<csData_1_2/>
+		<csData_1_3/>
 		<csSecurity_1_2/>
 		<data_1_2/>
 		<date_1_2/>

@@ -31,10 +31,11 @@ Version:
 History:
 	2014-07-25 - GAC - Created
 	2014-09-16 - GAC - Cleaned up and removed debug code
+	2015-01-09 - GAC - Updated comments and removed output=false from function tags
 --->
 <cfcomponent displayname="presaveform_1_0" extends="ADF.core.Base" hint="Pre Save Form Hook functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_1">
+<cfproperty name="version" value="1_0_2">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="PreSaveForm_1_0">
 
@@ -54,7 +55,7 @@ Arguments:
 History:
 	2014-07-07 - GAC - Added
 --->
-<cffunction name="preSaveDataCompare" access="public" output="No" returntype="struct">
+<cffunction name="preSaveDataCompare" access="public" returntype="struct">
 	<cfargument name="InputData" type="struct" required="true">
 	
 	<cfscript>
@@ -174,15 +175,17 @@ Author:
 Name:
 	$preSaveFieldDataCompare
 Summary:
-	
+	Compare data being passed in via the InputData parameter with the
+	data current stored in the field
 Returns:
 	Struct
 Arguments:
 	struct - InputData
+	String - fieldNameOrID
 History:
 	2014-07-09 - GAC - Added
 --->
-<cffunction name="preSaveFieldDataCompare" access="public" output="No" returntype="struct">
+<cffunction name="preSaveFieldDataCompare" access="public" returntype="struct">
 	<cfargument name="InputData" type="struct" required="true">
 	<cfargument name="fieldNameOrID" type="string" required="true"> 
 	

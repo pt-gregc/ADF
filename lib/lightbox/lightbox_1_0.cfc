@@ -37,7 +37,7 @@ History:
 --->
 <cfcomponent displayname="lightbox_1_0" extends="ADF.core.Base" hint="Lightbox functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_10">
+<cfproperty name="version" value="1_0_11">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_2">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
@@ -71,6 +71,7 @@ History:
 	2012-03-12 - GAC - Added logic to the reHTML error struct to check if a message key was returned
 	2013-10-18 - MS  - Updated to comment out the verbose error messages which caused security issues
 	2013-10-19 - GAC - Updated to use application.ADF.siteDevMode to control the verbose error msgs
+	2014-10-15 - GAC - Set the application.ADF.stieDevMode to a local stieDevMode variable
 --->
 <!--- // ATTENTION: 
 		Do not call is method directly. Call from inside the LightboxProxy.cfm file  (method properties are subject to change)
@@ -92,6 +93,7 @@ History:
 		var argExcludeList = "bean,method,appName,forceScripts,addLBHeaderFooter,addMainTable,debug";
 		// Verify if the bean and method combo are allowed to be accessed through the ajax proxy
 		var passedSecurity = false;
+		var siteDevMode = application.ADF.siteDevMode;
 		
 		// Initalize the reHTML key of the local struct
 		result.reHTML = "";
@@ -125,7 +127,7 @@ History:
 					result.reHTML = e;
 				}	
 				// Build the DUMP for debugging the RAW value of reHTML
-				if ( debug AND application.ADF.siteDevMode ) {
+				if ( debug AND siteDevMode ) {
 					// If the variable reHTML doesn't exist set the debug output to the string: void 
 					if ( !StructKeyExists(result,"reHTML") ){reDebugRaw="void";}else{reDebugRaw=result.reHTML;}
 						reDebugRaw = variables.utils.doDump(reDebugRaw,"DEBUG OUTPUT",1,1);
@@ -139,7 +141,7 @@ History:
 							AND structKeyExists(result.reHTML,"ErrNumber") 
 							AND structKeyExists(result.reHTML,"StackTrace") ) {
 						hasError = 1;
-						if ( application.ADF.siteDevMode )
+						if ( siteDevMode )
 							result.reHTML = "Error: " & result.reHTML.message;
 						else
 							result.reHTML = "Error: A request processing error occurred.";
@@ -147,7 +149,7 @@ History:
 					else if ( isStruct(result.reHTML) or isArray(result.reHTML) or isObject(result.reHTML) ) {
 						hasError = 1;
 						// 2012-03-10 - GAC - we need to check if we have a 'message' before we can output it
-						if ( StructKeyExists(result.reHTML,"message") AND application.ADF.siteDevMode )
+						if ( StructKeyExists(result.reHTML,"message") AND siteDevMode )
 							result.reHTML = "Error: Unable to convert the return value into string [" & result.reHTML.message & "]";
 						else
 							result.reHTML = "Error: Unable to convert the return value into string.";
@@ -162,7 +164,7 @@ History:
 			else {
 				// Show error since the bean and/or method are not in the proxyWhiteList.xml file
 				hasError = 1;
-				if ( !application.ADF.siteDevMode ) {
+				if ( !siteDevMode ) {
 					result.reHTML = "Error: The request is not accessible remotely via Lightbox Proxy.";	
 				}		
 				else {
@@ -173,7 +175,7 @@ History:
 				}
 			}
 			// pass the debug dumps to the result.reHTML for output
-			if ( debug AND application.ADF.siteDevMode ) {
+			if ( debug AND siteDevMode ) {
 				if ( hasError )
 					result.reHTML = result.reHTML & reDebugRaw;
 				else

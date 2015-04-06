@@ -31,10 +31,12 @@ Version:
 History:
 	2013-12-09 - MFC - Created
 	2014-08-04 - GAC - Added new methods getCEFieldID and getCEFieldName
+	2015-02-06 - GAC - Added the new method renderHiddenControlsFromQueryString
+	2015-02-24 - GAC - Added the new method renderHiddenControlsFromRequestParams
 --->
 <cfcomponent displayname="fields_1_0" extends="ADF.core.Base" hint="Custom Field Type functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_2">
+<cfproperty name="version" value="1_0_4">
 <cfproperty name="type" value="transient">
 <cfproperty name="wikiTitle" value="Fields_1_0">
 
@@ -406,6 +408,126 @@ History:
 			fieldName = ReplaceNoCase( qry.FieldName, 'FIC_', '', 'ALL' );
 		
 		return fieldName;
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$renderHiddenControlsFromQueryString
+Summary:
+	Renders hidden input controls based on the url query string
+Returns:
+	String 
+Arguments:
+	String queryString
+	String excludedParamList
+	Boolean preventDups 
+	String tagClass
+	String tagIDprefix
+Usage:
+	renderHiddenControlsFromQueryString(URLparams,excludedParamList,preventDups)
+History:
+	2015-02-04 - GAC - Created
+	2015-02-18 - GAC - Added a delimiter between the tagIDprefix and the KEY for the input tag ID
+	2015-02-24 - GAC - Rename the excludedKeyList parameter to excludedParamList for consistency
+					 - Moved all of the rendering code and logic to the renderHiddenControlsFromRequestParams() method
+ --->
+<cffunction name="renderHiddenControlsFromQueryString" returntype="string" access="public" hint="Render hidden input controls based on a url query string">
+	<cfargument name="queryString" type="string" required="false" default="#Request.CGIVars.QUERY_STRING#" hint="URL query sting to parse">
+	<cfargument name="excludedParamList" type="string" required="false" default="" hint="The query param key list for controls that should NOT rendered has hidden input controls.">
+	<cfargument name="preventDups" type="boolean" required="false" default="true" hint="Set to true to prevent duplicate hidden input controls.">
+	<cfargument name="tagClass" type="string" required="false" default="" hint="A class or space delimited list of classes to be added to the input control.">
+ 	<cfargument name="tagIDprefix" type="string" required="false" default="" hint="A prefix to be added key to make the ID for the input control unique on the form.">
+	
+	<cfscript>
+		var qParamData = application.ADF.data.queryStringToStruct(inString=arguments.queryString);
+
+		return renderHiddenControlsFromRequestParams(paramsStruct=qParamData,
+														excludedParamList=arguments.excludedParamList,
+														preventDups=arguments.preventDups,
+														tagClass=arguments.tagClass,
+														tagIDprefix=arguments.tagIDprefix);
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$renderHiddenControlsFromRequestParams
+Summary:
+	Render hidden input controls based on the request.params url and form param struct
+Returns:
+	String 
+Arguments:
+	Struct paramsStruct
+	String allowedParamList 
+	String excludedKeyList
+	Boolean preventDups 
+	String tagClass
+	String tagIDprefix
+Usage:
+	renderHiddenControlsFromRequestParams(paramsStruct,allowedParamList,excludedParamList,preventDups,tagClass,tagIDprefix)
+History:
+	2015-02-24 - GAC - Created
+ --->
+<cffunction name="renderHiddenControlsFromRequestParams" returntype="string" access="public" hint="Render hidden input controls based on the request.params data url and form param struct">
+	<cfargument name="paramsStruct" type="struct" required="false" default="#request.params#" hint="request.params data structure to parse">
+	<cfargument name="allowedParamList" type="string" required="false" default="" hint="A comma-delimited list of allowed query or form params that should be rendered as hidden input controls. If empty all params will be allowed.">
+	<cfargument name="excludedParamList" type="string" required="false" default="" hint="A comma-delimited list of query or form params that should NOT rendered has hidden input controls.">
+	<cfargument name="preventDups" type="boolean" required="false" default="true" hint="Set to true to prevent duplicate hidden input controls.">
+	<cfargument name="tagClass" type="string" required="false" default="" hint="A class or space delimited list of classes to be added to the input control.">
+ 	<cfargument name="tagIDprefix" type="string" required="false" default="" hint="A prefix to be added key to make the ID for the input control unique on the form.">
+	
+	<cfscript>
+		var retHTML = "";
+		var paramsData = StructNew();
+		var aKey = "";
+		var pKey = "";
+		var pValue = "";
+		var paramDupList = "";
+		
+		// Rebuild the paramData struct will only the allowed params
+		// !!! if no allowed params are passed, then allow the whole request.params struct to pass through !!!
+		if ( ListLen(arguments.allowedParamList) EQ 0 )
+			paramsData = arguments.paramsStruct;
+		else
+	   	{
+		   	for ( aKey IN arguments.paramsStruct )
+			{
+				if ( ListFindNoCase(arguments.allowedParamList,aKey,",") )	
+					paramsData[aKey] = arguments.paramsStruct[aKey]; 
+			}
+	   	}
+		
+		// Loop over the paramData from request.Params
+		for ( pKey IN paramsData ) 
+		{
+			pValue = paramsData[pKey];
+			if ( LEN(TRIM(pValue)) 
+				AND ListFindNoCase(arguments.excludedParamList,pKey,",") EQ 0 
+				AND ListFindNoCase(paramDupList,pKey) EQ 0 )
+			{
+				retHTML = retHTML & '<input type="hidden" name="#pKey#" value="#pValue#"';
+				if ( LEN(TRIM(arguments.tagIDprefix)) )
+					retHTML = retHTML & ' id="#tagIDprefix#_#pKey#"';
+				else
+					retHTML = retHTML & ' id="#pKey#"';
+				if ( LEN(TRIM(arguments.tagClass)) )
+					retHTML = retHTML & ' class="#arguments.tagClass#"';
+				retHTML = retHTML & ' />';
+				
+				// Build a key list so we can check for and prevent dups
+				if ( arguments.preventDups )
+					paramDupList = ListAppend(paramDupList,pKey);
+			}
+		}
+		
+		return retHTML;
 	</cfscript>
 </cffunction>
 

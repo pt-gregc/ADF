@@ -32,11 +32,12 @@ History:
 	2013-10-21 - GAC - Added 'file-version' property for ADF core files 
 	2014-02-26 - GAC - Updated for version 1.7.0
 	2014-10-07 - GAC - Updated for version 1.8.0
+	2014-12-03 - GAC - Updates for Adobe ColdFusion 11 compatibility
 --->
 <cfcomponent name="Config" hint="Config component for Application Development Framework" extends="ADF.core.Base">
 
-<cfproperty name="version" value="1_8_0">
-<cfproperty name="file-version" value="3">
+<cfproperty name="version" value="1_8_1">
+<cfproperty name="file-version" value="4">
 	
 <!---
 /* *************************************************************** */
@@ -56,6 +57,7 @@ History:
 	2011-03-20 - RLW - Modified to use the new deserializeXML function loaded into Base.
 	2013-01-23 - MFC - Added ADF Build Error handling.
 	2014-03-05 - JTP - Var declarations
+	2014-12-03 - GAC - Updated to use the renamed deserializeXMLstring method due to conflict with new CF11 deserializeXML function
 --->
 <cffunction name="getConfigViaXML" access="public" returntype="struct" output="true">
 	<cfargument name="filePath" type="string" required="true">
@@ -85,7 +87,7 @@ History:
 			<cffile action="read" file="#configPath#" variable="configXML">
 		</cfif>
 		<cftry>
-			<cfset configStruct = deserializeXML(configXML)>
+			<cfset configStruct = deserializeXMLstring(XMLString=configXML)>
 			<cfcatch>
 				<!--- // TODO: this needs some error catching --->
 				<!--- <cfdump var="#cfcatch#" lablel="cfcatch" expand="false"> --->

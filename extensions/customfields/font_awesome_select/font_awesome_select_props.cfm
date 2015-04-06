@@ -31,6 +31,7 @@ Version:
 History:
 	2014-09-15 - Created
 	2014-09-29 - GAC - Added an updated list of icon classes and code via a FileRead of a CSV file 
+	2014-12-03 - GAC - Updated to fix for bad version folder "Major.Minor.Maintenance" for thirdParty folder. Now is only "Major.Minor" version folder.
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
@@ -42,7 +43,7 @@ History:
 //writedump( var="#currentValues#", expand="no" );
 	
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "1.0.1"; 
+	fieldVersion = "1.0.2"; 
 	
 	// initialize some of the attributes variables
 	showSize = 0;
@@ -50,8 +51,9 @@ History:
 	showBorder = 0;
 	showSpin = 0;
 	showPull = 0;
+	iconDataFile = "";
 	
-	defaultFAversion = "4.2.0";	
+	defaultFAversion = "4.2";	
 	// Default file path to the CSV file that contain the icon class name and codes
 	defaultIconDataFile = "/ADF/thirdParty/css/font-awesome/#defaultFAversion#/data/icon-data.csv";
 	
@@ -68,8 +70,11 @@ History:
 		
 	if( StructKeyExists(currentValues, "iconDataFile") AND LEN(TRIM(currentValues.iconDataFile)) )	
 		iconDataFile = currentValues.iconDataFile;
-	else
-		iconDataFile = defaultIconDataFile;
+		
+	// Fix for bad version folder "Major.Minor.Maintenance". Should only be "Major.Minor" version.
+	// - If the "4.2.0" folder is found, set to {blank} to use the default value in the render file
+	if ( FindNoCase("/ADF/thirdParty/css/font-awesome/4.2.0/",iconDataFile) ) 	
+		iconDataFile = ""; 	
 </cfscript>
 
 <cfoutput>
@@ -91,9 +96,15 @@ History:
 			<td class="cs_dlgLabelSmall" nowrap="nowrap" valign="top">Icon Data File (csv):</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#iconDataFile" id="#prefix#iconDataFile" class="cs_dlgControl" value="#iconDataFile#" size="60">
-				<br/>Specify a relative path to a comma-delimited icon data file.
+				<br/>Specify a relative path to a comma-delimited (.csv) override icon data file.
 				<br/>If left blank, will use the default Icon data file.
-				<!--- <br/>Default Icon Data File Path: #defaultIconDataFile# --->
+				<br/>(<em>Default: #defaultIconDataFile#</em> )
+			</td>
+		</tr>
+		<tr>
+			<td class="cs_dlgLabelSmall" colspan="2" style="font-size:7pt;">
+				<hr noshade="noshade" size="1" align="center" width="98%" />
+				ADF Custom Field v#fieldVersion#
 			</td>
 		</tr>
 	</table>
