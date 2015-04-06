@@ -34,10 +34,11 @@ History:
 	2015-01-09 - GAC - Added CMD API versions of the Metadata functions that return standard and custom metadata 
 					   from CS Pages, Registered URLs and Uploaded Documents
 	2015-01-13 - GAC - Added getCSObjectStandardMetadata
+	2015-04-06 - GAC - Added getUploadedDocFileSize and getUploadedDocServerPath
 --->
 <cfcomponent displayname="csData_1_3" extends="ADF.lib.csData.csData_1_2" hint="CommonSpot Data Utils functions for the ADF Library">
 
-<cfproperty name="version" value="1_3_4">
+<cfproperty name="version" value="1_3_5">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">
@@ -150,12 +151,14 @@ Usage:
 History:
 	2014-07-23 - GAC - Created 
 	2015-03-02 - GAC - Updated to query the SitePages db directly due to CMD API limitation
+	2015-04-02 - GAC - Updated to var the pageQry variable
 --->
 <cffunction name="getCSObjectType" returntype="string" access="public" hint="Returns the commonspot object type from a pageid">
 	<cfargument name="csPageID" type="numeric" required="true" hint="a commonspot pageid">
 	
 	<cfscript>
 		var retStr = "";
+		var pageQry = QueryNew("temp");
 	</cfscript>
 	
 	<cfif arguments.csPageID GT 0 >
@@ -369,6 +372,105 @@ History:
 			retMetadata = contentComponent.getMetadata(pageID=arguments.csPageID);
 
 		return retMetadata;
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+	Greg Cronkright
+Name:
+	$getUploadedDocServerPath
+Summary:
+	Returns a commonspot uploaded document actual server file path
+Returns:
+	string
+Arguments:
+	Numeric csPageID
+Usage:
+	application.ADF.csData.getUploadedDocServerPath(csPageID)
+History:
+	2015-04-02 - GAC - Created 
+--->
+<cffunction name="getUploadedDocServerPath" returntype="string" access="public" hint="Returns a commonspot uploaded document actual server file path">
+	<cfargument name="csPageID" type="numeric" required="true" hint="a commonspot pageid">
+	
+	<cfscript>
+		var retStr = "";
+		var pageQry = QueryNew("temp");
+		var subsiteURL = "/";
+		var fileName = "";
+		var uploadDir  = request.subsiteCache[1].UploadDir;
+		var fileServerPath = "";
+	</cfscript>
+
+	<cfif arguments.csPageID GT 0 >
+		<cfquery name="pageQry" datasource="#request.site.datasource#">
+		   SELECT FileName, SubSiteID
+			FROM  sitePages
+			WHERE Uploaded = <cfqueryparam cfsqltype="cf_sql_bit" value="1">
+			AND	  pageType = <cfqueryparam cfsqltype="cf_sql_bit" value="0">
+			AND   ID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.csPageID#">
+			
+			<!--- SELECT * 
+			FROM UploadedDocs
+			AND  ID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.csPageID#">
+			AND VersionState = <cfqueryparam cfsqltype="cf_sql_integer" value="2"> --->
+		</cfquery>
+	</cfif>
+	
+	<cfscript>
+		if ( pageQry.RecordCount )
+		{
+			if ( IsNumeric(pageQry.SubSiteID[1]) AND pageQry.SubSiteID[1] GT 0 )
+				subsiteURL = getSubsiteURLbySubsiteID(subsiteID=pageQry.SubSiteID[1]);
+		
+			if ( LEN(TRIM(pageQry.FileName[1])) )
+				fileName = pageQry.FileName;
+			
+			fileServerPath = uploadDir & subsiteURL & pageQry.FileName;
+			
+			if ( FileExists(fileServerPath) )
+				retStr = fileServerPath;
+		}
+		return retStr;
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+	Greg Cronkright
+Name:
+	$getUploadedDocFileSize
+Summary:
+	Returns a commonspot uploaded document file size
+Returns:
+	struct
+Arguments:
+	Numeric csPageID
+Usage:
+	application.ADF.csData.getUploadedDocFileSize(csPageID)
+History:
+	2015-04-02 - GAC - Created 
+--->
+<cffunction name="getUploadedDocFileSize" returntype="numeric" access="public" hint="Returns a commonspot uploaded document file size">
+	<cfargument name="csPageID" type="numeric" required="true" hint="a commonspot pageid">
+	
+	<cfscript>
+		var retVal = 0;
+		var fileServerPath = getUploadedDocServerPath(csPageID=arguments.csPageID);
+		var fileInfoData = StructNew();
+		
+		if ( LEN(TRIM(fileServerPath)) )
+			fileInfoData = GetFileInfo(fileServerPath);
+		
+		if ( StructKeyExists(fileInfoData,"size") AND IsNumeric(fileInfoData.size) )
+			retVal = fileInfoData.size;
+			
+		return retVal;
 	</cfscript>
 </cffunction>
 
