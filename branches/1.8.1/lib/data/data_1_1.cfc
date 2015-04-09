@@ -34,7 +34,7 @@ History:
 --->
 <cfcomponent displayname="data_1_1" extends="ADF.lib.data.data_1_0" hint="Data Utils component functions for the ADF Library">
 
-<cfproperty name="version" value="1_1_4">
+<cfproperty name="version" value="1_1_5">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Data_1_1">
 
@@ -55,6 +55,8 @@ Arguments:
 	colsList - string
 	LCaseNames - boolean
 	targetStruct - struct
+Usage:
+	application.ADF.data.queryRowToStruct(query,rowNum,colsList,LCaseNames,targetStruct)
 History:
 	2010-11-17 - RAK - Brought in Dave Merril's queryRowToStruct for use in ADF
 --->
