@@ -15,7 +15,7 @@ History:
 <!--- // Attempt to process the element that is being saved --->
 <cfscript>
 	enableLogging = false; 	// set to true for debug logging
-	dumpLogFileName = "post-save-form-hook.html";
+	dumpLogFileName = "_post-save-form-hook.html";
 	
 	if ( enableLogging )
 		application.ADF.utils.logAppend(msg=attributes, label='attributes', logfile=dumpLogFileName);
