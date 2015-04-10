@@ -862,7 +862,7 @@ History:
 	<cfargument name="dataRecords" type="query" required="true" hint="Query containing the data records">
 	<cfargument name="fieldMapStruct" type="struct" required="true" hint="Structure containing the field types mapping details for the fields">
 	<cfargument name="fieldOrderList" type="string" required="true" hint="Order in which the fields need to be returned">
-	<cfargument name="fieldPermission" type="numeric" required="true" hint="Number indicating user permission on the field; 0 = hidden, 1=readonly, 2=edit">
+	<cfargument name="displayMode" type="string" required="true" hint="String indicating display mode for the field. Possible values - hidden, readonly, editable">
 		
 	<cfscript>
 		var inputPropStruct = arguments.propertiesStruct;
@@ -896,7 +896,7 @@ History:
 		<cfloop query="childData">
 			<cfset renderData = ''>
 			<cfif (ListFindNoCase(inputPropStruct.interfaceOptions,'editAssoc') OR ListFindNoCase(inputPropStruct.interfaceOptions,'editChild') OR ListFindNoCase(inputPropStruct.interfaceOptions,'delete'))
-				AND arguments.fieldPermission EQ 2>	
+				AND arguments.displayMode EQ "editable">	
 				<cfsavecontent variable="renderData">
 					<cfscript>
 						// this will output the content
@@ -1743,7 +1743,7 @@ History:
 	<cfargument name="propertiesStruct" type="any" required="true" hint="Properties structure for the field in json format"> <!--- // TODO: Update to type="struct" --->
 	<cfargument name="currentValues" type="any" required="true" hint="Current values structure for the field in json format"> <!--- // TODO: Update to type="struct" --->
 	<cfargument name="fieldID" type="numeric" required="true" hint="ID of the field">
-	<cfargument name="fieldPermission" type="numeric" required="true" hint="Number indicating user permission on the field; 0 = hidden, 1=readonly, 2=edit">
+	<cfargument name="displayMode" type="string" required="true" hint="String indicating display mode for the field. Possible values - hidden, readonly, editable">
 	<cfargument name="parentFormType" type="string" required="false" default="CustomElement" hint="Type of the form">
 	<cfargument name="pageID" type="string" required="false" default="0" hint="Page id of the current page; used only when datamanager is used in a metadata form">
 
@@ -1783,7 +1783,7 @@ History:
 														dataRecords=dataRecords.qry,
 														fieldMapStruct=dataRecords.fieldMapStruct,
 														fieldOrderList=dataRecords.fieldOrderList,
-														fieldPermission=arguments.fieldPermission);
+														displayMode=arguments.displayMode);
 														
 														
 			//application.ADF.utils.doDUMP(displayData,"displayData",1);
