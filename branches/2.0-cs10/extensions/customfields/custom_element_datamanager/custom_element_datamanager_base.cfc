@@ -51,6 +51,7 @@ History:
 	2015-02-10 - DJM - Added code fix the issue when parent linked value has '&' in it
 	2015-04-02 - DJM - Modified getDisplayData() code to always return the Actions column
 	2015-04-02 - DJM - Modified code for CS Extended URL to compare with just the pageID value instead of the whole value stored in DB
+	2015-04-10 - DJM - Added code to check for field permission for setting up Action controls in getDisplayData()
 --->
 <cfcomponent output="false" displayname="custom element datamanager_base" extends="ADF.core.Base" hint="This the base component for the Custom Element Data Manager field">
 	
@@ -861,6 +862,7 @@ History:
 	<cfargument name="dataRecords" type="query" required="true" hint="Query containing the data records">
 	<cfargument name="fieldMapStruct" type="struct" required="true" hint="Structure containing the field types mapping details for the fields">
 	<cfargument name="fieldOrderList" type="string" required="true" hint="Order in which the fields need to be returned">
+	<cfargument name="fieldPermission" type="numeric" required="true" hint="Number indicating user permission on the field; 0 = hidden, 1=readonly, 2=edit">
 		
 	<cfscript>
 		var inputPropStruct = arguments.propertiesStruct;
@@ -891,8 +893,10 @@ History:
 	</cfscript>
 		
 	<cftry>			
-		<cfloop query="childData">			
-			<cfif ListFindNoCase(inputPropStruct.interfaceOptions,'editAssoc') OR ListFindNoCase(inputPropStruct.interfaceOptions,'editChild') OR ListFindNoCase(inputPropStruct.interfaceOptions,'delete')>	
+		<cfloop query="childData">
+			<cfset renderData = ''>
+			<cfif (ListFindNoCase(inputPropStruct.interfaceOptions,'editAssoc') OR ListFindNoCase(inputPropStruct.interfaceOptions,'editChild') OR ListFindNoCase(inputPropStruct.interfaceOptions,'delete'))
+				AND arguments.fieldPermission EQ 2>	
 				<cfsavecontent variable="renderData">
 					<cfscript>
 						// this will output the content
@@ -904,13 +908,11 @@ History:
 																				childDataControlID=ChildData.ChildDataControlID);
 					</cfscript>
 				</cfsavecontent>
-				
-				<cfscript>
-					actionColumnArray[childData.currentRow] = renderData;
-				</cfscript>
 			</cfif>	
 				
 			<cfscript>
+				actionColumnArray[childData.currentRow] = renderData;
+				
 				for(i=1;i LTE ArrayLen(dataColumnArray);i=i+1)
 				{
 					col = dataColumnArray[i];
@@ -996,9 +998,13 @@ History:
 					if( pos )
 						dataColumnList_new = ListSetAt( dataColumnList_new, pos, str & '_converted' );
 				}
+				QueryAddColumn(childData, 'Actions', 'varchar', actionColumnArray);
+			}
+			else
+			{
+				QueryAddColumn(childData, 'Actions', actionColumnArray);
 			}
 			
-			QueryAddColumn(childData, 'Actions', 'varchar', actionColumnArray);
 			dataColumnList_new = ListPrepend(dataColumnList_new, 'Actions');
 			// Logit('datacolumnlist:[#dataColumnList_new#]');	// Actions,AssocDataPageID,ChildDataPageID,ID,Name,ParentID 				
 		</cfscript>
@@ -1737,6 +1743,7 @@ History:
 	<cfargument name="propertiesStruct" type="any" required="true" hint="Properties structure for the field in json format"> <!--- // TODO: Update to type="struct" --->
 	<cfargument name="currentValues" type="any" required="true" hint="Current values structure for the field in json format"> <!--- // TODO: Update to type="struct" --->
 	<cfargument name="fieldID" type="numeric" required="true" hint="ID of the field">
+	<cfargument name="fieldPermission" type="numeric" required="true" hint="Number indicating user permission on the field; 0 = hidden, 1=readonly, 2=edit">
 	<cfargument name="parentFormType" type="string" required="false" default="CustomElement" hint="Type of the form">
 	<cfargument name="pageID" type="string" required="false" default="0" hint="Page id of the current page; used only when datamanager is used in a metadata form">
 
@@ -1775,7 +1782,8 @@ History:
 														propertiesStruct=inputPropStruct,
 														dataRecords=dataRecords.qry,
 														fieldMapStruct=dataRecords.fieldMapStruct,
-														fieldOrderList=dataRecords.fieldOrderList);
+														fieldOrderList=dataRecords.fieldOrderList,
+														fieldPermission=arguments.fieldPermission);
 														
 														
 			//application.ADF.utils.doDUMP(displayData,"displayData",1);
