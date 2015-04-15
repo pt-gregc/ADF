@@ -50,8 +50,9 @@ History:
 	2015-04-02 - DJM - Modified code to handle show/hide of Actions column returned
 	2015-04-10 - DJM - Added code to check for field permission for rendering controls
 	2015-04-10 - DJM - Converted to CFC
+	2015-04-15 - DJM - Moved ADF renderer base and updated the extends parameter
 --->
-<cfcomponent displayName="CustomElementDataManager Render" extends="ADF.extensions.adf-form-field-renderer-base">
+<cfcomponent displayName="CustomElementDataManager Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
 <cffunction name="renderControl" returntype="void" access="public">
 	<cfargument name="fieldName" type="string" required="yes">

@@ -37,8 +37,9 @@ History:
 	2014-04-03 - JTP - Made root node expand when initially opening
 	2014-01-09 - GAC - Updated to load initially selected nodes until after the tree has completely loaded
 	2015-04-10 - DJM - Converted to CFC
+	2015-04-15 - DJM - Moved ADF renderer base and updated the extends parameter
 --->
-<cfcomponent displayName="CustomElementHierarchySelector Render" extends="ADF.extensions.adf-form-field-renderer-base">
+<cfcomponent displayName="CustomElementHierarchySelector Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
 <cffunction name="renderControl" returntype="void" access="public">
 	<cfargument name="fieldName" type="string" required="yes">
