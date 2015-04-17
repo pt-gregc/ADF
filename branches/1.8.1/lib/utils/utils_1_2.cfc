@@ -687,7 +687,7 @@ History:
 		
 		try
 		{
-			dataTemp = Evaluate(arguments.dumpVarStr); // Evalute the passed in variable // TODO: We need to find a better way to do this!
+			dataTemp = Evaluate(arguments.dumpVarStr); // Evaluate the passed in variable // TODO: We need to find a better way to do this!
 			retError = false;
 		}
 		catch ( any e )
