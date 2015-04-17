@@ -106,6 +106,8 @@ History:
 		<!--- // The following is unchanged during the 2010-10-29 refractor --->
 		<cfscript>
 			adfDumpMsg = "";
+			/* [SFS] - 2015-03-20 - Added inline style to resolve display issue with Railo 4.2.1 and a site that is using Bootstrap in its site design */
+			adfDumpMsg = "<style>.label{color: ##000000;display: table-cell;font-size: 11px;font-weight: normal;}</style>";
 			if ( StructKeyExists(url,"ADFDumpVar")) {
 				// Verify if the ADF dump var exists
 				// [MFC] - Changed "isDefined" to "LEN"
@@ -120,9 +122,9 @@ History:
 					adfDumpVarData = utilsObj.processADFDumpVar(dumpVarStr=url.ADFDumpVar,sanitize=true);
 					// [GAC] 2014-05-27 - Dump the processed ADFdumpVar data 
 					if ( IsSimpleValue(adfDumpVarData) )
-						adfDumpMsg = utilsObj.dodump(adfDumpVarData, url.ADFDumpVar, true, true);
+						adfDumpMsg = adfDumpMsg & utilsObj.dodump(adfDumpVarData, url.ADFDumpVar, true, true);
 					else
-						adfDumpMsg = utilsObj.dodump(adfDumpVarData, url.ADFDumpVar, false, true);
+						adfDumpMsg = adfDumpMsg & utilsObj.dodump(adfDumpVarData, url.ADFDumpVar, false, true);
 				}
 				else {
 					// 2012-01-10 - MFC - Added span tag with ID around the reset message.
