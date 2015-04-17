@@ -42,12 +42,13 @@ History:
 	2014-05-27 - GAC - Added a ADFdumpVar processing method call to help with securing the rendered output
 					 - Added the ADF and fileVersion local variables
 					 - Added the label to simple value dumps
+	2015-03-20 - SFS - Added inline style to resolve display issue with Railo 4.2.1 and a site that is using Bootstrap in its site design
  --->
 <!--- // Lock around the entire load ADF processing --->
 <cflock timeout="300" type="exclusive" name="ADF-RESET-LOAD-SITE">
 	<cfscript>
 		adfVersion = "1.8.1";
-		adfFileVersion = "13"; 
+		adfFileVersion = "14";
 		
 		// Initialize the RESET TYPE variable
 		// Determine what kind of reset is needed (if any)
