@@ -14,6 +14,10 @@
 	variables.listFormatsXMLFile = "listFormats"; // file where all of the formats are defined in editor
 	variables.listFormatsXMLFilePath = "#variables.cftPath#";
 	variables.columnList = ""; // columns from the source customElement.
+	
+	// CFT Style File Path variables
+	variables.cftStyleFilePath = variables.cftPath & "/object_list_builder_styles.css";
+	variables.cftListFormatFilePath = variables.cftPath & "/plugins/listformat/css/listformat.css";
 </cfscript>
 
 <!------------------------------------------------------>	
@@ -317,22 +321,54 @@
 	</cftry>		
 </cffunction>
 
-
 <cffunction name="renderStyles" access="public" returntype="any" hint="Method to render the styles for object list builder.">		
+	<cfscript>
+		var renderData = '';
+		var styleFilePath = "/object_list_builder_styles.css";
+		var listFormatFilePath = "/plugins/listformat/css/listformat.css";
+
+		// Set defaults if these variables are not set
+		if ( StructKeyExists(variables,"jqueryUItheme") )
+			variables.jqueryUItheme = "ui-lightness";
+		if ( StructKeyExists(variables,"cftStyleFilePath") )
+			variables.cftStyleFilePath = variables.cftPath & styleFilePath;
+		if ( StructKeyExists(variables,"cftListFormatFilePath") )
+			variables.cftListFormatFilePath = variables.cftPath & listFormatFilePath;
+	</cfscript>
+	<cfsavecontent variable="renderData">
+		<cfoutput>#application.ADF.scripts.loadJQueryUIstyles(themeName=variables.jqueryUItheme)#
+		<link rel="stylesheet" type="text/css" href="#variables.cftStyleFilePath#" />
+		<link rel="stylesheet" type="text/css" href="#variables.cftListFormatFilePath#" />
+		</cfoutput>
+	</cfsavecontent>
+	<cfoutput>#renderData#</cfoutput>
+</cffunction>
+<!--- <cffunction name="renderStyles" access="public" returntype="any" hint="Method to render the styles for object list builder.">		
 	<cfscript>
 		var renderData = '';
 	</cfscript>
 	<cfsavecontent variable="renderData">
 		<cfoutput><link href="http://code.jquery.com/ui/1.10.4/themes/ui-lightness/jquery-ui.css" rel="stylesheet">
 		<link rel="stylesheet" type="text/css" href="#variables.cftPath#/object_list_builder_styles.css" />
-		<link rel="stylesheet" type="text/css" href="/ADF/extensions/customfields/object_list_builder/plugins/listformat/css/listformat.css" />		
+		<link rel="stylesheet" type="text/css" href="/ADF/extensions/customfields/object_list_builder/plugins/listformat/css/listformat.css" />	
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>#renderData#</cfoutput>
-</cffunction>
-		
-		
+</cffunction> --->
+
 <cffunction name="renderJS" access="public" returntype="any" hint="Method to render the styles for object list builder.">		
+	<cfscript>
+		var renderData = '';
+	</cfscript>
+	<cfsavecontent variable="renderData">
+		#application.ADF.scripts.loadTypeAheadBundle()#
+		#application.ADF.scripts.loadCKEditor()#
+		<!--- <cfoutput><script type="text/javascript" src="#variables.cftPath#/jquery/typeahead/typeahead.bundle.js"></script>
+		<script type="text/javascript" src="//cdn.ckeditor.com/4.4.6/full/ckeditor.js"></script></cfoutput> --->
+	</cfsavecontent>
+	<cfoutput>#renderData#</cfoutput>
+</cffunction>
+<!--- <cffunction name="renderJS" access="public" returntype="any" hint="Method to render the styles for object list builder.">		
 	<cfscript>
 		var renderData = '';
 	</cfscript>
@@ -341,8 +377,6 @@
 		<script type="text/javascript" src="//cdn.ckeditor.com/4.4.6/full/ckeditor.js"></script></cfoutput>
 	</cfsavecontent>
 	<cfoutput>#renderData#</cfoutput>
-</cffunction>
+</cffunction> --->
 
-
-	
 </cfcomponent>

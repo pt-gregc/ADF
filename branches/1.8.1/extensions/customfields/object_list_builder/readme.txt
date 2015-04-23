@@ -43,28 +43,37 @@
 		isDefault - boolean flag indicating if this format should be the default format
 		wrapperTag - used by ckEditor. ckEditor generates valid HTML and if you put tags like H1-H6 or any block level tags, make sure the wrapperTag is also a block level tag. Default wrapperTag is Div.
 
-6. Open object_list_builder_base.cfc and supply values for the following:
+6. Create a configuration component in your site's "/_cs_apps/components/" directory
+		Name this component based on your Global Custom Element (Eg. courseListBuilder.cfc) 
+		Set the the CFCs extends to: extends="ADF.lib.fields.objectListBuilder_1_0"
+		Create a <cfscript> block at the top of the configuration component
+		Add the follow following variables and set values for each:
 
-		variables.cftPath  // path to the ObjectListBuilder custom element Eg: "/ADF/extensions/customfields/object_list_builder";
-		variables.ceID // ID of source customElement Eg: 4032;
-		variables.customElement // Name of the source customElement Eg: "courseRecords";
-		variables.searchFields // Searchable fields in source customElement, used by bloodhound and typeahead in the ObjectListBuilder dialog Eg: "CourseID,CourseInstructor,CourseTitle";
-		variables.IDField // UniqueID in the source customElement Eg: "CourseID";
-		variables.orderByClause // source customElement column. This should be present in variables.columnList and variables.searchFields Eg: "CourseTitle ASC";
-		variables.ResultsJSONFile // prefix for the JSON file used by bloodhound and typeahead. Eg: "objectListBuilderResults";
-		variables.columnList // columns from the source customElement. Eg: "CourseID,CourseInstructor,CourseTitle,CourseCredits,CourseDuration,CourseDescription";
+			variables.cftPath  // path to the ObjectListBuilder custom element Eg: "/ADF/extensions/customfields/object_list_builder";
+			variables.ceID // ID of source customElement Eg: 4032;
+			variables.customElement // Name of the source customElement Eg: "courseRecords";
+			variables.searchFields // Searchable fields in source customElement, used by bloodhound and typeahead in the ObjectListBuilder dialog Eg: "CourseID,CourseInstructor,CourseTitle";
+			variables.IDField // UniqueID in the source customElement Eg: "CourseID";
+			variables.orderByClause // source customElement column. This should be present in variables.columnList and variables.searchFields Eg: "CourseTitle ASC";
+			variables.ResultsJSONFile // prefix for the JSON file used by bloodhound and typeahead. Eg: "objectListBuilderResults";
+			variables.columnList // columns from the source customElement. Eg: "CourseID,CourseInstructor,CourseTitle,CourseCredits,CourseDuration,CourseDescription";
 
-7. Other libraries included in this custom element:
-	ckeditor - if you download ckeditor locally, update the "renderJS" command in object_list_builder_base.cfc (line:315) with the path. Otherwise, it defaults to the following:
-			//cdn.ckeditor.com/4.4.6/full/ckeditor.js
-			
-		ckeditor plugins:
+		Reset the ADF (?resetADF=1)
+
+7. ADF thirdParty libraries used for this custom field type:
+		jquery - loaded from the "/ADF/thirdParty/jquery/" directory
+		jqueryUI - loaded from the "/ADF/thirdParty/jquery/ui/" directory
+		jquery typeahead bundle - loaded from the "/ADF/thirdParty/jquery/typeahead/" directory
+		ckeditor - loaded by default from the ckeditor.com CDN "//cdn.ckeditor.com/4.4.7/full/ckeditor.js" 
+				   or it can be installed and the loaded from a site level directory "/cs_customization/ckeditor/ckeditor.js"
+
+8. Libraries included in this custom field type:
+		ckeditor plugins - loaded from the "/extensions/customfields/object_list_builder/plugins/" directory:
 			listformat - plugin used for ObjectListBuilder's formats display
 			cslink - plugin used to invoke CommonSpot's insert-link dialog.
 			csimage - plugin used to invoke CommonSpot's insert-image dialog and access to CommonSpot's Image Gallery.
 			
-	jquery - typeahead bundle. Download to jquery/typeahead folder and update the path in object_list_builder_base.cfc (line:314). Defaults to (assuming the typeahead.bundle.js is present in the above said folder)
-		#variables.cftPath#/jquery/typeahead/typeahead.bundle.js	
+	
 		
 	
 			
