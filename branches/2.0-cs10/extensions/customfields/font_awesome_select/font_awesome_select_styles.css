@@ -1,0 +1,59 @@
+/* font_awesome_select_styles.css */
+
+.cols-3-outer {
+	overflow-x: scroll; 
+	width:650px; 
+	height:200px; 
+	border: 1px solid #999; 
+	background-color: #fcfcfc;
+}
+
+.cols-3 {
+	height: 180px;
+	-webkit-column-count: 3;
+	-moz-column-count: 3;
+	column-count: 3;
+	-webkit-column-gap: 1px;
+	-moz-column-gap: 1px;
+	column-gap: 1px; 
+}
+	
+.cols-3 ul li {
+	line-height: 2; 
+	font-size: 12px; 
+	list-style: none; 
+	padding-left: 5px; 
+	padding-right: 5px; 
+	cursor: pointer; 
+}
+
+li div:hover, li div.selected { 
+	background-color: #D9E3ED; 
+	border: 1px solid #999; 
+}
+
+i.fa-border { 
+	border-color: #555 !important; 
+}
+
+.selectedDataDiv {
+	display: inline-block;
+	font-size: 12px;
+	padding: 5px 10px 0px 0px;
+}
+
+.searchInput {
+	width: 180px;
+	margin-bottom: 5px;
+	padding-left: 5px;
+}
+
+.clearButton {
+	padding: 1px 5px;
+	vertical-align: baseline !important;
+}
+
+.optionsDiv {
+	margin-top: 3px;
+	vertical-align:baseline;
+}
