@@ -33,6 +33,7 @@ History:
 	2014-09-29 - GAC - Added an updated list of icon classes and codes using csvToArray on FA icon text data in a CSV text file 
 	2014-12-03 - GAC - Updated to fix for bad version folder "Major.Minor.Maintenance" for thirdParty folder. Now is only "Major.Minor" version folder.
 	2015-04-15 - DJM - Fixed issue for clear button not working as expected
+	2015-04-23 - DJM - Fixed issue for all font awesome fields in a form working as a single control field
 --->
 <cfscript>
 	// the fields current value
@@ -175,11 +176,11 @@ History:
 					// Add Key up event
 					jQuery('##fa_search_#xparams.fldID#').live( 'keyup', function() {
 						var theval = jQuery('##fa_search_#xparams.fldID#').val();
-						findFunction( theval );
+						findFunction_#fqFieldName#( theval );
 					});
 
 					// add Click event for each font li div
-					jQuery(".fonticon").live( 'click', function(){
+					jQuery("##icondata_#xparams.fldID# .fonticon").live( 'click', function(){
 						var name = jQuery(this).attr('data-name');					
 						var code = jQuery(this).attr('data-code');					
 
@@ -187,47 +188,47 @@ History:
 						jQuery("##sel_#xparams.fldID#").text( name );
 					
 						// de-select old one
-						if( jQuery("li div.selected") )
-							jQuery("li div.selected").removeClass('selected');
+						if( jQuery("##icondata_#xparams.fldID# li div.selected") )
+							jQuery("##icondata_#xparams.fldID# li div.selected").removeClass('selected');
 					
 						// select new one
 						jQuery(this).addClass('selected');
 					
 						// assign just name portion to real hidden field
-						BuildClasses();
+						BuildClasses_#fqFieldName#();
 					});		
 				
 					// add Click event for options div
 					jQuery("##options_#xparams.fldID#").live( 'click', function(){
-						BuildClasses();
+						BuildClasses_#fqFieldName#();
 					});
 				});
 				
-				function findFunction(inString)
+				function findFunction_#fqFieldName#(inString)
 				{
 					// Check if we have a string defined
 					if ( inString.length > 0 )
 					{
 						// Hide everything to start
-						jQuery('li div.fonticon').hide();
+						jQuery('##icondata_#xparams.fldID# li div.fonticon').hide();
 					
 						// Find the rows that contain the search terms
-						jQuery('li div[data-name*="' + inString.toLowerCase() + '"]').each(function() {
+						jQuery('##icondata_#xparams.fldID# li div[data-name*="' + inString.toLowerCase() + '"]').each(function() {
 								// Display the row
 								jQuery(this).show();
 							});
 
 						// Find the selected rows 
-						jQuery('li div.selected').show();
+						jQuery('##icondata_#xparams.fldID# li div.selected').show();
 					}
 					else 
 					{
 						// Show Everything
-						jQuery('li div.fonticon').show();
+						jQuery('##icondata_#xparams.fldID# li div.fonticon').show();
 					}
 				}
 			
-				function clearInput()
+				function clearInput_#fqFieldName#()
 				{
 					jQuery('##fa_search_#xparams.fldID#').val('');		
 					jQuery('##sel_#xparams.fldID#').text('(Blank)');		
@@ -235,13 +236,13 @@ History:
 					jQuery('###xparams.fldID#').val('');		
 				
 					// de-select old one
-					if( jQuery("li div.selected") )
-						jQuery("li div.selected").removeClass('selected');
+					if( jQuery("##icondata_#xparams.fldID# li div.selected") )
+						jQuery("##icondata_#xparams.fldID# li div.selected").removeClass('selected');
 				
-					findFunction('');
+					findFunction_#fqFieldName#('');
 				}
 			
-				function BuildClasses()
+				function BuildClasses_#fqFieldName#()
 				{
 					var name = '';
 					var val = '';
@@ -252,8 +253,8 @@ History:
 					var pull = '';
 
 					// get selected item
-					if( jQuery("li div.selected").length )
-						name = jQuery("li div.selected").attr('data-name');
+					if( jQuery("##icondata_#xparams.fldID# li div.selected").length )
+						name = jQuery("##icondata_#xparams.fldID# li div.selected").attr('data-name');
 				
 					if( document.getElementById('size_#xparams.fldID#') instanceof Object )
 						size = jQuery('##size_#xparams.fldID#').val();
@@ -314,11 +315,11 @@ History:
 				<span id="sel_#xparams.fldID#">#ListFirst(currentValue, ' ')#</span>
 			</div>
 			<input type="text" name="fa_search_#xparams.fldID#" id="fa_search_#xparams.fldID#" value="" <cfif readOnly>disabled="disabled"</cfif> style="width: 180px; margin-bottom: 5px; padding-left: 5px;" placeholder="Type to filter list of icons"> 
-			<input class="clsPushButton" type="button" value="Clear" style="padding: 1px 5px; vertical-align: baseline;" onclick="clearInput()">
+			<input class="clsPushButton" type="button" value="Clear" style="padding: 1px 5px; vertical-align: baseline;" onclick="clearInput_#fqFieldName#()">
 			<input type="hidden" name="#fqFieldName#" id="#xparams.fldID#" value="#currentValue#"> 			
 			<div class="cols-3-outer">
 			<cfif LEN(TRIM(cftErrMsg))>#cftErrMsg#</cfif>
-			<div class="cols-3">
+			<div id="icondata_#xparams.fldID#" class="cols-3">
 				<ul>
 					<cfset selected_index = ''>
 					<cfloop index="i" from="1" to="#ArrayLen(fontArray)#" step="1">
