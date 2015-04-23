@@ -37,7 +37,7 @@ History:
 --->
 <cfcomponent displayname="data_1_2" extends="ADF.lib.data.data_1_1" hint="Data Utils component functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_13">
+<cfproperty name="version" value="1_2_14">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Data_1_2">
 
@@ -1012,6 +1012,24 @@ History:
 	</cfscript>
 </cffunction>
 
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$DollarFormat2
+Summary:
+	Works like the built-in function DollarFormat, but does no rounding so that you can
+	round as you see fit.
+Returns:
+	Struct
+Arguments:
+	String - inNum
+Usage:
+	DollarFormat2(inNum)
+History:
+	2015-04-17 - SFS - Added
+ --->
 <cffunction name="DollarFormat2" returntype="string" access="public" output="false" hint="Works like the built-in function DollarFormat, but does no rounding so that you can round as you see fit.">
 	<cfargument name="inNum" type="string" required="false" default="" hist="Dollar value to format.">
 
