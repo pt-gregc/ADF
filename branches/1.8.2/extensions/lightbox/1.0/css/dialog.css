@@ -1,0 +1,398 @@
+/* 
+The contents of this file are subject to the Mozilla Public License Version 1.1
+(the "License"); you may not use this file except in compliance with the
+License. You may obtain a copy of the License at http://www.mozilla.org/MPL/
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+the specific language governing rights and limitations under the License.
+
+The Original Code is comprised of the ADF directory
+
+The Initial Developer of the Original Code is
+PaperThin, Inc. Copyright(C) 2015.
+All Rights Reserved.
+
+By downloading, modifying, distributing, using and/or accessing any files 
+in this directory, you agree to the terms and conditions of the applicable 
+end user license agreement.
+*/
+
+#dialogContainer 
+{ 
+/*
+	position: absolute;
+	z-index: 100001;
+	width: 820px;
+*/		
+	position:relative;
+}
+#filterButton,
+#dialogContainer #closeIcon, 
+#dialogContainer #dataTableFooter #moreAction,
+#dialogContainer #dataTableFooter #moreActionsGoButton,
+#dialogContainer #closeButton,
+#dialogContainer #cancelButton,
+#dialogContainer #saveButton,
+#dialogContainer #deleteButton,
+#dialogContainer #saveAsButton,
+#dialogContainer #nextButton,
+#dialogContainer #okButton,
+#dialogContainer #prevButton,
+#dialogContainer #viewResultButton,
+#dialogContainer #rollbackButton,
+#dialogContainer #synchronizeButton,
+#dialogContainer #searchButton,
+#dialogContainer #addButton,
+#dialogContainer #linkBreakButton
+{
+	float: right;
+	cursor: pointer;
+	text-decoration: none;
+	line-height: 16px;
+}
+
+#dialogContainer #closeIcon:hover, 
+#dialogContainer #closeButton:hover,
+#dialogContainer #cancelButton:hover,
+#dialogContainer #saveButton:hover,
+#dialogContainer #deleteButton:hover,
+#dialogContainer #nextButton:hover,
+#dialogContainer #okButton:hover,
+#dialogContainer #prevButton:hover,
+#dialogContainer #viewResultButton:hover,
+#dialogContainer #rollbackButton:hover,
+#dialogContainer #synchronizeButton:hover,
+#dialogContainer #addButton:hover,
+#dialogContainer #linkBreakButton:hover
+{
+	text-decoration:underline;
+}
+
+#dialogContainer #closeButton 
+{
+	background-image: url(/commonspot/dashboard/icons/dialog_close.png);
+	background-position: left center;
+	background-repeat: no-repeat;
+	font-weight: bold;	
+	/* last icon: need to be right aligned overwrite default padding-right: 20px */
+	padding-right: 5px;
+	padding-left: 19px;
+}
+
+#dialogContainer #linkBreakButton 
+{
+	background-image: url(/commonspot/dashboard/icons/link_break.png);
+	background-position: left center;
+	background-repeat: no-repeat;
+	font-weight: bold;	
+	padding-left: 19px;
+	padding-right: 20px;
+}
+
+
+#dialogContainer #cancelButton 
+{
+	background-image: url(/commonspot/dashboard/icons/cancel.png);
+	background-position: left center;
+	background-repeat: no-repeat;
+	font-weight: bold;	
+	/* last icon: need to be right aligned overwrite default padding-right: 20px */
+	padding-right: 5px;
+	padding-left: 19px;
+}
+
+#dialogContainer #saveButton, #dialogContainer #saveAsButton
+{
+	background-image: url(/commonspot/dashboard/icons/action_save.png);
+	background-position: left center;
+	background-repeat: no-repeat;
+	font-weight: bold;	
+	padding-left: 19px;
+	padding-right: 20px;	
+}
+#dialogContainer #deleteButton
+{
+	background-image: url(/commonspot/dashboard/icons/trash.png);
+	background-position: left center;
+	background-repeat: no-repeat;
+	font-weight: bold;	
+	padding-left: 19px;
+	padding-right: 20px;	
+}
+#dialogContainer #saveAsButton
+{
+}
+
+#dialogContainer #nextButton 
+{
+	background-image: url(/commonspot/images/icons/arrow_right.png);
+	background-position: left center;
+	background-repeat: no-repeat;
+	font-weight: bold;	
+	padding-left: 19px;
+	padding-right: 20px;
+}
+
+#dialogContainer #prevButton 
+{
+	background-image: url(/commonspot/images/icons/arrow_left.png);
+	background-position: left center;
+	background-repeat: no-repeat;
+	font-weight: bold;	
+	padding-left: 19px;
+	padding-right: 20px;	
+}
+
+#dialogContainer #viewResultButton
+{
+	background-image: url(/commonspot/dashboard/icons/magnifier.png);
+	background-position: left center;
+	background-repeat: no-repeat;
+	font-weight: bold;	
+	padding-left: 19px;
+	padding-right: 20px;	
+}
+
+#dialogContainer #okButton
+{
+	background-image: url(/commonspot/images/icons/check.png);
+	background-position: left center;
+	background-repeat: no-repeat;
+	font-weight: bold;
+	padding-left: 19px;
+	padding-right: 20px;	
+} 
+
+#dialogContainer #rollbackButton
+{
+	background-image: url(/commonspot/dashboard/icons/arrow_undo.png);
+	background-position: left center;
+	background-repeat: no-repeat;
+	font-weight: bold;	
+	padding-left: 19px;
+	padding-right: 20px;	
+}
+
+#dialogContainer #synchronizeButton
+{
+	background-image: url(/commonspot/dashboard/icons/lightning.png);
+	background-position: left center;
+	background-repeat: no-repeat;
+	font-weight: bold;	
+	padding-left: 19px;
+	padding-right: 20px;	
+}
+
+#dialogContainer #addButton
+{
+	background-image: url(/commonspot/dashboard/icons/add.png);
+	background-position: left center;
+	background-repeat: no-repeat;
+	font-weight: bold;	
+	padding-left: 19px;
+	padding-right: 20px;	
+}
+
+#dialogContainer #dataTableFooter #moreActionsGoButton
+{
+	height: 17px;
+	margin-top: 4px;
+	margin-right: 4px;
+	padding: 0px 0px 2px 0px;
+}
+
+#dialogContainer #dataTableFooter 
+{
+	background-color: #EFEFEF;
+	border-bottom:1px solid #999999;
+	height: 28px;
+	line-height:28px;
+}
+
+#dialogContainer #dataTableFooter #moreAction 
+{
+	margin-top: 4px;
+}
+
+#dialogContainer #dataTableFooter .primaryLink 
+{
+	font-weight: bold;
+}
+
+#dialogContainer #dataTableFooter .primaryLinkIcon 
+{
+	padding-left: 4px;
+	padding-top: 6px;
+	margin-right: 3px;
+}
+
+#dialogContainer #filterIFrame 
+{
+	border: 0;
+	height: 50px;
+	width: 100%;
+	background-color: #F0F0F0;
+	frameborder: 0;
+}
+
+#dialogContainer #helpIcon 
+{
+	margin-left: 5px;
+	margin-top: 2px;
+	cursor: pointer;
+}
+
+#dialogContainer h1 
+{
+	color: #013466;
+	display: inline;
+	font-size: 18px;
+}
+
+#dialogContainer .subTitle
+{
+	color: black;
+	margin-top: 5px;
+	margin-bottom: 10px;
+}
+
+#dialogContainer #filterControls 
+{
+	background-color: #F0F0F0;
+	color: #000000;
+	margin-top: 5px;
+	margin-bottom: 10px;
+	margin-left: auto;
+	margin-right: auto;
+	padding-top: 7px;
+	padding-bottom: 7px;
+	padding-left: 4px;
+}
+ 
+/* Note: Adding #dialogContainer doesn't work for iframe elements. */
+input,select,textarea 
+{
+	background-color: #ffffff;
+	border: 1px solid #cccccc;
+	margin: 0px 5px 0px 0px;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 11px;	
+   border-style: inset;
+}
+input[type='checkbox'],input.checkbox { background-color: transparent; }
+
+.clsNoBorderInput
+{
+   background-color: transparent;
+   border: 0px none #cccccc;
+}
+
+#subsiteSelect
+{
+	width: 425px;
+}
+
+#dateFilterRow
+{
+	margin-top: 1px;
+}
+
+label
+{
+	color:#27527D;
+	cursor:inherit;
+}
+
+.SpryHiddenRegion {
+	visibility: hidden;
+}
+
+#dialogContainer #dialogFooter
+{
+	display: block;
+	font-weight: bold;
+	float: left;
+	height: 28px;
+	margin-top: 10px;	
+	width:100%;
+}
+
+#dialogContainer #dialogFooter a
+{
+	line-height: 16px;
+}
+
+#dialogContainer hr 
+{
+	height: 1px;
+	color: #CFD4EF;
+	margin: 0;
+	padding: 0;
+	border-style: solid;
+	border-width: 0.5px;
+}
+
+.tool
+{
+	background: transparent none repeat scroll 0%;
+	border: medium none;
+	cursor: default;
+	text-decoration: none;
+}
+
+/*
+ *For dialog scroll bar region
+ */
+.scrollableRegion	
+{ 
+	overflow-y: auto;
+	overflow-x: hidden;
+}	
+
+#dlgScrollBarRegion
+{
+	overflow-y: auto;
+	overflow-x: hidden;
+}
+
+#dialogContainer #dialogFooter img
+{
+	vertical-align:middle;
+}
+
+
+/**
+ * Filter Section
+ */
+.filterSection
+{ 
+	background-color:#f0f0f0; 
+	line-height:32px; 
+	padding:5px 0px 5px 10px;
+	margin:10px 0 10px 0px;  
+}
+
+.filterSection label
+{
+	color:#003366;
+	font-weight:bold;
+}
+ 
+.filterSection select 
+{
+	width:156px;
+	height:18px;
+}
+.clsPushButton
+{
+   border-style: outset;   
+	font-size: 10px;
+}
+
+.readonly
+{
+	font-weight:bold;
+}
+
+	
