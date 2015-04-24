@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2014.
+PaperThin, Inc. Copyright(C) 2015.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -37,7 +37,7 @@ History:
 --->
 <cfcomponent displayname="data_1_2" extends="ADF.lib.data.data_1_1" hint="Data Utils component functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_13">
+<cfproperty name="version" value="1_2_14">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Data_1_2">
 
@@ -1010,6 +1010,74 @@ History:
 	   	
 	   	return retData;		
 	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$DollarFormat2
+Summary:
+	Works like the built-in function DollarFormat, but does no rounding so that you can
+	round as you see fit.
+Returns:
+	Struct
+Arguments:
+	String - inNum
+Usage:
+	DollarFormat2(inNum)
+History:
+	2015-04-17 - SFS - Added
+ --->
+<cffunction name="DollarFormat2" returntype="string" access="public" output="false" hint="Works like the built-in function DollarFormat, but does no rounding so that you can round as you see fit.">
+	<cfargument name="inNum" type="string" required="false" default="" hist="Dollar value to format.">
+
+	<cfscript>
+		/**
+		 * Works like the built-in function DollarFormat, but does no rounding.
+		 *
+		 * @param inNum 	 Number to format. (Required)
+		 * @param default_var 	 Value to use if number isn't a proper number. (Optional)
+		 * @return Returns a string.
+		 * @author Shawn Seley (shawnse@aol.com)
+		 * @version 1, September 16, 2002
+		 */
+		var out_str             = "";
+		var decimal_str         = "";
+
+		var default_value = arguments.inNum;
+		if(ArrayLen(Arguments) GTE 2) default_value = Arguments[2];
+
+		if (not IsNumeric(arguments.inNum)) {
+			return (default_value);
+		} else {
+			arguments.inNum = Trim(arguments.inNum);
+			if(ListLen(arguments.inNum, ".") GT 1) {
+				out_str = Abs(ListFirst(arguments.inNum, "."));
+				decimal_str = "." & ListLast(arguments.inNum, ".");
+			} else if (Find(".", arguments.inNum) EQ 1) {
+				decimal_str = arguments.inNum;
+			} else {
+				out_str = Abs(arguments.inNum);
+			}
+			if (out_str NEQ "") {
+				// add commas
+				out_str = Reverse(out_str);
+				out_str = REReplace(out_str, "([0-9][0-9][0-9])", "\1,", "ALL");
+				out_str = REReplace(out_str, ",$", "");   // delete potential leading comma
+				out_str = Reverse(out_str);
+			}
+
+			// add dollar sign (and parenthesis if negative)
+			if(arguments.inNum LT 0) {
+				return ("($" & out_str & decimal_str & ")");
+			} else {
+				return ("$" & out_str & decimal_str);
+			}
+		}
+	</cfscript>
+
 </cffunction>
 
 </cfcomponent>

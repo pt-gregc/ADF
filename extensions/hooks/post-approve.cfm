@@ -11,7 +11,7 @@ History:
 
 <cfscript>
 	enableLogging = false; 	// set to true for debug logging
-	dumpLogFileName = "post-approve.html";
+	dumpLogFileName = "_post-approve.html";
 	
 	if ( enableLogging )
 		application.ADF.utils.logAppend(msg=attributes, label='attributes', logfile=dumpLogFileName);

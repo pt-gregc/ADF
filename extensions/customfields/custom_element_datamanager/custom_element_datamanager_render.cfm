@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2014.
+PaperThin, Inc. Copyright(C) 2015.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files
@@ -48,6 +48,7 @@ History:
 	2014-12-15 - DJM - Modified setting up of newData variable to fix issue with editing record for GCE
 	2015-03-19 - DJM - Added code to check for elementtype for honoring newData variable to fix metadata form issue
 	2015-04-02 - DJM - Modified code to handle show/hide of Actions column returned
+	2015-04-10 - DJM - Added code to check for field permission for rendering controls
 --->
 <cfscript>
 	requiredCSversion = 9;
@@ -280,11 +281,13 @@ History:
 			<CFIF (elementType NEQ 'metadataForm' AND newData EQ 0) OR (elementType EQ 'metadataForm' AND curPageID GT 0)>
 				<CFOUTPUT>
 					#datamanagerObj.renderStyles(propertiesStruct=inputParameters)#
-					<table class="cs_data_manager" border="0" cellpadding="2" cellspacing="2" summary="" id="parentTable_#uniqueTableAppend#">
-					<tr><td>
+					<table class="cs_data_manager" border="0" cellpadding="2" cellspacing="2" summary="" id="parentTable_#uniqueTableAppend#"></CFOUTPUT>
+					<cfif fieldpermission eq 2>
+					<CFOUTPUT><tr><td>
 						#datamanagerObj.renderButtons(propertiesStruct=inputParameters,currentValues=attributes.currentvalues,formID=ceFormID,fieldID=fieldQuery.inputID,parentFormType=elementType,pageID=curPageID)#
-					</td></tr>	
-					<tr><td>
+					</td></tr></CFOUTPUT>
+					</cfif>
+					<CFOUTPUT><tr><td>
 						<span id="errorMsgSpan"></span>
 					</td></tr>
 					<tr><td>
@@ -401,7 +404,8 @@ History:
 						parentFormType : '#elementType#',
 						pageID : #curPageID#,
 						propertiesStruct : JSON.stringify(<cfoutput>#SerializeJSON(inputParameters)#</cfoutput>),
-						currentValues : JSON.stringify(<cfoutput>#SerializeJSON(attributes.currentvalues)#</cfoutput>)						
+						currentValues : JSON.stringify(<cfoutput>#SerializeJSON(attributes.currentvalues)#</cfoutput>),
+						fieldPermission : #fieldpermission#						
 				 };
 				 
 				jQuery.when(
@@ -438,7 +442,7 @@ History:
 						var columnsArray = columnsList.split(',');
 						var hasActionColumn = 0;
 						var displayActionColumn = 0;
-						<cfif ListFindNoCase(inputParameters.interfaceOptions,'editAssoc') OR ListFindNoCase(inputParameters.interfaceOptions,'editChild') OR ListFindNoCase(inputParameters.interfaceOptions,'delete')>
+						<cfif (ListFindNoCase(inputParameters.interfaceOptions,'editAssoc') OR ListFindNoCase(inputParameters.interfaceOptions,'editChild') OR ListFindNoCase(inputParameters.interfaceOptions,'delete')) AND fieldpermission eq 2>
 							displayActionColumn = 1;
 						</cfif>
 					

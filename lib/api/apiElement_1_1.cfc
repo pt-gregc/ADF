@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2014.
+PaperThin, Inc. Copyright(C) 2015.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="apiElement_1_1" extends="ADF.lib.api.apiElement_1_0" hint="">
 
-<cfproperty name="version" value="1_1_0">
+<cfproperty name="version" value="1_1_1">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <cfproperty name="csData" type="dependency" injectedBean="csData_1_2">
 <cfproperty name="apiConduitPool" type="dependency" injectedBean="apiConduitPool_1_0">
@@ -67,6 +67,7 @@ History:
 					 - Added Global Custom Element Conduit Page Pool for using multiple conduit pages to increase performance
 					 - Cleaned up the logic for passing in PageID and SubsiteID values via the data or using the Force Arguments 
 					 - Removed the dependancy for setting a subsiteID in the config or passing in a ForceSubsiteID
+	2015-04-09 - GAC - Updated the error and logging message rendering 
 --->
 <cffunction name="populateCustom" access="public" returntype="struct" output="true">
 	<cfargument name="elementName" type="string" required="true" hint="The name of the element from the CCAPI configuration">
@@ -352,7 +353,7 @@ History:
 							Prevents the "security-exception -- conflict" error message.
 		2014-09-12 - GAC - Updated the LOCK name to include the SiteID
 						 - If the using th pagePool also add the PageID to the Lock Name
-	 --->
+	--->
 	<cfif runPopulateCustom>
 	
 		<!--- // If using PagePool use both the siteID and the PageID for the LOCK name --->
@@ -418,11 +419,18 @@ History:
 					{
 						// Error while running the API Command
 						result = apiResponse;
-						// Log the error message also
-						logStruct.msg = "#request.formattedTimestamp# - Error [Message: #result.msg#]";
-						if ( StructKeyExists(result.data, "detail") )
+						// Log the error message 
+						logStruct.msg = "#request.formattedTimestamp# - Error"; 
+						if ( StructKeyExists(result,"msg") )
+							logStruct.msg = logStruct.msg & " [Message: #result.msg#]";
+						
+						if ( StructKeyExists(result,"data") AND IsSimpleValue(result.data) )
+							logStruct.msg = logStruct.msg & " [Details: #result.data#]";
+						else if ( StructKeyExists(result,"data") AND StructKeyExists(result.data, "detail") )
 							logStruct.msg = logStruct.msg & " [Details: #result.data.detail#]";
+						
 						logStruct.logFile = logErrorFileName;
+						
 						arrayAppend(logArray, logStruct);
 					}
 				}
@@ -433,8 +441,13 @@ History:
 					result.msg = e.message;
 					result.data = e;
 				
-					// Log the error message also
-					logStruct.msg = "#request.formattedTimestamp# - Error [Message: #e.message#] [Details: #e.detail#]";
+					logStruct.msg = "#request.formattedTimestamp# - Error"; 
+					if ( StructKeyExists(e,"message") )
+						logStruct.msg = logStruct.msg & " [Message: #e.message#]";
+					if ( StructKeyExists(e, "detail") )
+						logStruct.msg = logStruct.msg & " [Details: #e.detail#]";
+						
+					//logStruct.msg = "#request.formattedTimestamp# - Error [Message: #e.message#] [Details: #e.detail#]";
 					logStruct.logFile = logErrorFileName;
 					arrayAppend(logArray, logStruct);
 				}
