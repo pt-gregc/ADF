@@ -77,9 +77,12 @@ History:
 		<cfscript>
 			var renderData = '';
 		</cfscript>
-		<cfsavecontent variable="renderData">
-			<cfoutput><link rel="stylesheet" type="text/css" href="#variables.cftPath#/custom_element_hierarchy_selector_styles.css" /></cfoutput>
-		</cfsavecontent>
+		<cfif NOT StructKeyExists(Request, 'objectHierarchyCSS')>
+			<cfsavecontent variable="renderData">
+				<cfoutput><link rel="stylesheet" type="text/css" href="#variables.cftPath#/custom_element_hierarchy_selector_styles.css" /></cfoutput>
+			</cfsavecontent>
+			<cfset Request.objectHierarchyCSS = 1>
+		</cfif>
 		<cfoutput>#renderData#</cfoutput>
     </cffunction>
 	

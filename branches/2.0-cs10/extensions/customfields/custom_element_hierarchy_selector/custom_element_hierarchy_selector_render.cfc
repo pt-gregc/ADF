@@ -63,79 +63,69 @@ History:
 		var fldCurValArray = ListToArray(arguments.value);
 		var fldCurValWithFldID = '';
 		var i = 0;
-		
-		// Version related vars
-		var requiredCSversion = 10;
-		var csVersion = ListFirst(ListLast(request.cp.productversion," "),".");
-		var inputHTML = '<span class="cs_dlgLabelError">This Custom Field Type requires CommonSpot #requiredCSversion# or above.</span>';
 	</cfscript>
 	
-	<cfif csVersion LT requiredCSversion>
-		<cfoutput>#inputHTML#</cfoutput>
-	<cfelse>
-		<cfif arguments.displayMode neq "hidden">
-			<cfscript>
-				/*if (StructKeyExists(Request.Params, 'controlTypeID'))
-						ceFormID = Request.Params.controlTypeID;
-					else if (StructKeyExists(Request.Params, 'formID'))
-						ceFormID = Request.Params.formID;
-					else if (StructKeyExists(allAtrs, 'fields'))
-						ceFormID = allAtrs.fields.formID[1];*/
-				
-				bMemory = selectorObj.isMemoryStructureGood(propertiesStruct=inputParameters,elementID=ceFormID,fieldID=arguments.fieldID);
-				
-				if (bMemory EQ 0)
-					selectorObj.buildMemoryStructure(propertiesStruct=inputParameters,elementID=ceFormID,fieldID=arguments.fieldID);
-				
-				resultCEData = selectorObj.getFilteredData(propertiesStruct=inputParameters,currentValues=arguments.value,elementID=ceFormID,fieldID=arguments.fieldID);
-				
-				if (IsArray(resultCEData) AND ArrayLen(resultCEData) AND NOT IsSimpleValue(resultCEData[1]))
-					errorMsgCustom = '';
-				else if (ArrayLen(resultCEData) EQ 0)
-					errorMsgCustom = 'No records found to be displayed for the field.';
-				
-				application.ADF.scripts.loadJQuery(noConflict=true);
-				// Here we need to have a function call to load jsTree
-				application.ADF.scripts.loadJSTree(loadStyles=false);
-				
-				// Set the width and height value
-				if (IsNumeric(inputParameters.widthValue))
-					widthVal = "#inputParameters.widthValue#px";
-				
-				if (IsNumeric(inputParameters.heightValue))
-					heightVal = "#inputParameters.heightValue#px";
-				
-				// Prepend the current values with fieldID
-				if (ArrayLen(fldCurValArray))
-				{
-					for (i=1; i LTE ArrayLen(fldCurValArray);i=i+1)
-					{
-						fldCurValWithFldID = ListAppend(fldCurValWithFldID, '#arguments.fieldID#_#fldCurValArray[i]#');
-					}
-				}
-			</cfscript>
-			<cfif inputParameters.customElement neq ''>
-				<cfoutput>
-					#selectorObj.renderStyles(propertiesStruct=inputParameters)#
-					<span id="errorMsgSpan" class="cs_dlgError">#errorMsgCustom#</span>
-					<cfif NOT Len(errorMsgCustom)>
-						<div class="jstree-default-small" style="width:#widthVal#; height:#heightVal#; border:1px solid ##999999; overflow-y:scroll; background-color:white;" id="jstree_#arguments.fieldName#"></div>
-					</cfif>
-					<!-- hidden -->
-					#Server.CommonSpot.UDF.tag.input(type="hidden", id="#arguments.fieldName#", name="#arguments.fieldName#", value="#arguments.value#")#
-				</cfoutput>
-			</cfif>
+	<cfif arguments.displayMode neq "hidden">
+		<cfscript>
+			/*if (StructKeyExists(Request.Params, 'controlTypeID'))
+					ceFormID = Request.Params.controlTypeID;
+				else if (StructKeyExists(Request.Params, 'formID'))
+					ceFormID = Request.Params.formID;
+				else if (StructKeyExists(allAtrs, 'fields'))
+					ceFormID = allAtrs.fields.formID[1];*/
 			
-			<cfscript>
-				if (NOT Len(errorMsgCustom))
-					renderJSFunctions(argumentCollection=arguments, curFieldValueWithID=fldCurValWithFldID, dataResults=resultCEData);
-			</cfscript>
+			bMemory = selectorObj.isMemoryStructureGood(propertiesStruct=inputParameters,elementID=ceFormID,fieldID=arguments.fieldID);
+			
+			if (bMemory EQ 0)
+				selectorObj.buildMemoryStructure(propertiesStruct=inputParameters,elementID=ceFormID,fieldID=arguments.fieldID);
+			
+			resultCEData = selectorObj.getFilteredData(propertiesStruct=inputParameters,currentValues=arguments.value,elementID=ceFormID,fieldID=arguments.fieldID);
+			
+			if (IsArray(resultCEData) AND ArrayLen(resultCEData) AND NOT IsSimpleValue(resultCEData[1]))
+				errorMsgCustom = '';
+			else if (ArrayLen(resultCEData) EQ 0)
+				errorMsgCustom = 'No records found to be displayed for the field.';
+			
+			application.ADF.scripts.loadJQuery(noConflict=true);
+			// Here we need to have a function call to load jsTree
+			application.ADF.scripts.loadJSTree(loadStyles=false);
+			
+			// Set the width and height value
+			if (IsNumeric(inputParameters.widthValue))
+				widthVal = "#inputParameters.widthValue#px";
+			
+			if (IsNumeric(inputParameters.heightValue))
+				heightVal = "#inputParameters.heightValue#px";
+			
+			// Prepend the current values with fieldID
+			if (ArrayLen(fldCurValArray))
+			{
+				for (i=1; i LTE ArrayLen(fldCurValArray);i=i+1)
+				{
+					fldCurValWithFldID = ListAppend(fldCurValWithFldID, '#arguments.fieldID#_#fldCurValArray[i]#');
+				}
+			}
+		</cfscript>
+		<cfif inputParameters.customElement neq ''>
+			<cfoutput>
+				#selectorObj.renderStyles(propertiesStruct=inputParameters)#
+				<span id="errorMsgSpan" class="cs_dlgError">#errorMsgCustom#</span>
+				<cfif NOT Len(errorMsgCustom)>
+					<div class="jstree-default-small" style="width:#widthVal#; height:#heightVal#; border:1px solid ##999999; overflow-y:scroll; background-color:white;" id="jstree_#arguments.fieldName#"></div>
+				</cfif>
+				<!-- hidden -->
+				#Server.CommonSpot.UDF.tag.input(type="hidden", id="#arguments.fieldName#", name="#arguments.fieldName#", value="#arguments.value#")#
+			</cfoutput>
 		</cfif>
-	
-		<cfif arguments.displayMode neq "editable">
-			<cfoutput>#Server.CommonSpot.UDF.tag.input(type="hidden", name=arguments.fieldName)#</cfoutput>
-		</cfif>
+		
+		<cfscript>
+			if (NOT Len(errorMsgCustom))
+				renderJSFunctions(argumentCollection=arguments, curFieldValueWithID=fldCurValWithFldID, dataResults=resultCEData);
+		</cfscript>
+	</cfif>
 
+	<cfif arguments.displayMode neq "editable">
+		<cfoutput>#Server.CommonSpot.UDF.tag.input(type="hidden", name=arguments.fieldName)#</cfoutput>
 	</cfif>
 </cffunction>
 
@@ -147,7 +137,6 @@ History:
 	<cfargument name="dataResults" type="array" required="yes">
 	
 	<cfscript>
-		var js = "";
 		var inputParameters = Duplicate(arguments.parameters);
 		var allAtrs = getAllAttributes();
 		
@@ -161,7 +150,6 @@ History:
 		var autoSelectParents = (inputParameters.selectionType EQ 'multiAutoParents') ? true : false;
 	</cfscript>
 	
-<cfsavecontent variable="js">
 <cfoutput><script type="text/javascript">
 <!--
 var #toScript(arguments.dataResults, "#arguments.fieldName#_jsResultCEData")#		
@@ -358,8 +346,6 @@ function CascadeDown_#arguments.fieldName#(treeObject,inNode,inCommand) {
 </cfif>
 //-->
 </script></cfoutput>
-</cfsavecontent>
-<cfoutput>#js#</cfoutput>
 </cffunction>
 
 <cfscript>

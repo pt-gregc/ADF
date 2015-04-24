@@ -35,7 +35,7 @@ History:
 	2015-04-15 - DJM - Fixed issue for clear button not working as expected
 	2015-04-15 - DJM - Converted to CFC
 	2015-04-23 - DJM - Fixed issue for all font awesome fields in a form working as a single control field
-	2015-04-23 - DJM - Added controls own CSS
+	2015-04-23 - DJM - Added own CSS
 --->
 <cfcomponent displayName="FontAwesomeSelect Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -61,7 +61,7 @@ History:
 		var s = "";
 		var cftPath = "/ADF/extensions/customfields/font_awesome_select";
 		
-		inputParameters = setDefaultParamaters(argumentCollection=arguments);
+		inputParameters = setDefaultParameters(argumentCollection=arguments);
 		iconDataFilePath = ExpandPath(inputParameters.iconDataFile);
 		
 		// Get the Full File Path to the IconDataFile		
@@ -325,7 +325,7 @@ function clearInput_#arguments.fieldName#()
 </script></cfoutput>
 </cffunction>
 
-<cffunction name="setDefaultParamaters" returntype="struct" access="private">
+<cffunction name="setDefaultParameters" returntype="struct" access="private">
 	<cfargument name="fieldName" type="string" required="yes">
 	<cfargument name="fieldDomID" type="string" required="yes">
 	<cfargument name="value" type="string" required="yes">

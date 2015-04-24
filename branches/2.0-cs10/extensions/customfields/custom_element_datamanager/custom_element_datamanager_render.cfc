@@ -87,207 +87,198 @@ History:
 		var dsn = request.site.datasource;
 		var newData = '';
 		
-		// Version related vars
-		var requiredCSversion = 10;
-		var csVersion = ListFirst(ListLast(request.cp.productversion," "),".");
-		var inputHTML = '<span class="cs_dlgLabelError">This Custom Field Type requires CommonSpot #requiredCSversion# or above.</span>';
-		
 		// Path to component in the ADF
 		var componentOverridePath = "#request.site.csAppsURL#components";
 		var ajaxBeanName = 'customElementDataManager';
 	</cfscript>
 	
-	<cfif csVersion LT requiredCSversion>
-		<cfoutput>#inputHTML#</cfoutput>
-	<cfelse>
-		<!--- can not trust 'newdata' form variable being passed in for local custom elements --->
-		<cfif arguments.formType EQ "Local Custom Element"
-				AND StructKeyExists(Request.Params,'pageID') 
-				AND StructKeyExists(Request.Params,'controlID') 
-				AND StructKeyExists(Request.Params,'controlTypeID')
-				AND Request.Params.controlID gt 0>
-			<cfquery name="getDataDetails" datasource="#dsn#">
-				select count(*) as CNT 
-					from Data_fieldValue
-				where FormID = <cfqueryparam cfsqltype="cf_sql_integer" value="#Request.Params.controlTypeID#">
-					AND PageID = <cfqueryparam cfsqltype="cf_sql_integer" value="#Request.Params.PageID#">
-					AND ControlID = <cfqueryparam cfsqltype="cf_sql_integer" value="#Request.Params.controlID#">
-			</cfquery>
-			<cfscript>
-				newData = (getDataDetails.cnt == 0) ? 1 : 0;
-			</cfscript>
-		</cfif>
-		
+	<!--- can not trust 'newdata' form variable being passed in for local custom elements --->
+	<cfif arguments.formType EQ "Local Custom Element"
+			AND StructKeyExists(Request.Params,'pageID') 
+			AND StructKeyExists(Request.Params,'controlID') 
+			AND StructKeyExists(Request.Params,'controlTypeID')
+			AND Request.Params.controlID gt 0>
+		<cfquery name="getDataDetails" datasource="#dsn#">
+			select count(*) as CNT 
+				from Data_fieldValue
+			where FormID = <cfqueryparam cfsqltype="cf_sql_integer" value="#Request.Params.controlTypeID#">
+				AND PageID = <cfqueryparam cfsqltype="cf_sql_integer" value="#Request.Params.PageID#">
+				AND ControlID = <cfqueryparam cfsqltype="cf_sql_integer" value="#Request.Params.controlID#">
+		</cfquery>
 		<cfscript>
-			if (NOT IsNumeric(newData))
-			{
-				if (StructKeyExists(Request.Params, 'newData') AND IsNumeric(Request.Params.newData))
-					newData = Request.Params.newData;
-				else
-					newData = StructKeyExists(allAtrs.currentValues, 'DateAdded') ? 0 : 1;
-			}
-			
-			request.showSaveAndContinue = newData;	// forces showing or hiding of 'Save & Continue' button
+			newData = (getDataDetails.cnt == 0) ? 1 : 0;
 		</cfscript>
+	</cfif>
+	
+	<cfscript>
+		if (NOT IsNumeric(newData))
+		{
+			if (StructKeyExists(Request.Params, 'newData') AND IsNumeric(Request.Params.newData))
+				newData = Request.Params.newData;
+			else
+				newData = StructKeyExists(allAtrs.currentValues, 'DateAdded') ? 0 : 1;
+		}
 		
-		<cfif arguments.callingElement NEQ 'simpleform' AND (arguments.callingElement NEQ 'datasheet' OR (arguments.callingElement EQ 'datasheet' AND Request.User.ID NEQ 0))>
-			<cfif arguments.displayMode neq "hidden">
-				<cfscript>
-					if (NOT StructKeyExists(inputParameters, "secondaryElementType"))
-						inputParameters.secondaryElementType = "CustomElement";
-					
-					/*if (StructKeyExists(Request.Params, 'controlTypeID'))
-						ceFormID = Request.Params.controlTypeID;
-					else if (StructKeyExists(Request.Params, 'formID'))
-						ceFormID = Request.Params.formID;
-					else if (StructKeyExists(allAtrs, 'fields'))
-						ceFormID = allAtrs.fields.formID[1];*/
-					
-					switch (arguments.formType)
+		request.showSaveAndContinue = newData;	// forces showing or hiding of 'Save & Continue' button
+	</cfscript>
+	
+	<cfif arguments.callingElement NEQ 'simpleform' AND (arguments.callingElement NEQ 'datasheet' OR (arguments.callingElement EQ 'datasheet' AND Request.User.ID NEQ 0))>
+		<cfif arguments.displayMode neq "hidden">
+			<cfscript>
+				if (NOT StructKeyExists(inputParameters, "secondaryElementType"))
+					inputParameters.secondaryElementType = "CustomElement";
+				
+				/*if (StructKeyExists(Request.Params, 'controlTypeID'))
+					ceFormID = Request.Params.controlTypeID;
+				else if (StructKeyExists(Request.Params, 'formID'))
+					ceFormID = Request.Params.formID;
+				else if (StructKeyExists(allAtrs, 'fields'))
+					ceFormID = allAtrs.fields.formID[1];*/
+				
+				switch (arguments.formType)
+				{
+					case 'Custom Metadata Form':
+						elementType = 'MetadataForm';
+						infoMethod = "getForms";
+						infoArgs.id = formID;
+						break;
+					default:
+						elementType = 'CustomElement';
+						infoArgs.elementID = formID;
+						break;		
+				}
+				
+				if (StructKeyExists(Request.Params,'pageID') AND elementType EQ 'MetadataForm')
+					curPageID = Request.Params.pageID;
+				
+				parentElementObj = Server.CommonSpot.ObjectFactory.getObject(elementType);
+			</cfscript>
+			
+			<cfinvoke component="#parentElementObj#" method="#infoMethod#" argumentCollection="#infoArgs#" returnvariable="parentFormDetails">
+			
+			<cfscript>
+				if (elementType EQ 'MetadataForm')
+					parentFormLabel = parentFormDetails.formName;
+				else
+					parentFormLabel = parentFormDetails.Name;
+				
+				if (IsNumeric(inputParameters.assocCustomElement))
+					childElementDetails = childElementObj.getList(ID=inputParameters.assocCustomElement);
+				else
+					childElementDetails = childElementObj.getList(ID=inputParameters.childCustomElement);
+				
+				childFormName = childElementDetails.Name;
+				
+				if (Len(inputParameters.compOverride))
+				{
+					ext = ListLast(inputParameters.compOverride,'.');
+					if (ext EQ 'cfc')
 					{
-						case 'Custom Metadata Form':
-							elementType = 'MetadataForm';
-							infoMethod = "getForms";
-							infoArgs.id = formID;
-							break;
-						default:
-							elementType = 'CustomElement';
-							infoArgs.elementID = formID;
-							break;		
+						fileName = Mid(inputParameters.compOverride, 1, Len(inputParameters.compOverride)-Len(ext)-1);
+						fileNamewithExt = inputParameters.compOverride;
 					}
-					
-					if (StructKeyExists(Request.Params,'pageID') AND elementType EQ 'MetadataForm')
-						curPageID = Request.Params.pageID;
-					
-					parentElementObj = Server.CommonSpot.ObjectFactory.getObject(elementType);
-				</cfscript>
-				
-				<cfinvoke component="#parentElementObj#" method="#infoMethod#" argumentCollection="#infoArgs#" returnvariable="parentFormDetails">
-				
-				<cfscript>
-					if (elementType EQ 'MetadataForm')
-						parentFormLabel = parentFormDetails.formName;
 					else
-						parentFormLabel = parentFormDetails.Name;
-					
-					if (IsNumeric(inputParameters.assocCustomElement))
-						childElementDetails = childElementObj.getList(ID=inputParameters.assocCustomElement);
-					else
-						childElementDetails = childElementObj.getList(ID=inputParameters.childCustomElement);
-					
-					childFormName = childElementDetails.Name;
-					
-					if (Len(inputParameters.compOverride))
 					{
-						ext = ListLast(inputParameters.compOverride,'.');
-						if (ext EQ 'cfc')
+						fileName = inputParameters.compOverride;
+						fileNamewithExt = inputParameters.compOverride & '.cfc';
+					}
+				
+					try
+					{
+						if ( StructKeyExists(application.ADF,fileName) )
 						{
-							fileName = Mid(inputParameters.compOverride, 1, Len(inputParameters.compOverride)-Len(ext)-1);
-							fileNamewithExt = inputParameters.compOverride;
+							datamanagerObj = application.ADF[fileName];
+							ajaxBeanName = fileName;
+						}
+						else if ( FileExists(ExpandPath('#componentOverridePath#/#fileNamewithExt#')) )
+						{
+							datamanagerObj = CreateObject("component", "#componentOverridePath#/#fileName#");
+							ajaxBeanName = fileName;
 						}
 						else
 						{
-							fileName = inputParameters.compOverride;
-							fileNamewithExt = inputParameters.compOverride & '.cfc';
-						}
-					
-						try
-						{
-							if ( StructKeyExists(application.ADF,fileName) )
-							{
-								datamanagerObj = application.ADF[fileName];
-								ajaxBeanName = fileName;
-							}
-							else if ( FileExists(ExpandPath('#componentOverridePath#/#fileNamewithExt#')) )
-							{
-								datamanagerObj = CreateObject("component", "#componentOverridePath#/#fileName#");
-								ajaxBeanName = fileName;
-							}
-							else
-							{
-								datamanagerObj = application.ADF[ajaxBeanName];
-							}
-						}
-						catch(Any e)
-						{
-							Server.CommonSpot.UDF.mx.doLog("DataManager: Could not load override component '#inputParameters.compOverride#'");
 							datamanagerObj = application.ADF[ajaxBeanName];
 						}
 					}
-					else
+					catch(Any e)
 					{
+						Server.CommonSpot.UDF.mx.doLog("DataManager: Could not load override component '#inputParameters.compOverride#'");
 						datamanagerObj = application.ADF[ajaxBeanName];
-					}	
-			
-					if (IsNumeric(inputParameters.widthValue))
-					{
-						widthVal = "#inputParameters.widthValue#";
-						if (inputParameters.widthUnit EQ 'percent')
-							widthVal = widthVal & '%';
-						else
-							widthVal = widthVal & 'px';
 					}
-				
-					if (IsNumeric(inputParameters.heightValue))
-						heightVal = "#inputParameters.heightValue#px";
-				
-					application.ADF.scripts.loadJQuery(noConflict=true);
-					application.ADF.scripts.loadJQueryUI();
-					application.ADF.scripts.loadJQueryDataTables(force=true,loadStyles="false");
-				</cfscript>
-				
-				<cfif inputParameters.sortByType EQ 'manual'>
+				}
+				else
+				{
+					datamanagerObj = application.ADF[ajaxBeanName];
+				}	
+		
+				if (IsNumeric(inputParameters.widthValue))
+				{
+					widthVal = "#inputParameters.widthValue#";
+					if (inputParameters.widthUnit EQ 'percent')
+						widthVal = widthVal & '%';
+					else
+						widthVal = widthVal & 'px';
+				}
+			
+				if (IsNumeric(inputParameters.heightValue))
+					heightVal = "#inputParameters.heightValue#px";
+			
+				application.ADF.scripts.loadJQuery(noConflict=true);
+				application.ADF.scripts.loadJQueryUI();
+				application.ADF.scripts.loadJQueryDataTables(force=true,loadStyles="false");
+			</cfscript>
+			
+			<cfif inputParameters.sortByType EQ 'manual'>
+				<cfoutput>
+					<style>
+						##customElementData_#uniqueTableAppend# tbody td {cursor: ns-resize;}
+					</style>
+				</cfoutput>
+			</cfif>
+			
+			<cfif inputParameters.childCustomElement neq ''>
+				<cfif (elementType NEQ 'metadataForm' AND newData EQ 0) OR (elementType EQ 'metadataForm' AND curPageID GT 0)>
 					<cfoutput>
-						<style>
-							##customElementData_#uniqueTableAppend# tbody td {cursor: ns-resize;}
-						</style>
+						#datamanagerObj.renderStyles(propertiesStruct=inputParameters)#
+						<table class="cs_data_manager" border="0" cellpadding="2" cellspacing="2" summary="" id="parentTable_#uniqueTableAppend#"></cfoutput>
+						<cfif arguments.displayMode eq "editable">
+						<cfoutput><tr><td>
+							#datamanagerObj.renderButtons(propertiesStruct=inputParameters,currentValues=allAtrs.currentValues,formID=ceFormID,fieldID=arguments.fieldID,parentFormType=elementType,pageID=curPageID)#
+						</td></tr></cfoutput>
+						</cfif>
+						<cfoutput><tr><td>
+							<span id="errorMsgSpan"></span>
+						</td></tr>
+						<tr><td>
+						<div id="datamanager_#uniqueTableAppend#">
+							<table id="customElementData_#uniqueTableAppend#" class="display" style="min-width:#widthVal#;">
+							<thead><tr></tr></thead>
+							<tbody>
+								<tr>
+									<td class="dataTables_empty"><img src="/commonspot/dashboard/images/dialog/loading.gif" />&nbsp;Loading data from server</td>
+								</tr>
+							</tbody>
+							</table>
+						</div>
+						</td></tr>
+						</table>
 					</cfoutput>
-				</cfif>
-				
-				<cfif inputParameters.childCustomElement neq ''>
-					<cfif (elementType NEQ 'metadataForm' AND newData EQ 0) OR (elementType EQ 'metadataForm' AND curPageID GT 0)>
-						<cfoutput>
-							#datamanagerObj.renderStyles(propertiesStruct=inputParameters)#
-							<table class="cs_data_manager" border="0" cellpadding="2" cellspacing="2" summary="" id="parentTable_#uniqueTableAppend#"></cfoutput>
-							<cfif arguments.displayMode eq "editable">
-							<cfoutput><tr><td>
-								#datamanagerObj.renderButtons(propertiesStruct=inputParameters,currentValues=allAtrs.currentValues,formID=ceFormID,fieldID=arguments.fieldID,parentFormType=elementType,pageID=curPageID)#
-							</td></tr></cfoutput>
-							</cfif>
-							<cfoutput><tr><td>
-								<span id="errorMsgSpan"></span>
-							</td></tr>
-							<tr><td>
-							<div id="datamanager_#uniqueTableAppend#">
-								<table id="customElementData_#uniqueTableAppend#" class="display" style="min-width:#widthVal#;">
-								<thead><tr></tr></thead>
-								<tbody>
-									<tr>
-										<td class="dataTables_empty"><img src="/commonspot/dashboard/images/dialog/loading.gif" />&nbsp;Loading data from server</td>
-									</tr>
-								</tbody>
-								</table>
-							</div>
-							</td></tr>
-							</table>
-						</cfoutput>
-					<cfelse>
-						<cfoutput><table class="cs_data_manager" border="0" cellpadding="0" cellspacing="0" summary="">
-							<tr><td class="cs_dlgLabel">#childFormName# records can only be added once the #parentFormLabel# record is saved.</td></tr>
-							</table>
-							#Server.CommonSpot.UDF.tag.input(type="hidden", name=arguments.fieldName, value="")#</cfoutput>
-					</cfif>
-				</cfif>
-				<cfscript>
-					renderJSFunctions(argumentCollection=arguments, ajaxBeanName=ajaxBeanName, formID=ceFormID, elementType=elementType, pageID=curPageID, width=widthVal, height=heightVal);
-				</cfscript>
-				<cfif arguments.displayMode neq "editable">
-					<cfoutput>#Server.CommonSpot.UDF.tag.input(type="hidden", name=arguments.fieldName)#</cfoutput>
+				<cfelse>
+					<cfoutput><table class="cs_data_manager" border="0" cellpadding="0" cellspacing="0" summary="">
+						<tr><td class="cs_dlgLabel">#childFormName# records can only be added once the #parentFormLabel# record is saved.</td></tr>
+						</table>
+						#Server.CommonSpot.UDF.tag.input(type="hidden", name=arguments.fieldName, value="")#</cfoutput>
 				</cfif>
 			</cfif>
-		<cfelse>
-			<cfoutput>#Server.CommonSpot.UDF.tag.input(type="hidden", name=arguments.fieldName)#</cfoutput>
+			<cfscript>
+				renderJSFunctions(argumentCollection=arguments, ajaxBeanName=ajaxBeanName, formID=ceFormID, elementType=elementType, pageID=curPageID, width=widthVal, height=heightVal);
+			</cfscript>
+			<cfif arguments.displayMode neq "editable">
+				<cfoutput>#Server.CommonSpot.UDF.tag.input(type="hidden", name=arguments.fieldName)#</cfoutput>
+			</cfif>
 		</cfif>
+	<cfelse>
+		<cfoutput>#Server.CommonSpot.UDF.tag.input(type="hidden", name=arguments.fieldName)#</cfoutput>
 	</cfif>
 </cffunction>
 
@@ -303,7 +294,6 @@ History:
 	<cfargument name="height" type="string" required="yes">
 	
 	<cfscript>
-		var js = "";
 		var inputParameters = Duplicate(arguments.parameters);
 		var allAtrs = getAllAttributes();
 		var uniqueTableAppend = arguments.fieldID;
@@ -311,7 +301,6 @@ History:
 		var ajaxComURL = application.ADF.ajaxProxy;
 	</cfscript>
 	
-<cfsavecontent variable="js">
 <cfoutput><script type="text/javascript" src="/commonspot/dashboard/js/nondashboard-util.js"></script>
 <script type="text/javascript">
 <!--
@@ -649,8 +638,6 @@ function doDeleteSelected_#uniqueTableAppend#(msg,errormsg)
 }
 //-->
 </script></cfoutput>
-</cfsavecontent>
-<cfoutput>#js#</cfoutput>
 </cffunction>
 
 </cfcomponent>

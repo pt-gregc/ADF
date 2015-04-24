@@ -74,9 +74,14 @@ History:
 	<cfscript>
 		var renderData = '';
 	</cfscript>
-	<cfsavecontent variable="renderData">
-		<cfoutput><link rel="stylesheet" type="text/css" href="#variables.cftPath#/custom_element_datamanager_styles.css" /></cfoutput>
-	</cfsavecontent>
+	
+	<cfif NOT StructKeyExists(Request, 'dataManagerCSS')>
+		<cfsavecontent variable="renderData">
+			<cfoutput><link rel="stylesheet" type="text/css" href="#variables.cftPath#/custom_element_datamanager_styles.css" /></cfoutput>
+		</cfsavecontent>
+		<cfset Request.dataManagerCSS = 1>
+	</cfif>
+	
 	<cfoutput>#renderData#</cfoutput>
 </cffunction>
 

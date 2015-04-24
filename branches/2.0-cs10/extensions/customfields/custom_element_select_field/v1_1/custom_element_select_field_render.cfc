@@ -70,6 +70,7 @@ History:
 	2014-03-24 - JTP - Added logic to sort selection list by display value if specified in props
 	2014-11-06 - GAC - Fixed the conditional logic around the xparams.defaultVal expression parsing
 	2015-04-10 - DJM - Converted to CFC
+	2015-04-24 - DJM - Added own CSS
 
 To Do:
 	2014-04-08 - JTP - Currently we are NOT sorting the list if displayed as checkboxes/radio buttons and user choose sort by display value
@@ -92,118 +93,76 @@ To Do:
 		var readOnly = (arguments.displayMode EQ 'readonly') ? true : false;	
 		var ajaxComURL = application.ADF.ajaxProxy;
 		var buttonLabel = "New #inputParameters.label#";
-		
-		// Version related vars
-		var requiredCSversion = 10;
-		var csVersion = ListFirst(ListLast(request.cp.productversion," "),".");
-		var inputHTML = '<span class="cs_dlgLabelError">This Custom Field Type requires CommonSpot #requiredCSversion# or above.</span>';
-	</cfscript>
+		var cftPath = "/ADF/extensions/customfields/custom_element_select_field/v1_1";
 	
-	<cfif csVersion LT requiredCSversion>
-		<cfoutput>#inputHTML#</cfoutput>
-	<cfelse>
-		<!---// CommonSpot 9 Required for the new element data filter criteria --->
-		<cfscript>
-			inputParameters = setDefaultParamaters(argumentCollection=arguments);
-			
-			if (StructKeyExists(inputParameters,"customElement") and Len(inputParameters.customElement))
-				ceFormID = application.ADF.cedata.getFormIDByCEName(inputParameters.customElement);
+		inputParameters = setDefaultParameters(argumentCollection=arguments);
+		
+		if (StructKeyExists(inputParameters,"customElement") and Len(inputParameters.customElement))
+			ceFormID = application.ADF.cedata.getFormIDByCEName(inputParameters.customElement);
 
-			// Check if we do not have a current value then set to the default
-			if ( LEN(TRIM(currentValue)) EQ 0 ) 
+		// Check if we do not have a current value then set to the default
+		if ( LEN(TRIM(currentValue)) EQ 0 ) 
+		{
+			if ( (LEFT(TRIM(inputParameters.defaultVal),1) EQ "[") AND (RIGHT(TRIM(inputParameters.defaultVal),1) EQ "]") ) 
 			{
-				if ( (LEFT(TRIM(inputParameters.defaultVal),1) EQ "[") AND (RIGHT(TRIM(inputParameters.defaultVal),1) EQ "]") ) 
-				{
-					// Trim the [] from the expression
-					inputParameters.defaultVal = MID(inputParameters.defaultVal, 2, LEN(inputParameters.defaultVal)-2);
-					
-					//2011-01-06 - RAK - Added error catching on eval failure.
-					try{
-						currentValue = Evaluate(inputParameters.defaultVal);
-					}
-					catch(Any e){
-						currentValue = "";
-					}
-				}
-				else
-					currentValue = inputParameters.defaultVal;
-			}
-			
-			// Load JQuery to the script
-			application.ADF.scripts.loadJQuery(force=inputParameters.forceScripts);
-			if( selection_list AND StructKeyExists(inputParameters, 'SortOption') AND inputParameters.SortOption eq 'useDisplay' )
-				application.ADF.scripts.loadJQuerySelectboxes();
-			
-			renderJSFunctions(argumentCollection=arguments, fieldParameters=inputParameters, formID=ceFormID, isSelectionList=selection_list, controlType=cType, updatedValue=currentValue);
-		</cfscript>
-			
-		<cfsavecontent variable="inputHTML">
-			<cfoutput>
-				<table border=0 cellspacing="0" cellpadding="0"><tr><td>
+				// Trim the [] from the expression
+				inputParameters.defaultVal = MID(inputParameters.defaultVal, 2, LEN(inputParameters.defaultVal)-2);
 				
-					<div id="#arguments.fieldName#_renderSelect">#application.ADF.customElementSelect.renderCustomElementSelect(inputParameters,ceFormID,arguments.fieldName,currentValue,readOnly)#</div></cfoutput>
-					
-					<cfif inputParameters.addButton EQ "1">
-						<cfoutput>
-							</td><td valign="top" nowrap="nowrap">
-						
-							#application.ADF.scripts.loadJQuery()#
-							#application.ADF.scripts.loadJQueryUI()#
-							#application.ADF.scripts.loadADFLightbox()#
-							<cfscript>
-								renderStyles(argumentCollection=arguments);
-							</cfscript>
-							<script type="text/javascript">
-								jQuery(document).ready(function(){
-									// Hover states on the static widgets
-									jQuery("##addNew").hover(
-										function() {
-											jQuery(this).addClass('ui-state-hover');
-										},
-										function() {
-											jQuery(this).removeClass('ui-state-hover');
-										}
-									);
-								});
-							</script>
-						</cfoutput>
-						
-						<cfoutput><a href="javascript:;" rel="#ajaxComURL#?bean=Forms_1_1&method=renderAddEditForm&formid=#ceFormID#&datapageid=0&lbAction=norefresh&title=#buttonLabel#&callback=#arguments.fieldName#_reloadSelection" id="#arguments.fieldName#_addNewLink" class="ADFLightbox add-button ui-state-default ui-corner-all">#buttonLabel#</a></cfoutput>
-					</cfif>
-					
-				<cfoutput></td></tr></table></cfoutput>		
-		</cfsavecontent>
+				//2011-01-06 - RAK - Added error catching on eval failure.
+				try{
+					currentValue = Evaluate(inputParameters.defaultVal);
+				}
+				catch(Any e){
+					currentValue = "";
+				}
+			}
+			else
+				currentValue = inputParameters.defaultVal;
+		}
 		
-		<cfoutput>
-			#inputHTML#
-		</cfoutput>
-	</cfif>
-</cffunction>
-
-<cffunction name="renderStyles" returntype="void" access="private">
-	<cfargument name="fieldName" type="string" required="yes">
-	<cfargument name="fieldDomID" type="string" required="yes">
-	<cfargument name="value" type="string" required="yes">
-	
-	<cfscript>
-		var styles = "";
+		// Load JQuery to the script
+		application.ADF.scripts.loadJQuery(force=inputParameters.forceScripts);
+		if( selection_list AND StructKeyExists(inputParameters, 'SortOption') AND inputParameters.SortOption eq 'useDisplay' )
+			application.ADF.scripts.loadJQuerySelectboxes();
+		
+		renderJSFunctions(argumentCollection=arguments, fieldParameters=inputParameters, formID=ceFormID, isSelectionList=selection_list, controlType=cType, updatedValue=currentValue);
 	</cfscript>
-<cfsavecontent variable="styles">	
-<cfoutput>
-<style type="text/css">
-	a###arguments.fieldName#_addNewLink{
-		font-size: 10px;
-		padding: 2px 4px;
-		text-decoration:none;
-		margin-left: 6px;
-	}
-	a###arguments.fieldName#_addNewLink:hover{
-		cursor:pointer;
-	}
-</style>
-</cfoutput>
-</cfsavecontent>
-<cfoutput>#styles#</cfoutput>
+	
+	<cfoutput><table border=0 cellspacing="0" cellpadding="0"><tr><td>
+		<div id="#arguments.fieldName#_renderSelect">#application.ADF.customElementSelect.renderCustomElementSelect(inputParameters,ceFormID,arguments.fieldName,currentValue,readOnly)#</div></cfoutput>
+		
+		<cfif inputParameters.addButton EQ "1">
+			<cfoutput>
+				</td><td valign="top" nowrap="nowrap">
+			
+				#application.ADF.scripts.loadJQuery()#
+				#application.ADF.scripts.loadJQueryUI()#
+				#application.ADF.scripts.loadADFLightbox()#
+				<cfif NOT StructKeyExists(Request, 'customSelectCSS')>
+					<cfoutput>
+						<link rel="stylesheet" type="text/css" href="#cftPath#/custom_element_select_field_styles.css" />
+					</cfoutput>
+					<cfset Request.customSelectCSS = 1>
+				</cfif>
+				<script type="text/javascript">
+					jQuery(document).ready(function(){
+						// Hover states on the static widgets
+						jQuery("##addNew").hover(
+							function() {
+								jQuery(this).addClass('ui-state-hover');
+							},
+							function() {
+								jQuery(this).removeClass('ui-state-hover');
+							}
+						);
+					});
+				</script>
+			</cfoutput>
+			
+			<cfoutput><a href="javascript:;" rel="#ajaxComURL#?bean=Forms_1_1&method=renderAddEditForm&formid=#ceFormID#&datapageid=0&lbAction=norefresh&title=#buttonLabel#&callback=#arguments.fieldName#_reloadSelection" id="#arguments.fieldName#_addNewLink" class="ADFLightbox add-button ui-state-default ui-corner-all addNewButton">#buttonLabel#</a></cfoutput>
+		</cfif>
+	
+	<cfoutput></td></tr></table></cfoutput>		
 </cffunction>
 
 <cffunction name="renderJSFunctions" returntype="void" access="private">
@@ -217,7 +176,6 @@ To Do:
 	<cfargument name="updatedValue" type="string" required="yes">
 	
 	<cfscript>
-		var js = "";
 		var inputParameters = Duplicate(arguments.fieldParameters);
 		var readOnly = (arguments.displayMode EQ 'readonly') ? true :false;	
 		
@@ -225,8 +183,7 @@ To Do:
 		var ajaxComURL = application.ADF.ajaxProxy;
 		var ajaxBeanName = 'customElementSelect_1_0';
 	</cfscript>
-	
-<cfsavecontent variable="js">
+
 <cfoutput>
 <script type="text/javascript">
 <!--
@@ -356,11 +313,9 @@ function onSuccess_#arguments.fieldName#(data)
 }
 //-->
 </script></cfoutput>
-</cfsavecontent>
-<cfoutput>#js#</cfoutput>
 </cffunction>
 
-<cffunction name="setDefaultParamaters" returntype="struct" access="private">
+<cffunction name="setDefaultParameters" returntype="struct" access="private">
 	<cfargument name="fieldName" type="string" required="yes">
 	<cfargument name="fieldDomID" type="string" required="yes">
 	<cfargument name="value" type="string" required="yes">
