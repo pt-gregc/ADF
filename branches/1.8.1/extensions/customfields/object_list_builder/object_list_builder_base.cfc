@@ -30,6 +30,8 @@ Summary:
 	This is the base component module for Object List Builderr field
 History:
 	2015-04-17 - SU/SFS - Created
+	2015-04-24 - GAC - Updated the default ResultsJSONFilePath so it would point to a temp site level directory 
+					   so it would NOT write the temp json files in the /ADF directory
 --->
 <cfcomponent output="false" displayname="ObjectListBuilder" extends="ADF.core.Base" hint="This is the base component for the ObjectListBuilder custom field type">
 	
@@ -41,7 +43,7 @@ History:
 	variables.searchFields = ""; // Searchable fields in source customElement, used by bloodhound and typeahead in the ObjectListBuilder dialog
 	variables.IDField = ""; // UniqueID in the source customElement
 	variables.orderByClause = ""; // source customElement column. This should be present in variables.columnList and variables.searchFields
-	variables.ResultsJSONFilePath = "#variables.cftPath#";
+	variables.ResultsJSONFilePath = "#request.site.csAppsWebURL#customfields/temp/"; // temp/working directory - will auto-create the needed directories if they don't exist
 	variables.ResultsJSONFile = "objectListBuilderResults"; // prefix for the JSON file used by bloodhound and typeahead.
 	variables.listFormatsXMLFile = "listFormats"; // file where all of the formats are defined in editor
 	variables.listFormatsXMLFilePath = "#variables.cftPath#";
@@ -331,7 +333,8 @@ History:
 	<cfargument name="pageID" type="numeric" required="no" default="0">
 	<cfargument name="controlID" type="numeric" required="no" default="0">
 	<cfscript>
-		var JSONFileName = "#ExpandPath(variables.ResultsJSONFilePath)#/#variables.ResultsJSONFile#_#arguments.pageID#_#arguments.controlID#.json";
+		var JSONFileName = "";
+		var JSONFileDir = ExpandPath(variables.ResultsJSONFilePath);
 		var ceObj = Server.CommonSpot.ObjectFactory.getObject("CustomElement");
 		var qry = ceObj.getRecordsFromFilter(elementID=variables.ceID, filterid="0_0_#variables.ceID#_#Request.user.ID#", columnList=variables.searchFields, showDisplayValues=1);		
 		var i = 0;
@@ -344,6 +347,16 @@ History:
 		var fieldsArr = ListToArray(variables.searchFields);
 		var colLen = 1;
 		var curCol = '';
+		var javaFileOp = '';
+		
+		// If CFT JSON Working/Temp Directory doesn't exist run the java file operation to create the if needed
+		if ( !DirectoryExists(JSONFileDir) )
+		{
+			javaFileOp = CreateObject("java", "java.io.File").init(JSONFileDir);
+			javaFileOp.mkdirs();
+		}
+		
+		JSONFileName = JSONFileDir & "/#variables.ResultsJSONFile#_#arguments.pageID#_#arguments.controlID#.json";
 	</cfscript>
 	
 	<cfloop from=1 to="#resultsQry.RecordCount#" index="i">
