@@ -1,0 +1,2 @@
+DEPRECATED - DO NOT USE
+Use: /ADF/extensions/customfields/element_selector_by_cs_url/
