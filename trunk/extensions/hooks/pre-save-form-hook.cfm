@@ -11,7 +11,7 @@ History:
 
 <cfscript>
 	enableLogging = false; 	// set to true for debug logging
-	dumpLogFileName = "pre-save-form-hook.html";
+	dumpLogFileName = "_pre-save-form-hook.html";
 	
 	if ( enableLogging )
 		application.ADF.utils.logAppend(msg=attributes, label='attributes', logfile=dumpLogFileName);

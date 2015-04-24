@@ -35,10 +35,11 @@ History:
 					   from CS Pages, Registered URLs and Uploaded Documents
 	2015-01-13 - GAC - Added getCSObjectStandardMetadata
 	2015-04-06 - GAC - Added getUploadedDocFileSize and getUploadedDocServerPath
+	2015-04-09 - GAC - Added getCSExtURLString 
 --->
 <cfcomponent displayname="csData_1_3" extends="ADF.lib.csData.csData_1_2" hint="CommonSpot Data Utils functions for the ADF Library">
 
-<cfproperty name="version" value="1_3_5">
+<cfproperty name="version" value="1_3_6">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">
@@ -471,6 +472,51 @@ History:
 			retVal = fileInfoData.size;
 			
 		return retVal;
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+Name:
+	$getCSExtURLString
+Summary:
+	Returns a Commonspot Extended URL String data
+Returns:
+	String
+Arguments:
+	Numeric csPageID
+Usage:
+	application.ADF.csData.getCSExtURLString(csPageID)
+History:
+	2015-04-07 - DJM/GAC - Created 
+--->
+<cffunction name="getCSExtURLString" returntype="string" output="true" access="public" hint="Returns a Commonspot Extended URL String data">
+	<cfargument name="csPageID" type="numeric" required="true" hint="">
+
+	<cfscript>
+		var returnString = arguments.csPageID;
+		var getPageInfo = '';
+	</cfscript>
+	
+	<cfquery name="getPageInfo" DATASOURCE="#Request.Site.Datasource#">
+		SELECT FileName, SubsiteID, PageType, Uploaded
+		  FROM SitePages
+		 WHERE ID = <cfqueryparam value="#arguments.csPageID#" cfsqltype="CF_SQL_INTEGER">
+	</cfquery>
+	
+	<cfscript>
+		if ( getPageInfo.PageType EQ Request.Constants.pgTypeNormal AND getPageInfo.Uploaded EQ 0 )
+		 	returnString = 'CP___PAGEID=#arguments.csPageID#,#getPageInfo.FileName#,#getPageInfo.SubsiteID#';
+		else if ( (getPageInfo.PageType EQ Request.Constants.pgTypeNormal AND getPageInfo.Uploaded EQ 1) OR getPageInfo.PageType EQ Request.Constants.pgTypeMultimedia OR getPageInfo.PageType EQ Request.Constants.pgTypeMultimediaPlaylist )
+		 	returnString = 'CP___PAGEID=#arguments.csPageID#';
+		else if ( getPageInfo.PageType EQ Request.Constants.pgTypeImage )
+		 	returnString = 'CP___PAGEID=#arguments.csPageID#,#getPageInfo.FileName#';
+		else // PageType as user template,pageset,registered url
+		 	returnString = 'CP___PAGEID=#arguments.csPageID#,#getPageInfo.FileName#,#getPageInfo.SubsiteID#';
+		 
+		return returnString;
 	</cfscript>
 </cffunction>
 

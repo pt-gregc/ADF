@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
  
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2014.
+PaperThin, Inc. Copyright(C) 2015.
 All Rights Reserved.
  
 By downloading, modifying, distributing, using and/or accessing any files
@@ -32,6 +32,8 @@ History:
 	2014-09-15 - Created
 	2014-09-29 - GAC - Added an updated list of icon classes and codes using csvToArray on FA icon text data in a CSV text file 
 	2014-12-03 - GAC - Updated to fix for bad version folder "Major.Minor.Maintenance" for thirdParty folder. Now is only "Major.Minor" version folder.
+	2015-04-15 - DJM - Fixed issue for clear button not working as expected
+	2015-04-23 - DJM - Fixed issue for all font awesome fields in a form working as a single control field
 --->
 <cfscript>
 	// the fields current value
@@ -174,11 +176,11 @@ History:
 					// Add Key up event
 					jQuery('##fa_search_#xparams.fldID#').live( 'keyup', function() {
 						var theval = jQuery('##fa_search_#xparams.fldID#').val();
-						findFunction( theval );
+						findFunction_#fqFieldName#( theval );
 					});
 
 					// add Click event for each font li div
-					jQuery(".fonticon").live( 'click', function(){
+					jQuery("##icondata_#xparams.fldID# .fonticon").live( 'click', function(){
 						var name = jQuery(this).attr('data-name');					
 						var code = jQuery(this).attr('data-code');					
 
@@ -186,127 +188,126 @@ History:
 						jQuery("##sel_#xparams.fldID#").text( name );
 					
 						// de-select old one
-						if( jQuery("li div.selected") )
-							jQuery("li div.selected").removeClass('selected');
+						if( jQuery("##icondata_#xparams.fldID# li div.selected") )
+							jQuery("##icondata_#xparams.fldID# li div.selected").removeClass('selected');
 					
 						// select new one
 						jQuery(this).addClass('selected');
 					
 						// assign just name portion to real hidden field
-						BuildClasses();
+						BuildClasses_#fqFieldName#();
 					});		
 				
 					// add Click event for options div
 					jQuery("##options_#xparams.fldID#").live( 'click', function(){
-						BuildClasses();
+						BuildClasses_#fqFieldName#();
 					});
-		
-					function findFunction(inString)
-					{
-						// Check if we have a string defined
-						if ( inString.length > 0 )
-						{
-							// Hide everything to start
-							jQuery('li div.fonticon').hide();
-						
-							// Find the rows that contain the search terms
-							jQuery('li div[data-name*="' + inString.toLowerCase() + '"]').each(function() {
-									// Display the row
-									jQuery(this).show();
-								});
-
-							// Find the selected rows 
-							jQuery('li div.selected').show();
-						}
-						else 
-						{
-							// Show Everything
-							jQuery('li div.fonticon').show();
-						}
-					}
-				
-					function clearInput()
-					{
-						jQuery('##fa_search_#xparams.fldID#').val('');		
-						jQuery('##sel_#xparams.fldID#').text('(Blank)');		
-						jQuery('##icon_#xparams.fldID#').attr( 'class', '');		
-						jQuery('###xparams.fldID#').val('');		
-					
-						// de-select old one
-						if( jQuery("li div.selected") )
-							jQuery("li div.selected").removeClass('selected');
-					
-						findFunction('');
-					}
-				
-					function BuildClasses()
-					{
-						var name = '';
-						var val = '';
-						var size = '';
-						var fw = '';
-						var border = '';
-						var spin = '';
-						var pull = '';
-
-						// get selected item
-						if( jQuery("li div.selected").length )
-							name = jQuery("li div.selected").attr('data-name');
-					
-						if( document.getElementById('size_#xparams.fldID#') instanceof Object )
-							size = jQuery('##size_#xparams.fldID#').val();
-					
-						if( document.getElementById('fw_#xparams.fldID#') instanceof Object )
-						{	
-							if( jQuery('##fw_#xparams.fldID#').prop('checked') )
-								fw = jQuery('##fw_#xparams.fldID#').val();
-						}		
-						
-						if( document.getElementById('border_#xparams.fldID#') instanceof Object )
-						{	
-							if( jQuery('##border_#xparams.fldID#').prop('checked') )	
-								border = jQuery('##border_#xparams.fldID#').val();
-						}
-									
-						if( document.getElementById('spin_#xparams.fldID#') instanceof Object )
-						{	
-							if( jQuery('##spin_#xparams.fldID#').prop('checked') )							
-								spin = jQuery('##spin_#xparams.fldID#').val();
-						}
-									
-						if( document.getElementById('pull_#xparams.fldID#') instanceof Object )
-						{	
-							if( jQuery('##pull_#xparams.fldID#') )	
-								pull = jQuery('##pull_#xparams.fldID#').val();
-						}
-								
-						// console.log( name + ' ' + size + ' ' + fw + ' ' + border + ' ' + spin + ' ' + pull  );
-
-						val = '';
-						if( name.length > 0 )
-						{
-							val = name;
-							if( size.length > 0 )
-								val = val + ' ' + size;
-							if( fw.length > 0 )
-								val = val + ' ' + fw;
-							if( border.length > 0 )
-								val = val + ' ' + border;
-							if( spin.length > 0 )
-								val = val + ' ' + spin;
-							if( pull.length > 0 )
-								val = val + ' ' + pull;
-
-							// set display div
-							jQuery('##sel_#xparams.fldID#').text( name );		
-							jQuery('##icon_#xparams.fldID#').attr( 'class', 'fa ' + val );		
-						}
-					
-						// set hidden value
-						jQuery('###xparams.fldID#').val( val );	
-					}
- 
 				});
+				
+				function findFunction_#fqFieldName#(inString)
+				{
+					// Check if we have a string defined
+					if ( inString.length > 0 )
+					{
+						// Hide everything to start
+						jQuery('##icondata_#xparams.fldID# li div.fonticon').hide();
+					
+						// Find the rows that contain the search terms
+						jQuery('##icondata_#xparams.fldID# li div[data-name*="' + inString.toLowerCase() + '"]').each(function() {
+								// Display the row
+								jQuery(this).show();
+							});
+
+						// Find the selected rows 
+						jQuery('##icondata_#xparams.fldID# li div.selected').show();
+					}
+					else 
+					{
+						// Show Everything
+						jQuery('##icondata_#xparams.fldID# li div.fonticon').show();
+					}
+				}
+			
+				function clearInput_#fqFieldName#()
+				{
+					jQuery('##fa_search_#xparams.fldID#').val('');		
+					jQuery('##sel_#xparams.fldID#').text('(Blank)');		
+					jQuery('##icon_#xparams.fldID#').attr( 'class', '');		
+					jQuery('###xparams.fldID#').val('');		
+				
+					// de-select old one
+					if( jQuery("##icondata_#xparams.fldID# li div.selected") )
+						jQuery("##icondata_#xparams.fldID# li div.selected").removeClass('selected');
+				
+					findFunction_#fqFieldName#('');
+				}
+			
+				function BuildClasses_#fqFieldName#()
+				{
+					var name = '';
+					var val = '';
+					var size = '';
+					var fw = '';
+					var border = '';
+					var spin = '';
+					var pull = '';
+
+					// get selected item
+					if( jQuery("##icondata_#xparams.fldID# li div.selected").length )
+						name = jQuery("##icondata_#xparams.fldID# li div.selected").attr('data-name');
+				
+					if( document.getElementById('size_#xparams.fldID#') instanceof Object )
+						size = jQuery('##size_#xparams.fldID#').val();
+				
+					if( document.getElementById('fw_#xparams.fldID#') instanceof Object )
+					{	
+						if( jQuery('##fw_#xparams.fldID#').prop('checked') )
+							fw = jQuery('##fw_#xparams.fldID#').val();
+					}		
+					
+					if( document.getElementById('border_#xparams.fldID#') instanceof Object )
+					{	
+						if( jQuery('##border_#xparams.fldID#').prop('checked') )	
+							border = jQuery('##border_#xparams.fldID#').val();
+					}
+								
+					if( document.getElementById('spin_#xparams.fldID#') instanceof Object )
+					{	
+						if( jQuery('##spin_#xparams.fldID#').prop('checked') )							
+							spin = jQuery('##spin_#xparams.fldID#').val();
+					}
+								
+					if( document.getElementById('pull_#xparams.fldID#') instanceof Object )
+					{	
+						if( jQuery('##pull_#xparams.fldID#') )	
+							pull = jQuery('##pull_#xparams.fldID#').val();
+					}
+							
+					// console.log( name + ' ' + size + ' ' + fw + ' ' + border + ' ' + spin + ' ' + pull  );
+
+					val = '';
+					if( name.length > 0 )
+					{
+						val = name;
+						if( size.length > 0 )
+							val = val + ' ' + size;
+						if( fw.length > 0 )
+							val = val + ' ' + fw;
+						if( border.length > 0 )
+							val = val + ' ' + border;
+						if( spin.length > 0 )
+							val = val + ' ' + spin;
+						if( pull.length > 0 )
+							val = val + ' ' + pull;
+
+						// set display div
+						jQuery('##sel_#xparams.fldID#').text( name );		
+						jQuery('##icon_#xparams.fldID#').attr( 'class', 'fa ' + val );		
+					}
+				
+					// set hidden value
+					jQuery('###xparams.fldID#').val( val );	
+				}
 			</script>
  
 			<div style="display: inline-block; font-size: 12px;  padding: 5px 10px 0px 0px;">
@@ -314,11 +315,11 @@ History:
 				<span id="sel_#xparams.fldID#">#ListFirst(currentValue, ' ')#</span>
 			</div>
 			<input type="text" name="fa_search_#xparams.fldID#" id="fa_search_#xparams.fldID#" value="" <cfif readOnly>disabled="disabled"</cfif> style="width: 180px; margin-bottom: 5px; padding-left: 5px;" placeholder="Type to filter list of icons"> 
-			<input class="clsPushButton" type="button" value="Clear" style="padding: 1px 5px; vertical-align: baseline;" onclick="clearInput()">
+			<input class="clsPushButton" type="button" value="Clear" style="padding: 1px 5px; vertical-align: baseline;" onclick="clearInput_#fqFieldName#()">
 			<input type="hidden" name="#fqFieldName#" id="#xparams.fldID#" value="#currentValue#"> 			
 			<div class="cols-3-outer">
 			<cfif LEN(TRIM(cftErrMsg))>#cftErrMsg#</cfif>
-			<div class="cols-3">
+			<div id="icondata_#xparams.fldID#" class="cols-3">
 				<ul>
 					<cfset selected_index = ''>
 					<cfloop index="i" from="1" to="#ArrayLen(fontArray)#" step="1">
