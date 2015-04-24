@@ -48,6 +48,7 @@ History:
 	variables.columnList = ""; // columns from the source customElement.
 	
 	// CFT Style File Path variables
+	variables.jqueryUItheme = "ui-lightness";
 	variables.cftStyleFilePath = variables.cftPath & "/object_list_builder_styles.css";
 	variables.cftListFormatFilePath = variables.cftPath & "/plugins/listformat/css/listformat.css";
 </cfscript>
@@ -55,8 +56,10 @@ History:
 <!------------------------------------------------------>	
 <!---// PUBLIC FUNCTIONS //----------------------------->	
 <!------------------------------------------------------>		
-		
-		
+
+<!-------------------------------------------
+	parse()
+------------------------------------------->			
 <cffunction name="parse" access="public" returntype="any" hint="Method that converts saved data to ckEditor input format">	
 	<cfargument name="data" type="string" required="yes" hint="Data retrieved from database">	
 	<cfscript>
@@ -114,7 +117,9 @@ History:
 	</cfscript>
 </cffunction>	
 	
-		
+<!-------------------------------------------
+	getResultsList()
+------------------------------------------->		
 <cffunction name="getResultsList" returnType="any" access="remote" hint="Method to get the result rows based on search criteria">		
    <cfargument name="searchString" type="string" required="no" default="" hint="Search criteria for the custom element records">
 	<cfscript>
@@ -162,6 +167,9 @@ History:
 	</cfscript>		
 </cffunction>
 	
+<!-------------------------------------------
+	getFormats()
+------------------------------------------->		
 <cffunction name="getFormats" access="remote" returntype="any" hint="Method to read formats from XML file">
 	<cfargument name="format" type="string" required="no" default="" hint="specific format to return">
 	<cfargument name="isDefaultFilter" type="string" required="no" default="" hint="1 or 0 or empty string (default) for all results">
@@ -210,22 +218,37 @@ History:
 	
 </cffunction>
 
+<!-------------------------------------------
+	getListFormatsXMLFile()
+------------------------------------------->	
 <cffunction name="getListFormatsXMLFile" access="public" returntype="string" hint="Method to return the name of the listFormatsXML file">
 	<cfreturn variables.listFormatsXMLFile>
 </cffunction>
 
+<!-------------------------------------------
+	getListFormatsXMLFilePath()
+------------------------------------------->	
 <cffunction name="getListFormatsXMLFilePath" access="public" returntype="string" hint="Method to return the path of the listFormatsXML file">
 	<cfreturn variables.listFormatsXMLFilePath>
 </cffunction>
 
+<!-------------------------------------------
+	getResultsJSONFile()
+------------------------------------------->	
 <cffunction name="getResultsJSONFile" access="public" returntype="string" hint="Method to return the name of the JSON results file">
 	<cfreturn variables.ResultsJSONFile>
 </cffunction>
 
+<!-------------------------------------------
+	getResultsJSONFilePath()
+------------------------------------------->	
 <cffunction name="getResultsJSONFilePath" access="public" returntype="string" hint="Method to return the path of the JSON results file">
 	<cfreturn variables.ResultsJSONFilePath>
 </cffunction>
 
+<!-------------------------------------------
+	renderItem()
+------------------------------------------->	
 <cffunction name="renderItem" access="remote" returntype="any" hint="Method to render item in the given format">
 	<cfargument name="format" type="string" required="true" hint="Format in which item should be displayed">
 	<cfargument name="id" type="string" required="true" hint="Id of the record">
@@ -297,13 +320,13 @@ History:
 	
 </cffunction>
 
-
-
-
 <!------------------------------------------------------>	
 <!---// HELPER FUNCTIONS //----------------------------->	
 <!------------------------------------------------------>		
-	
+
+<!-------------------------------------------
+	writeJSONFile()
+------------------------------------------->
 <cffunction name="writeJSONFile" access="public" returnType="void" hint="writes the json readable by typeahead plugin of jquery">
 	<cfargument name="pageID" type="numeric" required="no" default="0">
 	<cfargument name="controlID" type="numeric" required="no" default="0">
@@ -353,6 +376,9 @@ History:
 	</cftry>		
 </cffunction>
 
+<!-------------------------------------------
+	renderStyles()
+------------------------------------------->
 <cffunction name="renderStyles" access="public" returntype="any" hint="Method to render the styles for object list builder.">		
 	<cfscript>
 		var renderData = '';
@@ -360,11 +386,11 @@ History:
 		var listFormatFilePath = "/plugins/listformat/css/listformat.css";
 
 		// Set defaults if these variables are not set
-		if ( StructKeyExists(variables,"jqueryUItheme") )
+		if ( !StructKeyExists(variables,"jqueryUItheme") OR LEN(TRIM(variables.jqueryUItheme)) EQ 0  )
 			variables.jqueryUItheme = "ui-lightness";
-		if ( StructKeyExists(variables,"cftStyleFilePath") )
+		if ( !StructKeyExists(variables,"cftStyleFilePath") OR LEN(TRIM(variables.cftStyleFilePath)) EQ 0 )
 			variables.cftStyleFilePath = variables.cftPath & styleFilePath;
-		if ( StructKeyExists(variables,"cftListFormatFilePath") )
+		if ( !StructKeyExists(variables,"cftListFormatFilePath") OR LEN(TRIM(variables.cftListFormatFilePath)) EQ 0 )
 			variables.cftListFormatFilePath = variables.cftPath & listFormatFilePath;
 	</cfscript>
 	<cfsavecontent variable="renderData">
@@ -375,40 +401,42 @@ History:
 	</cfsavecontent>
 	<cfoutput>#renderData#</cfoutput>
 </cffunction>
-<!--- <cffunction name="renderStyles" access="public" returntype="any" hint="Method to render the styles for object list builder.">		
-	<cfscript>
-		var renderData = '';
-	</cfscript>
-	<cfsavecontent variable="renderData">
-		<cfoutput><link href="http://code.jquery.com/ui/1.10.4/themes/ui-lightness/jquery-ui.css" rel="stylesheet">
-		<link rel="stylesheet" type="text/css" href="#variables.cftPath#/object_list_builder_styles.css" />
-		<link rel="stylesheet" type="text/css" href="/ADF/extensions/customfields/object_list_builder/plugins/listformat/css/listformat.css" />	
-		</cfoutput>
-	</cfsavecontent>
-	<cfoutput>#renderData#</cfoutput>
-</cffunction> --->
 
+<!-------------------------------------------
+	renderJS()
+------------------------------------------->
 <cffunction name="renderJS" access="public" returntype="any" hint="Method to render the styles for object list builder.">		
 	<cfscript>
 		var renderData = '';
 	</cfscript>
 	<cfsavecontent variable="renderData">
-		#application.ADF.scripts.loadTypeAheadBundle()#
-		#application.ADF.scripts.loadCKEditor()#
+		<cfoutput>#application.ADF.scripts.loadTypeAheadBundle()#
+		#application.ADF.scripts.loadCKEditor()#</cfoutput>
 		<!--- <cfoutput><script type="text/javascript" src="#variables.cftPath#/jquery/typeahead/typeahead.bundle.js"></script>
 		<script type="text/javascript" src="//cdn.ckeditor.com/4.4.6/full/ckeditor.js"></script></cfoutput> --->
 	</cfsavecontent>
 	<cfoutput>#renderData#</cfoutput>
 </cffunction>
-<!--- <cffunction name="renderJS" access="public" returntype="any" hint="Method to render the styles for object list builder.">		
-	<cfscript>
-		var renderData = '';
-	</cfscript>
-	<cfsavecontent variable="renderData">
-		<cfoutput><script type="text/javascript" src="#variables.cftPath#/jquery/typeahead/typeahead.bundle.js"></script>
-		<script type="text/javascript" src="//cdn.ckeditor.com/4.4.6/full/ckeditor.js"></script></cfoutput>
-	</cfsavecontent>
-	<cfoutput>#renderData#</cfoutput>
-</cffunction> --->
+
+<!-------------------------------------------
+	getJqueryUItheme()
+------------------------------------------->	
+<cffunction name="getJqueryUItheme" access="public" returntype="string" hint="Method to return the jquery UI theme name">
+	<cfreturn variables.jqueryUItheme>
+</cffunction>
+
+<!-------------------------------------------
+	getCFTStyleFilePath()
+------------------------------------------->	
+<cffunction name="getCFTStyleFilePath" access="public" returntype="string" hint="Method to return the CFT CSS Style file path">
+	<cfreturn variables.cftStyleFilePath>
+</cffunction>
+
+<!-------------------------------------------
+	getCFTListFormatFilePath()
+------------------------------------------->	
+<cffunction name="getCFTListFormatFilePath" access="public" returntype="string" hint="Method to return the CFT ListFormat.xml file path">
+	<cfreturn variables.cftListFormatFilePath>
+</cffunction>
 
 </cfcomponent>

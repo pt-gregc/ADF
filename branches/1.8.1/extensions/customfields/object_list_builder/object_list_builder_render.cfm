@@ -163,7 +163,7 @@ History:
 <cfoutput>
 	#datamanagerObj.renderJS()#
 	#datamanagerObj.renderStyles()#
-<tr><td>
+<tr><td colspan="2">
 <table width="950" border="0" class="borderedTable" id="borderedTable" cellspacing="0" cellpadding="2" summary="">
 	<!--- left bar --->
 	<tr>

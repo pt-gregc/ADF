@@ -1,45 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <listFormats class="array">
 	<format>
-		<formatName>title</formatName>
-		<displayName>Course Title in Upper and Lower Case</displayName>
-		<structure><![CDATA[<a href="{catalogPageID}">{courseName}</a>]]></structure>
-		<isDefault>0</isDefault>
-		<wrapperTag>span</wrapperTag>
-	</format>
-	<format>
-		<formatName>number</formatName>
-		<displayName>School Code and Course Number</displayName>
-		<structure><![CDATA[<a href="{catalogPageID}">{courseID}</a>]]></structure>
-		<isDefault>0</isDefault>
-		<wrapperTag>span</wrapperTag>
-	</format>
-	<format>
-		<formatName>numberAndTitle</formatName>
-		<displayName>School Code, Course Number, and Course Title</displayName>
-		<structure><![CDATA[<a href="{catalogPageID}">{courseID} - {courseName}</a>]]></structure>
+		<formatName>titleCredits</formatName>
+		<displayName>Course Title and Credits</displayName>
+		<structure><![CDATA[{courseTitle} - {CourseCredits} Credit(s)]]></structure>
 		<isDefault>1</isDefault>
 		<wrapperTag>span</wrapperTag>
 	</format>
 	<format>
-		<formatName>numberAndTitleAndCredits</formatName>
-		<displayName>School Code, Course Number, Course Title, and Credits</displayName>
-		<structure><![CDATA[<a href="{catalogPageID}">{courseID} - {courseName}</a> (credits: {courseCredits})]]></structure>
+		<formatName>titleCode</formatName>
+		<displayName>Course Title and Course Code</displayName>
+		<structure><![CDATA[<div>{courseTitle}</div><div>Code: {courseCode}</div>]]></structure>
 		<isDefault>0</isDefault>
 		<wrapperTag>span</wrapperTag>
 	</format>
 	<format>
-		<formatName>linkListing</formatName>
-		<displayName>Listing with page link</displayName>
-		<structure><![CDATA[<a href="{catalogPageID}">{courseCode} - {courseName}</a>]]></structure>
-		<isDefault>0</isDefault>
-		<wrapperTag>span</wrapperTag>
-	</format>
-	<format>
-		<formatName>h4Listing</formatName>
-		<displayName>Listing with H4</displayName>
-		<structure><![CDATA[<h4>{courseCode} - {courseName}</h4> <u>Credits</u>: <strong>{courseCredits}</strong>]]></structure>
-		<isDefault>0</isDefault>
-		<wrapperTag>section</wrapperTag>
+		<formatName>codeTitleInstructor</formatName> 
+		<displayName>Listing with H4</displayName> 
+		<structure><![CDATA[<h4>{courseCode} - {CourseTitle}</h4> <u>Course Instructor</u>: <b>{CourseInstructor}</b>]]></structure> 
+		<isDefault>0</isDefault> 
+		<wrapperTag>section</wrapperTag> 
 	</format>
 </listFormats>
