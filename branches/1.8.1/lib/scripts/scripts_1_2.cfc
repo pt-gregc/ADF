@@ -111,7 +111,7 @@ Summary:
 	We DO NOT include the CK Editor code library in the ADF/thirdParty folder.
 	
 	First we look for in two different unversioned local site folders:
-		1) _cs_customizations - Commonspot  "/cs_customization/ckeditor/"
+		1) cs_customization - Commonspot  "/cs_customization/ckeditor/"
 		2) _cs_apps - ADF thirdParty folder "/_cs_apps/thirdParty/ckeditor/"
 	If we can't find it either of those locations then we use the CKEditor CDN for the version specified.
 		eg. "//cdn.ckeditor.com/4.4.7/full/ckeditor.js"
