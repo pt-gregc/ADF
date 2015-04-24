@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2014.
+PaperThin, Inc. Copyright(C) 2015.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -54,7 +54,7 @@ History:
 <cfscript>
 	variables.ADFversion = "1.8.1"; // use a dot delimited version number
 	// ADF Build Revision Number
-	variables.buildRev = "1536";
+	variables.buildRev = "1537";
 	// ADF Codename
 	variables.buildName = "Centipede";
 	// CS product version, get the decimal value
