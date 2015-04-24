@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="scriptsService_1_1" extends="ADF.lib.scripts.scriptsService_1_0" hint="Scripts Service functions for the ADF Library">
 
-<cfproperty name="version" value="1_1_4">
+<cfproperty name="version" value="1_1_5">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="ScriptsService_1_1">
 
@@ -53,7 +53,8 @@ Summary:
 Returns:
 	Void
 Arguments:
-	Version 1.0
+	String - scriptName
+	String - outputHTML
 History:
  	2010-10-04 - RAK - Created
  	2010-12-10 - RAK - Updated so this will be compatible with previous version and dups will not exist!
@@ -61,32 +62,38 @@ History:
 	2010-03-27 - MFC - Output the scripts directly when in IE, not through JavaScript.
 	2011-06-29 - RAK - Fixed a bug where we were not removing single line comments from scripts which was commenting out code when we removed line breaks.
 	2011-07-13 - DRM - Added escaping of returns in addition to newlines
+	2015-04-23 - GAC - Added an option to disable the Javascript script loader
 --->
 <cffunction name="renderScriptOnce" access="public" output="true" returntype="void" hint="Given unescaped outputHML and script name handles adding code to the page">
 	<cfargument name="scriptName" type="string" required="true" hint="Name of the script that is being ran">
 	<cfargument name="outputHTML" type="string" required="true" hint="HTML to have outputted to the screen">
+	<cfargument name="disableJSloader" type="boolean" required="false" default="false" hint="Flag to bypass the javascript loader but still only render the script once.">
+	
 	<cfscript>
-		if(!StructKeyExists(request,"ADFScriptsDebugging")){
+		if ( !StructKeyExists(request,"ADFScriptsDebugging") )
+		{
 			request.ADFScriptsDebugging = false;
 		}
 	</cfscript>
+	
 	<cfif !isScriptLoaded(arguments.scriptName)>
 		<cfscript>
 			loadedScript(arguments.scriptName);
 			//Clean the arguments.outputHTML for javascript strings
 			arguments.outputHTML = Trim(arguments.outputHTML);
+			
+			// 2011-03-27 - MFC - Output the scripts directly when in IE, not through the JavaScript loader
+			//   - Detect if IE to not load through JS
+			if ( ListContains(CGI.HTTP_USER_AGENT, "MSIE") )
+				arguments.disableJSloader = true;
 		</cfscript>
 		
-		<!--- 2011-03-27 - MFC - Output the scripts directly when in IE, not through JavaScript. --->
-		<!--- Detect if IE to not load through JS --->
-		<cfif ListContains(CGI.HTTP_USER_AGENT, "MSIE")>
-			<cfoutput>
-				#arguments.outputHTML#
-			</cfoutput>
+		<cfif arguments.disableJSloader>
+			<cfoutput>#arguments.outputHTML#</cfoutput>
 		<cfelse>
 			<!--- Else use JS to load through all other browsers --->
 			<cfscript>
-				//	Removing single line scripts because it comments code out when we remove line breaks! -> //
+				//	Removing single line script comments because it comments code out when we remove line breaks! -> //
 				arguments.outputHTML = ReReplace(arguments.outputHTML, '//[^\r\n]*', '', "all");
 
 				// escape forward slashes and single quotes

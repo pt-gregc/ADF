@@ -120,7 +120,7 @@ Returns:
 Arguments:
 	String - version - CKEditor version to load from the CDN.
 	String - package -  CKEditor package to load from the CDN.
-	Boolean - forceCDN - Forces loading of CKEditor from the CKEditor CDN. Skips the site leve fileExists checks.
+	Boolean - useCDN - Disables local filesystem checking and loads directly from the CDN.
 	Boolean - force - Forces CKEditor script header to load.
 History:
 	2015-04-22 - GAC - Created
@@ -128,7 +128,7 @@ History:
 <cffunction name="loadCKEditor" access="public" output="true" returntype="void" hint="Loads the ckeditor scriptHeaders if not loaded."> 
 	<cfargument name="version" type="string" required="false" default="4.4.7" hint="Optional: CKeditor version to load. Used only when loading from ckeditor CDN.">
 	<cfargument name="package" type="string" required="false" default="full" hint="Optional: CKeditor package to load.  Used only when loading from ckeditor CDN.">
-	<cfargument name="forceCDN" type="boolean" required="false" default="false" hint="Forces loading from CDN to skip the site level directory checks.">
+	<cfargument name="useCDN" type="boolean" required="false" default="false" hint="Disables local filesystem checking and loads directly from the CDN.">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces CKEditor script header to load.">
 	
 	<cfscript>
@@ -136,14 +136,15 @@ History:
 		var csScriptLibPath = "/cs_customization/ckeditor/ckeditor.js";
 		var adfScriptLibPath = "/_cs_apps/thirdParty/ckeditor/ckeditor.js";
 		var loadViaCDN = false;
-		var packageList = 'basic,standard,full';
+		var packageList = 'basic,standard,standard-all,full,full-all';
+		var disableJSloader = false;
 		
 		if ( LEN(TRIM(arguments.package)) EQ 0 OR ListFindNoCase(packageList,arguments.package) EQ 0 )
 			arguments.package = "full";
 	</cfscript>
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
-			<cfif !arguments.forceCDN>
+			<cfif !arguments.useCDN>
 				<!--- // Attempt to find and load the local site level ckeditor.js file --->
 				<cfif FileExists(expandPath(csScriptLibPath))>
 					<script type="text/javascript" src="#csScriptLibPath#"></script>
@@ -157,6 +158,8 @@ History:
 			</cfif>	
 			<!--- // If we can't find site level files or forceCDN is true... load ckeditor from the CDN --->
 			<cfif loadViaCDN>
+				<!--- // [GAC 2015-04-23] - currently external URLs get stripped if we use the renderScriptOnce javascript loader --->
+				<cfset disableJSloader = true>
 				<script type="text/javascript" src="//cdn.ckeditor.com/#arguments.version#/#arguments.package#/ckeditor.js"></script>
 			</cfif>
 		</cfoutput>
@@ -165,7 +168,7 @@ History:
 		<cfif arguments.force>
 			#outputHTML#
 		<cfelse>
-			#variables.scriptsService.renderScriptOnce("ckeditor",outputHTML)#
+			#variables.scriptsService.renderScriptOnce(scriptName="ckeditor",outputHTML=outputHTML,disableJSloader=disableJSloader)#
 		</cfif>
 	</cfoutput>
 </cffunction>
@@ -1258,7 +1261,6 @@ History:
 		<cfsavecontent variable="outputHTML">
 			<cfoutput>
 				<script type='text/javascript' src='/ADF/thirdParty/jquery/ui/jquery-ui-#arguments.version#/js/jquery-ui-#arguments.version#.js'></script>
-				#loadJQueryUIstyles(version=arguments.version,themeName=arguments.themeName,force=arguments.force)#
 			</cfoutput>
 		</cfsavecontent>
 		<cfoutput>
@@ -1268,6 +1270,9 @@ History:
 				#variables.scriptsService.renderScriptOnce("jQueryUI",outputHTML)#
 			</cfif>
 		</cfoutput>
+		<cfscript>
+			loadJQueryUIstyles(version=arguments.version,themeName=arguments.themeName,force=arguments.force);
+		</cfscript>
 	</cfif>
 </cffunction>
 
