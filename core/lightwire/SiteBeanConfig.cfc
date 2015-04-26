@@ -33,7 +33,7 @@ History:
 
 <cfcomponent name="SiteBeanConfig" extends="ADF.core.lightwire.LightWireConfigExtendedBase" hint="A LightWire configuration bean.">
 
-<cfproperty name="version" value="1_8_1">
+<cfproperty name="version" value="1_8_2">
 <cfproperty name="file-version" value="1">
 
 <!--- 

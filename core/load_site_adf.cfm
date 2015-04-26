@@ -49,7 +49,7 @@ History:
 <!--- // Lock around the entire load ADF processing --->
 <cflock timeout="300" type="exclusive" name="ADF-RESET-LOAD-SITE">
 	<cfscript>
-		adfVersion = "1.8.1";
+		adfVersion = "1.8.2";
 		adfFileVersion = "16"; 
 		
 		// Initialize the RESET TYPE variable

@@ -40,7 +40,7 @@ History:
 --->
 <cfcomponent name="Base" hint="Base component for Custom Application Common Framework">
 
-<cfproperty name="version" value="1_8_1">
+<cfproperty name="version" value="1_8_2">
 <cfproperty name="file-version" value="5">
 	
 <cffunction name="init" output="true" returntype="any">
