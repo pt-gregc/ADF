@@ -27,7 +27,7 @@ Name:
 Summary:
 	Application file.
 Version:
-	1.8.1
+	1.8.2
 History:
 	2009-06-17 - RLW - Created
 	2011-01-19 - RAK - Fixed typo in utils
@@ -42,7 +42,7 @@ History:
 --->
 <cfcomponent>
 	
-	<cfproperty name="version" value="1_8_1">
+	<cfproperty name="version" value="1_8_2">
 	<cfproperty name="file-version" value="1">
 	
 	<cfset this.sessionManagement = true>
