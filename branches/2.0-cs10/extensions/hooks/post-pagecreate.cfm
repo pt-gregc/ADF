@@ -11,7 +11,7 @@ History:
 
 <cfscript>
 	enableLogging = false; 	// set to true for debug logging
-	dumpLogFileName = "post-pagecreate.html";
+	dumpLogFileName = "_post-pagecreate.html";
 	
 	if ( enableLogging ) 
 	{
