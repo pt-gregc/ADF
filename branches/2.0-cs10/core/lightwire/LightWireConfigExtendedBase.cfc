@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2014.
+PaperThin, Inc. Copyright(C) 2015.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -37,7 +37,7 @@ History:
 --->
 <cfcomponent name="LightWireConfigExtendedBase" extends="ADF.thirdParty.lightwire.BaseConfigObject" output="false">
 
-<cfproperty name="version" value="1_8_1">
+<cfproperty name="version" value="2_0_0">
 <cfproperty name="file-version" value="3">
 
 <cffunction name="init" returntype="any" hint="I initialize default LightWire config properties." output=false access="public">

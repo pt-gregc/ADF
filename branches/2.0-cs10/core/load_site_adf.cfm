@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2014.
+PaperThin, Inc. Copyright(C) 2015.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -46,7 +46,7 @@ History:
 <!--- // Lock around the entire load ADF processing --->
 <cflock timeout="300" type="exclusive" name="ADF-RESET-LOAD-SITE">
 	<cfscript>
-		adfVersion = "1.8.1";
+		adfVersion = "2.0.0";
 		adfFileVersion = "13"; 
 		
 		// Initialize the RESET TYPE variable
