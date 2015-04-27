@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2014.
+PaperThin, Inc. Copyright(C) 2015.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -35,12 +35,13 @@ History:
 	2013-09-27 - DMB - Added a function to load jQuery Cycle2 lib 
 	2014-05-19 - GAC - Added functions for jQuery plug-ins: jEditable, Calx, Calculation
 	2014-09-16 - GAC - Updated references to thirdparty to thirdParty for case sensitivity
-	2015-02-17 - GAC - Added a loadJQueryTimeAgo function to load version 1.4 by default	
+	2015-02-17 - GAC - Added a loadJQueryTimeAgo function to load version 1.4 by default
+	2015-04-22 - GAC - Added the loadCKEditor and the loadTypeAheadBundle functions	
 
 --->
 <cfcomponent displayname="scripts_1_2" extends="ADF.lib.scripts.scripts_1_1" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" value="1_2_24">
+<cfproperty name="version" value="1_2_25">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_1" type="dependency">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Scripts_1_2">
@@ -53,7 +54,7 @@ Author:
 Name:
 	$loadBootstrap
 Summary:
-	Loads the Bootstrap Headers if not loaded.
+	Loads the JQuery Bootstrap Headers if not loaded.
 Returns:
 	None
 Arguments:
@@ -62,15 +63,16 @@ Arguments:
 	Boolean - useDefaultTheme -  Loads the default bootstrap theme by default
 History:
 	2014-12-03 - GAC - Created
+	2015-04-17 - GAC - Moved the jQuery plugin version of bootstrap into the jquery directory
 --->
-<cffunction name="loadBootstrap" access="public" output="true" returntype="void" hint="Loads the Bootstrap Headers if not loaded.">
+<cffunction name="loadBootstrap" access="public" output="true" returntype="void" hint="Loads the JQuery Bootstrap Headers if not loaded.">
 	<cfargument name="version" type="string" required="false" default="3.3" hint="Bootstrap version to load.">
 	<cfargument name="force" type="boolean" required="false" default="false" hint="Forces the Bootstrap headers to load.">
 	<cfargument name="useDefaultTheme" type="boolean" required="false" default="true" hint="Loads the default bootstrap theme css file.">
 	
 	<cfscript>
 		var outputHTML = "";
-		var thirdPartyLibPath = "/ADF/thirdParty/bootstrap/";
+		var thirdPartyLibPath = "/ADF/thirdParty/jquery/bootstrap/";
 		var scriptPath = ""; 
 		
 		// Only use the major.minor version numbers and strip .maintenance/.build number if passed in
@@ -92,6 +94,81 @@ History:
 			#outputHTML#
 		<cfelse>
 			#variables.scriptsService.renderScriptOnce("bootstrap",outputHTML)#
+		</cfif>
+	</cfoutput>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$loadCKEditor
+Summary:
+	Loads the ckeditor script Headers if not loaded.
+	
+	!! Important !!
+	We DO NOT include the CK Editor code library in the ADF/thirdParty folder.
+	
+	First we look for in two different unversioned local site folders:
+		1) cs_customization - Commonspot  "/cs_customization/ckeditor/"
+		2) _cs_apps - ADF thirdParty folder "/_cs_apps/thirdParty/ckeditor/"
+	If we can't find it either of those locations then we use the CKEditor CDN for the version specified.
+		eg. "//cdn.ckeditor.com/4.4.7/full/ckeditor.js"
+Returns:
+	None
+Arguments:
+	String - version - CKEditor version to load from the CDN.
+	String - package -  CKEditor package to load from the CDN.
+	Boolean - useCDN - Disables local filesystem checking and loads directly from the CDN.
+	Boolean - force - Forces CKEditor script header to load.
+History:
+	2015-04-22 - GAC - Created
+--->
+<cffunction name="loadCKEditor" access="public" output="true" returntype="void" hint="Loads the ckeditor scriptHeaders if not loaded."> 
+	<cfargument name="version" type="string" required="false" default="4.4.7" hint="Optional: CKeditor version to load. Used only when loading from ckeditor CDN.">
+	<cfargument name="package" type="string" required="false" default="full" hint="Optional: CKeditor package to load.  Used only when loading from ckeditor CDN.">
+	<cfargument name="useCDN" type="boolean" required="false" default="false" hint="Disables local filesystem checking and loads directly from the CDN.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces CKEditor script header to load.">
+	
+	<cfscript>
+		var outputHTML = "";
+		var csScriptLibPath = "/cs_customization/ckeditor/ckeditor.js";
+		var adfScriptLibPath = "/_cs_apps/thirdParty/ckeditor/ckeditor.js";
+		var loadViaCDN = false;
+		var packageList = 'basic,standard,standard-all,full,full-all';
+		var disableJSloader = false;
+		
+		if ( LEN(TRIM(arguments.package)) EQ 0 OR ListFindNoCase(packageList,arguments.package) EQ 0 )
+			arguments.package = "full";
+	</cfscript>
+	<cfsavecontent variable="outputHTML">
+		<cfoutput>
+			<cfif !arguments.useCDN>
+				<!--- // Attempt to find and load the local site level ckeditor.js file --->
+				<cfif FileExists(expandPath(csScriptLibPath))>
+					<script type="text/javascript" src="#csScriptLibPath#"></script>
+				<cfelseif FileExists(expandPath(adfScriptLibPath))>
+					<script type="text/javascript" src="#adfScriptLibPath#"></script>
+				<cfelse>
+					<cfset loadViaCDN = true>
+				</cfif>
+			<cfelse>
+				<cfset loadViaCDN = true>
+			</cfif>	
+			<!--- // If we can't find site level files or forceCDN is true... load ckeditor from the CDN --->
+			<cfif loadViaCDN>
+				<!--- // [GAC 2015-04-23] - currently external URLs get stripped if we use the renderScriptOnce javascript loader --->
+				<cfset disableJSloader = true>
+				<script type="text/javascript" src="//cdn.ckeditor.com/#arguments.version#/#arguments.package#/ckeditor.js"></script>
+			</cfif>
+		</cfoutput>
+	</cfsavecontent>
+	<cfoutput>
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce(scriptName="ckeditor",outputHTML=outputHTML,disableJSloader=disableJSloader)#
 		</cfif>
 	</cfoutput>
 </cffunction>
@@ -1161,11 +1238,13 @@ History:
 	2013-02-06 - MFC - Changed the theme loading folders for 1.10.
 					   Updated the IF statement to check the decimal places is only 1 length.
 	2014-09-30 - GAC - Changed the theme loading folders for 1.11. 
+	2015-04-17 - GAC - Pulled out the jQueryUI Style sheet code and moved it to its own function
 --->
 <cffunction name="loadJQueryUI" access="public" output="true" returntype="void" hint="Loads the JQuery UI Headers if not loaded."> 
 	<cfargument name="version" type="string" required="false" default="1.11" hint="JQuery version to load.">
 	<cfargument name="themeName" type="string" required="false" default="ui-lightness" hint="UI Theme Name (directory name)">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery UI script header to load.">
+	
 	<cfscript>
 		var outputHTML = "";
 		// 2011-12-28 - MFC - Make the version backwards compatiable to remove minor build numbers.
@@ -1174,20 +1253,14 @@ History:
 	<!--- Check the version, if less than "1.9"
 			AND the decimal places is only 1 length (this prevents the comparison of '1.10')
 		  Then call the Scripts 1.1 function to load. --->
-	<cfif arguments.version LTE 1.8
-			AND LEN(ListLast(arguments.version, ".")) EQ 1>
+	<cfif Val(arguments.version) LTE 1.8 AND LEN(ListLast(arguments.version, ".")) EQ 1>
 		<cfscript>
-			super.loadJQueryUI(version=arguments.version, themeName=arguments.themeName, force=arguments.force);
+			super.loadJQueryUI(version=arguments.version,themeName=arguments.themeName,force=arguments.force);
 		</cfscript>
 	<cfelse>
 		<cfsavecontent variable="outputHTML">
 			<cfoutput>
 				<script type='text/javascript' src='/ADF/thirdParty/jquery/ui/jquery-ui-#arguments.version#/js/jquery-ui-#arguments.version#.js'></script>
-				<cfif DirectoryExists(expandPath("/_cs_apps/thirdParty/jquery/ui/jquery-ui-#arguments.version#/css/#arguments.themeName#"))>
-					<link rel='stylesheet' href='/_cs_apps/thirdParty/jquery/ui/jquery-ui-#arguments.version#/css/#arguments.themeName#/jquery-ui.css' type='text/css' media='screen' />
-				<cfelseif DirectoryExists(expandPath("/ADF/thirdParty/jquery/ui/jquery-ui-#arguments.version#/css/#arguments.themeName#"))>
-					<link rel='stylesheet' href='/ADF/thirdParty/jquery/ui/jquery-ui-#arguments.version#/css/#arguments.themeName#/jquery-ui.css' type='text/css' media='screen' />
-				</cfif>
 			</cfoutput>
 		</cfsavecontent>
 		<cfoutput>
@@ -1197,7 +1270,54 @@ History:
 				#variables.scriptsService.renderScriptOnce("jQueryUI",outputHTML)#
 			</cfif>
 		</cfoutput>
+		<cfscript>
+			loadJQueryUIstyles(version=arguments.version,themeName=arguments.themeName,force=arguments.force);
+		</cfscript>
 	</cfif>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$loadJQueryUIstyles
+Summary:
+	Loads the JQuery UI css file Headers if not loaded.
+Returns:
+	None
+Arguments:
+	String - version - JQuery UI version to load.
+	String - theme - JQuery UI theme to load.
+	Boolean - force - Forces JQuery script header to load.
+History:
+	2015-04-17 - GAC - Created
+--->
+<cffunction name="loadJQueryUIstyles" access="public" output="true" returntype="void" hint="Loads the JQuery UI Headers if not loaded."> 
+	<cfargument name="version" type="string" required="false" default="1.11" hint="JQuery version to load.">
+	<cfargument name="themeName" type="string" required="false" default="ui-lightness" hint="UI Theme Name (directory name)">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery UI script header to load.">
+	<cfscript>
+		var outputHTML = "";
+		// Make the version backwards compatiable to remove minor build numbers.
+		arguments.version = variables.scriptsService.getMajorMinorVersion(arguments.version);
+	</cfscript>
+	<cfsavecontent variable="outputHTML">
+		<cfoutput>
+			<cfif DirectoryExists(expandPath("/_cs_apps/thirdParty/jquery/ui/jquery-ui-#arguments.version#/css/#arguments.themeName#"))>
+				<link rel='stylesheet' href='/_cs_apps/thirdParty/jquery/ui/jquery-ui-#arguments.version#/css/#arguments.themeName#/jquery-ui.css' type='text/css' media='screen' />
+			<cfelseif DirectoryExists(expandPath("/ADF/thirdParty/jquery/ui/jquery-ui-#arguments.version#/css/#arguments.themeName#"))>
+				<link rel='stylesheet' href='/ADF/thirdParty/jquery/ui/jquery-ui-#arguments.version#/css/#arguments.themeName#/jquery-ui.css' type='text/css' media='screen' />
+			</cfif>
+		</cfoutput>
+	</cfsavecontent>
+	<cfoutput>
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("jQueryUIstyle_#arguments.themeName#",outputHTML)#
+		</cfif>
+	</cfoutput>
 </cffunction>
 
 <!---
@@ -1608,6 +1728,53 @@ History:
 			</cfif> --->
 		</cfoutput>
 	</cfif>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$loadTypeAheadBundle
+Summary:	
+	Loads the jQuery TypeAhead Bundle autocomplete plugin
+	which includes bloodhound.js and typeahead.jquery.js 
+	
+	https://github.com/twitter/typeahead.js
+	http://twitter.github.io/typeahead.js/examples/
+Returns:
+	Void
+Arguments:
+	String - version
+	Boolean - Force
+History:
+ 	2015-04-17 - GAC - Created
+--->
+<cffunction name="loadTypeAheadBundle" access="public" output="true" returntype="void" hint="Loads the jQuery TypeAhead Bundle autocomplete plugin"> 
+	<cfargument name="version" type="string" required="false" default="10.5" hint="JQuery Tools version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery Tools script header to load.">
+	<cfscript>
+		var outputHTML = "";
+		var thirdPartyLibPath = "/ADF/thirdParty/jquery/typeahead/";
+		
+		// Make the version backwards compatiable to remove minor build numbers.
+		arguments.version = variables.scriptsService.getMajorMinorVersion(arguments.version);
+		
+		// Append the version to the thirdPartyLibPath
+		thirdPartyLibPath = thirdPartyLibPath & arguments.version & "/"; 
+	</cfscript>
+	<cfsavecontent variable="outputHTML">
+		<cfoutput>
+			<script type="text/javascript" src="#thirdPartyLibPath#typeahead.bundle.min.js"></script>
+		</cfoutput>
+	</cfsavecontent>
+	<cfoutput>
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("typeaheadBundle",outputHTML)#
+		</cfif>
+	</cfoutput>
 </cffunction>
 
 <!---

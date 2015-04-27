@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2014.
+PaperThin, Inc. Copyright(C) 2015.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -34,7 +34,7 @@ History:
 --->
 <cfcomponent displayname="apiPage" extends="ADF.core.Base" hint="API Page functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_9">
+<cfproperty name="version" value="1_0_10">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
 <cfproperty name="wikiTitle" value="API Page">
@@ -57,6 +57,7 @@ History:
 	2013-07-07 - GAC - Fixed an issue with the publicationDate and the PublicReleaseDate
 	2014-10-28 - AW@EA - Fixed issue with expirationWarningMsg and misplaced newExpirationDate variables
 	2015-01-13 - GAC - Fixed issue with newExpirationWarningMsg variable 
+	2015-04-07 - GAC - Added logic to use the Title for the caption when no Caption value is passed in
 --->
 <cffunction name="create" access="public" returntype="struct" hint="Creates a page.">
 	<cfargument name="pageData" type="struct" required="true" hint="a structure that contains page the required fields as page data.">
@@ -75,6 +76,13 @@ History:
 		var newExpirationWarningMsg = "";
 		var newMetadata = ArrayNew(1);
 		var activateState = "";
+		var caption = "";
+		
+		// If no Caption use the Title
+		if ( StructKeyExists(arguments.pageData,"caption") AND LEN(TRIM(arguments.pageData.caption)) )
+			caption = arguments.pageData.caption;	
+		else
+			caption = arguments.pageData.title;	
 		
 		// Convert PUBLICRELEASEDATE to publicationDate if exists
 		if ( !StructKeyExists(arguments.pageData,"publicationDate") AND StructKeyExists(arguments.pageData,"PublicReleaseDate") )
@@ -101,7 +109,7 @@ History:
 			pageCmdResults = pageComponent.create(subsiteIDOrURL=arguments.pageData.subsiteID,
 													name=arguments.pageData.name,
 		                                            title=arguments.pageData.title,
-		                                            caption=arguments.pageData.caption,
+		                                            caption=caption,
 		                                            publicationDate=arguments.pageData.publicationDate,
 		                                            categoryID=arguments.pageData.categoryID,
 		                                            templateID=arguments.pageData.templateID,
@@ -455,7 +463,7 @@ History:
 		var pageCmdResult = StructNew();
 		// Use the CS 6.x Command API to delete the page whose pageID was passed in
 		var redirectComponent = server.CommonSpot.api.getObject('Redirects');
-		var redirectQry = redirectComponent.getListForPage(pageID=csPageID);
+		var redirectQry = redirectComponent.getListForPage(pageID=arguments.csPageID);
 		var redirectIDlist = ValueList(redirectQry.ID); 
 		
 		try 

@@ -12,7 +12,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2014.
+PaperThin, Inc. Copyright(C) 2015.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -214,6 +214,7 @@ History:
 		<customElementSelect_1_0/>
 		<customElementDataManager_1_0/>
 		<customElementHierarchySelector_1_0/>
+		<objectListBuilder_1_0/>
 		<paddingSettings_1_0/>
 	</v_1.8>
 	<v_2.0>
@@ -251,6 +252,7 @@ History:
 		<customElementSelect_1_0/>
 		<customElementDataManager_1_0/>
 		<customElementHierarchySelector_1_0/>
+		<objectListBuilder_1_0/>
 		<paddingSettings_1_0/>
 	</v_2.0>
 </settings>
