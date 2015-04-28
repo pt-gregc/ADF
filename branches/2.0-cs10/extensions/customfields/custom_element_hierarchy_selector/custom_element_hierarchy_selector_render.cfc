@@ -25,7 +25,7 @@ Author:
 Custom Field Type:
 	Custom Element Hierarchy Selector
 Name:
-	custom_element_hierarchy_selector_render.cfm
+	custom_element_hierarchy_selector_render.cfc
 Summary:
 	This the render file for the Custom Element Hierarchy Selector field
 ADF Requirements:
@@ -45,7 +45,6 @@ History:
 	<cfargument name="fieldName" type="string" required="yes">
 	<cfargument name="fieldDomID" type="string" required="yes">
 	<cfargument name="value" type="string" required="yes">
-	<cfargument name="callingElement" type="string" required="yes">
 	
 	<cfscript>
 		var allAtrs = getAllAttributes();

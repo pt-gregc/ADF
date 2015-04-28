@@ -26,7 +26,7 @@ Author:
 Custom Field Type:
 	Custom Element Select Field
 Name:
-	custom_element_select_field_render.cfm
+	custom_element_select_field_render.cfc
 Summary:
 	Custom Element select field to select the custom element fields for the
 		option id and name values.
@@ -81,7 +81,6 @@ To Do:
 	<cfargument name="fieldName" type="string" required="yes">
 	<cfargument name="fieldDomID" type="string" required="yes">
 	<cfargument name="value" type="string" required="yes">
-	<cfargument name="callingElement" type="string" required="yes">
 	
 	<cfscript>
 		var allAtrs = getAllAttributes();
@@ -187,13 +186,6 @@ To Do:
 <cfoutput>
 <script type="text/javascript">
 <!--
-function validate_#arguments.fieldName#()
-{
-	if (jQuery("input[name=#arguments.fieldName#]").val() != '') 
-		return true;
-	else 
-		return false;
-}
 
 // Set a global disable field flag 
 var setDisableFlag = false;
@@ -366,7 +358,7 @@ function onSuccess_#arguments.fieldName#(data)
 	private any function getValidationJS(required string formName, required string fieldName, required boolean isRequired)
 	{
 		if (arguments.isRequired)
-			return 'validate_#arguments.fieldName#()';
+			return 'hasValue(document.#arguments.formName#.#arguments.fieldName#, "TEXT")';
 		return "";
 	}
 	

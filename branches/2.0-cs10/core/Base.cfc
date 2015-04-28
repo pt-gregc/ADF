@@ -92,11 +92,15 @@ Arguments:
 History:
 	2011-09-27 - GAC/MFC - Created
 	2011-09-28 - GAC - Updated to use the VAL function to remove the version numbers after the minor version
+	2015-04-28 - DJM - Updated code to extract the minor version
 --->
 <cffunction name="getDecimalADFVersion" access="public" returntype="numeric">
 	<cfscript>
-		var ADFversion = getADFversion();
-		return Val(ADFversion);
+		var ADFVersionArray = ListToArray(getADFversion(),'.');
+		var decimalADFVersion = ADFVersionArray[1];
+		if (ArrayLen(ADFVersionArray) GT 1)
+			decimalADFVersion = decimalADFVersion & '.' & ADFVersionArray[2];
+		return decimalADFVersion;
 	</cfscript>
 </cffunction>
 

@@ -23,7 +23,7 @@ end user license agreement.
 Author: 	
 	PaperThin Inc.
 Name:
-	font_awesome_select_render.cfm
+	font_awesome_select_render.cfc
 Summary:
 	renders field for font awesome icon custom field type
 Version:
@@ -43,7 +43,6 @@ History:
 	<cfargument name="fieldName" type="string" required="yes">
 	<cfargument name="fieldDomID" type="string" required="yes">
 	<cfargument name="value" type="string" required="yes">
-	<cfargument name="callingElement" type="string" required="yes">
 	
 	<cfscript>
 		var inputParameters = Duplicate(arguments.parameters);
@@ -179,15 +178,6 @@ History:
 <cfoutput>
 <script type="text/javascript">
 <!--
-//Validation function
-function validate_#arguments.fieldName#(){
-	if (jQuery("input[name=#arguments.fieldName#]").val() != ''){
-		return true;
-	}else{
-		return false;
-	}
-}
-
 jQuery(function(){
 	// Add Key up event
 	jQuery('##fa_search_#inputParameters.fldID#').live( 'keyup', function() {
@@ -364,7 +354,7 @@ function clearInput_#arguments.fieldName#()
 	private any function getValidationJS(required string formName, required string fieldName, required boolean isRequired)
 	{
 		if (arguments.isRequired)
-			return "validate_#arguments.fieldName#()";
+			return 'hasValue(document.#arguments.formName#.#arguments.fieldName#, "TEXT")';
 		return "";
 	}
 	
