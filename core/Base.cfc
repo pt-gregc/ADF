@@ -92,11 +92,22 @@ Arguments:
 History:
 	2011-09-27 - GAC/MFC - Created
 	2011-09-28 - GAC - Updated to use the VAL function to remove the version numbers after the minor version
+	2015-04-27 - GAC - Updated to parse the adfversion using just the major.minor versions digits and strip any addition build versions
 --->
 <cffunction name="getDecimalADFVersion" access="public" returntype="numeric">
 	<cfscript>
 		var ADFversion = getADFversion();
-		return Val(ADFversion);
+		var vArray = ListToArray(ADFversion,'.');
+		var aSize =  ArrayLen(vArray);
+		
+		if ( aSize GT 1 )
+			ADFversion = Val(vArray[1]) & "." & Val(vArray[2]); 
+		else if ( aSize EQ 1 )
+			ADFversion = Val(vArray[1]) & "." & 0; 
+		else
+			ADFversion = 0.0;
+			
+		return ADFversion;
 	</cfscript>
 </cffunction>
 
