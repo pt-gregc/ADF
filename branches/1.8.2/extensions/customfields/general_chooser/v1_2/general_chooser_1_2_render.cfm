@@ -54,6 +54,7 @@ History:
 					 - Updated to allow 'ADD NEW' to be used multiple times before submit
 	2014-03-20 - GAC - Force the keys in the formData object from the 'ADD NEW' callback to lowercase so it is sure to match js_fieldName_CE_FIELD  value 
 	2014-10-10 - GAC - Added a new props field to allow the app name used for resolving the Chooser Bean Name to be specified
+	2015-04-29 - DJM - Modified code to use join to fix ArrayToList not a function error
 --->
 <cfscript>
 	// the fields current value
@@ -242,7 +243,7 @@ History:
 			// Check if the serialList is Array
 			if ( jQuery.isArray(serialList) )
 			{
-				serialList = jQuery.ArrayToList(serialList);
+				serialList = serialList.join(",");
 			}
 			
 			// load serial list into current values
