@@ -38,6 +38,14 @@ History:
 --->
 <cfcomponent displayName="CustomHiddenField Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
+<cffunction name="renderLabel" returntype="void" access="public">
+	<cfargument name="fieldName" type="string" required="yes">
+	<cfargument name="fieldDomID" type="string" required="yes">
+	<cfargument name="value" type="string" required="yes">
+	
+	<!--- We dont want to render any label, so just do nothing --->
+</cffunction>
+
 <cffunction name="renderControl" returntype="void" access="public">
 	<cfargument name="fieldName" type="string" required="yes">
 	<cfargument name="fieldDomID" type="string" required="yes">
@@ -48,29 +56,11 @@ History:
 		var currentValue = arguments.value;	// the field's current value
 		
 		inputParameters = setDefaultParameters(argumentCollection=arguments);
-		
-		// if no current value entered
-		if ( NOT LEN(currentValue) )
-		{
-			// reset the currentValue to the currentDefault
-			try
-			{
-				// if there is a user defined function for the default value
-				if ( inputParameters.useUDef )
-					currentValue = evaluate(inputParameters.currentDefault);
-				else // standard text value
-					currentValue = inputParameters.currentDefault;
-			}
-			catch( any e)
-			{
-				; // let the current default value stand
-			}
-		}
-</cfscript>
-<cfoutput>
-	<!--- hidden field to store the value --->
-	<input type="hidden" name="#arguments.fieldName#" value="#currentValue#" id="#inputParameters.fieldID#" class="#inputParameters.fieldClass#">
-</cfoutput>
+	</cfscript>
+	<cfoutput>
+		<!--- hidden field to store the value --->
+		<input type="hidden" name="#arguments.fieldName#" value="#currentValue#" id="#inputParameters.fieldID#" class="#inputParameters.fieldClass#">
+	</cfoutput>
 </cffunction>
 
 <cffunction name="setDefaultParameters" returntype="struct" access="private">
