@@ -54,7 +54,7 @@ History:
 <cfscript>
 	variables.ADFversion = "2.0.0"; // use a dot delimited version number
 	// ADF Build Revision Number
-	variables.buildRev = "1562";
+	variables.buildRev = "1563";
 	// ADF Codename
 	variables.buildName = "NA";
 	// CS product version, get the decimal value
