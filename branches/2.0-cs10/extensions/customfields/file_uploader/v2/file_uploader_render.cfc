@@ -83,7 +83,7 @@ History:
 	</cfoutput>
 </cffunction>
 
-<cffunction name="renderJSFunctions" returntype="void" access="public">
+<cffunction name="renderJSFunctions" returntype="void" access="private">
 	<cfargument name="fieldName" type="string" required="yes">
 	<cfargument name="fieldDomID" type="string" required="yes">
 	<cfargument name="value" type="string" required="yes">
