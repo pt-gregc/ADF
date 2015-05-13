@@ -352,7 +352,7 @@ History:
 		</cfif>
 				
 		<cfif inputPropStruct.renderSelectOption>
-			<cfoutput><option value=""> - Select - </option></cfoutput>
+			<cfoutput><option value=""> -- select -- </option></cfoutput>
 		</cfif>
 		
 			<cfloop index="cfs_i" from="1" to="#ceDataArrayLen#">

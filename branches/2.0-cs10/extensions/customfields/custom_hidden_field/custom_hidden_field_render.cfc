@@ -38,14 +38,6 @@ History:
 --->
 <cfcomponent displayName="CustomHiddenField Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
-<cffunction name="renderLabel" returntype="void" access="public">
-	<cfargument name="fieldName" type="string" required="yes">
-	<cfargument name="fieldDomID" type="string" required="yes">
-	<cfargument name="value" type="string" required="yes">
-	
-	<!--- We dont want to render any label, so just do nothing --->
-</cffunction>
-
 <cffunction name="renderControl" returntype="void" access="public">
 	<cfargument name="fieldName" type="string" required="yes">
 	<cfargument name="fieldDomID" type="string" required="yes">
@@ -78,5 +70,17 @@ History:
 		return inputParameters;
 	</cfscript>
 </cffunction>
+
+<cfscript>
+	// all of these do nothing, field render only a hidden control
+	public void function renderLabel() {}
+	public void function renderFieldContainerStart() {}
+	public void function renderFieldContainerEnd() {}
+	public void function renderLabelContainerStart() {}
+	public void function renderLabelContainerEnd() {}
+	public void function renderControlContainerStart() {}
+	public void function renderControlContainerEnd() {}
+	public void function renderRequiredIndicator() {}
+</cfscript>
 
 </cfcomponent>

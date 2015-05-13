@@ -31,6 +31,7 @@ Version:
 History:
 	2014-09-15 - Created
 	2014-09-29 - GAC - Added Padding Value normalization to remove the label from the default values
+	2015-05-12 - DJM - Updated the field version to 2.0
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
@@ -42,7 +43,7 @@ History:
 // writedump( var="#currentValues#", expand="no" );
 	
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "1.0.1"; 
+	fieldVersion = "2.0"; 
 	
 	// initialize some of the attributes variables
 	top = 0;
@@ -128,6 +129,12 @@ History:
 			<td class="cs_dlgLabelSmall" nowrap="nowrap" valign="top">Left Default:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#Left" id="#prefix#Left" class="cs_dlgControl" value="#left#" size="4" style="text-align:right;">px
+			</td>
+		</tr>
+		<tr>
+			<td class="cs_dlgLabelSmall" colspan="2" style="font-size:7pt;">
+				<hr />
+				ADF Custom Field v#fieldVersion#
 			</td>
 		</tr>
 	</table>

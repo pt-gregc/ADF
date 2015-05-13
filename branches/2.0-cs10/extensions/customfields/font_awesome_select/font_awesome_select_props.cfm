@@ -32,6 +32,7 @@ History:
 	2014-09-15 - Created
 	2014-09-29 - GAC - Added an updated list of icon classes and code via a FileRead of a CSV file 
 	2014-12-03 - GAC - Updated to fix for bad version folder "Major.Minor.Maintenance" for thirdParty folder. Now is only "Major.Minor" version folder.
+	2015-05-12 - DJM - Updated the field version to 2.0
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
@@ -43,7 +44,7 @@ History:
 //writedump( var="#currentValues#", expand="no" );
 	
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "1.0.2"; 
+	fieldVersion = "2.0"; 
 	
 	// initialize some of the attributes variables
 	showSize = 0;

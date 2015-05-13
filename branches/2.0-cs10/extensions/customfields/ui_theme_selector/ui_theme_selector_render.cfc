@@ -80,7 +80,7 @@ History:
 	<cfoutput>
 		<cfif qThemes.RecordCount>
 			<select name='#arguments.fieldName#' id='#arguments.fieldName#'<cfif readOnly> disabled="disabled"</cfif>>
-				<option value=''<cfif LEN(currentValue) EQ 0> selected="selected"</cfif>> - Select - </option>
+				<option value=''<cfif LEN(currentValue) EQ 0> selected="selected"</cfif>> -- select -- </option>
 				<cfloop query="qThemes">
 					<cfif ListFindNoCase(uiFilterOutList,qThemes.name) EQ 0>
 					<option value='#qThemes.name#'<cfif currentValue EQ qThemes.name> selected='selected'</cfif>>#qThemes.name#</option>

@@ -79,7 +79,7 @@ History:
 	
 	<cfoutput>
 		<select name="#arguments.fieldName#" id="#arguments.fieldName#" size="1">
-			<option value="">--Select--</option>
+			<option value="">-- select --</option>
 			<cfloop from="1" to="#arrayLen(pageDataArr)#" index="itm">
 				<!--- // Make sure each of the records have a fileName --->
 				<cfif LEN(TRIM(pageDataArr[itm].fileName))>

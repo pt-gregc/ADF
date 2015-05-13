@@ -77,7 +77,7 @@ History:
 			Subsite Added
 		</div> --->
 		<select name="#arguments.fieldName#" id="#arguments.fieldName#" size="1"<cfif readOnly> disabled='disabled'</cfif>>
-			<option value="">--Select--</option>
+			<option value="">-- select --</option>
 		</select>
 		<span id="#selectField#_loading" style="display:none;font-size:10px;">
 			<img src="/ADF/extensions/customfields/subsite_select/ajax-loader-arrows.gif" width="16" height="16" /> Loading Subsites...

@@ -45,12 +45,13 @@ History:
 	2014-09-19 - GAC - Removed deprecated doLabel and jsLabelUpdater js calls
 	2015-01-28 - DJM - Added timeout to resize frame function call to avoid multiple scrollbars
 	2015-02-10 - DJM - Added code to hide text inputs related to secondary element when it is set as none
+	2015-05-12 - DJM - Updated the field version to 2.0
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "1.0.7"; 
+	fieldVersion = "2.0"; 
 	
 	// CS version and required Version variables
 	requiredCSversion = 9;

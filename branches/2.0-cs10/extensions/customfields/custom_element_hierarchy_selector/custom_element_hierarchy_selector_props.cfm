@@ -34,13 +34,14 @@ History:
 	2014-01-16 - DJM - Created
 	2014-01-29 - GAC - Converted to use AjaxProxy and the ADF Lib
 	2014-09-19 - GAC - Removed deprecated doLabel and jsLabelUpdater js calls
+	2015-05-12 - DJM - Updated the field version to 2.0
 --->
 
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "1.0.4"; 
+	fieldVersion = "2.0"; 
 	
 	requiredVersion = 9;
 	productVersion = ListFirst(ListLast(request.cp.productversion," "),".");
@@ -459,13 +460,13 @@ History:
 		<CFSET caption="Enter the valid values from selected Values Field that you want selected by default.">
 		<CFINCLUDE template="/commonspot/metadata/form_control/input_control/default_value.cfm">
 		<CFOUTPUT>
-		<tr>
-			<td class="cs_dlgLabelSmall" colspan="2" style="font-size:7pt;">
-				<hr />
-				ADF Custom Field v#fieldVersion#
-			</td>
-		</tr>
 	</tbody>
+	<tr>
+		<td class="cs_dlgLabelSmall" colspan="2" style="font-size:7pt;">
+			<hr />
+			ADF Custom Field v#fieldVersion#
+		</td>
+	</tr>
 </table>
 </cfoutput>
 </cfif>
