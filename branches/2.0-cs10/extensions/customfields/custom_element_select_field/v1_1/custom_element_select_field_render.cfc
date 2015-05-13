@@ -71,6 +71,7 @@ History:
 	2014-11-06 - GAC - Fixed the conditional logic around the xparams.defaultVal expression parsing
 	2015-04-10 - DJM - Converted to CFC
 	2015-04-24 - DJM - Added own CSS
+	2015-05-13 - DRM - Add isMultiline()
 
 To Do:
 	2014-04-08 - JTP - Currently we are NOT sorting the list if displayed as checkboxes/radio buttons and user choose sort by display value
@@ -365,6 +366,11 @@ function onSuccess_#arguments.fieldName#(data)
 	private string function getValidationMsg()
 	{
 		return "Please select a value for the #arguments.label# field.";
+	}
+
+	private boolean function isMultiline()
+	{
+		return (structKeyExists(arguments.parameters, "multipleSelect") && arguments.parameters.multipleSelect == 1);
 	}
 </cfscript>
 
