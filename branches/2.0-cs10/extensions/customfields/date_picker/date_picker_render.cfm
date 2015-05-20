@@ -33,6 +33,7 @@ ADF Requirements:
 	scripts_1_0
 History:
 	2013-02-12 - GAC - Created
+	2015-05-20 - DJM - Added code to trigger change event when display type is datepick
 --->
 <cfscript>		
 	// the fields current value
@@ -190,8 +191,14 @@ History:
 			// jQuery datepick 
 			// http://keith-wood.name/datepick.html
 			
+			var datePickerOptions_#fqFieldName# = {
+				onSelect: function() {
+					jQuery(this).change();
+				  }
+			};
+			
 			// jQuery datepick field
-			jQuery('###xparams.fldID#_picker').datepick();
+			jQuery('###xparams.fldID#_picker').datepick( datePickerOptions_#fqFieldName# );
 
 		</cfif>
 		
