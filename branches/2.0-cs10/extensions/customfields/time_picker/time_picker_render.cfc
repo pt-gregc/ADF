@@ -21,21 +21,20 @@ end user license agreement.
 /* *************************************************************** */
 Author: 	
 	PaperThin, Inc.
-	G. Cronkright
+	G. Cronkright 
 Custom Field Type:
-	date picker
+	Time Picker Field
 Name:
-	date_picker_render.cfc
+	time_picker_render.cfc
 Summary:
-	A custom checkbox field that is used to select dates within the Calendar App
+	Time picker field to set pick a time from a jquery style time picker
 ADF Requirements:
-	date_1_0
 	scripts_1_0
 History:
-	2013-02-12 - GAC - Created
-	2015-05-13 - DJM - Converted to CFC
+	2013-02-06 - GAC - Created
+	2015-05-20 - DJM - Converted to CFC
 --->
-<cfcomponent displayName="DatePicker Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
+<cfcomponent displayName="TimePicker Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
 <cffunction name="renderControl" returntype="void" access="public">
 	<cfargument name="fieldName" type="string" required="yes">
@@ -46,25 +45,25 @@ History:
 		var currentValue = arguments.value;	// the field's current value
 		var readOnly = (arguments.displayMode EQ 'readonly') ? true : false;
 		var displayValue = "";
-		var useCalendarIcon = false;
+		var useClockIcon = false;
 		
 		// Pass new date URL variable through to the Calendar Picker
-		if ( StructKeyExists(request.params,"newSelectedDate") )
-			currentValue = request.params.newSelectedDate;
-	
-		inputParameters = setDefaultParameters(argumentCollection=arguments);
-	
-		if ( LEN(TRIM(currentValue)) ){
-			// Fix bad or incorrect date/time entries
-			currentValue = application.ADF.date.csDateFormat(currentValue,currentValue);
-			// Strip the standardizedTimeStr from the currentValue and do a DateForamt for Display
-			displayValue = DateFormat(TRIM(REPLACE(currentValue,inputParameters.standardizedTimeStr,"","all")),inputParameters.cfDateMask);
-		}
+		if ( StructKeyExists(request.params,"newSelectedTime") )
+			currentValue = request.params.newSelectedTime;
 		
+		inputParameters = setDefaultParameters(argumentCollection=arguments);
+
+		if ( LEN(TRIM(currentValue)) ) {
+			// Fix bad or incorrect date/time entries stored
+			currentValue = application.ADF.date.csDateFormat(currentValue,currentValue);
+			// Strip the standardizedDateStr from the currentValue and do a TimeFormat for Display 
+			displayValue = TimeFormat(TRIM(REPLACE(currentValue,inputParameters.standardizedDateStr,"","all")),inputParameters.cfTimeMask);
+		}
+			
 		// Set Default Icon Options 
-		if ( inputParameters.fldIcon EQ "calendar")
-			useCalendarIcon = true;	
-	
+		if ( inputParameters.fldIcon EQ "clock")
+			useClockIcon = true;
+
 		// jQuery Headers
 		application.ADF.scripts.loadJQuery();
 		application.ADF.scripts.loadJQueryUI(themeName=inputParameters.uiTheme);
@@ -73,39 +72,28 @@ History:
 		// Load the DateFormat Plugin Headers
 		application.ADF.scripts.loadDateFormat();
 
-		if ( inputParameters.displayType EQ "datepick" ) {
-			application.ADF.scripts.loadJQueryDatePick();
+		if ( inputParameters.displayType IS "UItimepickerAddon" ) {
+			application.ADF.scripts.loadJQueryUITimepickerAddon();
+			if ( LEN(TRIM(inputParameters.jsTimeMask)) EQ 0  )
+				inputParameters.jsTimeMask = "h:mm TT"; 
+		}
+		else if ( inputParameters.displayType IS "UItimepickerFG" ) {
+			application.ADF.scripts.loadJQueryUITimepickerFG();
 		}
 		
-		renderJSFunctions(argumentCollection=arguments, fieldParameters=inputParameters,useCalendarIcon=useCalendarIcon);
-		
-		if (inputParameters.displayType EQ "UIdatepicker")
-			useCalendarIcon = false;
+		renderJSFunctions(argumentCollection=arguments,fieldParameters=inputParameters,useClockIcon=useClockIcon);
 	</cfscript>
-
-	<cfif inputParameters.fldClearDate EQ 'yes'>
-		<cfoutput><style>
-			.#arguments.fieldName#_smalllink{
-				font-size: 9px;
-			}
-		</style></cfoutput>
-	</cfif>
 
 	<cfoutput>
 		<div>
 			<input type="text" name="#arguments.fieldName#_picker" id="#inputParameters.fldID#_picker" value="#displayValue#" autocomplete="off"<cfif readOnly> disabled="disabled"</cfif>>
-			<cfif useCalendarIcon>
-				<img class="ui-datepicker-trigger" id="#inputParameters.fldID#_dateIMG" src="#inputParameters.fldIconImg#" alt="calendar" title="Select a Date...">
+			<cfif useClockIcon>
+				<img class="ui-timepicker-trigger" id="#inputParameters.fldID#_timeIMG" src="#inputParameters.fldIconImg#" alt="time picker" title="Set a Time...">
 			</cfif>
 			<!--- hidden field to store the value --->
 			<input type='hidden' name='#arguments.fieldName#' id='#inputParameters.fldID#' value='#currentValue#'>
 			<!--- <input type='text' name='#arguments.fieldName#_dtObject' id='#inputParameters.fldID#_dtObject' value=''> --->
 		</div>
-		<cfif inputParameters.fldClearDate EQ 'yes'>
-		<div>
-			<a href="javascript:;" id="#arguments.fieldName#_cleardate" class="#arguments.fieldName#_smalllink">Clear Date</a>
-		</div>
-		</cfif>
 	</cfoutput>
 </cffunction>
 
@@ -114,71 +102,58 @@ History:
 	<cfargument name="fieldDomID" type="string" required="yes">
 	<cfargument name="value" type="string" required="yes">
 	<cfargument name="fieldParameters" type="struct" required="yes">
-	<cfargument name="useCalendarIcon" type="boolean" required="yes">
+	<cfargument name="useClockIcon" type="boolean" required="yes">
 	<cfscript>
 		var inputParameters = Duplicate(arguments.fieldParameters);
-		var bUseCalendarIcon = arguments.useCalendarIcon;
 	</cfscript>
 <cfoutput><script type="text/javascript">
 <!--
-jQuery(function() {
-<cfif inputParameters.displayType EQ "UIdatepicker">
-	// jQueryUI Date Picker
-	// http://jqueryui.com/demos/datepicker/
-	
-	// jQueryUI Date Picker Options
-	var datePickerOptions_#arguments.fieldName# = {
-			changeMonth : true
-			,changeYear : true
-			,showButtonPanel : true
-			,constrainInput : false 
-			,dateFormat : '#inputParameters.jsDateMask#'
-			,zIndex:9999
-			<cfif bUseCalendarIcon>
-			,showOn : "both" //button
-			,buttonImage : "#inputParameters.fldIconImg#"
-			,buttonImageOnly : true
-			,buttonText : 'Choose a Date...'
-			<cfelse>
-			,showOn : "focus" 
-			</cfif>
-		};
+jQuery(function() {	
+	<cfif inputParameters.displayType EQ "UItimepickerAddon">
+		// jQueryUI TimePicker Addon 
+		// http://trentrichardson.com/examples/timepicker/	
 		
-	// Calendar Picker Fields
-	jQuery("###inputParameters.fldID#_picker").datepicker( datePickerOptions_#arguments.fieldName# );
+		// jQueryUI TimePicker Addon Options
+		var timePickerAddonOptions_#arguments.fieldName# = {
+					ampm: true
+					,timeFormat: '#inputParameters.jsTimeMask#'
+					,hourGrid: 6
+					,minuteGrid: 15
+				};	
+		
+		// Calendar Picker Fields
+		jQuery("###inputParameters.fldID#_picker").timepicker( timePickerAddonOptions_#arguments.fieldName# );
+		
+	<cfelseif inputParameters.displayType EQ "UItimepickerFG">
+		// jQuery UI Timepicker (By François Gélinas)
+		// http://fgelinas.com/code/timepicker/
+		
+		// jQueryUI TimePicker Addon Options
+		var timePickerFGOptions_#arguments.fieldName# = {
+					showPeriod: true
+					,minutes: { interval: 5 }
+					,showLeadingZero: false
+					,button : null
+					//,showOn : 'both' //button
+					//,button : '.ui-timepicker-trigger'
+				};	
+		
+		// jQuery UI Timepicker FG field
+		jQuery("###inputParameters.fldID#_picker").timepicker( timePickerFGOptions_#arguments.fieldName# );
+		
+	</cfif>
 	
-	// Set the offset to help with displaying inside an lightbox
-	jQuery.extend(jQuery.datepicker,{_checkOffset:function(inst,offset,isFixed){offset.top=40; offset.left=200; return offset;}});
+		// Set the Clock or the Calendar Image to activate the Date/Time picker flyout 
+	<cfif arguments.useClockIcon>
+		jQuery("###inputParameters.fldID#_timeIMG").click(function(){
+			jQuery("###inputParameters.fldID#_picker").focus();					
+		});
+	</cfif>
 	
-	<!--- // Now set the bUseCalendarIcon variable to false since the plugin js handles rendering it --->
-	<cfset bUseCalendarIcon = false>
-	
-<cfelseif inputParameters.displayType EQ "datepick">
-	// jQuery datepick 
-	// http://keith-wood.name/datepick.html
-	
-	var datePickerOptions_#arguments.fieldName# = {
-			onSelect: function() {
-				jQuery(this).change();
-			  }
-		};
-	
-	// jQuery datepick field
-	jQuery('###inputParameters.fldID#_picker').datepick( datePickerOptions_#arguments.fieldName# );
-</cfif>
-
-	// Set the Clock or the Calendar Image to activate the Date/Time picker flyout 
-<cfif bUseCalendarIcon>
-	jQuery("###inputParameters.fldID#_dateIMG").click(function(){
-		jQuery("###inputParameters.fldID#_picker").focus();				
-	});
-</cfif>
-
 	// Onchange populate the Hidden field that stores the data
-	jQuery("###inputParameters.fldID#_picker").change(function(){
-		var dateStr = jQuery("###inputParameters.fldID#_picker").val();
-		// Get the Standard/Dummy Time 
-		var timeStr = '#inputParameters.standardizedTimeStr#';
+	jQuery("###inputParameters.fldID#_picker").change(function(){	
+		var timeStr = jQuery("###inputParameters.fldID#_picker").val();
+		var dateStr = '#inputParameters.standardizedDateStr#';
 		
 		var csDate = "";
 		var jsDateObj = "";
@@ -189,18 +164,12 @@ jQuery(function() {
 
 		// Use the dateFormat Lib to convert the date/time object to a CS Date string
 		if ( jQuery.trim(jsDateObj).length )
-			csDate=dateFormat(jsDateObj, "yyyy-mm-dd HH:MM:ss");
-
+			csDate=dateFormat(jsDateObj, "yyyy-mm-dd HH:MM:00");
+			
 		// Set the value to the hidden field to be stored
 		jQuery("input[name=#arguments.fieldName#]").val(csDate);
 	});
-	
-	<cfif inputParameters.fldClearDate EQ 'yes'>
-	jQuery('###arguments.fieldName#_cleardate').click(function() {
-		jQuery("input[name=#arguments.fieldName#_picker]").val('');
-		jQuery("input[name=#arguments.fieldName#]").val('');
-	});
-	</cfif>
+
 });
 //-->
 </script></cfoutput>
@@ -224,25 +193,20 @@ jQuery(function() {
 		
 		if ( NOT StructKeyExists(inputParameters, "uiTheme") OR LEN(inputParameters.uiTheme) LTE 0 )
 			inputParameters.uiTheme = "redmond";
-			
+		
 		if ( NOT StructKeyExists(inputParameters, "displayType") OR LEN(inputParameters.displayType) LTE 0 )
-			inputParameters.displayType = "UIdatepicker";
+			inputParameters.displayType = "UItimepickerAddon";	
 		if ( NOT StructKeyExists(inputParameters, "fldIcon") OR LEN(inputParameters.fldIcon) LTE 0 )
 			inputParameters.fldIcon = "none";
-		if ( NOT StructKeyExists(inputParameters, "fldClearDate") OR LEN(inputParameters.fldClearDate) LTE 0 )
-			inputParameters.fldClearDate = "no";
 		if ( NOT StructKeyExists(inputParameters, "fldIconImg") OR LEN(inputParameters.fldIconImg) LTE 0 )
-			inputParameters.fldIconImg = "/ADF/extensions/customfields/date_picker/ui_calendar.gif";
-		
-		if ( NOT StructKeyExists(inputParameters, "standardizedTimeType") OR LEN(inputParameters.standardizedTimeType) LTE 0 )
-			inputParameters.standardizedTimeType = "start";
-		// Default: for start dates: 00:00:00 - Option: for end dates use: 23:59:59	
-		if ( NOT StructKeyExists(inputParameters, "standardizedTimeStr") OR LEN(inputParameters.standardizedTimeStr) LTE 0 )
-			inputParameters.standardizedTimeStr = "00:00:00";	
-		if ( NOT StructKeyExists(inputParameters, "jsDateMask") OR LEN(inputParameters.jsDateMask) LTE 0 )
-			inputParameters.jsDateMask = "m/d/yy";
-		if ( NOT StructKeyExists(inputParameters, "cfDateMask") OR LEN(inputParameters.cfDateMask) LTE 0 )
-			inputParameters.cfDateMask = "M/D/YYYY";
+			inputParameters.fldIconImg = "/ADF/extensions/customfields/time_picker/clock.png";
+
+		if ( NOT StructKeyExists(inputParameters, "standardizedDateStr") OR LEN(inputParameters.standardizedDateStr) LTE 0 )
+			inputParameters.standardizedDateStr = "1900-01-01";			
+		if ( NOT StructKeyExists(inputParameters, "cfTimeMask") OR LEN(inputParameters.cfTimeMask) LTE 0 )
+			inputParameters.cfTimeMask = "h:mm tt";	
+		if ( NOT StructKeyExists(inputParameters, "jsTimeMask") OR LEN(inputParameters.jsTimeMask) LTE 0 )
+			inputParameters.jsTimeMask = "";
 			
 		//-- App Override Variables --//
 		if ( NOT StructKeyExists(inputParameters, "appBeanName") OR LEN(inputParameters.appBeanName) LTE 0 )
@@ -269,17 +233,12 @@ jQuery(function() {
 	{
 		if (arguments.isRequired)
 			return 'hasValue(document.#arguments.formName#.#arguments.fieldName#, "TEXT")';
-		return "";
+		return '';
 	}
 	
 	private string function getValidationMsg()
 	{
 		return "Please select a value for the #arguments.label# field.";
-	}
-	
-	private boolean function isMultiline()
-	{
-		return structKeyExists(arguments.parameters, "fldClearDate") && arguments.parameters.fldClearDate == "yes";
 	}
 </cfscript>
 
