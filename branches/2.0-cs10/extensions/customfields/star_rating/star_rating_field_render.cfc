@@ -68,18 +68,16 @@ History:
 		renderJSFunctions(argumentCollection=arguments, halfStars=halfStars);
 	</cfscript>
 <cfoutput>
-	<div id="#arguments.fieldName#_fieldRow">
-		<div id="#arguments.fieldName#_renderStars">
-			<select name='#arguments.fieldName#_select' id='#arguments.fieldName#_select' <!--- onchange='#arguments.fieldName#_loadSelection()' ---> <cfif readOnly>disabled='disabled'</cfif>>
-				<cfloop from="1" to="#numberOfStars#" index="i">
-					<cfset currentVal = i>
-					<cfif halfStars>
-						<cfset currentVal = i/2>
-					</cfif>
-					<option value="#currentVal#" <cfif currentValue EQ currentVal>selected</cfif>>#currentVal#</option>
-				</cfloop>
-			</select>
-		</div>
+	<div id="#arguments.fieldName#_renderStars">
+		<select name='#arguments.fieldName#_select' id='#arguments.fieldName#_select' <!--- onchange='#arguments.fieldName#_loadSelection()' ---> <cfif readOnly>disabled='disabled'</cfif>>
+			<cfloop from="1" to="#numberOfStars#" index="i">
+				<cfset currentVal = i>
+				<cfif halfStars>
+					<cfset currentVal = i/2>
+				</cfif>
+				<option value="#currentVal#" <cfif currentValue EQ currentVal>selected</cfif>>#currentVal#</option>
+			</cfloop>
+		</select>
 	</div>
 	<!--- hidden field to store the value --->
 	<input type='hidden' name='#arguments.fieldName#' id='#arguments.fieldName#' value='#currentValue#'>
