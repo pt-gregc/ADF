@@ -1413,6 +1413,7 @@ Arguments:
 	Boolean - force - Forces JQuery script header to load.
 History:
 	2013-02-06 - GAC - Created
+	2015-05-20 - DJM - Modified the css file name to refer to the correct file
 --->
 <cffunction name="loadJQueryUITimepickerFG" access="public" output="true" returntype="void" hint="Loads the jQuery UI Timepicker Addon for the Calendar App if not loaded.">
 	<cfargument name="version" type="string" required="false" default="0.3" hint="JQueryUI Timepicker Addon version to load.">
@@ -1422,7 +1423,7 @@ History:
 	</cfscript>
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
-		<link href="/ADF/thirdParty/jquery/ui/timepicker-fg/#arguments.version#/jquery-ui-timepicker.css" rel="stylesheet" type="text/css" />
+		<link href="/ADF/thirdParty/jquery/ui/timepicker-fg/#arguments.version#/jquery.ui.timepicker.css" rel="stylesheet" type="text/css" />
 		<script type="text/javascript" src="/ADF/thirdParty/jquery/ui/timepicker-fg/#arguments.version#/jquery.ui.timepicker.js" charset="utf-8"></script>
 		</cfoutput>
 	</cfsavecontent>
