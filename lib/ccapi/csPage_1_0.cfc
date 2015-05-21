@@ -236,7 +236,7 @@ History:
 			// NOTE: always logging in to make sure that we create page in correct subsite
 			variables.ccapi.login(arguments.deletePageData.subsiteID);
 	
-			// Page create parameters
+			// Page data parameters
 			pageData = arguments.deletePageData;
 	
 			// invoke createPage API call
