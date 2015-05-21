@@ -30,10 +30,11 @@ Version:
 	1.0
 History:
 	2009-06-22 - MFC - Created
+	2015-05-21 - GAC - Moved the HTMLSafeFormattedTextBox() method to data_1_2 LIB for v1.8.2
 --->
 <cfcomponent displayname="utils_1_0" extends="ADF.core.Base" hint="Util functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_9">
+<cfproperty name="version" value="1_0_10">
 <cfproperty name="type" value="singleton">
 <cfproperty name="ceData" type="dependency" injectedBean="ceData_1_0">
 <cfproperty name="wikiTitle" value="Utils_1_0">
@@ -46,8 +47,8 @@ History:
 	<cfabort>
 </cffunction>
 
-<!--- /**
- * Coverts special characters to character entities, making a string safe for display in HTML.
+<!--- /*
+ * Converts special characters to character entities, making a string safe for display in HTML.
  * Version 2 update by Eli Dickinson (eli.dickinson@gmail.com)
  * Fixes issue of lists not being equal and adding bull
  * v3, extra semicolons
@@ -57,19 +58,11 @@ History:
  * @author Gyrus (eli.dickinson@gmail.com gyrus@norlonto.net)
  * @version 3, August 30, 2006
  */ --->
+<!--- // Moved to data_1_2 LIB for v1.8.2 --->
 <cffunction name="HTMLSafeFormattedTextBox" access="public" returntype="string">
 	<cfargument name="inString" type="string" required="true">
 
-	<cfscript>
-		var badChars = "&amp;nbsp;,&amp;amp;,&quot;,&amp;ndash;,&amp;rsquo;,&amp;ldquo;,&amp;rdquo;,#chr(12)#";
-		var goodChars = "&nbsp;,&amp;,"",&ndash;,&rsquo;,&ldquo;,&rdquo;,&nbsp;";
-
-		// Return immediately if blank string
-		if (NOT Len(Trim(arguments.inString))) return arguments.inString;
-
-		// Do replacing
-		return ReplaceList(arguments.inString, badChars, goodChars);
-	</cfscript>
+	<cfreturn application.ADF.data.HTMLSafeFormattedTextBox(inString=inString)>
 </cffunction>
 
 <!---
