@@ -92,7 +92,8 @@ Arguments:
 History:
 	2011-09-27 - GAC/MFC - Created
 	2011-09-28 - GAC - Updated to use the VAL function to remove the version numbers after the minor version
-	2015-04-27 - GAC - Updated to parse the adfversion using just the major.minor versions digits and strip any addition build versions
+	2015-04-28 - DJM - Updated code to extract the minor version
+	2015-04-28 - GAC - Updated to parse the adfversion using just the major.minor versions digits and strip any addition build versions
 --->
 <cffunction name="getDecimalADFVersion" access="public" returntype="numeric">
 	<cfscript>
