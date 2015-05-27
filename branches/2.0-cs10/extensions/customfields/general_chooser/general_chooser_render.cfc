@@ -29,11 +29,12 @@ Name:
 Summary:
 	This is a pass-through component for the General Chooser render 
 Version:
-	1.1
+	2.0
 History:
 	2015-04-24 - DJM - Created
+	2015-05-26 - DJM - Modified extends to ADF.extensions.customfields.general_chooser.v2_0.general_chooser_2_0_render
 --->
-<cfcomponent displayname="general chooser_render" extends="ADF.extensions.customfields.general_chooser.v1_2.general_chooser_1_2_render" output="false" hint="This is a pass-through component for the General Chooser render">
+<cfcomponent displayname="general chooser_render" extends="ADF.extensions.customfields.general_chooser.v2_0.general_chooser_2_0_render" output="false" hint="This is a pass-through component for the General Chooser render">
 	
 	<!--- // This is a pass-through component for the General Chooser render  --->
 	

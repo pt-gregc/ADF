@@ -28,8 +28,12 @@ Summary:
 	Renders the file upload form
 History:
 	2011-08-05 - RAK - Created
-	2011-08-05 - RAK - Fixed issue where the file uploader would try to generate images for non-pdf files.
+	2011-08-05 - RAK - fixed issue where the file uploader would try to generate images for non-pdf files.
+	2011-09-22 - RAK - Updated file uploader to be able to get more detailed information if they choose to override the props.
 	2012-01-03 - GAC - Moved the the hidden field code inside the TD tag
+	2012-02-14 - GAC - Moved the CFT hidden fields back inside of the <td> wrapper for the field
+	2013-01-21 - SFS - Moved the CFT hidden fields back outside of the <td> wrapper for the field to make more valid HTML
+	2015-05-26 - DJM - Added the 3.0 version
 --->
 <cfscript>
 	application.ADF.scripts.loadJQuery();
@@ -41,36 +45,23 @@ History:
 	// the fields current value
 	currentValue = attributes.currentValues[fqFieldName];
 	currentFilename = "";
-	if(Len(currentValue)){
-		//Replace out the --uuid from the filename
-		rightCharacters = Len(uploadUUID)+2+4;
-		currentFilename = Replace(currentValue,Right(currentValue,rightCharacters),'')&Right(currentValue,4);
-	}
 
 	// the param structure which will hold all of the fields from the props dialog
 	xparams = parameters[fieldQuery.inputID];
+	
 	// find if we need to render the simple form field
 	renderSimpleFormField = false;
 	if ( (StructKeyExists(request, "simpleformexists")) AND (request.simpleformexists EQ 1) )
 		renderSimpleFormField = true;
 
-
-	acceptedFileTypes = xparams.filetypes;
-	for(i=1;i<=ListLen(acceptedFileTypes);i++){
-		acceptedFileTypes = ListSetAt(acceptedFileTypes,i,"*."&ListGetAt(acceptedFileTypes,i));
-	}
-	acceptedFileTypes = ListChangeDelims(acceptedFileTypes,";");
-
 	fieldDefaultValues = application.ADF.ceData.getFieldParamsByID(fieldQuery.inputID);
-	filePath = fieldDefaultValues.filePath;
-	imageURL = "/ADF/extensions/customfields/file_uploader/v1/handleFileDownload.cfm?subsiteURL=#request.subsite.url#&fieldID=#fieldQuery.inputID#&filename=";
+
+	valueRenderParams = StructNew();
+	valueRenderParams.currentValue = currentValue;
+	currentValueRenderData = application.ADF.utils.runCommand(fieldDefaultValues.beanName,"getCurrentValueRenderData",valueRenderParams);
+
+	imageURL = "/ADF/extensions/customfields/file_uploader/v3/handleFileDownload.cfm?subsiteURL=#request.subsite.url#&fieldID=#fieldQuery.inputID#&filename=";
 	concatenator = "";
-	if(Find('/',filePath)){
-		concatenator = '/';
-	}else{
-		concatenator = '\\';
-	}
-	filePath = Replace(filePath,"\","\\","ALL");
 </cfscript>
 <cfoutput>
 	<script>
@@ -82,24 +73,25 @@ History:
 		jQuery(document).ready( function(){
 			#fqFieldName#setView(false);
 			<cfif Len(currentValue)>
-				#fqFieldName#handleFileUploadComplete("#currentFilename#","#currentValue#");
+				#fqFieldName#setView(true);
+				jQuery("###fqFieldName#_currentSelection").show();
 			</cfif>
 		});
 
-		function #fqFieldName#handleFileUploadComplete(fileName,fileValue){
-<!---			<img src='#imageURL##fileValue#'>--->
-			if( /[^.]+$/.exec(fileName) == "pdf"){
+		function #fqFieldName#handleFileUploadComplete(fileName){
+			<cfif application.ADF.utils.runCommand(fieldDefaultValues.beanName,"_isThumbnailGenerationOn")>
 				jQuery.post("#application.ADF.ajaxProxy#",{
-					bean: "utils_1_1",
-					method: "getThumbnailOfResource",
-					filePath: '#filePath##concatenator#'+fileValue
+					bean: "#fieldDefaultValues.beanName#",
+					method:"_getThumbnail",
+					fileName:fileName,
+					fieldID: "#fieldQuery.inputID#"
 				},function(results){
-					jQuery("###fqFieldName#_thumbnail").html('<img src="#imageURL#'+encodeURI(results)+'">');
+					jQuery("###fqFieldName#_thumbnail").html(results);
 				});
-			}
+			</cfif>
+
 			jQuery("###fqFieldName#_currentSelection").html(fileName);
-			jQuery("###fqFieldName#").val(fileValue);
-//			jQuery("##errorMsg_#fqFieldName#").html("Upload Success!");
+			jQuery("###fqFieldName#").val(fileName);  //.trigger("change"); // TODO: MAY NEED TO ADD THE .TRIGGER TO NOTIFY FORM OF CHANGE 
 			#fqFieldName#setView(true);
 			jQuery("###fqFieldName#_currentSelection").show();
 		}
@@ -138,21 +130,25 @@ History:
 		<td class="#tdClass#" valign="top">#labelText#</td>
 		<td class="cs_dlgLabelSmall">
 			<div>
-				<div id="#fqFieldName#_currentSelection">#currentValue#</div>
-				<div id="#fqFieldName#_thumbnail"></div>
+			
+				<div id="#fqFieldName#_currentSelection">#currentValueRenderData.name#</div>
+				<div id="#fqFieldName#_thumbnail">
+					<cfif len(currentValueRenderData.image)>
+						#currentValueRenderData.image#
+					</cfif>
+				</div>
 				<div id="uploadHolder_#fqFieldName#" style="min-width:475px">
-					<iframe height="70px" width="375px" scrolling="no" frameBorder="0" src="/ADF/extensions/customfields/file_uploader/v1/fileUploadForm.cfm?subsiteURL=#request.subsite.url#&fieldName=#fqFieldName#&uploadUUID=#uploadUUID#&inputID=#fieldQuery.inputID#"></iframe>
+					<iframe height="70px" width="375px" scrolling="no" frameBorder="0" src="/ADF/extensions/customfields/file_uploader/v3/fileUploadForm.cfm?subsiteURL=#request.subsite.url#&fieldName=#fqFieldName#&uploadUUID=#uploadUUID#&inputID=#fieldQuery.inputID#"></iframe>
 				</div>
 				<div id="errorMsg_#fqFieldName#"></div>
 				<input type="button" value="Clear" name="clear_btn_#fqFieldName#" id="clear_btn_#fqFieldName#" onclick="#fqFieldName#clearButtonClick()">
 			</div>
-		
-			<!--- hidden field to store the value --->
-			<input type='hidden' name='#fqFieldName#' id='#fqFieldName#' value='#currentValue#'>
-			<!--- // include hidden field for simple form processing --->
-			<cfif renderSimpleFormField>
-				<input type="hidden" name="#fqFieldName#_FIELDNAME" id="#fqFieldName#_FIELDNAME" value="#ReplaceNoCase(xParams.fieldName, 'fic_','')#">
-			</cfif>
 		</td>
 	</tr>
+	<!--- hidden field to store the value --->
+	<input type='hidden' name='#fqFieldName#' id='#fqFieldName#' value='#currentValue#'>
+	<!--- // include hidden field for simple form processing --->
+	<cfif renderSimpleFormField>
+		<input type="hidden" name="#fqFieldName#_FIELDNAME" id="#fqFieldName#_FIELDNAME" value="#ReplaceNoCase(xParams.fieldName, 'fic_','')#">
+	</cfif>
 </cfoutput>

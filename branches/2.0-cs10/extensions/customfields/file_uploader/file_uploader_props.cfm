@@ -37,7 +37,8 @@ History:
 	2014-01-03 - GAC - Added the fieldVersion variable
 	2014-09-19 - GAC - Removed deprecated doLabel and jsLabelUpdater js calls
 	2015-05-12 - DJM - Added redirect CFINCLUDE to point to file_uploader/v2/file_uploader_props.cfm
+	2015-05-26 - DJM - Added redirect CFINCLUDE to point to file_uploader/v3/file_uploader_props.cfm
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
-<cfinclude template="/ADF/extensions/customfields/file_uploader/v2/file_uploader_props.cfm">
+<cfinclude template="/ADF/extensions/customfields/file_uploader/v3/file_uploader_props.cfm">

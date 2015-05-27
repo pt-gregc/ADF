@@ -4,7 +4,6 @@
 		function uploadFile(){
 			var tempFileName = jQuery('[name="filedata"]').val();
 			tempFileName = tempFileName.replace(/\\/g, "/");
-			tempFileName = tempFileName.replace(/[ ]/g, "-");
 			tempFileName = tempFileName.split('/').pop();
 			jQuery('[name="filename"]').val(tempFileName);
 			jQuery("form").submit();
@@ -12,17 +11,11 @@
 			jQuery(".form").hide();
 			jQuery(".uploadFailure").hide();
 		}
-		function uploadSuccess(){
-			<!--- This trickery takes the file: test.pdf and converts it to test--#request.params.uploadUUID#.pdf --->
-			var fileValue = jQuery('[name="filename"]').val();
-			var fileExtensionRegex = /(\.[^.]+)$/;
-			var extension = fileValue.match(fileExtensionRegex)[0];
-			fileValue = fileValue.replace(fileExtensionRegex,'');
-			fileValue = fileValue+"--#request.params.uploadUUID#"+extension;
+		function uploadSuccess(filename){
 			jQuery(".uploading").hide();
 			jQuery('[name="filedata"]').val("");
 			jQuery(".form").show();
-			parent.#request.params.fieldName#handleFileUploadComplete(jQuery('[name="filename"]').val(),fileValue);
+			parent.#request.params.fieldName#handleFileUploadComplete(filename);
 		}
 		function uploadFailure(message){
 			jQuery(".uploadFailure").html("Upload Failure. "+message);
@@ -33,15 +26,16 @@
 		}
 	</script>
 	<div class="uploading" style="display:none;">
-		Uploading... <img src="/ADF/extensions/customfields/file_uploader/ajax-loader-arrows.gif">
+		Uploading... <img src="/ADF/extensions/customfields/file_uploader/v3/ajax-loader-arrows.gif">
 	</div>
 	<div class="uploadFailure" style="display:none">
 		
 	</div>
 	<div class="form">
-		<form id="file_upload_form" target="upload_target" method="post" enctype="multipart/form-data" action="/ADF/extensions/customfields/file_uploader/handleFileUpload.cfm">
+		<form id="file_upload_form" target="upload_target" method="post" enctype="multipart/form-data" action="/ADF/extensions/customfields/file_uploader/v3/handleFileUpload.cfm">
 			<input type="hidden" name="subsiteURL" value="#request.subsite.url#">
-			<input type="hidden" name="folder" value="/#request.params.uploadUUID#/#request.params.inputID#">
+			<input type="hidden" name="fieldID" value="#request.params.inputID#">
+			<input type="hidden" name="uploadUUID" value="#request.params.uploadUUID#">
 			<input type="hidden" name="filename" value="">
 			<input type="file" name="filedata" onchange="uploadFile()">
 		</form>

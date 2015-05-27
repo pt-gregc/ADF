@@ -28,11 +28,12 @@ Name:
 Summary:
 	This is a pass-through component for the File Uploader render 
 Version:
-	2
+	3
 History:
 	2015-05-08 - DJM - Created
+	2015-05-26 - DJM - Modified extends to ADF.extensions.customfields.file_uploader.v3.file_uploader_render
 --->
-<cfcomponent displayname="file uploader_render" extends="ADF.extensions.customfields.file_uploader.v2.file_uploader_render" output="false" hint="This is a pass-through component for the File Uploader render">
+<cfcomponent displayname="file uploader_render" extends="ADF.extensions.customfields.file_uploader.v3.file_uploader_render" output="false" hint="This is a pass-through component for the File Uploader render">
 	
 	<!--- // This is a pass-through component for the File Uploader render  --->
 	

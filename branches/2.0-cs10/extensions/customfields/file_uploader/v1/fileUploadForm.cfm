@@ -39,7 +39,7 @@
 		
 	</div>
 	<div class="form">
-		<form id="file_upload_form" target="upload_target" method="post" enctype="multipart/form-data" action="/ADF/extensions/customfields/file_uploader/handleFileUpload.cfm">
+		<form id="file_upload_form" target="upload_target" method="post" enctype="multipart/form-data" action="/ADF/extensions/customfields/file_uploader/v1/handleFileUpload.cfm">
 			<input type="hidden" name="subsiteURL" value="#request.subsite.url#">
 			<input type="hidden" name="folder" value="/#request.params.uploadUUID#/#request.params.inputID#">
 			<input type="hidden" name="filename" value="">

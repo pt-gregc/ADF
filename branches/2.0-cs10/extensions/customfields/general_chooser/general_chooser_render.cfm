@@ -30,7 +30,7 @@ Summary:
 	General Chooser field type.
 	Allows for selection of the custom element records.
 Version:
-	1.2
+	2.0
 History:
 	2009-10-16 - MFC - Created
 	2009-11-13 - MFC - Updated the Ajax calls to the CFC to call the controller 
@@ -52,5 +52,6 @@ History:
 	2013-12-02 - GAC - Added a new callback function for the the edit/delete to reload the selected items after an edit or a delete
 					 - Updated to allow 'ADD NEW' to be used multiple times before submit
 	2013-12-10 - GAC - Added redirect CFINCLUDE to point to general_chooser/v1_2/general_chooser_1_2_render.cfm
+	2015-05-26 - DJM - Added redirect CFINCLUDE to point to general_chooser/v2_0/general_chooser_2_0_render.cfm
 --->
-<cfinclude template="/ADF/extensions/customfields/general_chooser/v1_2/general_chooser_1_2_render.cfm">
+<cfinclude template="/ADF/extensions/customfields/general_chooser/v2_0/general_chooser_2_0_render.cfm">
