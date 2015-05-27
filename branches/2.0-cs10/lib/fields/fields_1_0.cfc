@@ -33,6 +33,7 @@ History:
 	2014-08-04 - GAC - Added new methods getCEFieldID and getCEFieldName
 	2015-02-06 - GAC - Added the new method renderHiddenControlsFromQueryString
 	2015-02-24 - GAC - Added the new method renderHiddenControlsFromRequestParams
+	2015-05-27 - DRM - Added the new method renderCSFormScripts()
 --->
 <cfcomponent displayname="fields_1_0" extends="ADF.core.Base" hint="Custom Field Type functions for the ADF Library">
 
@@ -474,6 +475,7 @@ Usage:
 	renderHiddenControlsFromRequestParams(paramsStruct,allowedParamList,excludedParamList,preventDups,tagClass,tagIDprefix)
 History:
 	2015-02-24 - GAC - Created
+	2015-05-26 - DRM - Added renderCSFormScripts()
  --->
 <cffunction name="renderHiddenControlsFromRequestParams" returntype="string" access="public" hint="Render hidden input controls based on the request.params data url and form param struct">
 	<cfargument name="paramsStruct" type="struct" required="false" default="#request.params#" hint="request.params data structure to parse">
@@ -529,6 +531,71 @@ History:
 		
 		return retHTML;
 	</cfscript>
+</cffunction>
+
+
+<!---
+	outputs javascript utilities for use with CommonSpot 10.0+ custom forms
+	tracks whether it's already been called in this request, renders only once
+--->
+<cffunction name="renderCSFormScripts" returntype="void">
+	<cfscript>
+		if (structKeyExists(request, "ADF_csFormScriptsLoaded"))
+			return;
+		request.ADF_csFormScriptsLoaded = 1;
+	</cfscript>
+
+	<!---
+		set up global namespace for ADF js if it's not already defined
+		set up adf.formUtils, package of methods for working with fields in CommonSpot 10.0+ custom forms
+			always available in fieldtype renderers that extend extensions/customfields/adf-form-field-renderer-base.cfc, which all adf and app renderers should
+	--->
+	<cfoutput><script>
+var adf = adf || {};
+adf.formUtils =
+{
+	// shows or hides a standard CommonSpot custom form field given the dom id of the field itself
+	// for use with (custom only, for now at least) field types that let you set the dom id of the field, independently from the CommonSpot form and field ID
+	showHideCSFieldByDomId: function(id, show)
+	{
+		var fld = document.getElementById(id);
+		var display = show ? '' : 'none';
+		var container;
+		if (fld)
+		{
+			container = adf.formUtils.getFieldContainerByFieldName(fld.name);
+			if (container)
+				container.style.display = display;
+			container = adf.formUtils.getDescrContainerByFieldName(fld.name);
+			if (container)
+				container.style.display = display;
+		}
+	},
+
+	// these methods return a reference to the requested field container
+	getFieldContainerByFieldDomId: function(id)
+	{
+		var fld = document.getElementById(id);
+		if (fld)
+			return adf.formUtils.getFieldContainerByFieldName(fld.name);
+	},
+	getFieldContainerByFieldName: function(fieldName)
+	{
+		return document.getElementById(fieldName + '_container');
+	},
+
+	// these methods return a reference to the requested field description container
+	getDescrContainerByFieldDomId: function(id)
+	{
+		var fld = document.getElementById(id);
+		if (fld)
+			return adf.formUtils.getDescrContainerByFieldName(fld.name);
+	},
+	getDescrContainerByFieldName: function(fieldName)
+	{
+		return document.getElementById(fieldName + '_descr_container');
+	}
+};</script></cfoutput>
 </cffunction>
 
 </cfcomponent>
