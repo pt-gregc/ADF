@@ -434,7 +434,7 @@ History:
 	2015-02-04 - GAC - Created
 	2015-02-18 - GAC - Added a delimiter between the tagIDprefix and the KEY for the input tag ID
 	2015-02-24 - GAC - Rename the excludedKeyList parameter to excludedParamList for consistency
-					 - Moved all of the rendering code and logic to the renderHiddenControlsFromRequestParams() method
+					 	  - Moved all of the rendering code and logic to the renderHiddenControlsFromRequestParams() method
  --->
 <cffunction name="renderHiddenControlsFromQueryString" returntype="string" access="public" hint="Render hidden input controls based on a url query string">
 	<cfargument name="queryString" type="string" required="false" default="#Request.CGIVars.QUERY_STRING#" hint="URL query sting to parse">
@@ -475,7 +475,6 @@ Usage:
 	renderHiddenControlsFromRequestParams(paramsStruct,allowedParamList,excludedParamList,preventDups,tagClass,tagIDprefix)
 History:
 	2015-02-24 - GAC - Created
-	2015-05-26 - DRM - Added renderCSFormScripts()
  --->
 <cffunction name="renderHiddenControlsFromRequestParams" returntype="string" access="public" hint="Render hidden input controls based on the request.params data url and form param struct">
 	<cfargument name="paramsStruct" type="struct" required="false" default="#request.params#" hint="request.params data structure to parse">
@@ -534,10 +533,26 @@ History:
 </cffunction>
 
 
+
 <!---
-	outputs javascript utilities for use with CommonSpot 10.0+ custom forms
-	tracks whether it's already been called in this request, renders only once
---->
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+Name:
+	$renderCSFormScripts
+Summary:
+	Outputs javascript utilities for use with CommonSpot 10.0+ custom forms
+	Tracks whether it's already been called in this request, renders only once
+Returns:
+	String
+Arguments: none
+Usage:
+	renderCSFormScripts()
+	call from somewhere that output is enabled
+History:
+	2015-05-27 - DRM - Added
+	2015-05-28 - DRM - added ByFormFieldName variants
+ --->
 <cffunction name="renderCSFormScripts" returntype="void">
 	<cfscript>
 		if (structKeyExists(request, "ADF_csFormScriptsLoaded"))
@@ -555,7 +570,7 @@ var adf = adf || {};
 adf.formUtils =
 {
 	// shows or hides a standard CommonSpot custom form field given the dom id of the field itself
-	// for use with (custom only, for now at least) field types that let you set the dom id of the field, independently from the CommonSpot form and field ID
+	// mostly for use with (custom only, for now at least) field types that let you set the dom id of the field, independently from the CommonSpot form and field ID
 	showHideCSFieldByDomId: function(id, show)
 	{
 		var fld = document.getElementById(id);
@@ -594,6 +609,36 @@ adf.formUtils =
 	getDescrContainerByFieldName: function(fieldName)
 	{
 		return document.getElementById(fieldName + '_descr_container');
+	},
+
+	// these methods return a reference to the requested field or description container, from its actual CommonSpot form and field name
+	// IMPORTANT: those names are the text ones defined in CommonSpot for the form or element and the field, NOT ID-based fic_... names
+	getFieldContainerByFormFieldName: function(formName, fieldName)
+	{
+		var fieldFullName = (formName + '__' + fieldName).replace(/ /g, '_');
+		var selector = 'div[data-containerfor="' + fieldFullName + '"]';
+		var elems = document.querySelectorAll(selector);
+		if (elems.length >= 1)
+			return elems[0];
+	},
+	getDescrContainerByFormFieldName: function(formName, fieldName)
+	{
+		var fieldFullName = (formName + '__' + fieldName).replace(/ /g, '_');
+		var selector = 'div[data-descrcontainerfor="' + fieldFullName + '"]';
+		var elems = document.querySelectorAll(selector);
+		if (elems.length >= 1)
+			return elems[0];
+	},
+	// shows or hides a standard CommonSpot custom form field by its actual CommonSpot form and field name; see above
+	showHideCSFieldByFormFieldName: function(formName, fieldName, show)
+	{
+		var display = show ? '' : 'none';
+		var container = adf.formUtils.getFieldContainerByFormFieldName(formName, fieldName);
+		if (container)
+			container.style.display = display;
+		container = adf.formUtils.getDescrContainerByFormFieldName(formName, fieldName);
+		if (container)
+			container.style.display = display;
 	}
 };</script></cfoutput>
 </cffunction>
