@@ -539,7 +539,7 @@ History:
 Author:
 	PaperThin, Inc.
 Name:
-	$renderCSFormScripts
+	renderCSFormScripts
 Summary:
 	Outputs javascript utilities for use with CommonSpot 10.0+ custom forms
 	Tracks whether it's already been called in this request, renders only once
@@ -639,6 +639,16 @@ adf.formUtils =
 		container = adf.formUtils.getDescrContainerByFormFieldName(formName, fieldName);
 		if (container)
 			container.style.display = display;
+	},
+	// returns a reference to the requested CommonSpot hidden field, from its actual CommonSpot form and field name
+	// note that the container methods don't work for CommonSpot's built-in hidden field type, because no containers are renderd
+	getHiddenFieldByFormFieldName: function(formName, fieldName)
+	{
+		var fieldFullName = (formName + '__' + fieldName).replace(/ /g, '_');
+		var selector = 'input[data-fieldFullName="' + fieldFullName + '"]';
+		var elems = document.querySelectorAll(selector);
+		if (elems.length >= 1)
+			return elems[0];
 	}
 };</script></cfoutput>
 </cffunction>
