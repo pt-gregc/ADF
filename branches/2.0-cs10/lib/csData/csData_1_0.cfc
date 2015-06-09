@@ -36,7 +36,8 @@ History:
 						getCustomMetadata and getStandardMetadata functions to CSData v1.1.
 						Reverted getCustomMetadata and getStandardMetadata functions to later revisions
 						to avoid dependencies on functions in CSData v1.1.
-	2011-09-22 - GAC - Updated and cleaned up comments 
+	2011-09-22 - GAC - Updated and cleaned up comments
+	2015-06-09 - DRM - Update application.cs -> Server.CommonSpot.udf, CommonSpot change
 --->
 <cfcomponent displayname="csData_1_0" extends="ADF.core.Base" hint="CommonSpot Data Utils functions for the ADF Library">
 	
@@ -492,7 +493,7 @@ History:
 			stdMetadata.PublicReleaseDate = getData.PublicReleaseDate;
 			stdMetadata.Confidentiality = getData.Confidentiality;
 			if ( IsNumeric(getData.IsPublic) AND getData.IsPublic gt 0 ) 
-				stdMetadata.IncludeInIndex = application.CS.site.IsPublicGetOptions(getData.IsPublic);
+				stdMetadata.IncludeInIndex = Server.CommonSpot.udf.site.IsPublicGetOptions(getData.IsPublic);
 		}
 	</cfscript>
 	<cfreturn stdMetadata>

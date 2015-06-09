@@ -47,7 +47,8 @@ History:
 	2014-03-16 - JTP - Added getPaddedID function
 	2014-09-25 - GAC - Added getCSPageIDByURL function	
 	2015-01-05 - GAC - Added isTemplate function
-	2015-01-08 - GAC - Moved isTemplated to csData_1_3	
+	2015-01-08 - GAC - Moved isTemplated to csData_1_3
+	2015-06-09 - DRM - Update application.cs -> Server.CommonSpot.udf, CommonSpot change
 --->
 <cfcomponent displayname="csData_1_2" extends="ADF.lib.csData.csData_1_1" hint="CommonSpot Data Utils functions for the ADF Library">
 
@@ -577,7 +578,7 @@ History:
 		select  ID, subsiteid, name, Title, FileName
 		  from  sitePages
 		 where  ( title = <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.csPageTitle#">
-				  or  title = <cfqueryparam cfsqltype="cf_sql_varchar" value="#application.CS.Data.ToHTML(arguments.csPageTitle)#"> )
+				  or  title = <cfqueryparam cfsqltype="cf_sql_varchar" value="#Server.CommonSpot.udf.Data.ToHTML(arguments.csPageTitle)#"> )
 		<cfif IsNumeric(arguments.csSubsiteID) AND arguments.csSubsiteID GT 0>
 		   and  subsiteID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.csSubsiteID#">
 		</cfif>
@@ -724,7 +725,7 @@ History:
 		select  ID, subsiteid, name, Title, FileName
 		  from  sitePages
 		 where  ( name = <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.csPageName#">
-				  or  name = <cfqueryparam cfsqltype="cf_sql_varchar" value="#application.CS.Data.ToHTML(arguments.csPageName)#"> )
+				  or  name = <cfqueryparam cfsqltype="cf_sql_varchar" value="#Server.CommonSpot.udf.Data.ToHTML(arguments.csPageName)#"> )
 		<cfif IsNumeric(arguments.csSubsiteID) AND arguments.csSubsiteID GT 0>
 		   and  subsiteID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.csSubsiteID#">
 		</cfif>
