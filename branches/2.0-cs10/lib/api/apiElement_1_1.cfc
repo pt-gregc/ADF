@@ -31,7 +31,7 @@ Version:
 History:
 	2014-09-08 - GAC - Created
 --->
-<cfcomponent displayname="apiElement_1_1" extends="ADF.lib.api.apiElement_1_0" hint="">
+<cfcomponent displayname="apiElement_1_1" extends="apiElement_1_0" hint="">
 
 <cfproperty name="version" value="1_1_1">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
