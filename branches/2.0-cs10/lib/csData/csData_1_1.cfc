@@ -41,7 +41,7 @@ History:
 	2012-12-07 - MFC - Moved new functions to CSData v1.2.
 	2015-06-09 - DRM - Update application.cs -> Server.CommonSpot.udf, CommonSpot change
 --->
-<cfcomponent displayname="csData_1_1" extends="ADF.lib.csData.csData_1_0" hint="CommonSpot Data Utils functions for the ADF Library">
+<cfcomponent displayname="csData_1_1" extends="csData_1_0" hint="CommonSpot Data Utils functions for the ADF Library">
 	
 <cfproperty name="version" value="1_1_7">
 <cfproperty name="type" value="singleton">

@@ -37,7 +37,7 @@ History:
 	2015-04-06 - GAC - Added getUploadedDocFileSize and getUploadedDocServerPath
 	2015-04-09 - GAC - Added getCSExtURLString 
 --->
-<cfcomponent displayname="csData_1_3" extends="ADF.lib.csData.csData_1_2" hint="CommonSpot Data Utils functions for the ADF Library">
+<cfcomponent displayname="csData_1_3" extends="csData_1_2" hint="CommonSpot Data Utils functions for the ADF Library">
 
 <cfproperty name="version" value="1_3_6">
 <cfproperty name="type" value="singleton">

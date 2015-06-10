@@ -35,7 +35,7 @@ History:
 	2014-12-03 - GAC - Added the isNumericList function
 	2015-02-13 - GAC - Added the tagValueCleanup function
 --->
-<cfcomponent displayname="data_1_2" extends="ADF.lib.data.data_1_1" hint="Data Utils component functions for the ADF Library">
+<cfcomponent displayname="data_1_2" extends="data_1_1" hint="Data Utils component functions for the ADF Library">
 
 <cfproperty name="version" value="1_2_14">
 <cfproperty name="type" value="singleton">

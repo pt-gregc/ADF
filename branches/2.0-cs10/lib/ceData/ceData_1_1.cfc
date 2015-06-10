@@ -33,7 +33,7 @@ History:
 	2011-10-04 - GAC - Updated csSecurity dependency to csSecurity_1_1
 	2012-03-19 - GAC - Updated and fixed comment headers
 --->
-<cfcomponent displayname="ceData_1_1" extends="ADF.lib.ceData.ceData_1_0" hint="Custom Element Data functions for the ADF Library">
+<cfcomponent displayname="ceData_1_1" extends="ceData_1_0" hint="Custom Element Data functions for the ADF Library">
 
 <cfproperty name="version" value="1_1_12">
 <cfproperty name="type" value="singleton">

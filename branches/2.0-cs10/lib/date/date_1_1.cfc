@@ -31,7 +31,7 @@ Version:
 History:
 	2011-03-08 - GAC - Created - New v1.1
 --->
-<cfcomponent displayname="date_1_1" extends="ADF.lib.date.date_1_0" hint="Date Utils functions for the ADF Library">
+<cfcomponent displayname="date_1_1" extends="date_1_0" hint="Date Utils functions for the ADF Library">
 
 <cfproperty name="version" value="1_1_0">
 <cfproperty name="type" value="singleton">

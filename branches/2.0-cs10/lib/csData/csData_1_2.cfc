@@ -50,7 +50,7 @@ History:
 	2015-01-08 - GAC - Moved isTemplated to csData_1_3
 	2015-06-09 - DRM - Update application.cs -> Server.CommonSpot.udf, CommonSpot change
 --->
-<cfcomponent displayname="csData_1_2" extends="ADF.lib.csData.csData_1_1" hint="CommonSpot Data Utils functions for the ADF Library">
+<cfcomponent displayname="csData_1_2" extends="csData_1_1" hint="CommonSpot Data Utils functions for the ADF Library">
 
 <cfproperty name="version" value="1_2_19">
 <cfproperty name="type" value="singleton">

@@ -31,7 +31,7 @@ Version:
 History:
 	2012-12-07 - MFC - Created
 --->
-<cfcomponent displayname="csSecurity_1_2" extends="ADF.lib.csSecurity.csSecurity_1_1" hint="Security functions for the ADF Library">
+<cfcomponent displayname="csSecurity_1_2" extends="csSecurity_1_1" hint="Security functions for the ADF Library">
 
 <cfproperty name="version" value="1_2_1">
 <cfproperty name="type" value="singleton">

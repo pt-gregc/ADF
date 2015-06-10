@@ -35,7 +35,7 @@ History:
 	2013-01-15 - GAC - Removed obsolete dev funtions: buildViewforCE and buildViewCodeforCE
 	2014-10-09 - GAC - Updated the BuildView and the BuildRealTypeView methods to use the ADF 1.8 SQL View Naming convention: "vCE_{CustomElementName}" 
 --->
-<cfcomponent displayname="ceData_2_0" extends="ADF.lib.ceData.ceData_1_1" hint="Custom Element Data functions for the ADF Library">
+<cfcomponent displayname="ceData_2_0" extends="ceData_1_1" hint="Custom Element Data functions for the ADF Library">
 
 <cfproperty name="version" value="2_0_30">
 <cfproperty name="type" value="singleton">

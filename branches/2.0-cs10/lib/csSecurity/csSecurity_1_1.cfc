@@ -32,7 +32,7 @@ History:
 	2011-10-04 - GAC - Created
 	2012-12-07 - MFC - Moved new functions to CSSecurity v1.2.
 --->
-<cfcomponent displayname="csSecurity_1_1" extends="ADF.lib.csSecurity.csSecurity_1_0" hint="Security functions for the ADF Library">
+<cfcomponent displayname="csSecurity_1_1" extends="csSecurity_1_0" hint="Security functions for the ADF Library">
 
 <cfproperty name="version" value="1_1_0">
 <cfproperty name="type" value="singleton">
