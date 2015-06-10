@@ -33,7 +33,7 @@ History:
 	2013-02-12 - MFC - Added injection dependency with CSData v1.2.
 	2015-01-22 - GAC - Added the injection dependency for ccapi_2_0 to allow the inherited csPage_1_0.deletePage() to work
 ---> 
-<cfcomponent displayname="csPage_2_0" extends="ADF.lib.ccapi.csPage_1_1" hint="Constructs a CCAPI instance and then creates or deletes a page with the given information">
+<cfcomponent displayname="csPage_2_0" extends="csPage_1_1" hint="Constructs a CCAPI instance and then creates or deletes a page with the given information">
 
 <cfproperty name="version" value="2_0_5">
 <cfproperty name="type" value="transient">

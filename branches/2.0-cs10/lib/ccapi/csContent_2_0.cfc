@@ -33,7 +33,7 @@ History:
 	2014-09-23 - GAC - Updated the apiElement injectedBean dependency to version apiElement_1_1
 	//2014-09-23 - GAC - Removed the apiElement injectedBean dependency due to compatiblity issues with the new api Conduit Page Pool
 --->
-<cfcomponent displayname="csContent_2_0" extends="ADF.lib.ccapi.csContent_1_0" hint="Constructs a CCAPI instance and then allows you to populate Custom Elements and Textblocks">
+<cfcomponent displayname="csContent_2_0" extends="csContent_1_0" hint="Constructs a CCAPI instance and then allows you to populate Custom Elements and Textblocks">
 
 <cfproperty name="version" value="2_0_5">
 <cfproperty name="type" value="transient">

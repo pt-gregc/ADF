@@ -32,7 +32,7 @@ History:
 	2011-01-25 - RLW - Created - New v1.1
 	2011-03-20 - RLW - Updated ccapi version to new 1.1
 ---> 
-<cfcomponent displayname="csPage_1_1" extends="ADF.lib.ccapi.csPage_1_0" hint="Constructs a CCAPI instance and then creates or deletes a page with the given information">
+<cfcomponent displayname="csPage_1_1" extends="csPage_1_0" hint="Constructs a CCAPI instance and then creates or deletes a page with the given information">
 
 <cfproperty name="version" value="1_1_4">
 <cfproperty name="type" value="transient">
