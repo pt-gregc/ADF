@@ -31,7 +31,7 @@ Version:
 History:
 	2011-01-14 - MFC - Created
 --->
-<cfcomponent displayname="taxonomy_1_1" extends="ADF.lib.taxonomy.taxonomy_1_0" hint="Taxonomy functions for the ADF Library">
+<cfcomponent displayname="taxonomy_1_1" extends="taxonomy_1_0" hint="Taxonomy functions for the ADF Library">
 
 <cfproperty name="version" value="1_1_2">
 <cfproperty name="type" value="singleton">

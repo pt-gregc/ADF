@@ -34,7 +34,7 @@ History:
 	2011-03-31 - GAC - Added dependency to data_1_1
 	2012-12-07 - MFC - Moved new functions to Utils v1.2.
 --->
-<cfcomponent displayname="utils_1_1" extends="ADF.lib.utils.utils_1_0" hint="Util functions for the ADF Library">
+<cfcomponent displayname="utils_1_1" extends="utils_1_0" hint="Util functions for the ADF Library">
 
 <cfproperty name="version" value="1_1_5">
 <cfproperty name="type" value="singleton">

@@ -34,7 +34,7 @@ History:
 	2011-09-09 - GAC - Minor comment updates and formatting
 	2013-11-18 - GAC - Updated the lib dependencies to scripts_1_2 and ceData_2_0
 --->
-<cfcomponent displayname="forms_1_1" extends="ADF.lib.forms.forms_1_0" hint="Form functions for the ADF Library">
+<cfcomponent displayname="forms_1_1" extends="forms_1_0" hint="Form functions for the ADF Library">
 
 <cfproperty name="version" value="1_1_8">
 <cfproperty name="type" value="transient">

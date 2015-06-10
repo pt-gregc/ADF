@@ -39,7 +39,7 @@ History:
 	2015-04-22 - GAC - Added the loadCKEditor and the loadTypeAheadBundle functions	
 
 --->
-<cfcomponent displayname="scripts_1_2" extends="ADF.lib.scripts.scripts_1_1" hint="Scripts functions for the ADF Library">
+<cfcomponent displayname="scripts_1_2" extends="scripts_1_1" hint="Scripts functions for the ADF Library">
 	
 <cfproperty name="version" value="1_2_25">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_1" type="dependency">

@@ -35,7 +35,7 @@ History:
 	2014-05-27 - GAC - Added new methods to help secure ADFdumpVar: processADFDumpVar and sanitizeADFDumpVarData
 	2014-10-16 - GAC - Added and updated version of the runCommand method to better handle app based components and logging
 --->
-<cfcomponent displayname="utils_1_2" extends="ADF.lib.utils.utils_1_1" hint="Util functions for the ADF Library">
+<cfcomponent displayname="utils_1_2" extends="utils_1_1" hint="Util functions for the ADF Library">
 
 <cfproperty name="version" value="1_2_13">
 <cfproperty name="type" value="singleton">
