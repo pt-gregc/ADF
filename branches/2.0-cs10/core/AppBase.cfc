@@ -37,7 +37,7 @@ History:
 	2014-02-26 - GAC - Updated for version 1.7.0
 	2014-10-07 - GAC - Updated for version 1.8.0
 --->
-<cfcomponent name="AppBase" extends="ADF.core.Base" hint="App Base component for the ADF">
+<cfcomponent name="AppBase" extends="Base" hint="App Base component for the ADF">
 
 <cfproperty name="version" value="2_0_0">
 <cfproperty name="file-version" value="3">

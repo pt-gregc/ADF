@@ -31,7 +31,7 @@ History:
 	2014-10-07 - GAC - Updated for version 1.8.0
 --->
 
-<cfcomponent name="SiteBeanConfig" extends="ADF.core.lightwire.LightWireConfigExtendedBase" hint="A LightWire configuration bean.">
+<cfcomponent name="SiteBeanConfig" extends="LightWireConfigExtendedBase" hint="A LightWire configuration bean.">
 
 <cfproperty name="version" value="2_0_0">
 <cfproperty name="file-version" value="1">

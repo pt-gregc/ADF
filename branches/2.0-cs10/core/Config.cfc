@@ -34,7 +34,7 @@ History:
 	2014-10-07 - GAC - Updated for version 1.8.0
 	2014-12-03 - GAC - Updates for Adobe ColdFusion 11 compatibility
 --->
-<cfcomponent name="Config" hint="Config component for Application Development Framework" extends="ADF.core.Base">
+<cfcomponent name="Config" hint="Config component for Application Development Framework" extends="Base">
 
 <cfproperty name="version" value="2_0_0">
 <cfproperty name="file-version" value="4">

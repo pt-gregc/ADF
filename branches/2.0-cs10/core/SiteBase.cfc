@@ -38,7 +38,7 @@ History:
 	2014-10-07 - GAC - Updated for version 1.8.0
 	2014-12-03 - GAC - Updates for Adobe ColdFusion 11 compatibility
 --->
-<cfcomponent displayname="SiteBase" extends="ADF.core.AppBase">
+<cfcomponent displayname="SiteBase" extends="AppBase">
 
 <cfproperty name="version" value="2_0_0">
 <cfproperty name="file-version" value="6">

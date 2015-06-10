@@ -31,7 +31,7 @@ History:
 	2014-10-07 - GAC - Updated for version 1.8.0
 --->
 
-<cfcomponent name="BeanConfig" extends="ADF.core.lightwire.LightWireConfigExtendedBase" hint="A LightWire configuration bean.">
+<cfcomponent name="BeanConfig" extends="LightWireConfigExtendedBase" hint="A LightWire configuration bean.">
 <!--- 
 BEAN DEFINITION SYNTAX
 SINGLETONS:
