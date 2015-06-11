@@ -19,8 +19,7 @@ end user license agreement.
 */
 
 /* *************************************************************** */
-/*
-Author:
+Author: 	
 	PaperThin Inc.
 	M. Carroll
 Name:
@@ -28,11 +27,12 @@ Name:
 Summary:
 	ADF Lightbox Framework JavaScript
 Version:
-	1.0.0
+	1.0.3
 History:
 	2010-02-19 - MFC - Created
 	2010-04-19 - MFC - Commented out some functions that conflict with CS 5.x styles.
 	2013-01-03 - GAC - Added missing semi-colons to the ends of variablized functions
+	2015-06-10 - ACW - Updated to use the CKEDITOR as the RTE
 */
 
 function loadNonDashboardFiles()
@@ -281,6 +281,9 @@ function getFrameWindow(frameID,frameName)
 	return null;
 }
 
+/*
+  2015-06-10 - ACW - Updated to use the CKEDITOR as the RTE 
+*/
 function getContentFromChildFrame(frameName,fieldname,formname)
 {
 	var innertbVal = '';

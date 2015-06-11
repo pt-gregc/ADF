@@ -33,11 +33,12 @@ History:
 	2014-02-26 - GAC - Updated for version 1.7.0
 	2014-10-07 - GAC - Updated for version 1.8.0
 	2014-12-03 - GAC - Updates for Adobe ColdFusion 11 compatibility
+	2015-06-10 - ACW - Updated the component extends to no longer be dependant on the 'ADF' in the extends path
 --->
 <cfcomponent name="Config" hint="Config component for Application Development Framework" extends="Base">
 
 <cfproperty name="version" value="2_0_0">
-<cfproperty name="file-version" value="4">
+<cfproperty name="file-version" value="5">
 	
 <!---
 /* *************************************************************** */

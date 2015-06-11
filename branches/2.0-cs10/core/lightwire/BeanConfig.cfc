@@ -29,6 +29,7 @@ Summary:
 History:
 	2014-02-26 - GAC - Updated for version 1.7.0
 	2014-10-07 - GAC - Updated for version 1.8.0
+	2015-06-10 - ACW - Updated the component extends to no longer be dependant on the 'ADF' in the extends path
 --->
 
 <cfcomponent name="BeanConfig" extends="LightWireConfigExtendedBase" hint="A LightWire configuration bean.">
@@ -100,7 +101,7 @@ Adds a constructor property to a bean.
 --->
 
 <cfproperty name="version" value="2_0_0">
-<cfproperty name="update" value="1">
+<cfproperty name="update" value="2">
 
 <cffunction name="init" output="true" returntype="any" hint="I initialize the config bean.">
 	
