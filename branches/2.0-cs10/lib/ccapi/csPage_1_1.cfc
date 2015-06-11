@@ -31,10 +31,11 @@ Version:
 History:
 	2011-01-25 - RLW - Created - New v1.1
 	2011-03-20 - RLW - Updated ccapi version to new 1.1
+	2015-06-10 - ACW - Updated the component extends to no longer be dependant on the 'ADF' in the extends path
 ---> 
 <cfcomponent displayname="csPage_1_1" extends="csPage_1_0" hint="Constructs a CCAPI instance and then creates or deletes a page with the given information">
 
-<cfproperty name="version" value="1_1_4">
+<cfproperty name="version" value="1_1_5">
 <cfproperty name="type" value="transient">
 <cfproperty name="ccapi" type="dependency" injectedBean="ccapi_1_0">
 <cfproperty name="csData" type="dependency" injectedBean="csData_1_1">

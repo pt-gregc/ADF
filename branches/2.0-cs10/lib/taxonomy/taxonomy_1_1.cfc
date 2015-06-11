@@ -30,10 +30,11 @@ Version:
 	1.1
 History:
 	2011-01-14 - MFC - Created
+	2015-06-10 - ACW - Updated the component extends to no longer be dependant on the 'ADF' in the extends path
 --->
 <cfcomponent displayname="taxonomy_1_1" extends="taxonomy_1_0" hint="Taxonomy functions for the ADF Library">
 
-<cfproperty name="version" value="1_1_2">
+<cfproperty name="version" value="1_1_3">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Taxonomy_1_1">
 

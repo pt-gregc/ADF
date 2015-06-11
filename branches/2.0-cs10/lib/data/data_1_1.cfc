@@ -31,10 +31,11 @@ Version:
 History:
 	2011-01-25 - MFC - Created - New v1.1
 	2012-03-31 - GAC - Fixed function comments in the numberAsString and the makeUUID functions
+	2015-06-10 - ACW - Updated the component extends to no longer be dependant on the 'ADF' in the extends path
 --->
 <cfcomponent displayname="data_1_1" extends="data_1_0" hint="Data Utils component functions for the ADF Library">
 
-<cfproperty name="version" value="1_1_5">
+<cfproperty name="version" value="1_1_6">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Data_1_1">
 

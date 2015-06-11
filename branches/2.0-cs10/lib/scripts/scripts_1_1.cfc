@@ -38,10 +38,11 @@ History:
 	2012-08-16 - GAC - Added the force parameter to all the functions that did not already have it
 	2012-12-07 - MFC - Moved new functions to Scripts v1.2.
 	2014-09-16 - GAC - Updated references to thirdparty to thirdParty for case sensitivity
+	2015-06-10 - ACW - Updated the component extends to no longer be dependant on the 'ADF' in the extends path
 --->
 <cfcomponent displayname="scripts_1_1" extends="scripts_1_0" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" value="1_1_24">
+<cfproperty name="version" value="1_1_25">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_1" type="dependency">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Scripts_1_1">

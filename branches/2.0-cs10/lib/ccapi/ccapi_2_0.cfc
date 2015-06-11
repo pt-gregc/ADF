@@ -31,10 +31,11 @@ Version:
 History:
 	2012-12-27 - MFC - Created.  Direct functions to the API Library.
 	2014-10-16 - GAC - Fixed the component display name
+	2015-06-10 - ACW - Updated the component extends to no longer be dependant on the 'ADF' in the extends path
 --->
 <cfcomponent displayname="ccapi_2_0" extends="ccapi_1_0" hint="CCAPI functions for the ADF Library">
 	
-<cfproperty name="version" value="2_0_3">
+<cfproperty name="version" value="2_0_4">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
 <cfproperty name="wikiTitle" value="CCAPI">

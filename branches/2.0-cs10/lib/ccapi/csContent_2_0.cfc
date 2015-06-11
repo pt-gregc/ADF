@@ -32,10 +32,11 @@ History:
 	2012-12-27 - MFC - Created.  Direct functions to the API Element Library.
 	2014-09-23 - GAC - Updated the apiElement injectedBean dependency to version apiElement_1_1
 	//2014-09-23 - GAC - Removed the apiElement injectedBean dependency due to compatiblity issues with the new api Conduit Page Pool
+	2015-06-10 - ACW - Updated the component extends to no longer be dependant on the 'ADF' in the extends path
 --->
 <cfcomponent displayname="csContent_2_0" extends="csContent_1_0" hint="Constructs a CCAPI instance and then allows you to populate Custom Elements and Textblocks">
 
-<cfproperty name="version" value="2_0_5">
+<cfproperty name="version" value="2_0_6">
 <cfproperty name="type" value="transient">
 <cfproperty name="apiElement" type="dependency" injectedBean="apiElement_1_1">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">

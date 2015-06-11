@@ -34,10 +34,11 @@ History:
 	2013-10-23 - GAC - Removed the cfproperty dependency for the data_1_2 lib and injected directly in the required methods
 	2013-01-15 - GAC - Removed obsolete dev funtions: buildViewforCE and buildViewCodeforCE
 	2014-10-09 - GAC - Updated the BuildView and the BuildRealTypeView methods to use the ADF 1.8 SQL View Naming convention: "vCE_{CustomElementName}" 
+	2015-06-10 - ACW - Updated the component extends to no longer be dependant on the 'ADF' in the extends path
 --->
 <cfcomponent displayname="ceData_2_0" extends="ceData_1_1" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="2_0_30">
+<cfproperty name="version" value="2_0_31">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="CEData_2_0">
 

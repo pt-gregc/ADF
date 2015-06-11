@@ -34,10 +34,11 @@ History:
 	2014-04-04 - GAC - Added the doThow method with logging options
 	2014-05-27 - GAC - Added new methods to help secure ADFdumpVar: processADFDumpVar and sanitizeADFDumpVarData
 	2014-10-16 - GAC - Added and updated version of the runCommand method to better handle app based components and logging
+	2015-06-10 - ACW - Updated the component extends to no longer be dependant on the 'ADF' in the extends path
 --->
 <cfcomponent displayname="utils_1_2" extends="utils_1_1" hint="Util functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_13">
+<cfproperty name="version" value="1_2_14">
 <cfproperty name="type" value="singleton">
 <cfproperty name="ceData" type="dependency" injectedBean="ceData_2_0">
 <cfproperty name="csData" type="dependency" injectedBean="csData_1_2">

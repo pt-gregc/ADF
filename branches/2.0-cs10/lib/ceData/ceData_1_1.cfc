@@ -32,10 +32,11 @@ History:
 	2011-01-25 - MFC - Created - New v1.1
 	2011-10-04 - GAC - Updated csSecurity dependency to csSecurity_1_1
 	2012-03-19 - GAC - Updated and fixed comment headers
+	2015-06-10 - ACW - Updated the component extends to no longer be dependant on the 'ADF' in the extends path
 --->
 <cfcomponent displayname="ceData_1_1" extends="ceData_1_0" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="1_1_12">
+<cfproperty name="version" value="1_1_13">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_1">
 <cfproperty name="wikiTitle" value="CEData_1_1">

@@ -40,10 +40,11 @@ History:
 					 - Added a csPageID parameter to the getRSSFeedURLFromElementID element
 	2012-12-07 - MFC - Moved new functions to CSData v1.2.
 	2015-06-09 - DRM - Update application.cs -> Server.CommonSpot.udf, CommonSpot change
+	2015-06-10 - ACW - Updated the component extends to no longer be dependant on the 'ADF' in the extends path
 --->
 <cfcomponent displayname="csData_1_1" extends="csData_1_0" hint="CommonSpot Data Utils functions for the ADF Library">
 	
-<cfproperty name="version" value="1_1_7">
+<cfproperty name="version" value="1_1_8">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_1">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">
