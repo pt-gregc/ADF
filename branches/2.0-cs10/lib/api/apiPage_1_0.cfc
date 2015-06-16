@@ -31,10 +31,11 @@ Version:
 History:
 	2012-12-26 - MFC - Created
 	2015-02-27 - GAC - Added the deletePageRedirects method
+	2015-06-11 - GAC - Updated the component extends to use the libraryBase path
 --->
-<cfcomponent displayname="apiPage" extends="ADF.core.Base" hint="API Page functions for the ADF Library">
+<cfcomponent displayname="apiPage" extends="ADF.lib.libraryBase" hint="API Page functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_10">
+<cfproperty name="version" value="1_0_12">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
 <cfproperty name="wikiTitle" value="API Page">
@@ -58,10 +59,11 @@ History:
 	2014-10-28 - AW@EA - Fixed issue with expirationWarningMsg and misplaced newExpirationDate variables
 	2015-01-13 - GAC - Fixed issue with newExpirationWarningMsg variable 
 	2015-04-07 - GAC - Added logic to use the Title for the caption when no Caption value is passed in
+	2015-06-16 - GAC - Updated the activatePage argument to be type=boolean 
 --->
 <cffunction name="create" access="public" returntype="struct" hint="Creates a page.">
 	<cfargument name="pageData" type="struct" required="true" hint="a structure that contains page the required fields as page data.">
-	<cfargument name="activatePage" type="numeric" required="false" default="1" hint="Flag to make the new page active or inactive"> 
+	<cfargument name="activatePage" type="boolean" required="false" default="1" hint="Flag to make the new page active or inactive"> 
 	
 	<cfscript>
 		var pageResult = StructNew();

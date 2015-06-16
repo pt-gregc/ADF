@@ -54,7 +54,7 @@ History:
 <cfscript>
 	variables.ADFversion = "2.0.0"; // use a dot delimited version number
 	// ADF Build Revision Number
-	variables.buildRev = "1596";
+	variables.buildRev = "1600";
 	// ADF Codename
 	variables.buildName = "NA";
 	// CS product version, get the decimal value
@@ -75,7 +75,12 @@ History:
 		server.ADF.dependencyStruct = StructNew();  // Stores the bean dependency list 
 		server.ADF.library = StructNew(); // Stores library components
 		server.ADF.proxyWhiteList = StructNew(); // Stores Ajax Proxy White List
-		server.ADF.dir = expandPath('/ADF');
+		
+		server.ADF.url = "/ADF";
+		server.ADF.dir = expandPath(server.ADF.url);
+		server.ADF.comPath = RemoveChars(server.ADF.url,1,1); 
+		server.ADF.mappingPath = getADFMapping();
+		
 		server.ADF.buildErrors = ArrayNew(1); // Place to store errors that occur while building the ADF
 		server.ADF.version = getADFversion(); // Get the ADF version
 		server.ADF.csVersion = getCSVersion(); // Get the ADF version
@@ -87,13 +92,14 @@ History:
 		server.ADF.objectFactory = createObject("component","ADF.core.lightwire.LightWireExtendedBase").init(server.ADF.beanConfig);
 		
 		// Load the Ajax white list proxy
-		server.ADF.proxyWhiteList = createObject("component","ADF.core.Config").getConfigViaXML(expandPath("/ADF/lib/ajax/proxyWhiteList.xml"));
+		server.ADF.proxyWhiteList = createObject("component","ADF.core.Config").getConfigViaXML(expandPath("#server.ADF.url#/lib/ajax/proxyWhiteList.xml"));
 	</cfscript>
 </cffunction>
 
 <!---
 /* *************************************************************** */
-Author: 	M. Carroll
+Author: 	
+	M. Carroll
 Name:
 	getADFMapping
 Summary:
@@ -150,7 +156,7 @@ History:
 	2011-04-05 - MFC - Created
 --->
 <cffunction name="getCSVersion" access="public" returntype="numeric">
-	<!--- Return CS version from the Product Version variable --->
+	<!--- // Returns CS version from the Product Version variable --->
 	<cfreturn variables.csVersion>
 </cffunction>
 
