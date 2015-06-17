@@ -36,12 +36,12 @@ History:
 	2014-05-19 - GAC - Added functions for jQuery plug-ins: jEditable, Calx, Calculation
 	2014-09-16 - GAC - Updated references to thirdparty to thirdParty for case sensitivity
 	2015-02-17 - GAC - Added a loadJQueryTimeAgo function to load version 1.4 by default
-	2015-04-22 - GAC - Added the loadCKEditor and the loadTypeAheadBundle functions	
-
+	2015-04-22 - GAC - Added the loadCKEditor and the loadTypeAheadBundle functions
+	2015-06-10 - ACW - Updated the component extends to no longer be dependant on the 'ADF' in the extends path	
 --->
 <cfcomponent displayname="scripts_1_2" extends="scripts_1_1" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" value="1_2_25">
+<cfproperty name="version" value="1_2_26">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_1" type="dependency">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Scripts_1_2">
@@ -159,7 +159,7 @@ History:
 			<!--- // If we can't find site level files or forceCDN is true... load ckeditor from the CDN --->
 			<cfif loadViaCDN>
 				<!--- // [GAC 2015-04-23] - currently external URLs get stripped if we use the renderScriptOnce javascript loader --->
-				<cfset disableJSloader = true>
+				<!--- Disabled: <cfset disableJSloader = false> - using scriptsService.jsCommentStripper() this is no longer an issue --->
 				<script type="text/javascript" src="//cdn.ckeditor.com/#arguments.version#/#arguments.package#/ckeditor.js"></script>
 			</cfif>
 		</cfoutput>
@@ -1239,6 +1239,7 @@ History:
 					   Updated the IF statement to check the decimal places is only 1 length.
 	2014-09-30 - GAC - Changed the theme loading folders for 1.11. 
 	2015-04-17 - GAC - Pulled out the jQueryUI Style sheet code and moved it to its own function
+	2015-05-21 - GAC - Fixed the logic with the version detection to load scripts 1.1 version
 --->
 <cffunction name="loadJQueryUI" access="public" output="true" returntype="void" hint="Loads the JQuery UI Headers if not loaded."> 
 	<cfargument name="version" type="string" required="false" default="1.11" hint="JQuery version to load.">
@@ -1250,10 +1251,9 @@ History:
 		// 2011-12-28 - MFC - Make the version backwards compatiable to remove minor build numbers.
 		arguments.version = variables.scriptsService.getMajorMinorVersion(arguments.version);
 	</cfscript>
-	<!--- Check the version, if less than "1.9"
-			AND the decimal places is only 1 length (this prevents the comparison of '1.10')
-		  Then call the Scripts 1.1 function to load. --->
-	<cfif Val(arguments.version) LTE 1.8 AND LEN(ListLast(arguments.version, ".")) EQ 1>
+ 
+	<!--- // Check the version, if less than or equal "1.8.x" then call the Scripts 1.1 function to load. --->
+	<cfif ListFirst(version,".") EQ 0 OR (ListFirst(version,".") LTE 1 AND ListFirst(ListRest(version,"."),".") LTE 8)>
 		<cfscript>
 			super.loadJQueryUI(version=arguments.version,themeName=arguments.themeName,force=arguments.force);
 		</cfscript>
