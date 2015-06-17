@@ -31,10 +31,11 @@ Version:
 History:
 	2009-06-22 - MFC - Created
 	2015-05-21 - GAC - Moved the HTMLSafeFormattedTextBox() method to data_1_2 LIB for v1.8.2
+	2015-06-11 - GAC - Updated the component extends to use the libraryBase path
 --->
-<cfcomponent displayname="utils_1_0" extends="ADF.core.Base" hint="Util functions for the ADF Library">
+<cfcomponent displayname="utils_1_0" extends="ADF.lib.libraryBase" hint="Util functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_10">
+<cfproperty name="version" value="1_0_11">
 <cfproperty name="type" value="singleton">
 <cfproperty name="ceData" type="dependency" injectedBean="ceData_1_0">
 <cfproperty name="wikiTitle" value="Utils_1_0">

@@ -31,10 +31,11 @@ Version:
 History:
 	2009-06-22 - MFC - Created
 	2010-09-21 - MFC - Added formatDateTimeISO8601 and getDateFields functions.
+	2015-06-11 - GAC - Updated the component extends to use the libraryBase path
 --->
-<cfcomponent displayname="date_1_0" extends="ADF.core.Base" hint="Date Utils functions for ADF Library">
+<cfcomponent displayname="date_1_0" extends="ADF.lib.libraryBase" hint="Date Utils functions for ADF Library">
 
-<cfproperty name="version" value="1_0_4">
+<cfproperty name="version" value="1_0_5">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Date_1_0">
 

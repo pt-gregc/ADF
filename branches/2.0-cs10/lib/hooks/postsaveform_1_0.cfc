@@ -30,10 +30,11 @@ Version:
 	1.0
 History:
 	2014-07-25 - GAC - Created
+	2015-06-11 - GAC - Updated the component extends to use the libraryBase path
 --->
-<cfcomponent displayname="postsaveform_1_0" extends="ADF.core.Base" hint="Post Save Form Hook functions for the ADF Library">
+<cfcomponent displayname="postsaveform_1_0" extends="ADF.lib.libraryBase" hint="Post Save Form Hook functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_0">
+<cfproperty name="version" value="1_0_1">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="PostSaveForm_1_0">
 

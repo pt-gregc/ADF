@@ -34,10 +34,11 @@ History:
 	2012-03-01 - DMB - v1.0.2 - Fixed getFormIDByCEName to work for simpleforms not based on a Custom Element.
 	2012-03-19 - GAC - Updated and fixed comment headers
 	2012-07-25 - GAC - v1.0.5 - Fixed an issue with getPageIDForElement using MSSQL specific concatenation.
+	2015-06-11 - GAC - Updated the component extends to use the libraryBase path
 --->
-<cfcomponent displayname="ceData_1_0" extends="ADF.core.Base" hint="Custom Element Data functions for the ADF Library">
+<cfcomponent displayname="ceData_1_0" extends="ADF.lib.libraryBase" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_18">
+<cfproperty name="version" value="1_0_19">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_0">
 <cfproperty name="wikiTitle" value="CEData_1_0">

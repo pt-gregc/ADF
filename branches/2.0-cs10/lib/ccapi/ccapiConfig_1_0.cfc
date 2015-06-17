@@ -33,10 +33,11 @@ History:
 	2010-02-18 - RLW - Changed web service object to use direct CF component call
 	2011-01-25 - MFC - Update to v1.0.1. Updated dependency to Utils_1_1.
 	2011-03-19 - RLW - Added dependency for ceData_1_1, forms_1_1, scripts_1_1 and csData_1_1
+	2015-06-11 - GAC - Updated the component extends to use the libraryBase path
 --->
-<cfcomponent displayname="ccapiConfig" extends="ADF.core.Base" hint="CCAPI configuration">
+<cfcomponent displayname="ccapiConfig" extends="ADF.lib.libraryBase" hint="CCAPI configuration">
 	
-<cfproperty name="version" value="1_0_1">
+<cfproperty name="version" value="1_0_2">
 <cfproperty name="CoreConfig" type="dependency" injectedBean="CoreConfig">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_1">
 <cfproperty name="ceData" type="dependency" injectedBean="ceData_1_1">

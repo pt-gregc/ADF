@@ -32,10 +32,11 @@ History:
 	2014-07-25 - GAC - Created
 	2014-09-16 - GAC - Cleaned up and removed debug code
 	2015-01-09 - GAC - Updated comments and removed output=false from function tags
+	2015-06-11 - GAC - Updated the component extends to use the libraryBase path
 --->
-<cfcomponent displayname="presaveform_1_0" extends="ADF.core.Base" hint="Pre Save Form Hook functions for the ADF Library">
+<cfcomponent displayname="presaveform_1_0" extends="ADF.lib.libraryBase" hint="Pre Save Form Hook functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_2">
+<cfproperty name="version" value="1_0_3">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="PreSaveForm_1_0">
 

@@ -34,10 +34,11 @@ History:
 	2015-02-06 - GAC - Added the new method renderHiddenControlsFromQueryString
 	2015-02-24 - GAC - Added the new method renderHiddenControlsFromRequestParams
 	2015-05-27 - DRM - Added the new method renderCSFormScripts()
+	2015-06-11 - GAC - Updated the component extends to use the libraryBase path
 --->
-<cfcomponent displayname="fields_1_0" extends="ADF.core.Base" hint="Custom Field Type functions for the ADF Library">
+<cfcomponent displayname="fields_1_0" extends="ADF.lib.libraryBase" hint="Custom Field Type functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_4">
+<cfproperty name="version" value="1_0_5">
 <cfproperty name="type" value="transient">
 <cfproperty name="wikiTitle" value="Fields_1_0">
 

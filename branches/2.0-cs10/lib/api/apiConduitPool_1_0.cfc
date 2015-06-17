@@ -33,11 +33,12 @@ History:
 	2014-10-08 - GAC - Updated dev comments
 	2014-12-19 - GAC - Updated apiConfig logic to protect against apiConfig config issues
 					 - Added additional header comments 
+	2015-06-11 - GAC - Updated the component extends to use the libraryBase path
 --->
 
-<cfcomponent displayname="apiConduitPool_1_0" extends="ADF.core.Base" hint="API Conduit Page Pool functions for the ADF Library">
+<cfcomponent displayname="apiConduitPool_1_0" extends="ADF.lib.libraryBase" hint="API Conduit Page Pool functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_3">
+<cfproperty name="version" value="1_0_4">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <cfproperty name="ccapi" type="dependency" injectedBean="ccapi_2_0">
 <cfproperty name="csData" type="dependency" injectedBean="csData_1_2">

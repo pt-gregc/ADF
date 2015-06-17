@@ -34,10 +34,11 @@ History:
 	2013-03-14 - MFC - Moved the "loadJQueryMobile" function into the Scripts library.
 						Removed the "scriptsService" injection.
 	2014-09-16 - GAC - Updated references to thirdparty to thirdParty for case sensitivity
+	2015-06-11 - GAC - Updated the component extends to use the libraryBase path
 --->
-<cfcomponent displayname="mobile_1_0" extends="ADF.core.Base" hint="Mobile component functions for the ADF Library">
+<cfcomponent displayname="mobile_1_0" extends="ADF.lib.libraryBase" hint="Mobile component functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_3">
+<cfproperty name="version" value="1_0_4">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Mobile_1_0">
 

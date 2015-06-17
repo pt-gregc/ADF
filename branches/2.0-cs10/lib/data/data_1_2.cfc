@@ -34,6 +34,7 @@ History:
 	2013-09-06 - GAC - Added the listDiff and IsListDifferent functions
 	2014-12-03 - GAC - Added the isNumericList function
 	2015-02-13 - GAC - Added the tagValueCleanup function
+	2015-06-10 - ACW - Updated the component extends to no longer be dependant on the 'ADF' in the extends path
 --->
 <cfcomponent displayname="data_1_2" extends="data_1_1" hint="Data Utils component functions for the ADF Library">
 
@@ -221,7 +222,7 @@ Author:
 Name:
 	$unescapeHTMLentities
 Summary:
-	Converts HTML entities back to thier text values
+	Converts HTML entities back to their text values
 Returns:
 	String 
 Arguments:
@@ -229,7 +230,7 @@ Arguments:
 History:
 	2012-10-19 - GAC - Created
 --->
-<cffunction name="unescapeHTMLentities" access="public" returntype="string" hint="Converts HTML entities back to thier text values">
+<cffunction name="unescapeHTMLentities" access="public" returntype="string" hint="Converts HTML entities back to their text values">
 	<cfargument name="str" type="string" required="true">
 	
 	<cfscript>
@@ -1049,19 +1050,27 @@ History:
 		var default_value = arguments.inNum;
 		if(ArrayLen(Arguments) GTE 2) default_value = Arguments[2];
 
-		if (not IsNumeric(arguments.inNum)) {
+		if (not IsNumeric(arguments.inNum)) 
+		{
 			return (default_value);
-		} else {
+		} 
+		else 
+		{
 			arguments.inNum = Trim(arguments.inNum);
 			if(ListLen(arguments.inNum, ".") GT 1) {
 				out_str = Abs(ListFirst(arguments.inNum, "."));
 				decimal_str = "." & ListLast(arguments.inNum, ".");
-			} else if (Find(".", arguments.inNum) EQ 1) {
+			} 
+			else if (Find(".", arguments.inNum) EQ 1) 
+			{
 				decimal_str = arguments.inNum;
-			} else {
+			} 
+			else 
+			{
 				out_str = Abs(arguments.inNum);
 			}
-			if (out_str NEQ "") {
+			if (out_str NEQ "") 
+			{
 				// add commas
 				out_str = Reverse(out_str);
 				out_str = REReplace(out_str, "([0-9][0-9][0-9])", "\1,", "ALL");
@@ -1070,14 +1079,56 @@ History:
 			}
 
 			// add dollar sign (and parenthesis if negative)
-			if(arguments.inNum LT 0) {
+			if(arguments.inNum LT 0) 
+			{
 				return ("($" & out_str & decimal_str & ")");
-			} else {
+			} 
+			else 
+			{
 				return ("$" & out_str & decimal_str);
 			}
 		}
 	</cfscript>
+</cffunction>
 
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$HTMLSafeFormattedTextBox
+Summary:
+	Converts special characters to character entities, making a string safe for display in HTML.
+	Version 2 update by Eli Dickinson (eli.dickinson@gmail.com)
+ 	Fixes issue of lists not being equal and adding bull
+ 	v3, extra semicolons
+ 
+ 	@param string 	 String to format. (Required)
+	@return Returns a string.
+ 	@author Gyrus (eli.dickinson@gmail.com gyrus@norlonto.net)
+ 	@version 3, August 30, 2006
+Returns:
+	String
+Arguments:
+	String - inString
+Usage:
+	application.ADF.data.HTMLSafeFormattedTextBox(inString)
+History:
+	2015-05-21 - GAC - Moved from utils_1_0
+ --->
+<cffunction name="HTMLSafeFormattedTextBox" access="public" returntype="string" hint="Converts special characters to character entities, making a string safe for display in HTML.">
+	<cfargument name="inString" type="string" required="true">
+
+	<cfscript>
+		var badChars = "&amp;nbsp;,&amp;amp;,&quot;,&amp;ndash;,&amp;rsquo;,&amp;ldquo;,&amp;rdquo;,#chr(12)#";
+		var goodChars = "&nbsp;,&amp;,"",&ndash;,&rsquo;,&ldquo;,&rdquo;,&nbsp;";
+
+		// Return immediately if blank string
+		if (NOT Len(Trim(arguments.inString))) return arguments.inString;
+
+		// Do replacing
+		return ReplaceList(arguments.inString, badChars, goodChars);
+	</cfscript>
 </cffunction>
 
 </cfcomponent>

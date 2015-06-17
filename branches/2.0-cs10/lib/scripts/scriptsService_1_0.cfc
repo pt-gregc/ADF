@@ -31,10 +31,11 @@ Version:
 History:
 	2009-06-17 - RLW - Created
 	2011-12-28 - MFC - Added "getMajorMinorVersion" function to backwards compatibility.
+	2015-06-11 - GAC - Updated the component extends to use the libraryBase path
 --->
-<cfcomponent displayname="scriptsService_1_0" extends="ADF.core.Base" hint="Scripts Service functions for the ADF Library">
+<cfcomponent displayname="scriptsService_1_0" extends="ADF.lib.libraryBase" hint="Scripts Service functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_3">
+<cfproperty name="version" value="1_0_4">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="ScriptsService_1_0">
 

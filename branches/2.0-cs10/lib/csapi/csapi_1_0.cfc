@@ -30,10 +30,11 @@ Version:
 	1.0
 History:
 	2011-06-09 - MFC - Created
+	2015-06-11 - GAC - Updated the component extends to use the libraryBase path
 --->
-<cfcomponent displayname="csapi_1_0" extends="ADF.core.Base" hint="CS API functions for the ADF Library">
+<cfcomponent displayname="csapi_1_0" extends="ADF.lib.libraryBase" hint="CS API functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_3">
+<cfproperty name="version" value="1_0_4">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
 <cfproperty name="wikiTitle" value="CSAPI_1_0">
 

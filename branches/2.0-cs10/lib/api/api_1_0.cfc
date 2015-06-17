@@ -31,10 +31,11 @@ Version:
 History:
 	2012-12-20 - MFC - Created
 	2014-03-05 - JTP - Var declarations
+	2015-06-11 - GAC - Updated the component extends to use the libraryBase path
 --->
-<cfcomponent displayname="api" extends="ADF.core.Base" hint="CCAPI functions for the ADF Library">
+<cfcomponent displayname="api" extends="ADF.lib.libraryBase" hint="CCAPI functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_9">
+<cfproperty name="version" value="1_0_10">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
 <cfproperty name="wikiTitle" value="API">
 

@@ -30,10 +30,11 @@ Version:
 	1.0
 History:
 	2009-06-22 - PaperThin, Inc. - Created
+	2015-06-11 - GAC - Updated the component extends to use the libraryBase path
 --->
-<cfcomponent displayname="data_1_0" extends="ADF.core.Base" hint="Data Utils component functions for the ADF Library">
+<cfcomponent displayname="data_1_0" extends="ADF.lib.libraryBase" hint="Data Utils component functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_8">
+<cfproperty name="version" value="1_0_9">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Data_1_0">
 

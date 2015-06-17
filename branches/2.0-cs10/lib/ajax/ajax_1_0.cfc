@@ -30,11 +30,12 @@ Version
 History:
 	2011-01-26 - GAC - Created
 	2011-10-04 - GAC - Updated csSecurity dependency to csSecurity_1_1
-	2013-11-18 - GAC - Updated the lib dependencies to csSecurity_1_2, utils_1_2, data_1_2	
+	2013-11-18 - GAC - Updated the lib dependencies to csSecurity_1_2, utils_1_2, data_1_2
+	2015-06-11 - GAC - Updated the component extends to use the libraryBase path	
 --->
-<cfcomponent displayname="ajax" extends="ADF.core.Base" hint="AJAX functions for the ADF Library">
+<cfcomponent displayname="ajax" extends="ADF.lib.libraryBase" hint="AJAX functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_8">
+<cfproperty name="version" value="1_0_9">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_2">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">

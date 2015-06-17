@@ -30,10 +30,11 @@ Version:
 	1.0
 History:
 	2009-06-22 - MFC - Created
+	2015-06-11 - GAC - Updated the component extends to use the libraryBase path
 --->
-<cfcomponent displayname="forms_1_0" extends="ADF.core.Base" hint="Form functions for the ADF Library">
+<cfcomponent displayname="forms_1_0" extends="ADF.lib.libraryBase" hint="Form functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_3">
+<cfproperty name="version" value="1_0_4">
 <cfproperty name="type" value="transient">
 <cfproperty name="ceData" injectedBean="ceData_1_0" type="dependency">
 <cfproperty name="scripts" injectedBean="scripts_1_0" type="dependency">

@@ -30,10 +30,11 @@ Version:
 	1.0
 History:
 	2012-12-26 - MFC - Created
+	2015-06-11 - GAC - Updated the component extends to use the libraryBase path
 --->
-<cfcomponent displayname="apiDocument" extends="ADF.core.Base" hint="CCAPI functions for the ADF Library">
+<cfcomponent displayname="apiDocument" extends="ADF.lib.libraryBase" hint="CCAPI functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_1">
+<cfproperty name="version" value="1_0_3">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
 <cfproperty name="wikiTitle" value="API Document">

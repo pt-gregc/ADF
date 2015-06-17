@@ -38,10 +38,11 @@ History:
 						to avoid dependencies on functions in CSData v1.1.
 	2011-09-22 - GAC - Updated and cleaned up comments
 	2015-06-09 - DRM - Update application.cs -> Server.CommonSpot.udf, CommonSpot change
+	2015-06-11 - GAC - Updated the component extends to use the libraryBase path
 --->
-<cfcomponent displayname="csData_1_0" extends="ADF.core.Base" hint="CommonSpot Data Utils functions for the ADF Library">
+<cfcomponent displayname="csData_1_0" extends="ADF.lib.libraryBase" hint="CommonSpot Data Utils functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_15">
+<cfproperty name="version" value="1_0_16">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_0">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_0">
