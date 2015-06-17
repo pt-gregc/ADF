@@ -35,7 +35,7 @@ History:
 	2014-01-29 - GAC - Converted to use AjaxProxy and the ADF Lib
     2014-04-21 - JTP - Added logic so that if filter has an expression we don't cache it
 --->
-<cfcomponent output="false" displayname="custom_element_hierarchy_selector_base" extends="ADF.core.Base" hint="Contains base functions to handle hierarchy selector">
+<cfcomponent output="false" displayname="custom_element_hierarchy_selector_base" extends="ADF.extensions.customfields.customfieldsBase" hint="Contains base functions to handle hierarchy selector">
 	
 	<cfscript>
 		// Path to this CFT

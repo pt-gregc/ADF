@@ -37,7 +37,7 @@ History:
 	2015-05-26 - DJM - Added the 2.0 version
 --->
 
-<cfcomponent output="false" displayname="custom element select field_base" extends="ADF.core.Base" hint="This the base component for the Custom Element Select field">
+<cfcomponent output="false" displayname="custom element select field_base" extends="ADF.extensions.customfields.customfieldsBase" hint="This the base component for the Custom Element Select field">
 
 <!---
 /* *************************************************************** */

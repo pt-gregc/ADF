@@ -36,7 +36,7 @@ History:
 	2014-09-16 - DJM - Fixed issue when the currentValue is empty string or comma
 --->
 
-<cfcomponent output="false" displayname="custom element select field_base" extends="ADF.core.Base" hint="This the base component for the Custom Element Select field">
+<cfcomponent output="false" displayname="custom element select field_base" extends="ADF.extensions.customfields.customfieldsBase" hint="This the base component for the Custom Element Select field">
 
 <!---
 /* *************************************************************** */

@@ -53,7 +53,7 @@ History:
 	2015-04-02 - DJM - Modified code for CS Extended URL to compare with just the pageID value instead of the whole value stored in DB
 	2015-04-10 - DJM - Added code to check for field permission for setting up Action controls in getDisplayData()
 --->
-<cfcomponent output="false" displayname="custom element datamanager_base" extends="ADF.core.Base" hint="This the base component for the Custom Element Data Manager field">
+<cfcomponent output="false" displayname="custom element datamanager_base" extends="ADF.extensions.customfields.customfieldsBase" hint="This the base component for the Custom Element Data Manager field">
 	
 <cfscript>
 	// Path to this CFT
