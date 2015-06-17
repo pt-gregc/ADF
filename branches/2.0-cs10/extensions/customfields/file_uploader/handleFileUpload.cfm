@@ -7,7 +7,7 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 the specific language governing rights and limitations under the License.
 
-The Original Code is comprised of the Starter App directory
+The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
 PaperThin, Inc. Copyright(C) 2015.
@@ -17,20 +17,19 @@ By downloading, modifying, distributing, using and/or accessing any files
 in this directory, you agree to the terms and conditions of the applicable 
 end user license agreement.
 --->
+
 <!---
-/* *********************************************************************** */
-Author:
-	PaperThin, Inc.
-	Ryan Kahn
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 
 Name:
-	file_Upload_Render.cfm
+	handleFileUpload.cfm
 Summary:
-	Renders the file upload form
+	This is a redirect file used with the the file_Uploader CFT					
 History:
-	2011-08-05 - RAK - Created
-	2011-08-05 - RAK - Fixed issue where the file uploader would try to generate images for non-pdf files.
-	2012-01-03 - GAC - Moved the the hidden field code inside the TD tag
-	2015-05-26 - DJM - Added redirect CFINCLUDE to point to file_uploader/v3/file_uploader_render.cfm
+	2015-06-11 - GAC - Added redirect CFINCLUDE to point to /file_uploader/v3_0/handleFileUpload.cfm
 --->
-<cfset useCFTversion = "v3">
-<cfinclude template="#useCFTversion#/file_uploader_render.cfm">
+<cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
+
+<cfset useCFTversion = "v3_0">
+<cfinclude template="#useCFTversion#/handleFileUpload.cfm">

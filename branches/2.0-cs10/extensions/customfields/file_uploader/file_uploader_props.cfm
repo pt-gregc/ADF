@@ -41,4 +41,5 @@ History:
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
-<cfinclude template="/ADF/extensions/customfields/file_uploader/v3/file_uploader_props.cfm">
+<cfset useCFTversion = "v3">
+<cfinclude template="#useCFTversion#/file_uploader_props.cfm">

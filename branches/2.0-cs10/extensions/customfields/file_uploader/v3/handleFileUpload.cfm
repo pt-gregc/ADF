@@ -23,7 +23,7 @@ Author:
 	PaperThin, Inc.
 	Ryan Kahn
 Name:
-	$handleFileUpload.cfm
+	handleFileUpload.cfm
 Summary:
 	File to help with the file upload process
 History:
