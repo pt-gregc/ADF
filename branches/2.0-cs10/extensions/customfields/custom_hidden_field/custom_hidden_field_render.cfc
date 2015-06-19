@@ -35,6 +35,8 @@ ADF Requirements:
 History:
 	2009-09-01 - MFC - Created
 	2015-04-28 - DJM - Added own CSS
+	2015-06-19 - DRM - Override renderStandard to only render control, instead of overriding a bunch of individual methods
+	 						 Prevents description from rendering
 --->
 <cfcomponent displayName="CustomHiddenField Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -72,15 +74,11 @@ History:
 </cffunction>
 
 <cfscript>
-	// all of these do nothing, field render only a hidden control
-	public void function renderLabel() {}
-	public void function renderFieldContainerStart() {}
-	public void function renderFieldContainerEnd() {}
-	public void function renderLabelContainerStart() {}
-	public void function renderLabelContainerEnd() {}
-	public void function renderControlContainerStart() {}
-	public void function renderControlContainerEnd() {}
-	public void function renderRequiredIndicator() {}
+	// field renders only a hidden control
+	public void function renderStandard()
+	{
+		renderControl(argumentCollection=arguments);
+	}
 </cfscript>
 
 </cfcomponent>
