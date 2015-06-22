@@ -39,7 +39,7 @@ History:
 --->
 <cfcomponent displayname="scheduler_1_0" extends="ADF.core.Base" hint="Scheduler base for the ADF">
 	
-<cfproperty name="version" value="1_0_7">
+<cfproperty name="version" value="1_0_8">
 <cfproperty name="type" value="singleton">
 <cfproperty name="scripts" type="dependency" injectedBean="scripts_1_2">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
@@ -439,7 +439,8 @@ History:
 	2011-02-09 - RAK - Var'ing un-var'd variables
 	2011-09-17 - GAC - Added a check to verify that application.schedule variable exists
 	2011-09-26 - GAC - Updated application.schedule to be application.ADFscheduler 
-	2011-09-27 - GAC - Converted application.ADF references to the local 'variables.'. 
+	2011-09-27 - GAC - Converted application.ADF references to the local 'variables.'.
+	2015-05-29 - GAC - Updated to allow multiple scripts on a single page
 --->
 <cffunction name="getScheduleHTML" access="public" returntype="string" hint="Returns the management HTML for the specified schedule name.">
 	<cfargument name="scheduleName" type="string" required="true" hint="Unique name for the schedule you want to run">
@@ -458,16 +459,18 @@ History:
 				Schedule does not exist.
 			<cfelse>
 				<cfset currentSchedule = application.ADFscheduler[arguments.scheduleName]>
-				<cfset scheduleID = "schedule"&Replace(scheduleName," ","","all")>
+				<cfset scheduleSuffix = ReReplace(scheduleName, '[^\w]', '', 'all')>
+				<!--- <cfset scheduleSuffix = Replace(scheduleName," ","","all")> --->
+				<cfset scheduleID = "schedule" & UCASE(scheduleSuffix)>
 				#variables.scripts.loadJQuery()#
 				#variables.scripts.loadJQueryUI()#
 				<script type="text/javascript">
 					jQuery(function (){
 						jQuery("###scheduleID# .progressBar").progressbar({ value: #currentSchedule.scheduleProgress/ArrayLen(currentSchedule.commands)*100# });
-						updateSchedule('#scheduleID#');
+						updateSchedule_#scheduleSuffix#('#scheduleID#');
 					});
 					
-					function updateSchedule(scheduleID){
+					function updateSchedule_#scheduleSuffix#(scheduleID){
 						jQuery.getJSON(
 							"#application.ADF.ajaxProxy#",
 							{
@@ -484,7 +487,7 @@ History:
 								jQuery("##"+scheduleID+" .scheduleStatus").html("Status: "+data.STATUS+" <br>Completion: "+currentTaskOffset+"/"+totalTasks);
 								if(data.STATUS == "active"){
 									//Refresh every 10 seconds.
-									setTimeout("updateSchedule('"+scheduleID+"')",10*1000);
+									setTimeout("updateSchedule_#scheduleID#('"+scheduleID+"')",10*1000);
 									jQuery("##"+scheduleID+" .changeScheduleStatus .pause").show();
 									jQuery("##"+scheduleID+" .changeScheduleStatus .resume").hide();
 									jQuery("##"+scheduleID+" .progressBar").progressbar({ disabled: false });
@@ -504,7 +507,7 @@ History:
 							}
 						);
 					}
-					function pauseSchedule(scheduleName,scheduleID){
+					function pauseSchedule_#scheduleSuffix#(scheduleName,scheduleID){
 						jQuery.get(
 							"#application.ADF.ajaxProxy#",
 							{
@@ -513,11 +516,11 @@ History:
 								scheduleName: "#arguments.scheduleName#"
 							}
 						);
-						updateSchedule(scheduleID);
+						updateSchedule_#scheduleSuffix#(scheduleID);
 						jQuery("##"+scheduleID+" .changeScheduleStatus .resume").show();
 						jQuery("##"+scheduleID+" .changeScheduleStatus .pause").hide();
 					}
-					function resumeSchedule(scheduleName,scheduleID){
+					function resumeSchedule_#scheduleSuffix#(scheduleName,scheduleID){
 						jQuery.get(
 							"#application.ADF.ajaxProxy#",
 							{
@@ -536,8 +539,8 @@ History:
 					<div class="progressBar"></div>
 					<div class="scheduleStatus">#currentSchedule.status#</div>
 					<div class="changeScheduleStatus">
-						<div class="pause" style="display:none"><a href="javascript:pauseSchedule('#arguments.scheduleName#','#scheduleID#')">Pause</a></div>
-						<div class="resume" style="display:none"><a href="javascript:resumeSchedule('#arguments.scheduleName#','#scheduleID#')">Resume</a></div>
+						<div class="pause" style="display:none"><a href="javascript:pauseSchedule_#scheduleSuffix#('#arguments.scheduleName#','#scheduleID#')">Pause</a></div>
+						<div class="resume" style="display:none"><a href="javascript:resumeSchedule_#scheduleSuffix#('#arguments.scheduleName#','#scheduleID#')">Resume</a></div>
 					</div>
 				</div>
 			</cfif>
