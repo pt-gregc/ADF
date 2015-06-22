@@ -45,12 +45,13 @@ History:
 	2014-09-19 - GAC - Removed deprecated doLabel and jsLabelUpdater js calls
 	2015-01-28 - DJM - Added timeout to resize frame function call to avoid multiple scrollbars
 	2015-02-10 - DJM - Added code to hide text inputs related to secondary element when it is set as none
+	2015-05-01 - GAC - Updated to add a forceScript parameter to bypass the ADF renderOnce script loader
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "1.0.7"; 
+	fieldVersion = "1.0.8"; 
 	
 	// CS version and required Version variables
 	requiredCSversion = 9;
@@ -129,6 +130,8 @@ History:
 		currentValues.editChildOptionText = "";
 	if( not structKeyExists(currentValues, "deleteOptionText") )
 		currentValues.deleteOptionText = "";
+	if( not structKeyExists(currentValues, "forceScripts") )
+		currentValues.forceScripts = 0;		
 	
 	// UI changed to provide the JOIN as a single field instead of child and assoc. So added logic to properly select the join and secondary elements according to the data stored for DB
 	joinObj = '';
@@ -249,7 +252,7 @@ History:
 <!--
 	jQuery.noConflict();
 	
-	fieldProperties['#typeid#'].paramFields = "#prefix#childCustomElement,#prefix#parentUniqueField,#prefix#childUniqueField,#prefix#childLinkedField,#prefix#inactiveField,#prefix#inactiveFieldValue,#prefix#displayFields,#prefix#sortByType,#prefix#sortByField,#prefix#sortByDir,#prefix#positionField,#prefix#assocCustomElement,#prefix#secondaryElementType,#prefix#interfaceOptions,#prefix#compOverride,#prefix#parentInstanceIDField,#prefix#childInstanceIDField,#prefix#widthValue,#prefix#widthUnit,#prefix#heightValue,#prefix#heightUnit,#prefix#newOptionText,#prefix#existingOptionText,#prefix#editAssocOptionText,#prefix#editChildOptionText,#prefix#deleteOptionText";
+	fieldProperties['#typeid#'].paramFields = "#prefix#childCustomElement,#prefix#parentUniqueField,#prefix#childUniqueField,#prefix#childLinkedField,#prefix#inactiveField,#prefix#inactiveFieldValue,#prefix#displayFields,#prefix#sortByType,#prefix#sortByField,#prefix#sortByDir,#prefix#positionField,#prefix#assocCustomElement,#prefix#secondaryElementType,#prefix#interfaceOptions,#prefix#compOverride,#prefix#parentInstanceIDField,#prefix#childInstanceIDField,#prefix#widthValue,#prefix#widthUnit,#prefix#heightValue,#prefix#heightUnit,#prefix#newOptionText,#prefix#existingOptionText,#prefix#editAssocOptionText,#prefix#editChildOptionText,#prefix#deleteOptionText,#prefix#forceScripts";
 	fieldProperties['#typeid#'].jsValidator = '#prefix#doValidate';
 	
 	function #prefix#toggleInputField(chkBoxObj,optionValue)
@@ -1499,6 +1502,28 @@ History:
 			</td>
 		</tr>
 	</tbody>
+	<tr>
+		<td class="cs_dlgLabelSmall" colspan="2">
+			<hr />
+		</td>
+	</tr>
+	<tr>
+		<th valign="baseline" class="cs_dlgLabelBold" nowrap="nowrap">Force Loading Scripts:</th>
+		<td valign="baseline">
+			#Server.CommonSpot.udf.tag.checkboxRadio(type="radio", id="#prefix#forceScripts_yes", name="#prefix#forceScripts", value="1", label="Yes", checked=(currentValues.forceScripts EQ 1), labelClass="cs_dlgLabelSmall")#
+			&nbsp;&nbsp;&nbsp;
+			#Server.CommonSpot.udf.tag.checkboxRadio(type="radio", id="#prefix#forceScripts_no", name="#prefix#forceScripts", value="0", label="No", checked=(currentValues.forceScripts EQ 0), labelClass="cs_dlgLabelSmall")#
+		</td>
+	</tr>
+	<!--- <tr>
+		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Force Loading Scripts:</td>
+		<td class="cs_dlgLabelSmall">
+			<label style="color:black;font-size:12px;font-weight:normal;"><input type="radio" id="#prefix#forceScripts" name="#prefix#forceScripts" value="1" <cfif currentValues.forceScripts EQ "1">checked</cfif>> Yes</label>
+			&nbsp;&nbsp;&nbsp;
+			<label style="color:black;font-size:12px;font-weight:normal;"><input type="radio" id="#prefix#forceScripts" name="#prefix#forceScripts" value="0" <cfif currentValues.forceScripts EQ "0">checked</cfif>> No</label>
+			<br />Force the JQuery script to load.
+		</td>
+	</tr> --->
 	<tr>
 		<td class="cs_dlgLabelSmall" colspan="2" style="font-size:7pt;">
 			<hr />
