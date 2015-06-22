@@ -418,6 +418,7 @@ History:
 /* *************************************************************** */
 History:
 	2012-12-20 - MFC - Created
+	2015-06-22 - GAC - Added setRemoteFlag() and set it to true
 --->
 <cffunction name="runRemote" access="public" returntype="any" output="true" hint="Runs the Command API locally via HTML/XML.">
 	<cfargument name="commandStruct" type="struct" required="false" hint="Command collection as Structure.">
@@ -432,7 +433,9 @@ History:
 		
 		// Setup the Session space
 		initSession();
-		
+		// Make sure our session is flagged remote
+		setRemoteFlag(remoteFlag=true);
+		// Get the subsiteURL for the HTTP request
 		httpSubsiteURL = buildSubsiteFullURL(session.ADF.API.subsiteID);
 		
 		// Psuedo overloading the arguments
@@ -458,7 +461,7 @@ History:
 	
 		// Check if session is logged in
 		if ( arguments.authCommand AND NOT isLoggedIn() )
-			login();
+			login(remote=true,forceSubsite=session.ADF.API.subsiteID);
 		//application.ADF.utils.dodump(session.ADF.API,"session.ADF.API - runRemote",false);
 		
 		// Check if the command requires authentication
