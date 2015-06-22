@@ -58,7 +58,7 @@ History:
 	2014-10-28 - AW@EA - Fixed issue with expirationWarningMsg and misplaced newExpirationDate variables
 	2015-01-13 - GAC - Fixed issue with newExpirationWarningMsg variable 
 	2015-04-07 - GAC - Added logic to use the Title for the caption when no Caption value is passed in
-	2015-06-16 - GAC - Updated the activate page argument to be type=boolean 
+	2015-06-16 - GAC - Updated the activatePage argument to be type=boolean 
 --->
 <cffunction name="create" access="public" returntype="struct" hint="Creates a page.">
 	<cfargument name="pageData" type="struct" required="true" hint="a structure that contains page the required fields as page data.">
