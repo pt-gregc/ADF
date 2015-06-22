@@ -37,7 +37,7 @@ History:
 --->
 <cfcomponent displayname="data_1_2" extends="ADF.lib.data.data_1_1" hint="Data Utils component functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_14">
+<cfproperty name="version" value="1_2_15">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Data_1_2">
 
@@ -221,7 +221,7 @@ Author:
 Name:
 	$unescapeHTMLentities
 Summary:
-	Converts HTML entities back to thier text values
+	Converts HTML entities back to their text values
 Returns:
 	String 
 Arguments:
@@ -229,7 +229,7 @@ Arguments:
 History:
 	2012-10-19 - GAC - Created
 --->
-<cffunction name="unescapeHTMLentities" access="public" returntype="string" hint="Converts HTML entities back to thier text values">
+<cffunction name="unescapeHTMLentities" access="public" returntype="string" hint="Converts HTML entities back to their text values">
 	<cfargument name="str" type="string" required="true">
 	
 	<cfscript>
@@ -237,20 +237,32 @@ History:
 	</cfscript>
 </cffunction>
 
-<!--- /**
-* Will replace chars in a string to be used to create a folder with valid equivalent replacements
-*
-* @param fileName      Name of file. (Required)
-* @return Returns a string.
-* @author Mike Gillespie (mike@striking.com)
-* @version 1, May 9, 2003
-* FIXED BY 2010-01-20 - GAC
-* 12/30/2013 - DMB - modified to use CHR in the strings to provide compatibility with Railo
-*					For documentation purposes, these are the original strings:	
-*					var bad_chars="/,\,*,&,%,$,¿,Æ,Ç,Ð,Ñ,Ý,Þ,ß,æ,ç,ð,ñ,÷,ø,ý,þ,ÿ";
-*					var good_chars="-,-,-,-,-,-,-,AE,C,D,N,Y,I,B,ae,c,o,n,-,o,y,1,y";
-*
-*/ --->
+<!---
+/* *************************************************************** */
+Author: 	
+	Mike Gillespie (mike@striking.com)
+Name:
+	$filterInternationlChars
+Summary:
+	Converts HTML entities back to their text values
+
+	* Will replace chars in a string to be used to create a folder with valid equivalent replacements
+	* @param fileName      Name of file. (Required)
+	* @return Returns a string.
+	* @author Mike Gillespie (mike@striking.com)
+	* @version 1, May 9, 2003
+	* FIXED BY 2010-01-20 - GAC
+Returns:
+	String 
+Arguments:
+	String - str
+History:
+	2010-01-20 - GAC - Added
+	2013-12-30 - DMB - modified to use CHR in the strings to provide compatibility with Railo
+						For documentation purposes, these are the original strings:	
+						var bad_chars="/,\,*,&,%,$,¿,Æ,Ç,Ð,Ñ,Ý,Þ,ß,æ,ç,ð,ñ,÷,ø,ý,þ,ÿ";
+						var good_chars="-,-,-,-,-,-,-,AE,C,D,N,Y,I,B,ae,c,o,n,-,o,y,1,y";
+--->
 <cffunction name="filterInternationlChars" access="public" returntype="string" output="false" hint="Will replace chars in a string to be used to create a folder with valid equivalent replacements">
 	<cfargument name="fileName" type="string" required="true" hint="">
 	
@@ -1077,7 +1089,46 @@ History:
 			}
 		}
 	</cfscript>
+</cffunction>
 
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$HTMLSafeFormattedTextBox
+Summary:
+	Converts special characters to character entities, making a string safe for display in HTML.
+	Version 2 update by Eli Dickinson (eli.dickinson@gmail.com)
+ 	Fixes issue of lists not being equal and adding bull
+ 	v3, extra semicolons
+ 
+ 	@param string 	 String to format. (Required)
+	@return Returns a string.
+ 	@author Gyrus (eli.dickinson@gmail.com gyrus@norlonto.net)
+ 	@version 3, August 30, 2006
+Returns:
+	String
+Arguments:
+	String - inString
+Usage:
+	application.ADF.data.HTMLSafeFormattedTextBox(inString)
+History:
+	2015-05-21 - GAC - Moved from utils_1_0
+ --->
+<cffunction name="HTMLSafeFormattedTextBox" access="public" returntype="string" hint="Converts special characters to character entities, making a string safe for display in HTML.">
+	<cfargument name="inString" type="string" required="true">
+
+	<cfscript>
+		var badChars = "&amp;nbsp;,&amp;amp;,&quot;,&amp;ndash;,&amp;rsquo;,&amp;ldquo;,&amp;rdquo;,#chr(12)#";
+		var goodChars = "&nbsp;,&amp;,"",&ndash;,&rsquo;,&ldquo;,&rdquo;,&nbsp;";
+
+		// Return immediately if blank string
+		if (NOT Len(Trim(arguments.inString))) return arguments.inString;
+
+		// Do replacing
+		return ReplaceList(arguments.inString, badChars, goodChars);
+	</cfscript>
 </cffunction>
 
 </cfcomponent>
