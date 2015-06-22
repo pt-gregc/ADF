@@ -39,7 +39,7 @@ History:
 --->
 <cfcomponent displayname="csData_1_3" extends="ADF.lib.csData.csData_1_2" hint="CommonSpot Data Utils functions for the ADF Library">
 
-<cfproperty name="version" value="1_3_6">
+<cfproperty name="version" value="1_3_7">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">
@@ -491,13 +491,17 @@ Usage:
 	application.ADF.csData.getCSExtURLString(csPageID)
 History:
 	2015-04-07 - DJM/GAC - Created 
+	2015-04-29 - GAC - Added logic and error logging for the case when no valid page was found
 --->
 <cffunction name="getCSExtURLString" returntype="string" output="true" access="public" hint="Returns a Commonspot Extended URL String data">
 	<cfargument name="csPageID" type="numeric" required="true" hint="">
-
+	<cfargument name="logError" type="boolean" required="false" default="false" hint="">
+	
 	<cfscript>
 		var returnString = arguments.csPageID;
 		var getPageInfo = '';
+		var hasError = false;
+		var logMsg = "";
 	</cfscript>
 	
 	<cfquery name="getPageInfo" DATASOURCE="#Request.Site.Datasource#">
@@ -507,15 +511,30 @@ History:
 	</cfquery>
 	
 	<cfscript>
-		if ( getPageInfo.PageType EQ Request.Constants.pgTypeNormal AND getPageInfo.Uploaded EQ 0 )
-		 	returnString = 'CP___PAGEID=#arguments.csPageID#,#getPageInfo.FileName#,#getPageInfo.SubsiteID#';
-		else if ( (getPageInfo.PageType EQ Request.Constants.pgTypeNormal AND getPageInfo.Uploaded EQ 1) OR getPageInfo.PageType EQ Request.Constants.pgTypeMultimedia OR getPageInfo.PageType EQ Request.Constants.pgTypeMultimediaPlaylist )
-		 	returnString = 'CP___PAGEID=#arguments.csPageID#';
-		else if ( getPageInfo.PageType EQ Request.Constants.pgTypeImage )
-		 	returnString = 'CP___PAGEID=#arguments.csPageID#,#getPageInfo.FileName#';
-		else // PageType as user template,pageset,registered url
-		 	returnString = 'CP___PAGEID=#arguments.csPageID#,#getPageInfo.FileName#,#getPageInfo.SubsiteID#';
-		 
+		if ( getPageInfo.RecordCount )
+		{
+			if ( getPageInfo.PageType EQ Request.Constants.pgTypeNormal AND getPageInfo.Uploaded EQ 0 )
+			 	returnString = 'CP___PAGEID=#arguments.csPageID#,#getPageInfo.FileName#,#getPageInfo.SubsiteID#';
+			else if ( (getPageInfo.PageType EQ Request.Constants.pgTypeNormal AND getPageInfo.Uploaded EQ 1) OR getPageInfo.PageType EQ Request.Constants.pgTypeMultimedia OR getPageInfo.PageType EQ Request.Constants.pgTypeMultimediaPlaylist )
+			 	returnString = 'CP___PAGEID=#arguments.csPageID#';
+			else if ( getPageInfo.PageType EQ Request.Constants.pgTypeImage )
+			 	returnString = 'CP___PAGEID=#arguments.csPageID#,#getPageInfo.FileName#';
+			else // PageType as user template,pageset,registered url
+			 	returnString = 'CP___PAGEID=#arguments.csPageID#,#getPageInfo.FileName#,#getPageInfo.SubsiteID#';
+		}
+		else
+		{
+			// Set the returnString to CP___PAGEID={pageid},invalid-pageid--see-logs,0 
+			returnString = 'CP___PAGEID=#arguments.csPageID#,invalid-pageid--see-logs,0';	
+			
+			// Create Log Msg 
+			if ( arguments.logError )
+			{
+				logMsg = "[csData_1_3.getCSExtURLString] Error attempting to build the CSExtURL string. No valid page found.";
+				server.ADF.objectFactory.getBean("utils_1_2").logAppend(logMsg);	
+			}
+		}
+	
 		return returnString;
 	</cfscript>
 </cffunction>
