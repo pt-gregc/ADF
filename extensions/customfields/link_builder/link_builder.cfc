@@ -35,6 +35,7 @@ Arguments:
 	String - uuidlist - Link Builder data UUID record
 History:
 	2009-00-00 - MFC - Created
+	2015-06-17 - GAC - Switched data.ToHTML and data.FromHTML calls to use Server.CommonSpot.UDF instead of deprecated Application.CS
 --->
 <cffunction name="renderLinks" access="public" returntype="string" hint="">
 	<cfargument name="formID" type="numeric" required="true" hint="CE Form ID">
@@ -62,7 +63,7 @@ History:
 				// Loop over the linkDataArray records
 				for ( i = 1; i LTE ArrayLen(linkDataArray); i = i + 1 )
 				{
-					currText = application.cs.data.fromHTML(linkDataArray[i].Values.title);
+					currText = Server.CommonSpot.UDF.data.fromHTML(linkDataArray[i].Values.title);
 					currText = ReplaceList(currText, "<p>,</p>", ",");
 					// Set the link for the field
 					if ( LEN(linkDataArray[i].Values.cspage) )
