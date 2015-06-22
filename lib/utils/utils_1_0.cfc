@@ -34,7 +34,7 @@ History:
 --->
 <cfcomponent displayname="utils_1_0" extends="ADF.core.Base" hint="Util functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_10">
+<cfproperty name="version" value="1_0_11">
 <cfproperty name="type" value="singleton">
 <cfproperty name="ceData" type="dependency" injectedBean="ceData_1_0">
 <cfproperty name="wikiTitle" value="Utils_1_0">
@@ -183,12 +183,13 @@ History:
 	2010-08-30 - GAC - Added arguments scope to the returnInVar variable
 								 Set return value of 'foo' equal to an empty string 
 	2014-01-13 - GAC - Updated the return variable name and simplified the dump output logic
+	2015-06-17 - Updated the returnInVar argument to be type=boolean 
 --->
 <cffunction name="doDump" access="public" returntype="string" output="true" hint="ColdFusion dump of the variable argument.">
 	<cfargument name="var" required="Yes" type="any">
 	<cfargument name="label" required="no" type="string" default="no label">
 	<cfargument name="expand" required="no" type="boolean" default="true">
-	<cfargument name="returnInVar" type="numeric" required="No" default="0">
+	<cfargument name="returnInVar" type="boolean" required="No" default="0">
 	
 	<cfscript>
 		var resultHTML = "";
