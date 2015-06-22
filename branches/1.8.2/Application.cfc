@@ -47,7 +47,7 @@ History:
 	
 	<cfset this.sessionManagement = true>
 	<!--- // TODO add alias mapping --->
-	<!--- <cfset this.mapping["/ADF"] = ExpandPath("/ADF")> --->
+	<!--- <cfset this.mappings["/ADF"] = ExpandPath("/ADF")> --->
 	
 	<cffunction name="onRequestStart" access="public" returntype="any">
 		<!--- // not needed - include CommonSpots application.cfm --->
