@@ -41,7 +41,7 @@ History:
 --->
 <cfcomponent displayname="scripts_1_1" extends="ADF.lib.scripts.scripts_1_0" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" value="1_1_24">
+<cfproperty name="version" value="1_1_25">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_1" type="dependency">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Scripts_1_1">
@@ -669,11 +669,14 @@ History:
 					   Removed "Force jQuery no conflict" b/c not backwards compatiable with
 							custom script code referencing "$". 
 	2011-12-28 - MFC - Updated to load 1.7 by default.
+	2015-05-01 - GAC - Added a flag to use cfhtmlhead to render the generated scripts in the HEAD of the page
 --->
 <cffunction name="loadJQuery" access="public" returntype="void" hint="Loads the JQuery Headers if not loaded.">
 	<cfargument name="version" type="string" required="false" default="1.7" hint="JQuery version to load.">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfargument name="noConflict" type="boolean" required="false" default="0" hint="JQuery no conflict flag.">
+	<cfargument name="renderInHead" type="boolean" required="false" default="false" hint="Flag to render the script in the document head.">
+	
 	<cfscript>
 		var outputHTML = "";
 		var findScript = variables.scriptsService.findScript(arguments.version,"jquery","jquery-",".js");
@@ -697,7 +700,7 @@ History:
 			<cfif arguments.force>
 				#outputHTML#
 			<cfelse>
-				#variables.scriptsService.renderScriptOnce("jQuery",outputHTML)#
+				#variables.scriptsService.renderScriptOnce(scriptName="jQuery",outputHTML=outputHTML,renderInHead=arguments.renderInHead)#
 			</cfif>
 		</cfoutput>
 	</cfif>
@@ -899,11 +902,14 @@ History:
 	2011-06-24 - GAC - Added CFOUTPUTS around the renderScriptOnce method call
 	2013-02-06 - MFC - Restructured the thirdParty folders & versions.
 	2013-11-14 - DJM - Added a loadStyle parameter
+	2015-05-01 - GAC - Added a flag to use cfhtmlhead to render the generated scripts in the HEAD of the page
 --->
 <cffunction name="loadJQueryDataTables" access="public" output="true" returntype="void" hint="Loads the JQuery DataTables Headers if not loaded.">
 	<cfargument name="version" type="string" required="false" default="1.6" hint="JQuery DataTables version to load.">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery DataTables script header to load.">
 	<cfargument name="loadStyles" type="boolean" required="false" default="true" hint="Boolean flag incicating if we need to load styles">
+	<cfargument name="renderInHead" type="boolean" required="false" default="false" hint="Flag to render the script in the document head.">
+	
 	<cfscript>
 		var outputHTML = "";
 		// Make the version backwards compatiable to remove minor build numbers.
@@ -931,7 +937,7 @@ History:
 		<cfif arguments.force>
 			#outputHTML#
 		<cfelse>
-			#variables.scriptsService.renderScriptOnce("jqueryDataTables",outputHTML)#
+			#variables.scriptsService.renderScriptOnce(scriptName="jqueryDataTables",outputHTML=outputHTML,renderInHead=arguments.renderInHead)#
 		</cfif>
 	</cfoutput>
 </cffunction>
@@ -1377,11 +1383,14 @@ History:
 	2010-08-26 - MFC - Updated to load 1.8 by default
 	2010-12-21 - MFC - Removed the "min" from the script loading.
 	2011-12-28 - MFC - Make the version backwards compatiable to remove minor build numbers.
+	2015-05-01 - GAC - Added a flag to use cfhtmlhead to render the generated scripts in the HEAD of the page
 --->
 <cffunction name="loadJQueryUI" access="public" output="true" returntype="void" hint="Loads the JQuery UI Headers if not loaded."> 
 	<cfargument name="version" type="string" required="false" default="1.8" hint="JQuery version to load.">
 	<cfargument name="themeName" type="string" required="false" default="ui-lightness" hint="UI Theme Name (directory name)">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery UI script header to load.">
+	<cfargument name="renderInHead" type="boolean" required="false" default="false" hint="Flag to render the script in the document head.">
+	
 	<cfscript>
 		var outputHTML = "";
 		// 2011-12-28 - MFC - Make the version backwards compatiable to remove minor build numbers.
@@ -1401,7 +1410,7 @@ History:
 		<cfif arguments.force>
 			#outputHTML#
 		<cfelse>
-			#variables.scriptsService.renderScriptOnce("jQueryUI",outputHTML)#
+			#variables.scriptsService.renderScriptOnce(scriptName="jQueryUI",outputHTML=outputHTML,renderInHead=arguments.renderInHead)#
 		</cfif>
 	</cfoutput>
 </cffunction>
