@@ -51,7 +51,7 @@ History:
 --->
 <cfcomponent displayname="csData_1_2" extends="ADF.lib.csData.csData_1_1" hint="CommonSpot Data Utils functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_19">
+<cfproperty name="version" value="1_2_21">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">
@@ -567,6 +567,7 @@ Arguments:
 	Boolean includeRegisteredURLS
 History:
 	2013-10-22 - GAC - Created
+	2015-06-17 - GAC - Switched data.ToHTML and data.FromHTML calls to use Server.CommonSpot.UDF instead of deprecated Application.CS
 --->
 <cffunction name="getCSPageQueryByTitle" access="public" returntype="query" output="false">
 	<cfargument name="csPageTitle" type="string" required="true">
@@ -577,7 +578,7 @@ History:
 		select  ID, subsiteid, name, Title, FileName
 		  from  sitePages
 		 where  ( title = <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.csPageTitle#">
-				  or  title = <cfqueryparam cfsqltype="cf_sql_varchar" value="#application.CS.Data.ToHTML(arguments.csPageTitle)#"> )
+				  or  title = <cfqueryparam cfsqltype="cf_sql_varchar" value="#Server.CommonSpot.UDF.data.ToHTML(arguments.csPageTitle)#"> )
 		<cfif IsNumeric(arguments.csSubsiteID) AND arguments.csSubsiteID GT 0>
 		   and  subsiteID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.csSubsiteID#">
 		</cfif>
@@ -714,6 +715,7 @@ Arguments:
 	Boolean includeRegisteredURLS
 History:
 	2013-10-22 - GAC - Created
+	2015-06-17 - GAC - Switched data.ToHTML and data.FromHTML calls to use Server.CommonSpot.UDF instead of deprecated Application.CS
 --->
 <cffunction name="getCSPageQueryByName" access="public" returntype="query" output="false">
 	<cfargument name="csPageName" type="string" required="true">
@@ -724,7 +726,7 @@ History:
 		select  ID, subsiteid, name, Title, FileName
 		  from  sitePages
 		 where  ( name = <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.csPageName#">
-				  or  name = <cfqueryparam cfsqltype="cf_sql_varchar" value="#application.CS.Data.ToHTML(arguments.csPageName)#"> )
+				  or  name = <cfqueryparam cfsqltype="cf_sql_varchar" value="#Server.CommonSpot.UDF.data.ToHTML(arguments.csPageName)#"> )
 		<cfif IsNumeric(arguments.csSubsiteID) AND arguments.csSubsiteID GT 0>
 		   and  subsiteID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.csSubsiteID#">
 		</cfif>
@@ -880,6 +882,7 @@ Arguments:
 History:
 	2013-10-02 - DMB - Created
 	2014-11-11 - GAC - Removed the reference to application.ADF.csdata... since we are in csdata
+	2015-04-28 - GAC - Updated to use parseCSURL() 
 --->
 <cffunction name="decipherCPPAGEID" access="public" returntype="string" output="true">
 	<cfargument name="cpPageID" type="string" required="true">
@@ -892,7 +895,7 @@ History:
 			strPageID = replacenocase(arguments.cpPageID,"CP___PAGEID=","");
 			strPageID = listFirst(strPageID,",");
 			// Get the url for this PageID
-			strURL = getCSPageURL(strPageID);
+			strURL = parseCSURL(str=strPageID);
 		}
 		return strURL;
 	</cfscript>
