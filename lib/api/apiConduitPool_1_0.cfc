@@ -531,7 +531,7 @@ History:
 		var delStatus = false;
 		var requestQueue = ReadRequestQueueArray();
 		
-	    // LOCKing handle here by the parent calling method getConduitPageFromPool()
+	    // LOCKing handled here by the parent calling method getConduitPageFromPool()
 	    if ( ArrayLen(requestQueue) GTE arguments.queuePos )
 	  		delStatus = ArrayDeleteAt(requestQueue,arguments.queuePos);
 	  	
@@ -1229,6 +1229,7 @@ History:
 			{
 				if ( StructKeyExists(poolPages[key],"pageid") AND poolPages[key].pageid EQ arguments.pageID AND StructKeyExists(poolPages[key],"cspassword") )
 				{
+					// TODO: encrypt/decrypt this password 
 					retPassword = poolPages[key].cspassword;	
 					break;
 				}
