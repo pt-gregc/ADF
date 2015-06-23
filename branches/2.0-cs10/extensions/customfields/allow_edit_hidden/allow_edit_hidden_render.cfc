@@ -69,15 +69,11 @@ History:
 </cffunction>
 
 <cfscript>
-	// all of these do nothing, field render only a hidden control
-	public void function renderLabel() {}
-	public void function renderFieldContainerStart() {}
-	public void function renderFieldContainerEnd() {}
-	public void function renderLabelContainerStart() {}
-	public void function renderLabelContainerEnd() {}
-	public void function renderControlContainerStart() {}
-	public void function renderControlContainerEnd() {}
-	public void function renderRequiredIndicator() {}
+	// field renders only a hidden control
+	public void function renderStandard()
+	{
+		renderControl(argumentCollection=arguments);
+	}
 </cfscript>
 
 </cfcomponent>
