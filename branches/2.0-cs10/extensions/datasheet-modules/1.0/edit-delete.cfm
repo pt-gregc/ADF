@@ -23,9 +23,10 @@ end user license agreement.
 Author:
 	PaperThin, Inc.
 Name:
- edit-delete.cfc
+	edit-delete.cfm
 Summary:
-	Prints out edit/delete buttons for your datasheet. This uses forms_1_1 and auto detects its information.
+	Renders jQueryUI edit/delete buttons for your datasheet. 
+	This uses forms_1_1 and auto detects its information.
 History:
 	2011-02-07 - RAK - Created
 	2011-02-15 - RAK - Updated to handle client side sorting in a better way.
@@ -34,8 +35,18 @@ History:
 	2012-08-27 - MFC - Updated the styles for the buttons to be fixed width.
 	2012-09-18 - MFC - Add a blank sort value to field.
 	2014-10-03 - GAC - Added renderOnce login around the .ds-icon style block
+	2015-06-26 - GAC - Added logic to disable the edit or disable the delete button
 --->
 <cfscript>
+	// Check for Button Rendering Overrides
+	if ( !StructKeyExists(variables,"adfDSmodule") )
+		variables.adfDSmodule = StructNew();
+		
+	if ( !StructKeyExists(variables.adfDSmodule,"renderEditBtn") OR !IsBoolean(variables.adfDSmodule.renderEditBtn) )
+		variables.adfDSmodule.renderEditBtn = true;
+	if ( !StructKeyExists(variables.adfDSmodule,"renderDeleteBtn") OR !IsBoolean(variables.adfDSmodule.renderDeleteBtn) )
+		variables.adfDSmodule.renderDeleteBtn = true;	
+	
 	//Path to open the ligthbox to
 	AjaxPath = application.ADF.ajaxProxy;
 	//Bean to preform add/edit
@@ -45,7 +56,6 @@ History:
 	AjaxDeleteBean = "forms_1_1";
 	AjaxDeleteMethod = "renderDeleteForm";
 
-
 //*******Modification below this should not be needed.*******
 
 	formID = edata.MetadataForm;
@@ -53,8 +63,14 @@ History:
 	mouseoverJS = "jQuery(this).addClass('ui-state-hover')";
 	mouseoutJS = "jQuery(this).removeClass('ui-state-hover')";
 
-	addEditLink = "#ajaxPath#?bean=#AjaxBean#&method=#AjaxMethod#&formid=#formID#&dataPageId=#Request.DatasheetRow.pageid#&lbAction=refreshparent&title=Edit";
-	deleteLink = "#ajaxPath#?bean=#AjaxDeleteBean#&method=#AjaxDeleteMethod#&formid=#formID#&dataPageid=#Request.DatasheetRow.pageid#&title=Delete";
+	addEditLink = "";
+	deleteLink = "";
+	
+	if ( variables.adfDSmodule.renderEditBtn )
+		addEditLink = "#ajaxPath#?bean=#AjaxBean#&method=#AjaxMethod#&formid=#formID#&dataPageId=#Request.DatasheetRow.pageid#&lbAction=refreshparent&title=Edit";
+	
+	if ( variables.adfDSmodule.renderDeleteBtn )
+		deleteLink = "#ajaxPath#?bean=#AjaxDeleteBean#&method=#AjaxDeleteMethod#&formid=#formID#&dataPageid=#Request.DatasheetRow.pageid#&title=Delete";
 </cfscript>
 
 <!--- Need to use cfhtmlhead because if I have a </script> tag it will break the javascript sorting on the datasheet--->
@@ -94,6 +110,7 @@ History:
 			</cfif>
 			<table>
 				<tr>
+				<cfif variables.adfDSmodule.renderEditBtn>
 					<td>
 						<div rel="#addEditLink#" title="Edit" class="ADFLightbox">
 							<div class='ds-icons ui-state-default ui-corner-all' title='edit' onmouseover="#mouseoverJS#" onmouseout="#mouseoutJS#">
@@ -102,7 +119,9 @@ History:
 							</div>
 						</div>
 					</td>
-					<td>
+				</cfif>
+				<cfif variables.adfDSmodule.renderDeleteBtn>
+					<td>	
 						<div rel="#deleteLink#" title="Delete" class="ADFLightbox">
 							<div class='ds-icons ui-state-default ui-corner-all' title='delete' onmouseover="#mouseoverJS#" onmouseout="#mouseoutJS#">
 								<div style='margin-left:auto;margin-right:auto;' class='ui-icon ui-icon-trash'>
@@ -110,6 +129,7 @@ History:
 							</div>
 						 </div>
 					</td>
+				</cfif>
 				</tr>
 			</table>
 		</td>
