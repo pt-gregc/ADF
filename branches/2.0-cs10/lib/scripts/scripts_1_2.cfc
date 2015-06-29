@@ -447,6 +447,58 @@ History:
 
 <!---
 /* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$loadJQueryBlockUI
+Summary:
+	Loads the JQuery BlockUI plugin which can be triggered to block ui during ajax call
+Returns:
+	None
+Arguments:
+	String - version - JQuery BlockUI version to load.
+	Boolean - Force
+History:
+	2015-06-26 - GAC - Added version 2.7 of BlockUI
+--->
+<cffunction name="loadJQueryBlockUI" access="public" output="true" returntype="void" hint="Loads the JQuery BlockUI plugin if not loaded.">
+	<cfargument name="version" type="string" required="false" default="2.7" hint="JQuery BlockUI plugin version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
+	<cfargument name="renderInHead" type="boolean" required="false" default="false" hint="Flag to render the script in the document head.">
+	
+	<cfscript>
+		var outputHTML = "";
+		var thirdPartyLibPath = "/ADF/thirdParty/jquery/blockUI/";
+		
+		// 2011-12-28 - MFC - Make the version backwards compatiable to remove minor build numbers.
+		arguments.version = variables.scriptsService.getMajorMinorVersion(arguments.version);
+	</cfscript>
+	<cfsavecontent variable="outputHTML">
+		<cfoutput>
+			<script type="text/javascript" src="#thirdPartyLibPath##arguments.version#/jquery.blockUI.min.js"></script>
+		</cfoutput>
+	</cfsavecontent>
+	<cfoutput>
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce(scriptName="jQueryBlockUI",outputHTML=outputHTML,renderInHead=arguments.renderInHead)#
+		</cfif>
+	</cfoutput>
+</cffunction>
+<!--- 
+<cffunction name="loadJQueryBlockUI" access="public" output="true" returntype="void" hint="Loads the JQuery BlockUI plugin if not loaded.">
+	<cfargument name="version" type="string" required="false" default="2.7" hint="JQuery BlockUI plugin version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
+	<cfargument name="renderInHead" type="boolean" required="false" default="false" hint="Flag to render the script in the document head.">
+	
+	<cfscript>
+		super.loadJQueryBlockUI(version=arguments.version, force=arguments.force, renderInHead=arguments.renderInHead);
+	</cfscript>
+</cffunction> --->
+
+<!---
+/* *************************************************************** */
 Author:
 	Fig Leaf Software
 	Mike Tangorre (mtangorre@figleaf.com)

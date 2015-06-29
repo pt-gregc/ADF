@@ -793,21 +793,32 @@ History:
 	2010-09-27 - RLW - Created
 	2011-06-24 - GAC - Added CFOUTPUTS around the renderScriptOnce method call
 	2012-08-16 - GAC - Added the force parameter
+	2015-06-26 - GAC - Added a flag to use cfhtmlhead to render the generated scripts in the HEAD of the page
+					 - Update to use the version folder format
+					 - Converted the original version of 2.35 version to the 2.3 and removed the subversion "5" 
 --->
 <cffunction name="loadJQueryBlockUI" access="public" output="true" returntype="void" hint="Loads the JQuery BlockUI plugin if not loaded.">
-	<cfargument name="version" type="string" required="false" default="2.35" hint="JQuery BlockUI plugin version to load.">
+	<cfargument name="version" type="string" required="false" default="2.3" hint="JQuery BlockUI plugin version to load.">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
-	<cfset var outputHTML = "">
+	<cfargument name="renderInHead" type="boolean" required="false" default="false" hint="Flag to render the script in the document head.">
+	
+	<cfscript>
+		var outputHTML = "";
+		var thirdPartyLibPath = "/ADF/thirdParty/jquery/blockUI/";
+		
+		// 2011-12-28 - MFC - Make the version backwards compatiable to remove minor build numbers.
+		arguments.version = variables.scriptsService.getMajorMinorVersion(arguments.version);
+	</cfscript>
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
-			<script type="text/javascript" src="/ADF/thirdParty/jquery/blockUI/jquery.blockUI-#arguments.version#.js"></script>
+			<script type="text/javascript" src="#thirdPartyLibPath##arguments.version#/jquery.blockUI.js"></script>
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
 		<cfif arguments.force>
 			#outputHTML#
 		<cfelse>
-			#variables.scriptsService.renderScriptOnce("jQueryBlockUI",outputHTML)#
+			#variables.scriptsService.renderScriptOnce(scriptName="jQueryBlockUI",outputHTML=outputHTML,renderInHead=arguments.renderInHead)#
 		</cfif>
 	</cfoutput>
 </cffunction>
