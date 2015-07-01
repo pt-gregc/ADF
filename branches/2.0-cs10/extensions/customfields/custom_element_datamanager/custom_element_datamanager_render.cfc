@@ -51,6 +51,7 @@ History:
 	2015-04-10 - DJM - Added code to check for field permission for rendering controls
 	2015-04-10 - DJM - Converted to CFC
 	2015-04-15 - DJM - Moved ADF renderer base and updated the extends parameter
+	2015-06-30 - GAC - Added a isMultiline() call so the label renders at the top
 --->
 <cfcomponent displayName="CustomElementDataManager Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -639,5 +640,12 @@ function doDeleteSelected_#uniqueTableAppend#(msg,errormsg)
 //-->
 </script></cfoutput>
 </cffunction>
+
+<cfscript>
+	private boolean function isMultiline()
+	{
+		return true;
+	}
+</cfscript>	
 
 </cfcomponent>
