@@ -52,6 +52,7 @@ History:
 	2015-04-02 - DJM - Modified getDisplayData() code to always return the Actions column
 	2015-04-02 - DJM - Modified code for CS Extended URL to compare with just the pageID value instead of the whole value stored in DB
 	2015-04-10 - DJM - Added code to check for field permission for setting up Action controls in getDisplayData()
+	2015-07-03 - DJM - Added code for handling disableDatamanager interface option
 --->
 <cfcomponent output="false" displayname="custom element datamanager_base" extends="ADF.core.Base" hint="This the base component for the Custom Element Data Manager field">
 	
@@ -158,7 +159,7 @@ History:
 	</cfscript>
 		
 	<cfsavecontent variable="renderData">
-		<cfoutput>#Server.CommonSpot.UDF.tag.input(type="button", class="clsPushButton", name="addNew", id="addNew", value=getAddNewButtonName(propertiesStruct=arguments.propertiesStruct), onclick="javascript:setCurrentValueAndOpenURL_#arguments.fieldID#('#Request.SubSite.DlgLoader#?csModule=controls/custom/submit-data&controlTypeID=#propertiesStruct.childCustomElement#&formID=#propertiesStruct.childCustomElement#&newData=1&dataPageID=0&dataControlID=0&linkageFieldID=#propertiesStruct.childLinkedField#&openFrom=datamanager&callbackFunction=loadData_#arguments.fieldID#&#assocParameters##extraParams#', '#linkedFieldName#')")#</cfoutput>
+		<cfoutput>#Server.CommonSpot.UDF.tag.input(type="button", class="clsPushButton", name="addNew", id="addNew", value=getAddNewButtonName(propertiesStruct=arguments.propertiesStruct), onclick="javascript:setCurrentValueAndOpenURL_#arguments.fieldID#('#Request.SubSite.DlgLoader#?csModule=controls/custom/submit-data&controlTypeID=#propertiesStruct.childCustomElement#&formID=#propertiesStruct.childCustomElement#&newData=1&dataPageID=0&dataControlID=0&linkageFieldID=#propertiesStruct.childLinkedField#&openFrom=datamanager&callbackFunction=loadData_#arguments.fieldID#&#assocParameters##extraParams#', '#linkedFieldName#', 'addnew')")#</cfoutput>
 	</cfsavecontent>
 	<cfoutput>#renderData#</cfoutput>
 </cffunction>
@@ -213,15 +214,22 @@ History:
 		var inputPropStruct = arguments.propertiesStruct;
 		var curValuesStruct = arguments.currentValues;
 		var parentInstanceIDVal = 0;
+		var linkedFieldName = '';
+		var extraParams = '';
 		
 		if (arguments.parentFormType EQ 'MetadataForm' AND inputPropStruct.parentUniqueField EQ '{{pageid}}')	
 			parentInstanceIDVal = arguments.pageID;
 		else
-			parentInstanceIDVal = URLEncodedFormat(curValuesStruct['fic_#arguments.formID#_#inputPropStruct.parentUniqueField#']);
+			linkedFieldName = 'fic_#arguments.formID#_#inputPropStruct.parentUniqueField#';
+		
+		if (linkedFieldName EQ '')
+		{
+			extraParams = '&linkedFieldValue=#parentInstanceIDVal#';
+		}
 	</cfscript>
 		
 	<cfsavecontent variable="renderData">
-		<cfoutput>#Server.CommonSpot.UDF.tag.input(type="button", class="clsPushButton", name="addExisting", id="addExisting", value=getAddExistingButtonName(propertiesStruct=arguments.propertiesStruct), onclick="javascript:top.commonspot.lightbox.openDialog('#Request.SubSite.DlgLoader#?csModule=controls/custom/submit-data&controlTypeID=#inputPropStruct.assocCustomElement#&formID=#inputPropStruct.assocCustomElement#&newData=1&dataPageID=0&dataControlID=0&linkageFieldID=#inputPropStruct.parentInstanceIDField#&linkedFieldValue=#parentInstanceIDVal#&openFrom=datamanager&callbackFunction=loadData_#arguments.fieldID#')")#</cfoutput>
+		<cfoutput>#Server.CommonSpot.UDF.tag.input(type="button", class="clsPushButton", name="addExisting", id="addExisting", value=getAddExistingButtonName(propertiesStruct=arguments.propertiesStruct), onclick="javascript:setCurrentValueAndOpenURL_#arguments.fieldID#('#Request.SubSite.DlgLoader#?csModule=controls/custom/submit-data&controlTypeID=#inputPropStruct.assocCustomElement#&formID=#inputPropStruct.assocCustomElement#&newData=1&dataPageID=0&dataControlID=0&linkageFieldID=#inputPropStruct.parentInstanceIDField#&openFrom=datamanager&callbackFunction=loadData_#arguments.fieldID##extraParams#', '#linkedFieldName#', 'addexisting')")#</cfoutput>
 	</cfsavecontent>
 	<cfoutput>#renderData#</cfoutput>
 </cffunction>
