@@ -140,19 +140,25 @@ History:
 		var curValuesStruct = arguments.currentValues;
 		var assocParameters  = 'csAssoc_assocCE=#propertiesStruct.assocCustomElement#&csAssoc_ParentInstanceIDField=#propertiesStruct.parentInstanceIDField#&csAssoc_ChildInstanceIDField=#propertiesStruct.childInstanceIDField#&csAssoc_ChildUniqueField=#propertiesStruct.childUniqueField#';
 		var parentInstanceIDVal = 0;
+		var linkedFieldName = '';
+		var extraParams = '';
 		
 		if (arguments.parentFormType EQ 'MetadataForm' AND inputPropStruct.parentUniqueField EQ '{{pageid}}')	
 			parentInstanceIDVal = arguments.pageID;
 		else
-			parentInstanceIDVal = URLEncodedFormat(curValuesStruct['fic_#arguments.formID#_#inputPropStruct.parentUniqueField#']);
+			linkedFieldName = 'fic_#arguments.formID#_#inputPropStruct.parentUniqueField#';
 		
+		if (linkedFieldName EQ '')
+		{
+			assocParameters = ListAppend(assocParameters, 'csAssoc_ParentInstanceID=#parentInstanceIDVal#', '&');
+			extraParams = '&linkedFieldValue=#parentInstanceIDVal#';
+		}
 		
-		assocParameters = ListAppend(assocParameters, 'csAssoc_ParentInstanceID=#parentInstanceIDVal#', '&');
 		assocParameters = ListAppend(assocParameters, 'csAssoc_ChildInstanceID=', '&');
 	</cfscript>
 		
 	<cfsavecontent variable="renderData">
-		<cfoutput>#Server.CommonSpot.UDF.tag.input(type="button", class="clsPushButton", name="addNew", id="addNew", value=getAddNewButtonName(propertiesStruct=arguments.propertiesStruct), onclick="javascript:top.commonspot.lightbox.openDialog('#Request.SubSite.DlgLoader#?csModule=controls/custom/submit-data&controlTypeID=#propertiesStruct.childCustomElement#&formID=#propertiesStruct.childCustomElement#&newData=1&dataPageID=0&dataControlID=0&linkageFieldID=#propertiesStruct.childLinkedField#&linkedFieldValue=#parentInstanceIDVal#&openFrom=datamanager&callbackFunction=loadData_#arguments.fieldID#&#assocParameters#')")#</cfoutput>
+		<cfoutput>#Server.CommonSpot.UDF.tag.input(type="button", class="clsPushButton", name="addNew", id="addNew", value=getAddNewButtonName(propertiesStruct=arguments.propertiesStruct), onclick="javascript:setCurrentValueAndOpenURL_#arguments.fieldID#('#Request.SubSite.DlgLoader#?csModule=controls/custom/submit-data&controlTypeID=#propertiesStruct.childCustomElement#&formID=#propertiesStruct.childCustomElement#&newData=1&dataPageID=0&dataControlID=0&linkageFieldID=#propertiesStruct.childLinkedField#&openFrom=datamanager&callbackFunction=loadData_#arguments.fieldID#&#assocParameters##extraParams#', '#linkedFieldName#')")#</cfoutput>
 	</cfsavecontent>
 	<cfoutput>#renderData#</cfoutput>
 </cffunction>
