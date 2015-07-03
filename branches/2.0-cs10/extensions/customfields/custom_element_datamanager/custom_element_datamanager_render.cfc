@@ -52,6 +52,7 @@ History:
 	2015-04-10 - DJM - Converted to CFC
 	2015-04-15 - DJM - Moved ADF renderer base and updated the extends parameter
 	2015-06-30 - GAC - Added a isMultiline() call so the label renders at the top
+	2015-07-03 - DJM - Added code for disableDatamanager interface option
 --->
 <cfcomponent displayName="CustomElementDataManager Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -120,7 +121,10 @@ History:
 				newData = StructKeyExists(allAtrs.currentValues, 'DateAdded') ? 0 : 1;
 		}
 		
-		request.showSaveAndContinue = newData;	// forces showing or hiding of 'Save & Continue' button
+		if (arguments.formType NEQ 'Custom Metadata Form' AND NOT ListFindNoCase(inputParameters.interfaceOptions, 'disableDatamanager'))
+			request.showSaveAndContinue = 0;
+		else
+			request.showSaveAndContinue = newData;	// forces showing or hiding of 'Save & Continue' button
 	</cfscript>
 	
 	<cfif arguments.callingElement NEQ 'simpleform' AND (arguments.callingElement NEQ 'datasheet' OR (arguments.callingElement EQ 'datasheet' AND Request.User.ID NEQ 0))>
@@ -238,7 +242,7 @@ History:
 			</cfif>
 			
 			<cfif inputParameters.childCustomElement neq ''>
-				<cfif (elementType NEQ 'metadataForm' AND newData EQ 0) OR (elementType EQ 'metadataForm' AND curPageID GT 0)>
+				<cfif (elementType NEQ 'metadataForm' AND (newData EQ 0 OR NOT ListFindNoCase(inputParameters.interfaceOptions, 'disableDatamanager')) OR (elementType EQ 'metadataForm' AND curPageID GT 0))>
 					<cfoutput>
 						#datamanagerObj.renderStyles(propertiesStruct=inputParameters)#
 						<table class="cs_data_manager" border="0" cellpadding="2" cellspacing="2" summary="" id="parentTable_#uniqueTableAppend#"></cfoutput>
@@ -272,7 +276,7 @@ History:
 				</cfif>
 			</cfif>
 			<cfscript>
-				renderJSFunctions(argumentCollection=arguments, ajaxBeanName=ajaxBeanName, formID=ceFormID, elementType=elementType, pageID=curPageID, width=widthVal, height=heightVal);
+				renderJSFunctions(argumentCollection=arguments, ajaxBeanName=ajaxBeanName, formID=ceFormID, elementType=elementType, pageID=curPageID, width=widthVal, height=heightVal, newData=newData);
 			</cfscript>
 			<cfif arguments.displayMode neq "editable">
 				<cfoutput>#Server.CommonSpot.UDF.tag.input(type="hidden", name=arguments.fieldName)#</cfoutput>
@@ -293,6 +297,7 @@ History:
 	<cfargument name="pageID" type="numeric" required="yes">
 	<cfargument name="width" type="string" required="yes">
 	<cfargument name="height" type="string" required="yes">
+	<cfargument name="newData" type="string" required="yes">
 	
 	<cfscript>
 		var inputParameters = Duplicate(arguments.parameters);
@@ -354,7 +359,13 @@ if( typeof onSuccess != 'function' )
 function loadData_#uniqueTableAppend#(displayOverlay)
 {
 	if (typeof displayOverlay == 'undefined')
-		var displayOverlay = 1;
+	{
+		<CFIF arguments.newData EQ 1>
+			var displayOverlay = 0;
+		<CFELSE>
+			var displayOverlay = 1;
+		</CFIF>
+	}
 	
 	setTimeout( function(){
 					loadDataCore_#uniqueTableAppend#(displayOverlay)
@@ -636,6 +647,30 @@ function doDeleteSelected_#uniqueTableAppend#(msg,errormsg)
 			
 				function() { onSuccess_#uniqueTableAppend#('Success'); } 
 			);
+}
+
+function setCurrentValueAndOpenURL_#uniqueTableAppend#(urlToOpen, linkedFldName, buttonName)
+{
+	var linkedFldVal = '';
+	if (linkedFldName != '')
+	{
+		if (document.getElementById(linkedFldName) != null)
+		{
+			linkedFldVal = document.getElementById(linkedFldName).value;
+			if (buttonName == 'addnew')
+				urlToOpen = urlToOpen + "&csAssoc_ParentInstanceID=" + encodeURI(linkedFldVal) + "&linkedFieldValue=" + encodeURI(linkedFldVal);
+			else
+				urlToOpen = urlToOpen + "&linkedFieldValue=" + encodeURI(linkedFldVal);
+		}
+		else
+		{
+			if (buttonName == 'addnew')
+				urlToOpen = urlToOpen + "&csAssoc_ParentInstanceID=&linkedFieldValue=";
+			else
+				urlToOpen = urlToOpen + "&linkedFieldValue=";
+		}
+	}
+	top.commonspot.lightbox.openDialog(urlToOpen);
 }
 //-->
 </script></cfoutput>

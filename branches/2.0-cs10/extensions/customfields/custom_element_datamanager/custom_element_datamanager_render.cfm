@@ -49,6 +49,7 @@ History:
 	2015-03-19 - DJM - Added code to check for elementtype for honoring newData variable to fix metadata form issue
 	2015-04-02 - DJM - Modified code to handle show/hide of Actions column returned
 	2015-04-10 - DJM - Added code to check for field permission for rendering controls
+	2015-07-03 - DJM - Added code for disableDatamanager interface option
 --->
 <cfscript>
 	requiredCSversion = 9;
@@ -106,7 +107,10 @@ History:
 		else
 			newData = 1;
 	}	
-	request.showSaveAndContinue = newData;	// forces showing or hiding of 'Save & Continue' button
+	if (getFieldDetails.Action NEQ 'special' AND NOT ListFindNoCase(attributes.parameters[fieldQuery.inputID].interfaceOptions, 'disableDatamanager'))
+		request.showSaveAndContinue = 0;
+	else
+		request.showSaveAndContinue = newData;	// forces showing or hiding of 'Save & Continue' button
 </cfscript>
 
 <cfparam name="attributes.callingElement" default="">
@@ -278,7 +282,7 @@ History:
 		</CFIF>
 	
 		<CFIF inputParameters.childCustomElement neq ''>
-			<CFIF (elementType NEQ 'metadataForm' AND newData EQ 0) OR (elementType EQ 'metadataForm' AND curPageID GT 0)>
+			<CFIF (elementType NEQ 'metadataForm' AND (newData EQ 0 OR NOT ListFindNoCase(inputParameters.interfaceOptions, 'disableDatamanager')) OR (elementType EQ 'metadataForm' AND curPageID GT 0))>
 				<CFOUTPUT>
 					#datamanagerObj.renderStyles(propertiesStruct=inputParameters)#
 					<table class="cs_data_manager" border="0" cellpadding="2" cellspacing="2" summary="" id="parentTable_#uniqueTableAppend#"></CFOUTPUT>
@@ -380,7 +384,13 @@ History:
 			function loadData_#uniqueTableAppend#(displayOverlay)
 			{
 				if (typeof displayOverlay == 'undefined')
-					var displayOverlay = 1;
+				{
+					<CFIF newData EQ 1>
+						var displayOverlay = 0;
+					<CFELSE>
+						var displayOverlay = 1;
+					</CFIF>
+				}
 				
 				setTimeout( function(){
 								loadDataCore_#uniqueTableAppend#(displayOverlay)
@@ -662,6 +672,30 @@ History:
 						
 							function() { onSuccess_#uniqueTableAppend#('Success'); } 
 						);
+			}
+			
+			function setCurrentValueAndOpenURL_#uniqueTableAppend#(urlToOpen, linkedFldName, buttonName)
+			{
+				var linkedFldVal = '';
+				if (linkedFldName != '')
+				{
+					if (document.getElementById(linkedFldName) != null)
+					{
+						linkedFldVal = document.getElementById(linkedFldName).value;
+						if (buttonName == 'addnew')
+							urlToOpen = urlToOpen + "&csAssoc_ParentInstanceID=" + encodeURI(linkedFldVal) + "&linkedFieldValue=" + encodeURI(linkedFldVal);
+						else
+							urlToOpen = urlToOpen + "&linkedFieldValue=" + encodeURI(linkedFldVal);
+					}
+					else
+					{
+						if (buttonName == 'addnew')
+							urlToOpen = urlToOpen + "&csAssoc_ParentInstanceID=&linkedFieldValue=";
+						else
+							urlToOpen = urlToOpen + "&linkedFieldValue=";
+					}
+				}
+				top.commonspot.lightbox.openDialog(urlToOpen);
 			}
 			// -->
 		</script>
