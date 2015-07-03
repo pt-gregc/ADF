@@ -113,7 +113,7 @@ History:
 	if( not structKeyExists(currentValues, "secondaryElementType") )
 		currentValues.secondaryElementType = "CustomElement";
 	if( not structKeyExists(currentValues, "interfaceOptions") )
-		currentValues.interfaceOptions = "existing,EditAssoc,delete";
+		currentValues.interfaceOptions = "existing,EditAssoc,delete,disableDatamanager";
 	if( not structKeyExists(currentValues, "compOverride") )
 		currentValues.compOverride = "";
 	if( not structKeyExists(currentValues, "parentInstanceIDField") )
@@ -430,7 +430,7 @@ History:
 			if(document.#formname#.#prefix#interfaceOptionsCbox[i].checked == true)
 			{
 				addToList = 1;
-					valueToAdd = '';
+				valueToAdd = '';
 				if ((i == 0 || i == 3) && selectedType.toLowerCase() != 'global')
 					addToList = 0;
 				if (addToList == 1)
@@ -455,7 +455,7 @@ History:
 							fldValue = trim(document.#formname#.#prefix#deleteOptionText.value);
 							break;		
 					}
-					if ( fldValue == '')
+					if (valueToAdd != 'disableDatamanager' && fldValue == '')
 					{
 						showMsg('Please enter a button/hover text for all the checked interface options.');
 						return false;
@@ -1367,6 +1367,7 @@ History:
 				<span id="editChildOptionTextSpan" <cfif NOT ListFindNoCase(currentValues.interfaceOptions,'editChild')>style="display:none;padding-left:50px;"<cfelse>style="padding-left:50px;"</cfif>>Hover Text:&nbsp;#Server.CommonSpot.udf.tag.input(type="text", id="#prefix#editChildOptionText", name="#prefix#editChildOptionText", value="#currentValues.editChildOptionText#", size="30", class="InputControl")#<br/></span>
 				#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", id="#prefix#interfaceOptionsCbox", name="#prefix#interfaceOptionsCbox", value="delete", label="<span id='deleteOpt'>Allow 'Delete'</span>", labelIsHTML=1, checked=(ListFindNoCase(currentValues.interfaceOptions,'delete')), labelClass="cs_dlgLabelSmall", onclick="#prefix#toggleInputField(this,'delete');")#&nbsp;<br/></span>
 				<span id="deleteOptionTextSpan" <cfif NOT ListFindNoCase(currentValues.interfaceOptions,'delete')>style="display:none;padding-left:50px;"<cfelse>style="padding-left:50px;"</cfif>>Hover Text:&nbsp;#Server.CommonSpot.udf.tag.input(type="text", id="#prefix#deleteOptionText", name="#prefix#deleteOptionText", value="#currentValues.deleteOptionText#", size="30", class="InputControl")#<br/></span>
+				<span id="disableDMOption">#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", id="#prefix#interfaceOptionsCbox", name="#prefix#interfaceOptionsCbox", value="disableDatamanager", label="Disable Data Manager until initial save", labelIsHTML=1, title="Unchecking this option may cause records which are added via Data manager to be orphaned if the initial Save of the parent custom element is cancelled", checked=(ListFindNoCase(currentValues.interfaceOptions,'disableDatamanager')), labelClass="cs_dlgLabelSmall")#&nbsp;<br/></span>
 			</td>
 		</tr>
 		<tr>

@@ -107,7 +107,11 @@ History:
 		else
 			newData = 1;
 	}	
-	request.showSaveAndContinue = newData;	// forces showing or hiding of 'Save & Continue' button
+	
+	if (NOT ListFindNoCase(attributes.parameters[fieldQuery.inputID].interfaceOptions, 'disableDatamanager'))
+		request.showSaveAndContinue = 0;
+	else
+		request.showSaveAndContinue = newData;	// forces showing or hiding of 'Save & Continue' button
 </cfscript>
 
 <cfparam name="attributes.callingElement" default="">
@@ -284,7 +288,7 @@ History:
 		</CFIF>
 	
 		<CFIF inputParameters.childCustomElement neq ''>
-			<CFIF (elementType NEQ 'metadataForm' AND newData EQ 0) OR (elementType EQ 'metadataForm' AND curPageID GT 0)>
+			<CFIF (elementType NEQ 'metadataForm' AND newData EQ 0) OR (elementType EQ 'metadataForm' AND curPageID GT 0) OR (NOT ListFindNoCase(attributes.parameters[fieldQuery.inputID].interfaceOptions, 'disableDatamanager'))>
 				<CFOUTPUT>
 					#datamanagerObj.renderStyles(propertiesStruct=inputParameters)#
 					<table class="cs_data_manager" border="0" cellpadding="2" cellspacing="2" summary="" id="parentTable_#uniqueTableAppend#"></CFOUTPUT>
@@ -389,7 +393,13 @@ History:
 			function loadData_#uniqueTableAppend#(displayOverlay)
 			{
 				if (typeof displayOverlay == 'undefined')
-					var displayOverlay = 1;
+				{
+					<CFIF newData EQ 1>
+						var displayOverlay = 0;
+					<CFELSE>
+						var displayOverlay = 1;
+					</CFIF>
+				}
 				
 				setTimeout( function(){
 								loadDataCore_#uniqueTableAppend#(displayOverlay)
@@ -671,6 +681,20 @@ History:
 						
 							function() { onSuccess_#uniqueTableAppend#('Success'); } 
 						);
+			}
+			
+			function setCurrentValueAndOpenURL_#uniqueTableAppend#(urlToOpen, linkedFldName)
+			{
+				var linkedFldVal = '';
+				if (linkedFldName != '')
+				{
+					if (typeof  document.getElementById(linkedFldName) != 'undefined')
+					{
+						linkedFldVal = document.getElementById(linkedFldName).value;
+						urlToOpen = urlToOpen + "&csAssoc_ParentInstanceID=" + linkedFldVal + "&linkedFieldValue=" + linkedFldVal;
+					}
+				}
+				top.commonspot.lightbox.openDialog(urlToOpen);
 			}
 			// -->
 		</script>
