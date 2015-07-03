@@ -50,6 +50,7 @@ History:
 	2015-04-02 - DJM - Modified code to handle show/hide of Actions column returned
 	2015-04-10 - DJM - Added code to check for field permission for rendering controls
 	2015-05-01 - GAC - Updated to add a forceScript parameter to bypass the ADF renderOnce script loader
+	2015-07-03 - DJM - Added code for disableDatamanager interface option
 --->
 <cfscript>
 	requiredCSversion = 9;
@@ -108,7 +109,7 @@ History:
 			newData = 1;
 	}	
 	
-	if (NOT ListFindNoCase(attributes.parameters[fieldQuery.inputID].interfaceOptions, 'disableDatamanager'))
+	if (getFieldDetails.Action NEQ 'special' AND NOT ListFindNoCase(attributes.parameters[fieldQuery.inputID].interfaceOptions, 'disableDatamanager'))
 		request.showSaveAndContinue = 0;
 	else
 		request.showSaveAndContinue = newData;	// forces showing or hiding of 'Save & Continue' button
@@ -288,7 +289,7 @@ History:
 		</CFIF>
 	
 		<CFIF inputParameters.childCustomElement neq ''>
-			<CFIF (elementType NEQ 'metadataForm' AND newData EQ 0) OR (elementType EQ 'metadataForm' AND curPageID GT 0) OR (NOT ListFindNoCase(attributes.parameters[fieldQuery.inputID].interfaceOptions, 'disableDatamanager'))>
+			<CFIF (elementType NEQ 'metadataForm' AND (newData EQ 0 OR NOT ListFindNoCase(inputParameters.interfaceOptions, 'disableDatamanager')) OR (elementType EQ 'metadataForm' AND curPageID GT 0))>
 				<CFOUTPUT>
 					#datamanagerObj.renderStyles(propertiesStruct=inputParameters)#
 					<table class="cs_data_manager" border="0" cellpadding="2" cellspacing="2" summary="" id="parentTable_#uniqueTableAppend#"></CFOUTPUT>
@@ -683,15 +684,25 @@ History:
 						);
 			}
 			
-			function setCurrentValueAndOpenURL_#uniqueTableAppend#(urlToOpen, linkedFldName)
+			function setCurrentValueAndOpenURL_#uniqueTableAppend#(urlToOpen, linkedFldName, buttonName)
 			{
 				var linkedFldVal = '';
 				if (linkedFldName != '')
 				{
-					if (typeof  document.getElementById(linkedFldName) != 'undefined')
+					if (document.getElementById(linkedFldName) != null)
 					{
 						linkedFldVal = document.getElementById(linkedFldName).value;
-						urlToOpen = urlToOpen + "&csAssoc_ParentInstanceID=" + linkedFldVal + "&linkedFieldValue=" + linkedFldVal;
+						if (buttonName == 'addnew')
+							urlToOpen = urlToOpen + "&csAssoc_ParentInstanceID=" + encodeURI(linkedFldVal) + "&linkedFieldValue=" + encodeURI(linkedFldVal);
+						else
+							urlToOpen = urlToOpen + "&linkedFieldValue=" + encodeURI(linkedFldVal);
+					}
+					else
+					{
+						if (buttonName == 'addnew')
+							urlToOpen = urlToOpen + "&csAssoc_ParentInstanceID=&linkedFieldValue=";
+						else
+							urlToOpen = urlToOpen + "&linkedFieldValue=";
 					}
 				}
 				top.commonspot.lightbox.openDialog(urlToOpen);

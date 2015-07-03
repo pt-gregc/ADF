@@ -46,6 +46,7 @@ History:
 	2015-01-28 - DJM - Added timeout to resize frame function call to avoid multiple scrollbars
 	2015-02-10 - DJM - Added code to hide text inputs related to secondary element when it is set as none
 	2015-05-01 - GAC - Updated to add a forceScript parameter to bypass the ADF renderOnce script loader
+	2015-07-03 - DJM - Added code for disableDatamanager interface option
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
@@ -1367,7 +1368,7 @@ History:
 				<span id="editChildOptionTextSpan" <cfif NOT ListFindNoCase(currentValues.interfaceOptions,'editChild')>style="display:none;padding-left:50px;"<cfelse>style="padding-left:50px;"</cfif>>Hover Text:&nbsp;#Server.CommonSpot.udf.tag.input(type="text", id="#prefix#editChildOptionText", name="#prefix#editChildOptionText", value="#currentValues.editChildOptionText#", size="30", class="InputControl")#<br/></span>
 				#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", id="#prefix#interfaceOptionsCbox", name="#prefix#interfaceOptionsCbox", value="delete", label="<span id='deleteOpt'>Allow 'Delete'</span>", labelIsHTML=1, checked=(ListFindNoCase(currentValues.interfaceOptions,'delete')), labelClass="cs_dlgLabelSmall", onclick="#prefix#toggleInputField(this,'delete');")#&nbsp;<br/></span>
 				<span id="deleteOptionTextSpan" <cfif NOT ListFindNoCase(currentValues.interfaceOptions,'delete')>style="display:none;padding-left:50px;"<cfelse>style="padding-left:50px;"</cfif>>Hover Text:&nbsp;#Server.CommonSpot.udf.tag.input(type="text", id="#prefix#deleteOptionText", name="#prefix#deleteOptionText", value="#currentValues.deleteOptionText#", size="30", class="InputControl")#<br/></span>
-				<span id="disableDMOption">#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", id="#prefix#interfaceOptionsCbox", name="#prefix#interfaceOptionsCbox", value="disableDatamanager", label="Disable Data Manager until initial save", labelIsHTML=1, title="Unchecking this option may cause records which are added via Data manager to be orphaned if the initial Save of the parent custom element is cancelled", checked=(ListFindNoCase(currentValues.interfaceOptions,'disableDatamanager')), labelClass="cs_dlgLabelSmall")#&nbsp;<br/></span>
+				<span id="disableDMOption">#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", id="#prefix#interfaceOptionsCbox", name="#prefix#interfaceOptionsCbox", value="disableDatamanager", label="Disable Data Manager until initial save", labelIsHTML=1, title="Unchecking this option may cause records which are added via Data manager to be orphaned if the initial Save of the parent custom element is cancelled", checked=((parentElementType EQ 'MetadataForm') OR ListFindNoCase(currentValues.interfaceOptions,'disableDatamanager')), labelClass="cs_dlgLabelSmall", disabled=(parentElementType EQ 'MetadataForm'))#&nbsp;<br/></span>
 			</td>
 		</tr>
 		<tr>
