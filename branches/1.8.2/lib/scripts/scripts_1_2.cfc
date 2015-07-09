@@ -41,7 +41,7 @@ History:
 --->
 <cfcomponent displayname="scripts_1_2" extends="ADF.lib.scripts.scripts_1_1" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" value="1_2_26">
+<cfproperty name="version" value="1_2_27">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_1" type="dependency">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Scripts_1_2">
@@ -161,7 +161,8 @@ History:
 			<cfif loadViaCDN>
 				<!--- // [GAC 2015-04-23] - currently external URLs get stripped if we use the renderScriptOnce javascript loader --->
 				<!--- // [GAC 2015-05-21] using scriptsService.jsCommentStripper() this is no longer an issue --->
-				<!--- REMOVE - <cfset disableJSloader = false> --->
+				<!--- REMOVE - <cfset disableJSloader = true> --->
+				<cfset disableJSloader = true>
 				<script type="text/javascript" src="//cdn.ckeditor.com/#arguments.version#/#arguments.package#/ckeditor.js"></script>
 			</cfif>
 		</cfoutput>
@@ -448,6 +449,48 @@ History:
 		if ( loadMigratePlugin )
 			loadJQueryMigrate(force=arguments.force, renderInHead=arguments.renderInHead);
 	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$loadJQueryBlockUI
+Summary:
+	Loads the JQuery BlockUI plugin which can be triggered to block ui during ajax call
+Returns:
+	None
+Arguments:
+	String - version - JQuery BlockUI version to load.
+	Boolean - Force
+History:
+	2015-06-26 - GAC - Added for version 2.7 of BlockUI
+--->
+<cffunction name="loadJQueryBlockUI" access="public" output="true" returntype="void" hint="Loads the JQuery BlockUI plugin if not loaded.">
+	<cfargument name="version" type="string" required="false" default="2.7" hint="JQuery BlockUI plugin version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
+	<cfargument name="renderInHead" type="boolean" required="false" default="false" hint="Flag to render the script in the document head.">
+	
+	<cfscript>
+		var outputHTML = "";
+		var thirdPartyLibPath = "/ADF/thirdParty/jquery/blockUI/";
+		
+		// 2011-12-28 - MFC - Make the version backwards compatiable to remove minor build numbers.
+		arguments.version = variables.scriptsService.getMajorMinorVersion(arguments.version);
+	</cfscript>
+	<cfsavecontent variable="outputHTML">
+		<cfoutput>
+			<script type="text/javascript" src="#thirdPartyLibPath##arguments.version#/jquery.blockUI.min.js"></script>
+		</cfoutput>
+	</cfsavecontent>
+	<cfoutput>
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce(scriptName="jQueryBlockUI",outputHTML=outputHTML,renderInHead=arguments.renderInHead)#
+		</cfif>
+	</cfoutput>
 </cffunction>
 
 <!---
