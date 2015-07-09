@@ -34,10 +34,11 @@ History:
 	2013-09-06 - GAC - Added the listDiff and IsListDifferent functions
 	2014-12-03 - GAC - Added the isNumericList function
 	2015-02-13 - GAC - Added the tagValueCleanup function
+	2015-07-09 - GAC - Added the highlightKeywords function
 --->
 <cfcomponent displayname="data_1_2" extends="ADF.lib.data.data_1_1" hint="Data Utils component functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_15">
+<cfproperty name="version" value="1_2_16">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Data_1_2">
 
@@ -481,9 +482,9 @@ History:
 <cffunction name="QuerySortByOrderedList" displayname="QuerySortByOrderedList" access="public" hint="Sort a query based on a custom ordered list" returntype="query" output="false">
     <cfargument name="query" type="query" required="yes" hint="The query to be sorted">
     <cfargument name="columnName" type="string" required="yes" hint="The name of the column to be sorted">
-    <cfargument name="columnType" type="string" required="no" default="" hint="The column type. Not needed will auto-detect. But possible override values: numeric, varchar, date">
+    <cfargument name="columnType" type="string" required="no" default="" hint="The column type. Not required will auto-detect. But possible override values: numeric, varchar, date">
     <cfargument name="orderList" type="string" required="yes" hint="The list used to sort the query">
-	<cfargument name="orderColumnAlias" type="string" required="no" default="xRecSortCol" hint="The alias for the column containing the order number. Must be unique and not a column the original query"> 
+	<cfargument name="orderColumnAlias" type="string" required="no" default="xRecSortCol" hint="The alias for the column containing the order number. Must be unique and not a column the original query."> 
 	<cfargument name="orderListDelimiter" type="string" required="no" default=",">
 				
     <cfscript>
@@ -1094,7 +1095,7 @@ History:
 <!---
 /* *************************************************************** */
 Author: 	
-	PaperThin, Inc.
+	Gyrus (eli.dickinson@gmail.com gyrus@norlonto.net)
 Name:
 	$HTMLSafeFormattedTextBox
 Summary:
@@ -1128,6 +1129,66 @@ History:
 
 		// Do replacing
 		return ReplaceList(arguments.inString, badChars, goodChars);
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	simonbingham
+	https://gist.github.com/simonbingham/3238060
+Name:
+	$highlightKeywords
+Summary:
+	I highlight words in a string that are found in a keyword list. Useful for search result pages.
+    
+	@param str           String to be searched
+    @param searchterm    Comma delimited list of keywords
+ 
+Returns:
+	String
+Arguments:
+	String - str
+	String - searchterm
+	String - preTermStr
+	String - postTermStr
+Usage:
+	application.ADF.data.highlightKeywords(str,searchterm,preTermStr,postTermStr)
+History:
+	2015-07-08 - GAC - Added to the data_1_2 lib component
+	2015-07-09 - GAC - Added additional arguments to allow custom pre and post HTML strings to be added
+ --->
+<cffunction name="highlightKeywords" access="public" returntype="string" hint="Converts special characters to character entities, making a string safe for display in HTML.">
+	<cfargument name="str" type="string" required="true">
+	<cfargument name="searchterm" type="string" required="true">
+	<cfargument name="preTermStr" type="string" required="false" default='<span style="background:yellow;">'>
+	<cfargument name="postTermStr" type="string" required="false" default='</span>' >
+	
+	<cfscript>
+	    var j = "";
+	    var matches = "";
+	    var word = "";
+	    
+	    // loop through keywords
+	    for( var i=1; i lte ListLen( arguments.searchterm, " " ); i=i+1 )
+	    {
+	      // get current keyword and escape any special regular expression characters
+	      word = ReReplace( ListGetAt( arguments.searchterm, i, " " ), "\.|\^|\$|\*|\+|\?|\(|\)|\[|\]|\{|\}|\\", "" );
+	      
+	      // return matches for current keyword from string
+	      matches = ReMatchNoCase( word, arguments.str );
+	      
+	      // remove duplicate matches (case sensitive)
+	      matches = CreateObject( "java", "java.util.HashSet" ).init( matches ).toArray();
+	      
+	      // loop through matches
+	      for( j=1; j <= ArrayLen( matches ); j=j+1 )
+	      {
+	        // where match exists in string highlight it
+	        arguments.str = Replace( arguments.str, matches[ j ], arguments.preTermStr & matches[ j ] & arguments.postTermStr, "all" );
+	      }  
+	    }
+	    return arguments.str;
 	</cfscript>
 </cffunction>
 
