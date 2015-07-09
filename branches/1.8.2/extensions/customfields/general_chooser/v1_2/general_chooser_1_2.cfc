@@ -43,10 +43,13 @@ History:
 	2013-10-22 - GAC - Updated to inject the data_1_2 lib in to the variables.data scope since we are extending ceData_2_0
 	2013-10-23 - GAC - Removed data_1_2 injection due to ADF reset errors on startup
 	2014-02-24 - JTP - Fixed the Search button class
+	2015-07-08 - GAC - Moved all of the Javascript from the render file a function in the the general_chooser.cfc to allow JS overrides in the Site Level GC file
+	2015-07-09 - GAC - Added datapageID and controlID params to the  loadTopics() ajax call an the 
+					 - Moved the building of the initArgs and selectionArgs struct to the general_chooser.cfc file to allow overrides in the Site Level GC file
 --->
 <cfcomponent name="general_chooser" extends="ADF.lib.ceData.ceData_2_0">
 
-<cfproperty name="version" value="1_2_2">
+<cfproperty name="version" value="1_2_3">
 
 <cfscript>
 	// CUSTOM ELEMENT INFO
@@ -109,7 +112,8 @@ History:
 		var reHTML = "";
 	
 		// loop through request.params parameters to get arguments
-		for( itm=1; itm lte listLen(structKeyList(arguments)); itm=itm+1 ) {
+		for( itm=1; itm lte listLen(structKeyList(arguments)); itm=itm+1 ) 
+		{
 			thisParam = listGetAt(structKeyList(arguments), itm);
 			if( thisParam neq "method" and thisParam neq "bean" and thisParam neq "chooserMethod" and thisParam neq "appName" ) 
 			{
@@ -124,6 +128,121 @@ History:
 		
 		return reHTML;
 	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+Name:
+	$getInitArgs
+Summary:
+	Build the initArgs General Chooser Parameters for the render file
+Returns:
+	Struct
+Arguments:
+	String - fqFieldName
+	String - formname
+	String - currentValue
+	Boolean - readOnly
+	Numeric - rendertabindex
+	Struct - xParams
+History:
+	2015-07-09 - GAC - Created
+--->
+<cffunction name="getInitArgs" access="public" returntype="struct" hint="Build the initArgs General Chooser Parameters for the render file">
+	<cfargument name="fqFieldName" type="string" required="true">
+	<cfargument name="formname" type="string" required="true">
+	<cfargument name="currentValue" type="string" required="false" default="">
+	<cfargument name="readOnly" type="boolean" required="false" default="false">
+	<cfargument name="rendertabindex" type="numeric" default="0" required="false">
+	<cfargument name="xParams" type="struct" required="false" default="#StructNew()#">	
+	
+	<cfscript>
+		var initArgs = StructNew();
+		
+		initArgs.chooserCFCName = structKeyExists(xParams, "chooserCFCName") ? xParams.chooserCFCName : "";
+		initArgs.fieldName = arguments.fqFieldName;
+		initArgs.formname = arguments.formname;
+		initArgs.currentValue = arguments.currentValue;
+		initArgs.readOnly = arguments.readOnly;
+		initArgs.req = structKeyExists(xParams, "req") ? xParams.req : false;
+		initArgs.rendertabindex = rendertabindex;
+		initArgs.chooserAppName = structKeyExists(xParams, "chooserAppName") ? xParams.chooserAppName : "";
+		initArgs.fieldID = structKeyExists(xParams, "fieldID") ? xParams.fieldID : 0;
+		initArgs.csPageID = request.page.id;
+		initArgs.dataPageID = structKeyExists(request.params, "dataPageID") ? request.params.dataPageID : structKeyExists(request.params, "pageID") ? request.params.pageID : request.page.id;
+   		initArgs.controlID = structKeyExists(request.params, "controlID") ? request.params.controlID : 0;	
+		initArgs.xParams = arguments.xParams;
+		initArgs.gcCustomParams = getCustomGCparams();
+		
+		return initArgs;
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+Name:
+	$getSelectionArgs
+Summary:
+	Build the selectionArgs General Chooser Parameters for the render file
+Returns:
+	Struct
+Arguments:
+	String - fqFieldName
+	String - formname
+	String - currentValue
+	Boolean - readOnly
+	Numeric - rendertabindex
+	Struct - xParams
+History:
+	2015-07-09 - GAC - Created
+--->
+<cffunction name="getSelectionArgs" access="public" returntype="struct" hint="Build the selectionArgs General Chooser Parameters for the render file">
+	<cfargument name="fqFieldName" type="string" required="true">
+	<cfargument name="formname" type="string" required="true">
+	<cfargument name="currentValue" type="string" required="false" default="">
+	<cfargument name="readOnly" type="boolean" required="false" default="false">
+	<cfargument name="rendertabindex" type="numeric" default="0" required="false">
+	<cfargument name="xParams" type="struct" required="false" default="#StructNew()#">
+	
+	<cfscript>
+		var selectionsArgs = StructNew();
+		
+		selectionsArgs.fieldName = arguments.fqFieldName;
+		selectionsArgs.item = arguments.currentValue;
+		selectionsArgs.queryType = "selected"; // default initial selected GET 
+		selectionsArgs.fieldID = structKeyExists(xParams, "fieldID") ? xParams.fieldID : 0;
+		selectionsArgs.readOnly = arguments.readOnly;
+		selectionsArgs.csPageID = request.page.id;
+		selectionsArgs.dataPageID = structKeyExists(request.params, "dataPageID") ? request.params.dataPageID : structKeyExists(request.params, "pageID") ? request.params.pageID : request.page.id;
+   		selectionsArgs.controlID = structKeyExists(request.params, "controlID") ? request.params.controlID : 0;
+		selectionsArgs.xParams = xParams;
+		selectionsArgs.gcCustomParams = getCustomGCparams();
+		
+		return selectionsArgs;
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+Name:
+	$getCustomGCparams
+Summary:
+	Additional General Chooser Parameters to be injected in to the render file's initArgs and selectionArgs to be passed to custom method calls.
+Returns:
+	Struct
+Arguments:
+	NA
+History:
+	2015-07-08 - GAC - Created
+--->
+<cffunction name="getCustomGCparams" access="public" returntype="struct" hint="Additional General Chooser Parameters to be injected in to the render file and passed to other method calls.">
+	<cfreturn StructNew()>
 </cffunction>
 
 <!---
@@ -301,6 +420,264 @@ History:
 
 <!---
 /* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	M. Carroll
+Name:
+	$renderChooserJS
+Summary:
+	Renders the Chooser CFT's JavaScript.
+Returns:
+	string
+Arguments:
+	ARGS
+History:
+	2015-07-08 - GAC - Created
+--->
+<cffunction name="renderChooserJS" access="public" returntype="void" output="true" hint="Renders the Chooser CFT's JavaScript.">
+	<cfargument name="chooserCFCName" type="string" required="true">
+	<cfargument name="fieldName" type="string" required="true">
+	<cfargument name="formname" type="string" required="true">
+	<cfargument name="currentValue" type="string" default="" required="false">
+	<cfargument name="readonly" type="boolean" default="false" required="false">
+	<cfargument name="req" type="boolean" default="false" required="false">
+	<cfargument name="rendertabindex" type="numeric" default="0" required="false">
+	<cfargument name="chooserAppName" type="string" default="" required="false">
+	<cfargument name="csPageID" type="numeric" default="#request.page.id#" required="false">
+	<cfargument name="xParams" type="struct" default="#StructNew()#" required="false">
+	<cfargument name="gcCustomParams" type="struct" default="#StructNew()#" required="false">
+	
+	<cfscript>
+		// Set xParams Default values
+		if ( NOT StructKeyExists(arguments.xParams,"minSelections")  )
+			arguments.xParams.minSelections = "";
+		if ( NOT StructKeyExists(arguments.xParams,"maxSelections")  )
+			arguments.xParams.maxSelections = "";
+	</cfscript>
+	
+<cfoutput><script type="text/javascript">
+		// javascript validation to make sure they have text to be converted
+		#arguments.fieldName#=new Object();
+		#arguments.fieldName#.id="#arguments.fieldName#";
+		#arguments.fieldName#.tid=#arguments.rendertabindex#;
+		#arguments.fieldName#.validator = "#arguments.fieldName#_validate()";
+		vobjects_#arguments.formname#.push(#arguments.fieldName#);
+		
+		var #arguments.fieldName#_ajaxProxyURL = "#application.ADF.ajaxProxy#";
+		var #arguments.fieldName#_currentValue = "#arguments.currentValue#";
+		var #arguments.fieldName#_searchValues = "";
+		
+		jQuery(function(){
+			
+			// Resize the window on the page load
+			checkResizeWindow();
+			
+			// JQuery use the LIVE event b/c we are adding links/content dynamically		    
+		    // click for show all not-selected items
+		    jQuery('###arguments.fieldName#-showAllItems').live("click", function(event){
+			  	// Load all the not-selected options
+			  	#arguments.fieldName#_loadTopics('notselected');
+			});
+		    
+		    // JQuery use the LIVE event b/c we are adding links/content dynamically
+		    jQuery('###arguments.fieldName#-searchBtn').live("click", function(event){
+		  		//load the search field into currentItems
+				#arguments.fieldName#_searchValues = jQuery('input###arguments.fieldName#-searchFld').val();
+				#arguments.fieldName#_currentValue = jQuery('input###arguments.fieldName#').val();
+				#arguments.fieldName#_loadTopics('search')
+			});
+			
+			<cfif !readOnly>
+			// Load the effects and lightbox - this is b/c we are auto loading the selections
+			#arguments.fieldName#_loadEffects();
+			</cfif>
+			
+			// Re-init the ADF Lightbox
+			initADFLB();
+		});
+		
+		// 2013-12-02 - GAC - Updated to allow 'ADD NEW' to be used multiple times before submit
+		function #arguments.fieldName#_loadTopics(queryType) 
+		{
+			var cValue = jQuery("input###arguments.fieldName#").val();		
+				
+			// Put up the loading message
+			if (queryType == "selected")
+				jQuery("###arguments.fieldName#-sortable2").html("Loading ... <img src='/ADF/extensions/customfields/general_chooser/ajax-loader-arrows.gif'>");
+			else
+				jQuery("###arguments.fieldName#-sortable1").html("Loading ... <img src='/ADF/extensions/customfields/general_chooser/ajax-loader-arrows.gif'>");
+			
+			// load the initial list items based on the top terms from the chosen facet
+			jQuery.get( #arguments.fieldName#_ajaxProxyURL,
+			{ 	
+				<cfif LEN(arguments.chooserAppName)>
+				appName: '#arguments.chooserAppName#',
+				</cfif>
+				bean: '#arguments.chooserCFCName#',
+				method: 'controller',
+				chooserMethod: 'getSelections',
+				item: cValue,
+				queryType: queryType,
+				searchValues: #arguments.fieldName#_searchValues,
+				csPageID: '#arguments.csPageID#',
+				fieldID: '#arguments.fieldName#',
+				dataPageID: <cfif structKeyExists(request.params, "dataPageID")>#request.params.dataPageID#<cfelseif structKeyExists(request.params, "dataPageID")>#request.params.pageID#<cfelse>#request.page.id#</cfif>,
+				controlID: <cfif structKeyExists(request.params, "controlID")>#request.params.controlID#<cfelse>0</cfif>
+			},
+			function(msg)
+			{
+				if (queryType == "selected")
+					jQuery("###arguments.fieldName#-sortable2").html(jQuery.trim(msg));
+				else
+					jQuery("###arguments.fieldName#-sortable1").html(jQuery.trim(msg));
+					
+				#arguments.fieldName#_loadEffects();
+				
+				// Re-init the ADF Lightbox
+				initADFLB();
+			});
+		}
+		
+		function #arguments.fieldName#_loadEffects() 
+		{
+			<cfif !readOnly>
+			jQuery("###arguments.fieldName#-sortable1, ###arguments.fieldName#-sortable2").sortable({
+				connectWith: '.connectedSortable',
+				stop: function(event, ui) { #arguments.fieldName#_serialize(); }
+			}).disableSelection();
+			</cfif>
+		}
+		
+		// serialize the selections
+		function #arguments.fieldName#_serialize() 
+		{
+			// get the serialized list
+			var serialList = jQuery('###arguments.fieldName#-sortable2').sortable( 'toArray' );
+			// Check if the serialList is Array
+			if ( serialList.constructor==Array )
+			{
+				serialList = serialList.join(",");
+			}
+			
+			// load serial list into current values
+			#arguments.fieldName#_currentValue = serialList;
+			// load current values into the form field
+			jQuery("input###arguments.fieldName#").val(#arguments.fieldName#_currentValue);
+		}
+		
+		// Resize the window function
+		function checkResizeWindow()
+		{
+			// Check if we are in a loader.cfm page
+			if ( '#ListLast(cgi.SCRIPT_NAME,"/")#' == 'loader.cfm' ) 
+			{
+				ResizeWindow();
+			}
+		}
+		
+		// 2013-12-02 - GAC - Updated to allow 'ADD NEW' to be used multiple times before submit
+		function #arguments.fieldName#_formCallback(formData)
+		{
+			formData = typeof formData !== 'undefined' ? formData : {};
+			var cValue = jQuery("input###arguments.fieldName#").val();
+
+			// Call the utility function to make sure the JS object keys are all lowercase 
+			formData = #arguments.fieldName#_ConvertCaseOfDataObjKeys(formData,'lower');
+
+			// Load the newest item onto the selected values
+			// 2012-07-31 - MFC - Replaced the CFJS function for "ListLen" and "ListFindNoCase".
+			if ( cValue.length > 0 )
+			{
+				// Check that the record does not exist in the list already
+				tempValue = cValue.search(formData[js_#arguments.fieldName#_CE_FIELD]); 
+				if ( tempValue <= 0 ) 
+					cValue = jQuery.ListAppend(formData[js_#arguments.fieldName#_CE_FIELD], cValue);
+			}
+			else 
+				cValue = formData[js_#arguments.fieldName#_CE_FIELD];
+
+			// load current values into the form field
+			jQuery("input###arguments.fieldName#").val(cValue);
+			
+			// Reload the selected Values
+			#arguments.fieldName#_loadTopics("selected");
+			
+			// Close the lightbox
+			closeLB();
+		}
+		
+		// 2013-11-26 - Fix for duplicate items on edit issue
+		function #arguments.fieldName#_formEditCallback()
+		{
+			// Reload the selected Values
+			#arguments.fieldName#_loadTopics("selected");
+			// Reload the non-selected Values
+			#arguments.fieldName#_loadTopics("notselected");
+			// Close the lightbox
+			closeLB();
+		}
+
+		// Validation function to validate required field and max/min selections
+		function #arguments.fieldName#_validate()
+		{
+			//Get the list of selected items
+			var selections = jQuery("###arguments.fieldName#").val();
+			var lengthOfSelections = 0;
+			//.split will return an array with 1 item if there is an empty string. Get around that.
+			if ( selections.length )
+			{
+				var arraySelections = selections.split(",");
+				lengthOfSelections = arraySelections.length;
+			}
+			<cfif arguments.req EQ 'Yes'>
+				// If the field is required, check that a select has been made.
+				if (lengthOfSelections <= 0) 
+				{
+					alert("Please make a selection from the available items list.");
+					return false;
+				}
+			</cfif>
+			<cfif isNumeric(arguments.xParams.minSelections) and arguments.xParams.minSelections gt 0>
+				if ( lengthOfSelections < #arguments.xParams.minSelections# )
+				{
+					alert("Minimum number of selections is #arguments.xParams.minSelections# you have only selected " + lengthOfSelections + " items");
+					return false;
+				}
+			</cfif>
+			<cfif isNumeric(arguments.xParams.maxSelections) and arguments.xParams.maxSelections gt 0>
+				if ( lengthOfSelections > #arguments.xParams.maxSelections# )
+				{
+					alert("Maximum number of selections is #arguments.xParams.maxSelections# you have selected " + lengthOfSelections + " items");
+					return false;
+				}
+			</cfif>
+			return true;
+		}
+		
+		// A Utility function convert the case of keys of a JS Data Object
+		function #arguments.fieldName#_ConvertCaseOfDataObjKeys(dataobj,keycase)
+		{
+			dataobj = typeof dataobj !== 'undefined' ? dataobj : {};
+			keycase = typeof keycase !== 'undefined' ? keycase : "lower"; //lower OR upper
+			var key, keys = Object.keys(dataobj);
+			var n = keys.length;
+			var newobj={}
+			while (n--) {
+			  key = keys[n];
+			  if ( keycase == 'lower' )
+			  	newobj[key.toLowerCase()] = dataobj[key];
+			  else if ( keycase == 'upper' ) 
+			  	newobj[key.toUpperCase()] = dataobj[key];
+			  else
+			  	newobj[key] = dataobj[key]; // NOT upper or lower... pass the data back with keys unchanged
+			}
+			return newobj;
+		}
+	</script></cfoutput>	
+</cffunction>
+
+<!---
+/* *************************************************************** */
 Author:
 	PaperThin, Inc.
 	M. Carroll
@@ -327,6 +704,8 @@ History:
 <cffunction name="loadSearchBox" access="public" returntype="string" hint="General Chooser - Search box HTML content.">
 	<cfargument name="fieldName" type="String" required="true">
 	<cfargument name="readonly" type="boolean" default="false" required="false">
+	<cfargument name="gcCustomParams" type="struct" default="#StructNew()#" required="false">
+	
 	<cfscript>
 		var retSearchBoxHTML = "";
 		
@@ -399,6 +778,7 @@ History:
 	<cfargument name="fieldName" type="String" required="true">
 	<cfargument name="readonly" type="boolean" default="false" required="false">
 	<cfargument name="newItemLabel" type="String" default="#variables.NEW_ITEM_LABEL#" required="false">
+	<cfargument name="gcCustomParams" type="struct" default="#StructNew()#" required="false">
 	
 	<cfscript>
 		var retAddLinkHTML = "";
@@ -462,6 +842,8 @@ History:
 	<cfargument name="formid" type="numeric" required="false" default="-1">
 	<cfargument name="csPageID" type="numeric" required="false" default="-1">
 	<cfargument name="readonly" type="boolean" default="false" required="false">
+	<cfargument name="gcCustomParams" type="struct" default="#StructNew()#" required="false">
+	
 	<cfscript>
 		var retItemLinksHTML = ""; 
 		var editMethod = "renderAddEditForm";
@@ -527,6 +909,8 @@ History:
 	<cfargument name="csPageID" type="numeric" required="false" default="-1">
 	<!--- <cfargument name="callback" type="sting" required="false" default=""> --->
 	<cfargument name="readonly" type="boolean" default="false" required="false">
+	<cfargument name="gcCustomParams" type="struct" default="#StructNew()#" required="false">
+	
 	<cfscript>
 		var retEditLinkHTML = "";
 	</cfscript>
@@ -573,6 +957,8 @@ History:
 	<cfargument name="csPageID" type="numeric" required="false" default="-1">
 	<!--- <cfargument name="callback" type="sting" required="false" default=""> --->
 	<cfargument name="readonly" type="boolean" default="false" required="false">
+	<cfargument name="gcCustomParams" type="struct" default="#StructNew()#" required="false">
+	
 	<cfscript>
 		var retDeleteLinkHTML = "";
 	</cfscript>
@@ -608,6 +994,8 @@ History:
 <cffunction name="loadAvailableLabel" access="public" returntype="string" hint="General Chooser - Loads the Available Items column header">
 	<cfargument name="fieldName" type="String" required="true">
 	<cfargument name="readonly" type="boolean" default="false" required="false">
+	<cfargument name="gcCustomParams" type="struct" default="#StructNew()#" required="false">
+	
 	<cfscript>
 		var retLabelHTML = "";
 		var aLabel = variables.AVAILABLE_LABEL;
@@ -640,6 +1028,8 @@ History:
 <cffunction name="loadSelectedLabel" access="public" returntype="string" hint="Loads the Selected Items column header">
 	<cfargument name="fieldName" type="String" required="true">
 	<cfargument name="readonly" type="boolean" default="false" required="false">
+	<cfargument name="gcCustomParams" type="struct" default="#StructNew()#" required="false">
+	
 	<cfscript>
 		var retLabelHTML = "";
 		var sLabel = variables.SELECTED_LABEL;
@@ -670,6 +1060,8 @@ History:
 	2013-12-12 - GAC - Created
 --->
 <cffunction name="loadChooserInstructions" access="public" returntype="string" hint="General Chooser - Loads the instructions text for the Chooser field">
+	<cfargument name="gcCustomParams" type="struct" default="#StructNew()#" required="false">
+	
 	<cfscript>
 		var retInstructionsHTML = "";
 		var aLabel = variables.AVAILABLE_LABEL;
@@ -732,6 +1124,8 @@ History:
 	<cfargument name="csPageID" type="numeric" required="false" default="-1">
 	<cfargument name="fieldID" type="string" required="false" default="">
 	<cfargument name="readonly" type="boolean" default="false" required="false">
+	<cfargument name="gcCustomParams" type="struct" default="#StructNew()#" required="false">
+	
 	<cfscript>
 		var retHTML = "";
 		var i = 1;

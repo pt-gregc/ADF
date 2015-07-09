@@ -55,6 +55,10 @@ History:
 	2014-03-20 - GAC - Force the keys in the formData object from the 'ADD NEW' callback to lowercase so it is sure to match js_fieldName_CE_FIELD  value 
 	2014-10-10 - GAC - Added a new props field to allow the app name used for resolving the Chooser Bean Name to be specified
 	2015-04-29 - DJM - Modified code to use join to fix ArrayToList not a function error
+	2015-07-08 - GAC - Moved all of the Javascript from the render file a function in the the general_chooser.cfc to allow JS overrides in the Site Level GC file
+	2015-07-09 - GAC - Removed the dependancy for the jQuery CFJS library
+	                 - Added datapageID and controlID params to the  loadTopics() ajax call an the 
+					 - Moved the building of the initArgs and selectionArgs struct to the general_chooser.cfc file to allow overrides in the Site Level GC file
 --->
 <cfscript>
 	// the fields current value
@@ -97,7 +101,8 @@ History:
 	labelStart = attributes.itemBaselineParamStart;
 	labelEnd = attributes.itemBaseLineParamEnd;	
 	//If the fields are required change the label start and end
-	if ( xparams.req eq "Yes" ) {
+	if ( xparams.req eq "Yes" ) 
+	{
 		labelStart = attributes.reqItemBaselineParamStart;
 		labelEnd = attributes.reqItemBaseLineParamEnd;
 	}
@@ -114,7 +119,6 @@ History:
 	//-- Read Only Check with the cs6 fieldPermission parameter --
 	//-- Also check to see if this field is FORCED to be READ ONLY for CS 9+ by looking for attributes.currentValues[fqFieldName_doReadonly] variable --
 	readOnly = application.ADF.forms.isFieldReadOnly(xparams,variables.fieldPermission,fqFieldName,attributes.currentValues);
-	//readOnly = true;
 	
 	if ( readOnly ) 
 		xParams.loadAvailable = 0;
@@ -126,23 +130,62 @@ History:
 		application.ADF.scripts.loadJQuery(force=xParams.forceScripts);
 		application.ADF.scripts.loadJQueryUI(force=xParams.forceScripts);
 		application.ADF.scripts.loadADFLightbox();
-		application.ADF.scripts.loadCFJS();
+		//application.ADF.scripts.loadCFJS();
 		
-		// init Arg struct
-		initArgs = StructNew();
-		initArgs.fieldName = fqFieldName;
+		// Get the General Chooser Custom from the GC component 
+		/* gcCustomParams = application.ADF.utils.runCommand(beanName=xParams.chooserCFCName,
+																	methodName="getGCcustomParams",
+																	args=xParams,
+																	appName=xParams.chooserAppName);*/
+		
+		// init the cftArgs struct to pass to getInitArgs() and getSelectionsArgs()
+		cftArgs = StructNew();
+		cftArgs.fqFieldName = fqFieldName;
+		cftArgs.formname = attributes.formname;
+		cftArgs.currentValue = currentValue;
+		cftArgs.readOnly = readOnly;
+		cftArgs.rendertabindex = rendertabindex;
+		cftArgs.xParams = xParams;
+
+		// init the initArgs struct
+		initArgs = application.ADF.utils.runCommand(beanName=xParams.chooserCFCName,
+														methodName="getInitArgs",
+														args=cftArgs,
+														appName=xParams.chooserAppName);
+		/* initArgs = StructNew();
+		initArgs.chooserCFCName = xParams.chooserCFCName;
+		initArgs.fieldName = xParams.fieldID;
+		initArgs.formname = attributes.formname;
+		initArgs.currentValue = currentValue;
 		initArgs.readOnly = readOnly;
+		initArgs.req = xParams.req;
+		initArgs.rendertabindex = rendertabindex;
+		initArgs.chooserAppName = xParams.chooserAppName;
+		initArgs.csPageID = request.page.id;	
+		initArgs.xParams = xParams;
+		initArgs.gcCustomParams = gcCustomParams;*/
 		
-		// Build the argument structure to pass into the Run Command
-		selectionsArg = StructNew();
-		selectionsArg.item = currentValue;
-		selectionsArg.queryType = "selected";
-		selectionsArg.csPageID = request.page.id;
-		selectionsArg.fieldID = xParams.fieldID;
-		selectionsArg.readOnly = readOnly;
+
+		
+		
+		// Build the argument structure to pass into the getSelections calls
+		selectionArgs = application.ADF.utils.runCommand(beanName=xParams.chooserCFCName,
+															methodName="getSelectionArgs",
+															args=cftArgs,
+															appName=xParams.chooserAppName);													
+		/* selectionsArgs = StructNew();
+		selectionArgs.item = currentValue;
+		selectionArgs.queryType = "selected";
+		selectionArgs.csPageID = request.page.id;
+		selectionArgs.fieldID = xParams.fieldID;
+		selectionArgs.readOnly = readOnly;
+		selectionArg.dataPageID = structKeyExists(request.params, "dataPageID") ? request.params.dataPageID : structKeyExists(request.params, "pageID") ? request.params.pageID : 0;
+   		selectionArg.controlID = structKeyExists(request.params, "controlID") ? request.params.controlID : 0;
+		selectionArgs.xParams = xParams;
+		selectionArgs.gcCustomParams = gcCustomParams;*/
 	</cfscript>
 	
-	<script type="text/javascript">
+	<!--- <script type="text/javascript">
 		// javascript validation to make sure they have text to be converted
 		#fqFieldName#=new Object();
 		#fqFieldName#.id='#fqFieldName#';
@@ -241,7 +284,7 @@ History:
 			// get the serialized list
 			var serialList = jQuery('###xParams.fieldID#-sortable2').sortable( 'toArray' );
 			// Check if the serialList is Array
-			if ( jQuery.isArray(serialList) )
+			if ( serialList.constructor==Array )
 			{
 				serialList = serialList.join(",");
 			}
@@ -356,10 +399,17 @@ History:
 			}
 			return newobj;
 		}
-	</script>
-	<!--- //Load the General Chooser Styles --->
+	</script> --->
+
+	<!--- // Load the General Chooser Styles --->
 	#application.ADF.utils.runCommand(beanName=xParams.chooserCFCName,
 											methodName="loadStyles",
+											args=initArgs,
+											appName=xParams.chooserAppName)#
+											
+	<!--- // Load the General Chooser JavaScript functions --->
+	#application.ADF.utils.runCommand(beanName=xParams.chooserCFCName,
+											methodName="renderChooserJS",
 											args=initArgs,
 											appName=xParams.chooserAppName)#
 	<!--- <tr>
@@ -434,12 +484,12 @@ History:
 							<!--- Auto load the available selections --->
 							<cfscript>
 								// Set the query type flag before running the command
-								selectionsArg.queryType = "notselected";
+								selectionArgs.queryType = "notselected";
 							</cfscript>
 							<cfif xParams.loadAvailable>
 								#application.ADF.utils.runCommand(beanName=xParams.chooserCFCName,
 																methodName="getSelections",
-																args=selectionsArg,
+																args=selectionArgs,
 																appName=xParams.chooserAppName)#
 							</cfif>
 						</ul>
@@ -451,11 +501,11 @@ History:
 							<cfif LEN(currentValue)>
 								<cfscript>
 									// Set the query type flag before running the command
-									selectionsArg.queryType = "selected";
+									selectionArgs.queryType = "selected";
 								</cfscript>
 								#application.ADF.utils.runCommand(beanName=xParams.chooserCFCName,
 																methodName="getSelections",
-																args=selectionsArg,
+																args=selectionArgs,
 																appName=xParams.chooserAppName)#
 							</cfif>
 						</ul>
