@@ -47,12 +47,14 @@ History:
 	2015-02-10 - DJM - Added code to hide text inputs related to secondary element when it is set as none
 	2015-05-01 - GAC - Updated to add a forceScript parameter to bypass the ADF renderOnce script loader
 	2015-07-03 - DJM - Added code for disableDatamanager interface option
+	2015-07-10 - DRM - Fix allForms  QoQ, change required at least for ACF9/MySQL
+							 Bump fieldVersion
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "1.0.8"; 
+	fieldVersion = "1.0.9";
 	
 	// CS version and required Version variables
 	requiredCSversion = 9;
@@ -213,10 +215,10 @@ History:
 </cfscript>
 
 <cfquery name="allForms" dbtype="query">
-	SELECT ID, Name, LOWER(Type) 
+	SELECT ID, Name, LOWER(Type) AS Type
 	  FROM allCustomElements 
-	UNION ALL
-	SELECT ID, FormName AS Name, 'metadataform' AS Type
+				UNION ALL
+	SELECT ID, CAST(FormName AS VARCHAR) AS Name, 'metadataform' AS Type
 	  FROM allMetadataForms
 </cfquery>
 
