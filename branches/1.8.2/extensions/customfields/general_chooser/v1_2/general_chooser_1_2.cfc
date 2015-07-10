@@ -455,224 +455,226 @@ History:
 	</cfscript>
 	
 <cfoutput><script type="text/javascript">
-		// javascript validation to make sure they have text to be converted
-		#arguments.fieldName#=new Object();
-		#arguments.fieldName#.id="#arguments.fieldName#";
-		#arguments.fieldName#.tid=#arguments.rendertabindex#;
-		#arguments.fieldName#.validator = "#arguments.fieldName#_validate()";
-		vobjects_#arguments.formname#.push(#arguments.fieldName#);
+<!--
+// javascript validation to make sure they have text to be converted
+#arguments.fieldName#=new Object();
+#arguments.fieldName#.id="#arguments.fieldName#";
+#arguments.fieldName#.tid=#arguments.rendertabindex#;
+#arguments.fieldName#.validator = "#arguments.fieldName#_validate()";
+vobjects_#arguments.formname#.push(#arguments.fieldName#);
+	
+var #arguments.fieldName#_ajaxProxyURL = "#application.ADF.ajaxProxy#";
+var #arguments.fieldName#_currentValue = "#arguments.currentValue#";
+var #arguments.fieldName#_searchValues = "";
+	
+jQuery(function(){
 		
-		var #arguments.fieldName#_ajaxProxyURL = "#application.ADF.ajaxProxy#";
-		var #arguments.fieldName#_currentValue = "#arguments.currentValue#";
-		var #arguments.fieldName#_searchValues = "";
+	// Resize the window on the page load
+	checkResizeWindow();
 		
-		jQuery(function(){
-			
-			// Resize the window on the page load
-			checkResizeWindow();
-			
-			// JQuery use the LIVE event b/c we are adding links/content dynamically		    
-		    // click for show all not-selected items
-		    jQuery('###arguments.fieldName#-showAllItems').live("click", function(event){
-			  	// Load all the not-selected options
-			  	#arguments.fieldName#_loadTopics('notselected');
-			});
-		    
-		    // JQuery use the LIVE event b/c we are adding links/content dynamically
-		    jQuery('###arguments.fieldName#-searchBtn').live("click", function(event){
-		  		//load the search field into currentItems
-				#arguments.fieldName#_searchValues = jQuery('input###arguments.fieldName#-searchFld').val();
-				#arguments.fieldName#_currentValue = jQuery('input###arguments.fieldName#').val();
-				#arguments.fieldName#_loadTopics('search')
-			});
-			
-			<cfif !arguments.readonly>
-			// Load the effects and lightbox - this is b/c we are auto loading the selections
-			#arguments.fieldName#_loadEffects();
-			</cfif>
-			
-			// Re-init the ADF Lightbox
-			initADFLB();
-		});
+	// JQuery use the LIVE event b/c we are adding links/content dynamically		    
+    // click for show all not-selected items
+    jQuery('###arguments.fieldName#-showAllItems').live("click", function(event){
+	  	// Load all the not-selected options
+	  	#arguments.fieldName#_loadTopics('notselected');
+	});
+	    
+    // JQuery use the LIVE event b/c we are adding links/content dynamically
+    jQuery('###arguments.fieldName#-searchBtn').live("click", function(event){
+  		//load the search field into currentItems
+		#arguments.fieldName#_searchValues = jQuery('input###arguments.fieldName#-searchFld').val();
+		#arguments.fieldName#_currentValue = jQuery('input###arguments.fieldName#').val();
+		#arguments.fieldName#_loadTopics('search')
+	});
 		
-		// 2013-12-02 - GAC - Updated to allow 'ADD NEW' to be used multiple times before submit
-		function #arguments.fieldName#_loadTopics(queryType) 
-		{
-			var cValue = jQuery("input###arguments.fieldName#").val();		
+	<cfif !arguments.readonly>
+	// Load the effects and lightbox - this is b/c we are auto loading the selections
+	#arguments.fieldName#_loadEffects();
+	</cfif>
+		
+	// Re-init the ADF Lightbox
+	initADFLB();
+});
+	
+// 2013-12-02 - GAC - Updated to allow 'ADD NEW' to be used multiple times before submit
+function #arguments.fieldName#_loadTopics(queryType) 
+{
+	var cValue = jQuery("input###arguments.fieldName#").val();		
+			
+	// Put up the loading message
+	if (queryType == "selected")
+		jQuery("###arguments.fieldName#-sortable2").html("Loading ... <img src='/ADF/extensions/customfields/general_chooser/ajax-loader-arrows.gif'>");
+	else
+		jQuery("###arguments.fieldName#-sortable1").html("Loading ... <img src='/ADF/extensions/customfields/general_chooser/ajax-loader-arrows.gif'>");
+		
+	// load the initial list items based on the top terms from the chosen facet
+	jQuery.get( #arguments.fieldName#_ajaxProxyURL,
+	{ 	
+		<cfif LEN(arguments.inputParameters.chooserAppName)>
+		appName: '#arguments.inputParameters.chooserAppName#',
+		</cfif>
+		bean: '#arguments.inputParameters.chooserCFCName#',
+		method: 'controller',
+		chooserMethod: 'getSelections',
+		item: cValue,
+		queryType: queryType,
+		searchValues: #arguments.fieldName#_searchValues,
+		csPageID: '#arguments.csPageID#',
+		fieldID: '#arguments.fieldName#',
+		dataPageID: <cfif structKeyExists(request.params, "dataPageID")>#request.params.dataPageID#<cfelseif structKeyExists(request.params, "pageID")>#request.params.pageID#<cfelse>#request.page.id#</cfif>,
+		controlID: <cfif structKeyExists(request.params, "controlID")>#request.params.controlID#<cfelse>0</cfif>
+	},
+	function(msg)
+	{
+		if (queryType == "selected")
+			jQuery("###arguments.fieldName#-sortable2").html(jQuery.trim(msg));
+		else
+			jQuery("###arguments.fieldName#-sortable1").html(jQuery.trim(msg));
 				
-			// Put up the loading message
-			if (queryType == "selected")
-				jQuery("###arguments.fieldName#-sortable2").html("Loading ... <img src='/ADF/extensions/customfields/general_chooser/ajax-loader-arrows.gif'>");
-			else
-				jQuery("###arguments.fieldName#-sortable1").html("Loading ... <img src='/ADF/extensions/customfields/general_chooser/ajax-loader-arrows.gif'>");
+		#arguments.fieldName#_loadEffects();
 			
-			// load the initial list items based on the top terms from the chosen facet
-			jQuery.get( #arguments.fieldName#_ajaxProxyURL,
-			{ 	
-				<cfif LEN(arguments.inputParameters.chooserAppName)>
-				appName: '#arguments.inputParameters.chooserAppName#',
-				</cfif>
-				bean: '#arguments.inputParameters.chooserCFCName#',
-				method: 'controller',
-				chooserMethod: 'getSelections',
-				item: cValue,
-				queryType: queryType,
-				searchValues: #arguments.fieldName#_searchValues,
-				csPageID: '#arguments.csPageID#',
-				fieldID: '#arguments.fieldName#',
-				dataPageID: <cfif structKeyExists(request.params, "dataPageID")>#request.params.dataPageID#<cfelseif structKeyExists(request.params, "dataPageID")>#request.params.pageID#<cfelse>#request.page.id#</cfif>,
-				controlID: <cfif structKeyExists(request.params, "controlID")>#request.params.controlID#<cfelse>0</cfif>
-			},
-			function(msg)
-			{
-				if (queryType == "selected")
-					jQuery("###arguments.fieldName#-sortable2").html(jQuery.trim(msg));
-				else
-					jQuery("###arguments.fieldName#-sortable1").html(jQuery.trim(msg));
-					
-				#arguments.fieldName#_loadEffects();
-				
-				// Re-init the ADF Lightbox
-				initADFLB();
-			});
-		}
+		// Re-init the ADF Lightbox
+		initADFLB();
+	});
+}
+	
+function #arguments.fieldName#_loadEffects() 
+{
+	<cfif !arguments.readonly>
+	jQuery("###arguments.fieldName#-sortable1, ###arguments.fieldName#-sortable2").sortable({
+		connectWith: '.connectedSortable',
+		stop: function(event, ui) { #arguments.fieldName#_serialize(); }
+	}).disableSelection();
+	</cfif>
+}
+	
+// serialize the selections
+function #arguments.fieldName#_serialize() 
+{
+	// get the serialized list
+	var serialList = jQuery('###arguments.fieldName#-sortable2').sortable( 'toArray' );
+	// Check if the serialList is Array
+	if ( serialList.constructor==Array )
+	{
+		serialList = serialList.join(",");
+	}
 		
-		function #arguments.fieldName#_loadEffects() 
-		{
-			<cfif !arguments.readonly>
-			jQuery("###arguments.fieldName#-sortable1, ###arguments.fieldName#-sortable2").sortable({
-				connectWith: '.connectedSortable',
-				stop: function(event, ui) { #arguments.fieldName#_serialize(); }
-			}).disableSelection();
-			</cfif>
-		}
-		
-		// serialize the selections
-		function #arguments.fieldName#_serialize() 
-		{
-			// get the serialized list
-			var serialList = jQuery('###arguments.fieldName#-sortable2').sortable( 'toArray' );
-			// Check if the serialList is Array
-			if ( serialList.constructor==Array )
-			{
-				serialList = serialList.join(",");
-			}
-			
-			// load serial list into current values
-			#arguments.fieldName#_currentValue = serialList;
-			// load current values into the form field
-			jQuery("input###arguments.fieldName#").val(#arguments.fieldName#_currentValue);
-		}
-		
-		// Resize the window function
-		function checkResizeWindow()
-		{
-			// Check if we are in a loader.cfm page
-			if ( '#ListLast(cgi.SCRIPT_NAME,"/")#' == 'loader.cfm' ) 
-			{
-				ResizeWindow();
-			}
-		}
-		
-		// 2013-12-02 - GAC - Updated to allow 'ADD NEW' to be used multiple times before submit
-		function #arguments.fieldName#_formCallback(formData)
-		{
-			formData = typeof formData !== 'undefined' ? formData : {};
-			var cValue = jQuery("input###arguments.fieldName#").val();
+	// load serial list into current values
+	#arguments.fieldName#_currentValue = serialList;
+	// load current values into the form field
+	jQuery("input###arguments.fieldName#").val(#arguments.fieldName#_currentValue);
+}
+	
+// Resize the window function
+function checkResizeWindow()
+{
+	// Check if we are in a loader.cfm page
+	if ( '#ListLast(cgi.SCRIPT_NAME,"/")#' == 'loader.cfm' ) 
+	{
+		ResizeWindow();
+	}
+}
+	
+// 2013-12-02 - GAC - Updated to allow 'ADD NEW' to be used multiple times before submit
+function #arguments.fieldName#_formCallback(formData)
+{
+	formData = typeof formData !== 'undefined' ? formData : {};
+	var cValue = jQuery("input###arguments.fieldName#").val();
 
-			// Call the utility function to make sure the JS object keys are all lowercase 
-			formData = #arguments.fieldName#_ConvertCaseOfDataObjKeys(formData,'lower');
+	// Call the utility function to make sure the JS object keys are all lowercase 
+	formData = #arguments.fieldName#_ConvertCaseOfDataObjKeys(formData,'lower');
 
-			// Load the newest item onto the selected values
-			// 2012-07-31 - MFC - Replaced the CFJS function for "ListLen" and "ListFindNoCase".
-			if ( cValue.length > 0 )
-			{
-				// Check that the record does not exist in the list already
-				tempValue = cValue.search(formData[js_#arguments.fieldName#_CE_FIELD]); 
-				if ( tempValue <= 0 ) 
-					cValue = jQuery.ListAppend(formData[js_#arguments.fieldName#_CE_FIELD], cValue);
-			}
-			else 
-				cValue = formData[js_#arguments.fieldName#_CE_FIELD];
+	// Load the newest item onto the selected values
+	// 2012-07-31 - MFC - Replaced the CFJS function for "ListLen" and "ListFindNoCase".
+	if ( cValue.length > 0 )
+	{
+		// Check that the record does not exist in the list already
+		tempValue = cValue.search(formData[js_#arguments.fieldName#_CE_FIELD]); 
+		if ( tempValue <= 0 ) 
+			cValue = jQuery.ListAppend(formData[js_#arguments.fieldName#_CE_FIELD], cValue);
+	}
+	else 
+		cValue = formData[js_#arguments.fieldName#_CE_FIELD];
 
-			// load current values into the form field
-			jQuery("input###arguments.fieldName#").val(cValue);
-			
-			// Reload the selected Values
-			#arguments.fieldName#_loadTopics("selected");
-			
-			// Close the lightbox
-			closeLB();
-		}
+	// load current values into the form field
+	jQuery("input###arguments.fieldName#").val(cValue);
 		
-		// 2013-11-26 - Fix for duplicate items on edit issue
-		function #arguments.fieldName#_formEditCallback()
-		{
-			// Reload the selected Values
-			#arguments.fieldName#_loadTopics("selected");
-			// Reload the non-selected Values
-			#arguments.fieldName#_loadTopics("notselected");
-			// Close the lightbox
-			closeLB();
-		}
-
-		// Validation function to validate required field and max/min selections
-		function #arguments.fieldName#_validate()
-		{
-			//Get the list of selected items
-			var selections = jQuery("###arguments.fieldName#").val();
-			var lengthOfSelections = 0;
-			//.split will return an array with 1 item if there is an empty string. Get around that.
-			if ( selections.length )
-			{
-				var arraySelections = selections.split(",");
-				lengthOfSelections = arraySelections.length;
-			}
-			<cfif IsBoolean(arguments.inputParameters.req) AND arguments.inputParameters.req>
-				// If the field is required, check that a select has been made.
-				if (lengthOfSelections <= 0) 
-				{
-					alert("Please make a selection from the available items list.");
-					return false;
-				}
-			</cfif>
-			<cfif isNumeric(arguments.inputParameters.minSelections) and arguments.inputParameters.minSelections gt 0>
-				if ( lengthOfSelections < #arguments.inputParameters.minSelections# )
-				{
-					alert("Minimum number of selections is #arguments.inputParameters.minSelections# you have only selected " + lengthOfSelections + " items");
-					return false;
-				}
-			</cfif>
-			<cfif isNumeric(arguments.inputParameters.maxSelections) and arguments.inputParameters.maxSelections gt 0>
-				if ( lengthOfSelections > #arguments.inputParameters.maxSelections# )
-				{
-					alert("Maximum number of selections is #arguments.inputParameters.maxSelections# you have selected " + lengthOfSelections + " items");
-					return false;
-				}
-			</cfif>
-			return true;
-		}
+	// Reload the selected Values
+	#arguments.fieldName#_loadTopics("selected");
 		
-		// A Utility function convert the case of keys of a JS Data Object
-		function #arguments.fieldName#_ConvertCaseOfDataObjKeys(dataobj,keycase)
+	// Close the lightbox
+	closeLB();
+}
+	
+// 2013-11-26 - Fix for duplicate items on edit issue
+function #arguments.fieldName#_formEditCallback()
+{
+	// Reload the selected Values
+	#arguments.fieldName#_loadTopics("selected");
+	// Reload the non-selected Values
+	#arguments.fieldName#_loadTopics("notselected");
+	// Close the lightbox
+	closeLB();
+}
+
+// Validation function to validate required field and max/min selections
+function #arguments.fieldName#_validate()
+{
+	//Get the list of selected items
+	var selections = jQuery("###arguments.fieldName#").val();
+	var lengthOfSelections = 0;
+	//.split will return an array with 1 item if there is an empty string. Get around that.
+	if ( selections.length )
+	{
+		var arraySelections = selections.split(",");
+		lengthOfSelections = arraySelections.length;
+	}
+	<cfif IsBoolean(arguments.inputParameters.req) AND arguments.inputParameters.req>
+		// If the field is required, check that a select has been made.
+		if (lengthOfSelections <= 0) 
 		{
-			dataobj = typeof dataobj !== 'undefined' ? dataobj : {};
-			keycase = typeof keycase !== 'undefined' ? keycase : "lower"; //lower OR upper
-			var key, keys = Object.keys(dataobj);
-			var n = keys.length;
-			var newobj={};
-			while (n--) {
-			  key = keys[n];
-			  if ( keycase == 'lower' )
-			  	newobj[key.toLowerCase()] = dataobj[key];
-			  else if ( keycase == 'upper' ) 
-			  	newobj[key.toUpperCase()] = dataobj[key];
-			  else
-			  	newobj[key] = dataobj[key]; // NOT upper or lower... pass the data back with keys unchanged
-			}
-			return newobj;
+			alert("Please make a selection from the available items list.");
+			return false;
 		}
-	</script></cfoutput>	
+	</cfif>
+	<cfif isNumeric(arguments.inputParameters.minSelections) and arguments.inputParameters.minSelections gt 0>
+		if ( lengthOfSelections < #arguments.inputParameters.minSelections# )
+		{
+			alert("Minimum number of selections is #arguments.inputParameters.minSelections# you have only selected " + lengthOfSelections + " items");
+			return false;
+		}
+	</cfif>
+	<cfif isNumeric(arguments.inputParameters.maxSelections) and arguments.inputParameters.maxSelections gt 0>
+		if ( lengthOfSelections > #arguments.inputParameters.maxSelections# )
+		{
+			alert("Maximum number of selections is #arguments.inputParameters.maxSelections# you have selected " + lengthOfSelections + " items");
+			return false;
+		}
+	</cfif>
+	return true;
+}
+	
+// A Utility function convert the case of keys of a JS Data Object
+function #arguments.fieldName#_ConvertCaseOfDataObjKeys(dataobj,keycase)
+{
+	dataobj = typeof dataobj !== 'undefined' ? dataobj : {};
+	keycase = typeof keycase !== 'undefined' ? keycase : "lower"; //lower OR upper
+	var key, keys = Object.keys(dataobj);
+	var n = keys.length;
+	var newobj={};
+	while (n--) {
+	  key = keys[n];
+	  if ( keycase == 'lower' )
+	  	newobj[key.toLowerCase()] = dataobj[key];
+	  else if ( keycase == 'upper' ) 
+	  	newobj[key.toUpperCase()] = dataobj[key];
+	  else
+	  	newobj[key] = dataobj[key]; // NOT upper or lower... pass the data back with keys unchanged
+	}
+	return newobj;
+}
+-->
+</script></cfoutput>	
 </cffunction>
 
 <!---
