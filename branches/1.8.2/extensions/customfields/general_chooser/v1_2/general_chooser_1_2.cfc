@@ -433,6 +433,7 @@ Arguments:
 	ARGS
 History:
 	2015-07-08 - GAC - Created
+	2015-07-10 - GAC - Added the arguments scope to the readonly variables
 --->
 <cffunction name="renderChooserJS" access="public" returntype="void" output="true" hint="Renders the Chooser CFT's JavaScript.">
 	<cfargument name="chooserCFCName" type="string" required="true">
@@ -487,7 +488,7 @@ History:
 				#arguments.fieldName#_loadTopics('search')
 			});
 			
-			<cfif !readOnly>
+			<cfif !arguments.readonly>
 			// Load the effects and lightbox - this is b/c we are auto loading the selections
 			#arguments.fieldName#_loadEffects();
 			</cfif>
@@ -540,7 +541,7 @@ History:
 		
 		function #arguments.fieldName#_loadEffects() 
 		{
-			<cfif !readOnly>
+			<cfif !arguments.readonly>
 			jQuery("###arguments.fieldName#-sortable1, ###arguments.fieldName#-sortable2").sortable({
 				connectWith: '.connectedSortable',
 				stop: function(event, ui) { #arguments.fieldName#_serialize(); }
@@ -661,7 +662,7 @@ History:
 			keycase = typeof keycase !== 'undefined' ? keycase : "lower"; //lower OR upper
 			var key, keys = Object.keys(dataobj);
 			var n = keys.length;
-			var newobj={}
+			var newobj={};
 			while (n--) {
 			  key = keys[n];
 			  if ( keycase == 'lower' )
