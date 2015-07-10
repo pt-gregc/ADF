@@ -42,7 +42,7 @@ History:
 	2013-01-30 - GAC - Updated to use the ceData 2.0 lib component
 	2013-10-22 - GAC - Updated to inject the data_1_2 lib in to the variables.data scope since we are extending ceData_2_0
 	2013-10-23 - GAC - Removed data_1_2 injection due to ADF reset errors on startup
-	2014-02-24 - JTP - Fixed the Search button class
+	2014-02-24 - JTP - Fixed the Search button class	
 	2015-07-08 - GAC - Moved all of the Javascript from the render file a function in the the general_chooser.cfc to allow JS overrides in the Site Level GC file
 	2015-07-09 - GAC - Added datapageID and controlID params to the  loadTopics() ajax call an the 
 					 - Moved the building of the initArgs and selectionArgs struct to the general_chooser.cfc file to allow overrides in the Site Level GC file
@@ -141,39 +141,38 @@ Summary:
 Returns:
 	Struct
 Arguments:
-	String - fqFieldName
+	String - fieldName
 	String - formname
 	String - currentValue
 	Boolean - readOnly
 	Numeric - rendertabindex
-	Struct - xParams
+	Struct - inputParameters
 History:
 	2015-07-09 - GAC - Created
 --->
 <cffunction name="getInitArgs" access="public" returntype="struct" hint="Build the initArgs General Chooser Parameters for the render file">
-	<cfargument name="fqFieldName" type="string" required="true">
+	<cfargument name="fieldName" type="string" required="true">
 	<cfargument name="formname" type="string" required="true">
 	<cfargument name="currentValue" type="string" required="false" default="">
 	<cfargument name="readOnly" type="boolean" required="false" default="false">
 	<cfargument name="rendertabindex" type="numeric" default="0" required="false">
-	<cfargument name="xParams" type="struct" required="false" default="#StructNew()#">	
+	<cfargument name="inputParameters" type="struct" required="false" default="#StructNew()#">	
 	
 	<cfscript>
 		var initArgs = StructNew();
 		
-		initArgs.chooserCFCName = structKeyExists(xParams, "chooserCFCName") ? xParams.chooserCFCName : "";
-		initArgs.fieldName = arguments.fqFieldName;
+		//initArgs.chooserCFCName = structKeyExists(inputParameters, "chooserCFCName") ? inputParameters.chooserCFCName : "";
+		//initArgs.chooserAppName = structKeyExists(inputParameters, "chooserAppName") ? inputParameters.chooserAppName : "";
+		initArgs.fieldName = arguments.fieldName;
 		initArgs.formname = arguments.formname;
 		initArgs.currentValue = arguments.currentValue;
 		initArgs.readOnly = arguments.readOnly;
-		initArgs.req = structKeyExists(xParams, "req") ? xParams.req : false;
-		initArgs.rendertabindex = rendertabindex;
-		initArgs.chooserAppName = structKeyExists(xParams, "chooserAppName") ? xParams.chooserAppName : "";
-		initArgs.fieldID = structKeyExists(xParams, "fieldID") ? xParams.fieldID : 0;
+		initArgs.rendertabindex = arguments.rendertabindex;
+		initArgs.fieldID = arguments.fieldName;
 		initArgs.csPageID = request.page.id;
 		initArgs.dataPageID = structKeyExists(request.params, "dataPageID") ? request.params.dataPageID : structKeyExists(request.params, "pageID") ? request.params.pageID : request.page.id;
    		initArgs.controlID = structKeyExists(request.params, "controlID") ? request.params.controlID : 0;	
-		initArgs.xParams = arguments.xParams;
+		initArgs.inputParameters = arguments.inputParameters;
 		initArgs.gcCustomParams = getCustomGCparams();
 		
 		return initArgs;
@@ -191,35 +190,33 @@ Summary:
 Returns:
 	Struct
 Arguments:
-	String - fqFieldName
+	String - fieldName
 	String - formname
 	String - currentValue
 	Boolean - readOnly
-	Numeric - rendertabindex
-	Struct - xParams
+	Struct - inputParameters
 History:
 	2015-07-09 - GAC - Created
 --->
 <cffunction name="getSelectionArgs" access="public" returntype="struct" hint="Build the selectionArgs General Chooser Parameters for the render file">
-	<cfargument name="fqFieldName" type="string" required="true">
+	<cfargument name="fieldName" type="string" required="true">
 	<cfargument name="formname" type="string" required="true">
 	<cfargument name="currentValue" type="string" required="false" default="">
 	<cfargument name="readOnly" type="boolean" required="false" default="false">
-	<cfargument name="rendertabindex" type="numeric" default="0" required="false">
-	<cfargument name="xParams" type="struct" required="false" default="#StructNew()#">
+	<cfargument name="inputParameters" type="struct" required="false" default="#StructNew()#">
 	
 	<cfscript>
 		var selectionsArgs = StructNew();
 		
-		selectionsArgs.fieldName = arguments.fqFieldName;
+		selectionsArgs.fieldName = arguments.fieldName;
 		selectionsArgs.item = arguments.currentValue;
 		selectionsArgs.queryType = "selected"; // default initial selected GET 
-		selectionsArgs.fieldID = structKeyExists(xParams, "fieldID") ? xParams.fieldID : 0;
+		selectionsArgs.fieldID = arguments.fieldName;
 		selectionsArgs.readOnly = arguments.readOnly;
 		selectionsArgs.csPageID = request.page.id;
 		selectionsArgs.dataPageID = structKeyExists(request.params, "dataPageID") ? request.params.dataPageID : structKeyExists(request.params, "pageID") ? request.params.pageID : request.page.id;
    		selectionsArgs.controlID = structKeyExists(request.params, "controlID") ? request.params.controlID : 0;
-		selectionsArgs.xParams = xParams;
+		selectionsArgs.inputParameters = inputParameters;
 		selectionsArgs.gcCustomParams = getCustomGCparams();
 		
 		return selectionsArgs;
@@ -422,7 +419,6 @@ History:
 /* *************************************************************** */
 Author: 	
 	PaperThin, Inc.
-	M. Carroll
 Name:
 	$renderChooserJS
 Summary:
@@ -436,24 +432,27 @@ History:
 	2015-07-10 - GAC - Added the arguments scope to the readonly variables
 --->
 <cffunction name="renderChooserJS" access="public" returntype="void" output="true" hint="Renders the Chooser CFT's JavaScript.">
-	<cfargument name="chooserCFCName" type="string" required="true">
 	<cfargument name="fieldName" type="string" required="true">
 	<cfargument name="formname" type="string" required="true">
 	<cfargument name="currentValue" type="string" default="" required="false">
 	<cfargument name="readonly" type="boolean" default="false" required="false">
-	<cfargument name="req" type="boolean" default="false" required="false">
 	<cfargument name="rendertabindex" type="numeric" default="0" required="false">
-	<cfargument name="chooserAppName" type="string" default="" required="false">
 	<cfargument name="csPageID" type="numeric" default="#request.page.id#" required="false">
-	<cfargument name="xParams" type="struct" default="#StructNew()#" required="false">
+	<cfargument name="inputParameters" type="struct" default="#StructNew()#" required="false">
 	<cfargument name="gcCustomParams" type="struct" default="#StructNew()#" required="false">
 	
 	<cfscript>
-		// Set xParams Default values
-		if ( NOT StructKeyExists(arguments.xParams,"minSelections")  )
-			arguments.xParams.minSelections = "";
-		if ( NOT StructKeyExists(arguments.xParams,"maxSelections")  )
-			arguments.xParams.maxSelections = "";
+		// Set inputParameters Default values
+		if ( NOT StructKeyExists(arguments.inputParameters,"chooserCFCName")  )
+			arguments.inputParameters.chooserCFCName = ListLast(getMetadata().name,".");
+		if ( NOT StructKeyExists(arguments.inputParameters,"chooserAppName")  )
+			arguments.inputParameters.chooserAppName = "";
+		if ( NOT StructKeyExists(arguments.inputParameters,"req")  )
+			arguments.inputParameters.req = false;
+		if ( NOT StructKeyExists(arguments.inputParameters,"minSelections")  )
+			arguments.inputParameters.minSelections = "";
+		if ( NOT StructKeyExists(arguments.inputParameters,"maxSelections")  )
+			arguments.inputParameters.maxSelections = "";
 	</cfscript>
 	
 <cfoutput><script type="text/javascript">
@@ -511,10 +510,10 @@ History:
 			// load the initial list items based on the top terms from the chosen facet
 			jQuery.get( #arguments.fieldName#_ajaxProxyURL,
 			{ 	
-				<cfif LEN(arguments.chooserAppName)>
-				appName: '#arguments.chooserAppName#',
+				<cfif LEN(arguments.inputParameters.chooserAppName)>
+				appName: '#arguments.inputParameters.chooserAppName#',
 				</cfif>
-				bean: '#arguments.chooserCFCName#',
+				bean: '#arguments.inputParameters.chooserCFCName#',
 				method: 'controller',
 				chooserMethod: 'getSelections',
 				item: cValue,
@@ -630,7 +629,7 @@ History:
 				var arraySelections = selections.split(",");
 				lengthOfSelections = arraySelections.length;
 			}
-			<cfif arguments.req EQ 'Yes'>
+			<cfif IsBoolean(arguments.inputParameters.req) AND arguments.inputParameters.req>
 				// If the field is required, check that a select has been made.
 				if (lengthOfSelections <= 0) 
 				{
@@ -638,17 +637,17 @@ History:
 					return false;
 				}
 			</cfif>
-			<cfif isNumeric(arguments.xParams.minSelections) and arguments.xParams.minSelections gt 0>
-				if ( lengthOfSelections < #arguments.xParams.minSelections# )
+			<cfif isNumeric(arguments.inputParameters.minSelections) and arguments.inputParameters.minSelections gt 0>
+				if ( lengthOfSelections < #arguments.inputParameters.minSelections# )
 				{
-					alert("Minimum number of selections is #arguments.xParams.minSelections# you have only selected " + lengthOfSelections + " items");
+					alert("Minimum number of selections is #arguments.inputParameters.minSelections# you have only selected " + lengthOfSelections + " items");
 					return false;
 				}
 			</cfif>
-			<cfif isNumeric(arguments.xParams.maxSelections) and arguments.xParams.maxSelections gt 0>
-				if ( lengthOfSelections > #arguments.xParams.maxSelections# )
+			<cfif isNumeric(arguments.inputParameters.maxSelections) and arguments.inputParameters.maxSelections gt 0>
+				if ( lengthOfSelections > #arguments.inputParameters.maxSelections# )
 				{
-					alert("Maximum number of selections is #arguments.xParams.maxSelections# you have selected " + lengthOfSelections + " items");
+					alert("Maximum number of selections is #arguments.inputParameters.maxSelections# you have selected " + lengthOfSelections + " items");
 					return false;
 				}
 			</cfif>
@@ -836,6 +835,7 @@ Arguments:
 	String - readonly
 History:
 	2013-12-11 - GAC - Created
+	2015-07-10 - GAC - Added the displayText argument
 --->
 <cffunction name="loadEditDeleteItemLinks" access="public" returntype="string" hint="General Chooser - HTML for the Edit and Delete Item Links">
 	<cfargument name="fieldName" type="String" required="true">
@@ -843,6 +843,7 @@ History:
 	<cfargument name="formid" type="numeric" required="false" default="-1">
 	<cfargument name="csPageID" type="numeric" required="false" default="-1">
 	<cfargument name="readonly" type="boolean" default="false" required="false">
+	<cfargument name="displayText" type="string" default="Item" required="false">
 	<cfargument name="gcCustomParams" type="struct" default="#StructNew()#" required="false">
 	
 	<cfscript>
@@ -857,7 +858,7 @@ History:
 			
 			// Build the ITEM Edit button
 		    if ( variables.SHOW_EDIT_LINKS ) {
-		    	editButtonHTML = loadEditItemLink(fieldName=arguments.fieldName,bean=arguments.bean,method=editMethod,formid=arguments.formid,csPageID=arguments.csPageID,readonly=arguments.readonly);	    
+		    	editButtonHTML = loadEditItemLink(fieldName=arguments.fieldName,bean=arguments.bean,method=editMethod,formid=arguments.formid,csPageID=arguments.csPageID,readonly=arguments.readonly,displayText=arguments.displayText);	    
 		    	if ( LEN(TRIM(editButtonHTML)) ) { 	    
 			    	retItemLinksHTML = retItemLinksHTML & "<td>";
 			   	 	retItemLinksHTML = retItemLinksHTML & TRIM(editButtonHTML);
@@ -866,7 +867,7 @@ History:
 		    }
 		    // Build the ITEM Delete button
 		    if ( variables.SHOW_DELETE_LINKS ) {
-		    	deleteButtonHTML = loadDeleteItemLink(fieldName=arguments.fieldName,bean=arguments.bean,method=deleteMethod,formid=arguments.formid,csPageID=arguments.csPageID,readonly=arguments.readonly);	    
+		    	deleteButtonHTML = loadDeleteItemLink(fieldName=arguments.fieldName,bean=arguments.bean,method=deleteMethod,formid=arguments.formid,csPageID=arguments.csPageID,readonly=arguments.readonly,displayText=arguments.displayText);	    
 		    	if ( LEN(TRIM(deleteButtonHTML)) ) {    
 			    	retItemLinksHTML = retItemLinksHTML & "<td>";
 			   		retItemLinksHTML = retItemLinksHTML & TRIM(deleteButtonHTML);
@@ -901,6 +902,8 @@ Arguments:
 	String - readonly
 History:
 	2013-12-10 - GAC - Created
+	2015-07-10 - GAC - Added a title attribute to the <a> tag
+					 - Added the displayText argument
 --->
 <cffunction name="loadEditItemLink" access="public" returntype="string" hint="General Chooser - Edit Item Link HTML">
 	<cfargument name="fieldName" type="string" required="true">
@@ -910,6 +913,7 @@ History:
 	<cfargument name="csPageID" type="numeric" required="false" default="-1">
 	<!--- <cfargument name="callback" type="sting" required="false" default=""> --->
 	<cfargument name="readonly" type="boolean" default="false" required="false">
+	<cfargument name="displayText" type="string" default="Item" required="false">
 	<cfargument name="gcCustomParams" type="struct" default="#StructNew()#" required="false">
 	
 	<cfscript>
@@ -919,10 +923,8 @@ History:
 	<cfif variables.SHOW_EDIT_LINKS EQ true AND !arguments.readonly>
 		<!--- // Render out the edit pencil icon link for the item --->
 		<cfsavecontent variable="retEditLinkHTML">
-			<!--- //<br /><table><tr><td><a href='javascript:;' rel='#application.ADF.ajaxProxy#?bean=Forms_1_1&method=renderAddEditForm&formID=#ceDataArray[i].formID#&datapageId=#ceDataArray[i].pageID#&callback=#arguments.fieldID#_formEditCallback&title=Edit Record' class='ADFLightbox ui-icon ui-icon-pencil'></a></td>"
-				//<td><a href='javascript:;' rel='#application.ADF.ajaxProxy#?bean=Forms_1_1&method=renderDeleteForm&formID=#ceDataArray[i].formID#&datapageId=#ceDataArray[i].pageID#&callback=#arguments.fieldID#_formEditCallback&title=Delete Record' class='ADFLightbox ui-icon ui-icon-trash'></a></td></tr></table>" --->
 			<cfoutput>
-				<a href='javascript:;' rel='#application.ADF.ajaxProxy#?bean=#arguments.bean#&method=#arguments.method#&formID=#arguments.formID#&datapageId=#arguments.cspageID#&callback=#arguments.fieldName#_formEditCallback&title=Edit Record' class='ADFLightbox ui-icon ui-icon-pencil'></a>
+				<a href='javascript:;' rel='#application.ADF.ajaxProxy#?bean=#arguments.bean#&method=#arguments.method#&formID=#arguments.formID#&datapageId=#arguments.cspageID#&callback=#arguments.fieldName#_formEditCallback&title=Edit #arguments.displayText#' class='ADFLightbox ui-icon ui-icon-pencil' title="Edit #arguments.displayText#"></a>
 			</cfoutput>
 		</cfsavecontent>
 	</cfif>
@@ -947,8 +949,11 @@ Arguments:
 	Numeric - formid
 	Numeric - csPageID
 	String - readonly
+	String - displayText
 History:
 	2013-12-10 - GAC - Created
+	2015-07-10 - GAC - Added a title attribute to the <a> tag
+					 - Added the displayText argument
 --->
 <cffunction name="loadDeleteItemLink" access="public" returntype="string" hint="General Chooser - Delete Item Link HTML">
 	<cfargument name="fieldName" type="string" required="true">
@@ -958,17 +963,19 @@ History:
 	<cfargument name="csPageID" type="numeric" required="false" default="-1">
 	<!--- <cfargument name="callback" type="sting" required="false" default=""> --->
 	<cfargument name="readonly" type="boolean" default="false" required="false">
+	<cfargument name="displayText" type="string" default="Item" required="false">
 	<cfargument name="gcCustomParams" type="struct" default="#StructNew()#" required="false">
 	
 	<cfscript>
 		var retDeleteLinkHTML = "";
 	</cfscript>
+	
 	<!--- // Check if we want to display edit pencil icon link --->
 	<cfif variables.SHOW_DELETE_LINKS EQ true AND !arguments.readonly>
 		<!--- // Render out the edit pencil icon link for the item --->
 		<cfsavecontent variable="retDeleteLinkHTML">
 			<cfoutput>
-				<a href='javascript:;' rel='#application.ADF.ajaxProxy#?bean=#arguments.bean#&method=#arguments.method#&formID=#arguments.formID#&datapageId=#arguments.cspageID#&callback=#arguments.fieldName#_formEditCallback&title=Delete Record' class='ADFLightbox ui-icon ui-icon-trash'></a>
+				<a href='javascript:;' rel='#application.ADF.ajaxProxy#?bean=#arguments.bean#&method=#arguments.method#&formID=#arguments.formID#&datapageId=#arguments.cspageID#&callback=#arguments.fieldName#_formEditCallback&title=Delete #arguments.displayText#' class='ADFLightbox ui-icon ui-icon-trash' title="Delete #arguments.displayText#"></a>
 			</cfoutput>
 		</cfsavecontent>
 	</cfif>
@@ -1158,11 +1165,7 @@ History:
 				if ( variables.SHOW_EDIT_DELETE_LINKS AND !arguments.readonly ) 
 				{
 					// Render the Buttons HTML
-					editDeleteButtonHTML = loadEditDeleteItemLinks(fieldName=arguments.fieldID,formid=ceDataArray[i].formID,csPageID=ceDataArray[i].pageID,readonly=arguments.readonly);			
-								
-					//editDeleteLinks = "<br /><table><tr><td><a href='javascript:;' rel='#application.ADF.ajaxProxy#?bean=Forms_1_1&method=renderAddEditForm&formID=#ceDataArray[i].formID#&datapageId=#ceDataArray[i].pageID#&callback=#arguments.fieldID#_formEditCallback&title=Edit Record' class='ADFLightbox ui-icon ui-icon-pencil'></a></td>";
-					//editDeleteLinks = editDeleteLinks & "<td><a href='javascript:;' rel='#application.ADF.ajaxProxy#?bean=Forms_1_1&method=renderDeleteForm&formID=#ceDataArray[i].formID#&datapageId=#ceDataArray[i].pageID#&callback=#arguments.fieldID#_formEditCallback&title=Delete Record' class='ADFLightbox ui-icon ui-icon-trash'></a></td></tr></table>";
-					//editDeleteLinks = "<br /><a href='javascript:;' rel='#application.ADF.ajaxProxy#?bean=Forms_1_1&method=renderAddEditForm&formID=#ceDataArray[i].formID#&datapageId=#ceDataArray[i].pageID#&callback=#arguments.fieldID#_formEditCallback&title=Edit Record' class='ADFLightbox ui-icon ui-icon-pencil'></a>";
+					editDeleteButtonHTML = loadEditDeleteItemLinks(fieldName=arguments.fieldID,formid=ceDataArray[i].formID,csPageID=ceDataArray[i].pageID,readonly=arguments.readonly,displayText=ceDataArray[i].Values[variables.DISPLAY_FIELD]);			
 				    
 				    if ( LEN(TRIM(editDeleteButtonHTML)) ) 
 					 {
