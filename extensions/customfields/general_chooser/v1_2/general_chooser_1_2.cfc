@@ -161,8 +161,6 @@ History:
 	<cfscript>
 		var initArgs = StructNew();
 		
-		//initArgs.chooserCFCName = structKeyExists(inputParameters, "chooserCFCName") ? inputParameters.chooserCFCName : "";
-		//initArgs.chooserAppName = structKeyExists(inputParameters, "chooserAppName") ? inputParameters.chooserAppName : "";
 		initArgs.fieldName = arguments.fieldName;
 		initArgs.formname = arguments.formname;
 		initArgs.currentValue = arguments.currentValue;
@@ -209,6 +207,7 @@ History:
 		var selectionsArgs = StructNew();
 		
 		selectionsArgs.fieldName = arguments.fieldName;
+		selectionsArgs.formname = arguments.formname;
 		selectionsArgs.item = arguments.currentValue;
 		selectionsArgs.queryType = "selected"; // default initial selected GET 
 		selectionsArgs.fieldID = arguments.fieldName;
@@ -216,7 +215,7 @@ History:
 		selectionsArgs.csPageID = request.page.id;
 		selectionsArgs.dataPageID = structKeyExists(request.params, "dataPageID") ? request.params.dataPageID : structKeyExists(request.params, "pageID") ? request.params.pageID : request.page.id;
    		selectionsArgs.controlID = structKeyExists(request.params, "controlID") ? request.params.controlID : 0;
-		selectionsArgs.inputParameters = inputParameters;
+		selectionsArgs.inputParameters = arguments.inputParameters;
 		selectionsArgs.gcCustomParams = getCustomGCparams();
 		
 		return selectionsArgs;
