@@ -49,6 +49,7 @@ History:
 	2015-07-03 - DJM - Added code for disableDatamanager interface option
 	2015-07-10 - DRM - Fix allForms  QoQ, change required at least for ACF9/MySQL
 							 Bump fieldVersion
+	2015-07-14 - DJM - Added code to display button inputs only when corresponding checkbox is checked
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
@@ -974,8 +975,10 @@ History:
 			{				
 				document.getElementById('newOption').style.display = "";
 				document.getElementById('editChildOption').style.display = "";
-				document.getElementById('newOptionTextSpan').style.display = "";
-				document.getElementById('editChildOptionTextSpan').style.display = "";	
+				if(document.#formname#.#prefix#interfaceOptionsCbox[0].checked == true)
+					document.getElementById('newOptionTextSpan').style.display = "";
+				if(document.#formname#.#prefix#interfaceOptionsCbox[3].checked == true)
+					document.getElementById('editChildOptionTextSpan').style.display = "";	
 			}
 			else
 			{
