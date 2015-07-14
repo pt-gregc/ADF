@@ -53,6 +53,7 @@ History:
 	2015-04-15 - DJM - Moved ADF renderer base and updated the extends parameter
 	2015-06-30 - GAC - Added a isMultiline() call so the label renders at the top
 	2015-07-03 - DJM - Added code for disableDatamanager interface option
+	2015-07-14 - DJM - Added code to get elements by name if not found by ID
 --->
 <cfcomponent displayName="CustomElementDataManager Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -654,9 +655,12 @@ function setCurrentValueAndOpenURL_#uniqueTableAppend#(urlToOpen, linkedFldName,
 	var linkedFldVal = '';
 	if (linkedFldName != '')
 	{
-		if (document.getElementById(linkedFldName) != null)
+		if (document.getElementById(linkedFldName) != null || document.getElementsByName(linkedFldName)[0] != null)
 		{
-			linkedFldVal = document.getElementById(linkedFldName).value;
+			if (document.getElementById(linkedFldName) != null)
+				linkedFldVal = document.getElementById(linkedFldName).value;
+			else
+				linkedFldVal = document.getElementsByName(linkedFldName)[0].value;
 			if (buttonName == 'addnew')
 				urlToOpen = urlToOpen + "&csAssoc_ParentInstanceID=" + encodeURI(linkedFldVal) + "&linkedFieldValue=" + encodeURI(linkedFldVal);
 			else

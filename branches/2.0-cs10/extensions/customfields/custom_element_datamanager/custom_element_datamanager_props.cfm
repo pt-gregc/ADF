@@ -47,6 +47,7 @@ History:
 	2015-02-10 - DJM - Added code to hide text inputs related to secondary element when it is set as none
 	2015-05-12 - DJM - Updated the field version to 2.0
 	2015-07-03 - DJM - Added code for disableDatamanager interface option
+	2015-07-14 - DJM - Added code to display button inputs only when corresponding checkbox is checked
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
@@ -970,8 +971,10 @@ History:
 			{				
 				document.getElementById('newOption').style.display = "";
 				document.getElementById('editChildOption').style.display = "";
-				document.getElementById('newOptionTextSpan').style.display = "";
-				document.getElementById('editChildOptionTextSpan').style.display = "";	
+				if(document.#formname#.#prefix#interfaceOptionsCbox[0].checked == true)
+					document.getElementById('newOptionTextSpan').style.display = "";
+				if(document.#formname#.#prefix#interfaceOptionsCbox[3].checked == true)
+					document.getElementById('editChildOptionTextSpan').style.display = "";	
 			}
 			else
 			{

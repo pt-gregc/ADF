@@ -50,6 +50,7 @@ History:
 	2015-04-02 - DJM - Modified code to handle show/hide of Actions column returned
 	2015-04-10 - DJM - Added code to check for field permission for rendering controls
 	2015-07-03 - DJM - Added code for disableDatamanager interface option
+	2015-07-14 - DJM - Added code to get elements by name if not found by ID
 --->
 <cfscript>
 	requiredCSversion = 9;
@@ -679,9 +680,12 @@ History:
 				var linkedFldVal = '';
 				if (linkedFldName != '')
 				{
-					if (document.getElementById(linkedFldName) != null)
+					if (document.getElementById(linkedFldName) != null || document.getElementsByName(linkedFldName)[0] != null)
 					{
-						linkedFldVal = document.getElementById(linkedFldName).value;
+						if (document.getElementById(linkedFldName) != null)
+							linkedFldVal = document.getElementById(linkedFldName).value;
+						else
+							linkedFldVal = document.getElementsByName(linkedFldName)[0].value;
 						if (buttonName == 'addnew')
 							urlToOpen = urlToOpen + "&csAssoc_ParentInstanceID=" + encodeURI(linkedFldVal) + "&linkedFieldValue=" + encodeURI(linkedFldVal);
 						else
