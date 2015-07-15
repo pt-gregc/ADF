@@ -50,6 +50,7 @@ History:
 	2015-07-10 - DRM - Fix allForms  QoQ, change required at least for ACF9/MySQL
 							 Bump fieldVersion
 	2015-07-14 - DJM - Added code to display button inputs only when corresponding checkbox is checked
+	2015-07-15 - DJM - Updated code to uncheck the "Disable Data Manager until initial save" checkbox by default
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
@@ -117,7 +118,7 @@ History:
 	if( not structKeyExists(currentValues, "secondaryElementType") )
 		currentValues.secondaryElementType = "CustomElement";
 	if( not structKeyExists(currentValues, "interfaceOptions") )
-		currentValues.interfaceOptions = "existing,EditAssoc,delete,disableDatamanager";
+		currentValues.interfaceOptions = "existing,EditAssoc,delete";
 	if( not structKeyExists(currentValues, "compOverride") )
 		currentValues.compOverride = "";
 	if( not structKeyExists(currentValues, "parentInstanceIDField") )
