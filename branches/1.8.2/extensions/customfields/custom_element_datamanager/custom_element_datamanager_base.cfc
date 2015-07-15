@@ -54,6 +54,7 @@ History:
 	2015-04-10 - DJM - Added code to check for field permission for setting up Action controls in getDisplayData()
 	2015-07-03 - DJM - Added code for handling disableDatamanager interface option
 	2015-07-10 - DRM - Fix getAllForms() allForms QoQ, change required at least for ACF9/MySQL
+	2015-07-15 - DJM - Fixed CSS definition in renderActionColumns
 --->
 <cfcomponent output="false" displayname="custom element datamanager_base" extends="ADF.core.Base" hint="This the base component for the Custom Element Data Manager field">
 	
@@ -1080,7 +1081,7 @@ History:
 				<cfset actionColumnWidth="62">  <!--- 42 --->
 			</cfif>
 			
-			<cfoutput><div style="width:#actionColumnWidth#px;white-space:no-wrap;"></cfoutput>
+			<cfoutput><div style="width:#actionColumnWidth#px;white-space:nowrap;"></cfoutput>
 
 			<cfif ListFindNoCase(inputPropStruct.interfaceOptions,'editAssoc')>
 				<cfoutput>#renderEditAssocIcon(propertiesStruct=arguments.propertiesStruct,dataPageID=arguments.assocDataPageID,dataControlID=arguments.assocDataControlID,fieldID=arguments.fieldID)#</cfoutput>
