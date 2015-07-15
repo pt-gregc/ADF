@@ -48,6 +48,7 @@ History:
 	2015-05-12 - DJM - Updated the field version to 2.0
 	2015-07-03 - DJM - Added code for disableDatamanager interface option
 	2015-07-14 - DJM - Added code to display button inputs only when corresponding checkbox is checked
+	2015-07-15 - DJM - Updated code to uncheck the "Disable Data Manager until initial save" checkbox by default
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
@@ -115,7 +116,7 @@ History:
 	if( not structKeyExists(currentValues, "secondaryElementType") )
 		currentValues.secondaryElementType = "CustomElement";
 	if( not structKeyExists(currentValues, "interfaceOptions") )
-		currentValues.interfaceOptions = "existing,EditAssoc,delete,disableDatamanager";
+		currentValues.interfaceOptions = "existing,EditAssoc,delete";
 	if( not structKeyExists(currentValues, "compOverride") )
 		currentValues.compOverride = "";
 	if( not structKeyExists(currentValues, "parentInstanceIDField") )
