@@ -1157,7 +1157,8 @@ Usage:
 History:
 	2015-07-08 - GAC - Added to the data_1_2 lib component
 	2015-07-09 - GAC - Added additional arguments to allow custom pre and post HTML strings to be added
- --->
+	2015-07-16 - GAC - Updated the var'd variable for the loop 
+--->
 <cffunction name="highlightKeywords" access="public" returntype="string" hint="Converts special characters to character entities, making a string safe for display in HTML.">
 	<cfargument name="str" type="string" required="true">
 	<cfargument name="searchterm" type="string" required="true">
@@ -1165,12 +1166,13 @@ History:
 	<cfargument name="postTermStr" type="string" required="false" default='</span>' >
 	
 	<cfscript>
-	    var j = "";
+	    var j = 1;
+	    var i = 1;
 	    var matches = "";
 	    var word = "";
 	    
 	    // loop through keywords
-	    for( var i=1; i lte ListLen( arguments.searchterm, " " ); i=i+1 )
+	    for ( i=1; i lte ListLen( arguments.searchterm, " " ); i=i+1 )
 	    {
 	      // get current keyword and escape any special regular expression characters
 	      word = ReReplace( ListGetAt( arguments.searchterm, i, " " ), "\.|\^|\$|\*|\+|\?|\(|\)|\[|\]|\{|\}|\\", "" );
