@@ -35,10 +35,11 @@ History:
 	2014-12-03 - GAC - Added the isNumericList function
 	2015-02-13 - GAC - Added the tagValueCleanup function
 	2015-06-10 - ACW - Updated the component extends to no longer be dependant on the 'ADF' in the extends path
+	2015-07-16 - GAC - Added the highlightKeywords function
 --->
 <cfcomponent displayname="data_1_2" extends="data_1_1" hint="Data Utils component functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_14">
+<cfproperty name="version" value="1_2_15">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Data_1_2">
 
@@ -1130,5 +1131,62 @@ History:
 		return ReplaceList(arguments.inString, badChars, goodChars);
 	</cfscript>
 </cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	simonbingham
+	https://gist.github.com/simonbingham/3238060
+Name:
+	$highlightKeywords
+Summary:
+	I highlight words in a string that are found in a keyword list. Useful for search result pages.
+    
+	@param str           String to be searched
+    @param searchterm    Comma delimited list of keywords
+ 
+Returns:
+	String
+Arguments:
+	String - str
+	String - searchterm
+	String - preTermStr
+	String - postTermStr
+Usage:
+	application.ADF.data.highlightKeywords(str,searchterm,preTermStr,postTermStr)
+History:
+	2015-07-08 - GAC - Added to the data_1_2 lib component
+	2015-07-09 - GAC - Added additional arguments to allow custom pre and post HTML to be added
+ --->
+<cfscript>
+	  string function highlightKeywords( required string str, required string searchTerm, string preTermStr='<span style="background:yellow;">', string postTermStr='</span>' )
+	  {
+	    var j = 1;
+	    var i = 1;
+	    var matches = "";
+	    var word = "";
+	    
+	    // loop through keywords
+	    for( var i=1; i lte ListLen( arguments.searchTerm, " " ); i=i+1 )
+	    {
+	      // get current keyword and escape any special regular expression characters
+	      word = ReReplace( ListGetAt( arguments.searchTerm, i, " " ), "\.|\^|\$|\*|\+|\?|\(|\)|\[|\]|\{|\}|\\", "" );
+	      
+	      // return matches for current keyword from string
+	      matches = ReMatchNoCase( word, arguments.str );
+	      
+	      // remove duplicate matches (case sensitive)
+	      matches = CreateObject( "java", "java.util.HashSet" ).init( matches ).toArray();
+	      
+	      // loop through matches
+	      for( j=1; j <= ArrayLen( matches ); j=j+1 )
+	      {
+	        // where match exists in string highlight it
+	        arguments.str = Replace( arguments.str, matches[ j ], arguments.preTermStr & matches[ j ] & arguments.postTermStr, "all" );
+	      }  
+	    }
+	    return arguments.str;
+	  }
+</cfscript>
 
 </cfcomponent>
