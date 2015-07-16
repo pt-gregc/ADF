@@ -62,6 +62,7 @@ History:
 	2011-03-20 - MFC - Reconfigured Proxy White List to store in application space 
 						to avoid conflicts with multiple sites. 
 					   Declare variable for Application space.
+	2015-06-26 - GAC - Copy ADF paths from Server Space
 --->
 <cffunction name="initSite" access="private" returntype="void">
 	
@@ -73,6 +74,12 @@ History:
 		application.ADF.dependencyStruct = StructNew();  // Stores the bean dependency list
 		application.ADF.siteAppList = ""; // Stores a list of the sites Apps loaded
 		application.ADF.version = "";
+		
+		application.ADF.url = server.ADF.url;
+		application.ADF.dir = server.ADF.dir;
+		application.ADF.comPath = server.ADF.comPath; 
+		application.ADF.mappingPath = server.ADF.mappingPath;
+		
 		// Set the proxyWhiteList from the Server Apps ProxyWhiteList
 		application.ADF.proxyWhiteList = server.ADF.proxyWhiteList;
 		// Set the site to NOT enable siteDevMode by default
