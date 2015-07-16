@@ -49,6 +49,7 @@ History:
 	2015-03-19 - DJM - Added code to check for elementtype for honoring newData variable to fix metadata form issue
 	2015-04-02 - DJM - Modified code to handle show/hide of Actions column returned
 	2015-04-10 - DJM - Added code to check for field permission for rendering controls
+	2015-05-01 - GAC - Updated to add a forceScript parameter to bypass the ADF renderOnce script loader
 	2015-07-03 - DJM - Added code for disableDatamanager interface option
 	2015-07-14 - DJM - Added code to get elements by name if not found by ID
 --->
@@ -108,6 +109,7 @@ History:
 		else
 			newData = 1;
 	}	
+	
 	if (getFieldDetails.Action NEQ 'special' AND NOT ListFindNoCase(attributes.parameters[fieldQuery.inputID].interfaceOptions, 'disableDatamanager'))
 		request.showSaveAndContinue = 0;
 	else
@@ -268,9 +270,14 @@ History:
 			heightVal = "150px";
 			if (IsNumeric(inputParameters.heightValue))
 				heightVal = "#inputParameters.heightValue#px";
+				
+			// Set the forceScripts parameter if it does not exist
+			if ( !StructKeyExists(inputParameters,"forceScripts") )
+				inputParameters.forceScripts = false;
 		
-			application.ADF.scripts.loadJQuery(noConflict=true);
-			application.ADF.scripts.loadJQueryUI();
+			application.ADF.scripts.loadJQuery(force=inputParameters.forceScripts,noConflict=true);
+			application.ADF.scripts.loadJQueryUI(force=inputParameters.forceScripts);
+			// Always force the loading of JQuery DataTables
 			application.ADF.scripts.loadJQueryDataTables(force=true,loadStyles="false");
 		</CFSCRIPT>
 		
@@ -336,19 +343,22 @@ History:
 			<!--	
 			var oTable#uniqueTableAppend# = '';
 			
-
-			if ( typeof commonspot == 'undefined' )
-			{
-				var commonspot = {};
-			 	commonspot = top.commonspot.util.merge(commonspot, top.commonspot, 1, 0);
-			} 
+			jQuery( function () {
+				if ( typeof commonspot == 'undefined' )
+				{
+					var commonspot = {};
+				 	commonspot = top.commonspot.util.merge(commonspot, top.commonspot, 1, 0);
+				} 
 			
-			jQuery.ajaxSetup({ cache: false, async: true });	
+			
+				jQuery.ajaxSetup({ cache: false, async: true });
+			
 		
-			top.commonspot.util.event.addEvent(window, "load", function(){
-																	loadData_#uniqueTableAppend#(0)
-																});
-			top.commonspot.util.event.addEvent(window, "resize", resize_#uniqueTableAppend#);
+				top.commonspot.util.event.addEvent(window, "load", function(){
+																		loadData_#uniqueTableAppend#(0)
+																	});
+				top.commonspot.util.event.addEvent(window, "resize", resize_#uniqueTableAppend#);
+			});
 			
 			function resize_#uniqueTableAppend#()
 			{
