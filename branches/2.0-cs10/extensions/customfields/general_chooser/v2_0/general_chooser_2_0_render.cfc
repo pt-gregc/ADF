@@ -64,48 +64,73 @@ History:
 	<cfargument name="fieldDomID" type="string" required="yes">
 	<cfargument name="value" type="string" required="yes">
 	
-	<cfoutput>
-		<cfscript>
-			var inputParameters = Duplicate(arguments.parameters);
-			var currentValue = arguments.value;	// the field's current value
-			var readOnly = (arguments.displayMode EQ 'readonly') ? true : false;
-			var initArgs = StructNew();
-			var selectionsArg = StructNew();
-			
-			inputParameters = setDefaultParameters(argumentCollection=arguments);
-			if ( readOnly ) 
-				inputParameters.loadAvailable = 0;
-			
-			// Load the scripts
-			application.ADF.scripts.loadJQuery(force=inputParameters.forceScripts);
-			application.ADF.scripts.loadJQueryUI(force=inputParameters.forceScripts);
-			application.ADF.scripts.loadADFLightbox();
-			application.ADF.scripts.loadCFJS();
-			
-			// init Arg struct
-			initArgs.fieldName = arguments.fieldName;
-			initArgs.readOnly = readOnly;
-			
-			// Build the argument structure to pass into the Run Command
-			selectionsArg.item = arguments.value;
-			selectionsArg.queryType = "selected";
-			selectionsArg.csPageID = request.page.id;
-			selectionsArg.fieldID = inputParameters.fieldID;
-			selectionsArg.readOnly = readOnly;
-		</cfscript>
-	</cfoutput>
 	<cfscript>
-		renderJSFunctions(argumentCollection=arguments,fieldParameters=inputParameters);
+		var inputParameters = Duplicate(arguments.parameters);
+		var currentValue = arguments.value;	// the field's current value
+		var readOnly = (arguments.displayMode EQ 'readonly') ? true : false;
+		var initArgs = StructNew();
+		var selectionArgs = StructNew();
+		
+		inputParameters = setDefaultParameters(argumentCollection=arguments);
+		if ( readOnly ) 
+			inputParameters.loadAvailable = 0;
+		
+		// init the cftArgs struct to pass to getInitArgs() and getSelectionsArgs()
+		cftArgs = StructNew();
+		cftArgs.fieldName = arguments.fieldName;
+		cftArgs.formname = arguments.formname;
+		cftArgs.currentValue = arguments.value;
+		cftArgs.readOnly = readOnly;
+		cftArgs.rendertabindex = arguments.rendertabindex;
+		cftArgs.inputParameters = inputParameters;
+
+		// init the initArgs struct
+		initArgs = application.ADF.utils.runCommand(beanName=inputParameters.chooserCFCName,
+														methodName="getInitArgs",
+														args=cftArgs,
+														appName=inputParameters.chooserAppName);
+
+		// Build the argument structure to pass into the getSelections calls
+		selectionArgs = application.ADF.utils.runCommand(beanName=inputParameters.chooserCFCName,
+															methodName="getSelectionArgs",
+															args=cftArgs,
+															appName=inputParameters.chooserAppName);
+			
+		/*
+		// init Arg struct
+		initArgs.fieldName = arguments.fieldName;
+		initArgs.readOnly = readOnly;
+		
+		// Build the argument structure to pass into the Run Command
+		selectionArgs.item = arguments.value;
+		selectionArgs.queryType = "selected";
+		selectionArgs.csPageID = request.page.id;
+		selectionArgs.fieldID = inputParameters.fieldID;
+		selectionArgs.readOnly = readOnly;
+		*/
+		
+		// Load the scripts
+		application.ADF.scripts.loadJQuery(force=inputParameters.forceScripts);
+		application.ADF.scripts.loadJQueryUI(force=inputParameters.forceScripts);
+		application.ADF.scripts.loadADFLightbox();
+		//application.ADF.scripts.loadCFJS();
 	</cfscript>
+	<!--- <cfscript>
+		renderJSFunctions(argumentCollection=arguments,fieldParameters=inputParameters);
+	</cfscript> --->
 	<cfoutput>
-	
 		<!--- //Load the General Chooser Styles --->
 		#application.ADF.utils.runCommand(beanName=inputParameters.chooserCFCName,
 											methodName="loadStyles",
 											args=initArgs,
 											appName=inputParameters.chooserAppName)#
+											
+		<!--- // Load the General Chooser JavaScript functions --->
+		#application.ADF.utils.runCommand(beanName=inputParameters.chooserCFCName,
+													methodName="renderChooserJS",
+													args=initArgs,
+													appName=inputParameters.chooserAppName)#
 	
-		
 		<!--- // Instructions --->
 		<div id="#inputParameters.fieldID#-gc-top-area-instructions" class="cs_dlgLabelSmall" style="white-space:normal !important;">
 			#TRIM(application.ADF.utils.runCommand(beanName=inputParameters.chooserCFCName,
@@ -156,12 +181,12 @@ History:
 						<!--- Auto load the available selections --->
 						<cfscript>
 							// Set the query type flag before running the command
-							selectionsArg.queryType = "notselected";
+							selectionArgs.queryType = "notselected";
 						</cfscript>
 						<cfif inputParameters.loadAvailable>
 							#application.ADF.utils.runCommand(beanName=inputParameters.chooserCFCName,
 															methodName="getSelections",
-															args=selectionsArg,
+															args=selectionArgs,
 															appName=inputParameters.chooserAppName)#
 						</cfif>
 					</ul>
@@ -173,11 +198,11 @@ History:
 						<cfif LEN(currentValue)>
 							<cfscript>
 								// Set the query type flag before running the command
-								selectionsArg.queryType = "selected";
+								selectionArgs.queryType = "selected";
 							</cfscript>
 							#application.ADF.utils.runCommand(beanName=inputParameters.chooserCFCName,
 															methodName="getSelections",
-															args=selectionsArg,
+															args=selectionArgs,
 															appName=inputParameters.chooserAppName)#
 						</cfif>
 					</ul>
@@ -188,6 +213,7 @@ History:
 	</cfoutput>
 </cffunction>
 
+<!--- 
 <cffunction name="renderJSFunctions" returntype="void" access="private">
 	<cfargument name="fieldName" type="string" required="yes">
 	<cfargument name="fieldDomID" type="string" required="yes">
@@ -293,7 +319,7 @@ function #inputParameters.fieldID#_serialize()
 	// get the serialized list
 	var serialList = jQuery('###inputParameters.fieldID#-sortable2').sortable( 'toArray' );
 	// Check if the serialList is Array
-	if ( jQuery.isArray(serialList) )
+	if ( serialList.constructor==Array ) 
 	{
 		serialList = serialList.join(",");
 	}
@@ -411,6 +437,7 @@ function #inputParameters.fieldID#_ConvertCaseOfDataObjKeys(dataobj,keycase)
 //-->
 </script></cfoutput>
 </cffunction>
+--->
 
 <cffunction name="setDefaultParameters" returntype="struct" access="private">
 	<cfargument name="fieldName" type="string" required="yes">
