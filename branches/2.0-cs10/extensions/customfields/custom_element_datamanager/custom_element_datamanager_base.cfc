@@ -54,6 +54,7 @@ History:
 	2015-04-10 - DJM - Added code to check for field permission for setting up Action controls in getDisplayData()
 	2015-07-03 - DJM - Added code for handling disableDatamanager interface option
 	2015-07-15 - DJM - Fixed CSS definition in renderActionColumns
+	2015-07-17 - DJM - Fixed catch issue 
 --->
 <cfcomponent output="false" displayname="custom element datamanager_base" extends="ADF.extensions.customfields.customfieldsBase" hint="This the base component for the Custom Element Data Manager field">
 	
@@ -1338,7 +1339,7 @@ History:
 		</cfscript>
 		
 		<cfcatch>
-			<cfmodule template="/commonspot/utilities/log-append.cfm" comment="Error in Data Manager getReorderRange(): #catch.message# - #cfcatch.detail#">
+			<cfmodule template="/commonspot/utilities/log-append.cfm" comment="Error in Data Manager getReorderRange(): #cfcatch.message# - #cfcatch.detail#">
 			<cfscript>
 				minPosValue = 0;
 				maxPosValue = 0;
@@ -1773,6 +1774,7 @@ History:
 		var dataRecords = QueryNew('');
 		var displayData = QueryNew('');
 		var logError = false;
+		var logErrorMsg = '';
 	
 		try {
 			if (IsJSON(arguments.propertiesStruct))
@@ -1812,13 +1814,14 @@ History:
 		} 
 		catch (any e) 
 		{
-			logError = true;	
+			logError = true;
+			logErrorMsg = "#e.message# #e.detail#";
 		}										
 	</cfscript>		
 	
 	<!-- // If error is generated log it --->
 	<cfif logError>
-		<cfmodule template="/commonspot/utilities/log-append.cfm" comment="Error in custom_element_datamanager_base.cfc RenderGrid() #e.message# #e.detail#">
+		<cfmodule template="/commonspot/utilities/log-append.cfm" comment="Error in custom_element_datamanager_base.cfc RenderGrid() #logErrorMsg#">
 		<cfreturn "">
 	</cfif>	
 </cffunction>
