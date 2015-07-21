@@ -290,8 +290,10 @@ History:
 			</CFOUTPUT>
 		</CFIF>
 		
-		<CFOUTPUT>#Server.CommonSpot.UDF.tag.input(type="hidden", name="#fqFieldName#", value="")#</CFOUTPUT>
-	
+		<cfif fieldpermission eq 2>
+			<CFOUTPUT>#Server.CommonSpot.UDF.tag.input(type="hidden", name="#fqFieldName#", value="")#</CFOUTPUT>
+		</cfif>
+		
 		<CFIF inputParameters.childCustomElement neq ''>
 			<CFIF (elementType NEQ 'metadataForm' AND (newData EQ 0 OR NOT ListFindNoCase(inputParameters.interfaceOptions, 'disableDatamanager')) OR (elementType EQ 'metadataForm' AND curPageID GT 0))>
 				<CFOUTPUT>
@@ -326,7 +328,11 @@ History:
 			</CFIF>
 		</CFIF>
 	</CFIF>
-
+	
+	<cfif fieldpermission lt 2>
+		<CFOUTPUT>#Server.CommonSpot.UDF.tag.input(type="hidden", name="#fqFieldName#")#</CFOUTPUT>
+	</cfif>
+	
 	<cfif attributes.rendermode eq 'standard'>
 		<cfoutput></td></tr></cfoutput>
 		<CFIF fieldpermission gt 0>
