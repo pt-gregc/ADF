@@ -37,11 +37,11 @@ History:
 	2014-09-16 - GAC - Updated references to thirdparty to thirdParty for case sensitivity
 	2015-02-17 - GAC - Added a loadJQueryTimeAgo function to load version 1.4 by default
 	2015-04-22 - GAC - Added the loadCKEditor and the loadTypeAheadBundle functions	
-
+	2015-07-21 - GAC - Added and updated the loadCFJS function for CFJS v1.3	
 --->
 <cfcomponent displayname="scripts_1_2" extends="ADF.lib.scripts.scripts_1_1" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" value="1_2_27">
+<cfproperty name="version" value="1_2_28">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_1" type="dependency">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Scripts_1_2">
@@ -94,6 +94,58 @@ History:
 			#outputHTML#
 		<cfelse>
 			#variables.scriptsService.renderScriptOnce("bootstrap",outputHTML)#
+		</cfif>
+	</cfoutput>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	G. Cronkright
+Name:
+	$loadCFJS
+Summary:
+	Loads the CFJS JQuery Plug-in Headers if not loaded.
+	http://cfjs.riaforge.org/
+	https://github.com/topherj/cfjs
+
+	Function Listing:
+	https://github.com/topherj/cfjs/wiki/CFJS-Function-List
+Returns:
+	None
+Arguments:
+	String - version - CFJS version to load.
+	Boolean - Force
+History:
+	2015-07-21 - GAC - Added for version 1.3 of CFJS
+	                 - Updated to use versioned directories
+--->
+<cffunction name="loadCFJS" access="public" output="true" returntype="void" hint="Loads the CFJS jQuery Plug-in Headers if not loaded.">
+	<cfargument name="version" type="string" required="true" default="1.3" hint="CFJS version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
+	
+	<cfscript>
+		var outputHTML = "";
+		var thirdPartyLibPath = "/ADF/thirdParty/jquery/cfjs/";
+		
+		// Make the version backwards compatiable to remove minor build numbers.
+		arguments.version = variables.scriptsService.getMajorMinorVersion(arguments.version);
+		
+		// Append the version to the thirdPartyLibPath
+		thirdPartyLibPath = thirdPartyLibPath & arguments.version & "/"; 
+	</cfscript>
+
+	<cfsavecontent variable="outputHTML">
+		<cfoutput>
+			<script type="text/javascript" src="#thirdPartyLibPath#jquery.cfjs.min.js"></script>
+		</cfoutput>
+	</cfsavecontent>
+	<cfoutput>
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("cfjs",outputHTML)#
 		</cfif>
 	</cfoutput>
 </cffunction>
