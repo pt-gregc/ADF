@@ -54,6 +54,7 @@ History:
 	2015-06-30 - GAC - Added a isMultiline() call so the label renders at the top
 	2015-07-03 - DJM - Added code for disableDatamanager interface option
 	2015-07-14 - DJM - Added code to get elements by name if not found by ID
+	2015-07-21 - DJM - Modified code to have the hidden field render always
 --->
 <cfcomponent displayName="CustomElementDataManager Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -242,6 +243,10 @@ History:
 				</cfoutput>
 			</cfif>
 			
+			<cfif arguments.displayMode eq "editable">
+				<cfoutput>#Server.CommonSpot.UDF.tag.input(type="hidden", name=arguments.fieldName, value="")#</cfoutput>
+			</cfif>
+			
 			<cfif inputParameters.childCustomElement neq ''>
 				<cfif (elementType NEQ 'metadataForm' AND (newData EQ 0 OR NOT ListFindNoCase(inputParameters.interfaceOptions, 'disableDatamanager')) OR (elementType EQ 'metadataForm' AND curPageID GT 0))>
 					<cfoutput>
@@ -272,8 +277,7 @@ History:
 				<cfelse>
 					<cfoutput><table class="cs_data_manager" border="0" cellpadding="0" cellspacing="0" summary="">
 						<tr><td class="cs_dlgLabel">#childFormName# records can only be added once the #parentFormLabel# record is saved.</td></tr>
-						</table>
-						#Server.CommonSpot.UDF.tag.input(type="hidden", name=arguments.fieldName, value="")#</cfoutput>
+						</table></cfoutput>
 				</cfif>
 			</cfif>
 			<cfscript>

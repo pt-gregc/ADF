@@ -52,6 +52,7 @@ History:
 	2015-05-01 - GAC - Updated to add a forceScript parameter to bypass the ADF renderOnce script loader
 	2015-07-03 - DJM - Added code for disableDatamanager interface option
 	2015-07-14 - DJM - Added code to get elements by name if not found by ID
+	2015-07-21 - DJM - Modified code to have the hidden field render always
 --->
 <cfscript>
 	requiredCSversion = 9;
@@ -288,6 +289,10 @@ History:
 				</style>
 			</CFOUTPUT>
 		</CFIF>
+		
+		<cfif fieldpermission eq 2>
+			<CFOUTPUT>#Server.CommonSpot.UDF.tag.input(type="hidden", name="#fqFieldName#", value="")#</CFOUTPUT>
+		</cfif>
 	
 		<CFIF inputParameters.childCustomElement neq ''>
 			<CFIF (elementType NEQ 'metadataForm' AND (newData EQ 0 OR NOT ListFindNoCase(inputParameters.interfaceOptions, 'disableDatamanager')) OR (elementType EQ 'metadataForm' AND curPageID GT 0))>
@@ -319,8 +324,7 @@ History:
 			<CFELSE>
 			<CFOUTPUT><table class="cs_data_manager" border="0" cellpadding="0" cellspacing="0" summary="">
 				<tr><td class="cs_dlgLabel">#childFormName# records can only be added once the #parentFormLabel# record is saved.</td></tr>
-				</table>
-				#Server.CommonSpot.UDF.tag.input(type="hidden", name="#fqFieldName#", value="")#</CFOUTPUT>
+				</table></CFOUTPUT>
 			</CFIF>
 		</CFIF>
 	</CFIF>
