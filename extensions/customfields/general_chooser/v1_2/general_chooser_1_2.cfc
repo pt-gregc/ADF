@@ -50,7 +50,7 @@ History:
 --->
 <cfcomponent name="general_chooser" extends="ADF.lib.ceData.ceData_2_0">
 
-<cfproperty name="version" value="1_2_3">
+<cfproperty name="version" value="1_2_4">
 
 <cfscript>
 	// CUSTOM ELEMENT INFO
@@ -447,6 +447,7 @@ History:
 	2015-07-08 - GAC - Created
 	2015-07-10 - GAC - Added the arguments scope to the readonly variables
 	2015-07-21 - GAC - Replaced the "ListAppend" and "ListLen" CFJS calls with local functions to remove the dependency on the jQuery Lib 
+					 - Added a missing semicolon after the loadTopics('search') call
 --->
 <cffunction name="renderChooserJS" access="public" returntype="void" output="true" hint="Renders the Chooser CFT's JavaScript.">
 	<cfargument name="fieldName" type="string" required="true">
@@ -502,7 +503,7 @@ jQuery(function(){
   		//load the search field into currentItems
 		#arguments.fieldName#_searchValues = jQuery('input###arguments.fieldName#-searchFld').val();
 		#arguments.fieldName#_currentValue = jQuery('input###arguments.fieldName#').val();
-		#arguments.fieldName#_loadTopics('search')
+		#arguments.fieldName#_loadTopics('search');
 	});
 		
 	<cfif !arguments.readonly>

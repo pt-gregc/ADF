@@ -41,7 +41,7 @@ History:
 --->
 <cfcomponent displayname="scripts_1_2" extends="ADF.lib.scripts.scripts_1_1" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" value="1_2_28">
+<cfproperty name="version" value="1_2_29">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_1" type="dependency">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Scripts_1_2">
@@ -517,7 +517,7 @@ Arguments:
 	String - version - JQuery BlockUI version to load.
 	Boolean - Force
 History:
-	2015-06-26 - GAC - Added for version 2.7 of BlockUI
+	2015-06-26 - GAC - Added version BlockUI v2.7 
 --->
 <cffunction name="loadJQueryBlockUI" access="public" output="true" returntype="void" hint="Loads the JQuery BlockUI plugin if not loaded.">
 	<cfargument name="version" type="string" required="false" default="2.7" hint="JQuery BlockUI plugin version to load.">
