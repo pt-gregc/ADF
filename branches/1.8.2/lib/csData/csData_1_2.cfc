@@ -883,6 +883,7 @@ History:
 	2013-10-02 - DMB - Created
 	2014-11-11 - GAC - Removed the reference to application.ADF.csdata... since we are in csdata
 	2015-04-28 - GAC - Updated to use parseCSURL() 
+	2015-07-15 - GAC - Updated to use parseCSURL() even if the value passed in does not contain "CP___PAGEID="
 --->
 <cffunction name="decipherCPPAGEID" access="public" returntype="string" output="true">
 	<cfargument name="cpPageID" type="string" required="true">
@@ -897,6 +898,9 @@ History:
 			// Get the url for this PageID
 			strURL = parseCSURL(str=strPageID);
 		}
+		else
+			strURL = parseCSURL(str=arguments.cpPageID);
+			
 		return strURL;
 	</cfscript>
 </cffunction>
