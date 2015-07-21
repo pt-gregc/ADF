@@ -46,6 +46,7 @@ History:
 	2015-07-08 - GAC - Moved all of the Javascript from the render file a function in the the general_chooser.cfc to allow JS overrides in the Site Level GC file
 	2015-07-09 - GAC - Added datapageID and controlID params to the  loadTopics() ajax call an the 
 					 - Moved the building of the initArgs and selectionArgs struct to the general_chooser.cfc file to allow overrides in the Site Level GC file
+	2015-07-21 - GAC - Additional work to remove the dependency for the jQuery CFJS library
 --->
 <cfcomponent name="general_chooser" extends="ADF.lib.ceData.ceData_2_0">
 
@@ -168,10 +169,18 @@ History:
 		initArgs.rendertabindex = arguments.rendertabindex;
 		initArgs.fieldID = arguments.fieldName;
 		initArgs.csPageID = request.page.id;
-		initArgs.dataPageID = structKeyExists(request.params, "dataPageID") ? request.params.dataPageID : structKeyExists(request.params, "pageID") ? request.params.pageID : request.page.id;
-   		initArgs.controlID = structKeyExists(request.params, "controlID") ? request.params.controlID : 0;	
+		initArgs.dataPageID = request.page.id;
+		initArgs.controlID = 0;
 		initArgs.inputParameters = arguments.inputParameters;
 		initArgs.gcCustomParams = getCustomGCparams();
+		
+		if ( structKeyExists(request.params, "dataPageID") )
+			initArgs.dataPageID =  request.params.dataPageID;
+		else if ( structKeyExists(request.params, "pageID") )
+			initArgs.dataPageID = request.params.pageID;
+   		
+   		if ( structKeyExists(request.params, "controlID") )
+			initArgs.controlID =  request.params.controlID;	
 		
 		return initArgs;
 	</cfscript>
@@ -204,21 +213,29 @@ History:
 	<cfargument name="inputParameters" type="struct" required="false" default="#StructNew()#">
 	
 	<cfscript>
-		var selectionsArgs = StructNew();
+		var selectionArgs = StructNew();
 		
-		selectionsArgs.fieldName = arguments.fieldName;
-		selectionsArgs.formname = arguments.formname;
-		selectionsArgs.item = arguments.currentValue;
-		selectionsArgs.queryType = "selected"; // default initial selected GET 
-		selectionsArgs.fieldID = arguments.fieldName;
-		selectionsArgs.readOnly = arguments.readOnly;
-		selectionsArgs.csPageID = request.page.id;
-		selectionsArgs.dataPageID = structKeyExists(request.params, "dataPageID") ? request.params.dataPageID : structKeyExists(request.params, "pageID") ? request.params.pageID : request.page.id;
-   		selectionsArgs.controlID = structKeyExists(request.params, "controlID") ? request.params.controlID : 0;
-		selectionsArgs.inputParameters = arguments.inputParameters;
-		selectionsArgs.gcCustomParams = getCustomGCparams();
+		selectionArgs.fieldName = arguments.fieldName;
+		selectionArgs.formname = arguments.formname;
+		selectionArgs.item = arguments.currentValue;
+		selectionArgs.queryType = "selected"; // default initial selected GET 
+		selectionArgs.fieldID = arguments.fieldName;
+		selectionArgs.readOnly = arguments.readOnly;
+		selectionArgs.csPageID = request.page.id;
+		selectionArgs.dataPageID = request.page.id;
+   		selectionArgs.controlID = 0;
+		selectionArgs.inputParameters = arguments.inputParameters;
+		selectionArgs.gcCustomParams = getCustomGCparams();
 		
-		return selectionsArgs;
+		if ( structKeyExists(request.params, "dataPageID") )
+			selectionArgs.dataPageID =  request.params.dataPageID;
+		else if ( structKeyExists(request.params, "pageID") )
+			selectionArgs.dataPageID = request.params.pageID;
+   		
+   		if ( structKeyExists(request.params, "controlID") )
+			selectionArgs.controlID =  request.params.controlID;	
+		
+		return selectionArgs;
 	</cfscript>
 </cffunction>
 
@@ -429,6 +446,7 @@ Arguments:
 History:
 	2015-07-08 - GAC - Created
 	2015-07-10 - GAC - Added the arguments scope to the readonly variables
+	2015-07-21 - GAC - Replaced the "ListAppend" and "ListLen" CFJS calls with local functions to remove the dependency on the jQuery Lib 
 --->
 <cffunction name="renderChooserJS" access="public" returntype="void" output="true" hint="Renders the Chooser CFT's JavaScript.">
 	<cfargument name="fieldName" type="string" required="true">
@@ -591,7 +609,7 @@ function #arguments.fieldName#_formCallback(formData)
 		// Check that the record does not exist in the list already
 		tempValue = cValue.search(formData[js_#arguments.fieldName#_CE_FIELD]); 
 		if ( tempValue <= 0 ) 
-			cValue = jQuery.ListAppend(formData[js_#arguments.fieldName#_CE_FIELD], cValue);
+			cValue = #arguments.fieldName#_ListAppend(formData[js_#arguments.fieldName#_CE_FIELD], cValue);
 	}
 	else 
 		cValue = formData[js_#arguments.fieldName#_CE_FIELD];
@@ -673,6 +691,37 @@ function #arguments.fieldName#_ConvertCaseOfDataObjKeys(dataobj,keycase)
 	}
 	return newobj;
 }
+
+// A utility function for appending values to a list 
+function #arguments.fieldName#_ListAppend(a,b,e)
+{
+	var c="";
+	a+="";
+	
+	if(!e)
+		e=",";
+
+	if( #arguments.fieldName#_ListLen(a,e) )
+		c=a+e+b;
+	else
+		c=b;
+		
+	return c;
+}
+
+// A utility function for counting items in a list 
+function #arguments.fieldName#_ListLen(a,b)
+{
+	a+="";
+	if ( !b )
+		b=",";
+	
+	if ( a.length )
+		return a.split(b).length;
+		
+	return 0;
+}
+
 -->
 </script></cfoutput>	
 </cffunction>
