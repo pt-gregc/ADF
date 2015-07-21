@@ -46,12 +46,13 @@ History:
 	2014-01-03 - GAC - Added the fieldVersion variable
 	2014-09-19 - GAC - Removed deprecated doLabel and jsLabelUpdater js calls
 	2014-10-10 - GAC - Added a new props field to allow the app name used for resolving the Chooser Bean Name to be specified
+	2015-07-21 - GAC - Additional work to remove the dependency for the jQuery CFJS library
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "1.2.6"; 
+	fieldVersion = "1.2.7"; 
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
