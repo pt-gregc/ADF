@@ -18,6 +18,9 @@
  * it was when I started working on it.
  *
  * Thanks Randy. :o)
+ * 
+ * History:
+ * 	2015-07-21 - GAC - Updated ListAppend and ListPrepend to pass the delimiter through to the ListLen Command 
  *
  */
 jQuery.extend({
@@ -536,7 +539,7 @@ jQuery.extend({
 		var r='';
 		l += ''; // cheap way to convert to a string
 		if(!d){d=',';}
-		if (this.ListLen(l)){
+		if (this.ListLen(l,d)){
 			r = l + d + v;
 		} else {
 			r = v;
@@ -649,7 +652,7 @@ jQuery.extend({
 		var r='';
 		l += ''; // cheap way to convert to a string
 		if(!d){d=',';}
-		if (this.ListLen(l)){
+		if (this.ListLen(l,d)){
 			r = v + d + l;
 		} else {
 			r = v;
