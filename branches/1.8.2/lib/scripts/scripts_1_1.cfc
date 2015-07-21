@@ -41,7 +41,7 @@ History:
 --->
 <cfcomponent displayname="scripts_1_1" extends="ADF.lib.scripts.scripts_1_0" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" value="1_1_26">
+<cfproperty name="version" value="1_1_27">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_1" type="dependency">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Scripts_1_1">
@@ -324,6 +324,7 @@ History:
 	2012-06-27 - MFC - Renamed the JS files to "jquery.cfjs-#version#.js".
 						Set the default to v1.2.
 	2012-08-16 - GAC - Added the force parameter
+	2015-07-21 - GAC - Updated to use versioned directories
 --->
 <cffunction name="loadCFJS" access="public" output="true" returntype="void" hint="Loads the CFJS jQuery Plug-in Headers if not loaded.">
 	<cfargument name="version" type="string" required="false" default="1.2" hint="CFJS version to load.">
@@ -333,7 +334,7 @@ History:
 	<cfset arguments.version = variables.scriptsService.getMajorMinorVersion(arguments.version)>
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
-			<script type="text/javascript" src="/ADF/thirdParty/jquery/cfjs/jquery.cfjs-#arguments.version#.js"></script>
+			<script type="text/javascript" src="/ADF/thirdParty/jquery/cfjs/#arguments.version#/jquery.cfjs.min.js"></script>
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>
@@ -797,9 +798,10 @@ History:
 	2012-08-16 - GAC - Added the force parameter
 	2015-06-26 - GAC - Added a flag to use cfhtmlhead to render the generated scripts in the HEAD of the page
 					 - Update to use the version folder format
+					 - Updated to use version 2.3 by default (instead of v2.35)
 --->
 <cffunction name="loadJQueryBlockUI" access="public" output="true" returntype="void" hint="Loads the JQuery BlockUI plugin if not loaded.">
-	<cfargument name="version" type="string" required="false" default="2.35" hint="JQuery BlockUI plugin version to load.">
+	<cfargument name="version" type="string" required="false" default="2.3" hint="JQuery BlockUI plugin version to load.">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfargument name="renderInHead" type="boolean" required="false" default="false" hint="Flag to render the script in the document head.">
 	

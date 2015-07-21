@@ -274,12 +274,17 @@ History:
 	2009-06-18 - GAC - Created
 	2012-09-26 - GAC - Removed the ".packed" fromt he script src to be compatible with the new script file naming convention.
 					 - Fixed the default version number
+	2015-07-21 - GAC - Updated to use the version folder format
 --->
 <cffunction name="loadCFJS" access="public" output="true" returntype="void" hint="Loads the CFJS jQuery Plug-in Headers if not loaded.">
 <cfargument name="version" type="string" required="false" default="1.1" hint="CFJS version to load.">
 <cfif not variables.scriptsService.isScriptLoaded("cfjs")>
+	<cfscript>
+		// 2011-12-28 - MFC - Make the version backwards compatiable to remove minor build numbers.
+		arguments.version = variables.scriptsService.getMajorMinorVersion(arguments.version);
+	</cfscript>
 	<cfoutput>
-		<script type="text/javascript" src="/ADF/thirdParty/jquery/cfjs/jquery.cfjs-#arguments.version#.js"></script>
+		<script type="text/javascript" src="/ADF/thirdParty/jquery/cfjs/#arguments.version#/jquery.cfjs.min.js"></script>
 	</cfoutput>
 	<cfset variables.scriptsService.loadedScript("cfjs")>
 </cfif>
@@ -1191,15 +1196,21 @@ Arguments:
 	String - version - JQuery BlockUI version to load.
 History:
 	2010-09-27 - RLW - Created
+	2015-06-26 - GAC - Update to use the version folder format
+					 - Updated to use version 2.3 by default (instead of v2.35)
 --->
 <cffunction name="loadJQueryBlockUI" access="public" output="true" returntype="void" hint="Loads the JQuery BlockUI plugin if not loaded.">
-<cfargument name="version" type="string" required="false" default="2.35" hint="JQuery BlockUI plugin version to load.">
-<cfif not variables.scriptsService.isScriptLoaded("jQueryBlockUI")>
-	<cfoutput>
-		<script type="text/javascript" src="/ADF/thirdParty/jquery/blockUI/jquery.blockUI-#arguments.version#.js"></script>
-	</cfoutput>
-	<cfset variables.scriptsService.loadedScript("jQueryBlockUI")>
-</cfif>
+	<cfargument name="version" type="string" required="false" default="2.3" hint="JQuery BlockUI plugin version to load.">
+	<cfif not variables.scriptsService.isScriptLoaded("jQueryBlockUI")>
+		<cfscript>
+			// 2011-12-28 - MFC - Make the version backwards compatiable to remove minor build numbers.
+			arguments.version = variables.scriptsService.getMajorMinorVersion(arguments.version);
+		</cfscript>
+		<cfoutput>
+			<script type="text/javascript" src="/ADF/thirdParty/jquery/blockUI/#arguments.version#/jquery.blockUI.js"></script>
+		</cfoutput>
+		<cfset variables.scriptsService.loadedScript("jQueryBlockUI")>
+	</cfif>
 </cffunction>
 
 <!---
