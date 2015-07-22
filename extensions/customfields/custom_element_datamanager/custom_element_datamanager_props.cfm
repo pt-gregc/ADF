@@ -51,12 +51,13 @@ History:
 							 Bump fieldVersion
 	2015-07-14 - DJM - Added code to display button inputs only when corresponding checkbox is checked
 	2015-07-15 - DJM - Updated code to uncheck the "Disable Data Manager until initial save" checkbox by default
+	2015-07-22 - DRM - Added passthroughParams setting, list of fields to pass through to addNew and AddExisting buttons if they're in Request.Params
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "1.0.9";
+	fieldVersion = "1.0.10";
 	
 	// CS version and required Version variables
 	requiredCSversion = 9;
@@ -136,8 +137,10 @@ History:
 	if( not structKeyExists(currentValues, "deleteOptionText") )
 		currentValues.deleteOptionText = "";
 	if( not structKeyExists(currentValues, "forceScripts") )
-		currentValues.forceScripts = 0;		
-	
+		currentValues.forceScripts = 0;
+	if( not structKeyExists(currentValues, "passthroughParams") )
+		currentValues.passthroughParams = "";
+
 	// UI changed to provide the JOIN as a single field instead of child and assoc. So added logic to properly select the join and secondary elements according to the data stored for DB
 	joinObj = '';
 	secondaryObj = '';
@@ -257,7 +260,7 @@ History:
 <!--
 	jQuery.noConflict();
 	
-	fieldProperties['#typeid#'].paramFields = "#prefix#childCustomElement,#prefix#parentUniqueField,#prefix#childUniqueField,#prefix#childLinkedField,#prefix#inactiveField,#prefix#inactiveFieldValue,#prefix#displayFields,#prefix#sortByType,#prefix#sortByField,#prefix#sortByDir,#prefix#positionField,#prefix#assocCustomElement,#prefix#secondaryElementType,#prefix#interfaceOptions,#prefix#compOverride,#prefix#parentInstanceIDField,#prefix#childInstanceIDField,#prefix#widthValue,#prefix#widthUnit,#prefix#heightValue,#prefix#heightUnit,#prefix#newOptionText,#prefix#existingOptionText,#prefix#editAssocOptionText,#prefix#editChildOptionText,#prefix#deleteOptionText,#prefix#forceScripts";
+	fieldProperties['#typeid#'].paramFields = "#prefix#childCustomElement,#prefix#parentUniqueField,#prefix#childUniqueField,#prefix#childLinkedField,#prefix#inactiveField,#prefix#inactiveFieldValue,#prefix#displayFields,#prefix#sortByType,#prefix#sortByField,#prefix#sortByDir,#prefix#positionField,#prefix#assocCustomElement,#prefix#secondaryElementType,#prefix#interfaceOptions,#prefix#compOverride,#prefix#parentInstanceIDField,#prefix#childInstanceIDField,#prefix#widthValue,#prefix#widthUnit,#prefix#heightValue,#prefix#heightUnit,#prefix#newOptionText,#prefix#existingOptionText,#prefix#editAssocOptionText,#prefix#editChildOptionText,#prefix#deleteOptionText,#prefix#forceScripts,#prefix#passthroughParams";
 	fieldProperties['#typeid#'].jsValidator = '#prefix#doValidate';
 	
 	function #prefix#toggleInputField(chkBoxObj,optionValue)
@@ -1434,6 +1437,16 @@ History:
 			<td valign="baseline">
 				#Server.CommonSpot.udf.tag.input(type="text", id="#prefix#compOverride", name="#prefix#compOverride", value="#currentValues.compOverride#", size="30", class="InputControl")#
 			</td>
+		</tr>
+		<tr>
+			<th valign="baseline" class="cs_dlgLabelBold" nowrap="nowrap">Passthrough Params:</th>
+			<td valign="baseline">
+				#Server.CommonSpot.udf.tag.input(type="text", id="#prefix#passthroughParams", name="#prefix#passthroughParams", value="#currentValues.passthroughParams#", size="70", class="InputControl")#
+			</td>
+		</tr>
+		<tr>
+			<td valign="baseline" align="right">&nbsp;</td>
+			<td valign="baseline" align="left" class="cs_dlgLabelSmall">Comma-delimited list of fields to pass through to Add New and Add Existing buttons if they exist in Request.Params.</td>
 		</tr>
 		<tr>
 			<td colspan="2" valign="baseline" class="cs_dlgLabel" nowrap="nowrap"><strong>#parentFormLabel#<br/><hr/></strong></td>
