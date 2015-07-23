@@ -47,12 +47,14 @@ History:
 	2014-09-19 - GAC - Removed deprecated doLabel and jsLabelUpdater js calls
 	2014-10-10 - GAC - Added a new props field to allow the app name used for resolving the Chooser Bean Name to be specified
 	2015-07-21 - GAC - Additional work to remove the dependency for the jQuery CFJS library
+	2015-07-23 - DRM - Added passthroughParams setting, list of fields to pass through to addNew and AddExisting buttons if they're in Request.Params
+						  - Bump fieldVersion
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "1.2.7"; 
+	fieldVersion = "1.2.8";
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
@@ -64,25 +66,24 @@ History:
 	defaultValues = StructNew();
 	defaultValues.chooserCFCName = "";
 	defaultValues.chooserAppName = "";
-    defaultValues.forceScripts = "0";
-    defaultValues.minSelections = "0";
-    defaultValues.maxSelections = "0";
-    defaultValues.loadAvailable = "0";
+	defaultValues.forceScripts = "0";
+	defaultValues.minSelections = "0";
+	defaultValues.maxSelections = "0";
+	defaultValues.loadAvailable = "0";
+	defaultValues.passthroughParams = "";
 
    //This will override the default values with the current values.
    currentValueArray = StructKeyArray(currentValues);
    for(i=1;i<=ArrayLen(currentValueArray);i++)
-   {
-      if(StructKeyExists(defaultValues,currentValueArray[i]))
-	  {
-         defaultValues[currentValueArray[i]] = currentValues[currentValueArray[i]];
-      }
-   }
+	{
+		if(StructKeyExists(defaultValues,currentValueArray[i]))
+			defaultValues[currentValueArray[i]] = currentValues[currentValueArray[i]];
+	}
 </cfscript>
 <cfoutput>
 	<script language="JavaScript" type="text/javascript">
 		// register the fields with global props object
-		fieldProperties['#typeid#'].paramFields = '#prefix#chooserCFCName,#prefix#chooserAppName,#prefix#forceScripts,#prefix#minSelections,#prefix#maxSelections,#prefix#loadAvailable';
+		fieldProperties['#typeid#'].paramFields = '#prefix#chooserCFCName,#prefix#chooserAppName,#prefix#forceScripts,#prefix#minSelections,#prefix#maxSelections,#prefix#loadAvailable,#prefix#passthroughParams';
 		// allows this field to have a common onSubmit Validator
 		fieldProperties['#typeid#'].jsValidator = '#prefix#doValidate';
 
@@ -146,6 +147,12 @@ History:
 				&nbsp;&nbsp;&nbsp;
 				<label style="color:black;font-size:12px;font-weight:normal;">No <input type="radio" id="#prefix#loadAvailable" name="#prefix#loadAvailable" value="0" <cfif defaultValues.loadAvailable EQ "0">checked</cfif>></label>
 				<br />Select 'Yes' to load all the available selections on the form load.
+			</td>
+		</tr>
+		<tr>
+			<th valign="baseline" class="cs_dlgLabelBold" nowrap="nowrap">Passthrough Params:</th>
+			<td valign="baseline">
+				#Server.CommonSpot.udf.tag.input(type="text", id="#prefix#passthroughParams", name="#prefix#passthroughParams", value="#defaultValues.passthroughParams#", size="70", class="InputControl")#
 			</td>
 		</tr>
 		<tr>
