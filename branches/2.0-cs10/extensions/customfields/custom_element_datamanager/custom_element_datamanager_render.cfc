@@ -55,6 +55,7 @@ History:
 	2015-07-03 - DJM - Added code for disableDatamanager interface option
 	2015-07-14 - DJM - Added code to get elements by name if not found by ID
 	2015-07-21 - DJM - Modified code to have the hidden field render always
+	2015-07-23 - DJM - Modified call to RenderGrid() to take parent field's value using javascript from the form field
 --->
 <cfcomponent displayName="CustomElementDataManager Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -364,13 +365,7 @@ if( typeof onSuccess != 'function' )
 function loadData_#uniqueTableAppend#(displayOverlay)
 {
 	if (typeof displayOverlay == 'undefined')
-	{
-		<CFIF arguments.newData EQ 1>
-			var displayOverlay = 0;
-		<CFELSE>
-			var displayOverlay = 1;
-		</CFIF>
-	}
+		var displayOverlay = 1;
 	
 	setTimeout( function(){
 					loadDataCore_#uniqueTableAppend#(displayOverlay)
@@ -383,6 +378,22 @@ function loadDataCore_#uniqueTableAppend#(displayOverlay)
 		commonspotNonDashboard.util.displayMessageOverlay('datamanager_#uniqueTableAppend#', 'overlayDivStyle', 'Please Wait...');	
 	var res#uniqueTableAppend# = '';
 	var retData#uniqueTableAppend# = '';
+	var parentInstanceIDVal = '';
+	var parentInstanceFld = '';					
+
+	<CFIF arguments.elementType EQ 'MetadataForm' AND inputParameters.parentUniqueField EQ '{{pageid}}'>
+		parentInstanceIDVal = '#arguments.pageID#';
+	<CFELSE>
+		parentInstanceFld = 'fic_#arguments.formID#_#inputParameters.parentUniqueField#';
+	</CFIF>
+	
+	if (parentInstanceFld != '' && (document.getElementById(parentInstanceFld) != null || document.getElementsByName(parentInstanceFld)[0] != null))
+	{
+		if (document.getElementById(parentInstanceFld) != null)
+			parentInstanceIDVal = document.getElementById(parentInstanceFld).value;
+		else
+			parentInstanceIDVal = document.getElementsByName(parentInstanceFld)[0].value;
+	}
 	
 	dataToBeSent#uniqueTableAppend# = { 
 			bean: '#arguments.ajaxBeanName#',
@@ -394,7 +405,7 @@ function loadDataCore_#uniqueTableAppend#(displayOverlay)
 			parentFormType : '#arguments.elementType#',
 			pageID : #arguments.pageID#,
 			propertiesStruct : JSON.stringify(<cfoutput>#SerializeJSON(inputParameters)#</cfoutput>),
-			currentValues : JSON.stringify(<cfoutput>#SerializeJSON(allAtrs.currentValues)#</cfoutput>),
+			parentInstanceValue : parentInstanceIDVal,
 			displayMode : '#arguments.displayMode#'			
 	 };
 	 

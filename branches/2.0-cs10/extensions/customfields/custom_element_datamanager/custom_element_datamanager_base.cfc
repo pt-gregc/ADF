@@ -54,7 +54,9 @@ History:
 	2015-04-10 - DJM - Added code to check for field permission for setting up Action controls in getDisplayData()
 	2015-07-03 - DJM - Added code for handling disableDatamanager interface option
 	2015-07-15 - DJM - Fixed CSS definition in renderActionColumns
-	2015-07-17 - DJM - Fixed catch issue 
+	2015-07-17 - DJM - Fixed catch issue
+	2015-07-22 - DRM - Added passthroughParams setting, list of fields to pass through to addNew and AddExisting buttons if they're in Request.Params
+	2015-07-23 - DJM - Modified RenderGrid() and QueryData() to take parent field's value instead of the whole struct. Also fixed issue with passing pass through params
 --->
 <cfcomponent output="false" displayname="custom element datamanager_base" extends="ADF.extensions.customfields.customfieldsBase" hint="This the base component for the Custom Element Data Manager field">
 	
@@ -84,7 +86,7 @@ History:
 		</cfsavecontent>
 		<cfset Request.dataManagerCSS = 1>
 	</cfif>
-	
+
 	<cfoutput>#renderData#</cfoutput>
 </cffunction>
 
@@ -103,37 +105,49 @@ History:
 	<cfscript>
 		var renderData = '';
 		var inputPropStruct = arguments.propertiesStruct;
+		var passthroughParamsStr = "";
+		var aParams = "";
+		var i = 0;
+		if (structKeyExists(arguments.propertiesStruct, "passthroughParams") && arguments.propertiesStruct.passthroughParams != "")
+		{
+			aParams = listToArray(arguments.propertiesStruct.passthroughParams);
+			for (i = 1; i <= arrayLen(aParams); i++)
+			{
+				if (structKeyExists(request.params, aParams[i]))
+					passthroughParamsStr = "#passthroughParamsStr#&#aParams[i]#=#URLEncodedFormat(request.params[aParams[i]])#";
+			}
+		}
 	</cfscript>
 	<cfif ListFindNoCase(inputPropStruct.interfaceOptions,'new') OR ListFindNoCase(inputPropStruct.interfaceOptions,'existing')>
 		<cfsavecontent variable="renderData">
-			
+
 			<cfif ListFindNoCase(inputPropStruct.interfaceOptions,'new')>
-				<cfoutput>#renderAddNewButton(argumentCollection=arguments)#</cfoutput>
+				<cfoutput>#renderAddNewButton(argumentCollection=arguments, passthroughParamsStr=passthroughParamsStr)#</cfoutput>
 			</cfif>
-			
+
 			<cfif ListFindNoCase(inputPropStruct.interfaceOptions,'existing')>
-				<cfoutput>#renderAddExistingButton(argumentCollection=arguments)#</cfoutput>
+				<cfoutput>#renderAddExistingButton(argumentCollection=arguments, passthroughParamsStr=passthroughParamsStr)#</cfoutput>
 			</cfif>
 
 			<cfif ListFindNoCase(inputPropStruct.interfaceOptions,'delete')>
 				<cfoutput>#renderDeleteSelectedButton(argumentCollection=arguments)#</cfoutput>
 			</cfif>
-			
+
 			<!--- <cfoutput><br/></cfoutput> --->
 		</cfsavecontent>
 	</cfif>
-	
+
 	<cfif renderData neq ''>
 		<cfset renderData = '<div style="min-width:580px;">#renderData#</div>'>
 	</cfif>
-	
+
 	<cfoutput>#renderData#</cfoutput>
 </cffunction>
-	
-	
+
+
 <!-------------------------------------------
 	renderAddNewButton()
-------------------------------------------->	
+------------------------------------------->
 <cffunction name="renderAddNewButton" access="public" returntype="void" hint="Method to render the add new button">
 	<cfargument name="propertiesStruct" type="struct" required="true" hint="Properties structure for the field">
 	<cfargument name="currentValues" type="struct" required="true" hint="Current values structure for the field">
@@ -141,6 +155,7 @@ History:
 	<cfargument name="fieldID" type="numeric" required="true" hint="ID of the field">
 	<cfargument name="parentFormType" type="string" required="false" default="CustomElement" hint="Type of the form">
 	<cfargument name="pageID" type="numeric" required="false" default="0" hint="Page id of the current page; used only when datamanager is used in a metadata form">
+	<cfargument name="passthroughParamsStr" type="string" required="false" default="" hint="Extra URL parameters TODO: finish this">
 
 	<cfscript>
 		var renderData = '';
@@ -149,31 +164,31 @@ History:
 		var assocParameters  = 'csAssoc_assocCE=#propertiesStruct.assocCustomElement#&csAssoc_ParentInstanceIDField=#propertiesStruct.parentInstanceIDField#&csAssoc_ChildInstanceIDField=#propertiesStruct.childInstanceIDField#&csAssoc_ChildUniqueField=#propertiesStruct.childUniqueField#';
 		var parentInstanceIDVal = 0;
 		var linkedFieldName = '';
-		var extraParams = '';
-		
-		if (arguments.parentFormType EQ 'MetadataForm' AND inputPropStruct.parentUniqueField EQ '{{pageid}}')	
+		var extraParams = arguments.passthroughParamsStr;
+
+		if (arguments.parentFormType EQ 'MetadataForm' AND inputPropStruct.parentUniqueField EQ '{{pageid}}')
 			parentInstanceIDVal = arguments.pageID;
 		else
 			linkedFieldName = 'fic_#arguments.formID#_#inputPropStruct.parentUniqueField#';
-		
+
 		if (linkedFieldName EQ '')
 		{
 			assocParameters = ListAppend(assocParameters, 'csAssoc_ParentInstanceID=#parentInstanceIDVal#', '&');
-			extraParams = '&linkedFieldValue=#parentInstanceIDVal#';
+			extraParams = '#extraParams#&linkedFieldValue=#parentInstanceIDVal#';
 		}
-		
+
 		assocParameters = ListAppend(assocParameters, 'csAssoc_ChildInstanceID=', '&');
 	</cfscript>
-		
+
 	<cfsavecontent variable="renderData">
 		<cfoutput>#Server.CommonSpot.UDF.tag.input(type="button", class="clsPushButton", name="addNew", id="addNew", value=getAddNewButtonName(propertiesStruct=arguments.propertiesStruct), onclick="javascript:setCurrentValueAndOpenURL_#arguments.fieldID#('#Request.SubSite.DlgLoader#?csModule=controls/custom/submit-data&controlTypeID=#propertiesStruct.childCustomElement#&formID=#propertiesStruct.childCustomElement#&newData=1&dataPageID=0&dataControlID=0&linkageFieldID=#propertiesStruct.childLinkedField#&openFrom=datamanager&callbackFunction=loadData_#arguments.fieldID#&#assocParameters##extraParams#', '#linkedFieldName#', 'addnew')")#</cfoutput>
 	</cfsavecontent>
 	<cfoutput>#renderData#</cfoutput>
 </cffunction>
-	
+
 <!-------------------------------------------
 	getAddNewButtonName()
-------------------------------------------->	
+------------------------------------------->
 <cffunction name="getAddNewButtonName" access="public" returntype="string" hint="Method to get the label displayed for add new button">
 	<cfargument name="propertiesStruct" type="struct" required="true" hint="Properties structure for the field">
 
@@ -181,7 +196,7 @@ History:
 		var buttonLabel = 'Add New...';
 		var ceName = "";
 		var elementType = 'CustomElement';
-			
+
 		if (StructKeyExists(arguments.propertiesStruct,"newOptionText") AND Len(arguments.propertiesStruct['newOptionText']))
 		{
 			buttonLabel = arguments.propertiesStruct['newOptionText'];
@@ -189,25 +204,25 @@ History:
 		else
 		{
 			if ( StructKeyExists(arguments.propertiesStruct,"childCustomElement") AND IsNumeric(arguments.propertiesStruct.childCustomElement) ) {
-				if ( StructKeyExists(arguments.propertiesStruct,"assocCustomElement") AND IsNumeric(arguments.propertiesStruct.assocCustomElement) ) 
+				if ( StructKeyExists(arguments.propertiesStruct,"assocCustomElement") AND IsNumeric(arguments.propertiesStruct.assocCustomElement) )
 					elementType = arguments.propertiesStruct.secondaryElementType;
 				ceName = getCEName(elementID=arguments.propertiesStruct.childCustomElement,elementType=elementType);
 				if ( LEN(TRIM(ceName)) )
 					buttonLabel = "Add New #ceName#...";
 			}
 		}
-		
+
 		if (Right(buttonLabel,3) NEQ '...')
 			buttonLabel = buttonLabel & '...';
-			
+
 		return buttonLabel;
 	</cfscript>
 </cffunction>
-	
-	
+
+
 <!-------------------------------------------
 	renderAddExistingButton()
-------------------------------------------->	
+------------------------------------------->
 <cffunction name="renderAddExistingButton" access="public" returntype="void" hint="Method to render the add existing button">
 	<cfargument name="propertiesStruct" type="struct" required="true" hint="Properties structure for the field">
 	<cfargument name="currentValues" type="struct" required="true" hint="Current values structure for the field">
@@ -215,6 +230,7 @@ History:
 	<cfargument name="fieldID" type="numeric" required="true" hint="ID of the field">
 	<cfargument name="parentFormType" type="string" required="false" default="CustomElement" hint="Type of the form">
 	<cfargument name="pageID" type="numeric" required="false" default="0" hint="Page id of the current page; used only when datamanager is used in a metadata form">
+	<cfargument name="passthroughParamsStr" type="string" required="false" default="" hint="Extra URL parameters TODO: finish this">
 
 	<cfscript>
 		var renderData = '';
@@ -222,19 +238,19 @@ History:
 		var curValuesStruct = arguments.currentValues;
 		var parentInstanceIDVal = 0;
 		var linkedFieldName = '';
-		var extraParams = '';
-		
-		if (arguments.parentFormType EQ 'MetadataForm' AND inputPropStruct.parentUniqueField EQ '{{pageid}}')	
+		var extraParams = arguments.passthroughParamsStr;
+
+		if (arguments.parentFormType EQ 'MetadataForm' AND inputPropStruct.parentUniqueField EQ '{{pageid}}')
 			parentInstanceIDVal = arguments.pageID;
 		else
 			linkedFieldName = 'fic_#arguments.formID#_#inputPropStruct.parentUniqueField#';
-		
+
 		if (linkedFieldName EQ '')
 		{
-			extraParams = '&linkedFieldValue=#parentInstanceIDVal#';
+			extraParams = '#extraParams#&linkedFieldValue=#parentInstanceIDVal#';
 		}
 	</cfscript>
-		
+
 	<cfsavecontent variable="renderData">
 		<cfoutput>#Server.CommonSpot.UDF.tag.input(type="button", class="clsPushButton", name="addExisting", id="addExisting", value=getAddExistingButtonName(propertiesStruct=arguments.propertiesStruct), onclick="javascript:setCurrentValueAndOpenURL_#arguments.fieldID#('#Request.SubSite.DlgLoader#?csModule=controls/custom/submit-data&controlTypeID=#inputPropStruct.assocCustomElement#&formID=#inputPropStruct.assocCustomElement#&newData=1&dataPageID=0&dataControlID=0&linkageFieldID=#inputPropStruct.parentInstanceIDField#&openFrom=datamanager&callbackFunction=loadData_#arguments.fieldID##extraParams#', '#linkedFieldName#', 'addexisting')")#</cfoutput>
 	</cfsavecontent>
@@ -335,13 +351,12 @@ History:
 <cffunction name="queryData" returntype="struct" access="public" hint="Get the data for the fields" output="yes">
 	<cfargument name="formID" type="numeric" required="true" hint="ID of the form or control type">
 	<cfargument name="propertiesStruct" type="struct" required="true" hint="Properties structure for the field">
-	<cfargument name="currentValues" type="struct" required="true" hint="Current values structure for the field">
+	<cfargument name="parentInstanceValue" type="string" required="true" hint="Current value for the parent instance field">
 	<cfargument name="parentFormType" type="string" required="false" default="CustomElement" hint="Type of the form">
 	<cfargument name="pageID" type="string" required="false" default="0" hint="Page id of the current page; used only when datamanager is used in a metadata form">
 	
 	<cfscript>
 		var inputPropStruct = arguments.propertiesStruct;
-		var curValuesStruct = arguments.currentValues;
 		var defaultSortColumn = '';
 		var defaultSortOrder = '';
 		var resultData = QueryNew('');	
@@ -367,10 +382,6 @@ History:
 		var displayColNames = "";
 		var assocDisplayColNames = '';
 		var childDisplayColNames = '';
-		var getParentLinkedField =  QueryNew('');
-		var parentStatementsArray = ArrayNew(1);
-		var parentFilterArray = ArrayNew(1);
-		var parentData = StructNew();
 		var statementsArray = ArrayNew(1);
 		var childFilterExpression = '';
 		var assocFieldDetail = QueryNew('');
@@ -395,7 +406,7 @@ History:
 		var uniqueList = '';
 		var simpleValuesArray = ArrayNew(1);
 		var j = 0;
-		var parentInstanceIDVal = 0;
+		var parentInstanceIDVal = arguments.parentInstanceValue;
 		var compareValueWithChild = '';
 		var ceObj = '';
 		var eData = StructNew();
@@ -416,15 +427,6 @@ History:
 			ceObj = childObj;
 		else
 			ceObj = Server.CommonSpot.ObjectFactory.getObject("CustomElement");
-		
-		if (arguments.parentFormType EQ 'MetadataForm' AND inputPropStruct.parentUniqueField EQ '{{pageid}}')	
-		{
-			parentInstanceIDVal = arguments.pageID;
-		}
-		else
-		{
-			parentInstanceIDVal = curValuesStruct['fic_#arguments.formID#_#inputPropStruct.parentUniqueField#'];
-		}
 		
 		if(IsNumeric(inputPropStruct.assocCustomElement))
 			linkedFldDetails = ceObj.getFields(elementID=inputPropStruct.assocCustomElement,fieldID=inputPropStruct.parentInstanceIDField);
@@ -598,266 +600,248 @@ History:
 				
 			returnData = QueryNew('AssocDataPageID,ChildDataPageID,#displayColNames#');
 			
-			if (arguments.parentFormType EQ 'CustomElement')	
+			if(NOT IsNumeric(inputPropStruct.assocCustomElement))
 			{
-				getParentLinkedField = parentObj.getFields(elementID=arguments.formID,fieldID=inputPropStruct.parentUniqueField);
-			
-				if (getParentLinkedField.RecordCount)
+				if (StructKeyExists(inputPropStruct, 'secondaryElementType') AND inputPropStruct.secondaryElementType EQ 'MetadataForm')
 				{
-					parentStatementsArray[1] = ceObj.createStandardFilterStatement(customElementID=arguments.formID,fieldIDorName=getParentLinkedField.ID,operator='Equals',value=parentInstanceIDVal);
-					
-					parentFilterArray = ceObj.createQueryEngineFilter(filterStatementArray=parentStatementsArray,filterExpression='1');
-					
-					parentData = ceObj.getRecordsFromSavedFilter(elementID=arguments.formID,queryEngineFilter=parentFilterArray,columnList=getParentLinkedField.Name,orderBy=ReplaceNoCase(getParentLinkedField.Name,'FIC_',''),orderByDirection="ASC", Limit=0, currentOnly=0);
-				}
-			}
-		</cfscript>
-		
-		<cfif (NOT StructIsEmpty(parentData) AND StructKeyExists(parentData, 'resultQuery') AND parentData.resultQuery.RecordCount) OR arguments.parentFormType EQ 'MetadataForm'>
-			<cfscript>
-				if(NOT IsNumeric(inputPropStruct.assocCustomElement))
-				{
-					if (StructKeyExists(inputPropStruct, 'secondaryElementType') AND inputPropStruct.secondaryElementType EQ 'MetadataForm')
+					if (ListLen(compareValueWithChild,'||') GT 1)
 					{
-						if (ListLen(compareValueWithChild,'||') GT 1)
+						if (csVersion GT 9)
 						{
-							if (csVersion GT 9)
-							{
-								statementsArray[1] = childObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childLinkedField,operator=operatorToUseStr,value=ListFirst(compareValueWithChild,'||'));
-								statementsArray[2] = childObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childLinkedField,operator=operatorToUseStr,value=ListLast(compareValueWithChild,'||'));
-							}
-							else
-							{
-								statementsArray[1] = "metadata|#inputPropStruct.childCustomElement#_#inputPropStruct.childLinkedField#|#operatorToUseSymbol#|#ListFirst(compareValueWithChild,'||')#"; // Have to construct directly as metadataform has no command to create standard statement
-								statementsArray[2] = "metadata|#inputPropStruct.childCustomElement#_#inputPropStruct.childLinkedField#|#operatorToUseSymbol#|#ListLast(compareValueWithChild,'||')#";
-							}
-							childFilterExpression = '(1 OR 2)';
+							statementsArray[1] = childObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childLinkedField,operator=operatorToUseStr,value=ListFirst(compareValueWithChild,'||'));
+							statementsArray[2] = childObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childLinkedField,operator=operatorToUseStr,value=ListLast(compareValueWithChild,'||'));
 						}
 						else
 						{
-							if (csVersion GT 9)
-							{
-								statementsArray[1] = childObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childLinkedField,operator=operatorToUseStr,value=compareValueWithChild);
-							}
-							else
-							{
-								statementsArray[1] = "metadata|#inputPropStruct.childCustomElement#_#inputPropStruct.childLinkedField#|#operatorToUseSymbol#|#compareValueWithChild#"; // Have to construct directly as metadataform has no command to create standard statement
-							}
-							childFilterExpression = '1';
+							statementsArray[1] = "metadata|#inputPropStruct.childCustomElement#_#inputPropStruct.childLinkedField#|#operatorToUseSymbol#|#ListFirst(compareValueWithChild,'||')#"; // Have to construct directly as metadataform has no command to create standard statement
+							statementsArray[2] = "metadata|#inputPropStruct.childCustomElement#_#inputPropStruct.childLinkedField#|#operatorToUseSymbol#|#ListLast(compareValueWithChild,'||')#";
 						}
+						childFilterExpression = '(1 OR 2)';
 					}
 					else
 					{
-						if (ListLen(compareValueWithChild,'||') GT 1)
+						if (csVersion GT 9)
 						{
-							statementsArray[1] = ceObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childLinkedField,operator=operatorToUseStr,value=ListFirst(compareValueWithChild,'||'));
-							statementsArray[2] = ceObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childLinkedField,operator=operatorToUseStr,value=ListLast(compareValueWithChild,'||'));
-							childFilterExpression = '(1 OR 2)';
+							statementsArray[1] = childObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childLinkedField,operator=operatorToUseStr,value=compareValueWithChild);
 						}
 						else
 						{
-							statementsArray[1] = ceObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childLinkedField,operator=operatorToUseStr,value=compareValueWithChild);
-							childFilterExpression = '1';
+							statementsArray[1] = "metadata|#inputPropStruct.childCustomElement#_#inputPropStruct.childLinkedField#|#operatorToUseSymbol#|#compareValueWithChild#"; // Have to construct directly as metadataform has no command to create standard statement
 						}
+						childFilterExpression = '1';
 					}
-					if(Len(inputPropStruct.inactiveField) AND Len(inputPropStruct.inactiveFieldValue))
-					{
-						nextIndex = ArrayLen(statementsArray)+1;
-						if (StructKeyExists(inputPropStruct, 'secondaryElementType') AND inputPropStruct.secondaryElementType EQ 'MetadataForm')
-						{	
-							if (csVersion GT 9)
-							{
-								statementsArray[nextIndex] = childObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.inactiveField,operator='Not Equal',value=inputPropStruct.inactiveFieldValue);
-							}
-							else
-							{
-								statementsArray[nextIndex] = "metadata|#inputPropStruct.childCustomElement#_#inputPropStruct.inactiveField#|<>|#inputPropStruct.inactiveFieldValue#"; // Have to construct directly as metadataform has no command to create standard statement
-							}
-						}
-						else
-							statementsArray[nextIndex] = ceObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.inactiveField,operator='Not Equal',value=inputPropStruct.inactiveFieldValue);
-						childFilterExpression = '#childFilterExpression# AND #nextIndex#';
-					}
-					else
-						childFilterExpression = '#childFilterExpression#';
 				}
 				else
-				{						
-					assocFieldDetail = ceObj.getFields(elementID=inputPropStruct.assocCustomElement,fieldID=inputPropStruct.childInstanceIDField);
-					assocReqFieldName = assocFieldDetail.Name;
-					if (FindNoCase("FIC_", assocReqFieldName) eq 1)
-						assocReqFieldName = Mid(assocReqFieldName, 5, 999);
-					assocStatementsArray[1] = ceObj.createStandardFilterStatement(customElementID=inputPropStruct.assocCustomElement,fieldIDorName=inputPropStruct.parentInstanceIDField,operator='Equals',value=compareValueWithChild);
-					if(Len(inputPropStruct.inactiveField) AND Len(inputPropStruct.inactiveFieldValue))
+				{
+					if (ListLen(compareValueWithChild,'||') GT 1)
 					{
-						assocStatementsArray[2] = ceObj.createStandardFilterStatement(customElementID=inputPropStruct.assocCustomElement,fieldIDorName=inputPropStruct.inactiveField,operator='Not Equal',value=inputPropStruct.inactiveFieldValue);
-						assocFilterExpression = '1 AND 2';
+						statementsArray[1] = ceObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childLinkedField,operator=operatorToUseStr,value=ListFirst(compareValueWithChild,'||'));
+						statementsArray[2] = ceObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childLinkedField,operator=operatorToUseStr,value=ListLast(compareValueWithChild,'||'));
+						childFilterExpression = '(1 OR 2)';
 					}
 					else
-						assocFilterExpression = '1';
-					assocFilterArray = ceObj.createQueryEngineFilter(filterStatementArray=assocStatementsArray,filterExpression=assocFilterExpression);
-					
-					if(linkedFldDetails.type EQ 'img')
 					{
-						compareValueWithChild = getLinkedFieldValue(fieldType=linkedFldDetails.type,fieldValue=parentInstanceIDVal);
-						assocFilterArray[1] = ReplaceNoCase(assocFilterArray[1], '| | #parentInstanceIDVal#|', '| | #compareValueWithChild#|');
-					}	
-					if (Len(assocColNameList))
-						assocColumnList = '#assocReqFieldName#,#assocColNameList#';
+						statementsArray[1] = ceObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childLinkedField,operator=operatorToUseStr,value=compareValueWithChild);
+						childFilterExpression = '1';
+					}
+				}
+				if(Len(inputPropStruct.inactiveField) AND Len(inputPropStruct.inactiveFieldValue))
+				{
+					nextIndex = ArrayLen(statementsArray)+1;
+					if (StructKeyExists(inputPropStruct, 'secondaryElementType') AND inputPropStruct.secondaryElementType EQ 'MetadataForm')
+					{	
+						if (csVersion GT 9)
+						{
+							statementsArray[nextIndex] = childObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.inactiveField,operator='Not Equal',value=inputPropStruct.inactiveFieldValue);
+						}
+						else
+						{
+							statementsArray[nextIndex] = "metadata|#inputPropStruct.childCustomElement#_#inputPropStruct.inactiveField#|<>|#inputPropStruct.inactiveFieldValue#"; // Have to construct directly as metadataform has no command to create standard statement
+						}
+					}
 					else
-						assocColumnList = assocReqFieldName;
-						
-					data = ceObj.getRecordsFromSavedFilter(elementID=inputPropStruct.assocCustomElement,queryEngineFilter=assocFilterArray,columnList=assocColumnList,orderBy=assocReqFieldName, orderByDirection="ASC", limit=0);
-					assocData = data.resultQuery;
-						
-					if (assocData.RecordCount)
+						statementsArray[nextIndex] = ceObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.inactiveField,operator='Not Equal',value=inputPropStruct.inactiveFieldValue);
+					childFilterExpression = '#childFilterExpression# AND #nextIndex#';
+				}
+				else
+					childFilterExpression = '#childFilterExpression#';
+			}
+			else
+			{						
+				assocFieldDetail = ceObj.getFields(elementID=inputPropStruct.assocCustomElement,fieldID=inputPropStruct.childInstanceIDField);
+				assocReqFieldName = assocFieldDetail.Name;
+				if (FindNoCase("FIC_", assocReqFieldName) eq 1)
+					assocReqFieldName = Mid(assocReqFieldName, 5, 999);
+				assocStatementsArray[1] = ceObj.createStandardFilterStatement(customElementID=inputPropStruct.assocCustomElement,fieldIDorName=inputPropStruct.parentInstanceIDField,operator='Equals',value=compareValueWithChild);
+				if(Len(inputPropStruct.inactiveField) AND Len(inputPropStruct.inactiveFieldValue))
+				{
+					assocStatementsArray[2] = ceObj.createStandardFilterStatement(customElementID=inputPropStruct.assocCustomElement,fieldIDorName=inputPropStruct.inactiveField,operator='Not Equal',value=inputPropStruct.inactiveFieldValue);
+					assocFilterExpression = '1 AND 2';
+				}
+				else
+					assocFilterExpression = '1';
+				assocFilterArray = ceObj.createQueryEngineFilter(filterStatementArray=assocStatementsArray,filterExpression=assocFilterExpression);
+				
+				if(linkedFldDetails.type EQ 'img')
+				{
+					compareValueWithChild = getLinkedFieldValue(fieldType=linkedFldDetails.type,fieldValue=parentInstanceIDVal);
+					assocFilterArray[1] = ReplaceNoCase(assocFilterArray[1], '| | #parentInstanceIDVal#|', '| | #compareValueWithChild#|');
+				}	
+				if (Len(assocColNameList))
+					assocColumnList = '#assocReqFieldName#,#assocColNameList#';
+				else
+					assocColumnList = assocReqFieldName;
+					
+				data = ceObj.getRecordsFromSavedFilter(elementID=inputPropStruct.assocCustomElement,queryEngineFilter=assocFilterArray,columnList=assocColumnList,orderBy=assocReqFieldName, orderByDirection="ASC", limit=0);
+				assocData = data.resultQuery;
+					
+				if (assocData.RecordCount)
+				{
+					assocColumnList = assocData.columnList;
+					ids = assocData[assocReqFieldName];
+					
+					// build list of values
+					simpleValuesArray = ArrayNew(1);
+					valuesWithCommaArray = ArrayNew(1);
+					for( j=1; j lte assocData.recordCount; j = j+1 )
 					{
-						assocColumnList = assocData.columnList;
-						ids = assocData[assocReqFieldName];
-						
-						// build list of values
-						simpleValuesArray = ArrayNew(1);
-						valuesWithCommaArray = ArrayNew(1);
-						for( j=1; j lte assocData.recordCount; j = j+1 )
+						if ( ArrayFindNoCase(simpleValuesArray, assocData[assocReqFieldName][j]) EQ 0 AND ArrayFindNoCase(valuesWithCommaArray, assocData[assocReqFieldName][j]) EQ 0 )
 						{
-							if ( ArrayFindNoCase(simpleValuesArray, assocData[assocReqFieldName][j]) EQ 0 AND ArrayFindNoCase(valuesWithCommaArray, assocData[assocReqFieldName][j]) EQ 0 )
+							if (ListLen(assocData[assocReqFieldName][j]) GT 1)
+								ArrayAppend( valuesWithCommaArray, assocData[assocReqFieldName][j] );
+							else
+								ArrayAppend( simpleValuesArray, assocData[assocReqFieldName][j] );
+						}
+					}	
+					uniqueList = ArrayToList( simpleValuesArray );
+					
+					if ( ListLen(uniqueList) )
+					{
+						if (StructKeyExists(inputPropStruct, 'secondaryElementType') AND inputPropStruct.secondaryElementType EQ 'MetadataForm')
+						{
+							if (csVersion GT 9)
 							{
-								if (ListLen(assocData[assocReqFieldName][j]) GT 1)
-									ArrayAppend( valuesWithCommaArray, assocData[assocReqFieldName][j] );
-								else
-									ArrayAppend( simpleValuesArray, assocData[assocReqFieldName][j] );
+								statementsArray[1] = childObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childUniqueField,operator='Value Contained In List',value=uniqueList);
 							}
-						}	
-						uniqueList = ArrayToList( simpleValuesArray );
-						
-						if ( ListLen(uniqueList) )
+							else
+							{
+								statementsArray[1] = "metadata|#inputPropStruct.childCustomElement#_#inputPropStruct.childUniqueField#|inlist|#uniqueList#";
+							}
+						}
+						else
+							statementsArray[1] = ceObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childUniqueField,operator='Value Contained In List',value=uniqueList);
+						childFilterExpression = '1';
+					}
+					if ( ArrayLen(valuesWithCommaArray) )
+					{
+						for ( k=1; k LTE ArrayLen(valuesWithCommaArray);k=k+1 )
 						{
+							stmtNewPos = ArrayLen(statementsArray) + 1;
 							if (StructKeyExists(inputPropStruct, 'secondaryElementType') AND inputPropStruct.secondaryElementType EQ 'MetadataForm')
 							{
 								if (csVersion GT 9)
 								{
-									statementsArray[1] = childObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childUniqueField,operator='Value Contained In List',value=uniqueList);
+									statementsArray[stmtNewPos] = childObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childUniqueField,operator='Equals',value=valuesWithCommaArray[k]);
 								}
 								else
 								{
-									statementsArray[1] = "metadata|#inputPropStruct.childCustomElement#_#inputPropStruct.childUniqueField#|inlist|#uniqueList#";
+									statementsArray[stmtNewPos] = "metadata|#inputPropStruct.childCustomElement#_#inputPropStruct.childUniqueField#|=|#valuesWithCommaArray[k]#";
 								}
 							}
 							else
-								statementsArray[1] = ceObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childUniqueField,operator='Value Contained In List',value=uniqueList);
-							childFilterExpression = '1';
-						}
-						if ( ArrayLen(valuesWithCommaArray) )
-						{
-							for ( k=1; k LTE ArrayLen(valuesWithCommaArray);k=k+1 )
+								statementsArray[stmtNewPos] = ceObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childUniqueField,operator='Equals',value=valuesWithCommaArray[k]);
+							if ( Len(childFilterExpression) )
 							{
-								stmtNewPos = ArrayLen(statementsArray) + 1;
-								if (StructKeyExists(inputPropStruct, 'secondaryElementType') AND inputPropStruct.secondaryElementType EQ 'MetadataForm')
-								{
-									if (csVersion GT 9)
-									{
-										statementsArray[stmtNewPos] = childObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childUniqueField,operator='Equals',value=valuesWithCommaArray[k]);
-									}
-									else
-									{
-										statementsArray[stmtNewPos] = "metadata|#inputPropStruct.childCustomElement#_#inputPropStruct.childUniqueField#|=|#valuesWithCommaArray[k]#";
-									}
-								}
-								else
-									statementsArray[stmtNewPos] = ceObj.createStandardFilterStatement(customElementID=inputPropStruct.childCustomElement,fieldIDorName=inputPropStruct.childUniqueField,operator='Equals',value=valuesWithCommaArray[k]);
-								if ( Len(childFilterExpression) )
-								{
-									childFilterExpression = '#childFilterExpression# OR ';
-								}
-								childFilterExpression = '#childFilterExpression##Int(stmtNewPos)#';
+								childFilterExpression = '#childFilterExpression# OR ';
 							}
+							childFilterExpression = '#childFilterExpression##Int(stmtNewPos)#';
 						}
 					}
 				}
-				
-				childFilterArray = ceObj.createQueryEngineFilter(filterStatementArray=statementsArray,filterExpression=childFilterExpression);
-				if(NOT IsNumeric(inputPropStruct.assocCustomElement) AND linkedFldDetails.type EQ 'img')
-				{
-					compareValueWithChild = getLinkedFieldValue(fieldType=linkedFldDetails.type,fieldValue=parentInstanceIDVal);
-					childFilterArray[1] = ReplaceNoCase(childFilterArray[1], '| | #parentInstanceIDVal#|', '| | #compareValueWithChild#|');
-				}				
-				
-				childColumnList = '#childColNameList#,#valueFieldName#';
+			}
+			
+			childFilterArray = ceObj.createQueryEngineFilter(filterStatementArray=statementsArray,filterExpression=childFilterExpression);
+			if(NOT IsNumeric(inputPropStruct.assocCustomElement) AND linkedFldDetails.type EQ 'img')
+			{
+				compareValueWithChild = getLinkedFieldValue(fieldType=linkedFldDetails.type,fieldValue=parentInstanceIDVal);
+				childFilterArray[1] = ReplaceNoCase(childFilterArray[1], '| | #parentInstanceIDVal#|', '| | #compareValueWithChild#|');
+			}				
+			
+			childColumnList = '#childColNameList#,#valueFieldName#';
+		</cfscript>
+		
+		<cfif inputPropStruct.secondaryElementType EQ 'CustomElement'>
+			<cfscript>
+				data = ceObj.getRecordsFromSavedFilter(elementID=inputPropStruct.childCustomElement,queryEngineFilter=childFilterArray,columnList=childColumnList, limit=0, currentOnly=0);					
 			</cfscript>
+		<cfelse>
+			<cfscript>
+				eData.filtertype = 1;
+				eData.serSrchArray = childFilterArray;
+		
+				sessionUUID = "op|#inputPropStruct.childCustomElement#|#inputPropStruct.childUniqueField#" &  "_" & inputPropStruct.childUniqueField & "_" & inputPropStruct.childCustomElement & "_" &  Request.User.ID;
+				sessionStruct.filter = eData;
+				sessionStruct.controlTypeID = inputPropStruct.childCustomElement;
+				sessionStruct.defaultSortColumn = "#valueFieldName#|ASC";
+			</cfscript>	
 			
-			<cfif inputPropStruct.secondaryElementType EQ 'CustomElement'>
-				<cfscript>
-					data = ceObj.getRecordsFromSavedFilter(elementID=inputPropStruct.childCustomElement,queryEngineFilter=childFilterArray,columnList=childColumnList, limit=0, currentOnly=0);					
-				</cfscript>
-			<cfelse>
-				<cfscript>
-					eData.filtertype = 1;
-					eData.serSrchArray = childFilterArray;
-			
-					sessionUUID = "op|#inputPropStruct.childCustomElement#|#inputPropStruct.childUniqueField#" &  "_" & inputPropStruct.childUniqueField & "_" & inputPropStruct.childCustomElement & "_" &  Request.User.ID;
-					sessionStruct.filter = eData;
-					sessionStruct.controlTypeID = inputPropStruct.childCustomElement;
-					sessionStruct.defaultSortColumn = "#valueFieldName#|ASC";
-				</cfscript>	
-				
-				<cflock name="#Request.sessionLockName#" type="exclusive" timeout="10">
-					<cfset session[sessionUUID] = sessionStruct>
-				</cflock>
-				
-				<cfscript>
-					cmdArgs.columnList = "#childColumnList#";			
-					cmdArgs.filterID = sessionUUID;
-					cmdArgs.id = inputPropStruct.childCustomElement;
-					
-					data = childObj.getRecordsFromFilter(argumentCollection=cmdArgs);
-				</cfscript>
-			</cfif>
+			<cflock name="#Request.sessionLockName#" type="exclusive" timeout="10">
+				<cfset session[sessionUUID] = sessionStruct>
+			</cflock>
 			
 			<cfscript>
-				filteredData = data.resultQuery;
-				displayColsArray = ListToArray(displayColNames);
+				cmdArgs.columnList = "#childColumnList#";			
+				cmdArgs.filterID = sessionUUID;
+				cmdArgs.id = inputPropStruct.childCustomElement;
+				
+				data = childObj.getRecordsFromFilter(argumentCollection=cmdArgs);
 			</cfscript>
-			
-			<cfquery name="returnData" dbtype="query">
-				SELECT 
-				<cfif IsNumeric(inputPropStruct.assocCustomElement)>
-					assocData.PageID AS AssocDataPageID, assocData.ControlID AS AssocDataControlID,
-				<cfelse>
-					0 AS AssocDataPageID, 0 AS AssocDataControlID,
-				</cfif>
-					filteredData.PageID AS ChildDataPageID, filteredData.ControlID AS ChildDataControlID
-				<cfif ArrayLen(displayColsArray)>
-					,
-				</cfif>
-				<cfloop from="1" to="#ArrayLen(displayColsArray)#" index="i">
-						<cfif ListFindNoCase(childDisplayColNames, displayColsArray[i])>
-							<cfif ListFindNoCase(childColumnList, displayColsArray[i])>
-								filteredData.[#displayColsArray[i]#]
-							<cfelseif ListLast(displayColsArray[i], '_') EQ 'child' AND ListFindNoCase(childColumnList, Mid(displayColsArray[i],1,Len(displayColsArray[i])-6))>
-								filteredData.[#Mid(displayColsArray[i],1,Len(displayColsArray[i])-6)#] AS #displayColsArray[i]#
-							</cfif>
-						<cfelseif ListFindNoCase(assocDisplayColNames, displayColsArray[i])>
-							<cfif ListFindNoCase(assocColumnList, displayColsArray[i])>
-								assocData.[#displayColsArray[i]#]
-							<cfelseif ListLast(displayColsArray[i], '_') EQ 'assoc' AND ListFindNoCase(assocColumnList, Mid(displayColsArray[i],1,Len(displayColsArray[i])-6))>
-								assocData.[#Mid(displayColsArray[i],1,Len(displayColsArray[i])-6)#] AS #displayColsArray[i]#
-							</cfif>
-						</cfif>
-					<cfif ArrayLen(displayColsArray) GT 1 AND i NEQ ArrayLen(displayColsArray)>
-					,
-					</cfif>
-				</cfloop>
-				  FROM filteredData
-			<cfif IsNumeric(inputPropStruct.assocCustomElement)>
-				  ,assocData WHERE filteredData.[#valueFieldName#] = assocData.[#assocReqFieldName#]
-			</cfif>
-			<cfif Len(childOrderColumnName)>
-			 ORDER BY filteredData.[#childOrderColumnName#] #defaultSortOrder#
-			<cfelseif Len(assocOrderColumnName)>
-			 ORDER BY assocData.[#assocOrderColumnName#] #defaultSortOrder#
-			</cfif>
-			</cfquery>
 		</cfif>
+		
+		<cfscript>
+			filteredData = data.resultQuery;
+			displayColsArray = ListToArray(displayColNames);
+		</cfscript>
+		
+		<cfquery name="returnData" dbtype="query">
+			SELECT 
+			<cfif IsNumeric(inputPropStruct.assocCustomElement)>
+				assocData.PageID AS AssocDataPageID, assocData.ControlID AS AssocDataControlID,
+			<cfelse>
+				0 AS AssocDataPageID, 0 AS AssocDataControlID,
+			</cfif>
+				filteredData.PageID AS ChildDataPageID, filteredData.ControlID AS ChildDataControlID
+			<cfif ArrayLen(displayColsArray)>
+				,
+			</cfif>
+			<cfloop from="1" to="#ArrayLen(displayColsArray)#" index="i">
+					<cfif ListFindNoCase(childDisplayColNames, displayColsArray[i])>
+						<cfif ListFindNoCase(childColumnList, displayColsArray[i])>
+							filteredData.[#displayColsArray[i]#]
+						<cfelseif ListLast(displayColsArray[i], '_') EQ 'child' AND ListFindNoCase(childColumnList, Mid(displayColsArray[i],1,Len(displayColsArray[i])-6))>
+							filteredData.[#Mid(displayColsArray[i],1,Len(displayColsArray[i])-6)#] AS #displayColsArray[i]#
+						</cfif>
+					<cfelseif ListFindNoCase(assocDisplayColNames, displayColsArray[i])>
+						<cfif ListFindNoCase(assocColumnList, displayColsArray[i])>
+							assocData.[#displayColsArray[i]#]
+						<cfelseif ListLast(displayColsArray[i], '_') EQ 'assoc' AND ListFindNoCase(assocColumnList, Mid(displayColsArray[i],1,Len(displayColsArray[i])-6))>
+							assocData.[#Mid(displayColsArray[i],1,Len(displayColsArray[i])-6)#] AS #displayColsArray[i]#
+						</cfif>
+					</cfif>
+				<cfif ArrayLen(displayColsArray) GT 1 AND i NEQ ArrayLen(displayColsArray)>
+				,
+				</cfif>
+			</cfloop>
+			  FROM filteredData
+		<cfif IsNumeric(inputPropStruct.assocCustomElement)>
+			  ,assocData WHERE filteredData.[#valueFieldName#] = assocData.[#assocReqFieldName#]
+		</cfif>
+		<cfif Len(childOrderColumnName)>
+		 ORDER BY filteredData.[#childOrderColumnName#] #defaultSortOrder#
+		<cfelseif Len(assocOrderColumnName)>
+		 ORDER BY assocData.[#assocOrderColumnName#] #defaultSortOrder#
+		</cfif>
+		</cfquery>
 		<cfscript>
 			returnStruct['qry'] = returnData;
 			returnStruct['fieldMapStruct'] = formFieldsStruct;
@@ -1762,7 +1746,7 @@ History:
 <cffunction name="renderGrid" access="remote" output="Yes" returntype="any" hint="Method to render the datamanger grid">	<!--- // TODO: Update to type="string" --->	
 	<cfargument name="formID" type="numeric" required="true" hint="ID of the form or control type">
 	<cfargument name="propertiesStruct" type="any" required="true" hint="Properties structure for the field in json format"> <!--- // TODO: Update to type="struct" --->
-	<cfargument name="currentValues" type="any" required="true" hint="Current values structure for the field in json format"> <!--- // TODO: Update to type="struct" --->
+	<cfargument name="parentInstanceValue" type="string" required="true" hint="Current value of the parent instance field"> 
 	<cfargument name="fieldID" type="numeric" required="true" hint="ID of the field">
 	<cfargument name="displayMode" type="string" required="true" hint="String indicating display mode for the field. Possible values - hidden, readonly, editable">
 	<cfargument name="parentFormType" type="string" required="false" default="CustomElement" hint="Type of the form">
@@ -1784,21 +1768,11 @@ History:
 			else
 			{
 				inputPropStruct = arguments.propertiesStruct;
-			}
+			}		
 			
-			if (IsJSON(arguments.currentValues))
-			{
-				curValuesStruct = DeserializeJSON(arguments.currentValues);
-			}
-			else
-			{
-				curValuesStruct = arguments.currentValues;
-			}
-		
-			
-			dataRecords = queryData(formID=arguments.formID,propertiesStruct=inputPropStruct,currentValues=curValuesStruct,
+			dataRecords = queryData(formID=arguments.formID,propertiesStruct=inputPropStruct,parentInstanceValue=arguments.parentInstanceValue,
 										parentFormType=arguments.parentFormType,pageID=arguments.pageID);
-			
+													
 			if (NOT StructKeyExists(dataRecords, 'errorMsg'))
 				displayData = getDisplayData(fieldID=arguments.fieldID, 
 														propertiesStruct=inputPropStruct,
@@ -1815,8 +1789,8 @@ History:
 		catch (any e) 
 		{
 			logError = true;
-			logErrorMsg = "#e.message# #e.detail#";
-		}										
+			logErrorMsg = "#e.message# #e.detail#";		
+		}									
 	</cfscript>		
 	
 	<!-- // If error is generated log it --->
@@ -1999,7 +1973,7 @@ History:
 
 	<cfscript>
 		var paramsData = '';
-		var paramsStruct = StructNew();
+		var passthroughParamsStruct = StructNew();
 		var returnString = arguments.fieldValue;
 		var ceDataArray = ArrayNew(1);
 		var ceDataArrayLen = 0;
@@ -2056,19 +2030,19 @@ History:
 			
 		<cfif paramsData.RecordCount>
 			<cfscript>
-				paramsStruct = Server.CommonSpot.UDF.util.WDDXDecode(paramsData.Params);
+				passthroughParamsStruct = Server.CommonSpot.UDF.util.WDDXDecode(paramsData.Params);
 			</cfscript>
-			<cfif Len(paramsStruct.customElement)>
+			<cfif Len(passthroughParamsStruct.customElement)>
 				<cfscript>
 					// build structures to cache the ceDataArray results
 					request['getContent_ceSelect'][fieldID] = StructNew();
-					request['getContent_ceSelect'][fieldID].valueField = paramsStruct.valueField;
-					request['getContent_ceSelect'][fieldID].displayField = paramsStruct.displayField;
-					request['getContent_ceSelect'][fieldID].displayFieldBuilder = paramsStruct.displayFieldBuilder;
+					request['getContent_ceSelect'][fieldID].valueField = passthroughParamsStruct.valueField;
+					request['getContent_ceSelect'][fieldID].displayField = passthroughParamsStruct.displayField;
+					request['getContent_ceSelect'][fieldID].displayFieldBuilder = passthroughParamsStruct.displayFieldBuilder;
 
 					
 					// If Multi-select - no display value look up
-					if( StructKeyExists(paramsStruct,"MultipleSelect") AND paramsStruct.MultipleSelect eq 1 )
+					if( StructKeyExists(passthroughParamsStruct,"MultipleSelect") AND passthroughParamsStruct.MultipleSelect eq 1 )
 					{
 						request['getContent_ceSelect'][fieldID].assocArray = '';
 					}
@@ -2078,45 +2052,45 @@ History:
 						//
 						// Get Results of ALL applicable records.
 						//						
-						/*if( StructKeyExists(paramsStruct,"activeFlagField") 
-								AND Len(paramsStruct.activeFlagField)
-								AND StructKeyExists(paramsStruct,"activeFlagValue") 
-								AND Len(paramsStruct.activeFlagValue)
+						/*if( StructKeyExists(passthroughParamsStruct,"activeFlagField") 
+								AND Len(passthroughParamsStruct.activeFlagField)
+								AND StructKeyExists(passthroughParamsStruct,"activeFlagValue") 
+								AND Len(passthroughParamsStruct.activeFlagValue)
 						  )
 						{
-							if((TRIM(LEFT(paramsStruct.activeFlagValue,1)) EQ "[") AND (TRIM(RIGHT(paramsStruct.activeFlagValue,1)) EQ "]"))
+							if((TRIM(LEFT(passthroughParamsStruct.activeFlagValue,1)) EQ "[") AND (TRIM(RIGHT(passthroughParamsStruct.activeFlagValue,1)) EQ "]"))
 							{
-								paramsStruct.activeFlagValue = MID(paramsStruct.activeFlagValue, 2, LEN(paramsStruct.activeFlagValue)-2);
-								paramsStruct.activeFlagValue = Evaluate(paramsStruct.activeFlagValue);
+								passthroughParamsStruct.activeFlagValue = MID(passthroughParamsStruct.activeFlagValue, 2, LEN(passthroughParamsStruct.activeFlagValue)-2);
+								passthroughParamsStruct.activeFlagValue = Evaluate(passthroughParamsStruct.activeFlagValue);
 							}
-							ceDataArray = application.ADF.ceData.getCEData(paramsStruct.customElement,paramsStruct.activeFlagField,paramsStruct.activeFlagValue);
+							ceDataArray = application.ADF.ceData.getCEData(passthroughParamsStruct.customElement,passthroughParamsStruct.activeFlagField,passthroughParamsStruct.activeFlagValue);
 						}
 						else
 						{
 							// No filter, get all records
-							ceDataArray = application.ADF.ceData.getCEData(paramsStruct.customElement);
+							ceDataArray = application.ADF.ceData.getCEData(passthroughParamsStruct.customElement);
 						}*/
 						
-						if (StructKeyExists(paramsStruct,"customElement") and Len(paramsStruct.customElement))
-							ceFormID = application.ADF.cedata.getFormIDByCEName(paramsStruct.customElement);
+						if (StructKeyExists(passthroughParamsStruct,"customElement") and Len(passthroughParamsStruct.customElement))
+							ceFormID = application.ADF.cedata.getFormIDByCEName(passthroughParamsStruct.customElement);
 						
-						if ( StructKeyExists(paramsStruct,"activeFlagField") 
-								AND Len(paramsStruct.activeFlagField) 
-								AND StructKeyExists(paramsStruct,"activeFlagValue") 
-								AND Len(paramsStruct.activeFlagValue) 
+						if ( StructKeyExists(passthroughParamsStruct,"activeFlagField") 
+								AND Len(passthroughParamsStruct.activeFlagField) 
+								AND StructKeyExists(passthroughParamsStruct,"activeFlagValue") 
+								AND Len(passthroughParamsStruct.activeFlagValue) 
 							) 
 						{
-							if ( (TRIM(LEFT(paramsStruct.activeFlagValue,1)) EQ "[") AND (TRIM(RIGHT(paramsStruct.activeFlagValue,1)) EQ "]"))
+							if ( (TRIM(LEFT(passthroughParamsStruct.activeFlagValue,1)) EQ "[") AND (TRIM(RIGHT(passthroughParamsStruct.activeFlagValue,1)) EQ "]"))
 							{
-								valueWithoutParens = MID(paramsStruct.activeFlagValue, 2, LEN(paramsStruct.activeFlagValue)-2);
+								valueWithoutParens = MID(passthroughParamsStruct.activeFlagValue, 2, LEN(passthroughParamsStruct.activeFlagValue)-2);
 								hasParens = 1;
 							}
 							else
 							{
-								valueWithoutParens = paramsStruct.activeFlagValue;
+								valueWithoutParens = passthroughParamsStruct.activeFlagValue;
 							}
 							
-							statementsArray[1] = ceObj.createStandardFilterStatement(customElementID=ceFormID,fieldIDorName=paramsStruct.activeFlagField,operator='Equals',value=valueWithoutParens);
+							statementsArray[1] = ceObj.createStandardFilterStatement(customElementID=ceFormID,fieldIDorName=passthroughParamsStruct.activeFlagField,operator='Equals',value=valueWithoutParens);
 									
 							filterArray = ceObj.createQueryEngineFilter(filterStatementArray=statementsArray,filterExpression='1');
 							
@@ -2127,46 +2101,46 @@ History:
 							
 							cfmlFilterCriteria.filter = StructNew();
 							cfmlFilterCriteria.filter.serSrchArray = filterArray;
-							cfmlFilterCriteria.defaultSortColumn = paramsStruct.activeFlagField & '|asc';
+							cfmlFilterCriteria.defaultSortColumn = passthroughParamsStruct.activeFlagField & '|asc';
 						}
 						
-						if ( StructKeyExists(paramsStruct,"sortByField") and paramsStruct.sortByField NEQ '--')
+						if ( StructKeyExists(passthroughParamsStruct,"sortByField") and passthroughParamsStruct.sortByField NEQ '--')
 						{
-							cfmlFilterCriteria.defaultSortColumn = paramsStruct.sortByField & '|asc';
+							cfmlFilterCriteria.defaultSortColumn = passthroughParamsStruct.sortByField & '|asc';
 						}
 						
 						if (NOT StructIsEmpty(cfmlFilterCriteria))
-							paramsStruct.filterCriteria = Server.CommonSpot.UDF.util.WDDXEncode(cfmlFilterCriteria);
+							passthroughParamsStruct.filterCriteria = Server.CommonSpot.UDF.util.WDDXEncode(cfmlFilterCriteria);
 				
-						if (StructKeyExists(paramsStruct, 'filterCriteria') AND IsWDDX(paramsStruct.filterCriteria))
+						if (StructKeyExists(passthroughParamsStruct, 'filterCriteria') AND IsWDDX(passthroughParamsStruct.filterCriteria))
 						{
-							cfmlFilterCriteria = Server.CommonSpot.UDF.util.WDDXDecode(paramsStruct.filterCriteria);	
+							cfmlFilterCriteria = Server.CommonSpot.UDF.util.WDDXDecode(passthroughParamsStruct.filterCriteria);	
 							if ( StructKeyExists(cfmlFilterCriteria,"filter") )		
 								filterArray = cfmlFilterCriteria.filter.serSrchArray;
 							sortColumn = ListFirst(cfmlFilterCriteria.defaultSortColumn,'|');
 							sortDir = ListLast(cfmlFilterCriteria.defaultSortColumn,'|');
 						}
 						
-						if (StructKeyExists(paramsStruct,"customElement") and Len(paramsStruct.customElement))
+						if (StructKeyExists(passthroughParamsStruct,"customElement") and Len(passthroughParamsStruct.customElement))
 						{
 							fldsQry = ceObj.GetFields(ceFormID);
 							fieldList = ValueList(fldsQry.Name);
 							
-							if( StructKeyExists(paramsStruct, "displayField") AND LEN(paramsStruct.displayField) AND paramsStruct.displayField neq "--Other--" ) 
-								fieldList = '#paramsStruct.displayField#,#paramsStruct.valueField#';
-							else if( paramsStruct.displayField eq "--Other--" AND paramsStruct.DisplayFieldBuilder neq '' )
+							if( StructKeyExists(passthroughParamsStruct, "displayField") AND LEN(passthroughParamsStruct.displayField) AND passthroughParamsStruct.displayField neq "--Other--" ) 
+								fieldList = '#passthroughParamsStruct.displayField#,#passthroughParamsStruct.valueField#';
+							else if( passthroughParamsStruct.displayField eq "--Other--" AND passthroughParamsStruct.DisplayFieldBuilder neq '' )
 							{
 								start = 1;
 								fieldList = '';
 								while( true )
 								{
-									start = FindNoCase( Chr(171), paramsStruct.DisplayFieldBuilder, start );
+									start = FindNoCase( Chr(171), passthroughParamsStruct.DisplayFieldBuilder, start );
 									if( start )
 									{
-										end = FindNoCase( Chr(187), paramsStruct.DisplayFieldBuilder, start );
+										end = FindNoCase( Chr(187), passthroughParamsStruct.DisplayFieldBuilder, start );
 										if( end )
 										{
-											fld = Mid( paramsStruct.DisplayFieldBuilder, start + 1, (end - (start+1)) );
+											fld = Mid( passthroughParamsStruct.DisplayFieldBuilder, start + 1, (end - (start+1)) );
 											if( NOT FindNoCase( fld, fieldList ) )
 												fieldList = ListAppend( fieldList, fld ); 
 											start = end;	
@@ -2178,12 +2152,12 @@ History:
 										break;
 								}
 								// if value field not already in list, add it to the list			
-								if( NOT FindNoCase( paramsStruct.valueField, fieldList ) )
-									fieldList = ListAppend( fieldList, paramsStruct.valueField ); 
+								if( NOT FindNoCase( passthroughParamsStruct.valueField, fieldList ) )
+									fieldList = ListAppend( fieldList, passthroughParamsStruct.valueField ); 
 							}
 							else
 							{
-								fieldList = paramsStruct.valueField;
+								fieldList = passthroughParamsStruct.valueField;
 							}
 							
 							if (NOT Len(sortColumn) AND NOT Len(sortDir))
@@ -2205,7 +2179,7 @@ History:
 							if (ceData.ResultQuery.RecordCount)
 							{
 								ArraySet(formIDColArray, 1, ceData.ResultQuery.RecordCount, ceFormID);
-								ArraySet(formNameColArray, 1, ceData.ResultQuery.RecordCount, paramsStruct.customElement);
+								ArraySet(formNameColArray, 1, ceData.ResultQuery.RecordCount, passthroughParamsStruct.customElement);
 							}
 							
 							QueryAddColumn(ceData.ResultQuery, 'formID', formIDColArray);
@@ -2219,26 +2193,26 @@ History:
 					
 					
 						// Custom element selects can 'Build' the display value.  Handle that case
-						if( paramsStruct.displayField eq "--Other--" and Len(paramsStruct.displayFieldBuilder) )
+						if( passthroughParamsStruct.displayField eq "--Other--" and Len(passthroughParamsStruct.displayFieldBuilder) )
 						{
 							// store the offset into the ceDataArray
 							request['getContent_ceSelect'][fieldID].assocArray = StructNew();
 							for(i=1; i LTE ceDataArrayLen; i=i+1 )
 							{
-								valueFld = ceDataArray[i].Values['#paramsStruct.valueField#'];
+								valueFld = ceDataArray[i].Values['#passthroughParamsStruct.valueField#'];
 								request['getContent_ceSelect'][fieldID].assocArray[valueFld] = i;
 							}	
 						}	
 						// Normal case - display value is just another field, no building display value from multiple fields. 
 						// 	So store name value pairs.
-						else if( paramsStruct.displayField neq ""	)
+						else if( passthroughParamsStruct.displayField neq ""	)
 						{
 							// store value and display field
 							request['getContent_ceSelect'][fieldID].assocArray = StructNew();
 							for(i=1; i LTE ceDataArrayLen; i=i+1 )
 							{
-								valueFld = ceDataArray[i].Values['#paramsStruct.valueField#'];
-								displayFld = ceDataArray[i].Values['#paramsStruct.displayField#'];
+								valueFld = ceDataArray[i].Values['#passthroughParamsStruct.valueField#'];
+								displayFld = ceDataArray[i].Values['#passthroughParamsStruct.displayField#'];
 								request['getContent_ceSelect'][fieldID].assocArray[valueFld] = displayFld;
 							}	
 						}
@@ -2294,7 +2268,7 @@ History:
 	
 	<cfscript>
 		var paramsData = '';
-		var paramsStruct = StructNew();
+		var passthroughParamsStruct = StructNew();
 		var selectOptions = StructNew();
 		var returnString = arguments.fieldValue;
 		var i = 0;
@@ -2330,33 +2304,33 @@ History:
 			
 		<cfif paramsData.RecordCount>
 			<cfscript>
-				paramsStruct = Server.CommonSpot.UDF.util.WDDXDecode(paramsData.Params);
+				passthroughParamsStruct = Server.CommonSpot.UDF.util.WDDXDecode(paramsData.Params);
 			</cfscript>
 	
-			<cfif StructKeyExists(paramsStruct, 'ElementID') AND paramsStruct.ElementID gt 0>
+			<cfif StructKeyExists(passthroughParamsStruct, 'ElementID') AND passthroughParamsStruct.ElementID gt 0>
 				<!--- selection list is configured to point to a CE --->
 
-				<cfif StructKeyExists(paramsStruct,"Mult") 
-						AND paramsStruct.Mult eq 'no' 
-						AND StructKeyExists(paramsStruct,"displayFieldID")
-						AND paramsStruct.displayFieldID neq "">
+				<cfif StructKeyExists(passthroughParamsStruct,"Mult") 
+						AND passthroughParamsStruct.Mult eq 'no' 
+						AND StructKeyExists(passthroughParamsStruct,"displayFieldID")
+						AND passthroughParamsStruct.displayFieldID neq "">
 						
 					<!--- Normal case. Display value is just another field. So store name value pairs. --->
 						
 					<cfmodule template="/commonspot/metadata/form_control/input_control/resolve_optionlist.cfm"
-							valsource="#paramsStruct.valSource#"
-							valuelist="#paramsStruct.valList#"
-							querystring="#paramsStruct.query#"
-							queryDSN="#paramsStruct.queryDSN#"
-							displaycolumn="#paramsStruct.dispCol#"
-							valuecolumn="#paramsStruct.valCol#"
-							usedefinedexpression="#paramsStruct.udef#"
-							elementid="#paramsStruct.elementid#"
-							fieldid="#paramsStruct.fieldid#"
-							displayfieldid="#paramsStruct.displayFieldID#"
-							valuefieldid="#paramsStruct.valueFieldID#"	
-							filter="#paramsStruct.filter#"
-							sortcolumn="#paramsStruct.sortcol#"
+							valsource="#passthroughParamsStruct.valSource#"
+							valuelist="#passthroughParamsStruct.valList#"
+							querystring="#passthroughParamsStruct.query#"
+							queryDSN="#passthroughParamsStruct.queryDSN#"
+							displaycolumn="#passthroughParamsStruct.dispCol#"
+							valuecolumn="#passthroughParamsStruct.valCol#"
+							usedefinedexpression="#passthroughParamsStruct.udef#"
+							elementid="#passthroughParamsStruct.elementid#"
+							fieldid="#passthroughParamsStruct.fieldid#"
+							displayfieldid="#passthroughParamsStruct.displayFieldID#"
+							valuefieldid="#passthroughParamsStruct.valueFieldID#"	
+							filter="#passthroughParamsStruct.filter#"
+							sortcolumn="#passthroughParamsStruct.sortcol#"
 							return="selectOptions">
 					
 					<cfscript>

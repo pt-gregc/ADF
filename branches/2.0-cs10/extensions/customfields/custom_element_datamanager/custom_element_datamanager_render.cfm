@@ -53,6 +53,7 @@ History:
 	2015-07-03 - DJM - Added code for disableDatamanager interface option
 	2015-07-14 - DJM - Added code to get elements by name if not found by ID
 	2015-07-21 - DJM - Modified code to have the hidden field render always
+	2015-07-23 - DJM - Modified call to RenderGrid() to take parent field's value using javascript from the form field
 --->
 <cfscript>
 	requiredCSversion = 9;
@@ -399,13 +400,7 @@ History:
 			function loadData_#uniqueTableAppend#(displayOverlay)
 			{
 				if (typeof displayOverlay == 'undefined')
-				{
-					<CFIF newData EQ 1>
-						var displayOverlay = 0;
-					<CFELSE>
-						var displayOverlay = 1;
-					</CFIF>
-				}
+					var displayOverlay = 1;
 				
 				setTimeout( function(){
 								loadDataCore_#uniqueTableAppend#(displayOverlay)
@@ -418,6 +413,22 @@ History:
 					commonspotNonDashboard.util.displayMessageOverlay('datamanager_#uniqueTableAppend#', 'overlayDivStyle', 'Please Wait...');	
 				var res#uniqueTableAppend# = '';
 				var retData#uniqueTableAppend# = '';
+				var parentInstanceIDVal = '';
+				var parentInstanceFld = '';					
+		
+				<CFIF elementType EQ 'MetadataForm' AND inputParameters.parentUniqueField EQ '{{pageid}}'>
+					parentInstanceIDVal = '#curPageID#';
+				<CFELSE>
+					parentInstanceFld = 'fic_#ceFormID#_#inputParameters.parentUniqueField#';
+				</CFIF>
+				
+				if (parentInstanceFld != '' && (document.getElementById(parentInstanceFld) != null || document.getElementsByName(parentInstanceFld)[0] != null))
+				{
+					if (document.getElementById(parentInstanceFld) != null)
+						parentInstanceIDVal = document.getElementById(parentInstanceFld).value;
+					else
+						parentInstanceIDVal = document.getElementsByName(parentInstanceFld)[0].value;
+				}
 				
 				dataToBeSent#uniqueTableAppend# = { 
 						bean: '#ajaxBeanName#',
@@ -429,7 +440,7 @@ History:
 						parentFormType : '#elementType#',
 						pageID : #curPageID#,
 						propertiesStruct : JSON.stringify(<cfoutput>#SerializeJSON(inputParameters)#</cfoutput>),
-						currentValues : JSON.stringify(<cfoutput>#SerializeJSON(attributes.currentvalues)#</cfoutput>),
+						parentInstanceValue : parentInstanceIDVal,
 						fieldPermission : #fieldpermission#						
 				 };
 				 
