@@ -1446,7 +1446,7 @@ History:
 		</tr>
 		<tr>
 			<td valign="baseline" align="right">&nbsp;</td>
-			<td valign="baseline" align="left" class="cs_dlgLabelSmall">Comma-delimited list of fields to pass through to Add New and Add Existing buttons if they exist in Request.Params.</td>
+			<td valign="baseline" align="left" class="cs_dlgLabelSmall">Optional comma-delimited list of fields to pass through to Add New and Add Existing buttons if they exist in Request.Params.</td>
 		</tr>
 		<tr>
 			<td colspan="2" valign="baseline" class="cs_dlgLabel" nowrap="nowrap"><strong>#parentFormLabel#<br/><hr/></strong></td>
