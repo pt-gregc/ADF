@@ -52,12 +52,14 @@ History:
 	2015-07-14 - DJM - Added code to display button inputs only when corresponding checkbox is checked
 	2015-07-15 - DJM - Updated code to uncheck the "Disable Data Manager until initial save" checkbox by default
 	2015-07-22 - DRM - Added passthroughParams setting, list of fields to pass through to addNew and AddExisting buttons if they're in Request.Params
+	2015-08-04 - DRM - Show or alert ajax errors
+							 Bump fieldVersion
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "1.0.10";
+	fieldVersion = "1.0.11";
 	
 	// CS version and required Version variables
 	requiredCSversion = 9;
