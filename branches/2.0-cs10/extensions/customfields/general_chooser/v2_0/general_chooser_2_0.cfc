@@ -47,10 +47,11 @@ History:
 	2015-07-08 - GAC - Moved all of the Javascript from the render file a function in the the general_chooser.cfc to allow JS overrides in the Site Level GC file
 	2015-07-09 - GAC - Added datapageID and controlID params to the  loadTopics() ajax call an the 
 					 - Moved the building of the initArgs and selectionArgs struct to the general_chooser.cfc file to allow overrides in the Site Level GC file
+	2015-07-21 - GAC - Additional work to remove the dependency for the jQuery CFJS library
 --->
 <cfcomponent name="general_chooser" extends="ADF.lib.ceData.ceData_2_0">
 
-<cfproperty name="version" value="2_0_0">
+<cfproperty name="version" value="2_0_2">
 
 <cfscript>
 	// CUSTOM ELEMENT INFO
@@ -430,6 +431,8 @@ Arguments:
 History:
 	2015-07-08 - GAC - Created
 	2015-07-10 - GAC - Added the arguments scope to the readonly variables
+	2015-07-21 - GAC - Replaced the "ListAppend" and "ListLen" CFJS calls with local functions to remove the dependency on the jQuery Lib 
+					 - Added a missing semicolon after the loadTopics('search') call
 --->
 <cffunction name="renderChooserJS" access="public" returntype="void" output="true" hint="Renders the Chooser CFT's JavaScript.">
 	<cfargument name="fieldName" type="string" required="true">
@@ -460,20 +463,20 @@ History:
 var #arguments.fieldName#_ajaxProxyURL = "#application.ADF.ajaxProxy#";
 var #arguments.fieldName#_currentValue = "#arguments.currentValue#";
 var #arguments.fieldName#_searchValues = "";
-
-jQuery(function(){
 	
+jQuery(function(){
+		
 	// Resize the window on the page load
 	checkResizeWindow();
-	
+		
 	// JQuery use the LIVE event b/c we are adding links/content dynamically		    
-	// click for show all not-selected items
-	// TODO: update to jQuery ON (LIVE is deprected) !!!
+    // click for show all not-selected items
+	// TODO: update to jQuery ON (jQuery.LIVE is deprected) !!!
 	jQuery('###arguments.fieldName#-showAllItems').live("click", function(event){
 		// Load all the not-selected options
 		#arguments.fieldName#_loadTopics('notselected');
 	});
-	
+	    
 	// JQuery use the LIVE event b/c we are adding links/content dynamically
 	jQuery('###arguments.fieldName#-searchBtn').live("click", function(event){
 		//load the search field into currentItems
@@ -481,27 +484,27 @@ jQuery(function(){
 		#arguments.fieldName#_currentValue = jQuery('input###arguments.fieldName#').val();
 		#arguments.fieldName#_loadTopics('search');
 	});
-	
+		
 	<cfif !arguments.readOnly>
 	// Load the effects and lightbox - this is b/c we are auto loading the selections
 	#arguments.fieldName#_loadEffects();
 	</cfif>
-	
+		
 	// Re-init the ADF Lightbox
 	initADFLB();
 });
-
+	
 // 2013-12-02 - GAC - Updated to allow 'ADD NEW' to be used multiple times before submit
 function #arguments.fieldName#_loadTopics(queryType) 
 {
 	var cValue = jQuery("input###arguments.fieldName#").val();		
-		
+			
 	// Put up the loading message
 	if ( queryType == "selected" )
 		jQuery("###arguments.fieldName#-sortable2").html("Loading ... <img src='/ADF/extensions/customfields/general_chooser/ajax-loader-arrows.gif'>");
 	else
 		jQuery("###arguments.fieldName#-sortable1").html("Loading ... <img src='/ADF/extensions/customfields/general_chooser/ajax-loader-arrows.gif'>");
-	
+		
 	// load the initial list items based on the top terms from the chosen facet
 	jQuery.get( #arguments.fieldName#_ajaxProxyURL,
 	{ 	
@@ -514,7 +517,7 @@ function #arguments.fieldName#_loadTopics(queryType)
 		item: cValue,
 		queryType: queryType,
 		searchValues: #arguments.fieldName#_searchValues,
-		csPageID: '#request.page.id#',
+		csPageID: '#arguments.csPageID#',
 		fieldID: '#arguments.fieldName#',
 		dataPageID: <cfif structKeyExists(request.params, "dataPageID")>#request.params.dataPageID#<cfelseif structKeyExists(request.params, "pageID")>#request.params.pageID#<cfelse>#request.page.id#</cfif>,
 		controlID: <cfif structKeyExists(request.params, "controlID")>#request.params.controlID#<cfelse>0</cfif>
@@ -525,14 +528,14 @@ function #arguments.fieldName#_loadTopics(queryType)
 			jQuery("###arguments.fieldName#-sortable2").html(jQuery.trim(msg));
 		else
 			jQuery("###arguments.fieldName#-sortable1").html(jQuery.trim(msg));
-			
+				
 		#arguments.fieldName#_loadEffects();
-		
+			
 		// Re-init the ADF Lightbox
 		initADFLB();
 	});
 }
-
+	
 function #arguments.fieldName#_loadEffects() 
 {
 	<cfif !arguments.readOnly>
@@ -542,24 +545,24 @@ function #arguments.fieldName#_loadEffects()
 	}).disableSelection();
 	</cfif>
 }
-
+	
 // serialize the selections
 function #arguments.fieldName#_serialize() 
 {
 	// get the serialized list
 	var serialList = jQuery('###arguments.fieldName#-sortable2').sortable( 'toArray' );
 	// Check if the serialList is Array
-	if ( serialList.constructor==Array ) 
+	if ( serialList.constructor==Array )
 	{
 		serialList = serialList.join(",");
 	}
-	
+		
 	// load serial list into current values
 	#arguments.fieldName#_currentValue = serialList;
 	// load current values into the form field
 	jQuery("input###arguments.fieldName#").val(#arguments.fieldName#_currentValue);
 }
-
+	
 // Resize the window function
 function checkResizeWindow()
 {
@@ -569,7 +572,7 @@ function checkResizeWindow()
 		ResizeWindow();
 	}
 }
-
+	
 // 2013-12-02 - GAC - Updated to allow 'ADD NEW' to be used multiple times before submit
 function #arguments.fieldName#_formCallback(formData)
 {
@@ -586,21 +589,21 @@ function #arguments.fieldName#_formCallback(formData)
 		// Check that the record does not exist in the list already
 		tempValue = cValue.search(formData[js_#arguments.fieldName#_CE_FIELD]); 
 		if ( tempValue <= 0 ) 
-			cValue = jQuery.ListAppend(formData[js_#arguments.fieldName#_CE_FIELD], cValue);
+			cValue = #arguments.fieldName#_ListAppend(formData[js_#arguments.fieldName#_CE_FIELD], cValue);
 	}
 	else 
 		cValue = formData[js_#arguments.fieldName#_CE_FIELD];
 
 	// load current values into the form field
 	jQuery("input###arguments.fieldName#").val(cValue);
-	
+		
 	// Reload the selected Values
 	#arguments.fieldName#_loadTopics("selected");
-	
+		
 	// Close the lightbox
 	closeLB();
 }
-
+	
 // 2013-11-26 - Fix for duplicate items on edit issue
 function #arguments.fieldName#_formEditCallback()
 {
@@ -619,7 +622,7 @@ function #arguments.fieldName#_validate()
 	var selections = jQuery("###arguments.fieldName#").val();
 	var lengthOfSelections = 0;
 	//.split will return an array with 1 item if there is an empty string. Get around that.
-	if(selections.length)
+	if ( selections.length )
 	{
 		var arraySelections = selections.split(",");
 		lengthOfSelections = arraySelections.length;
@@ -648,7 +651,7 @@ function #arguments.fieldName#_validate()
 	</cfif>
 	return true;
 }
-
+	
 // A Utility function convert the case of keys of a JS Data Object
 function #arguments.fieldName#_ConvertCaseOfDataObjKeys(dataobj,keycase)
 {
@@ -668,7 +671,38 @@ function #arguments.fieldName#_ConvertCaseOfDataObjKeys(dataobj,keycase)
 	}
 	return newobj;
 }
-//-->
+
+// A utility function for appending values to a list 
+function #arguments.fieldName#_ListAppend(a,b,e)
+{
+	var c="";
+	a+="";
+	
+	if(!e)
+		e=",";
+
+	if( #arguments.fieldName#_ListLen(a,e) )
+		c=a+e+b;
+	else
+		c=b;
+		
+	return c;
+}
+
+// A utility function for counting items in a list 
+function #arguments.fieldName#_ListLen(a,b)
+{
+	a+="";
+	if ( !b )
+		b=",";
+	
+	if ( a.length )
+		return a.split(b).length;
+		
+	return 0;
+}
+
+-->
 </script></cfoutput>	
 </cffunction>
 
