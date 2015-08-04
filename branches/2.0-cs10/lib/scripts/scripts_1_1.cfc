@@ -42,7 +42,7 @@ History:
 --->
 <cfcomponent displayname="scripts_1_1" extends="scripts_1_0" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" value="1_1_25">
+<cfproperty name="version" value="1_1_29">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_1" type="dependency">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Scripts_1_1">
@@ -325,6 +325,7 @@ History:
 	2012-06-27 - MFC - Renamed the JS files to "jquery.cfjs-#version#.js".
 						Set the default to v1.2.
 	2012-08-16 - GAC - Added the force parameter
+	2015-07-21 - GAC - Updated to use versioned directories
 --->
 <cffunction name="loadCFJS" access="public" output="true" returntype="void" hint="Loads the CFJS jQuery Plug-in Headers if not loaded.">
 	<cfargument name="version" type="string" required="false" default="1.2" hint="CFJS version to load.">
@@ -334,7 +335,7 @@ History:
 	<cfset arguments.version = variables.scriptsService.getMajorMinorVersion(arguments.version)>
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
-			<script type="text/javascript" src="/ADF/thirdParty/jquery/cfjs/jquery.cfjs-#arguments.version#.js"></script>
+			<script type="text/javascript" src="/ADF/thirdParty/jquery/cfjs/#arguments.version#/jquery.cfjs.min.js"></script>
 		</cfoutput>
 	</cfsavecontent>
 	<cfoutput>

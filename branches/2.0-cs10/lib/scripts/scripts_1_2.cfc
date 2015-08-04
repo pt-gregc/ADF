@@ -36,12 +36,13 @@ History:
 	2014-05-19 - GAC - Added functions for jQuery plug-ins: jEditable, Calx, Calculation
 	2014-09-16 - GAC - Updated references to thirdparty to thirdParty for case sensitivity
 	2015-02-17 - GAC - Added a loadJQueryTimeAgo function to load version 1.4 by default
-	2015-04-22 - GAC - Added the loadCKEditor and the loadTypeAheadBundle functions
+	2015-04-22 - GAC - Added the loadCKEditor and the loadTypeAheadBundle functions	
 	2015-06-10 - ACW - Updated the component extends to no longer be dependant on the 'ADF' in the extends path	
+	2015-07-21 - GAC - Added and updated the loadCFJS function for CFJS v1.3
 --->
 <cfcomponent displayname="scripts_1_2" extends="scripts_1_1" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" value="1_2_26">
+<cfproperty name="version" value="1_2_29">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_1" type="dependency">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Scripts_1_2">
@@ -102,6 +103,58 @@ History:
 /* *************************************************************** */
 Author: 	
 	PaperThin, Inc.
+	G. Cronkright
+Name:
+	$loadCFJS
+Summary:
+	Loads the CFJS JQuery Plug-in Headers if not loaded.
+	http://cfjs.riaforge.org/
+	https://github.com/topherj/cfjs
+
+	Function Listing:
+	https://github.com/topherj/cfjs/wiki/CFJS-Function-List
+Returns:
+	None
+Arguments:
+	String - version - CFJS version to load.
+	Boolean - Force
+History:
+	2015-07-21 - GAC - Added for version 1.3 of CFJS
+	                 - Updated to use versioned directories
+--->
+<cffunction name="loadCFJS" access="public" output="true" returntype="void" hint="Loads the CFJS jQuery Plug-in Headers if not loaded.">
+	<cfargument name="version" type="string" required="true" default="1.3" hint="CFJS version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
+	
+	<cfscript>
+		var outputHTML = "";
+		var thirdPartyLibPath = "/ADF/thirdParty/jquery/cfjs/";
+		
+		// Make the version backwards compatiable to remove minor build numbers.
+		arguments.version = variables.scriptsService.getMajorMinorVersion(arguments.version);
+		
+		// Append the version to the thirdPartyLibPath
+		thirdPartyLibPath = thirdPartyLibPath & arguments.version & "/"; 
+	</cfscript>
+
+	<cfsavecontent variable="outputHTML">
+		<cfoutput>
+			<script type="text/javascript" src="#thirdPartyLibPath#jquery.cfjs.min.js"></script>
+		</cfoutput>
+	</cfsavecontent>
+	<cfoutput>
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("cfjs",outputHTML)#
+		</cfif>
+	</cfoutput>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
 Name:
 	$loadCKEditor
 Summary:
@@ -124,6 +177,7 @@ Arguments:
 	Boolean - force - Forces CKEditor script header to load.
 History:
 	2015-04-22 - GAC - Created
+	2015-05-21 - GAC - With the addition of the scriptsService.jsCommentStripper() the CDN URL can now use the scripts js loader
 --->
 <cffunction name="loadCKEditor" access="public" output="true" returntype="void" hint="Loads the ckeditor scriptHeaders if not loaded."> 
 	<cfargument name="version" type="string" required="false" default="4.4.7" hint="Optional: CKeditor version to load. Used only when loading from ckeditor CDN.">
@@ -159,7 +213,9 @@ History:
 			<!--- // If we can't find site level files or forceCDN is true... load ckeditor from the CDN --->
 			<cfif loadViaCDN>
 				<!--- // [GAC 2015-04-23] - currently external URLs get stripped if we use the renderScriptOnce javascript loader --->
-				<!--- Disabled: <cfset disableJSloader = false> - using scriptsService.jsCommentStripper() this is no longer an issue --->
+				<!--- // [GAC 2015-05-21] using scriptsService.jsCommentStripper() this is no longer an issue --->
+				<!--- REMOVE - <cfset disableJSloader = true> --->
+				<cfset disableJSloader = true>
 				<script type="text/javascript" src="//cdn.ckeditor.com/#arguments.version#/#arguments.package#/ckeditor.js"></script>
 			</cfif>
 		</cfoutput>
@@ -418,6 +474,7 @@ History:
 	<cfargument name="version" type="string" required="false" default="1.11" hint="JQuery version to load.">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfargument name="noConflict" type="boolean" required="false" default="0" hint="JQuery no conflict flag.">
+	
 	<cfscript>
 		// Flag to determine if we load the JQuery Migrate plugin after the loading process
 		var loadMigratePlugin = false; 
@@ -459,7 +516,7 @@ Arguments:
 	String - version - JQuery BlockUI version to load.
 	Boolean - Force
 History:
-	2015-06-26 - GAC - Added version 2.7 of BlockUI
+	2015-06-26 - GAC - Added version BlockUI v2.7 
 --->
 <cffunction name="loadJQueryBlockUI" access="public" output="true" returntype="void" hint="Loads the JQuery BlockUI plugin if not loaded.">
 	<cfargument name="version" type="string" required="false" default="2.7" hint="JQuery BlockUI plugin version to load.">
@@ -486,16 +543,6 @@ History:
 		</cfif>
 	</cfoutput>
 </cffunction>
-<!--- 
-<cffunction name="loadJQueryBlockUI" access="public" output="true" returntype="void" hint="Loads the JQuery BlockUI plugin if not loaded.">
-	<cfargument name="version" type="string" required="false" default="2.7" hint="JQuery BlockUI plugin version to load.">
-	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
-	<cfargument name="renderInHead" type="boolean" required="false" default="false" hint="Flag to render the script in the document head.">
-	
-	<cfscript>
-		super.loadJQueryBlockUI(version=arguments.version, force=arguments.force, renderInHead=arguments.renderInHead);
-	</cfscript>
-</cffunction> --->
 
 <!---
 /* *************************************************************** */

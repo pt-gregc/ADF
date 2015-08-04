@@ -34,7 +34,7 @@ History:
 --->
 <cfcomponent displayname="scripts_1_0" extends="ADF.lib.libraryBase" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_11">
+<cfproperty name="version" value="1_0_12">
 <cfproperty name="type" value="singleton">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_0" type="dependency">
 <cfproperty name="wikiTitle" value="Scripts_1_0">
@@ -275,12 +275,17 @@ History:
 	2009-06-18 - GAC - Created
 	2012-09-26 - GAC - Removed the ".packed" fromt he script src to be compatible with the new script file naming convention.
 					 - Fixed the default version number
+	2015-07-21 - GAC - Updated to use the version folder format
 --->
 <cffunction name="loadCFJS" access="public" output="true" returntype="void" hint="Loads the CFJS jQuery Plug-in Headers if not loaded.">
 <cfargument name="version" type="string" required="false" default="1.1" hint="CFJS version to load.">
 <cfif not variables.scriptsService.isScriptLoaded("cfjs")>
+	<cfscript>
+		// 2011-12-28 - MFC - Make the version backwards compatiable to remove minor build numbers.
+		arguments.version = variables.scriptsService.getMajorMinorVersion(arguments.version);
+	</cfscript>
 	<cfoutput>
-		<script type="text/javascript" src="/ADF/thirdParty/jquery/cfjs/jquery.cfjs-#arguments.version#.js"></script>
+		<script type="text/javascript" src="/ADF/thirdParty/jquery/cfjs/#arguments.version#/jquery.cfjs.min.js"></script>
 	</cfoutput>
 	<cfset variables.scriptsService.loadedScript("cfjs")>
 </cfif>

@@ -108,13 +108,13 @@ History:
 		<cfelse>
 			<!--- // Else use JS to load through all other browsers --->
 			<cfscript>
-					// TODO :: TESTING THE FOLLOWING jsCommentStripper() METHOD ::
-					// Remove all JS Comments but allow external URLs to remain 
+					// TODO :: TEST THE FOLLOWING jsCommentStripper() METHOD ::
+					// This function removes all JS Comments but allow external URLs to remain 
 					// (with the REGEX method  below single line comments // and URLs https:// both get stripped out ) 
-					arguments.outputHTML = jsCommentStripper(str=arguments.outputHTML);
+					//arguments.outputHTML = jsCommentStripper(str=arguments.outputHTML);
 					
 					//	Removing single line script comments because it comments code out when we remove line breaks! -> //
-					//arguments.outputHTML = ReReplace(arguments.outputHTML, '//[^\r\n]*', '', "all");
+					arguments.outputHTML = ReReplace(arguments.outputHTML, '//[^\r\n]*', '', "all");
 	
 					// escape forward slashes and single quotes
 					arguments.outputHTML = Replace(arguments.outputHTML, '/', '\/', "all");
