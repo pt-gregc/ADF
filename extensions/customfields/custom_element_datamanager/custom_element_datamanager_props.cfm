@@ -54,12 +54,14 @@ History:
 	2015-07-22 - DRM - Added passthroughParams setting, list of fields to pass through to addNew and AddExisting buttons if they're in Request.Params
 	2015-08-04 - DRM - Show or alert ajax errors
 							 Bump fieldVersion
+	2015-08-05 - DRM - Update passthorugh params descr
+							 Bump fieldVersion
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "1.0.11";
+	fieldVersion = "1.0.12";
 	
 	// CS version and required Version variables
 	requiredCSversion = 9;
@@ -1448,7 +1450,7 @@ History:
 		</tr>
 		<tr>
 			<td valign="baseline" align="right">&nbsp;</td>
-			<td valign="baseline" align="left" class="cs_dlgLabelSmall">Optional comma-delimited list of fields to pass through to Add New and Add Existing buttons if they exist in Request.Params.</td>
+			<td valign="baseline" align="left" class="cs_dlgLabelSmall">Optional comma-delimited list of Form or URL fields to pass through to dialogs invoked when the user presses either of the 'Add New' buttons.</td>
 		</tr>
 		<tr>
 			<td colspan="2" valign="baseline" class="cs_dlgLabel" nowrap="nowrap"><strong>#parentFormLabel#<br/><hr/></strong></td>
