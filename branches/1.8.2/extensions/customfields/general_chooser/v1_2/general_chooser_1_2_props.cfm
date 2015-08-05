@@ -49,12 +49,14 @@ History:
 	2015-07-21 - GAC - Additional work to remove the dependency for the jQuery CFJS library
 	2015-07-23 - DRM - Added passthroughParams setting, list of fields to pass through to addNew and AddExisting buttons if they're in Request.Params
 						  - Bump fieldVersion
+	2015-08-05 - DRM - Add passthorugh params descr
+						  - Bump fieldVersion
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "1.2.8";
+	fieldVersion = "1.2.9";
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
@@ -151,8 +153,9 @@ History:
 		</tr>
 		<tr>
 			<th valign="baseline" class="cs_dlgLabelBold" nowrap="nowrap">Passthrough Params:</th>
-			<td valign="baseline">
+			<td valign="baseline" class="cs_dlgLabelSmall">
 				#Server.CommonSpot.udf.tag.input(type="text", id="#prefix#passthroughParams", name="#prefix#passthroughParams", value="#defaultValues.passthroughParams#", size="70", class="InputControl")#
+				<br />Optional comma-delimited list of Form or URL fields to pass through to dialogs invoked when the user presses the 'Add New Record' button.
 			</td>
 		</tr>
 		<tr>
