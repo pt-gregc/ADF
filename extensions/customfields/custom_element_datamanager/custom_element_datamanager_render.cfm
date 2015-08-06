@@ -54,7 +54,7 @@ History:
 	2015-07-14 - DJM - Added code to get elements by name if not found by ID
 	2015-07-21 - DJM - Modified code to have the hidden field render always
 	2015-07-23 - DJM - Modified call to RenderGrid() to take parent field's value using javascript from the form field
-	2015-08-06 - DJM - Modified code to check for AuthorID instead of DateApproved for setting newData variable
+	2015-08-06 - DJM - Modified code to check for AuthorID instead of DateAdded for setting newData variable
 --->
 <cfscript>
 	requiredCSversion = 9;
