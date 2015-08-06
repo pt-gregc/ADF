@@ -53,6 +53,7 @@ History:
 	2015-04-02 - DJM - Modified code for CS Extended URL to compare with just the pageID value instead of the whole value stored in DB
 	2015-04-10 - DJM - Added code to check for field permission for setting up Action controls in getDisplayData()
 	2015-07-03 - DJM - Added code for handling disableDatamanager interface option
+	2015-07-10 - DRM - Fix getAllForms() allForms QoQ, change required at least for ACF9/MySQL
 	2015-07-15 - DJM - Fixed CSS definition in renderActionColumns
 	2015-07-17 - DJM - Fixed catch issue
 	2015-07-22 - DRM - Added passthroughParams setting, list of fields to pass through to addNew and AddExisting buttons if they're in Request.Params
@@ -1631,10 +1632,10 @@ History:
 		</cfscript>
 		
 		<cfquery name="result" dbtype="query">
-			SELECT ID, Name, LOWER(Type) 
-			  FROM allCustomElements 
-			UNION ALL
-			SELECT ID, FormName AS Name, 'metadataform' AS Type
+			SELECT ID, Name, LOWER(Type) AS Type
+			  FROM allCustomElements
+						UNION ALL
+			SELECT ID, CAST(FormName AS VARCHAR) AS Name, 'metadataform' AS Type
 			  FROM allMetadataForms
 		</cfquery>
 		

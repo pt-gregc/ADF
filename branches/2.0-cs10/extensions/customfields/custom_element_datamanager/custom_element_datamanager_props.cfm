@@ -48,15 +48,21 @@ History:
 	2015-05-01 - GAC - Updated to add a forceScript parameter to bypass the ADF renderOnce script loader
 	2015-05-12 - DJM - Updated the field version to 2.0
 	2015-07-03 - DJM - Added code for disableDatamanager interface option
+	2015-07-10 - DRM - Fix allForms  QoQ, change required at least for ACF9/MySQL
+							 Bump fieldVersion
 	2015-07-14 - DJM - Added code to display button inputs only when corresponding checkbox is checked
 	2015-07-15 - DJM - Updated code to uncheck the "Disable Data Manager until initial save" checkbox by default
 	2015-07-22 - DRM - Added passthroughParams setting, list of fields to pass through to addNew and AddExisting buttons if they're in Request.Params
+	2015-08-04 - DRM - Show or alert ajax errors
+							 Bump fieldVersion
+	2015-08-05 - DRM - Update passthorugh params descr
+							 Bump fieldVersion
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "2.0.3"; 
+	fieldVersion = "2.0.5"; 
 	
 	// CS version and required Version variables
 	requiredCSversion = 9;
@@ -219,10 +225,10 @@ History:
 </cfscript>
 
 <cfquery name="allForms" dbtype="query">
-	SELECT ID, Name, LOWER(Type) 
+	SELECT ID, Name, LOWER(Type) AS Type
 	  FROM allCustomElements 
-	UNION ALL
-	SELECT ID, FormName AS Name, 'metadataform' AS Type
+				UNION ALL
+	SELECT ID, CAST(FormName AS VARCHAR) AS Name, 'metadataform' AS Type
 	  FROM allMetadataForms
 </cfquery>
 
@@ -1445,7 +1451,7 @@ History:
 		</tr>
 		<tr>
 			<td valign="baseline" align="right">&nbsp;</td>
-			<td valign="baseline" align="left" class="cs_dlgLabelSmall">Optional comma-delimited list of fields to pass through to Add New and Add Existing buttons if they exist in Request.Params.</td>
+			<td valign="baseline" align="left" class="cs_dlgLabelSmall">Optional comma-delimited list of Form or URL fields to pass through to dialogs invoked when the user presses either of the 'Add New' buttons.</td>
 		</tr>
 		<tr>
 			<td colspan="2" valign="baseline" class="cs_dlgLabel" nowrap="nowrap"><strong>#parentFormLabel#<br/><hr/></strong></td>

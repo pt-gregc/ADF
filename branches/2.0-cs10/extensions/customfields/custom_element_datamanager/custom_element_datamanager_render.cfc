@@ -609,9 +609,10 @@ function loadDataCore_#uniqueTableAppend#(displayOverlay)
 			}
 		}
 	})
-	.fail(function() 
+	.fail(function(jqXHR, textStatus, errorThrown)
 	{
-		document.getElementById('errorMsgSpan').innerHTML = 'An error occurred while trying to perform the operation.';
+		var msg = (typeof jqXHR.responseText === 'string') ? jqXHR.responseText : 'An error occurred while trying to perform the operation.';
+		document.getElementById('errorMsgSpan').innerHTML = msg;
 		document.getElementById('customElementData_#uniqueTableAppend#').style.display = "none";
 		ResizeWindow();
 	});
@@ -653,16 +654,20 @@ function doDeleteSelected_#uniqueTableAppend#(msg,errormsg)
 	 };
 	 
 	jQuery.when(
-
-				jQuery.post( '#ajaxComURL#', 
-										data, 
-										null, 
+			jQuery.post( '#ajaxComURL#',
+										data,
+										null,
 										"json" )
-
-			).done( 
-			
-				function() { onSuccess_#uniqueTableAppend#('Success'); } 
-			);
+			)
+			.done(function()
+			{
+				onSuccess_#uniqueTableAppend#('Success');
+			})
+			.fail(function(jqXHR, textStatus, errorThrown)
+			{
+				var msg = (typeof jqXHR.responseText === 'string') ? jqXHR.responseText : 'An error occurred while trying to perform the operation.';
+				alert(msg);
+			});
 }
 
 function setCurrentValueAndOpenURL_#uniqueTableAppend#(urlToOpen, linkedFldName, buttonName)
