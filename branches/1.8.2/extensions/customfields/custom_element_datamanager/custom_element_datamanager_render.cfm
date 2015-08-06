@@ -54,6 +54,7 @@ History:
 	2015-07-14 - DJM - Added code to get elements by name if not found by ID
 	2015-07-21 - DJM - Modified code to have the hidden field render always
 	2015-07-23 - DJM - Modified call to RenderGrid() to take parent field's value using javascript from the form field
+	2015-08-06 - DJM - Modified code to check for AuthorID instead of DateApproved for setting newData variable
 --->
 <cfscript>
 	requiredCSversion = 9;
@@ -106,7 +107,7 @@ History:
 <cfscript>
 	if ( NOT IsDefined('newData') )
 	{			
-		if (StructKeyExists(attributes.currentValues, 'DateAdded'))
+		if (StructKeyExists(attributes.currentValues, 'AuthorID') AND attributes.currentValues.AuthorID GT 0)
 			newData = 0;
 		else
 			newData = 1;
@@ -296,7 +297,7 @@ History:
 		</cfif>
 		
 		<CFIF inputParameters.childCustomElement neq ''>
-			<CFIF (elementType NEQ 'metadataForm' AND (newData EQ 0 OR NOT ListFindNoCase(inputParameters.interfaceOptions, 'disableDatamanager')) OR (elementType EQ 'metadataForm' AND curPageID GT 0))>
+			<CFIF ((elementType NEQ 'metadataForm' AND (newData EQ 0 OR NOT ListFindNoCase(inputParameters.interfaceOptions, 'disableDatamanager'))) OR (elementType EQ 'metadataForm' AND curPageID GT 0))>
 				<CFOUTPUT>
 					#datamanagerObj.renderStyles(propertiesStruct=inputParameters)#
 					<table class="cs_data_manager" border="0" cellpadding="2" cellspacing="2" summary="" id="parentTable_#uniqueTableAppend#"></CFOUTPUT>
