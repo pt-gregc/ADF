@@ -56,6 +56,7 @@ History:
 	2015-07-14 - DJM - Added code to get elements by name if not found by ID
 	2015-07-21 - DJM - Modified code to have the hidden field render always
 	2015-07-23 - DJM - Modified call to RenderGrid() to take parent field's value using javascript from the form field
+	2015-08-06 - DJM - Modified code to check for AuthorID instead of DateAdded for setting newData variable
 --->
 <cfcomponent displayName="CustomElementDataManager Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -121,7 +122,7 @@ History:
 			if (StructKeyExists(Request.Params, 'newData') AND IsNumeric(Request.Params.newData))
 				newData = Request.Params.newData;
 			else
-				newData = StructKeyExists(allAtrs.currentValues, 'DateAdded') ? 0 : 1;
+				newData = (StructKeyExists(allAtrs.currentValues, 'AuthorID') AND allAtrs.currentValues.AuthorID GT 0) ? 0 : 1;
 		}
 		
 		if (arguments.formType NEQ 'Custom Metadata Form' AND NOT ListFindNoCase(inputParameters.interfaceOptions, 'disableDatamanager'))
@@ -249,7 +250,7 @@ History:
 			</cfif>
 			
 			<cfif inputParameters.childCustomElement neq ''>
-				<cfif (elementType NEQ 'metadataForm' AND (newData EQ 0 OR NOT ListFindNoCase(inputParameters.interfaceOptions, 'disableDatamanager')) OR (elementType EQ 'metadataForm' AND curPageID GT 0))>
+				<CFIF ((elementType NEQ 'metadataForm' AND (newData EQ 0 OR NOT ListFindNoCase(inputParameters.interfaceOptions, 'disableDatamanager'))) OR (elementType EQ 'metadataForm' AND curPageID GT 0))>
 					<cfoutput>
 						#datamanagerObj.renderStyles(propertiesStruct=inputParameters)#
 						<table class="cs_data_manager" border="0" cellpadding="2" cellspacing="2" summary="" id="parentTable_#uniqueTableAppend#"></cfoutput>
