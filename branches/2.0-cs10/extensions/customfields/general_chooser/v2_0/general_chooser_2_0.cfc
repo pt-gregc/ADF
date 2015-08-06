@@ -445,6 +445,8 @@ History:
 	<cfargument name="gcCustomParams" type="struct" default="#StructNew()#" required="false">
 	
 	<cfscript>
+		var passthroughParamsStr = getPassthroughParamsString(arguments.inputParameters);
+		
 		// Set inputParameters Default values
 		if ( NOT StructKeyExists(arguments.inputParameters,"chooserCFCName")  )
 			arguments.inputParameters.chooserCFCName = ListLast(getMetadata().name,".");
@@ -460,7 +462,7 @@ History:
 	
 <cfoutput><script type="text/javascript">
 //<!--
-var #arguments.fieldName#_ajaxProxyURL = "#application.ADF.ajaxProxy#";
+var #arguments.fieldName#_ajaxProxyURL = "#application.ADF.ajaxProxy#?#passthroughParamsStr#";
 var #arguments.fieldName#_currentValue = "#arguments.currentValue#";
 var #arguments.fieldName#_searchValues = "";
 	
@@ -730,6 +732,8 @@ History:
 	2011-04-28 - GAC - Added a check to see if the old "SHOW_SECTION1" variable was being used 
 						via site or app level override file. If so, then it will pass the value to the SHOW_SEARCH variable
 	2014-01-24 - TP - Updated to allow the the enter key to tigger the submit.
+	2015-07-23 - DRM - Added passthroughParams setting, list of fields to pass through to addNew and AddExisting buttons if they're in Request.Params
+						  - Use placeholder attribute on search field instead of (defective) js
 --->
 <cffunction name="loadSearchBox" access="public" returntype="string" hint="General Chooser - Search box HTML content.">
 	<cfargument name="fieldName" type="String" required="true">
@@ -808,11 +812,13 @@ History:
 	<cfargument name="fieldName" type="String" required="true">
 	<cfargument name="readonly" type="boolean" default="false" required="false">
 	<cfargument name="newItemLabel" type="String" default="#variables.NEW_ITEM_LABEL#" required="false">
+	<cfargument name="inputParameters" type="struct" default="#StructNew()#" required="false">
 	<cfargument name="gcCustomParams" type="struct" default="#StructNew()#" required="false">
 	
 	<cfscript>
 		var retAddLinkHTML = "";
 		var ceFormID = 0;
+		var passthroughParamsStr = getPassthroughParamsString(arguments.inputParameters);
 	
 		// Backward Compatibility to allow the variables from General Chooser v1.0 site and app override GC files to be honored
 		// - if the section2 variable is used and set to false... not ADD button should be displayed
@@ -837,7 +843,7 @@ History:
 					js_#arguments.fieldName#_CE_FIELD = '#LCASE(variables.CE_FIELD)#';
 				</script>
 				<div id="add-new-items">
-					<a href="javascript:;" rel="#application.ADF.ajaxProxy#?bean=Forms_1_1&method=renderAddEditForm&formID=#ceFormID#&dataPageId=0&callback=#arguments.fieldName#_formCallback&title=#variables.NEW_ITEM_LABEL#" class="ADFLightbox ui-state-default ui-corner-all #arguments.fieldName#-ui-buttons">#variables.NEW_ITEM_LABEL#</a>
+					<a href="javascript:;" rel="#application.ADF.ajaxProxy#?bean=Forms_1_1&method=renderAddEditForm&formID=#ceFormID#&dataPageId=0&callback=#arguments.fieldName#_formCallback&title=#variables.NEW_ITEM_LABEL##passthroughParamsStr#" class="ADFLightbox ui-state-default ui-corner-all #arguments.fieldName#-ui-buttons">#variables.NEW_ITEM_LABEL#</a>
 				</div>
 			</cfoutput>
 		</cfsavecontent>
@@ -1298,5 +1304,26 @@ History:
 	</cfscript>
 	
 </cffunction>
+
+<cfscript>
+	function getPassthroughParamsString(inputParameters)
+	{
+		var passthroughParamsStr = "";
+		var aParams= "";
+		var i = 0;
+
+		if (structKeyExists(arguments.inputParameters, "passthroughParams") && arguments.inputParameters.passthroughParams != "")
+		{
+			aParams = listToArray(arguments.inputParameters.passthroughParams);
+			for (i = 1; i <= arrayLen(aParams); i++)
+			{
+				if (structKeyExists(request.params, aParams[i]))
+					passthroughParamsStr = "#passthroughParamsStr#&amp;#aParams[i]#=#request.params[aParams[i]]#";
+			}
+		}
+
+		return passthroughParamsStr;
+	}
+</cfscript>
 
 </cfcomponent>
