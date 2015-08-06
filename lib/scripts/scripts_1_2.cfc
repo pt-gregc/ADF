@@ -41,7 +41,7 @@ History:
 --->
 <cfcomponent displayname="scripts_1_2" extends="ADF.lib.scripts.scripts_1_1" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" value="1_2_29">
+<cfproperty name="version" value="1_2_30">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_1" type="dependency">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Scripts_1_2">
@@ -1399,6 +1399,7 @@ Arguments:
 History:
 	2015-04-17 - GAC - Created
 	2015-05-01 - GAC - Added a flag to use cfhtmlhead to render the generated scripts in the HEAD of the page
+	2015-08-06 - GAC - Updated renderScriptOnce scriptName to avoid loading more that one UI theme stylesheet 
 --->
 <cffunction name="loadJQueryUIstyles" access="public" output="true" returntype="void" hint="Loads the JQuery UI Headers if not loaded."> 
 	<cfargument name="version" type="string" required="false" default="1.11" hint="JQuery version to load.">
@@ -1424,7 +1425,7 @@ History:
 		<cfif arguments.force>
 			#outputHTML#
 		<cfelse>
-			#variables.scriptsService.renderScriptOnce(scriptName="jQueryUIstyle_#arguments.themeName#",outputHTML=outputHTML,renderInHead=arguments.renderInHead)#
+			#variables.scriptsService.renderScriptOnce(scriptName="jQueryUIstyles",outputHTML=outputHTML,renderInHead=arguments.renderInHead)#
 		</cfif>
 	</cfoutput>
 </cffunction>
