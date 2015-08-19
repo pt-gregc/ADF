@@ -39,19 +39,16 @@ History:
 	2013-10-21 - GAC - Added version and 'file-version' property for ADF core file 
 	2014-02-26 - GAC - Updated for version 1.7.0
 	2014-10-07 - GAC - Updated for version 1.8.0
+	2015-08-19 - GAC - Updated for version 2.0.0
 --->
 <cfcomponent>
 	
 	<cfproperty name="version" value="2_0_0">
-	<cfproperty name="file-version" value="1">
+	<cfproperty name="file-version" value="2">
 	
 	<cfset this.sessionManagement = true>
-	<!--- // TODO add alias mapping --->
-	<!--- <cfset this.mapping["/ADF"] = ExpandPath("/ADF")> --->
 	
 	<cffunction name="onRequestStart" access="public" returntype="any">
-		<!--- // not needed - include CommonSpots application.cfm --->
-		<!--- <cfinclude template="/commonspot/Application.cfm"> --->
 		<cfscript>
 			// this will come through an AJAX call
 			if( structKeyExists(url, "subsiteURL") )
@@ -65,7 +62,6 @@ History:
 			if ( NOT server.ADF.objectFactory.getBean("csSecurity_1_1").isValidContributor() )
 				server.ADF.objectFactory.getBean("utils_1_0").abort();
 		</cfscript>
-		
 	</cffunction>
 	
 	<cffunction name="loadSiteAppSpace" access="public" returntype="void">
