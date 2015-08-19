@@ -567,6 +567,7 @@ History:
 	2012-11-29 - GAC - Updated to handle getting the CFSCHEDULED tasks list from RAILO
 	2013-06-12 - GAC - Fixed a variable name issue in the taskName filter loop
 	2014-04-16 - GAC - Changed the case of the call to data lib 
+	2015-08-18 - GAC - Updated the second cfmlEngine test to be a 'else' instead of an 'else if' (ACF or other ... thanks lucee!!)
 --->
 <cffunction name="getScheduledTasks" returntype="array" output="no" access="public" hint="Obtain an Array of CF scheduled tasks ">
 	<cfargument name="taskNameFilter" type="string" required="false" default="" hint="Used to only display Scheduled Task Names that contain this filter value">	
@@ -590,10 +591,12 @@ History:
 		<cfset taskService = createobject('java','coldfusion.server.ServiceFactory').getCronService()>
 		<!--- // Get Array of Structs of the current Scheduled tasks on the server from the task service --->
 		<cfset result = taskservice.listall()>
-	<cfelseif FindNoCase(cfmlEngineType,'Railo')>
+	<cfelse>
+		<!--- // Railo and Lucee CFSchedule List code --->
 		<!--- // Use an attributeCollection for the cfscheduele tag so Adobe ColdFusion will not throw an error on the non-ACF attribute --->
 		<cfset schedArgs.action = "list">
 		<cfset schedArgs.returnvariable = "taskQuery">
+		
 		<cfschedule attributeCollection="#schedArgs#">
 				
 		<cfif taskQuery.RecordCount>
