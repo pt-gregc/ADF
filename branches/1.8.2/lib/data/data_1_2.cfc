@@ -35,10 +35,11 @@ History:
 	2014-12-03 - GAC - Added the isNumericList function
 	2015-02-13 - GAC - Added the tagValueCleanup function
 	2015-07-09 - GAC - Added the highlightKeywords function
+	2015-08-13 - GAC - Added arrayOfArraysToQuery function
 --->
 <cfcomponent displayname="data_1_2" extends="ADF.lib.data.data_1_1" hint="Data Utils component functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_16">
+<cfproperty name="version" value="1_2_17">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Data_1_2">
 
@@ -482,7 +483,7 @@ History:
 <cffunction name="QuerySortByOrderedList" displayname="QuerySortByOrderedList" access="public" hint="Sort a query based on a custom ordered list" returntype="query" output="false">
     <cfargument name="query" type="query" required="yes" hint="The query to be sorted">
     <cfargument name="columnName" type="string" required="yes" hint="The name of the column to be sorted">
-    <cfargument name="columnType" type="string" required="no" default="" hint="The column type. Not required will auto-detect. But possible override values: numeric, varchar, date">
+    <cfargument name="columnType" type="string" required="no" default="" hint="The column type. Not required, will auto-detect. But possible override values: numeric, varchar, date">
     <cfargument name="orderList" type="string" required="yes" hint="The list used to sort the query">
 	<cfargument name="orderColumnAlias" type="string" required="no" default="xRecSortCol" hint="The alias for the column containing the order number. Must be unique and not a column the original query."> 
 	<cfargument name="orderListDelimiter" type="string" required="no" default=",">
@@ -1062,19 +1063,27 @@ History:
 		var default_value = arguments.inNum;
 		if(ArrayLen(Arguments) GTE 2) default_value = Arguments[2];
 
-		if (not IsNumeric(arguments.inNum)) {
+		if (not IsNumeric(arguments.inNum)) 
+		{
 			return (default_value);
-		} else {
+		} 
+		else 
+		{
 			arguments.inNum = Trim(arguments.inNum);
 			if(ListLen(arguments.inNum, ".") GT 1) {
 				out_str = Abs(ListFirst(arguments.inNum, "."));
 				decimal_str = "." & ListLast(arguments.inNum, ".");
-			} else if (Find(".", arguments.inNum) EQ 1) {
+			} 
+			else if (Find(".", arguments.inNum) EQ 1) 
+			{
 				decimal_str = arguments.inNum;
-			} else {
+			} 
+			else 
+			{
 				out_str = Abs(arguments.inNum);
 			}
-			if (out_str NEQ "") {
+			if (out_str NEQ "") 
+			{
 				// add commas
 				out_str = Reverse(out_str);
 				out_str = REReplace(out_str, "([0-9][0-9][0-9])", "\1,", "ALL");
@@ -1083,9 +1092,12 @@ History:
 			}
 
 			// add dollar sign (and parenthesis if negative)
-			if(arguments.inNum LT 0) {
+			if(arguments.inNum LT 0) 
+			{
 				return ("($" & out_str & decimal_str & ")");
-			} else {
+			} 
+			else 
+			{
 				return ("$" & out_str & decimal_str);
 			}
 		}
@@ -1161,7 +1173,7 @@ History:
 --->
 <cffunction name="highlightKeywords" access="public" returntype="string" hint="Converts special characters to character entities, making a string safe for display in HTML.">
 	<cfargument name="str" type="string" required="true">
-	<cfargument name="searchterm" type="string" required="true">
+	<cfargument name="searchTerm" type="string" required="true">
 	<cfargument name="preTermStr" type="string" required="false" default='<span style="background:yellow;">'>
 	<cfargument name="postTermStr" type="string" required="false" default='</span>' >
 	
@@ -1172,10 +1184,10 @@ History:
 	    var word = "";
 	    
 	    // loop through keywords
-	    for ( i=1; i lte ListLen( arguments.searchterm, " " ); i=i+1 )
+	    for ( i=1; i lte ListLen( arguments.searchTerm, " " ); i=i+1 )
 	    {
 	      // get current keyword and escape any special regular expression characters
-	      word = ReReplace( ListGetAt( arguments.searchterm, i, " " ), "\.|\^|\$|\*|\+|\?|\(|\)|\[|\]|\{|\}|\\", "" );
+	      word = ReReplace( ListGetAt( arguments.searchTerm, i, " " ), "\.|\^|\$|\*|\+|\?|\(|\)|\[|\]|\{|\}|\\", "" );
 	      
 	      // return matches for current keyword from string
 	      matches = ReMatchNoCase( word, arguments.str );
@@ -1191,6 +1203,116 @@ History:
 	      }  
 	    }
 	    return arguments.str;
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$arrayOfArraysToQuery
+Summary:
+	Converts an array of structures to a CF Query Object.
+
+	Based on the arrayOfStructuresToQuery() by David Crawford (dcrawford@acteksoft.com) and Rob Brooks-Bilson (rbils@amkor.com)
+Returns:
+	Query
+Arguments:
+	Array - theArray
+	Boolean - useFirstArrayAsColNames
+	Boolean - forceSimpleColNames
+	Boolean - forceColsToVarchar
+Usage:
+	arrayOfArraysToQuery(theArray,useFirstArrayAsColNames,forceSimpleColNames,forceColsToVarchar)
+History:
+	2015-08-13 - GAC - Added
+ --->
+<cffunction name="arrayOfArraysToQuery" access="public" returntype="query">
+	<cfargument name="theArray" type="array" required="true">
+	<cfargument name="useFirstArrayAsColNames" type="boolean" default="false" required="false">
+	<cfargument name="forceSimpleColNames" type="boolean" default="false" required="false">
+	<cfargument name="forceColsToVarchar" type="boolean" default="false" required="false">
+		
+	<cfscript>
+		var colNames = ArrayNew(1);
+		var theQuery = QueryNew("tmp");
+		var i = 0;
+		var j = 0;
+		var c = 0;
+		var foo = "";
+		var count = arrayLen(arguments.theArray);
+		var col_num = 0;
+		var item = "";
+		var firstArray = ArrayNew(1);
+		var columnCount = 0;
+		var newColName = "";
+		var newColNames = ArrayNew(1);
+		
+		//if there's nothing in the array, return the empty query
+		if ( count eq 0 )
+			return theQuery;
+		
+		if ( ArrayLen( arguments.theArray ) )
+			firstArray = arguments.theArray[1];
+		
+		columnCount = ArrayLen(firstArray);
+			
+		//get the column names into an array =
+		if ( arguments.useFirstArrayAsColNames )
+		{
+			colNames = firstArray;
+			ArrayDeleteAt(arguments.theArray,1);
+			count = ArrayLen(arguments.theArray);
+			
+			if ( arguments.forceSimpleColNames )
+			{
+				newColName = "";
+				newColNames = ArrayNew(1);
+				for ( c=1; c LTE columnCount; c=c+1 )
+				{
+					//newColName = REREPLACE(colNames[c],"[\s]","","all");
+					//newColName = REREPLACE(colNames[c],"[^0-9A-Za-z ]","","all"); 
+					newColName = REREPLACE(colNames[c],"[^\w]","","all"); 
+					
+					ArrayAppend(newColNames,newColName);	
+				}
+				colNames = newColNames;		
+			}
+		}
+		else
+		{
+			for ( c=1; c LTE columnCount; c=c+1 )
+			{
+				ArrayAppend(colNames,"column" & c);	
+			}
+		}	
+		
+		//colNames = structKeyArray(arguments.theArray[1]);
+		col_num = ArrayLen(colNames);
+		
+		//build the query based on the colNames
+		if ( arguments.forceColsToVarchar )
+			theQuery = queryNew(arrayToList(colNames), RepeatString("varchar,", col_num));    
+		else
+			theQuery = queryNew(arrayToList(colNames));
+			
+		//add the right number of rows to the query
+		queryAddRow(theQuery, count);
+		
+		//for each element in the array, loop through the columns, populating the query
+		for ( i=1; i LTE count; i=i+1 )
+		{
+			item = arguments.theArray[i];
+			for( j=1; j LTE col_num; j=j+1 )
+			{	
+				itemColumn = colNames[j];
+				itemValue = TRIM(item[j]);
+
+				querySetCell(theQuery, itemColumn, itemValue, i);
+			}
+		}
+		return theQuery;
 	</cfscript>
 </cffunction>
 
