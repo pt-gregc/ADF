@@ -440,7 +440,8 @@ History:
 	2011-02-09 - RAK - Var'ing un-var'd variables
 	2011-09-17 - GAC - Added a check to verify that application.schedule variable exists
 	2011-09-26 - GAC - Updated application.schedule to be application.ADFscheduler 
-	2011-09-27 - GAC - Converted application.ADF references to the local 'variables.'. 
+	2011-09-27 - GAC - Converted application.ADF references to the local 'variables.'.
+	2015-05-29 - GAC - Updated to allow multiple scripts on a single page
 --->
 <cffunction name="getScheduleHTML" access="public" returntype="string" hint="Returns the management HTML for the specified schedule name.">
 	<cfargument name="scheduleName" type="string" required="true" hint="Unique name for the schedule you want to run">
@@ -459,16 +460,18 @@ History:
 				Schedule does not exist.
 			<cfelse>
 				<cfset currentSchedule = application.ADFscheduler[arguments.scheduleName]>
-				<cfset scheduleID = "schedule"&Replace(scheduleName," ","","all")>
+				<cfset scheduleSuffix = ReReplace(scheduleName, '[^\w]', '', 'all')>
+				<!--- <cfset scheduleSuffix = Replace(scheduleName," ","","all")> --->
+				<cfset scheduleID = "schedule" & UCASE(scheduleSuffix)>
 				#variables.scripts.loadJQuery()#
 				#variables.scripts.loadJQueryUI()#
 				<script type="text/javascript">
 					jQuery(function (){
 						jQuery("###scheduleID# .progressBar").progressbar({ value: #currentSchedule.scheduleProgress/ArrayLen(currentSchedule.commands)*100# });
-						updateSchedule('#scheduleID#');
+						updateSchedule_#scheduleSuffix#('#scheduleID#');
 					});
 					
-					function updateSchedule(scheduleID){
+					function updateSchedule_#scheduleSuffix#(scheduleID){
 						jQuery.getJSON(
 							"#application.ADF.ajaxProxy#",
 							{
@@ -485,7 +488,7 @@ History:
 								jQuery("##"+scheduleID+" .scheduleStatus").html("Status: "+data.STATUS+" <br>Completion: "+currentTaskOffset+"/"+totalTasks);
 								if(data.STATUS == "active"){
 									//Refresh every 10 seconds.
-									setTimeout("updateSchedule('"+scheduleID+"')",10*1000);
+									setTimeout("updateSchedule_#scheduleID#('"+scheduleID+"')",10*1000);
 									jQuery("##"+scheduleID+" .changeScheduleStatus .pause").show();
 									jQuery("##"+scheduleID+" .changeScheduleStatus .resume").hide();
 									jQuery("##"+scheduleID+" .progressBar").progressbar({ disabled: false });
@@ -505,7 +508,7 @@ History:
 							}
 						);
 					}
-					function pauseSchedule(scheduleName,scheduleID){
+					function pauseSchedule_#scheduleSuffix#(scheduleName,scheduleID){
 						jQuery.get(
 							"#application.ADF.ajaxProxy#",
 							{
@@ -514,11 +517,11 @@ History:
 								scheduleName: "#arguments.scheduleName#"
 							}
 						);
-						updateSchedule(scheduleID);
+						updateSchedule_#scheduleSuffix#(scheduleID);
 						jQuery("##"+scheduleID+" .changeScheduleStatus .resume").show();
 						jQuery("##"+scheduleID+" .changeScheduleStatus .pause").hide();
 					}
-					function resumeSchedule(scheduleName,scheduleID){
+					function resumeSchedule_#scheduleSuffix#(scheduleName,scheduleID){
 						jQuery.get(
 							"#application.ADF.ajaxProxy#",
 							{
@@ -537,8 +540,8 @@ History:
 					<div class="progressBar"></div>
 					<div class="scheduleStatus">#currentSchedule.status#</div>
 					<div class="changeScheduleStatus">
-						<div class="pause" style="display:none"><a href="javascript:pauseSchedule('#arguments.scheduleName#','#scheduleID#')">Pause</a></div>
-						<div class="resume" style="display:none"><a href="javascript:resumeSchedule('#arguments.scheduleName#','#scheduleID#')">Resume</a></div>
+						<div class="pause" style="display:none"><a href="javascript:pauseSchedule_#scheduleSuffix#('#arguments.scheduleName#','#scheduleID#')">Pause</a></div>
+						<div class="resume" style="display:none"><a href="javascript:resumeSchedule_#scheduleSuffix#('#arguments.scheduleName#','#scheduleID#')">Resume</a></div>
 					</div>
 				</div>
 			</cfif>
@@ -565,6 +568,7 @@ History:
 	2012-11-29 - GAC - Updated to handle getting the CFSCHEDULED tasks list from RAILO
 	2013-06-12 - GAC - Fixed a variable name issue in the taskName filter loop
 	2014-04-16 - GAC - Changed the case of the call to data lib 
+	2015-08-18 - GAC - Updated the second cfmlEngine test to be a 'else' instead of an 'else if' (ACF or other ... thanks lucee!!)
 --->
 <cffunction name="getScheduledTasks" returntype="array" output="no" access="public" hint="Obtain an Array of CF scheduled tasks ">
 	<cfargument name="taskNameFilter" type="string" required="false" default="" hint="Used to only display Scheduled Task Names that contain this filter value">	
@@ -588,10 +592,12 @@ History:
 		<cfset taskService = createobject('java','coldfusion.server.ServiceFactory').getCronService()>
 		<!--- // Get Array of Structs of the current Scheduled tasks on the server from the task service --->
 		<cfset result = taskservice.listall()>
-	<cfelseif FindNoCase(cfmlEngineType,'Railo')>
+	<cfelse>
+		<!--- // Railo and Lucee CFSchedule List code --->
 		<!--- // Use an attributeCollection for the cfscheduele tag so Adobe ColdFusion will not throw an error on the non-ACF attribute --->
 		<cfset schedArgs.action = "list">
 		<cfset schedArgs.returnvariable = "taskQuery">
+		
 		<cfschedule attributeCollection="#schedArgs#">
 				
 		<cfif taskQuery.RecordCount>
