@@ -42,23 +42,29 @@ History:
 	2014-05-27 - GAC - Added a ADFdumpVar processing method call to help with securing the rendered output
 					 - Added the ADF and fileVersion local variables
 					 - Added the label to simple value dumps
- --->
+	2015-03-20 - SFS - Added inline style to resolve display issue with Railo 4.2.1 and a site that is using Bootstrap in its site design
+	2015-04-22 - GAC - Updated logic for Railo/Bootstrap ADFDumpVar fix  
+					 - Added a 'Railo' check before adding the ADFDumpVar fix
+	2015-08-19 - GAC - Switched the 'Railo' check for the ADFDumpVar to be a NOT ACF check (thanks lucee!!)
+--->
 <!--- // Lock around the entire load ADF processing --->
 <cflock timeout="300" type="exclusive" name="ADF-RESET-LOAD-SITE">
 	<cfscript>
 		adfVersion = "2.0.0";
-		adfFileVersion = "13"; 
+		adfFileVersion = "17"; 
 		
 		// Initialize the RESET TYPE variable
 		// Determine what kind of reset is needed (if any)
 		adfResetType = "";
 		force = false;
 		// Check if the ADF space exists in the SERVER and APPLICATION
-		if ( NOT StructKeyExists(server, "ADF") ) {
+		if ( NOT StructKeyExists(server, "ADF") ) 
+		{
 			adfResetType = "ALL";
 			force = true;
 		} 
-		else if ( NOT StructKeyExists(application, "ADF") ) {
+		else if ( NOT StructKeyExists(application, "ADF") ) 
+		{
 			force = true;
 			adfResetType = "SITE";
 		}
@@ -71,18 +77,17 @@ History:
 	<!--- // Check if the user is logged in run the reset commands --->
 	<cfscript>
 		// Command to reset the entire ADF
-		if( StructKeyExists(url,"resetADF") ) {
+		if( StructKeyExists(url,"resetADF") ) 
 			adfResetType = "ALL";
-		}
-		else {
+		else 
+		{
 			// Check the SERVER or SITE reset commands
-			if(StructKeyExists(url,"resetServerADF") and StructKeyExists(url,"resetSiteADF")){
+			if ( StructKeyExists(url,"resetServerADF") and StructKeyExists(url,"resetSiteADF") )
 				adfResetType = "ALL";
-			}else if(StructKeyExists(url,"resetServerADF")){
+			else if ( StructKeyExists(url,"resetServerADF") )
 				adfResetType = "SERVER";
-			}else if(StructKeyExists(url,"resetSiteADF")){
+			else if ( StructKeyExists(url,"resetSiteADF") )
 				adfResetType = "SITE";
-			}
 		}
 	</cfscript>
 
@@ -106,7 +111,13 @@ History:
 		<!--- // The following is unchanged during the 2010-10-29 refractor --->
 		<cfscript>
 			adfDumpMsg = "";
-			if ( StructKeyExists(url,"ADFDumpVar")) {
+			if ( StructKeyExists(url,"ADFDumpVar")) 
+			{
+				// Set the cfmlEngine type
+				cfmlEngine = server.coldfusion.productname;
+				/* [SFS] - 2015-03-20 - Added inline style to resolve display issue with Railo 4.2.1 and a site that is using Bootstrap in its site design */
+				if ( !FindNoCase(cfmlEngine,'ColdFusion Server') )
+					adfDumpMsg = "<style>.label{color:##000000;display:table-cell;font-size:11px;font-weight:normal;}</style>";
 				// Verify if the ADF dump var exists
 				// [MFC] - Changed "isDefined" to "LEN"
 				// [RAK] - 2010-11-01 - Fixing security issue with cfscript code being passed into the evaluate from any logged in user
@@ -114,17 +125,19 @@ History:
 				// [DRM] = 2014-01-08 - Moved msg to cfhtmlhead, same reasoning as with reset msg above
 				//Anything that is not a-z or 0-9 or '.' or '[' or ']'
 				regularExpression = '[^a-z0-9\.\[\]]]*';
-				if ( Len(url.ADFDumpVar) GT 0 and !ReFindNoCase(regularExpression,url.ADFDumpVar) ) {
+				if ( Len(url.ADFDumpVar) GT 0 and !ReFindNoCase(regularExpression,url.ADFDumpVar) ) 
+				{
 					utilsObj = CreateObject("component","ADF.lib.utils.utils_1_2");
 					// [GAC] 2014-05-27 - Added a security fix for the ADF dump var command
 					adfDumpVarData = utilsObj.processADFDumpVar(dumpVarStr=url.ADFDumpVar,sanitize=true);
 					// [GAC] 2014-05-27 - Dump the processed ADFdumpVar data 
 					if ( IsSimpleValue(adfDumpVarData) )
-						adfDumpMsg = utilsObj.dodump(adfDumpVarData, url.ADFDumpVar, true, true);
+						adfDumpMsg = adfDumpMsg & utilsObj.dodump(adfDumpVarData, url.ADFDumpVar, true, true);
 					else
-						adfDumpMsg = utilsObj.dodump(adfDumpVarData, url.ADFDumpVar, false, true);
+						adfDumpMsg = adfDumpMsg & utilsObj.dodump(adfDumpVarData, url.ADFDumpVar, false, true);
 				}
-				else {
+				else 
+				{
 					// 2012-01-10 - MFC - Added span tag with ID around the reset message.
 					adfDumpMsg = "<span id='ADF-Reset-Message'><strong>ADFDumpVar Failed</strong> : Variable '#url.ADFDumpVar#' does not exist.</span>";
 				}
