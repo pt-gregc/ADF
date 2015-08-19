@@ -45,6 +45,7 @@ History:
 	2015-03-20 - SFS - Added inline style to resolve display issue with Railo 4.2.1 and a site that is using Bootstrap in its site design
 	2015-04-22 - GAC - Updated logic for Railo/Bootstrap ADFDumpVar fix  
 					 - Added a 'Railo' check before adding the ADFDumpVar fix
+	2015-08-19 - GAC - Switched the 'Railo' check for the ADFDumpVar to be a NOT ACF check (thanks lucee!!)
 --->
 <!--- // Lock around the entire load ADF processing --->
 <cflock timeout="300" type="exclusive" name="ADF-RESET-LOAD-SITE">
@@ -115,7 +116,7 @@ History:
 				// Set the cfmlEngine type
 				cfmlEngine = server.coldfusion.productname;
 				/* [SFS] - 2015-03-20 - Added inline style to resolve display issue with Railo 4.2.1 and a site that is using Bootstrap in its site design */
-				if ( FindNoCase(cfmlEngine,'Railo') )				
+				if ( !FindNoCase(cfmlEngine,'ColdFusion Server') )
 					adfDumpMsg = "<style>.label{color:##000000;display:table-cell;font-size:11px;font-weight:normal;}</style>";
 				// Verify if the ADF dump var exists
 				// [MFC] - Changed "isDefined" to "LEN"
