@@ -38,12 +38,13 @@ History:
 	2014-01-03 - GAC - Added the fieldVersion variable
     2014-09-19 - GAC - Removed deprecated doLabel and jsLabelUpdater js calls
 	2015-05-26 - DJM - Added the 3.0 version
+	2015-09-02 - DRM - Add getResourceDependencies support, bump version
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "3.0"; 
+	fieldVersion = "3.0.1";
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;

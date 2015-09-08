@@ -118,6 +118,11 @@ History:
 			return 'hasValue(document.#arguments.formName#.#arguments.fieldName#, "TEXT")';
 		return '';
 	}
+
+	public string function getResourceDependencies()
+	{
+		return listAppend(super.getResourceDependencies(), "jQuery");
+	}
 </cfscript>
 
 </cfcomponent>

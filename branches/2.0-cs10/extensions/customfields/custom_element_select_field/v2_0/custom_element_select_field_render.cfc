@@ -373,6 +373,11 @@ function onSuccess_#arguments.fieldName#(data)
 	{
 		return (structKeyExists(arguments.parameters, "multipleSelect") && arguments.parameters.multipleSelect == 1);
 	}
+
+	public string function getResourceDependencies()
+	{
+		return listAppend(super.getResourceDependencies(), "jQuery,jQueryUI,ADFLightbox,jQuerySelectboxes");
+	}
 </cfscript>
 
 </cfcomponent>

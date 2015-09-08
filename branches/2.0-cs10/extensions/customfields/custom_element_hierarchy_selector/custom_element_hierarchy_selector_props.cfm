@@ -35,13 +35,14 @@ History:
 	2014-01-29 - GAC - Converted to use AjaxProxy and the ADF Lib
 	2014-09-19 - GAC - Removed deprecated doLabel and jsLabelUpdater js calls
 	2015-05-12 - DJM - Updated the field version to 2.0
+	2015-09-02 - DRM - Add getResourceDependencies support, bump version
 --->
 
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "2.0"; 
+	fieldVersion = "2.0.1";
 	
 	requiredVersion = 9;
 	productVersion = ListFirst(ListLast(request.cp.productversion," "),".");

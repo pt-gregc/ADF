@@ -240,6 +240,11 @@ jQuery(function() {
 	{
 		return "Please select a value for the #arguments.label# field.";
 	}
+
+	public string function getResourceDependencies()
+	{
+		return listAppend(super.getResourceDependencies(), "jQuery,jQueryUI,DateJS,DateFormat,JQueryUITimepickerAddon,JQueryUITimepickerFG");
+	}
 </cfscript>
 
 </cfcomponent>

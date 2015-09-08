@@ -143,5 +143,10 @@ jQuery(function(){
 	{
 		return "Please select a page.";
 	}
+
+	public string function getResourceDependencies()
+	{
+		return listAppend(super.getResourceDependencies(), "jQuery");
+	}
 </cfscript>
 </cfcomponent>

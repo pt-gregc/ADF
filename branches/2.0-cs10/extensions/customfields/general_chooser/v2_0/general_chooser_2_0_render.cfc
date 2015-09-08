@@ -487,6 +487,11 @@ function #inputParameters.fieldID#_ConvertCaseOfDataObjKeys(dataobj,keycase)
 	{
 		return ''; // validator does alert itself dynamically, this keeps the default alert from happening too
 	}
+
+	public string function getResourceDependencies()
+	{
+		return listAppend(super.getResourceDependencies(), "jQuery,jQueryUI,ADFLightbox");
+	}
 </cfscript>
 
 </cfcomponent>

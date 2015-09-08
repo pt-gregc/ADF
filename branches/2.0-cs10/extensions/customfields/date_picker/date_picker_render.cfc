@@ -281,6 +281,11 @@ jQuery(function() {
 	{
 		return structKeyExists(arguments.parameters, "fldClearDate") && arguments.parameters.fldClearDate == "yes";
 	}
+
+	public string function getResourceDependencies()
+	{
+		return listAppend(super.getResourceDependencies(), "jQuery,jQueryUI,DateJS,DateFormat,JQueryDatePick");
+	}
 </cfscript>
 
 </cfcomponent>

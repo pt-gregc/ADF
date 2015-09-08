@@ -160,4 +160,11 @@ jQuery(function(){
 	</cfscript>
 </cffunction>
 
+<cfscript>
+	public string function getResourceDependencies()
+	{
+		return listAppend(super.getResourceDependencies(), "jQuery");
+	}
+</cfscript>
+
 </cfcomponent>

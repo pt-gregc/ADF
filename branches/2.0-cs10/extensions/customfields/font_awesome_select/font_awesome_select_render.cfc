@@ -362,6 +362,11 @@ function clearInput_#arguments.fieldName#()
 	{
 		return "Please select a value for the #arguments.label# field.";
 	}
+
+	public string function getResourceDependencies()
+	{
+		return listAppend(super.getResourceDependencies(), "jQuery,FontAwesome");
+	}
 </cfscript>
 
 </cfcomponent>

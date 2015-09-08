@@ -242,5 +242,10 @@ function #arguments.fieldName#addSubsite(name, displayName, description)
 			return 'hasValue(document.#arguments.formName#.#arguments.fieldName#, "TEXT")';
 		return "";
 	}
+
+	public string function getResourceDependencies()
+	{
+		return listAppend(super.getResourceDependencies(), "jQuery,jQueryUI,JQuerySelectboxes");
+	}
 </cfscript>
 </cfcomponent>

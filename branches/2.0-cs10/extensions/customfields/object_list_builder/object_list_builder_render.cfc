@@ -692,6 +692,11 @@ History:
 	{
 		return "Object list is empty.";
 	}
+
+	public string function getResourceDependencies()
+	{
+		return listAppend(super.getResourceDependencies(), "jQuery,jQueryUI");
+	}
 </cfscript>
 
 </cfcomponent>

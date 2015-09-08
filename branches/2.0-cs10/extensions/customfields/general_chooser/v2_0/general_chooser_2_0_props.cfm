@@ -51,12 +51,13 @@ History:
 						  - Bump fieldVersion
 	2015-08-05 - DRM - Add passthorugh params descr
 						  - Bump fieldVersion
+	2015-09-02 - DRM - Add getResourceDependencies support, bump version
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "2.0.4"; 
+	fieldVersion = "2.0.5";
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;

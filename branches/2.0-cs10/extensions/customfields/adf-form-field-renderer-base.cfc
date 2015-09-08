@@ -2,9 +2,9 @@
 
 <!---
 	2015-05-27 - DRM - added renderCSFormScripts() call
+	2015-08-28 - DRM - removed that method and the call to it
+							 moved those functions into cs-form-utilities.js, registered it as resource 'ADFcsFormUtilities'
+							 NOT loading it automatically, code that needs those should load the resource itself
 --->
-<cfscript>
-	application.ADF.fields.renderCSFormScripts(); // make js form utils available to all renderers
-</cfscript>
 
 </cfcomponent>

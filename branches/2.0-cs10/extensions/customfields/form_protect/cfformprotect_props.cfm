@@ -34,12 +34,13 @@ History:
 					 - Added the CFSETTING tag to disable CF Debug results in the props module
 	2014-01-03 - GAC - Added the fieldVersion variable
 	2014-09-19 - GAC - Removed deprecated doLabel and jsLabelUpdater js calls
+	2015-09-02 - DRM - Add getResourceDependencies support, bump version
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "1.0.1"; 
+	fieldVersion = "1.0.2";
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;

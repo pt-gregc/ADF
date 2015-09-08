@@ -32,6 +32,7 @@ History:
 	2014-09-15 - Created
 	2014-09-29 - GAC - Added Padding Value normalization to remove the label from the default values
 	2015-05-12 - DJM - Updated the field version to 2.0
+	2015-09-02 - DRM - Add getResourceDependencies support, bump version
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
@@ -43,7 +44,7 @@ History:
 // writedump( var="#currentValues#", expand="no" );
 	
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "2.0"; 
+	fieldVersion = "2.0.1";
 	
 	// initialize some of the attributes variables
 	top = 0;

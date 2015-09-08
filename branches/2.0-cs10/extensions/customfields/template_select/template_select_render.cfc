@@ -193,6 +193,11 @@ jQuery(document).ready(function() {
 	{
 		return "Please select a value for the #arguments.label# field.";
 	}
+
+	public string function getResourceDependencies()
+	{
+		return listAppend(super.getResourceDependencies(), "jQuery,jQuerySelectboxes");
+	}
 </cfscript>
 
 </cfcomponent>

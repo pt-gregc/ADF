@@ -706,6 +706,11 @@ function setCurrentValueAndOpenURL_#uniqueTableAppend#(urlToOpen, linkedFldName,
 	{
 		return true;
 	}
+
+	public string function getResourceDependencies()
+	{
+		return listAppend(super.getResourceDependencies(), "jQuery,jQueryUI,JQueryDataTables");
+	}
 </cfscript>	
 
 </cfcomponent>

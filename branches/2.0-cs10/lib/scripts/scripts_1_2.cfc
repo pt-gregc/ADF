@@ -900,7 +900,7 @@ History:
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
 			<script type="text/javascript" src="/ADF/thirdParty/jquery/mobile/#arguments.version#/jquery.mobile-#arguments.version#.min.js"></script>
-			<link rel="stylesheet" href="/ADF/thirdParty/jquery/mobile/jquery.mobile-#arguments.version#.min.css" />
+			<link rel="stylesheet" href="/ADF/thirdParty/jquery/mobile/#arguments.version#/jquery.mobile-#arguments.version#.min.css" />
 			<!--- the following adds rel="external" to the Commonspot dashboard entrance menu --->
 			<cfif not (session.user.userid is "anonymous")>
 				<script type="text/javascript">
@@ -1900,6 +1900,14 @@ History:
 	<cfscript>
 		super.loadUploadify(version=arguments.version, force=arguments.force);
 	</cfscript>
+</cffunction>
+
+
+<cffunction name="appendToResourceGroup" returntype="void">
+	<cfargument name="content" type="string" required="true">
+	<cfargument name="resourceGroup" type="string" required="true">
+	<cfargument name="location" type="string" default="foot">
+	<cfmodule template="/commonspot/utilities/append-to-resource-group">#arguments.content#</cfmodule>
 </cffunction>
 
 </cfcomponent>

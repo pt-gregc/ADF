@@ -65,6 +65,7 @@ History:
 	2014-03-24 - JTP - Added Sort option. Allowing user to determin if sort should be by dsiplay field or column specified in Filter Criteria. Also changed order of radio buttons.
 	2014-09-19 - GAC - Removed deprecated doLabel and jsLabelUpdater js calls
 	2015-05-26 - DJM - Added the 2.0 version
+	2015-09-02 - DRM - Add getResourceDependencies support, bump version
 --->
 
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
@@ -87,7 +88,7 @@ History:
 
 <!---// CommonSpot 9 Required for the new element data filter criteria --->
 <cfscript>
-	fieldVersion = "2.0"; // Variable for the version of the field - Display in Props UI
+	fieldVersion = "2.0.1"; // Variable for the version of the field - Display in Props UI
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;

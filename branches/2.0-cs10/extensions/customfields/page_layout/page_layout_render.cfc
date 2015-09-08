@@ -214,4 +214,12 @@ function #arguments.fieldName#_loadSelection(optionName) {
 	<cfreturn showChoice>
 </cffunction>
 
+
+<cfscript>
+	public string function getResourceDependencies()
+	{
+		return listAppend(super.getResourceDependencies(), "jQuery");
+	}
+</cfscript>
+
 </cfcomponent>

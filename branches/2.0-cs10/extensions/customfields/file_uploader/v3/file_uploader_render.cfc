@@ -145,4 +145,12 @@ function #arguments.fieldName#clearButtonClick(){
 </cfoutput>
 </cffunction>
 
+
+<cfscript>
+	public string function getResourceDependencies()
+	{
+		return listAppend(super.getResourceDependencies(), "jQuery,jQueryUI,ADFLightbox");
+	}
+</cfscript>
+
 </cfcomponent>
