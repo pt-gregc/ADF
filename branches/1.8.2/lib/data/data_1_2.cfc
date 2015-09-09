@@ -1169,7 +1169,8 @@ Usage:
 History:
 	2015-07-08 - GAC - Added to the data_1_2 lib component
 	2015-07-09 - GAC - Added additional arguments to allow custom pre and post HTML strings to be added
-	2015-07-16 - GAC - Updated the var'd variable for the loop 
+	2015-07-16 - GAC - Updated the var'd variable for the loop
+	2015-09-09 - KE - Updated the ReReplace to escape ALL matched special regular expression characters 
 --->
 <cffunction name="highlightKeywords" access="public" returntype="string" hint="Converts special characters to character entities, making a string safe for display in HTML.">
 	<cfargument name="str" type="string" required="true">
@@ -1187,7 +1188,7 @@ History:
 	    for ( i=1; i lte ListLen( arguments.searchTerm, " " ); i=i+1 )
 	    {
 	      // get current keyword and escape any special regular expression characters
-	      word = ReReplace( ListGetAt( arguments.searchTerm, i, " " ), "\.|\^|\$|\*|\+|\?|\(|\)|\[|\]|\{|\}|\\", "" );
+	      word = ReReplace( ListGetAt( arguments.searchTerm, i, " " ), "\.|\^|\$|\*|\+|\?|\(|\)|\[|\]|\{|\}|\\", "", "ALL" );
 	      
 	      // return matches for current keyword from string
 	      matches = ReMatchNoCase( word, arguments.str );
