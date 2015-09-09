@@ -448,6 +448,8 @@ History:
 	2015-07-10 - GAC - Added the arguments scope to the readonly variables
 	2015-07-21 - GAC - Replaced the "ListAppend" and "ListLen" CFJS calls with local functions to remove the dependency on the jQuery Lib 
 					 - Added a missing semicolon after the loadTopics('search') call
+	2015-08-31 - GAC - Removed jQuery.LIVE and replace with jQuery.ON since it has been deprecated since 1.7 and no longer works with jQuery 2.x
+	2015-09-09 - GAC - Removed both jQuery.LIVE() and jQuery.ON() only a jQuery.CLICK() is needed for the search and show all buttons	
 --->
 <cffunction name="renderChooserJS" access="public" returntype="void" output="true" hint="Renders the Chooser CFT's JavaScript.">
 	<cfargument name="fieldName" type="string" required="true">
@@ -493,15 +495,20 @@ jQuery(function(){
 	// Resize the window on the page load
 	checkResizeWindow();
 		
-	// JQuery use the LIVE event b/c we are adding links/content dynamically		    
-    // click for show all not-selected items
-    jQuery('###arguments.fieldName#-showAllItems').live("click", function(event){
+	// JQuery use the ON event b/c we are adding links/content dynamically click for show all not-selected items
+	// TODO: update to jQuery ON (jQuery.LIVE is deprected) !!!
+    // OLD - jQuery('###arguments.fieldName#-showAllItems').live("click", function(event){
+	// NOT NEEDED - jQuery(document).on("click",'###arguments.fieldName#-showAllItems', function(){
+	jQuery('###arguments.fieldName#-showAllItems').click(function() {
 	  	// Load all the not-selected options
 	  	#arguments.fieldName#_loadTopics('notselected');
 	});
 	    
-    // JQuery use the LIVE event b/c we are adding links/content dynamically
-    jQuery('###arguments.fieldName#-searchBtn').live("click", function(event){
+    // JQuery use the ON event b/c we are adding links/content dynamically
+	// TODO: update to jQuery ON (jQuery.LIVE is deprected) !!!
+    // OLD - jQuery('###arguments.fieldName#-searchBtn').live("click", function(event){
+	// NOT NEEDED- jQuery(document).on("click",'###arguments.fieldName#-searchBtn', function(){
+	jQuery('###arguments.fieldName#-searchBtn').click(function() {
   		//load the search field into currentItems
 		#arguments.fieldName#_searchValues = jQuery('input###arguments.fieldName#-searchFld').val();
 		#arguments.fieldName#_currentValue = jQuery('input###arguments.fieldName#').val();
