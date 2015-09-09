@@ -31,10 +31,12 @@ Version:
 History:
 	2012-12-26 - MFC - Created
 	2015-02-27 - GAC - Added the deletePageRedirects method
+	2015-09-09 - GAC - Added the move method
+					 - Added the invalidatePageCache method
 --->
 <cfcomponent displayname="apiPage" extends="ADF.core.Base" hint="API Page functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_11">
+<cfproperty name="version" value="1_0_12">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
 <cfproperty name="wikiTitle" value="API Page">
@@ -59,6 +61,7 @@ History:
 	2015-01-13 - GAC - Fixed issue with newExpirationWarningMsg variable 
 	2015-04-07 - GAC - Added logic to use the Title for the caption when no Caption value is passed in
 	2015-06-16 - GAC - Updated the activatePage argument to be type=boolean 
+	2015-08-22 - GAC - Minor formatting changes
 --->
 <cffunction name="create" access="public" returntype="struct" hint="Creates a page.">
 	<cfargument name="pageData" type="struct" required="true" hint="a structure that contains page the required fields as page data.">
@@ -106,7 +109,9 @@ History:
 		if ( StructKeyExists(arguments.pageData,"metadata") )
 			newMetadata = arguments.pageData.metadata;
 
-		try {
+		try 
+		{
+			// Returns the PageID of the new page
 			pageCmdResults = pageComponent.create(subsiteIDOrURL=arguments.pageData.subsiteID,
 													name=arguments.pageData.name,
 		                                            title=arguments.pageData.title,
@@ -132,12 +137,14 @@ History:
 		    pageResult["CMDSTATUS"] = true;
 		    pageResult["CMDRESULTS"] = pageCmdResults;
 		}
-		catch (any e) {
+		catch ( any e ) 
+		{
 			//application.ADF.utils.logAppend(e,"APIPage_Errors.log");
 		    pageResult["CMDSTATUS"] = false;
 		    pageResult["CMDRESULTS"] = e;
 		    pageResult["CFCATCH"] = e;
 		}
+		
 		return pageResult;
 	</cfscript>
 </cffunction>
@@ -155,6 +162,7 @@ Returns:
 	Struct
 Arguments:
 	Numeric csPageID	
+	Boolean ignoreWarnings
 	Boolean removeRedirects 		
 History:
 	2012-10-25 - MFC/GAC - Created
@@ -378,6 +386,8 @@ History:
 	2012-10-22 - GAC - Created
 	2013-04-29 - MFC - Removed reference to function "DOERRORLOGGING" that was removed.
 	2015-01-09 - GAC - Fixed issues with expirationWarningMsg and newExpirationDate variables
+	2015-08-23 - GAC - Removed the pageCmdResults since the page.SaveInfo returns Void.
+	2015-09-01 - GAC - Added update to convert PUBLICRELEASEDATE to publicationDate if it exists 
 --->
 <cffunction name="saveInfo" access="public" returntype="struct" hint="Updates the properties for a page (standard and custom)">
 	<cfargument name="pageData" type="struct" required="true" hint="a structure that contains page the required fields as page data.">
@@ -386,7 +396,6 @@ History:
 		var pageResult = StructNew();
 		// Use the CS 6.x Command API to SET page Metadata
 		var pageComponent = server.CommonSpot.api.getObject('Page');
-		var pageCmdResults = StructNew();
 		var newConfidentialityID = 0;
 		var newShowInList = "PageIndex,SearchResults";
 		var newExpirationDate = "";
@@ -394,6 +403,10 @@ History:
 		var newExpirationRedirectURL = "";
 		var newExpirationWarningMsg = "";
 		var newMetadata = ArrayNew(1);
+		
+		// Convert PUBLICRELEASEDATE to publicationDate if it exists
+		if ( !StructKeyExists(arguments.pageData,"publicationDate") AND StructKeyExists(arguments.pageData,"PublicReleaseDate") )
+			arguments.pageData.publicationDate = arguments.pageData.PublicReleaseDate;
 		       
 		// Build the Optional Field Nodes	
 		if ( StructKeyExists(arguments.pageData,"confidentialityID") )
@@ -412,28 +425,31 @@ History:
 		if ( StructKeyExists(arguments.pageData,"metadata") )
 			newMetadata = arguments.pageData.metadata;
 
-		try {
-			pageCmdResults = pageComponent.saveInfo(id=arguments.pageData.id,
-		                                            title=arguments.pageData.title,
-		                                            caption=arguments.pageData.caption,
-		                                            publicationDate=arguments.pageData.publicationDate,
-		                                            categoryID=arguments.pageData.categoryID,
-		                                            description=arguments.pageData.description,
-		                                            confidentialityID=newConfidentialityID,
-		                                            showInList=newShowInList,
-		                                            expirationDate=newExpirationDate,
-		                                            expirationAction=newExpirationAction,
-		                                            expirationRedirectURL=newExpirationRedirectURL,
-		                                            expirationWarningMsg=newExpirationWarningMsg,
-		                                            metadata=newMetadata);
+		try 
+		{
+			// page.SaveInfo returns VOID
+			pageComponent.saveInfo(id=arguments.pageData.id,
+                                     title=arguments.pageData.title,
+                                     caption=arguments.pageData.caption,
+                                     publicationDate=arguments.pageData.publicationDate,
+                                     categoryID=arguments.pageData.categoryID,
+                                     description=arguments.pageData.description,
+                                     confidentialityID=newConfidentialityID,
+                                     showInList=newShowInList,
+                                     expirationDate=newExpirationDate,
+                                     expirationAction=newExpirationAction,
+                                     expirationRedirectURL=newExpirationRedirectURL,
+                                     expirationWarningMsg=newExpirationWarningMsg,
+                                     metadata=newMetadata);
 		    
 		    // Check the return status has a LENGTH
 		    pageResult["CMDSTATUS"] = true;
-		    pageResult["CMDRESULTS"] = pageCmdResults;
+		    pageResult["CMDRESULTS"] = "Success: Page Metadata info was successful saved.";
 		}
-		catch (any e) {
+		catch (any e) 
+		{
 		    pageResult["CMDSTATUS"] = false;
-		    pageResult["CMDRESULTS"] = "";
+		    pageResult["CMDRESULTS"] = "Failed: Page Metadata info was not saved.";
 		    pageResult["CFCATCH"] = e;
 		}
 		return pageResult;
@@ -499,6 +515,94 @@ History:
 				pageResult["CMDRESULTS"] = e.message;
 			else
 				pageResult["CMDRESULTS"] = e;
+		}
+		return pageResult;
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$movePage
+Summary:
+	Moves an updated page to a new subsite.
+Returns:
+	Struct
+Arguments:
+	Numeric csPageID				
+History:
+	2015-08-28 - GAC - Created
+--->
+<cffunction name="move" access="public" returntype="struct" hint="Invalidates the Page Cache for the specified page.">
+	<cfargument name="csPageID" type="numeric" required="true" hint="numeric commonspot page id">
+	<cfargument name="csSubsiteID" type="numeric" required="true" hint="numeric commonspot subsite id">
+	<cfargument name="addPermanentRedirect" type="boolean" required="false" default="true" hint="boolean flag commonspot adding a permanent redirect">
+	
+	<cfscript>
+		var pageResult = StructNew();
+		var pageComponent = Server.CommonSpot.api.getObject('Page');
+
+		try 
+		{
+			// Returns void
+			pageComponent.move(
+								subsiteIDOrURL=arguments.csSubsiteID,
+								pageID=arguments.csPageID,
+								addPermanentRedirect=arguments.addPermanentRedirect
+							);
+							
+			pageResult["CMDSTATUS"] = true;
+			pageResult["CMDRESULTS"] = true;
+			pageResult["MSG"] = "Success: Page was succesfully moved!";
+		} 
+		catch ( any e ) 
+		{
+			pageResult["CMDSTATUS"] = false;
+			pageResult["CMDRESULTS"] = e;
+			pageResult["MSG"] = "Fail: Page move failed!";
+			
+			// TODO: Add Error logging
+		}
+		
+		return pageResult;
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$invalidatePageCache
+Summary:
+	Invalidates the Page Cache for the specified page.
+Returns:
+	Struct
+Arguments:
+	Numeric csPageID				
+History:
+	2015-08-21 - GAC - Created
+--->
+<cffunction name="invalidatePageCache" access="public" returntype="struct" hint="Invalidates the Page Cache for the specified page.">
+	<cfargument name="csPageID" type="numeric" required="true" hint="numeric commonspot page id">
+	
+	<cfscript>
+		var pageResult = StructNew();
+		// Use the CS 6.x Command API to SET page keywords
+		var pageComponent = Server.CommonSpot.api.getObject('Page');
+		var pageCmdResults = "";
+		try 
+		{
+			pageComponent.invalidateCache(pageID=arguments.csPageID);
+			pageResult["CMDSTATUS"] = true;
+			pageResult["CMDRESULTS"] = true;
+		} 
+		catch ( any e ) 
+		{
+			pageResult["CMDSTATUS"] = false;
+			pageResult["CMDRESULTS"] = false;
 		}
 		return pageResult;
 	</cfscript>
