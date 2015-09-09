@@ -495,19 +495,13 @@ jQuery(function(){
 	// Resize the window on the page load
 	checkResizeWindow();
 		
-	// JQuery use the ON event b/c we are adding links/content dynamically click for show all not-selected items
-	// TODO: update to jQuery ON (jQuery.LIVE is deprected) !!!
-    // OLD - jQuery('###arguments.fieldName#-showAllItems').live("click", function(event){
-	// NOT NEEDED - jQuery(document).on("click",'###arguments.fieldName#-showAllItems', function(){
+	// Click Event for Show all Items link
 	jQuery('###arguments.fieldName#-showAllItems').click(function() {
 	  	// Load all the not-selected options
 	  	#arguments.fieldName#_loadTopics('notselected');
 	});
 	    
-    // JQuery use the ON event b/c we are adding links/content dynamically
-	// TODO: update to jQuery ON (jQuery.LIVE is deprected) !!!
-    // OLD - jQuery('###arguments.fieldName#-searchBtn').live("click", function(event){
-	// NOT NEEDED- jQuery(document).on("click",'###arguments.fieldName#-searchBtn', function(){
+	// Click event for search button
 	jQuery('###arguments.fieldName#-searchBtn').click(function() {
   		//load the search field into currentItems
 		#arguments.fieldName#_searchValues = jQuery('input###arguments.fieldName#-searchFld').val();
