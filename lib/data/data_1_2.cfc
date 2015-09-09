@@ -39,7 +39,7 @@ History:
 --->
 <cfcomponent displayname="data_1_2" extends="ADF.lib.data.data_1_1" hint="Data Utils component functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_17">
+<cfproperty name="version" value="1_2_19">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Data_1_2">
 
