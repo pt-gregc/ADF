@@ -57,4 +57,4 @@ Note that resources themselves load their own js and css files, but DO NOT load 
   For example, application.ADF.scripts.LoadJQueryUI() loads jQuery, JQueryUI, and either the default UI theme or a requested one.
 
 The version and force arguments to all Scripts component loadSomeLibrary() methods are ignored
-  The version used is determined by the resource registered.
+  The version used is determined by registration of the resource.
