@@ -71,6 +71,16 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 	{
 		Server.CommonSpot.udf.resources.addFooterHTML(html, resourceGroup);
 	}
+	
+	public void function addFooterJS(required string js, required string resourceGroup) // resourceGroup: PRIMARY, SECONDARY, TERTIARY
+	{
+	  Server.CommonSpot.udf.resources.addFooterJS(js, resourceGroup);
+	}
+	 
+	public void function addHeaderCSS(required string css, required string resourceGroup) // resourceGroup: PRIMARY, SECONDARY, TERTIARY
+	{
+	  Server.CommonSpot.udf.resources.addHeaderCSS(css, resourceGroup);
+	}
 
 	/*
 		generic theme/skin loader
@@ -143,12 +153,48 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 		loadResources("BootstrapDefaultTheme");
 	}
 
-
 	/* SECONDARY - PLUGINS ETC */
 
 	public void function loadADFLightbox(string version="", boolean force=0)
 	{
-		loadResources("ADFLightbox");
+		var js = "";
+	 	loadResources("jQuery,ADFLightbox");
+	
+		if (structKeyExists(request,"ADFLightboxLoaded"))
+			return; // TODO: throw("Why are you loadinging again!");
+		else
+		   	request.ADFLightboxLoaded = 1;
+		  	
+		// Set a default Width
+		if ( NOT StructKeyExists(request.params, "width") )
+			request.params.width = 500;
+		
+		// Set a default Height
+		if ( NOT StructKeyExists(request.params, "height") )
+			request.params.height = 500;
+		
+		// Set a default Title
+		if ( NOT StructKeyExists(request.params, "title") )
+			request.params.title = "";
+		
+		// Set a default Subtitle
+		if ( NOT StructKeyExists(request.params, "subtitle") )
+			request.params.subtitle = "";
+	
+		// Build the ADFlightbox INIT JS block
+		saveContent variable="js"
+		{
+			writeOutput
+		  	("
+				jQuery(document).ready(function()
+				{
+					initADFLB();
+				  	if ( (typeof commonspot != 'undefined') && (typeof commonspot.lightbox != 'undefined') ) 
+				   		commonspot.lightbox.initCurrent(#request.params.width#, #request.params.height#, { title: '#request.params.title#', subtitle: '#request.params.subtitle#', close: 'true', reload: 'true' });
+				});
+		  	");
+		}
+		addFooterJS(js,"SECONDARY");
 	}
 
 	public void function loadADFStyles()

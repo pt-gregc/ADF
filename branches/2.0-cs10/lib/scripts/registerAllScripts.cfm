@@ -1060,7 +1060,7 @@
 		"ADFcsFormUtilities 1.0", "SECONDARY",
 		[],
 		[
-			{LoadTagType=2, SourceURL="/ADF/lib/fields/cs-form-utilities.js"} // can this really be late loading?
+			{LoadTagType=2, SourceURL="/ADF/lib/forms/cs-form-utilities.js"} // can this really be late loading?
 		],
 		"ADFcsFormUtilities resources.", "Included in ADF 2.0 and later.", "ADFcsFormUtilities"
 	);

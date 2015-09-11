@@ -1391,6 +1391,7 @@ Arguments:
 	Boolean - force - Forces JQuery script header to load.
 History:
 	2015-04-17 - GAC - Created
+	2015-08-06 - GAC - Updated renderScriptOnce scriptName to avoid loading more that one UI theme stylesheet 
 --->
 <cffunction name="loadJQueryUIstyles" access="public" output="true" returntype="void" hint="Loads the JQuery UI Headers if not loaded."> 
 	<cfargument name="version" type="string" required="false" default="1.11" hint="JQuery version to load.">
@@ -1414,7 +1415,7 @@ History:
 		<cfif arguments.force>
 			#outputHTML#
 		<cfelse>
-			#variables.scriptsService.renderScriptOnce("jQueryUIstyle_#arguments.themeName#",outputHTML)#
+			#variables.scriptsService.renderScriptOnce("jQueryUIstyles",outputHTML)#
 		</cfif>
 	</cfoutput>
 </cffunction>
