@@ -36,7 +36,7 @@ History:
 --->
 <cfcomponent displayname="apiPage" extends="ADF.core.Base" hint="API Page functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_12">
+<cfproperty name="version" value="1_0_13">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
 <cfproperty name="wikiTitle" value="API Page">
