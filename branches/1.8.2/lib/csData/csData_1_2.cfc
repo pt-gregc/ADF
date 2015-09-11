@@ -48,10 +48,11 @@ History:
 	2014-09-25 - GAC - Added getCSPageIDByURL function	
 	2015-01-05 - GAC - Added isTemplate function
 	2015-01-08 - GAC - Moved isTemplated to csData_1_3	
+	2015-06-09 - DRM - Update application.cs -> Server.CommonSpot.udf, CommonSpot change
 --->
 <cfcomponent displayname="csData_1_2" extends="ADF.lib.csData.csData_1_1" hint="CommonSpot Data Utils functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_21">
+<cfproperty name="version" value="1_2_22">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">
@@ -567,7 +568,7 @@ Arguments:
 	Boolean includeRegisteredURLS
 History:
 	2013-10-22 - GAC - Created
-	2015-06-17 - GAC - Switched data.ToHTML and data.FromHTML calls to use Server.CommonSpot.UDF instead of deprecated Application.CS
+	2015-06-09 - DRM - Update application.cs -> Server.CommonSpot.udf, CommonSpot change
 --->
 <cffunction name="getCSPageQueryByTitle" access="public" returntype="query" output="false">
 	<cfargument name="csPageTitle" type="string" required="true">
@@ -578,7 +579,7 @@ History:
 		select  ID, subsiteid, name, Title, FileName
 		  from  sitePages
 		 where  ( title = <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.csPageTitle#">
-				  or  title = <cfqueryparam cfsqltype="cf_sql_varchar" value="#Server.CommonSpot.UDF.data.ToHTML(arguments.csPageTitle)#"> )
+				  or  title = <cfqueryparam cfsqltype="cf_sql_varchar" value="#Server.CommonSpot.udf.Data.ToHTML(arguments.csPageTitle)#"> )
 		<cfif IsNumeric(arguments.csSubsiteID) AND arguments.csSubsiteID GT 0>
 		   and  subsiteID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.csSubsiteID#">
 		</cfif>
@@ -715,7 +716,7 @@ Arguments:
 	Boolean includeRegisteredURLS
 History:
 	2013-10-22 - GAC - Created
-	2015-06-17 - GAC - Switched data.ToHTML and data.FromHTML calls to use Server.CommonSpot.UDF instead of deprecated Application.CS
+	2015-06-09 - DRM - Update application.cs -> Server.CommonSpot.udf, CommonSpot change
 --->
 <cffunction name="getCSPageQueryByName" access="public" returntype="query" output="false">
 	<cfargument name="csPageName" type="string" required="true">
@@ -726,7 +727,7 @@ History:
 		select  ID, subsiteid, name, Title, FileName
 		  from  sitePages
 		 where  ( name = <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.csPageName#">
-				  or  name = <cfqueryparam cfsqltype="cf_sql_varchar" value="#Server.CommonSpot.UDF.data.ToHTML(arguments.csPageName)#"> )
+				  or  name = <cfqueryparam cfsqltype="cf_sql_varchar" value="#Server.CommonSpot.udf.Data.ToHTML(arguments.csPageName)#"> )
 		<cfif IsNumeric(arguments.csSubsiteID) AND arguments.csSubsiteID GT 0>
 		   and  subsiteID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.csSubsiteID#">
 		</cfif>

@@ -609,7 +609,7 @@ History:
 		<cfset result = taskservice.listall()>
 	<cfelse>
 		<!--- // Railo and Lucee CFSchedule List code --->
-		<!--- // Use an attributeCollection for the cfscheduele tag so Adobe ColdFusion will not throw an error on the non-ACF attribute --->
+		<!--- // Use an attributeCollection for the cfschedule tag so Adobe ColdFusion will not throw an error on the non-ACF attribute --->
 		<cfset schedArgs.action = "list">
 		<cfset schedArgs.returnvariable = "taskQuery">
 		

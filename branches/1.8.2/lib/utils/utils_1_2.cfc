@@ -37,7 +37,7 @@ History:
 --->
 <cfcomponent displayname="utils_1_2" extends="ADF.lib.utils.utils_1_1" hint="Util functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_14">
+<cfproperty name="version" value="1_2_15">
 <cfproperty name="type" value="singleton">
 <cfproperty name="ceData" type="dependency" injectedBean="ceData_2_0">
 <cfproperty name="csData" type="dependency" injectedBean="csData_1_2">
@@ -759,6 +759,7 @@ Arguments:
 History:
  	2014-05-22 - GAC - Created
 	2014-05-27 - GAC - Method cleanup / removed dev dumps
+	2015-09-10 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
 --->
 <cffunction name="sanitizeADFDumpVarData" access="public" returntype="any" output="false" hint="Returns a ADFdumpVar data from the ADFdumpVar URL command with secure data sanitized.">
 	<cfargument name="dumpVarStr" type="string" required="false" default="" hint="">
@@ -796,7 +797,7 @@ History:
 				}
 				else
 				{
-					retData = Duplicate(arguments.dumpVarData);
+					retData = Server.CommonSpot.UDF.util.duplicateBean(arguments.dumpVarData);
 					
 					// Find the instances of the CSPASSWORD stuct key 
 					pwFindArray = StructFindKey(retData,configPWkey,"all");

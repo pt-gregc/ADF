@@ -39,7 +39,7 @@ History:
 --->
 <cfcomponent displayname="csData_1_3" extends="ADF.lib.csData.csData_1_2" hint="CommonSpot Data Utils functions for the ADF Library">
 
-<cfproperty name="version" value="1_3_7">
+<cfproperty name="version" value="1_3_8">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">
@@ -215,6 +215,7 @@ History:
 	2015-01-13 - GAC - Created
 	2015-01-28 - GAC - Added Standard Metadata for Templates.
 					 - Added objectType key
+	2015-09-10 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
 --->
 <cffunction name="getCSObjectStandardMetadata" returntype="struct" access="public" hint="Gets the standard metadata for a commonspot object (page,doc,url) from its pageID">
 	<cfargument name="csPageID" type="numeric" required="true" hint="a commonspot pageid">
@@ -239,7 +240,7 @@ History:
 		}
 		
 		// Duplicate the LOCKED Struture and add the object type string 
-		reData = Duplicate(retMetadata);
+		reData = Server.CommonSpot.UDF.util.duplicateBean(retMetadata);
 
 		if ( !StructIsEmpty(reData) )
 			reData["objectType"] = objType;

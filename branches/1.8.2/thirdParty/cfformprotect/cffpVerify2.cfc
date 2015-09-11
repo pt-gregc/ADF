@@ -31,6 +31,8 @@ NOTES       : Dave Shuck - created
 			  									cost involved for commercial use and can be configured as needed for the spam 
 			  									received. Update Akismet function to log to same file and not log as passed if 
 			  									the key validation failed.	
+History:
+	2015-09-10 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 </pre>
 ">
@@ -353,7 +355,7 @@ NOTES       : Dave Shuck - created
 		var Result = StructNew();
 		var i = "";
 		// Make a duplicate since this is passed by reference and we don't want to modify the original data
-		var FormStructCopy = Duplicate(arguments.FormStruct);
+		var FormStructCopy = Server.CommonSpot.UDF.util.duplicateBean(arguments.FormStruct);
 		var UrlCount = "";
 		
 		Result.Pass = true;

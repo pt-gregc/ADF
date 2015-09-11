@@ -37,7 +37,7 @@ History:
 
 <cfcomponent displayname="apiConduitPool_1_0" extends="ADF.core.Base" hint="API Conduit Page Pool functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_3">
+<cfproperty name="version" value="1_0_4">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <cfproperty name="ccapi" type="dependency" injectedBean="ccapi_2_0">
 <cfproperty name="csData" type="dependency" injectedBean="csData_1_2">
@@ -84,6 +84,7 @@ Arguments:
 	None
 History:
 	2014-09-08 - GAC - Created
+	2015-09-10 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
 --->
 <cffunction name="initApiPoolVars" returntype="void" output="false" access="private" hint="Initializes the API Conduit Page Pool variables">
 	<cfscript>
@@ -113,7 +114,7 @@ History:
 		// Build the ADF API POOL data structure. 
 		
 		// associative array of available pages
-		adfAPIpoolVars.AvailablePoolPages = Duplicate(adfAPIpoolConfig.Pages); // Duplicate Config Page for the Pool Available pages
+		adfAPIpoolVars.AvailablePoolPages = Server.CommonSpot.UDF.util.duplicateBean(adfAPIpoolConfig.Pages); // Duplicate Config Page for the Pool Available pages
 		// associative array of Pages that are being processed
 		adfAPIpoolVars.ProcessingPoolPages = StructNew();
 		// An array of pending Requests
