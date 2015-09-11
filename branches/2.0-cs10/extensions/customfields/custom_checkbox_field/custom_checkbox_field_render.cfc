@@ -44,6 +44,7 @@ History:
 	2012-11-13 - GAC - Updated the logic for 'Checked By Default' option so when the unchecked value is blank and the currentValue is blank 
 					   it determines if this form is creating the a new record before setting the currentValue to the default value					     
 	2015-04-28 - DJM - Added own CSS
+	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
 --->
 <cfcomponent displayName="CustomCheckboxField Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -53,7 +54,7 @@ History:
 	<cfargument name="value" type="string" required="yes">
 
 	<cfscript>
-		var inputParameters = Duplicate(arguments.parameters);
+		var inputParameters =  Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
 		var currentValue = arguments.value;	// the field's current value
 		var readOnly = (arguments.displayMode EQ 'readonly') ? true : false;
 		var formDataPageID = 0;
@@ -95,7 +96,7 @@ History:
 	<cfargument name="fieldParameters" type="struct" required="yes">
 	
 	<cfscript>
-		var inputParameters = Duplicate(arguments.fieldParameters);
+		var inputParameters =  Server.CommonSpot.UDF.util.duplicateBean(arguments.fieldParameters);
 	</cfscript>
 
 <cfoutput>
@@ -136,7 +137,7 @@ jQuery(function(){
 	<cfargument name="fieldDomID" type="string" required="yes">
 	<cfargument name="value" type="string" required="yes">
 	<cfscript>
-		var inputParameters = Duplicate(arguments.parameters);
+		var inputParameters =  Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
 		
 		if ( NOT StructKeyExists(inputParameters, "fldClass") )
 			inputParameters.fldClass = "";

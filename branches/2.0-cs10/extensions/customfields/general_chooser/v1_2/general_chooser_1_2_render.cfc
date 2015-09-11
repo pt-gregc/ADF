@@ -55,6 +55,7 @@ History:
 	2014-03-20 - GAC - Force the keys in the formData object from the 'ADD NEW' callback to lowercase so it is sure to match js_fieldName_CE_FIELD  value 
 	2014-10-10 - GAC - Added a new props field to allow the app name used for resolving the Chooser Bean Name to be specified
 	2015-04-23 - DJM - Added own CSS
+	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
 --->
 <cfcomponent displayName="GeneralChooser Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -65,7 +66,7 @@ History:
 	
 	<cfoutput>
 		<cfscript>
-			var inputParameters = Duplicate(arguments.parameters);
+			var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
 			var currentValue = arguments.value;	// the field's current value
 			var readOnly = (arguments.displayMode EQ 'readonly') ? true : false;
 			var initArgs = StructNew();
@@ -194,7 +195,7 @@ History:
 	<cfargument name="fieldParameters" type="struct" required="yes">
 	
 	<cfscript>
-		var inputParameters = Duplicate(arguments.fieldParameters);
+		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.fieldParameters);
 		var readOnly = (arguments.displayMode EQ 'readonly') ? true : false;
 	</cfscript>
 
@@ -417,7 +418,7 @@ function #inputParameters.fieldID#_ConvertCaseOfDataObjKeys(dataobj,keycase)
 	<cfargument name="value" type="string" required="yes">
 	
 	<cfscript>
-		var inputParameters = Duplicate(arguments.parameters);
+		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
 		
 		// overwrite the field ID to be unique
 		inputParameters.fieldID = arguments.fieldName;

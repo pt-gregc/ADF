@@ -38,6 +38,7 @@ History:
 	2013-03-08 - GAC - Updated to use the wrapFieldHTML function
 	2014-10-31 - GAC - Added the editOnce option
 	2015-04-28 - DJM - Added own CSS
+	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
 --->
 <cfcomponent displayName="TemplateSelect Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -47,7 +48,7 @@ History:
 	<cfargument name="value" type="string" required="yes">
 
 	<cfscript>
-		var inputParameters = Duplicate(arguments.parameters);
+		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
 		var currentValue = arguments.value;	// the field's current value
 		var readOnly = (arguments.displayMode EQ 'readonly') ? true : false;
 		var xparamsExceptionsList = "appBeanName,appPropsVarName";
@@ -94,7 +95,7 @@ History:
 	<cfargument name="fieldParameters" type="struct" required="yes">
 	
 	<cfscript>
-		var inputParameters = Duplicate(arguments.fieldParameters);
+		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.fieldParameters);
 		// Added for future use
 		// TODO: Add options in Props for a Bean and a Method that return a custom Subsite Struct
 		var templateStructBeanName = "csData_1_2";
@@ -164,7 +165,7 @@ jQuery(document).ready(function() {
 	<cfargument name="fieldDomID" type="string" required="yes">
 	<cfargument name="value" type="string" required="yes">
 	<cfscript>
-		var inputParameters = Duplicate(arguments.parameters);
+		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
 		
 		if ( NOT StructKeyExists(inputParameters, "filterList") OR LEN(inputParameters.filterList) LTE 0 )
 			inputParameters.filterList = "";

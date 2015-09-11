@@ -39,7 +39,7 @@ History:
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "1.0.2";
+	fieldVersion = "2.0.2";
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;

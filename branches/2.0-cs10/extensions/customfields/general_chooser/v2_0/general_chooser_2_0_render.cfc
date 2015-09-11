@@ -56,6 +56,8 @@ History:
 	2014-10-10 - GAC - Added a new props field to allow the app name used for resolving the Chooser Bean Name to be specified
 	2015-04-23 - DJM - Added own CSS
 	2015-05-26 - DJM - Added the 2.0 version
+	2015-09-10 - GAC - Added a isMultiline() call so the label renders at the top
+	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
 --->
 <cfcomponent displayName="GeneralChooser Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -65,7 +67,7 @@ History:
 	<cfargument name="value" type="string" required="yes">
 	
 	<cfscript>
-		var inputParameters = Duplicate(arguments.parameters);
+		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
 		var currentValue = arguments.value;	// the field's current value
 		var readOnly = (arguments.displayMode EQ 'readonly') ? true : false;
 		var initArgs = StructNew();
@@ -213,239 +215,13 @@ History:
 	</cfoutput>
 </cffunction>
 
-<!--- 
-<cffunction name="renderJSFunctions" returntype="void" access="private">
-	<cfargument name="fieldName" type="string" required="yes">
-	<cfargument name="fieldDomID" type="string" required="yes">
-	<cfargument name="value" type="string" required="yes">
-	<cfargument name="fieldParameters" type="struct" required="yes">
-	
-	<cfscript>
-		var inputParameters = Duplicate(arguments.fieldParameters);
-		var readOnly = (arguments.displayMode EQ 'readonly') ? true : false;
-	</cfscript>
-
-<cfoutput>
-<script type="text/javascript">
-<!--
-var #inputParameters.fieldID#_ajaxProxyURL = "#application.ADF.ajaxProxy#";
-var #inputParameters.fieldID#currentValue = "#arguments.value#";
-var #inputParameters.fieldID#searchValues = "";
-var #inputParameters.fieldID#queryType = "all";
-
-jQuery(document).ready(function(){
-	
-	// Resize the window on the page load
-	checkResizeWindow();
-	
-	// JQuery use the LIVE event b/c we are adding links/content dynamically		    
-	// click for show all not-selected items
-	jQuery('###arguments.fieldName#-showAllItems').live("click", function(event){
-		// Load all the not-selected options
-		#inputParameters.fieldID#_loadTopics('notselected');
-	});
-	
-	// JQuery use the LIVE event b/c we are adding links/content dynamically
-	jQuery('###arguments.fieldName#-searchBtn').live("click", function(event){
-		//load the search field into currentItems
-		#inputParameters.fieldID#searchValues = jQuery('input###arguments.fieldName#-searchFld').val();
-		#inputParameters.fieldID#currentValue = jQuery('input###arguments.fieldName#').val();
-		#inputParameters.fieldID#_loadTopics('search');
-	});
-	
-	<cfif !readOnly>
-	// Load the effects and lightbox - this is b/c we are auto loading the selections
-	#inputParameters.fieldID#_loadEffects();
-	</cfif>
-	
-	// Re-init the ADF Lightbox
-	initADFLB();
-});
-
-// 2013-12-02 - GAC - Updated to allow 'ADD NEW' to be used multiple times before submit
-function #inputParameters.fieldID#_loadTopics(queryType) 
-{
-	var cValue = jQuery("input###arguments.fieldName#").val();		
-		
-	// Put up the loading message
-	if (queryType == "selected")
-		jQuery("###inputParameters.fieldID#-sortable2").html("Loading ... <img src='/ADF/extensions/customfields/general_chooser/ajax-loader-arrows.gif'>");
-	else
-		jQuery("###inputParameters.fieldID#-sortable1").html("Loading ... <img src='/ADF/extensions/customfields/general_chooser/ajax-loader-arrows.gif'>");
-	
-	// load the initial list items based on the top terms from the chosen facet
-	jQuery.get( #inputParameters.fieldID#_ajaxProxyURL,
-	{ 	
-		<cfif LEN(inputParameters.chooserAppName)>
-		appName: '#inputParameters.chooserAppName#',
-		</cfif>
-		bean: '#inputParameters.chooserCFCName#',
-		method: 'controller',
-		chooserMethod: 'getSelections',
-		// item: #inputParameters.fieldID#currentValue, // removed since this value was not dynamically updating after 'ADD NEW'
-		item: cValue,
-		queryType: queryType,
-		searchValues: #inputParameters.fieldID#searchValues,
-		csPageID: '#request.page.id#',
-		fieldID: '#inputParameters.fieldID#'
-	},
-	function(msg)
-	{
-		if (queryType == "selected")
-			jQuery("###inputParameters.fieldID#-sortable2").html(jQuery.trim(msg));
-		else
-			jQuery("###inputParameters.fieldID#-sortable1").html(jQuery.trim(msg));
-			
-		#inputParameters.fieldID#_loadEffects();
-		
-		// Re-init the ADF Lightbox
-		initADFLB();
-	});
-}
-
-function #inputParameters.fieldID#_loadEffects() 
-{
-	<cfif !readOnly>
-	jQuery("###inputParameters.fieldID#-sortable1, ###inputParameters.fieldID#-sortable2").sortable({
-		connectWith: '.connectedSortable',
-		stop: function(event, ui) { #inputParameters.fieldID#_serialize(); }
-	}).disableSelection();
-	</cfif>
-}
-
-// serialize the selections
-function #inputParameters.fieldID#_serialize() 
-{
-	// get the serialized list
-	var serialList = jQuery('###inputParameters.fieldID#-sortable2').sortable( 'toArray' );
-	// Check if the serialList is Array
-	if ( serialList.constructor==Array ) 
-	{
-		serialList = serialList.join(",");
-	}
-	
-	// load serial list into current values
-	#inputParameters.fieldID#currentValue = serialList;
-	// load current values into the form field
-	jQuery("input###arguments.fieldName#").val(#inputParameters.fieldID#currentValue);
-}
-
-// Resize the window function
-function checkResizeWindow()
-{
-	// Check if we are in a loader.cfm page
-	if ( '#ListLast(cgi.SCRIPT_NAME,"/")#' == 'loader.cfm' ) 
-	{
-		ResizeWindow();
-	}
-}
-
-// 2013-12-02 - GAC - Updated to allow 'ADD NEW' to be used multiple times before submit
-function #inputParameters.fieldID#_formCallback(formData)
-{
-	formData = typeof formData !== 'undefined' ? formData : {};
-	var cValue = jQuery("input###arguments.fieldName#").val();
-
-	// Call the utility function to make sure the JS object keys are all lowercase 
-	formData = #inputParameters.fieldID#_ConvertCaseOfDataObjKeys(formData,'lower');
-
-	// Load the newest item onto the selected values
-	// 2012-07-31 - MFC - Replaced the CFJS function for "ListLen" and "ListFindNoCase".
-	if ( cValue.length > 0 )
-	{
-		// Check that the record does not exist in the list already
-		tempValue = cValue.search(formData[js_#inputParameters.fieldID#_CE_FIELD]); 
-		if ( tempValue <= 0 ) 
-			cValue = jQuery.ListAppend(formData[js_#inputParameters.fieldID#_CE_FIELD], cValue);
-	}
-	else 
-		cValue = formData[js_#inputParameters.fieldID#_CE_FIELD];
-
-	// load current values into the form field
-	jQuery("input###arguments.fieldName#").val(cValue);
-	
-	// Reload the selected Values
-	#inputParameters.fieldID#_loadTopics("selected");
-	
-	// Close the lightbox
-	closeLB();
-}
-
-// 2013-11-26 - Fix for duplicate items on edit issue
-function #inputParameters.fieldID#_formEditCallback()
-{
-	// Reload the selected Values
-	#inputParameters.fieldID#_loadTopics("selected");
-	// Reload the non-selected Values
-	#inputParameters.fieldID#_loadTopics("notselected");
-	// Close the lightbox
-	closeLB();
-}
-
-// Validation function to validate required field and max/min selections
-function #inputParameters.fieldID#_validate()
-{
-	//Get the list of selected items
-	var selections = jQuery("###arguments.fieldName#").val();
-	var lengthOfSelections = 0;
-	//.split will return an array with 1 item if there is an empty string. Get around that.
-	if(selections.length){
-		var arraySelections = selections.split(",");
-		lengthOfSelections = arraySelections.length;
-	}
-	<cfif inputParameters.req EQ 'Yes'>
-		// If the field is required, check that a select has been made.
-		if (lengthOfSelections <= 0) {
-			alert("Please make a selection from the available items list.");
-			return false;
-		}
-	</cfif>
-	<cfif isNumeric(inputParameters.minSelections) and inputParameters.minSelections gt 0>
-		if(lengthOfSelections < #inputParameters.minSelections#){
-			alert("Minimum number of selections is #inputParameters.minSelections# you have only selected "+lengthOfSelections+" items");
-			return false;
-		}
-	</cfif>
-	<cfif isNumeric(inputParameters.maxSelections) and inputParameters.maxSelections gt 0>
-		if(lengthOfSelections > #inputParameters.maxSelections#){
-			alert("Maximum number of selections is #inputParameters.maxSelections# you have selected "+lengthOfSelections+" items");
-			return false;
-		}
-	</cfif>
-	return true;
-}
-
-// A Utility function convert the case of keys of a JS Data Object
-function #inputParameters.fieldID#_ConvertCaseOfDataObjKeys(dataobj,keycase)
-{
-	dataobj = typeof dataobj !== 'undefined' ? dataobj : {};
-	keycase = typeof keycase !== 'undefined' ? keycase : "lower"; //lower OR upper
-	var key, keys = Object.keys(dataobj);
-	var n = keys.length;
-	var newobj={}
-	while (n--) {
-	  key = keys[n];
-	  if ( keycase == 'lower' )
-		newobj[key.toLowerCase()] = dataobj[key];
-	  else if ( keycase == 'upper' ) 
-		newobj[key.toUpperCase()] = dataobj[key];
-	  else
-		newobj[key] = dataobj[key]; // NOT upper or lower... pass the data back with keys unchanged
-	}
-	return newobj;
-}
-//-->
-</script></cfoutput>
-</cffunction>
---->
-
 <cffunction name="setDefaultParameters" returntype="struct" access="private">
 	<cfargument name="fieldName" type="string" required="yes">
 	<cfargument name="fieldDomID" type="string" required="yes">
 	<cfargument name="value" type="string" required="yes">
 	
 	<cfscript>
-		var inputParameters = Duplicate(arguments.parameters);
+		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
 		
 		// overwrite the field ID to be unique
 		inputParameters.fieldID = arguments.fieldName;

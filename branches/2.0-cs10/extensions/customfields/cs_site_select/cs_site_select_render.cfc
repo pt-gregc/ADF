@@ -38,6 +38,7 @@ History:
 					 - Updated the wrapFieldHTML explanation comment block
 	2012-04-12 - GAC - Added the SiteID to the site option list
 	2015-05-12 - DJM - Converted to CFC
+	2015-09-10 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
 --->
 <cfcomponent displayName="CSSiteSelect Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -45,8 +46,9 @@ History:
 	<cfargument name="fieldName" type="string" required="yes">
 	<cfargument name="fieldDomID" type="string" required="yes">
 	<cfargument name="value" type="string" required="yes">
+	
 	<cfscript>
-		var inputParameters = Duplicate(arguments.parameters);
+		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
 		var currentValue = arguments.value;	// the field's current value
 		var readOnly = (arguments.displayMode EQ 'readonly') ? true : false;	// the fields current value
 		
@@ -74,7 +76,7 @@ History:
 	<cfargument name="value" type="string" required="yes">
 	
 	<cfscript>
-		var inputParameters = Duplicate(arguments.parameters);
+		var inputParameters =  Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
 		
 		// Validate if the property field has been defined
 		if ( NOT StructKeyExists(inputParameters, "fldID") OR LEN(inputParameters.fldID) LTE 0 )

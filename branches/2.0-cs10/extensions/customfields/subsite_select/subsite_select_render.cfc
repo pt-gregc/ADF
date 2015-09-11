@@ -38,6 +38,7 @@ History:
 					 - Also added the appBeanName and appPropsVarName props to allow porps to be overridden by an app
 	2013-03-07 - GAC - Fixed an issue with the Required field validation script.
 	2015-04-28 - DJM - Converted to CFC
+	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
 --->
 <cfcomponent displayName="SubsiteSelect Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -46,7 +47,7 @@ History:
 	<cfargument name="fieldDomID" type="string" required="yes">
 	<cfargument name="value" type="string" required="yes">
 	<cfscript>
-		var inputParameters = Duplicate(arguments.parameters);
+		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
 		var readOnly = (arguments.displayMode EQ 'readonly') ? true : false;
 		var xparamsExceptionsList = "appBeanName,appPropsVarName";
 		var selectField = "select_#arguments.fieldName#";
@@ -96,7 +97,7 @@ History:
 	<cfargument name="fieldParameters" type="struct" required="yes">
 	
 	<cfscript>
-		var inputParameters = Duplicate(arguments.fieldParameters);
+		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.fieldParameters);
 		var selectField = "select_#arguments.fieldName#";
 		// Added for future use
 		// TODO: Add options in Props for a Bean and a Method that return a custom Subsite Struct
@@ -216,7 +217,7 @@ function #arguments.fieldName#addSubsite(name, displayName, description)
 	<cfargument name="value" type="string" required="yes">
 	
 	<cfscript>
-		var inputParameters = Duplicate(arguments.parameters);
+		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
 		
 		if ( NOT StructKeyExists(inputParameters, "allowSubsiteAdd") OR LEN(inputParameters.allowSubsiteAdd) LTE 0 )
 			inputParameters.allowSubsiteAdd = "no";

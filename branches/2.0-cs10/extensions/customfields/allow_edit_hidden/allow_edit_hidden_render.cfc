@@ -38,6 +38,7 @@ History:
 	2010-11-04 - MFC - Updated props and render for the defaultValue in the paramFields variable.
 	2012-10-01 - MFC - Updated to support fieldname containing "_" in a simple form.
 	2015-05-12 - DJM - Converted to CFC
+	2015-09-10 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
 --->
 <cfcomponent displayName="AllowEditHidden Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -45,8 +46,9 @@ History:
 	<cfargument name="fieldName" type="string" required="yes">
 	<cfargument name="fieldDomID" type="string" required="yes">
 	<cfargument name="value" type="string" required="yes">
+	
 	<cfscript>
-		var inputParameters = Duplicate(arguments.parameters);
+		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
 		var currentValue = arguments.value;	// the field's current value
 
 		// reset the currentValue to the currentDefault

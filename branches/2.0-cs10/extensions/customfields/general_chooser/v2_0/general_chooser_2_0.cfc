@@ -433,6 +433,8 @@ History:
 	2015-07-10 - GAC - Added the arguments scope to the readonly variables
 	2015-07-21 - GAC - Replaced the "ListAppend" and "ListLen" CFJS calls with local functions to remove the dependency on the jQuery Lib 
 					 - Added a missing semicolon after the loadTopics('search') call
+	2015-08-31 - GAC - Removed jQuery.LIVE and replaced it with jQuery.ON since it has been deprected since 1.7 and no longer works with jQuery 2.x
+	2015-09-09 - GAC - Removed the jQuery.ON() because only a jQuery.CLICK() is needed for the search and show all buttons	
 --->
 <cffunction name="renderChooserJS" access="public" returntype="void" output="true" hint="Renders the Chooser CFT's JavaScript.">
 	<cfargument name="fieldName" type="string" required="true">
@@ -471,16 +473,14 @@ jQuery(function(){
 	// Resize the window on the page load
 	checkResizeWindow();
 		
-	// JQuery use the LIVE event b/c we are adding links/content dynamically		    
-    // click for show all not-selected items
-	// TODO: update to jQuery ON (jQuery.LIVE is deprected) !!!
-	jQuery('###arguments.fieldName#-showAllItems').live("click", function(event){
+	// Click Event for Show all Items link
+	jQuery('###arguments.fieldName#-showAllItems').click(function() {
 		// Load all the not-selected options
 		#arguments.fieldName#_loadTopics('notselected');
 	});
 	    
-	// JQuery use the LIVE event b/c we are adding links/content dynamically
-	jQuery('###arguments.fieldName#-searchBtn').live("click", function(event){
+	// Click event for search button
+	jQuery('###arguments.fieldName#-searchBtn').click(function() {
 		//load the search field into currentItems
 		#arguments.fieldName#_searchValues = jQuery('input###arguments.fieldName#-searchFld').val();
 		#arguments.fieldName#_currentValue = jQuery('input###arguments.fieldName#').val();

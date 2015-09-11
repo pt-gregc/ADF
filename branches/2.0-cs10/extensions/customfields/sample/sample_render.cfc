@@ -34,6 +34,7 @@ History:
 					 - Updated the readOnly check to also use the cs6 fieldPermission parameter
 					 - Updated the wrapFieldHTML explanation comment block
 	2015-04-29 - DJM - Converted to CFC
+	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
 --->
 <cfcomponent displayName="Sample Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -43,7 +44,7 @@ History:
 	<cfargument name="value" type="string" required="yes">
 	
 	<cfscript>
-		var inputParameters = Duplicate(arguments.parameters);
+		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
 		var currentValue = arguments.value;	// the field's current value
 		var readOnly = (arguments.displayMode EQ 'readonly') ? true : false;
 

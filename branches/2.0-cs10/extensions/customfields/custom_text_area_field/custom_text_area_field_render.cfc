@@ -48,6 +48,7 @@ History:
 					 - Added an optional parameter to assign a CSS property to the textarea field resizing handle
 	2014-12-15 - GAC - Fixed the Default Value and the user defined expression functionality
 	2015-04-27 - DJM - Added own CSS
+	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
 --->
 <cfcomponent displayName="CustomTextAreaField Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -57,7 +58,7 @@ History:
 	<cfargument name="value" type="string" required="yes">
 	
 	<cfscript>
-		var inputParameters = Duplicate(arguments.parameters);
+		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
 		var currentValue = arguments.value;	// the field's current value
 		var readOnly = (arguments.displayMode EQ 'readonly') ? true : false;
 		
@@ -93,7 +94,7 @@ History:
 	<cfargument name="fieldDomID" type="string" required="yes">
 	<cfargument name="value" type="string" required="yes">
 	<cfscript>
-		var inputParameters = Duplicate(arguments.parameters);
+		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
 		// Valid Textarea resize handle options
 		var resizeOptions = "none,both,horizontal,vertical";
 	</cfscript>
@@ -117,7 +118,7 @@ History:
 	<cfargument name="fieldDomID" type="string" required="yes">
 	<cfargument name="value" type="string" required="yes">
 	<cfscript>
-		var inputParameters = Duplicate(arguments.parameters);
+		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
 		
 		if ( NOT StructKeyExists(inputParameters, "fldName") OR LEN(TRIM(inputParameters.fldName)) EQ 0 )
 			inputParameters.fldName = arguments.fieldName;
@@ -144,6 +145,10 @@ History:
 	private string function getValidationMsg()
 	{
 		return ''; // validator does alert itself dynamically, this keeps the default alert from happening too
+	}
+	private boolean function isMultiline()
+	{
+		return true;
 	}
 </cfscript>
 

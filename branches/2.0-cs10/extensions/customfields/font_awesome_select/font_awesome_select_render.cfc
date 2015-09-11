@@ -36,6 +36,8 @@ History:
 	2015-04-15 - DJM - Converted to CFC
 	2015-04-23 - DJM - Fixed issue for all font awesome fields in a form working as a single control field
 	2015-04-23 - DJM - Added own CSS
+	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
+					 - Updated the default FA version
 --->
 <cfcomponent displayName="FontAwesomeSelect Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -45,7 +47,7 @@ History:
 	<cfargument name="value" type="string" required="yes">
 	
 	<cfscript>
-		var inputParameters = Duplicate(arguments.parameters);
+		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
 		var currentValue = arguments.value;	// the field's current value
 		var readOnly = (arguments.displayMode EQ 'readonly') ? true : false;
 		var iconDataArr = ArrayNew(1);
@@ -172,7 +174,7 @@ History:
 	<cfargument name="fieldParameters" type="struct" required="yes">
 	
 	<cfscript>
-		var inputParameters = Duplicate(arguments.fieldParameters);
+		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.fieldParameters);
 	</cfscript>
 
 <cfoutput>
@@ -321,9 +323,9 @@ function clearInput_#arguments.fieldName#()
 	<cfargument name="value" type="string" required="yes">
 	
 	<cfscript>
-		var defaultFAversion = "4.2";
+		var defaultFAversion = "4.4";
 		var defaultIconDataFile = "/ADF/thirdParty/css/font-awesome/#defaultFAversion#/data/icon-data.csv";
-		var inputParameters = Duplicate(arguments.parameters);
+		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
 		
 		// Set the defaults
 		if( NOT StructKeyExists(inputParameters,'ShowSize') )

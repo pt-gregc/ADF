@@ -38,7 +38,7 @@ History:
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <cfscript>
-	fieldVersion = "2.0.1"; // Variable for the version of the field - Display in Props UI
+	fieldVersion = "2.0.2"; // Variable for the version of the field - Display in Props UI
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;

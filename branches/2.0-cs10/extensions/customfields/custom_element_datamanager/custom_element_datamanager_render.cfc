@@ -57,6 +57,7 @@ History:
 	2015-07-21 - DJM - Modified code to have the hidden field render always
 	2015-07-23 - DJM - Modified call to RenderGrid() to take parent field's value using javascript from the form field
 	2015-08-06 - DJM - Modified code to check for AuthorID instead of DateAdded for setting newData variable
+	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
 --->
 <cfcomponent displayName="CustomElementDataManager Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -68,7 +69,7 @@ History:
 	
 	<cfscript>
 		var allAtrs = getAllAttributes();
-		var inputParameters = Duplicate(arguments.parameters);
+		var inputParameters =  Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
 		var uniqueTableAppend = arguments.fieldID;
 		var ceFormID = arguments.formID;
 		var elementType = '';
@@ -307,7 +308,7 @@ History:
 	<cfargument name="newData" type="string" required="yes">
 	
 	<cfscript>
-		var inputParameters = Duplicate(arguments.parameters);
+		var inputParameters =  Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
 		var allAtrs = getAllAttributes();
 		var uniqueTableAppend = arguments.fieldID;
 		// Ajax URL to the proxy component in the context of the site

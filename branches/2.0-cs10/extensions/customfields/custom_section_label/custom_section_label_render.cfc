@@ -31,6 +31,7 @@ Summary:
 History:
  	2012-03-19 - GAC - Created
 	2015-05-13 - DJM - Converted to CFC
+	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
 --->
 <cfcomponent displayName="CustomSectionLabel Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -39,7 +40,7 @@ History:
 	<cfargument name="fieldDomID" type="string" required="yes">
 	<cfargument name="value" type="string" required="yes">
 	<cfscript>
-		var inputParameters = Duplicate(arguments.parameters);
+		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
 		// Get the Description 
 		var description = "";
 		var idHTML = (arguments.fieldDomID != "") ? ' id="#arguments.fieldDomID#_label"': '';
@@ -127,7 +128,7 @@ History:
 	<cfargument name="value" type="string" required="yes">
 	
 	<cfscript>
-		var inputParameters = Duplicate(arguments.parameters);
+		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
 		
 		// Set the label ID from the field name
 		//if ( NOT StructKeyExists(inputParameters, "labelID") OR LEN(TRIM(inputParameters.labelID)) EQ 0 )

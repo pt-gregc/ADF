@@ -38,6 +38,7 @@ History:
 	2014-01-09 - GAC - Updated to load initially selected nodes until after the tree has completely loaded
 	2015-04-10 - DJM - Converted to CFC
 	2015-04-15 - DJM - Moved ADF renderer base and updated the extends parameter
+	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
 --->
 <cfcomponent displayName="CustomElementHierarchySelector Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -48,7 +49,7 @@ History:
 	
 	<cfscript>
 		var allAtrs = getAllAttributes();
-		var inputParameters = Duplicate(arguments.parameters);
+		var inputParameters =  Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
 		var uniqueTableAppend = arguments.fieldID;
 		var ceFormID = arguments.formID;
 		var customElementObj = Server.CommonSpot.ObjectFactory.getObject('CustomElement');
@@ -136,7 +137,7 @@ History:
 	<cfargument name="dataResults" type="array" required="yes">
 	
 	<cfscript>
-		var inputParameters = Duplicate(arguments.parameters);
+		var inputParameters =  Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
 		var allAtrs = getAllAttributes();
 		
 		// Set the 'multiple' property

@@ -37,6 +37,7 @@ History:
 	2015-04-28 - DJM - Added own CSS
 	2015-06-19 - DRM - Override renderStandard to only render control, instead of overriding a bunch of individual methods
 	 						 Prevents description from rendering
+	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
 --->
 <cfcomponent displayName="CustomHiddenField Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -46,7 +47,7 @@ History:
 	<cfargument name="value" type="string" required="yes">
 
 	<cfscript>
-		var inputParameters = Duplicate(arguments.parameters);
+		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
 		var currentValue = arguments.value;	// the field's current value
 		
 		inputParameters = setDefaultParameters(argumentCollection=arguments);

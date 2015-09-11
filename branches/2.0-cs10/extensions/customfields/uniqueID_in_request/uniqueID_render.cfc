@@ -29,6 +29,7 @@ Version:
 History:
 	2014-01-07 - GAC - Converted the CFT to the ADF standard CFT format using the forms.wrapFieldHTML method
 	2015-04-30 - DJM - Converted to CFC
+	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
 --->
 <cfcomponent displayName="UniqueID Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -38,7 +39,7 @@ History:
 	<cfargument name="value" type="string" required="yes">
 	
 	<cfscript>
-		var inputParameters = Duplicate(arguments.parameters);
+		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
 		
 		inputParameters = setDefaultParameters(argumentCollection=arguments);
 		if (inputParameters.renderField EQ "yes")
@@ -51,7 +52,7 @@ History:
 	<cfargument name="fieldDomID" type="string" required="yes">
 	<cfargument name="value" type="string" required="yes">
 	<cfscript>
-		var inputParameters = Duplicate(arguments.parameters);
+		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
 		var currentValue = arguments.value;	// the field's current value
 		// Set the Input Field Type
 		var cftInputType = "hidden";
@@ -104,7 +105,7 @@ History:
 	<cfargument name="fieldDomID" type="string" required="yes">
 	<cfargument name="value" type="string" required="yes">
 	<cfscript>
-		var inputParameters = Duplicate(arguments.parameters);
+		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
 		
 		if ( NOT StructKeyExists(inputParameters,"uniqueIDtype") OR LEN(TRIM(inputParameters.uniqueIDtype)) EQ 0 ) 
 			inputParameters.uniqueIDtype = "cfuuid"; // cfuuid or csid

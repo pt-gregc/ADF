@@ -63,7 +63,8 @@ History:
 	2013-12-09 - JTP - Created
 	2014-02-18 - JTP - Added ClearType and ClearAll url parameters
 	2014-03-05 - JTP - Var declarations
-	2014-03-19 - JTP - Added optional renderhandler & classNames attributes as an optimization. 
+	2014-03-19 - JTP - Added optional renderhandler & classNames attributes as an optimization.
+	2015-09-10 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
 --->
 
 <cfscript>
@@ -295,7 +296,7 @@ History:
 <cfscript>
 	// pop the pushed back off the stack
 	if( pushed )
-		request.CS_SameRecordsInfo =  Duplicate(pushed_CS_SameRecordsInfo);
+		request.CS_SameRecordsInfo = Server.CommonSpot.UDF.util.duplicateBean(pushed_CS_SameRecordsInfo);
 </cfscript>
 
 
@@ -341,6 +342,11 @@ History:
 	</cfscript>
 </cffunction>
 
+<!----------------------------------
+	copyStruct	
+History:
+	2015-09-10 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
+------------------------------------>
 <cffunction name="copyStruct" access="private" output="no" returntype="struct">
 	<cfargument name="srcStruct" type="struct" required="Yes">
 	

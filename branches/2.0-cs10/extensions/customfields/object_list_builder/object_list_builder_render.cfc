@@ -33,6 +33,7 @@ ADF Requirements:
 History:
 	2015-04-17 - SU/SFS - Created
 	2015-05-07 - DJM - Converted to CFC
+	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
 --->
 <cfcomponent displayName="ObjectListBuilder Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -41,7 +42,7 @@ History:
 	<cfargument name="fieldDomID" type="string" required="yes">
 	<cfargument name="value" type="string" required="yes">
 	<cfscript>
-		var inputParameters = Duplicate(arguments.parameters);
+		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
 		var currentValue = arguments.value;	// the field's current value
 		var readOnly = (arguments.displayMode EQ 'readonly') ? true : false;
 		var wraptag = 'div';
@@ -320,7 +321,7 @@ History:
 	<cfargument name="ajaxBeanName" type="string" required="yes">
 	
 	<cfscript>
-		var inputParameters = Duplicate(arguments.fieldParamaters);
+		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.fieldParamaters);
 		var colsList = arguments.columnList;
 		var ajaxComURL = application.ADF.ajaxProxy;
 	</cfscript>
@@ -670,7 +671,7 @@ History:
 	<cfargument name="fieldDomID" type="string" required="yes">
 	<cfargument name="value" type="string" required="yes">
 	<cfscript>
-		var inputParameters = Duplicate(arguments.parameters);
+		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
 		
 		if ( NOT StructKeyExists(inputParameters, "fldID") OR LEN(inputParameters.fldID) LTE 0 )
 			inputParameters.fldID = arguments.fieldName;

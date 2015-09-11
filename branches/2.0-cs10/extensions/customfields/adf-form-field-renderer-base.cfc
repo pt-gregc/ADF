@@ -5,6 +5,8 @@
 	2015-08-28 - DRM - removed that method and the call to it
 							 moved those functions into cs-form-utilities.js, registered it as resource 'ADFcsFormUtilities'
 							 NOT loading it automatically, code that needs those should load the resource itself
+						If the ADFcsFormUtilities is a registered resource in CommonSpot use this code to call it:
+							Server.CommonSpot.udf.resources.loadResources("ADFcsFormUtilities");
 --->
 
 </cfcomponent>
