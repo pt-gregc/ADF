@@ -41,8 +41,8 @@ History:
 <cfproperty name="version" value="1_0_12">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_2">
-<cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
-<cfproperty name="data" type="dependency" injectedBean="data_1_2">
+<cfproperty name="utils" type="dependency" injectedBean="utils_2_0">
+<cfproperty name="data" type="dependency" injectedBean="data_2_0">
 <cfproperty name="wikiTitle" value="lightbox_1_0">
 
 <!---

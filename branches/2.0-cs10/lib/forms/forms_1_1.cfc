@@ -91,6 +91,7 @@ History:
 	2012-01-03 - MFC - Added check that the field has the name attribute.
 	2012-02-03 - MFC - Updates to the lightbox callback to store the form in "top.commonspot".
 	2013-02-06 - MFC - Removed JS 'alert' commands for CS 8.0.1 and CS 9 compatibility
+	2015-09-10 - GAC - Removed jQuery.LIVE and replaced it with a jQuery.ON call since it has been deprected since 1.7 and no longer works with jQuery 2.x
 --->
 <cffunction name="renderAddEditForm" access="public" returntype="String" hint="Returns the HTML for an Add/Edit Custom element record">
 	<cfargument name="formID" type="numeric" required="true" hint="Form ID to render">
@@ -171,7 +172,8 @@ History:
 					//Setting this up so that on page load the cookie gets filled with existing values, if there are any
 					jQuery(document).ready(function (){
 						handleFormChange();
-						jQuery("##proxyButton1").live('click',handleFormChange);
+						jQuery(document).on("click","##proxyButton1",handleFormChange);
+						//jQuery("##proxyButton1").live('click',handleFormChange);
 					});
 					
 					function handleFormChange(){

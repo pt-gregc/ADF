@@ -36,10 +36,10 @@ History:
 
 <cfproperty name="version" value="1_1_2">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
-<cfproperty name="csData" type="dependency" injectedBean="csData_1_2">
+<cfproperty name="csData" type="dependency" injectedBean="csData_2_0">
 <cfproperty name="apiConduitPool" type="dependency" injectedBean="apiConduitPool_1_0">
-<cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
-<cfproperty name="wikiTitle" value="API Elements">
+<cfproperty name="utils" type="dependency" injectedBean="utils_2_0">
+<cfproperty name="wikiTitle" value="APIElement_1_1">
 
 <!---
 /* *************************************************************** */

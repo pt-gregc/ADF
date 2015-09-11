@@ -47,13 +47,13 @@ History:
 	2014-03-16 - JTP - Added getPaddedID function
 	2014-09-25 - GAC - Added getCSPageIDByURL function	
 	2015-01-05 - GAC - Added isTemplate function
-	2015-01-08 - GAC - Moved isTemplated to csData_1_3
+	2015-01-08 - GAC - Moved isTemplated to csData_1_3	
 	2015-06-09 - DRM - Update application.cs -> Server.CommonSpot.udf, CommonSpot change
 	2015-06-10 - ACW - Updated the component extends to no longer be dependant on the 'ADF' in the extends path
 --->
 <cfcomponent displayname="csData_1_2" extends="csData_1_1" hint="CommonSpot Data Utils functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_21">
+<cfproperty name="version" value="1_2_23">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">
@@ -885,6 +885,7 @@ History:
 	2013-10-02 - DMB - Created
 	2014-11-11 - GAC - Removed the reference to application.ADF.csdata... since we are in csdata
 	2015-04-28 - GAC - Updated to use parseCSURL() 
+	2015-07-15 - GAC - Updated to use parseCSURL() even if the value passed in does not contain "CP___PAGEID="
 --->
 <cffunction name="decipherCPPAGEID" access="public" returntype="string" output="true">
 	<cfargument name="cpPageID" type="string" required="true">
@@ -899,6 +900,9 @@ History:
 			// Get the url for this PageID
 			strURL = parseCSURL(str=strPageID);
 		}
+		else
+			strURL = parseCSURL(str=arguments.cpPageID);
+			
 		return strURL;
 	</cfscript>
 </cffunction>

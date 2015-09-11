@@ -44,7 +44,7 @@ History:
 --->
 <cfcomponent displayname="csData_1_1" extends="csData_1_0" hint="CommonSpot Data Utils functions for the ADF Library">
 	
-<cfproperty name="version" value="1_1_8">
+<cfproperty name="version" value="1_1_9">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_1">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">
@@ -448,6 +448,7 @@ History:
 	2011-02-23 - GAC - Added global keyword compatibility for CS5.x and CS6.x by moving the global keyword retrieval
 					   to a helper method getGlobalKeywords which has CS version detection
 	2011-03-10 - MFC/GAC - Moved method into v1.1 for new KEYWORD functionality.
+	2015-06-09 - DRM - Update application.cs -> Server.CommonSpot.udf, CommonSpot change
 --->
 <cffunction name="getStandardMetadata" access="public" returntype="struct" hint="Return standard metadata for a page">
 	<cfargument name="csPageID" required="true" type="numeric" hint="Page to get standard metadata for">

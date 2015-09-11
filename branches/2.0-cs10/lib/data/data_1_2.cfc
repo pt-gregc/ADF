@@ -40,7 +40,7 @@ History:
 --->
 <cfcomponent displayname="data_1_2" extends="data_1_1" hint="Data Utils component functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_17">
+<cfproperty name="version" value="1_2_20">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Data_1_2">
 
@@ -64,6 +64,7 @@ History:
 	2012-10-19 - GAC - Created - MOVE INTO THE ADF V1.6
 	2012-12-31 - Added 'objectFieldKeyList' argument for complex fields.
 				 Added temp variables to copy the structure for comparison.
+	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
 --->
 <cffunction name="IsStructDataDifferent" access="public" returntype="boolean" hint="Compares two data structures and then returns a false if they are different">
 	<cfargument name="structDataA" type="struct" required="true" hint="">
@@ -73,8 +74,8 @@ History:
 	
 	<cfscript>
 		var isDifferent = false;
-		var tempStructDataA = Duplicate(arguments.structDataA);
-		var tempStructDataB = Duplicate(arguments.structDataB);
+		var tempStructDataA = Server.CommonSpot.UDF.util.duplicateBean(arguments.structDataA);
+		var tempStructDataB = Server.CommonSpot.UDF.util.duplicateBean(arguments.structDataB);
 		var isEqual = compareStructData(structDataA=tempStructDataA,structDataB=tempStructDataB,excludeKeyList=arguments.excludeKeyList,objectFieldKeyList=arguments.objectFieldKeyList);
 		if ( NOT isEqual )
 			isDifferent = true;
@@ -1170,7 +1171,8 @@ Usage:
 History:
 	2015-07-08 - GAC - Added to the data_1_2 lib component
 	2015-07-09 - GAC - Added additional arguments to allow custom pre and post HTML strings to be added
-	2015-07-16 - GAC - Updated the var'd variable for the loop 
+	2015-07-16 - GAC - Updated the var'd variable for the loop
+	2015-09-09 - KE - Updated the ReReplace to escape ALL matched special regular expression characters 
 --->
 <cffunction name="highlightKeywords" access="public" returntype="string" hint="Converts special characters to character entities, making a string safe for display in HTML.">
 	<cfargument name="str" type="string" required="true">
@@ -1188,7 +1190,7 @@ History:
 	    for ( i=1; i lte ListLen( arguments.searchTerm, " " ); i=i+1 )
 	    {
 	      // get current keyword and escape any special regular expression characters
-	      word = ReReplace( ListGetAt( arguments.searchTerm, i, " " ), "\.|\^|\$|\*|\+|\?|\(|\)|\[|\]|\{|\}|\\", "" );
+	      word = ReReplace( ListGetAt( arguments.searchTerm, i, " " ), "\.|\^|\$|\*|\+|\?|\(|\)|\[|\]|\{|\}|\\", "", "ALL" );
 	      
 	      // return matches for current keyword from string
 	      matches = ReMatchNoCase( word, arguments.str );

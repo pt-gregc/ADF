@@ -37,7 +37,7 @@ History:
 <cfproperty name="version" value="1_0_10">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
-<cfproperty name="wikiTitle" value="API Elements">
+<cfproperty name="wikiTitle" value="APIElement_1_0">
 
 <!---
 /* *************************************************************** */

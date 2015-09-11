@@ -32,19 +32,46 @@ History:
 	2012-12-26 - MFC - Created
 	2015-06-11 - GAC - Updated the component extends to use the libraryBase path
 --->
-<cfcomponent displayname="apiKeywords" extends="ADF.lib.libraryBase" hint="API Keywords functions for the ADF Library">
+<cfcomponent displayname="apiKeywords_1_0" extends="ADF.lib.libraryBase" hint="API Keywords functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_3">
+<cfproperty name="version" value="1_0_5">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
-<cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
-<cfproperty name="wikiTitle" value="API Keywords">
+<cfproperty name="utils" type="dependency" injectedBean="utils_2_0">
+<cfproperty name="wikiTitle" value="APIKeywords_1_0">
 
 <!---
 /* *************************************************************** */
 Author: 	
 	PaperThin, Inc.
 Name:
-	$setCommonspotPageKeywords
+	$setPageKeywords
+Summary:
+	Adds a keywords to an object. If a keyword does not exit, CommonSpot creates and adds it. 
+	However, if the user does not have rights to add new keywords, this method returns a comma-delimited list of keywords that could not be added.
+	http://{servername}/commonspot/help/api_help/Content/Components/Keywords/setForObject.html
+	
+	This is a passthrough method to update the name of this function
+Returns:
+	Struct
+Arguments:
+	Numeric - csPageID	
+	String - keywordList			
+History:
+	2015-09-11 - GAC - Created
+--->
+<cffunction name="setPageKeywords" access="public" returntype="struct" hint="Adds a keywords to an object. If a keyword does not exit, CommonSpot creates and adds it.">
+	<cfargument name="csPageID" type="numeric" required="true" hint="numeric commonspot page id">
+	<cfargument name="keywordList" type="string" required="true" hint="list of keywords to be added to the page">
+
+	<cfreturn setForObject(csPageID=arguments.csPageID,keywordList=arguments.keywordList)>
+</cffunction> 
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$setForObject
 Summary:
 	Adds a keywords to an object. If a keyword does not exit, CommonSpot creates and adds it. 
 	However, if the user does not have rights to add new keywords, this method returns a comma-delimited list of keywords that could not be added.

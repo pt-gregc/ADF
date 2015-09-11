@@ -40,6 +40,7 @@ History:
 
 <cfproperty name="version" value="2_0_31">
 <cfproperty name="type" value="singleton">
+<cfproperty name="data" type="dependency" injectedBean="data_1_2">
 <cfproperty name="wikiTitle" value="CEData_2_0">
 
 <cfscript>
@@ -378,6 +379,7 @@ History:
 	2013-10-23 - GAC - Removed the local dependency for the data_1_2 Lib which was causing errors being extended by the general_chooser.cfc
 	2013-01-31 - JTP - Optimized function for larger data sets
 	2014-02-24 - JTP - Var'ing the local getDataPageValueQrySORTED variable
+	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
 --->
 
 <cffunction name="getCEData" access="public" returntype="array" hint="Returns array of structs for all data matching the Custom Element." output="false">
@@ -458,7 +460,7 @@ History:
 			ceFieldIDNameMap[ceFieldQuery.fieldID[i]] = Replace(ceFieldQuery.fieldName[i], "FIC_", "");
 
 		// Build in the initial query for the CE Data storage
-		ceDataQry = duplicate(ceDefaultFieldQry);
+		ceDataQry = Server.CommonSpot.UDF.util.duplicateBean(ceDefaultFieldQry);
 		getDataPageValueQry = getDataFieldValue(pageID=ValueList(pageIDValueQry.pageID),formid=ceFormID);
 	</cfscript>
 	

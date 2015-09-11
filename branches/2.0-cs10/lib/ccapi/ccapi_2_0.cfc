@@ -37,8 +37,8 @@ History:
 	
 <cfproperty name="version" value="2_0_4">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
-<cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
-<cfproperty name="wikiTitle" value="CCAPI">
+<cfproperty name="utils" type="dependency" injectedBean="utils_2_0">
+<cfproperty name="wikiTitle" value="CCAPI_2_0">
 
 <cfscript>
 	// xml config info
@@ -73,6 +73,7 @@ History:
 	2012-01-23 - MFC - Modified to call the API library.
 	2014-03-05 - JTP - Var declarations
 	2014-03-07 - GAC - Updated the var'd apiConfig variable for backwards compatiblity
+	2015-06-22 - GAC - Added the super.initCCAPI() call for backward compatibility
 --->
 <cffunction name="initCCAPI" access="public" returntype="void" hint="Initializes the CCAPI object using the settings in the ccapi.xml file from the site root">
 	<cfscript>
@@ -88,6 +89,9 @@ History:
 		setSiteURL(apiConfig.wsVars.siteURL);
 		setWebServiceURL(apiConfig.wsVars.webserviceURL);
 		setSubsiteID(apiConfig.wsVars.subsiteID);
+		
+		// for backward compatibility
+		super.initCCAPI();
 	</cfscript>
 </cffunction>
 

@@ -32,12 +32,12 @@ History:
 	2012-12-26 - MFC - Created
 	2015-06-11 - GAC - Updated the component extends to use the libraryBase path
 --->
-<cfcomponent displayname="apiImage" extends="ADF.lib.libraryBase" hint="API Image functions for the ADF Library">
+<cfcomponent displayname="apiImage_1_0" extends="ADF.lib.libraryBase" hint="API Image functions for the ADF Library">
 
 <cfproperty name="version" value="1_0_2">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
-<cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
-<cfproperty name="wikiTitle" value="API Image">
+<cfproperty name="utils" type="dependency" injectedBean="utils_2_0">
+<cfproperty name="wikiTitle" value="APIImage_1_0">
 
 
 </cfcomponent>

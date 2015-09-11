@@ -37,13 +37,13 @@ History:
 --->
 <cfcomponent displayname="ccapiConfig" extends="ADF.lib.libraryBase" hint="CCAPI configuration">
 	
-<cfproperty name="version" value="1_0_2">
+<cfproperty name="version" value="1_0_3">
 <cfproperty name="CoreConfig" type="dependency" injectedBean="CoreConfig">
-<cfproperty name="utils" type="dependency" injectedBean="utils_1_1">
-<cfproperty name="ceData" type="dependency" injectedBean="ceData_1_1">
-<cfproperty name="csData" type="dependency" injectedBean="csData_1_1">
-<cfproperty name="forms" type="dependency" injectedBean="forms_1_1">
-<cfproperty name="scripts" type="dependency" injectedBean="scripts_1_1">
+<cfproperty name="utils" type="dependency" injectedBean="utils_2_0">
+<cfproperty name="ceData" type="dependency" injectedBean="ceData_3_0">
+<cfproperty name="csData" type="dependency" injectedBean="csData_2_0">
+<cfproperty name="forms" type="dependency" injectedBean="forms_2_0">
+<cfproperty name="scripts" type="dependency" injectedBean="scripts_2_0">
 <cfproperty name="wikiTitle" value="CCAPI Configuration">
 
 <cfscript>

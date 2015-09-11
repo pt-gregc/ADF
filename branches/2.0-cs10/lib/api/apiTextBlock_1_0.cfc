@@ -36,8 +36,50 @@ History:
 
 <cfproperty name="version" value="1_0_2">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
-<cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
-<cfproperty name="wikiTitle" value="API Text Block">
+<cfproperty name="csContent" type="dependency" injectedBean="csContent_2_0">
+<cfproperty name="utils" type="dependency" injectedBean="utils_2_0">
+<cfproperty name="wikiTitle" value="APITextBlock_1_0">
 
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$populate
+Summary:
+	Handles population of the textblock content
+	Will send to pre process before entering content
+	Return structure will have a status code and message
+Returns:
+	Struct status - returns the status of the update with the following keys
+		contentUpdated - did the content get updated
+		msg - error message if available
+Arguments:
+	String elementName - the named element which content will be added for
+	Struct data - the data for the textblock element
+	Numeric - forceSubsiteID - If set this will override the subsiteID in the data.
+	Numeric - forcePageID - If set this will override the pageID in the data.
+	Boolean - forceLogout
+	String - forceControlName
+	Numeric - forceControlID
+History:
+	2015-09-11 - GAC - Created
+--->
+<cffunction name="populate" access="public" returntype="struct" hint="Use this method to populate content for either a Textblock or Custom Element">
+	<cfargument name="elementName" type="string" required="true" hint="The name of the element from the CCAPI configuration">
+	<cfargument name="data" type="struct" required="true" hint="Data for either the Texblock element">
+	<cfargument name="forceSubsiteID" type="numeric" required="false" default="-1" hint="If set this will override the subsiteID in the data.">
+	<cfargument name="forcePageID" type="numeric" required="false" default="-1" hint="If set this will override the pageID in the data.">
+	<cfargument name="forceLogout" type="boolean" required="false" default="true" hint="Flag to keep the API session logged in for a continuous process.">	
+	<cfargument name="forceControlName" type="string" required="false" default="" hint="Field to override the element control name from the config.">
+	<cfargument name="forceControlID" type="numeric" required="false" default="-1" hint="Field to override the element control name with the control ID.">
+	
+	<cfscript>
+		// Hardcode the forceElementType to be a textblock
+		arguments.forceElementType = "textblock";
+		
+		return variables.csContent.populateContent(argumentCollection=arguments);
+	</cfscript>
+</cffunction>
 
 </cfcomponent>

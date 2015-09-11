@@ -31,10 +31,12 @@ Version:
 History:
 	2011-01-14 - MFC - Created
 	2015-06-10 - ACW - Updated the component extends to no longer be dependant on the 'ADF' in the extends path
+	2015-09-09 - Added the getTaxonomyInfo method
+			   - Added the handleTaxonomyFileImport methond
 --->
 <cfcomponent displayname="taxonomy_1_1" extends="taxonomy_1_0" hint="Taxonomy functions for the ADF Library">
 
-<cfproperty name="version" value="1_1_3">
+<cfproperty name="version" value="1_1_5">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Taxonomy_1_1">
 
@@ -120,7 +122,7 @@ History:
 		</cfif>
 	</cfquery>
 
-	<cfreturn getTopTerms />
+	<cfreturn getTopTerms>
 </cffunction>
 
 <!---
@@ -395,6 +397,84 @@ History:
 			rtnArray[i].children = getNarrowerTermArrayOfStructs(taxID,facetID,termIDS[i]);
 		}
 		return rtnArray;
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+Name:
+	$getTaxonomyInfo
+Summary:
+	Returns a struct of taxonomy info
+Returns:
+	struct
+Arguments:
+	Numeric taxonomyID
+Usage:
+	application.ADF.taxonomy.getTaxonomyInfo(taxonomyID)
+History:
+	2015-08-24 - GAC - Created 
+--->
+<cffunction name="getTaxonomyInfo" returntype="struct" access="public" hint="Returns a struct of taxonomy info">
+	<cfargument name="taxonomyID" type="numeric" required="yes">
+	
+	<cfscript>
+		var retData = StructNew();
+		var taxComponent = Server.CommonSpot.api.getObject('Taxonomy');
+		var taxInfoQry = taxComponent.getList();
+	</cfscript>	
+	
+	<!--- // Filter the Taxonomy Information Query by the provided taxonomy ID  --->
+	<cfquery name="taxInfoQry" dbtype="query">
+		SELECT * 
+		FROM taxInfoQry 
+		WHERE ID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.taxonomyID#">
+	</cfquery>
+
+	<cfscript>
+		if ( taxInfoQry.RecordCount )
+		{
+			retData.ID = taxInfoQry.ID[1];
+			retData.NAME = taxInfoQry.NAME[1];
+			retData.DESCRIPTION = taxInfoQry.DESCRIPTION[1];
+			retData.VERSION = taxInfoQry.VERSION[1];
+			retData.STATUS = taxInfoQry.STATUS[1];
+		}
+		return retData;
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+Name:
+	$handleTaxonomyFileImport
+Summary:
+	Allow importing of properly formated taxonomy XML file. 
+Returns:
+	struct
+Arguments:
+	String filePath
+	Numeric taxonomyID
+Usage:
+	application.ADF.taxonomy.handleTaxonomyFileImport(taxonomyID)
+History:
+	2015-08-24 - GAC - Created 
+--->
+<cffunction name="handleTaxonomyFileImport" returntype="struct" access="public" hint="Allow importing of properly formated taxonomy XML file. ">
+	<cfargument name="filePath" type="string" required="yes">
+	<cfargument name="taxonomyID" type="numeric" required="no" default="0">
+	
+	<cfscript>
+		var retData = StructNew();
+		var taxComponent = Server.CommonSpot.api.getObject('Taxonomy');
+	
+		retData = taxComponent.xmlFile(xmlFile=arguments.filePath,taxonomyID=arguments.taxonomyID);
+
+		return retData;
 	</cfscript>
 </cffunction>
 

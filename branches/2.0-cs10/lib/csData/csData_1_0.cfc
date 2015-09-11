@@ -42,7 +42,7 @@ History:
 --->
 <cfcomponent displayname="csData_1_0" extends="ADF.lib.libraryBase" hint="CommonSpot Data Utils functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_16">
+<cfproperty name="version" value="1_0_17">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_0">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_0">
@@ -422,6 +422,7 @@ History:
 	2011-02-09 - RAK - Var'ing un-var'd variables
 	2011-03-10 - MFC/GAC - Removed KEYWORDS from Standard metadata due to specific to CS6.
 							KEYWORDS have been fixed in CSData v1.1.
+	2015-06-09 - DRM - Update application.cs -> Server.CommonSpot.udf, CommonSpot change
 --->
 <cffunction name="getStandardMetadata" access="public" returntype="struct">
 	<cfargument name="csPageID" required="true" type="numeric">

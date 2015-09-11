@@ -40,7 +40,7 @@ History:
 --->
 <cfcomponent displayname="scheduler_1_0" extends="ADF.lib.libraryBase" hint="Scheduler base for the ADF">
 	
-<cfproperty name="version" value="1_0_8">
+<cfproperty name="version" value="1_0_11">
 <cfproperty name="type" value="singleton">
 <cfproperty name="scripts" type="dependency" injectedBean="scripts_1_2">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
@@ -435,6 +435,8 @@ Returns:
 	string
 Arguments:
 	String - ScheduleName
+	Boolean - doAjaxRefresh
+	numeric - refreshRate
 History:
 	2010-11-30 - RAK - Created
 	2011-02-09 - RAK - Var'ing un-var'd variables
@@ -442,13 +444,22 @@ History:
 	2011-09-26 - GAC - Updated application.schedule to be application.ADFscheduler 
 	2011-09-27 - GAC - Converted application.ADF references to the local 'variables.'.
 	2015-05-29 - GAC - Updated to allow multiple scripts on a single page
+	2015-08-30 - GAC - Fixed an JS issue with the updateSchedule_scheduleSuffix function call
+	2015-08-31 - GAC - Added parameter to enable/disable the ajax refresh 
+	          	     - Added a parameter to set the ajax refresh rate
 --->
 <cffunction name="getScheduleHTML" access="public" returntype="string" hint="Returns the management HTML for the specified schedule name.">
 	<cfargument name="scheduleName" type="string" required="true" hint="Unique name for the schedule you want to run">
+	<cfargument name="doAjaxRefresh" type="boolean" required="false" default="true" hint="Enable/Disable the ajax refresh of the scheduler progress bar .">
+	<cfargument name="refreshRate" type="numeric" required="false" default="10" hint="The refresh rate for the ajax refresh of the progress bar.">
+	
 	<cfscript>
 		var currentSchedule = '';
 		var scheduleID = '';
 		var rtnHTML = '';
+		var scheduleSuffix = '';
+		
+		arguments.scheduleName = TRIM(arguments.scheduleName);
 		
 		// Verify the schedule structure exists
 		if ( !StructKeyExists(application,"ADFscheduler") )
@@ -459,12 +470,14 @@ History:
 			<cfif !StructKeyExists(application.ADFscheduler,arguments.scheduleName)>
 				Schedule does not exist.
 			<cfelse>
-				<cfset currentSchedule = application.ADFscheduler[arguments.scheduleName]>
-				<cfset scheduleSuffix = ReReplace(scheduleName, '[^\w]', '', 'all')>
-				<!--- <cfset scheduleSuffix = Replace(scheduleName," ","","all")> --->
-				<cfset scheduleID = "schedule" & UCASE(scheduleSuffix)>
-				#variables.scripts.loadJQuery()#
-				#variables.scripts.loadJQueryUI()#
+				<cfscript>
+					currentSchedule = application.ADFscheduler[arguments.scheduleName];
+					scheduleSuffix = TRIM(ReReplace(scheduleName, '[^\w]','','all'));
+					scheduleID = "scheduler_" & UCASE(scheduleSuffix);
+				
+					variables.scripts.loadJQuery();
+					variables.scripts.loadJQueryUI();
+				</cfscript>
 				<script type="text/javascript">
 					jQuery(function (){
 						jQuery("###scheduleID# .progressBar").progressbar({ value: #currentSchedule.scheduleProgress/ArrayLen(currentSchedule.commands)*100# });
@@ -487,8 +500,10 @@ History:
 								jQuery("##"+scheduleID+" .progressBar").progressbar({ value: progress });
 								jQuery("##"+scheduleID+" .scheduleStatus").html("Status: "+data.STATUS+" <br>Completion: "+currentTaskOffset+"/"+totalTasks);
 								if(data.STATUS == "active"){
-									//Refresh every 10 seconds.
-									setTimeout("updateSchedule_#scheduleID#('"+scheduleID+"')",10*1000);
+									<cfif arguments.doAjaxRefresh AND arguments.refreshRate GT 0>
+									//Refresh every X number seconds.
+									setTimeout("updateSchedule_#scheduleSuffix#('"+scheduleID+"')",#arguments.refreshRate#*1000);
+									</cfif>
 									jQuery("##"+scheduleID+" .changeScheduleStatus .pause").show();
 									jQuery("##"+scheduleID+" .changeScheduleStatus .resume").hide();
 									jQuery("##"+scheduleID+" .progressBar").progressbar({ disabled: false });
@@ -532,8 +547,9 @@ History:
 						);
 						jQuery("##"+scheduleID+" .changeScheduleStatus .pause").show();
 						jQuery("##"+scheduleID+" .changeScheduleStatus .resume").hide();
+						
 						//The resume may take a second to take effect. Update the schedule in one second.
-						setTimeout("updateSchedule('"+scheduleID+"')",1000);
+						setTimeout("updateSchedule_#scheduleSuffix#('"+scheduleID+"')",1000);
 					}
 				</script>
 				<div id="#scheduleID#">

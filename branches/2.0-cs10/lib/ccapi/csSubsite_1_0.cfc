@@ -38,9 +38,9 @@ History:
 
 <cfproperty name="version" value="1_0_5">
 <cfproperty name="type" value="transient">
-<cfproperty name="ccapi" type="dependency" injectedBean="ccapi_1_0">	
-<cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
-<cfproperty name="csData" type="dependency" injectedBean="csData_1_2">
+<cfproperty name="ccapi" type="dependency" injectedBean="ccapi_2_0">	
+<cfproperty name="utils" type="dependency" injectedBean="utils_2_0">
+<cfproperty name="csData" type="dependency" injectedBean="csData_2_0">
 <cfproperty name="wikiTitle" value="CSSubsite_1_0">
 
 <!---
