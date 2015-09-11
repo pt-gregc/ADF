@@ -228,27 +228,27 @@ History:
 		<ccapi_2_0/>
 		<ccapiConfig_1_0/>
 		<csapi_1_0/>
-		<ceData_2_0/>
+		<ceData_3_0/>
 		<csUpload_1_0/>
 		<csContent_2_0/>
 		<csSubsite_1_0/>
 		<csPage_2_0/>
-		<csData_1_3/>
+		<csData_2_0/>
 		<csSecurity_1_2/>
-		<data_1_2/>
-		<date_1_2/>
-		<fields_1_0/>
-		<forms_1_1/>
+		<data_2_0/>
+		<date_2_0/>
+		<fields_2_0/>
+		<forms_2_0/>
 		<lightbox_1_0/>
-		<mobile_1_0/>
+		<mobile_2_0/>
 		<presaveform_1_0/>
 		<postsaveform_1_0/>
-		<scheduler_1_0/>
+		<scheduler_2_0/>
 		<scripts_2_0/>
 		<scriptsService_1_1/>
-		<taxonomy_1_1/>
-		<ui_1_0/>
-		<utils_1_2/>
+		<taxonomy_2_0/>
+		<ui_2_0/>
+		<utils_2_0/>
 		<customElementSelect_1_0/>
 		<customElementDataManager_1_0/>
 		<customElementHierarchySelector_1_0/>
