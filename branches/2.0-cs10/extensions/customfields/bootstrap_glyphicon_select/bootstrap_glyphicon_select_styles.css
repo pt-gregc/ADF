@@ -15,7 +15,8 @@
 	column-count: 3;
 	-webkit-column-gap: 1px;
 	-moz-column-gap: 1px;
-	column-gap: 1px; 
+	column-gap: 1px;
+	width: -moz-fit-content;
 }
 	
 .bsgi-cols-3 ul li {

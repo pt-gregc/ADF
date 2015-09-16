@@ -2,7 +2,6 @@
 
 .fa-cols-3-outer {
 	overflow-x: scroll; 
-	/* width:600px;*/
 	width: 100%; 
 	height:200px; 
 	border: 1px solid #999; 
@@ -17,6 +16,7 @@
 	-webkit-column-gap: 1px;
 	-moz-column-gap: 1px;
 	column-gap: 1px; 
+	width: -moz-fit-content;
 }
 	
 .fa-cols-3 ul li {
