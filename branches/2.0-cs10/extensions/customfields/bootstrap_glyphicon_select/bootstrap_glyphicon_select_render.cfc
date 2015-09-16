@@ -126,7 +126,7 @@ History:
 			<span id="sel_#inputParameters.fldID#">#ListFirst(currentValue, ' ')#</span>
 		<!--- </button> --->
 		</div>
-		<input type="text" name="bsgi_search_#inputParameters.fldID#" id="bsgi_search_#inputParameters.fldID#" value="" <cfif readOnly>disabled="disabled"</cfif> class="searchInput" placeholder="Type to filter list of icons">
+		<input type="text" name="bsgi_search_#inputParameters.fldID#" id="bsgi_search_#inputParameters.fldID#" value="" <cfif readOnly>disabled="disabled"</cfif> class="bsgi-searchInput" placeholder="Type to filter list of Glyphicons">
 		<input class="clsPushButton bsgi-clearButton" type="button" value="Clear" onclick="clearInput_#arguments.fieldName#()">
 		<input type="hidden" name="#arguments.fieldName#" id="#inputParameters.fldID#" value="#currentValue#"> 			
 		<div class="bsgi-cols-3-outer">
