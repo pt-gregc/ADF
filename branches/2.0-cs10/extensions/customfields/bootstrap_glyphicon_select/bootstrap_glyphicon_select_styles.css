@@ -18,19 +18,24 @@
 	column-gap: 1px;
 	width: -moz-fit-content;
 }
+
+.bsgi-cols-3 ul {
+	margin: 2px 2px 2px 2px;
+}
 	
 .bsgi-cols-3 ul li {
 	line-height: 2; 
 	font-size: 12px; 
 	list-style: none; 
-	padding-left: 5px; 
-	padding-right: 5px; 
+	padding-left: 3px; 
+	padding-right: 3px; 
 	cursor: pointer; 
 }
 
 .bsgi-cols-3 li div:hover, .bsgi-cols-3 li div.selected { 
 	background-color: #D9E3ED; 
-	border: 1px solid #999; 
+	border: 1px solid #999;
+	padding: 1px 1px 1px 6px;
 }
 
 span.bsgi-border {
