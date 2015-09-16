@@ -33,6 +33,7 @@ History:
 	2013-10-21 - GAC - Added the enable/disable Development Mode function call
 	2014-02-26 - GAC - Updated for version 1.7.0
 	2014-10-07 - GAC - Updated for version 1.8.0
+	2015-09-15 - GAC - Updated for version 2.0.0
 --->
 <cfcomponent name="ADF" extends="ADF.core.SiteBase">
 	
