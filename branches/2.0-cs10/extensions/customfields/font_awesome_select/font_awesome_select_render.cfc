@@ -38,8 +38,16 @@ History:
 	2015-04-23 - DJM - Added own CSS
 	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
 					 - Updated the default FA version
+	2015-08-16 - GAC - Moved the default value for the Font Awesome versions to the top of the component
+					 - Fixed issue with datafile read error message
+					 - Fixed clearInput to not show the string '(blank)' after clicking
 --->
-<cfcomponent displayName="FontAwesomeSelect Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
+<cfcomponent displayName="FontAwesomeSelect_Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
+
+<cfscript>
+	variables.defaultFAversion = "4.4";
+	variables.defaultIconDataFile = "/ADF/thirdParty/css/font-awesome/#variables.defaultFAversion#/data/icon-data.csv";
+</cfscript>
 
 <cffunction name="renderControl" returntype="void" access="public">
 	<cfargument name="fieldName" type="string" required="yes">
@@ -63,18 +71,21 @@ History:
 		var cftPath = "/ADF/extensions/customfields/font_awesome_select";
 		
 		inputParameters = setDefaultParameters(argumentCollection=arguments);
-		iconDataFilePath = ExpandPath(inputParameters.iconDataFile);
+		if ( StructKeyExists(inputParameters,"iconDataFile") AND LEN(TRIM(inputParameters.iconDataFile)) )
+			iconDataFilePath = ExpandPath(inputParameters.iconDataFile);
 		
 		// Get the Full File Path to the IconDataFile		
 		// Make sure the data file exists
 		if ( FileExists(iconDataFilePath) )
 		{
-			// Convert the CSV file to a qry
+			// Convert the CSV file to an array
 			iconDataArr = application.ADF.data.csvToArray(file=iconDataFilePath,Delimiter=",");
 		}
 		else
 		{
-			cftErrMsg = "Unable to load icon data file!<br/>'#xparams.iconDataFile#'";
+			cftErrMsg = "Unable to load icon data file!";
+			if ( StructKeyExists(inputParameters,"iconDataFile") AND LEN(TRIM(inputParameters.iconDataFile)) )
+				cftErrMsg = cftErrMsg & "<br/>'#inputParameters.iconDataFile#'";
 		}
 		
 		// Build the Font Awesome Icons array
@@ -98,26 +109,26 @@ History:
 		application.ADF.scripts.loadFontAwesome(dynamicHeadRender=true);
 	</cfscript>
 
-	<cfif NOT StructKeyExists(Request, 'fontAwesomeCSS')>
+	<cfif NOT StructKeyExists(Request,'cftfontAwesomeSelectCSS')>
 		<cfoutput>
 			<link rel="stylesheet" type="text/css" href="#cftPath#/font_awesome_select_styles.css" />
 		</cfoutput>
-		<cfset Request.fontAwesomeCSS = 1>
+		<cfset Request.cftfontAwesomeSelectCSS = 1>
 	</cfif>
 	<cfscript>
 		renderJSFunctions(argumentCollection=arguments, fieldParameters=inputParameters);
 	</cfscript>
 	<cfoutput>
-		<div class="selectedDataDiv">
+		<div class="fa-selectedDataDiv">
 			<i id="icon_#inputParameters.fldID#" class="fa #currentValue#"></i> 
 			<span id="sel_#inputParameters.fldID#">#ListFirst(currentValue, ' ')#</span>
 		</div>
-		<input type="text" name="fa_search_#inputParameters.fldID#" id="fa_search_#inputParameters.fldID#" value="" <cfif readOnly>disabled="disabled"</cfif> class="searchInput" placeholder="Type to filter list of icons"> 
-		<input class="clsPushButton clearButton" type="button" value="Clear" onclick="clearInput_#arguments.fieldName#()">
+		<input type="text" name="fa_search_#inputParameters.fldID#" id="fa_search_#inputParameters.fldID#" value="" <cfif readOnly>disabled="disabled"</cfif> class="fa-searchInput" placeholder="Type to filter list of icons"> 
+		<input class="clsPushButton fa-clearButton" type="button" value="Clear" onclick="clearInput_#arguments.fieldName#()">
 		<input type="hidden" name="#arguments.fieldName#" id="#inputParameters.fldID#" value="#currentValue#"> 			
-		<div class="cols-3-outer">
+		<div class="fa-cols-3-outer">
 			<cfif LEN(TRIM(cftErrMsg))>#cftErrMsg#</cfif>
-			<div id="icondata_#inputParameters.fldID#" class="cols-3">
+			<div id="icondata_#inputParameters.fldID#" class="fa-cols-3">
 				<ul>
 					<cfloop index="i" from="1" to="#ArrayLen(fontArray)#" step="1">
 						<cfif ListFirst(currentValue, ' ') EQ ListFirst(fontArray[i])>
@@ -127,7 +138,9 @@ History:
 							<cfset selected = "">
 						</cfif>
 						<li>
-							<div class="fonticon #selected#" data-code="#ListLast(fontArray[i])#" data-name="#ListFirst(fontArray[i])#"><i class="fa #ListFirst(fontArray[i])#"></i> #ListFirst(fontArray[i])#</div>
+							<div class="fonticon #selected#" data-code="#ListLast(fontArray[i])#" data-name="#ListFirst(fontArray[i])#">
+								<i class="fa #ListFirst(fontArray[i])#"></i> #ListFirst(fontArray[i])#
+							</div>
 						</li>
 					</cfloop>
 				</ul>
@@ -182,14 +195,21 @@ History:
 <!--
 jQuery(function(){
 	// Add Key up event
-	jQuery('##fa_search_#inputParameters.fldID#').live( 'keyup', function() {
+	jQuery('##fa_search_#inputParameters.fldID#').keyup(function( event ) {
+	 	var theval = jQuery('##fa_search_#inputParameters.fldID#').val();
+		findFunction_#arguments.fieldName#( theval );
+	}).keydown(function( event ) {
+	  	if ( event.which == 13 ) 
+	    	event.preventDefault();
+	});
+	<!--- jQuery('##fa_search_#inputParameters.fldID#').live( 'keyup', function() {
 		var theval = jQuery('##fa_search_#inputParameters.fldID#').val();
 		findFunction_#arguments.fieldName#( theval );
-	});
+	}); --->
 
 	// add Click event for each font li div
-	jQuery("##icondata_#inputParameters.fldID# .fonticon").live( 'click', function(){
-		var name = jQuery(this).attr('data-name');					
+	jQuery('##icondata_#inputParameters.fldID# .fonticon').click(function( event ) {
+	 	var name = jQuery(this).attr('data-name');					
 		var code = jQuery(this).attr('data-code');					
 
 		// set display selection to that value (icon name)
@@ -204,12 +224,32 @@ jQuery(function(){
 
 		// assign just name portion to real hidden field
 		buildClasses_#arguments.fieldName#();
-	});		
-
-	// add Click event for options div
-	jQuery("##options_#inputParameters.fldID#").live( 'click', function(){
-		buildClasses_#arguments.fieldName#();
 	});
+	<!--- jQuery("##icondata_#inputParameters.fldID# .fonticon").live( 'click', function(){
+		var name = jQuery(this).attr('data-name');					
+		var code = jQuery(this).attr('data-code');					
+
+		// set display selection to that value (icon name)
+		jQuery("##sel_#inputParameters.fldID#").text( name );
+
+		// de-select old one
+		if( jQuery("##icondata_#inputParameters.fldID# li.fa div.selected") )
+			jQuery("##icondata_#inputParameters.fldID# li.fa div.selected").removeClass('selected');
+
+		// select new one
+		jQuery(this).addClass('selected');
+
+		// assign just name portion to real hidden field
+		buildClasses_#arguments.fieldName#();
+	});		 --->
+	
+	// add Click event for options div
+	jQuery('##options_#inputParameters.fldID#').click(function( event ) {
+	 	buildClasses_#arguments.fieldName#();
+	});
+	<!--- jQuery("##options_#inputParameters.fldID#").live( 'click', function(){
+		buildClasses_#arguments.fieldName#();
+	}); --->
 });
 	
 function findFunction_#arguments.fieldName#(inString)
@@ -303,7 +343,7 @@ function buildClasses_#arguments.fieldName#()
 function clearInput_#arguments.fieldName#()
 {
 	jQuery('##fa_search_#inputParameters.fldID#').val('');		
-	jQuery('##sel_#inputParameters.fldID#').text('(Blank)');		
+	jQuery('##sel_#inputParameters.fldID#').text('');		
 	jQuery('##icon_#inputParameters.fldID#').attr( 'class', '');		
 	jQuery('###inputParameters.fldID#').val('');		
 
@@ -323,8 +363,8 @@ function clearInput_#arguments.fieldName#()
 	<cfargument name="value" type="string" required="yes">
 	
 	<cfscript>
-		var defaultFAversion = "4.4";
-		var defaultIconDataFile = "/ADF/thirdParty/css/font-awesome/#defaultFAversion#/data/icon-data.csv";
+		var defaultFAversion = variables.defaultFAversion;
+		var defaultIconDataFile = variables.defaultIconDataFile;
 		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
 		
 		// Set the defaults
@@ -368,6 +408,11 @@ function clearInput_#arguments.fieldName#()
 	public string function getResourceDependencies()
 	{
 		return listAppend(super.getResourceDependencies(), "jQuery,FontAwesome");
+	}
+	
+	private boolean function isMultiline()
+	{
+		return true;
 	}
 </cfscript>
 

@@ -45,7 +45,7 @@ History:
 //writedump( var="#currentValues#", expand="no" );
 	
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "2.0.1";
+	fieldVersion = "2.0.2";
 	
 	// initialize some of the attributes variables
 	showSize = 0;
@@ -55,9 +55,11 @@ History:
 	showPull = 0;
 	iconDataFile = "";
 	
-	defaultFAversion = "4.2";	
+	defaultFAversion = "4.4";
 	// Default file path to the CSV file that contain the icon class name and codes
 	defaultIconDataFile = "/ADF/thirdParty/css/font-awesome/#defaultFAversion#/data/icon-data.csv";
+	// Default location for the Required Resouce to be registered in CommonSpot
+	requiredResourceLocation = "/ADF/thirdParty/css/font-awesome/#defaultFAversion#/css/font-awesome-ADF-ext.css";
 	
 	if( StructKeyExists(currentValues, "ShowSize") )
 		ShowSize = currentValues.ShowSize;
@@ -75,7 +77,7 @@ History:
 		
 	// Fix for bad version folder "Major.Minor.Maintenance". Should only be "Major.Minor" version.
 	// - If the "4.2.0" folder is found, set to {blank} to use the default value in the render file
-	if ( FindNoCase("/ADF/thirdParty/css/font-awesome/4.2.0/",iconDataFile) ) 	
+	if ( FindNoCase("/ADF/thirdParty/css/font-awesome/4.2.0/",iconDataFile) )
 		iconDataFile = ""; 	
 </cfscript>
 
@@ -92,6 +94,10 @@ History:
 				<input type="checkbox" name="#prefix#ShowBorder" id="#prefix#ShowBorder" value="1" class="cs_dlgControl" <cfif ShowBorder eq 1>checked="checked"</cfif>><label for="#prefix#ShowBorder">Border</label> &nbsp;
 				<input type="checkbox" name="#prefix#ShowSpin" id="#prefix#ShowSpin" value="1" class="cs_dlgControl" <cfif ShowSpin eq 1>checked="checked"</cfif>><label for="#prefix#ShowSpin">Spin</label> &nbsp;
 				<input type="checkbox" name="#prefix#ShowPull" id="#prefix#ShowPull" value="1" class="cs_dlgControl" <cfif ShowPull eq 1>checked="checked"</cfif>><label for="#prefix#ShowPull">Pull</label> &nbsp;
+					
+				<br/>The <strong>SIZE</strong> option requires the "font-awesome-ADF-ext.css" file be registered as a resouce along with Font Awesome's library CSS file. 
+				Otherwise icon size class definitions (eg. fa-2x, etc.) will need to be added to the sites custom style sheet.
+				<br/>(<em>Resource Location: #requiredResourceLocation#</em> )
 			</td>
 		</tr>
 		<tr>
