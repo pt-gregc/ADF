@@ -112,6 +112,11 @@ History:
 	<cfif NOT StructKeyExists(Request,'cftfontAwesomeSelectCSS')>
 		<cfoutput>
 			<link rel="stylesheet" type="text/css" href="#cftPath#/font_awesome_select_styles.css" />
+			<cfif !inputParameters.ShowSize>
+			<style>
+				##icon_#inputParameters.fldID# { font-size: 2em; }
+			</style>
+			</cfif>
 		</cfoutput>
 		<cfset Request.cftfontAwesomeSelectCSS = 1>
 	</cfif>
@@ -196,16 +201,12 @@ History:
 jQuery(function(){
 	// Add Key up event
 	jQuery('##fa_search_#inputParameters.fldID#').keyup(function( event ) {
-	 	var theval = jQuery('##fa_search_#inputParameters.fldID#').val();
-		findFunction_#arguments.fieldName#( theval );
-	}).keydown(function( event ) {
-	  	if ( event.which == 13 ) 
-	    	event.preventDefault();
-	});
-	<!--- jQuery('##fa_search_#inputParameters.fldID#').live( 'keyup', function() {
-		var theval = jQuery('##fa_search_#inputParameters.fldID#').val();
-		findFunction_#arguments.fieldName#( theval );
-	}); --->
+		 	var theval = jQuery('##fa_search_#inputParameters.fldID#').val();
+			findFunction_#arguments.fieldName#( theval );
+		}).keydown(function( event ) {
+		  	if ( event.which == 13 ) 
+		    	event.preventDefault();
+		});
 
 	// add Click event for each font li div
 	jQuery('##icondata_#inputParameters.fldID# .fonticon').click(function( event ) {
@@ -225,31 +226,11 @@ jQuery(function(){
 		// assign just name portion to real hidden field
 		buildClasses_#arguments.fieldName#();
 	});
-	<!--- jQuery("##icondata_#inputParameters.fldID# .fonticon").live( 'click', function(){
-		var name = jQuery(this).attr('data-name');					
-		var code = jQuery(this).attr('data-code');					
-
-		// set display selection to that value (icon name)
-		jQuery("##sel_#inputParameters.fldID#").text( name );
-
-		// de-select old one
-		if( jQuery("##icondata_#inputParameters.fldID# li.fa div.selected") )
-			jQuery("##icondata_#inputParameters.fldID# li.fa div.selected").removeClass('selected');
-
-		// select new one
-		jQuery(this).addClass('selected');
-
-		// assign just name portion to real hidden field
-		buildClasses_#arguments.fieldName#();
-	});		 --->
 	
 	// add Click event for options div
 	jQuery('##options_#inputParameters.fldID#').click(function( event ) {
 	 	buildClasses_#arguments.fieldName#();
 	});
-	<!--- jQuery("##options_#inputParameters.fldID#").live( 'click', function(){
-		buildClasses_#arguments.fieldName#();
-	}); --->
 });
 	
 function findFunction_#arguments.fieldName#(inString)
@@ -290,32 +271,42 @@ function buildClasses_#arguments.fieldName#()
 	if( jQuery("##icondata_#inputParameters.fldID# li div.selected").length )
 		name = jQuery("##icondata_#inputParameters.fldID# li div.selected").attr('data-name');
 
+	<cfif inputParameters.ShowSize>
 	if( document.getElementById('size_#inputParameters.fldID#') instanceof Object )
 		size = jQuery('##size_#inputParameters.fldID#').val();
-
+	</cfif>
+	
+	<cfif inputParameters.ShowFixedWidth>
 	if( document.getElementById('fw_#inputParameters.fldID#') instanceof Object )
 	{	
 		if( jQuery('##fw_#inputParameters.fldID#').prop('checked') )
 			fw = jQuery('##fw_#inputParameters.fldID#').val();
 	}		
+	</cfif>
 	
+	<cfif inputParameters.ShowBorder>
 	if( document.getElementById('border_#inputParameters.fldID#') instanceof Object )
 	{	
 		if( jQuery('##border_#inputParameters.fldID#').prop('checked') )	
 			border = jQuery('##border_#inputParameters.fldID#').val();
 	}
-				
+	</cfif>
+	
+	<cfif inputParameters.ShowSpin>		
 	if( document.getElementById('spin_#inputParameters.fldID#') instanceof Object )
 	{	
 		if( jQuery('##spin_#inputParameters.fldID#').prop('checked') )							
 			spin = jQuery('##spin_#inputParameters.fldID#').val();
 	}
-				
+	</cfif>
+	
+	<cfif inputParameters.ShowPull>			
 	if( document.getElementById('pull_#inputParameters.fldID#') instanceof Object )
 	{	
 		if( jQuery('##pull_#inputParameters.fldID#') )	
 			pull = jQuery('##pull_#inputParameters.fldID#').val();
 	}
+	</cfif>
 	
 	if( name.length > 0 )
 	{

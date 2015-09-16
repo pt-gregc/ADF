@@ -102,6 +102,11 @@ History:
 	<cfif NOT StructKeyExists(Request,'cftBootstrapGlyphiconSelectCSS')>
 		<cfoutput>
 			<link rel="stylesheet" type="text/css" href="#cftPath#/bootstrap_glyphicon_select_styles.css" />
+			<cfif !inputParameters.ShowSize>
+			<style>
+				##icon_#inputParameters.fldID# { font-size: 2em; }
+			</style>
+			</cfif>
 			<!--- <style>
 				.glyphicon-lg { font-size: 1.33333em; }
 				<cfloop index="s" from="2" to="10">
@@ -118,7 +123,7 @@ History:
 		<div class="bsgi-selectedDataDiv">
 		<!--- <button type="button" class="btn btn-default" aria-label="#ListRest(currentValue,"-")#"> --->
 			<span id="icon_#inputParameters.fldID#" class="glyphicon #currentValue#" aria-hidden="true"></span>
-			<span id="sel_#inputParameters.fldID#">#currentValue#</span>
+			<span id="sel_#inputParameters.fldID#">#ListFirst(currentValue, ' ')#</span>
 		<!--- </button> --->
 		</div>
 		<input type="text" name="bsgi_search_#inputParameters.fldID#" id="bsgi_search_#inputParameters.fldID#" value="" <cfif readOnly>disabled="disabled"</cfif> class="searchInput" placeholder="Type to filter list of icons">
@@ -175,12 +180,12 @@ History:
 jQuery(function(){
     // Add Key up event
     jQuery('##bsgi_search_#inputParameters.fldID#').keyup(function( event ) {
-        var theval = jQuery('##bsgi_search_#inputParameters.fldID#').val();
-        findFunction_#arguments.fieldName#( theval );
-    }).keydown(function( event ) {
-        if ( event.which == 13 ) 
-            event.preventDefault();
-    });
+	        var theval = jQuery('##bsgi_search_#inputParameters.fldID#').val();
+	        findFunction_#arguments.fieldName#( theval );
+	    }).keydown(function( event ) {
+	        if ( event.which == 13 ) 
+	            event.preventDefault();
+   		});
 
     // add Click event for each font li div
     jQuery('##icondata_#inputParameters.fldID# .fonticon').click(function( event ) {
@@ -217,9 +222,9 @@ function findFunction_#arguments.fieldName#(inString)
 	
 		// Find the rows that contain the search terms
 		jQuery('##icondata_#inputParameters.fldID# li div[data-name*="' + inString.toLowerCase() + '"]').each(function() {
-				// Display the row
-				jQuery(this).show();
-			});
+			// Display the row
+			jQuery(this).show();
+		});
 
 		// Find the selected rows 
 		jQuery('##icondata_#inputParameters.fldID# li div.selected').show();
@@ -240,16 +245,18 @@ function buildClasses_#arguments.fieldName#()
 	// get selected item
 	if( jQuery("##icondata_#inputParameters.fldID# li div.selected").length )
 		name = jQuery("##icondata_#inputParameters.fldID# li div.selected").attr('data-name');
-
+	
+	<cfif inputParameters.ShowSize>
 	if( document.getElementById('size_#inputParameters.fldID#') instanceof Object )
 		size = jQuery('##size_#inputParameters.fldID#').val();
+	</cfif>
 	
 	if( name.length > 0 )
 	{
 		val = name;
 		if( size.length > 0 )
 			val = val + ' ' + size;
-
+		
 		// set display div
 		jQuery('##sel_#inputParameters.fldID#').text( name );		
 		jQuery('##icon_#inputParameters.fldID#').attr( 'class', 'glyphicon ' + val );		

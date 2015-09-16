@@ -4,8 +4,14 @@
  */
 
 /* bootstrap glyphicon sizes */
+.glyphicon-sm {
+  font-size: 1em;
+}
+.glyphicon-md {
+  font-size: 2em;
+}
 .glyphicon-lg {
-  font-size: 1.33333em;
+  font-size: 4em;
 }
 .glyphicon-2x {
   font-size: 2em;
