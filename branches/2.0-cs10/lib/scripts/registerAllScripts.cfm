@@ -76,11 +76,24 @@
 			arrayAppend(arr, getResourceStruct(arguments.resourceSpecsArray[i].loadTagType, arguments.resourceSpecsArray[i].sourceURL));
 		return arr;
 	}
-	function getResourceStruct(loadTagType, sourceURL)
+	function getResourceStruct(loadTagType, sourceURL, canCombine, canMinify)
 	{
 		var res = Request.TypeFactory.newObjectInstance("ResourceLoadStruct");
+		if (!structKeyExists(arguments, "canCombine"))
+			arguments.canCombine = (left(arguments.sourceURL, 4) == "http") ? 0 : 1;
+		if (!structKeyExists(arguments, "canMinify"))
+			arguments.canMinify =
+			(
+					!arguments.canCombine
+				|| findNoCase(".min", arguments.sourceURL)
+				|| findNoCase("_min", arguments.sourceURL)
+				|| findNoCase("-pack", arguments.sourceURL)
+				|| findNoCase(".pack", arguments.sourceURL)
+			) ? 0 : 1;
 		res.loadTagType = arguments.loadTagType;
 		res.sourceURL = arguments.sourceURL;
+		res.canCombine = arguments.canCombine;
+		res.canMinify = arguments.canMinify;
 		return res;
 	}
 
@@ -95,7 +108,7 @@
 	(
 		"JQuery 1.11", "PRIMARY",
 		[
-			{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/jquery-1.11.js"}
+			{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/jquery-1.11.js", canMinify=0}
 		],
 		[],
 		"JQuery resources.", "Included in ADF 2.0 and later.", "JQuery"
@@ -105,7 +118,7 @@
 	(
 		"JQueryMigrate 1.2", "PRIMARY",
 		[
-			{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/migrate/jquery-migrate-1.2.js"}
+			{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/migrate/jquery-migrate-1.2.js", canMinify=0}
 		],
 		[],
 		"JQueryMigrate resources.", "Included in ADF 2.0 and later.", "JQueryMigrate"
@@ -119,7 +132,7 @@
 		"JQueryUI 1.11", "PRIMARY",
 		[],
 		[
-			{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/ui/jquery-ui-1.11/js/jquery-ui-1.11.js"}
+			{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/ui/jquery-ui-1.11/js/jquery-ui-1.11.js", canMinify=0}
 		],
 		"JQueryUI resources.", "Included in ADF 2.0 and later.", "JQueryUI"
 	);
@@ -271,7 +284,7 @@
 		"DateJS 1.0", "SECONDARY",
 		[],
 		[
-			{LoadTagType=2, SourceURL="/ADF/thirdParty/js/datejs/1.0/date.js"}
+			{LoadTagType=2, SourceURL="/ADF/thirdParty/js/datejs/1.0/date.js", canMinify=0}
 		],
 		"DateJS resources.", "Included in ADF 2.0 and later.", "DateJS"
 	);
@@ -291,7 +304,7 @@
 		"Dynatree 1.1", "SECONDARY",
 		[],
 		[
-			{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/dynatree/jquery-dynatree-1.1.1.js"}
+			{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/dynatree/jquery-dynatree-1.1.1.js", canMinify=0}
 		],
 		"Dynatree resources.", "Included in ADF 2.0 and later.", "Dynatree"
 	);
@@ -545,7 +558,7 @@
 		"JQueryDoTimeout 1.0", "SECONDARY",
 		[],
 		[
-			{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/dotimeout/jquery.dotimeout.plugin.js"}
+			{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/dotimeout/jquery.dotimeout.plugin.js", canMinify=0}
 		],
 		"JQueryDoTimeout resources.", "Included in ADF 2.0 and later.", "JQueryDoTimeout"
 	);
@@ -603,7 +616,7 @@
 		"JQueryHighlight 3.0", "SECONDARY",
 		[],
 		[
-			{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/highlight/jquery.highlight-3.0.0.yui.js"}
+			{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/highlight/jquery.highlight-3.0.0.yui.js", canMinify=0}
 		],
 		"JQueryHighlight resources.", "Included in ADF 2.0 and later.", "JQueryHighlight"
 	);
@@ -701,7 +714,7 @@
 		"JQueryPlupload", "SECONDARY",
 		[],
 		[
-			{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/plupload/js/plupload.full.js"}
+			{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/plupload/js/plupload.full.js", canMinify=0}
 		],
 		"JQueryPlupload resources.", "Included in ADF 2.0 and later.", ""
 	);
@@ -753,7 +766,7 @@
 		"SWFObject 2.2", "SECONDARY",
 		[],
 		[
-			{LoadTagType=2, SourceURL="/ADF/thirdParty/swfobject/swfobject-2.2.js"}
+			{LoadTagType=2, SourceURL="/ADF/thirdParty/swfobject/swfobject-2.2.js", canMinify=0}
 		],
 		"SWFObject resources.", "Included in ADF 2.0 and later.", "SWFObject"
 	);
@@ -803,7 +816,7 @@
 		"JQueryTimeAgo 1.4", "SECONDARY",
 		[],
 		[
-			{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/timeago/1.4/jquery.timeago-1.4.js"}
+			{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/timeago/1.4/jquery.timeago-1.4.1.js"}
 		],
 		"JQueryTimeAgo resources.", "Included in ADF 2.0 and later.", "JQueryTimeAgo"
 	);
@@ -816,17 +829,6 @@
 			{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/tools/1.2/jquery.tools.min.js"}
 		],
 		"JQueryTools resources.", "Included in ADF 2.0 and later.", "JQueryTools"
-	);
-
-	// HIGH: this file is empty, was in ADF 1.8.1 too, now what?
-	registerResource
-	(
-		"JQueryUIForm", "SECONDARY",
-		[],
-		[
-			{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/ui/form/jquery.ui.form.js"}
-		],
-		"JQueryUIForm resources.", "Included in ADF 2.0 and later.", ""
 	);
 
 	registerResource
