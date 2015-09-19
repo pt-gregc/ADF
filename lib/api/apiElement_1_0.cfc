@@ -23,7 +23,7 @@ end user license agreement.
 Author: 	
 	PaperThin, Inc. 
 Name:
-	apiElement.cfc
+	apiElement_1_0.cfc
 Summary:
 	API Element functions for the ADF Library
 Version:
@@ -36,7 +36,7 @@ History:
 <cfproperty name="version" value="1_0_9">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
-<cfproperty name="wikiTitle" value="API Elements">
+<cfproperty name="wikiTitle" value="APIElement_1_0">
 
 <!---
 /* *************************************************************** */

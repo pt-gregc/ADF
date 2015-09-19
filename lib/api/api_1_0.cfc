@@ -23,7 +23,7 @@ end user license agreement.
 Author: 	
 	PaperThin, Inc. 
 Name:
-	api.cfc
+	api_1_0.cfc
 Summary:
 	API functions for the ADF Library
 Version:
@@ -32,9 +32,9 @@ History:
 	2012-12-20 - MFC - Created
 	2014-03-05 - JTP - Var declarations
 --->
-<cfcomponent displayname="api" extends="ADF.core.Base" hint="CCAPI functions for the ADF Library">
+<cfcomponent displayname="api_1_0" extends="ADF.core.Base" hint="CCAPI functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_9">
+<cfproperty name="version" value="1_0_10">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
 <cfproperty name="wikiTitle" value="API">
 
@@ -773,6 +773,7 @@ Arguments:
 History:
 	2012-12-26 - MFC - Created
 	2013-10-15 - GAC - Updated to handle the cs_remote for 7.0.1+, 8.0.1+ and 9+
+	2015-09-11 - GAC - Fixed the FindNoCase logic with the cs_remote check
 --->
 <cffunction name="getWebService" access="private" returntype="any">
 	<cfscript>
@@ -793,7 +794,7 @@ History:
 		{	
 		
 			// Use the config webservice URL value to determine the correct wsPath
-			if ( FindNoCase(wsURL,"cs_remote") )
+			if ( FindNoCase("cs_remote",wsURL) )
 				wsPath = "commonspot.webservice.cs_remote";	
 		
 			// Create the local object directly on the server
