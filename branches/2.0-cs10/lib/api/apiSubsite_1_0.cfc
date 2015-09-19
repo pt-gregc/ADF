@@ -23,7 +23,7 @@ end user license agreement.
 Author: 	
 	PaperThin, Inc. 
 Name:
-	apiSubsite.cfc
+	apiSubsite_1_0.cfc
 Summary:
 	API Subsite functions for the ADF Library
 Version:

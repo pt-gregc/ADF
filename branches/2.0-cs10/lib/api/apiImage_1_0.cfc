@@ -23,7 +23,7 @@ end user license agreement.
 Author: 	
 	PaperThin, Inc. 
 Name:
-	apiImage.cfc
+	apiImage_1_0.cfc
 Summary:
 	API Image functions for the ADF Library
 Version:

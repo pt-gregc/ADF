@@ -23,7 +23,7 @@ end user license agreement.
 Author: 	
 	PaperThin, Inc. 
 Name:
-	apiDocument.cfc
+	apiDocument_1_0.cfc
 Summary:
 	API Uploaded Document functions for the ADF Library
 Version:

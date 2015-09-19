@@ -23,7 +23,7 @@ end user license agreement.
 Author: 	
 	PaperThin, Inc. 
 Name:
-	apiKeywords.cfc
+	apiKeywords_1_0.cfc
 Summary:
 	API Keywords functions for the ADF Library
 Version:
@@ -36,7 +36,7 @@ History:
 
 <cfproperty name="version" value="1_0_5">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
-<cfproperty name="utils" type="dependency" injectedBean="utils_2_0">
+<!--- <cfproperty name="utils" type="dependency" injectedBean="utils_1_2"> --->
 <cfproperty name="wikiTitle" value="APIKeywords_1_0">
 
 <!---
@@ -93,6 +93,7 @@ History:
 		// Use the CS 6.x Command API to SET page keywords
 		var kwComponent = server.CommonSpot.api.getObject('keywords');
 		var kwCmdResults = "";
+		
 		try 
 		{
 			kwCmdResults = kwComponent.setForObject(arguments.csPageID,arguments.keywordList);

@@ -23,7 +23,7 @@ end user license agreement.
 Author: 	
 	PaperThin, Inc. 
 Name:
-	apiElement.cfc
+	apiElement_1_0.cfc
 Summary:
 	API Element functions for the ADF Library
 Version:
