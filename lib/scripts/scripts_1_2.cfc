@@ -38,10 +38,11 @@ History:
 	2015-02-17 - GAC - Added a loadJQueryTimeAgo function to load version 1.4 by default
 	2015-04-22 - GAC - Added the loadCKEditor and the loadTypeAheadBundle functions	
 	2015-07-21 - GAC - Added and updated the loadCFJS function for CFJS v1.3	
+	2015-09-18 - GAC - Deprecated the loadJQueryUIForm() script 
 --->
 <cfcomponent displayname="scripts_1_2" extends="ADF.lib.scripts.scripts_1_1" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" value="1_2_30">
+<cfproperty name="version" value="1_2_31">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_1" type="dependency">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Scripts_1_2">
@@ -1446,13 +1447,16 @@ Arguments:
 History:
 	2011-09-27 - MTT - Created
 	2012-08-16 - GAC - Added the force parameter
+	2015-09-18 - GAC - Deprecated this function by commiting out the code that renders the script tag that loads it
 --->
+<!---// DEPRECATED: The loadJQueryUIForm() has been deprecated will no longer load the jquery.ui.form.js script --->
+<!---// The project has been archived by google code but can still be found as this address (if needed): https://code.google.com/p/jquery-ui-form/ --->
 <cffunction name="loadJQueryUIForm" access="public" output="true" returntype="void" hint="Loads the form plugin for jquery ui">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfset var outputHTML = "">
-	<cfsavecontent variable="outputHTML">
+	<!--- <cfsavecontent variable="outputHTML">
 		<script type="text/javascript" src="/ADF/thirdParty/jquery/ui/form/jquery.ui.form.js"></script>
-	</cfsavecontent>
+	</cfsavecontent> --->
 	<cfoutput>
 		<cfif arguments.force>
 			#outputHTML#
