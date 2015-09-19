@@ -23,7 +23,7 @@ end user license agreement.
 Author: 	
 	PaperThin, Inc. 
 Name:
-	apiImage.cfc
+	apiImage_1_0.cfc
 Summary:
 	API Image functions for the ADF Library
 Version:
@@ -31,12 +31,12 @@ Version:
 History:
 	2012-12-26 - MFC - Created
 --->
-<cfcomponent displayname="apiImage" extends="ADF.core.Base" hint="API Image functions for the ADF Library">
+<cfcomponent displayname="apiImage_1_0" extends="ADF.core.Base" hint="API Image functions for the ADF Library">
 
 <cfproperty name="version" value="1_0_1">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
-<cfproperty name="wikiTitle" value="API Image">
+<cfproperty name="wikiTitle" value="APIImage_1_0">
 
 
 </cfcomponent>

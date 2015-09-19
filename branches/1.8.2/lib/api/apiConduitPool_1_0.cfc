@@ -43,7 +43,7 @@ History:
 <cfproperty name="csData" type="dependency" injectedBean="csData_1_2">
 <cfproperty name="ceData" type="dependency" injectedBean="ceData_2_0">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
-<cfproperty name="wikiTitle" value="API Conduit Pool">
+<cfproperty name="wikiTitle" value="APIConduitPool_1_0">
 
 <cfscript>
 	// API Pool Default Variables

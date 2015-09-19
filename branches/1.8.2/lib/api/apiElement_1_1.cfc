@@ -38,7 +38,7 @@ History:
 <cfproperty name="csData" type="dependency" injectedBean="csData_1_2">
 <cfproperty name="apiConduitPool" type="dependency" injectedBean="apiConduitPool_1_0">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
-<cfproperty name="wikiTitle" value="API Elements">
+<cfproperty name="wikiTitle" value="APIElement_1_1">
 
 <!---
 /* *************************************************************** */

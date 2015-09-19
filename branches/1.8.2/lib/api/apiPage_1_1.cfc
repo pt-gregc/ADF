@@ -23,30 +23,32 @@ end user license agreement.
 Author: 	
 	PaperThin, Inc. 
 Name:
-	apiPage_1_0.cfc
+	apiPage_1_1.cfc
 Summary:
 	API Page functions for the ADF Library
 Version:
-	1.0
+	1.1
 History:
-	2012-12-26 - MFC - Created
-	2015-02-27 - GAC - Added the deletePageRedirects method
-	2015-09-09 - GAC - Added the move method
-					 - Added the invalidatePageCache method
+	2015-09-11 - GAC - Created
 --->
-<cfcomponent displayname="apiPage_1_0" extends="ADF.core.Base" hint="API Page functions for the ADF Library">
+<cfcomponent displayname="apiPage_1_1" extends="ADF.lib.api.apiPage_1_0" hint="API Page functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_13">
+<cfproperty name="version" value="1_1_0">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
+<cfproperty name="apiRemote" type="dependency" injectedBean="apiRemote_1_0">
 <!---<cfproperty name="utils" type="dependency" injectedBean="utils_1_2">--->
-<cfproperty name="wikiTitle" value="APIPage_1_0">
+<cfproperty name="wikiTitle" value="APIPage_1_1">
+
+<!---//////////////////////////////////////////////////////--->
+<!---//            REMOTE COMMAND API METHODS            //--->
+<!---//////////////////////////////////////////////////////--->
 
 <!---
 /* *************************************************************** */
 Author: 	
 	PaperThin, Inc.
 Name:
-	$create
+	$createRemote
 Summary:
 	Creates a commonspot page using the public command API
 	http://{servername}/commonspot/help/api_help/Content/Components/Page/create.html
@@ -55,23 +57,17 @@ Returns:
 Arguments:
 	Numeric csPageID			
 History:
-	2013-01-02 - MFC - Created
-	2013-07-07 - GAC - Fixed an issue with the publicationDate and the PublicReleaseDate
-	2014-10-28 - AW@EA - Fixed issue with expirationWarningMsg and misplaced newExpirationDate variables
-	2015-01-13 - GAC - Fixed issue with newExpirationWarningMsg variable 
-	2015-04-07 - GAC - Added logic to use the Title for the caption when no Caption value is passed in
-	2015-06-16 - GAC - Updated the activatePage argument to be type=boolean 
-	2015-08-22 - GAC - Minor formatting changes
+	2015-09-01 - GAC - Created
 --->
-<cffunction name="create" access="public" returntype="struct" hint="Creates a page.">
+<cffunction name="createRemote" access="public" returntype="struct" hint="Creates a page.">
 	<cfargument name="pageData" type="struct" required="true" hint="a structure that contains page the required fields as page data.">
 	<cfargument name="activatePage" type="boolean" required="false" default="1" hint="Flag to make the new page active or inactive"> 
 	
 	<cfscript>
 		var pageResult = StructNew();
-		// Use the CS 6.x Command API to SET page Metadata
-		var pageComponent = server.CommonSpot.api.getObject('Page');
+		var createArgs = StructNew();
 		var pageCmdResults = StructNew();
+		var newTargetedAudienceID = 0;
 		var newConfidentialityID = 0;
 		var newShowInList = "PageIndex,SearchResults";
 		var newExpirationDate = "";
@@ -93,6 +89,9 @@ History:
 			arguments.pageData.publicationDate = arguments.pageData.PublicReleaseDate;
 		
 		// Build the Optional Field Nodes
+		if ( StructKeyExists(arguments.pageData,"targetedAudienceID") AND IsNumeric(arguments.pageData.targetedAudienceID) AND arguments.pageData.targetedAudienceID GT 0 )
+			newTargetedAudienceID = arguments.pageData.targetedAudienceID;
+			
 		if ( StructKeyExists(arguments.pageData,"confidentialityID") )
 			newConfidentialityID = arguments.pageData.confidentialityID;	
 		if ( StructKeyExists(arguments.pageData,"showInList") )
@@ -105,37 +104,56 @@ History:
 			newExpirationRedirectURL = arguments.pageData.expirationRedirectURL;
 		if ( StructKeyExists(arguments.pageData,"expirationWarningMsg") )
 			newExpirationWarningMsg = arguments.pageData.expirationWarningMsg;
-		
+			
+		// Metdata Array
 		if ( StructKeyExists(arguments.pageData,"metadata") )
 			newMetadata = arguments.pageData.metadata;
-
+		
+		commandArgs['Target'] = "page";
+		commandArgs['method'] = "create";
+		commandArgs['args'] = StructNew();
+		commandArgs['args'].subsiteIDOrURL = arguments.pageData.subsiteID;
+		commandArgs['args'].name = arguments.pageData.name;
+		commandArgs['args'].title = arguments.pageData.title;
+		commandArgs['args'].caption = caption;
+		commandArgs['args'].publicationDate = arguments.pageData.publicationDate;
+		commandArgs['args'].categoryID = arguments.pageData.categoryID;
+		commandArgs['args'].templateID = arguments.pageData.templateID;
+		commandArgs['args'].description = arguments.pageData.description;
+		commandArgs['args'].targetedAudienceID = newTargetedAudienceID;
+		commandArgs['args'].confidentialityID = newConfidentialityID;
+		commandArgs['args'].showInList = newShowInList;
+		commandArgs['args'].expirationDate = newExpirationDate;
+		commandArgs['args'].expirationAction = newExpirationAction;
+		commandArgs['args'].expirationRedirectURL = newExpirationRedirectURL;
+		commandArgs['args'].expirationWarningMsg = newExpirationWarningMsg;
+		commandArgs['args'].metadata = newMetadata;
+		
 		try 
 		{
-			// Returns the PageID of the new page
-			pageCmdResults = pageComponent.create(subsiteIDOrURL=arguments.pageData.subsiteID,
-													name=arguments.pageData.name,
-		                                            title=arguments.pageData.title,
-		                                            caption=caption,
-		                                            publicationDate=arguments.pageData.publicationDate,
-		                                            categoryID=arguments.pageData.categoryID,
-		                                            templateID=arguments.pageData.templateID,
-		                                            description=arguments.pageData.description,
-		                                            targetedAudienceID=0,
-		                                            confidentialityID=newConfidentialityID,
-		                                            showInList=newShowInList,
-		                                            expirationDate=newExpirationDate,
-		                                            expirationAction=newExpirationAction,
-		                                            expirationRedirectURL=newExpirationRedirectURL,
-		                                            expirationWarningMsg=newExpirationWarningMsg,
-		                                            metadata=newMetadata);
+			// Returns Void
+			pageCmdResults = variables.apiRemote.runCmdApi(commandStruct=commandArgs,authCommand=true);
 		    
+			
+			if ( StructKeyExists(pageCmdResults,"data") )
+		   { 
+		   		pageResult["CMDRESULTS"] = pageCmdResults.data;
+		   		pageResult["CMDSTATUS"] = true;
+		   }
+		   else
+		   {
+			   	if ( StructKeyExists(pageCmdResults,"status") AND  StructKeyExists(pageCmdResults.status,"text") )
+			   		pageResult["CMDRESULTS"] = pageCmdResults.status.text;
+			   	else	
+			   		pageResult["CMDRESULTS"] = pageCmdResults;	
+				
+				pageResult["CMDSTATUS"] = false;
+		   }
+			
 		    // Activate the page
-		    if ( arguments.activatePage )
-		    	activateState = saveActivationState(pageCmdResults, "Active");
-		    
-		    // Check the return status has a LENGTH
-		    pageResult["CMDSTATUS"] = true;
-		    pageResult["CMDRESULTS"] = pageCmdResults;
+		    if ( arguments.activatePage AND IsNumeric(pageResult["CMDRESULTS"]) AND pageResult["CMDRESULTS"] GT 0 )
+		    	activateState = saveActivationStateRemote(pageResult["CMDRESULTS"], "Active");
+
 		}
 		catch ( any e ) 
 		{
@@ -154,7 +172,7 @@ History:
 Author: 	
 	PaperThin, Inc.
 Name:
-	$delete
+	$deleteRemote
 Summary:
 	Deletes a commonspot page using the public command API
 	http://{servername}/commonspot/help/api_help/Content/Components/Page/delete.html
@@ -165,29 +183,36 @@ Arguments:
 	Boolean ignoreWarnings
 	Boolean removeRedirects 		
 History:
-	2012-10-25 - MFC/GAC - Created
-	2015-02-27 - GAC - Added a parameter to ignoreWarnings and delete the page even if error is thrown from the api delete page command
-				     - Added a parameter to remove page redirects before attempting to delete the page
+	2015-09-01 - GAC - Created
 --->
-<cffunction name="delete" access="public" returntype="struct" hint="Deletes a page or template.">
+<cffunction name="deleteRemote" access="public" returntype="struct" hint="Deletes a page or template.">
 	<cfargument name="csPageID" type="numeric" required="true" hint="numeric commonspot page id">
 	<cfargument name="ignoreWarnings" type="boolean"  default="false" required="false" hint="a flag to delete the page even if page warning are thrown. Use with caution!">
 	<cfargument name="removeRedirects" type="boolean" default="false" required="false" hint="a flag for removing page redirects so the page can be deleted.">
 	
 	<cfscript>
 		var pageCmdResult = StructNew();
-		// Use the CS 6.x Command API to delete the page whose pageID was passed in
-		var pageComponent = server.CommonSpot.api.getObject('page');
+		var commandArgs = StructNew();
 
 		if ( arguments.removeRedirects )
-			deletePageRedirects(csPageID=arguments.csPageID);
+			deletePageRedirectsRemote(csPageID=arguments.csPageID);
 		
-		try {
-			pageComponent.delete(arguments.csPageID,arguments.ignoreWarnings);
+		commandArgs['Target'] = "Page";
+		commandArgs['method'] = "delete";
+		commandArgs['args'] = StructNew();
+		commandArgs['args'].pageID = arguments.csPageID;
+		commandArgs['args'].ignoreWarnings = arguments.ignoreWarnings;
+		
+		try 
+		{
+			// Returns Void
+			variables.apiRemote.runCmdApi(commandStruct=commandArgs,authCommand=true);
+			
 			pageCmdResult["CMDSTATUS"] = true;
 			pageCmdResult["CMDRESULTS"] = true;
 		} 
-		catch (any e) {
+		catch ( any e ) 
+		{
 			pageCmdResult["CMDSTATUS"] = false;
 			if ( StructKeyExists(e,"Reason") AND StructKeyExists(e['Reason'],"pageID") ) 
 				pageCmdResult["CMDRESULTS"] = e['Reason']['pageID']; 
@@ -205,45 +230,66 @@ History:
 Author: 	
 	PaperThin, Inc.
 Name:
-	$getInfo
+	$moveRemote
 Summary:
-	Returns array containing page properties (standard and custom) based on a page id.
-	http://{servername}/commonspot/help/api_help/content/components/page/getinfo.html
+	Moves a page to a selected subsite
+	http://{servername}/commonspot/help/api_help/content/components/page/move.html
 Returns:
 	struct - CS API Return Struct
 		 CMDSTATUS
-		 CMDRESULTS 
+		 CMDRESULTS
 Arguments:
 	Numeric csPageID
+	Numeric csSubsiteID
+	Boolean addPermanentRedirect		
 History:
-	2012-10-22 - MFC/GAC - Created
+	2015-09-01 - GAC - Created
 --->
-<cffunction name="getInfo" access="public" returntype="struct" hint="Returns array containing page properties (standard and custom) based on a page id.">
+<cffunction name="moveRemote" access="public" returntype="struct" hint="Moves a page to a selected subsite.">
 	<cfargument name="csPageID" type="numeric" required="true" hint="numeric commonspot page id">
+	<cfargument name="csSubsiteID" type="numeric" required="true" hint="numeric commonspot subsite id">
+	<cfargument name="addPermanentRedirect" type="boolean" required="false" default="true" hint="boolean flag commonspot adding a permanent redirect">
+	
 	<cfscript>
-       var pageResult = StructNew();
-       // Use the CS 6.x Command API to RENAME the page
-       var pageComponent = server.CommonSpot.api.getObject('Page');
-       var pageCmdResults = StructNew();
-
-       try {
-           pageCmdResults = pageComponent.getInfo(pageID=arguments.csPageID);
-           
-           // Check the return status has a LENGTH
-           if ( isStruct(pageCmdResults) )
-               pageResult["CMDSTATUS"] = true;
-           else
-               pageResult["CMDSTATUS"] = false;
-           
-           pageResult["CMDRESULTS"] = pageCmdResults;
-       }
-       catch (any e) {
-           pageResult["CMDSTATUS"] = false;
-           pageResult["CMDRESULTS"] = pageCmdResults;
-           pageResult["CFCATCH"] = e;
-       }
-       return pageResult;
-   </cfscript>	
+		var pageResult = StructNew();
+		var pageCmdResults = StructNew();
+		var commandArgs = StructNew();
+		
+		commandArgs['Target'] = "Page";
+		commandArgs['method'] = "move";
+		commandArgs['args'] = StructNew();
+		commandArgs['args'].subsiteIDOrURL = arguments.csSubsiteID;
+		commandArgs['args'].pageID = arguments.csPageID;
+		commandArgs['args'].addPermanentRedirect = arguments.addPermanentRedirect;
+		
+		try 
+		{
+			pageCmdResults = variables.apiRemote.runCmdApi(commandStruct=commandArgs,authCommand=true);
+			
+			if ( StructKeyExists(pageCmdResults,"status") AND StructKeyExists(pageCmdResults.status,"data") AND StructKeyExists(pageCmdResults.status.data,"fielderrors")   )
+			{
+		   		pageResult["CMDRESULTS"] = pageCmdResults.status.data.fielderrors;
+		   		pageResult["CMDSTATUS"] = false;
+		   		pageResult["MSG"] = "Fail: Page move failed!";
+		    }
+		    else
+		    {
+				pageResult["CMDSTATUS"] = true;
+				pageResult["CMDRESULTS"] = true;
+				pageResult["MSG"] = "Success: Page was succesfully moved!";
+			}
+		} 
+		catch ( any e ) 
+		{
+			pageResult["CMDSTATUS"] = false;
+			pageResult["CMDRESULTS"] = e;
+			pageResult["MSG"] = "Fail: Page move failed!";
+			
+			// TODO: Add Error logging
+		}
+		
+		return pageResult;
+	</cfscript>
 </cffunction>
 
 <!---
@@ -251,7 +297,7 @@ History:
 Author: 	
 	PaperThin, Inc.
 Name:
-	$rename
+	$renameRemote
 Summary:
 	Updates the file name for a page
 	http://{servername}/commonspot/help/api_help/content/components/page/rename.html
@@ -267,14 +313,13 @@ Arguments:
 		caption	PlainText_255									Optional. 	Defaults to an empty string.	The title bar caption of the page. If an empty string the caption will not be changed.	
 	
 History:
-	2012-10-22 - MFC/GAC - Created
+	2015-09-01 - GAC - Created
 --->
-<cffunction name="rename" access="public" returntype="struct" hint="Updates the file name for a page">
-   <cfargument name="pageData" type="struct" required="true" hint="a structure that contains page the required fields as page data.">
-     <cfscript>
+<cffunction name="renameRemote" access="public" returntype="struct" hint="Updates the file name for a page">
+	<cfargument name="pageData" type="struct" required="true" hint="a structure that contains page the required fields as page data.">
+     
+	<cfscript>
        var pageResult = StructNew();
-       // Use the CS 6.x Command API to RENAME the page
-       var pageComponent = server.CommonSpot.api.getObject('Page');
        var pageCmdResults = StructNew();
        var newPageTitle = "";
        var newCaption = "";
@@ -285,21 +330,32 @@ History:
        if ( StructKeyExists(arguments.pageData,"caption") )
            newCaption = arguments.pageData.caption;
        
-       try {
-           pageCmdResults = pageComponent.rename(id=arguments.pageData.id,
-                                                 name=arguments.pageData.name,
-                                                 title=newPageTitle,
-                                                 caption=newCaption);
+	   commandArgs['Target'] = "Page";
+	   commandArgs['method'] = "rename";
+	   commandArgs['args'] = StructNew();
+	   commandArgs['args'].id = arguments.pageData.id;
+	   commandArgs['args'].name = arguments.pageData.name;
+	   commandArgs['args'].title = newPageTitle;
+	   commandArgs['args'].caption = newCaption;
+	   
+       try 
+	   {
+           pageCmdResults = variables.apiRemote.runCmdApi(commandStruct=commandArgs,authCommand=true);
            
            // Check the return status has a LENGTH
-           if ( LEN(pageCmdResults) )
-               pageResult["CMDSTATUS"] = true;
-           else
+           if ( IsStruct(pageCmdResults) AND StructKeyExists(pageCmdResults,"data") )
+		   {
+           		pageResult["CMDRESULTS"] = pageCmdResults.data;
+			    pageResult["CMDSTATUS"] = true;
+           }
+		   else
+		   {
                pageResult["CMDSTATUS"] = false;
-           
-           pageResult["CMDRESULTS"] = pageCmdResults;
+			   pageResult["CMDRESULTS"] = pageCmdResults;
+		   }
        }
-       catch (any e) {
+       catch ( any e ) 
+	   {
            pageResult["CMDSTATUS"] = false;
            pageResult["CMDRESULTS"] = pageCmdResults;
            pageResult["CFCATCH"] = e;
@@ -313,7 +369,7 @@ History:
 Author: 	
 	PaperThin, Inc.
 Name:
-	$saveActivationState
+	$saveActivationStateRemote
 Summary:
 	Saves Activation State on a commonspot page using the public command API
 	http://{servername}/commonspot/help/api_help/Content/Components/Page/saveActivationState.html
@@ -325,22 +381,34 @@ Arguments:
 	Numeric csPageID
 	String state - A string describing a page's activation state; for example, 'Active', 'AutoActivate', or 'Inactive'.			
 History:
-	2013-01-02 - MFC - Created
+	2015-09-01 - GAC - Created
 --->
-<cffunction name="saveActivationState" access="public" returntype="struct" hint="Sets the activation state for a page to 'Activate', 'AutoActivate', or 'Inactive'.">
+<cffunction name="saveActivationStateRemote" access="public" returntype="struct" hint="Sets the activation state for a page to 'Activate', 'AutoActivate', or 'Inactive'.">
 	<cfargument name="csPageID" type="numeric" required="true" hint="numeric commonspot page id">
 	<cfargument name="state" type="string" required="true" hint="A string describing a page's activation state; for example, 'Active', 'AutoActivate', or 'Inactive'.">
+	
 	<cfscript>
 		var pageCmdResult = StructNew();
-		// Use the CS 6.x Command API to SET page keywords
-		var pageComponent = server.CommonSpot.api.getObject('page');
-		try {
-			pageComponent.saveActivationState(arguments.csPageID, arguments.state);
+		var commandArgs = StructNew();
+		
+		commandArgs['Target'] = "Page";
+		commandArgs['method'] = "saveActivationState";
+		commandArgs['args'] = StructNew();
+		commandArgs['args'].pageID = arguments.csPageID;
+		commandArgs['args'].state = arguments.state;
+		
+		try 
+		{
+			// page.saveActivationState Returns Void
+			variables.apiRemote.runCmdApi(commandStruct=commandArgs,authCommand=true);
+			
 			pageCmdResult["CMDSTATUS"] = true;
 			pageCmdResult["CMDRESULTS"] = true;
 		} 
-		catch (any e) {
+		catch ( any e ) 
+		{
 			pageCmdResult["CMDSTATUS"] = false;
+			
 			if ( StructKeyExists(e,"Reason") AND StructKeyExists(e['Reason'],"pageID") ) 
 				pageCmdResult["CMDRESULTS"] = e['Reason']['pageID']; 
 			else if ( StructKeyExists(e,"message") )
@@ -357,7 +425,67 @@ History:
 Author: 	
 	PaperThin, Inc.
 Name:
-	$saveInfo
+	$getInfoRemote
+Summary:
+	Returns array containing page properties (standard and custom) based on a page id.
+	http://{servername}/commonspot/help/api_help/content/components/page/getinfo.html
+Returns:
+	struct - CS API Return Struct
+		 CMDSTATUS
+		 CMDRESULTS 
+Arguments:
+	Numeric csPageID
+History:
+	2015-09-01 - GAC - Created
+--->
+<cffunction name="getInfoRemote" access="public" returntype="struct" hint="Returns array containing page properties (standard and custom) based on a page id.">
+	<cfargument name="csPageID" type="numeric" required="true" hint="numeric commonspot page id">
+	
+	<cfscript>
+		var pageResult = StructNew();
+		var commandArgs = StructNew();
+      	var pageCmdResults = StructNew();
+		
+		commandArgs['Target'] = "Page";
+		commandArgs['method'] = "getInfo";
+		commandArgs['args'] = StructNew();
+		commandArgs['args'].pageID = arguments.csPageID;
+
+       try 
+	   {
+           pageCmdResults = variables.apiRemote.runCmdApi(commandStruct=commandArgs,authCommand=true);
+
+		   if ( StructKeyExists(pageCmdResults,"data") )
+		   { 
+		   		pageResult["CMDRESULTS"] = pageCmdResults.data;
+		   		pageResult["CMDSTATUS"] = true;
+		   }
+		   else
+		   {
+		   		if ( StructKeyExists(pageCmdResults,"status") AND StructKeyExists(pageCmdResults.status,"data") AND StructKeyExists(pageCmdResults.status.data,"fielderrors")   )
+		   			pageResult["CMDRESULTS"] = pageCmdResults.status.data.fielderrors;
+		   		else
+		   			pageResult["CMDRESULTS"] = pageCmdResults;
+		   			
+				pageResult["CMDSTATUS"] = false;
+		   }
+       }
+       catch ( Any e ) 
+       {
+           pageResult["CMDSTATUS"] = false;
+           pageResult["CMDRESULTS"] = pageCmdResults;
+           pageResult["CFCATCH"] = e;
+       }
+       return pageResult;
+   </cfscript>	
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$saveInfoRemote
 Summary:
 	Updates the properties for a page (standard and custom)
 	http://{servername}/commonspot/help/api_help/content/components/page/saveinfo.html
@@ -383,19 +511,14 @@ Arguments:
 		metadata				MetadataValueArray				Optional. 	Defaults to '#ArrayNew(1)#'.	An array of MetadataValue structures that describes the metadata field(s) for the specified page, or an empty array if no metadata is to be specified. Note, you should pass data in the array for all the metadata fields that have data. Any existing data, for any non-specified fields will be either be deleted (if no default value is defined for that field) or updated with the default value.
 	
 History:
-	2012-10-22 - GAC - Created
-	2013-04-29 - MFC - Removed reference to function "DOERRORLOGGING" that was removed.
-	2015-01-09 - GAC - Fixed issues with expirationWarningMsg and newExpirationDate variables
-	2015-08-23 - GAC - Removed the pageCmdResults since the page.SaveInfo returns Void.
-	2015-09-01 - GAC - Added update to convert PUBLICRELEASEDATE to publicationDate if it exists 
+	2015-09-01 - GAC - Created
 --->
-<cffunction name="saveInfo" access="public" returntype="struct" hint="Updates the properties for a page (standard and custom)">
+<cffunction name="saveInfoRemote" access="public" returntype="struct" hint="Updates the properties for a page (standard and custom)">
 	<cfargument name="pageData" type="struct" required="true" hint="a structure that contains page the required fields as page data.">
 	
 	<cfscript>
 		var pageResult = StructNew();
-		// Use the CS 6.x Command API to SET page Metadata
-		var pageComponent = server.CommonSpot.api.getObject('Page');
+		var commandArgs = StructNew();
 		var newConfidentialityID = 0;
 		var newShowInList = "PageIndex,SearchResults";
 		var newExpirationDate = "";
@@ -407,7 +530,7 @@ History:
 		// Convert PUBLICRELEASEDATE to publicationDate if it exists
 		if ( !StructKeyExists(arguments.pageData,"publicationDate") AND StructKeyExists(arguments.pageData,"PublicReleaseDate") )
 			arguments.pageData.publicationDate = arguments.pageData.PublicReleaseDate;
-		       
+		
 		// Build the Optional Field Nodes	
 		if ( StructKeyExists(arguments.pageData,"confidentialityID") )
 			newConfidentialityID = arguments.pageData.confidentialityID;	
@@ -422,25 +545,31 @@ History:
 		if ( StructKeyExists(arguments.pageData,"expirationWarningMsg") )
 			newExpirationWarningMsg = arguments.pageData.expirationWarningMsg;
 		
+		// An array of structs
 		if ( StructKeyExists(arguments.pageData,"metadata") )
 			newMetadata = arguments.pageData.metadata;
 
+		commandArgs['Target'] = "Page";
+		commandArgs['method'] = "saveInfo";
+		commandArgs['args'] = StructNew();
+		commandArgs['args'].id = arguments.pageData.id;
+		commandArgs['args'].title = arguments.pageData.title;
+		commandArgs['args'].caption = arguments.pageData.caption;
+		commandArgs['args'].publicationDate = arguments.pageData.publicationDate;
+		commandArgs['args'].categoryID = arguments.pageData.categoryID;
+		commandArgs['args'].description = arguments.pageData.description;
+		commandArgs['args'].confidentialityID = newConfidentialityID;
+		commandArgs['args'].showInList = newShowInList;
+		commandArgs['args'].expirationDate = newExpirationDate;
+		commandArgs['args'].expirationAction = newExpirationAction;
+		commandArgs['args'].expirationRedirectURL = newExpirationRedirectURL;
+		commandArgs['args'].expirationWarningMsg = newExpirationWarningMsg;
+		commandArgs['args'].metadata = newMetadata;
+	
 		try 
 		{
 			// page.SaveInfo returns VOID
-			pageComponent.saveInfo(id=arguments.pageData.id,
-                                     title=arguments.pageData.title,
-                                     caption=arguments.pageData.caption,
-                                     publicationDate=arguments.pageData.publicationDate,
-                                     categoryID=arguments.pageData.categoryID,
-                                     description=arguments.pageData.description,
-                                     confidentialityID=newConfidentialityID,
-                                     showInList=newShowInList,
-                                     expirationDate=newExpirationDate,
-                                     expirationAction=newExpirationAction,
-                                     expirationRedirectURL=newExpirationRedirectURL,
-                                     expirationWarningMsg=newExpirationWarningMsg,
-                                     metadata=newMetadata);
+			variables.apiRemote.runCmdApi(commandStruct=commandArgs,authCommand=true);
 		    
 		    // Check the return status has a LENGTH
 		    pageResult["CMDSTATUS"] = true;
@@ -453,7 +582,7 @@ History:
 		    pageResult["CFCATCH"] = e;
 		}
 		return pageResult;
-		</cfscript>
+	</cfscript>
 </cffunction>
 
 <!---
@@ -461,7 +590,7 @@ History:
 Author: 	
 	PaperThin, Inc.
 Name:
-	$deletePageRedirects
+	$deletePageRedirectsRemote
 Summary:
 	Deletes a commonspot page redirects using the public command API
 	http://{servername}commonspot/help/api_help/content/components/redirects/delete.html
@@ -470,35 +599,35 @@ Returns:
 Arguments:
 	Numeric csPageID			
 History:
-	2015-02-27 - GAC - Created
+	2015-09-01 - GAC - Created
 --->
-<cffunction name="deletePageRedirects" access="public" returntype="struct" hint="Deletes a commonspot page redirects using the public command API.">
+<cffunction name="deletePageRedirectsRemote" access="public" returntype="struct" hint="Deletes a commonspot page redirects using the public command API.">
 	<cfargument name="csPageID" type="numeric" required="true" hint="numeric commonspot page id">
 	
 	<cfscript>
 		var pageResult = StructNew();
 		var pageCmdResult = StructNew();
-		// Use the CS 6.x Command API to delete the page whose pageID was passed in
-		var redirectComponent = server.CommonSpot.api.getObject('Redirects');
-		var redirectQry = redirectComponent.getListForPage(pageID=arguments.csPageID);
-		var redirectIDlist = ValueList(redirectQry.ID); 
+		var commandArgs = StructNew();
+		var redirectData = getPageRedirectsRemote(csPageID=arguments.csPageID);
+		var redirectIDlist = "";
+		
+		if ( StructKeyExists(redirectData,"CMDRESULTS") AND IsQuery(redirectData.CMDRESULTS) AND redirectData.CMDRESULTS.RecordCount )
+			redirectIDlist = ValueList(redirectData.CMDRESULTS.ID); 
+		
+		commandArgs['Target'] = "Redirects";
+		commandArgs['method'] = "delete";
+		commandArgs['args'] = StructNew();
+		commandArgs['args'].idList = redirectIDlist;
 		
 		try 
 		{
 			if ( LEN(TRIM(redirectIDlist)) )
 			{
-				pageCmdResult = redirectComponent.delete(idList=redirectIDlist);
+				// Retruns Void
+				variables.apiRemote.runCmdApi(commandStruct=commandArgs,authCommand=true);
 				
-				if ( StructKeyExists(pageCmdResult,"success") AND pageCmdResult.success EQ 1 ) 
-				{
-					pageResult["CMDSTATUS"] = true;
-					pageResult["CMDRESULTS"] = true;
-				}
-				else
-				{
-					pageResult["CMDSTATUS"] = false;
-					pageResult["CMDRESULTS"] = pageCmdResult;		
-				}
+				pageResult["CMDSTATUS"] = true;
+				pageResult["CMDRESULTS"] = true;
 			}
 			else
 			{
@@ -525,45 +654,57 @@ History:
 Author: 	
 	PaperThin, Inc.
 Name:
-	$movePage
+	$getPageRedirectsRemote
 Summary:
-	Moves an updated page to a new subsite.
+	Gets a query of commonspot page redirects using the public command API.
+	http://{servername}commonspot/help/api_help/content/components/redirects/getListForPage.html
 Returns:
 	Struct
 Arguments:
-	Numeric csPageID				
+	Numeric csPageID			
 History:
-	2015-08-28 - GAC - Created
+	2015-09-01 - GAC - Created
 --->
-<cffunction name="move" access="public" returntype="struct" hint="Invalidates the Page Cache for the specified page.">
+<cffunction name="getPageRedirectsRemote" access="public" returntype="struct" hint="Gets a query of commonspot page redirects using the public command API.">
 	<cfargument name="csPageID" type="numeric" required="true" hint="numeric commonspot page id">
-	<cfargument name="csSubsiteID" type="numeric" required="true" hint="numeric commonspot subsite id">
-	<cfargument name="addPermanentRedirect" type="boolean" required="false" default="true" hint="boolean flag commonspot adding a permanent redirect">
 	
 	<cfscript>
-		var pageResult = StructNew();
-		var pageComponent = Server.CommonSpot.api.getObject('Page');
-
+		var redirectQry = QueryNew("temp");
+		var pageCmdResults = StructNew();
+		var commandArgs = StructNew();
+		
+		commandArgs['Target'] = "Redirects";
+		commandArgs['method'] = "getListForPage";
+		commandArgs['args'] = StructNew();
+		commandArgs['args'].pageID = arguments.csPageID;
+		
 		try 
 		{
-			// Returns void
-			pageComponent.move(
-								subsiteIDOrURL=arguments.csSubsiteID,
-								pageID=arguments.csPageID,
-								addPermanentRedirect=arguments.addPermanentRedirect
-							);
-							
-			pageResult["CMDSTATUS"] = true;
-			pageResult["CMDRESULTS"] = true;
-			pageResult["MSG"] = "Success: Page was succesfully moved!";
+			pageCmdResults = variables.apiRemote.runCmdApi(commandStruct=commandArgs,authCommand=true);
+			
+		    if ( IsStruct(pageCmdResults) AND StructKeyExists(pageCmdResults,"data") )
+		    {
+           		if ( IsArray(pageCmdResults.data) AND ArrayLen(pageCmdResults.data) ) 
+				 	redirectQry = application.ADF.data.arrayOfStructuresToQuery(theArray=pageCmdResults.data,forceColsToVarchar=true,allowComplexValues=false);
+				
+				pageResult["CMDSTATUS"] = true;
+			    pageResult["CMDRESULTS"] = redirectQry;
+            }
+		    else
+		    {
+                pageResult["CMDSTATUS"] = false;
+			    pageResult["CMDRESULTS"] = pageCmdResults;
+		    }
 		} 
-		catch ( any e ) 
+		catch (any e) 
 		{
 			pageResult["CMDSTATUS"] = false;
-			pageResult["CMDRESULTS"] = e;
-			pageResult["MSG"] = "Fail: Page move failed!";
-			
-			// TODO: Add Error logging
+			if ( StructKeyExists(e,"Reason") AND StructKeyExists(e['Reason'],"pageID") ) 
+				pageResult["CMDRESULTS"] = e['Reason']['pageID']; 
+			else if ( StructKeyExists(e,"message") )
+				pageResult["CMDRESULTS"] = e.message;
+			else
+				pageResult["CMDRESULTS"] = e;
 		}
 		
 		return pageResult;
@@ -575,7 +716,7 @@ History:
 Author: 	
 	PaperThin, Inc.
 Name:
-	$invalidatePageCache
+	$invalidatePageCacheRemote
 Summary:
 	Invalidates the Page Cache for the specified page.
 Returns:
@@ -583,19 +724,26 @@ Returns:
 Arguments:
 	Numeric csPageID				
 History:
-	2015-08-21 - GAC - Created
+	2015-09-01 - GAC - Created
 --->
-<cffunction name="invalidatePageCache" access="public" returntype="struct" hint="Invalidates the Page Cache for the specified page.">
+<cffunction name="invalidatePageCacheRemote" access="public" returntype="struct" hint="Invalidates the Page Cache for the specified page.">
 	<cfargument name="csPageID" type="numeric" required="true" hint="numeric commonspot page id">
 	
 	<cfscript>
 		var pageResult = StructNew();
-		// Use the CS 6.x Command API to SET page keywords
-		var pageComponent = Server.CommonSpot.api.getObject('Page');
+		//var pageComponent = Server.CommonSpot.api.getObject('Page');
 		var pageCmdResults = "";
+		var commandArgs = StructNew();
+		
+		commandArgs['Target'] = "Page";
+		commandArgs['method'] = "invalidateCache";
+		commandArgs['args'] = StructNew();
+		commandArgs['args'].pageID = arguments.csPageID;
+		
 		try 
 		{
-			pageComponent.invalidateCache(pageID=arguments.csPageID);
+			variables.apiRemote.runCmdApi(commandStruct=commandArgs,authCommand=true);
+			
 			pageResult["CMDSTATUS"] = true;
 			pageResult["CMDRESULTS"] = true;
 		} 

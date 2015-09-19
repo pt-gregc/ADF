@@ -23,7 +23,7 @@ end user license agreement.
 Author: 	
 	PaperThin, Inc. 
 Name:
-	apiSubsite.cfc
+	apiSubsite_1_0.cfc
 Summary:
 	API Subsite functions for the ADF Library
 Version:
@@ -31,12 +31,12 @@ Version:
 History:
 	2012-12-26 - MFC - Created
 --->
-<cfcomponent displayname="apiSubsite" extends="ADF.core.Base" hint="API Subsite functions for the ADF Library">
+<cfcomponent displayname="apiSubsite_1_0" extends="ADF.core.Base" hint="API Subsite functions for the ADF Library">
 
 <cfproperty name="version" value="1_0_1">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
-<cfproperty name="wikiTitle" value="API Subsite">
+<cfproperty name="wikiTitle" value="APISubsite_1_0">
 
 
 </cfcomponent>
