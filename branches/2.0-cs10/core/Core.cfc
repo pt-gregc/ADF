@@ -54,7 +54,7 @@ History:
 <cfscript>
 	variables.ADFversion = "2.0.0"; // use a dot delimited version number
 	// ADF Build Revision Number
-	variables.buildRev = "1729";
+	variables.buildRev = "1734";
 	// ADF Codename
 	variables.buildName = "Metal Gear Solid";
 	// CS product version, get the decimal value
@@ -265,6 +265,18 @@ History:
 							rtnMsg = "ADF #ADFversion# site '#request.site.name#' has been reset successfully!";
 							ADFReset = true;
 							break;
+						/* case "INSTALL":
+							rtnMsg = createObject("component","ADF.core.SiteBase").initInstallADF();
+							//createObject("component", "#request.site.name#._cs_apps.ADF").init();
+							//rtnMsg = "All ADF script recources have been registered with CommonSpot for site '#request.site.name#'.";
+							ADFReset = false;
+							break; */
+						/* case "REINSTALL":
+							rtnMsg = createObject("component","ADF.core.SiteBase").initInstallADF(reinstall=true);
+							//createObject("component", "#request.site.name#._cs_apps.ADF").init();
+							//rtnMsg = "All ADF script recources have been re-registered with CommonSpot for site '#request.site.name#'.";
+							ADFReset = false;
+							break; */
 						default:
 							rtnMsg = "Invalid argument '#arguments.type#' passed to method reset.";
 							break;

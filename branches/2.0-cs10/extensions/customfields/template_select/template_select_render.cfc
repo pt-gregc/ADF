@@ -39,6 +39,7 @@ History:
 	2014-10-31 - GAC - Added the editOnce option
 	2015-04-28 - DJM - Added own CSS
 	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
+	2015-09-22 - JTP - Updated the jQuery syntax to get the current selected value
 --->
 <cfcomponent displayName="TemplateSelect Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -128,7 +129,7 @@ function #arguments.fieldName#_loadTemplates()
 			jQuery("###arguments.fieldName#_select").sortOptions();
 			
 			// Set the selected field for the current value
-			jQuery("###arguments.fieldName#_select option[value='#arguments.value#']").attr("selected", true);
+			jQuery("###arguments.fieldName#_select").val('#arguments.value#');			
 			
 			// Load the on change binding for the select field
 			#arguments.fieldName#_loadBinding();
