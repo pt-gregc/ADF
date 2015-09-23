@@ -85,6 +85,7 @@ Arguments:
 History:
 	2014-09-08 - GAC - Created
 	2015-09-10 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
+	2015-09-23 - GAC - duplicateBean() is a CS 9.0.3 specific update ... rolling back to Duplicate()
 --->
 <cffunction name="initApiPoolVars" returntype="void" output="false" access="private" hint="Initializes the API Conduit Page Pool variables">
 	<cfscript>
@@ -114,7 +115,10 @@ History:
 		// Build the ADF API POOL data structure. 
 		
 		// associative array of available pages
-		adfAPIpoolVars.AvailablePoolPages = Server.CommonSpot.UDF.util.duplicateBean(adfAPIpoolConfig.Pages); // Duplicate Config Page for the Pool Available pages
+		// a CS 9.0.3 specific update ... rolling back to Duplicate()
+		//adfAPIpoolVars.AvailablePoolPages = Server.CommonSpot.UDF.util.duplicateBean(adfAPIpoolConfig.Pages);
+		adfAPIpoolVars.AvailablePoolPages = duplicate(adfAPIpoolConfig.Pages); // Duplicate Config Page for the Pool Available pages
+		
 		// associative array of Pages that are being processed
 		adfAPIpoolVars.ProcessingPoolPages = StructNew();
 		// An array of pending Requests

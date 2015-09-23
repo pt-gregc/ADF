@@ -1507,6 +1507,7 @@ History:
 	2013-04-11 - MFC - Updated the calls to "generateStructKey" function for the new function name.
 	2014-03-05 - JTP - Var declarations
 	2015-09-10 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
+	2015-09-23 - GAC - duplicateBean() is a CS 9.0.3 specific update ... rolling back to Duplicate()
 --->
 <cffunction name="differentialSync" access="public" returntype="struct" hint="Given a list of custom elements, create or update or optionally delete elements.">
 	<cfargument name="elementName" type="string" required="true" default="" hint="Name of the element to sync">
@@ -1686,7 +1687,10 @@ History:
 
 				if(isDifferent){
 					//We have a change on our hands! Do something!
-				    arguments.updateOverride = Server.CommonSpot.UDF.util.duplicateBean(updateOverride);
+					// a CS 9.0.3 specific update ... rolling back to Duplicate()
+				    //arguments.updateOverride = Server.CommonSpot.UDF.util.duplicateBean(updateOverride);
+				    arguments.updateOverride = duplicate(updateOverride);
+					
 					arguments.updateOverride.args.data = newElement.values;
 					arguments.updateOverride.args.data.dataPageID = currentElement.pageID;
 					ArrayAppend(commandArray,arguments.updateOverride);
@@ -1696,7 +1700,10 @@ History:
 				StructDelete(srcElementStruct,currentKey);
 			}else{
 				//A new guy eh...
-				arguments.newOverride = Server.CommonSpot.UDF.util.duplicateBean(newOverride);
+				// a CS 9.0.3 specific update ... rolling back to Duplicate()
+				//arguments.newOverride = Server.CommonSpot.UDF.util.duplicateBean(newOverride);
+				arguments.newOverride = duplicate(newOverride);
+				
 				arguments.newOverride.args.data = StructNew();
 				arguments.newOverride.args.data = newElement.values;
 				ArrayAppend(commandArray,arguments.newOverride);

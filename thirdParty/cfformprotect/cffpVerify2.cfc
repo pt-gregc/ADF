@@ -33,6 +33,7 @@ NOTES       : Dave Shuck - created
 			  									the key validation failed.	
 History:
 	2015-09-10 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
+	2015-09-23 - GAC - duplicateBean() is a CS 9.0.3 specific update ... rolling back to Duplicate()
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 </pre>
 ">
@@ -355,7 +356,9 @@ History:
 		var Result = StructNew();
 		var i = "";
 		// Make a duplicate since this is passed by reference and we don't want to modify the original data
-		var FormStructCopy = Server.CommonSpot.UDF.util.duplicateBean(arguments.FormStruct);
+		// a CS 9.0.3 specific update ... rolling back to Duplicate()
+		//var FormStructCopy = Server.CommonSpot.UDF.util.duplicateBean(arguments.FormStruct);
+		var FormStructCopy = duplicate(arguments.FormStruct);
 		var UrlCount = "";
 		
 		Result.Pass = true;

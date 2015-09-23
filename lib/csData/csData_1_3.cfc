@@ -216,6 +216,7 @@ History:
 	2015-01-28 - GAC - Added Standard Metadata for Templates.
 					 - Added objectType key
 	2015-09-10 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
+	2015-09-23 - GAC - duplicateBean() is a CS 9.0.3 specific update ... rolling back to Duplicate()
 --->
 <cffunction name="getCSObjectStandardMetadata" returntype="struct" access="public" hint="Gets the standard metadata for a commonspot object (page,doc,url) from its pageID">
 	<cfargument name="csPageID" type="numeric" required="true" hint="a commonspot pageid">
@@ -240,8 +241,10 @@ History:
 		}
 		
 		// Duplicate the LOCKED Struture and add the object type string 
-		reData = Server.CommonSpot.UDF.util.duplicateBean(retMetadata);
-
+		// a CS 9.0.3 specific update ... rolling back to Duplicate()
+		//reData = Server.CommonSpot.UDF.util.duplicateBean(retMetadata);
+		reData = duplicate(retMetadata);
+		
 		if ( !StructIsEmpty(reData) )
 			reData["objectType"] = objType;
 			

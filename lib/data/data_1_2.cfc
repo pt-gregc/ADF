@@ -64,6 +64,7 @@ History:
 	2012-12-31 - Added 'objectFieldKeyList' argument for complex fields.
 				 Added temp variables to copy the structure for comparison.
 	2015-09-10 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
+	2015-09-23 - GAC - duplicateBean() is a CS 9.0.3 specific update ... rolling back to Duplicate()
 --->
 <cffunction name="IsStructDataDifferent" access="public" returntype="boolean" hint="Compares two data structures and then returns a false if they are different">
 	<cfargument name="structDataA" type="struct" required="true" hint="">
@@ -73,8 +74,11 @@ History:
 	
 	<cfscript>
 		var isDifferent = false;
-		var tempStructDataA = Server.CommonSpot.UDF.util.duplicateBean(arguments.structDataA);
-		var tempStructDataB = Server.CommonSpot.UDF.util.duplicateBean(arguments.structDataB);
+		// a CS 9.0.3 specific update ... rolling back to Duplicate()
+		//var tempStructDataA = Server.CommonSpot.UDF.util.duplicateBean(arguments.structDataA);
+		//var tempStructDataB = Server.CommonSpot.UDF.util.duplicateBean(arguments.structDataB);
+		var tempStructDataA = duplicate(arguments.structDataA);
+		var tempStructDataB = duplicate(arguments.structDataB);
 		var isEqual = compareStructData(structDataA=tempStructDataA,structDataB=tempStructDataB,excludeKeyList=arguments.excludeKeyList,objectFieldKeyList=arguments.objectFieldKeyList);
 		if ( NOT isEqual )
 			isDifferent = true;
