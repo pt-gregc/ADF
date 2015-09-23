@@ -760,6 +760,7 @@ History:
  	2014-05-22 - GAC - Created
 	2014-05-27 - GAC - Method cleanup / removed dev dumps
 	2015-09-10 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
+	2015-09-23 - GAC - duplicateBean() is a CS 9.0.3 specific update ... rolling back to Duplicate()
 --->
 <cffunction name="sanitizeADFDumpVarData" access="public" returntype="any" output="false" hint="Returns a ADFdumpVar data from the ADFdumpVar URL command with secure data sanitized.">
 	<cfargument name="dumpVarStr" type="string" required="false" default="" hint="">
@@ -797,7 +798,9 @@ History:
 				}
 				else
 				{
-					retData = Server.CommonSpot.UDF.util.duplicateBean(arguments.dumpVarData);
+					// a CS 9.0.3 specific update ... rolling back to Duplicate()
+					//retData = Server.CommonSpot.UDF.util.duplicateBean(arguments.dumpVarData);
+					retData = duplicate(arguments.dumpVarData);
 					
 					// Find the instances of the CSPASSWORD stuct key 
 					pwFindArray = StructFindKey(retData,configPWkey,"all");
