@@ -38,11 +38,13 @@ History:
 	2014-10-07 - GAC - Updated for version 1.8.0
 	2014-12-03 - GAC - Updates for Adobe ColdFusion 11 compatibility
 	2015-06-10 - ACW - Updated the component extends to no longer be dependant on the 'ADF' in the extends path
+	2015-09-24 - GAC - Added the initADFinstaller()  method to handle ADF install tasks
+					 - Added the registerAllScripts() method to handle adding the ADF scripts as resources to CommonSpot
 --->
 <cfcomponent displayname="SiteBase" extends="AppBase">
 
 <cfproperty name="version" value="2_0_0">
-<cfproperty name="file-version" value="7">
+<cfproperty name="file-version" value="9">
 
 <!---
 /* *************************************************************** */
@@ -674,11 +676,11 @@ History:
 		<cfoutput><div> 
 		<h2>- ADF Resource Installer -</h2>
 		<cfif arguments.reinstall>
-			<h3>Re-installing ALL ADF Scripts as CommonSpot Resouces...</h3>
+			<h3>Re-installing ALL ADF Scripts as CommonSpot Resources...</h3>
 			<cfmodule template="/ADF/lib/scripts/registerAllScripts.cfm" updateExisting="1">
 			<h3>ADF script recources have been re-registered with CommonSpot for site '#request.site.name#'.</h4>
 		<cfelse>
-			<h3>Installing ALL ADF Scripts as CommonSpot Resouces...</h3>
+			<h3>Installing ALL ADF Scripts as CommonSpot Resources...</h3>
 			<cfmodule template="/ADF/lib/scripts/registerAllScripts.cfm">
 			<h3>ADF script recources have been registered with CommonSpot for site '#request.site.name#'.</h3>
 		</cfif>

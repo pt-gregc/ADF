@@ -46,12 +46,13 @@ History:
 	2015-04-22 - GAC - Updated logic for Railo/Bootstrap ADFDumpVar fix  
 					 - Added a 'Railo' check before adding the ADFDumpVar fix
 	2015-08-19 - GAC - Switched the 'Railo' check for the ADFDumpVar to be a NOT ACF check (thanks lucee!!)
+	2015-09-24 - GAC - Added installADF and reinstallADF URL parameters to handle the new ADF install processes
 --->
 <!--- // Lock around the entire load ADF processing --->
 <cflock timeout="300" type="exclusive" name="ADF-RESET-LOAD-SITE">
 	<cfscript>
 		adfVersion = "2.0.0";
-		adfFileVersion = "17"; 
+		adfFileVersion = "18"; 
 		
 		// Initialize the RESET TYPE variable
 		// Determine what kind of reset is needed (if any)

@@ -58,8 +58,9 @@ History:
 	2015-05-26 - DJM - Added the 2.0 version
 	2015-09-10 - GAC - Added a isMultiline() call so the label renders at the top
 	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
+	2015-09-10 - GAC - Re-added a isMultiline() call so the label renders at the top
 --->
-<cfcomponent displayName="GeneralChooser Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
+<cfcomponent displayName="GeneralChooser_Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
 <cffunction name="renderControl" returntype="void" access="public">
 	<cfargument name="fieldName" type="string" required="yes">
@@ -268,6 +269,7 @@ History:
 	{
 		return listAppend(super.getResourceDependencies(), "jQuery,jQueryUI,ADFLightbox");
 	}
+	
 	private boolean function isMultiline()
 	{
 		return true;

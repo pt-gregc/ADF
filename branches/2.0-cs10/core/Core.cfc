@@ -49,12 +49,12 @@ History:
 <cfcomponent name="Core" hint="Core component for Application Development Framework">
 
 <cfproperty name="version" value="2_0_0">
-<cfproperty name="file-version" value="7">
+<cfproperty name="file-version" value="8">
 
 <cfscript>
 	variables.ADFversion = "2.0.0"; // use a dot delimited version number
 	// ADF Build Revision Number
-	variables.buildRev = "1737";
+	variables.buildRev = "1738";
 	// ADF Codename
 	variables.buildName = "Metal Gear Solid";
 	// CS product version, get the decimal value
@@ -219,6 +219,7 @@ History:
 	2013-01-23 - MFC - Increased the CFLOCK timeout to "120".
 	2013-10-28 - GAC - Added production mode or development mode designation message to the ADF reset message text
 	2013-12-05 - GAC - Added the forceResetStatus to the returnStruct to pass if the reset was Forced or not
+	2015-09-24 - GAC - Added install and reinstall cases to the ADF reset switch/case to handle the new ADF install process
 --->
 <cffunction name="reset" access="remote" returnType="Struct">
 	<cfargument name="type" type="string" required="false" default="all" hint="The type of the ADF to reset.  Options are 'Server', 'Site' or 'All'. Defaults to 'All'.">
@@ -267,14 +268,10 @@ History:
 							break;
 						case "INSTALL":
 							rtnMsg = createObject("component","ADF.core.SiteBase").initADFinstaller();
-							//createObject("component", "#request.site.name#._cs_apps.ADF").init();
-							//rtnMsg = "All ADF script recources have been registered with CommonSpot for site '#request.site.name#'.";
 							ADFReset = false;
 							break; 
 						case "REINSTALL":
 							rtnMsg = createObject("component","ADF.core.SiteBase").initADFinstaller(reinstall=true);
-							//createObject("component", "#request.site.name#._cs_apps.ADF").init();
-							//rtnMsg = "All ADF script recources have been re-registered with CommonSpot for site '#request.site.name#'.";
 							ADFReset = false;
 							break; 
 						default:
