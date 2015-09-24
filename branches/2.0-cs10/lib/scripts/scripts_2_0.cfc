@@ -109,14 +109,24 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 	}
 
 
-
 	/* PRIMARY - MAJOR LIBRARIES */
-
-	public void function loadJQuery(string version="", boolean force=0, boolean noConflict=0)
+	
+	
+	/*
+		History:
+			2015-09-24 - GAC - Added jQuery Migrate to load with jQuery by default... since that is ADF assumes will happen
+							 - Added a useMigrate parameter to disable jQuery Migrate
+	*/
+	public void function loadJQuery(string version="", boolean force=0, boolean noConflict=0, useMigrate=1 )
 	{
 		loadResources("jQuery");
+	
 		if (arguments.noConflict)
 			addFooterHTML("<script>jQuery.noConflict();</script>", "PRIMARY");
+		
+		// Load the Migrate plugin
+		if ( arguments.useMigrate ) 
+			loadResources("JQueryMigrate");
 	}
 
 	public void function loadJQueryMigrate()
