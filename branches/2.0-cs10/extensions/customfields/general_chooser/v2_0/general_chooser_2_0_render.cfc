@@ -268,6 +268,10 @@ History:
 	{
 		return listAppend(super.getResourceDependencies(), "jQuery,jQueryUI,ADFLightbox");
 	}
+	private boolean function isMultiline()
+	{
+		return true;
+	}
 </cfscript>
 
 </cfcomponent>
