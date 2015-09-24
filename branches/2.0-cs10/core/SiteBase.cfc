@@ -615,4 +615,79 @@ History:
 	</cfscript>
 </cffunction>
 
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$initADFinstaller
+Summary:
+	Loads the postInit methods found in the loaded ADF lib components 
+Returns:
+	String
+Arguments:
+	Boolean - reinstall
+History:
+	2015-09-21 - GAC - Created
+--->
+<cffunction name="initADFinstaller" access="public" returnType="string" hint="">
+	<cfargument name="reinstall" type="boolean" required="false" default="false" hint="">
+	
+	<cfscript>
+		var retMsg = "";
+
+		// Call the methods to install required ADF components into the CommonSpot Site
+		// - if they render an output message aappend it to the retMsg variable
+
+		retMsg = registerAllScripts(reinstall=arguments.reinstall);	
+
+		return retMsg;
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$registerAllScripts
+Summary:
+	Calls the /lib/scripts/registerAllScripts.cfm cfmodule to register the ADF 
+	scripts libraries as resouces in CommonSpot
+Returns:
+	String
+Arguments:
+	Boolean - reinstall
+History:
+	2015-09-24 - GAC - Created
+--->
+<cffunction name="registerAllScripts" access="public" returnType="string" hint="">
+	<cfargument name="reinstall" type="boolean" required="false" default="false" hint="">
+	
+	<cfscript>
+		var retMsg = "";
+		var resourceAPI = "";
+	</cfscript>
+	
+	<!--- // Add Site Install Scripts/Steps --->
+	<cfsavecontent variable="retMsg">
+		<cfoutput><div> 
+		<h2>- ADF Resource Installer -</h2>
+		<cfif arguments.reinstall>
+			<h3>Re-installing ALL ADF Scripts as CommonSpot Resouces...</h3>
+			<cfmodule template="/ADF/lib/scripts/registerAllScripts.cfm" updateExisting="1">
+			<h3>ADF script recources have been re-registered with CommonSpot for site '#request.site.name#'.</h4>
+		<cfelse>
+			<h3>Installing ALL ADF Scripts as CommonSpot Resouces...</h3>
+			<cfmodule template="/ADF/lib/scripts/registerAllScripts.cfm">
+			<h3>ADF script recources have been registered with CommonSpot for site '#request.site.name#'.</h3>
+		</cfif>
+		</div></cfoutput>
+	</cfsavecontent>
+	
+	<cfscript>
+		return retMsg;
+	</cfscript>
+</cffunction>
+
 </cfcomponent>

@@ -88,6 +88,11 @@ History:
 				adfResetType = "SERVER";
 			else if ( StructKeyExists(url,"resetSiteADF") )
 				adfResetType = "SITE";
+			// Check the ADF Installer commands
+			else if ( StructKeyExists(url,"installADF") )
+				adfResetType = "INSTALL";
+			else if ( StructKeyExists(url,"reinstallADF") )
+				adfResetType = "REINSTALL";
 		}
 	</cfscript>
 
