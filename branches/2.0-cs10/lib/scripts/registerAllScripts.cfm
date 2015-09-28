@@ -73,7 +73,7 @@
 		var count = arrayLen(arguments.resourceSpecsArray);
 		var i = 0;
 		for (i = 1; i <= count; i++)
-			arrayAppend(arr, getResourceStruct(arguments.resourceSpecsArray[i].loadTagType, arguments.resourceSpecsArray[i].sourceURL));
+			arrayAppend(arr, getResourceStruct(argumentCollection=arguments.resourceSpecsArray[i]));
 		return arr;
 	}
 	function getResourceStruct(loadTagType, sourceURL, canCombine, canMinify)
@@ -333,7 +333,7 @@
 	(
 		"FontAwesome 4.4", "SECONDARY",
 		[
-			{LoadTagType=1, SourceURL="/ADF/thirdParty/css/font-awesome/4.4/css/font-awesome.min.css"},
+			{LoadTagType=1, SourceURL="/ADF/thirdParty/css/font-awesome/4.4/css/font-awesome.min.css", canCombine=0, canMinify=0}, // loads its own resources using relative URLs
 			{LoadTagType=1, SourceURL="/ADF/thirdParty/css/font-awesome/4.4/css/font-awesome-ADF-ext.css"} // An ADF css extension css file that add sizes (6x-10x)
 		],
 		[],
