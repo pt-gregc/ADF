@@ -33,12 +33,14 @@ History:
 	2011-03-20 - RLW - Updated to use the new ccapi_1_0 component (was the original ccapi.cfc file)
 	2013-11-18 - GAC - Updated the lib dependencies to utils_1_2 and csData_1_2
 	2015-06-11 - GAC - Updated the component extends to use the libraryBase path
+	2015-10-09 - GAC - Set the ccapi injectedBean to use ccapi_1_0 since ccapi_2_0 uses the CMD API which logs in/out differently and causes errors
 ---> 
 <cfcomponent displayname="csSubsite_1_0" extends="ADF.lib.libraryBase" hint="Constructs a CCAPI object and then creates a subsite based on the argument data passed in">
 
-<cfproperty name="version" value="1_0_5">
+<cfproperty name="version" value="1_0_6">
 <cfproperty name="type" value="transient">
-<cfproperty name="ccapi" type="dependency" injectedBean="ccapi_2_0">	
+<!--- // Must Use ccapi_1_0 here - ccapi_2_0 uses the CMD API which logs in/out differently --->	
+<cfproperty name="ccapi" type="dependency" injectedBean="ccapi_1_0"> 
 <cfproperty name="utils" type="dependency" injectedBean="utils_2_0">
 <cfproperty name="csData" type="dependency" injectedBean="csData_2_0">
 <cfproperty name="wikiTitle" value="CSSubsite_1_0">
