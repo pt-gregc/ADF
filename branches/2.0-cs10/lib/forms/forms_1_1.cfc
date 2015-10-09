@@ -92,6 +92,7 @@ History:
 	2012-02-03 - MFC - Updates to the lightbox callback to store the form in "top.commonspot".
 	2013-02-06 - MFC - Removed JS 'alert' commands for CS 8.0.1 and CS 9 compatibility
 	2015-09-10 - GAC - Removed jQuery.LIVE and replaced it with a jQuery.ON call since it has been deprected since 1.7 and no longer works with jQuery 2.x
+	2015-10-09 - GAC - Added a workaround to fix for the ADF Lightbox form result javascript issues with the CommonSpot loadResource() 
 --->
 <cffunction name="renderAddEditForm" access="public" returntype="String" hint="Returns the HTML for an Add/Edit Custom element record">
 	<cfargument name="formID" type="numeric" required="true" hint="Form ID to render">
@@ -108,6 +109,9 @@ History:
 		var formResultHTML = "";
 		// Find out if the CE contains an RTE field
 		//var formContainRTE = application.ADF.ceData.containsFieldType(arguments.formID, "formatted_text_block");
+
+		// TEMP FIX - Until loadResource() works with the CS RenderSimpleForm UDF
+		rtnScripts = server.ADF.objectFactory.getBean("scripts_1_2");
 	</cfscript>
 	<!--- Result from the Form Submit --->
 	<cfsavecontent variable="formResultHTML">
@@ -119,7 +123,10 @@ History:
 				// 2011-03-26 - MFC - Commented out force JQuery, the loadADFLightbox with force will
 				//						load JQuery.
 				//variables.scripts.loadJQuery(force=1);
-				variables.scripts.loadADFLightbox(force=1);
+				//variables.scripts.loadADFLightbox(force=1);
+				
+				// TEMP FIX - Until loadResource() works with the CS RenderSimpleForm UDF
+				rtnScripts.loadADFLightbox(force=1);
 			</cfscript>
 			<script type='text/javascript'>
 				jQuery(document).ready(function(){
