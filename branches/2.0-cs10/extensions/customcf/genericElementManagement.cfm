@@ -238,20 +238,20 @@ History:
 		<!--- // Add the STYLE block as a CSS Header Resource --->
 		<cfsavecontent variable="adfGenericElmtMgmtHeaderCSS">
 			<cfoutput>
-			<style>
+			<!--- <style> --->
 				a.ui-button:hover {
 					cursor:pointer;
 				}
 				a.ui-button {
 					padding: 10px;
 				}
-			</style>
+			<!--- </style> --->
 			</cfoutput>
 		</cfsavecontent>
 		<!--- // Add the JavaScript block as a JS Footer Resource --->
 		<cfsavecontent variable="adfGenericElmtMgmtFooterJS">
 			<cfoutput>
-			<script type="text/javascript">
+			<!--- <script type="text/javascript"> --->
 				jQuery(document).ready(function(){
 					// Load jquery cookie to remember the last tab visited
 					jQuery('##tabs').tabs( { cookie: { expires: 30 } } );
@@ -266,7 +266,7 @@ History:
 						}
 					);
 				});
-			</script>
+			<!--- </script> --->
 			</cfoutput>
 		</cfsavecontent>
 		
