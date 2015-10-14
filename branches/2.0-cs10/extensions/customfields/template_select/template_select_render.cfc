@@ -40,6 +40,7 @@ History:
 	2015-04-28 - DJM - Added own CSS
 	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
 	2015-09-22 - JTP - Updated the jQuery syntax to get the current selected value
+	2015-10-13 - GAC - Updated the orderby parameter that is passed to the csData.getSiteTemplates
 --->
 <cfcomponent displayName="TemplateSelect Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -99,7 +100,7 @@ History:
 		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.fieldParameters);
 		// Added for future use
 		// TODO: Add options in Props for a Bean and a Method that return a custom Subsite Struct
-		var templateStructBeanName = "csData_1_2";
+		var templateStructBeanName = "csData_2_0";
 		var templateStructMethodName = "getSiteTemplates";
 		var selectField = "select_#arguments.fieldName#";
 	</cfscript>
@@ -117,7 +118,7 @@ function #arguments.fieldName#_loadTemplates()
 		{ 	bean: "#templateStructBeanName#",
 			method: "#templateStructMethodName#",
 			filterValueList: "#inputParameters.filterList#",
-			oderby: "title",
+			orderby: "title",
 			returnFormat: "json" },
 		function( subsiteStruct )
 		{
