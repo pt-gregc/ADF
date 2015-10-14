@@ -100,7 +100,27 @@ History:
 	<!--- // DEV: customizedFinalHtml=formResultHTML ---> 
 </cffunction>
 
-<cffunction name="renderAddEditFormResult" access="public" returntype="void" output="true" hint="Renders the HTML for an Add/Edit form submit result.">
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+Name:
+	$renderAddEditFormResult
+Summary:
+	Renders the HTML for result that displays after the renderAddEditForm has been submitted.
+Returns:
+	Void 
+Arguments:
+	Numeric - formID - the Custom Element Form ID
+	Numeric - dataPageID - the dataPageID for the record that you would like to edit
+	String - lbAction - Lightbox action on close, norefresh or refreshparent
+	String - customizedFinalHtml - HTML to display when form is submitted
+	String - callback
+	Struct - FormValues
+History:
+	2015-10-13 - GAC - Created
+--->
+<cffunction name="renderAddEditFormResult" access="public" returntype="void" output="true" hint="Renders the HTML for result that displays after the renderAddEditForm has been submitted.">
 	<cfargument name="formID" type="numeric" required="true" hint="">
 	<cfargument name="dataPageId" type="numeric" required="true" hint="">
 	<cfargument name="lbAction" type="string" required="false" default="norefresh" hint="The action, either norefresh or refreshparent">
