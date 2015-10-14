@@ -36,64 +36,126 @@ History:
 	2012-09-18 - MFC - Add a blank sort value to field.
 	2014-10-03 - GAC - Added renderOnce login around the .ds-icon style block
 	2015-06-26 - GAC - Added logic to disable the edit or disable the delete button
+	2015-10-13 - GAC - Updated so the ADFlighbox calls use forms_2_0  
+					 - Updated to pass in a callback from the request scope set in a header script
+					 - Updated for ADF 2.0 and CommonSpot 10 loadResources()
+	2015-10-14 - GAC - Updated to allow Client Side JS sorting to be enabled
 --->
 <cfscript>
-	// Check for Button Rendering Overrides
-	if ( !StructKeyExists(variables,"adfDSmodule") )
-		variables.adfDSmodule = StructNew();
-		
-	if ( !StructKeyExists(variables.adfDSmodule,"renderEditBtn") OR !IsBoolean(variables.adfDSmodule.renderEditBtn) )
-		variables.adfDSmodule.renderEditBtn = true;
-	if ( !StructKeyExists(variables.adfDSmodule,"renderDeleteBtn") OR !IsBoolean(variables.adfDSmodule.renderDeleteBtn) )
-		variables.adfDSmodule.renderDeleteBtn = true;	
-	
 	//Path to open the ligthbox to
-	AjaxPath = application.ADF.ajaxProxy;
+	AjaxPath = application.ADF.lightboxProxy;
 	//Bean to preform add/edit
-	AjaxBean = "forms_1_1";
+	AjaxBean = "forms_2_0";
 	AjaxMethod = "renderAddEditForm";
 	//Bean to preform deletion
-	AjaxDeleteBean = "forms_1_1";
+	AjaxDeleteBean = "forms_2_0";
 	AjaxDeleteMethod = "renderDeleteForm";
 
 //*******Modification below this should not be needed.*******
 
+	// Check for Local Button Rendering Overrides
+	if ( !StructKeyExists(variables,"adfDSmodule") )
+		variables.adfDSmodule = StructNew();
+
+	if ( !StructKeyExists(variables.adfDSmodule,"renderEditBtn") OR !IsBoolean(variables.adfDSmodule.renderEditBtn) )
+		variables.adfDSmodule.renderEditBtn = true;
+	if ( !StructKeyExists(variables.adfDSmodule,"renderDeleteBtn") OR !IsBoolean(variables.adfDSmodule.renderDeleteBtn) )
+		variables.adfDSmodule.renderDeleteBtn = true;
+
 	formID = edata.MetadataForm;
+
+	addEditLink = "";
+	deleteLink = "";
+
+	urlParams = "";
 
 	mouseoverJS = "jQuery(this).addClass('ui-state-hover')";
 	mouseoutJS = "jQuery(this).removeClass('ui-state-hover')";
 
-	addEditLink = "";
-	deleteLink = "";
-	
+	// Check for global ADF Datasheet Module overrides in request scope
+	if ( StructKeyExists(request,"adfDSmodule") )
+	{
+		if (StructKeyExists(request.adfDSmodule, "urlParams"))
+			urlParams = TRIM(request.adfDSmodule.urlParams);
+
+		if ( LEN(urlParams) AND Find("&",urlParams,"1") NEQ 1 )
+			urlParams = "&" & urlParams;
+	}
+
 	if ( variables.adfDSmodule.renderEditBtn )
-		addEditLink = "#ajaxPath#?bean=#AjaxBean#&method=#AjaxMethod#&formid=#formID#&dataPageId=#Request.DatasheetRow.pageid#&lbAction=refreshparent&title=Edit";
+		addEditLink = "#ajaxPath#?bean=#AjaxBean#&method=#AjaxMethod#&formid=#formID#&dataPageId=#Request.DatasheetRow.pageid#&lbAction=refreshparent&title=Edit#urlParams#";
 	
 	if ( variables.adfDSmodule.renderDeleteBtn )
-		deleteLink = "#ajaxPath#?bean=#AjaxDeleteBean#&method=#AjaxDeleteMethod#&formid=#formID#&dataPageid=#Request.DatasheetRow.pageid#&title=Delete";
+		deleteLink = "#ajaxPath#?bean=#AjaxDeleteBean#&method=#AjaxDeleteMethod#&formid=#formID#&dataPageid=#Request.DatasheetRow.pageid#&title=Delete#urlParams#";
+
+	application.ADF.scripts.loadJQuery();
+	application.ADF.scripts.loadJQueryUI();
+	application.ADF.scripts.loadADFLightbox();
 </cfscript>
 
+<!--- // REMOVE - the headerData to switch to the ADF 2.0 and CommonSpot 10 loadResources() style --->
 <!--- Need to use cfhtmlhead because if I have a </script> tag it will break the javascript sorting on the datasheet--->
-<cfsavecontent variable="headerData">
+<!--- <cfsavecontent variable="headerData">
 	<cfoutput>
 		#application.ADF.scripts.loadJQuery()#
 		#application.ADF.scripts.loadJQueryUI()#
 		#application.ADF.scripts.loadADFLightbox()#
 	</cfoutput>
-</cfsavecontent>
+</cfsavecontent> --->
 <!---If client side sorting is enabled we need to put stuff in the headers--->
-<cfif eparam.permitClientSideSort>
+<!--- <cfif eparam.permitClientSideSort>
 	<cfhtmlhead text="#headerData#">
+</cfif> --->
+
+<!--- // Add the ADF DS modules STYLE as a CSS Resource but only render it once --->
+<cfif !StructKeyExists(request,"dsEditDeleteRenderOnce")>
+	<cfsavecontent variable="adfDataSheetModHeaderCSS">
+		<cfoutput>
+		<!--- <style> --->
+		.ds-icons {
+			padding: 1px 5px;
+			text-decoration: none;
+			margin-left: 5px;
+			margin-right: 5px;
+			width: 16px;
+		}
+		.ds-icons:hover{
+			cursor:pointer;
+		}
+		<!--- </style> --->
+		</cfoutput>
+	</cfsavecontent>
+	
+	<cfif eparam.permitClientSideSort>
+	<cfsavecontent variable="adfDataSheetModFooterJS">
+		<cfoutput>
+		<!--- <script> --->
+			jQuery(document).on('click','.CS_DataSheet_HeaderItem_First_Column,.CS_DataSheet_HeaderItem_Column',function() {
+		    	initADFLB();
+			});
+		<!--- </script> --->
+		</cfoutput>
+	</cfsavecontent>
+	</cfif>
+	
+	<cfscript>
+		// Load the inline CSS as a CSS Resource
+		application.ADF.scripts.addHeaderCSS(adfDataSheetModHeaderCSS, "TERTIARY"); //  PRIMARY, SECONDARY, TERTIARY
+		// Load the inline JS as a JS Resource
+		if ( eparam.permitClientSideSort )
+			application.ADF.scripts.addFooterJS(adfDataSheetModFooterJS, "TERTIARY"); //  PRIMARY, SECONDARY, TERTIARY
+	</cfscript>
+	<cfset request.dsEditDeleteRenderOnce = true>
 </cfif>
 
 <cfsavecontent variable="tdHTML">
-	<cfoutput>
-		<!---	If client side sorting is disabled put the load JQuery information in the better location--->
+	<cfoutput>		
 		<td align="left" valign="middle" class="ADF-Edit-Delete" style="width:150px;">
-			<cfif not eparam.permitClientSideSort>
+			<!--- // REMOVE - If client side sorting is disabled put the load JQuery information in the better location--->
+			<!--- <cfif not eparam.permitClientSideSort>
 				#headerData#
-			</cfif>
-			<cfif !StructKeyExists(request,"dsEditDeleteRenderOnce")>
+			</cfif> --->
+			<!--- <cfif !StructKeyExists(request,"dsEditDeleteRenderOnce")>
 				<style>
 					.ds-icons {
 						padding: 1px 5px;
@@ -107,7 +169,7 @@ History:
 					}
 				</style>
 				<cfset request.dsEditDeleteRenderOnce = true>
-			</cfif>
+			</cfif> --->
 			<table>
 				<tr>
 				<cfif variables.adfDSmodule.renderEditBtn>
