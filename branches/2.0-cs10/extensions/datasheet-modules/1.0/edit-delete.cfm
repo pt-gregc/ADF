@@ -129,7 +129,7 @@ History:
 	<cfif eparam.permitClientSideSort>
 	<cfsavecontent variable="adfDataSheetModFooterJS">
 		<cfoutput>
-		<!--- <script> --->
+		<!--- <script type="text/javascript"> --->
 			jQuery(document).on('click','.CS_DataSheet_HeaderItem_First_Column,.CS_DataSheet_HeaderItem_Column',function() {
 		    	initADFLB();
 			});

@@ -32,11 +32,14 @@ Attributes:
 	themeName - the name of a jQueryUI theme (default: the ADF standard theme for jQueryUI - ui-lightness)
 	showAddButtons -  a comma-delimited list of true/false for each element name to show the 'Add Button' or not  on each tab (default: true)
 	useAddButtonSecurity - true/false to enable or disable security for the 'Add Button' (default: true)
-	customAddButtonText - a comm-delimited list of custom "Add Button" names (default: Add New {{elementName}})
+	customAddButtonText - a comma-delimited list of custom "Add Button" names (default: Add New {{elementName}})
+	customTabLabels - a comma-delimited list of custom "Tab" labels (Note: tabs only render when more than one elementName is defined.)
 	formBeanName - Override the form bean (component) to open for the form.
+	jsCallback - Name of a Javascript Callback function on the same page as the genericElementManagement.cfm customcf file
 	// App Level Override Parameters
 	appBeanName - the AppBeanName of the app from the appBeanConfig.cfm file
 	appParamsVarName - a variable name of a struct that contains key/values for the custom script attrubutes
+	configVersion - used to utilize updated config options but can break pre-existing datasheets built from older configVersions
 	
 	/* NOTE: When both of the  App Level Override Params (appBeanName and appParamsVarName) are defined in the Custom Script Parameters and together they can be evaluated to create a data structure 
 	that defines key/value pairs, then the keys that match the standard Attributes will be used to OVERRIDE any additional attributes passed in. */
@@ -48,6 +51,8 @@ Custom Script Parameters Tab Examples:
 	useAddButtonSecurity=true
 	customAddButtonText=Add New Item 1, Add New Item 2, Add New Three
 	customTabLabels=One, Two, Three
+	formBeanName = forms_2_0
+	jsCallback = jsCallbackFunc
 	appBeanName = ptBlog
 	appParamsVarName = elementManagementParams
 	configVersion = 2.0
@@ -83,10 +88,14 @@ History:
 	2014-10-24 - GAC - Added a script config version to allow for updates that would otherwise break previously configured datasheets
 					 - Updated the Datasheet Control Name in the <cfmodule> to use the FormID as the uniqueID... so Datasheet configs don't break if the element name changes
 					 - Added a option for custom "Tab Labels" when building multiple datasheets on the same page
+	2015-10-12 - GAC - Updated the Forms_2_0 for ADF 2.0 and CommonSpot 10
+	2015-10-13 - GAC - Added an optional jsCallback parameter to allow a javascript function name be passed to the buildAddEditLink() 
+						and through the request scope to the edit-delete.cfm datasheet module
+					- Updated for ADF 2.0 and CommonSpot 10 loadResources()
 --->
 
 <!--- // The version of this custom script code --->
-<cfset scriptVersion = "2.0.1">
+<cfset scriptVersion = "3.0.0">
 
 <!--- // Optional ADF App Override Attributes for the Custom Script Parameters tab --->
 <!--- // !!!! DO NOT MODIFY THIS OVERRIDE LOGIC to force changes via the Custom Script Parameters from the CommonSpot UI!!! --->
@@ -131,13 +140,20 @@ History:
 				csMode = request.renderstate.rendermode;
 			
 			// Bean Name for the Add Button
-			beanName = "Forms_1_1";
+			beanName = "Forms_2_0";
 			// Check to see if the attribute 'formBeanName' was passed in.
 			//	This will override the bean to open for the form
-			if ( StructKeyExists(attributes,"formBeanName")
-					AND LEN(TRIM(attributes.formBeanName)) )
+			if ( StructKeyExists(attributes,"formBeanName") AND LEN(TRIM(attributes.formBeanName)) )
 				beanName = attributes.formBeanName;
-			
+
+			urlParams = "";
+			if ( StructKeyExists(attributes,"jsCallback") AND LEN(TRIM(attributes.jsCallback)) )
+				urlParams = urlParams & "&callback=" & attributes.jsCallback;
+
+			// Pass the URLParams to the ADF Datasheet Modules
+			if ( LEN(TRIM(urlParams)) )
+				request.adfDSmodule.urlParams = urlParams;
+
 			// Set the 'Add Button' display defaults
 			displayAddButtonDefault = true; // Display the 'Add Button'
 			secureAddButtons = true;  // Only show 'Add Button' if user is logged in 
@@ -219,30 +235,48 @@ History:
 				divClass = "no-tabs";
 			}	
 		</cfscript>
-		<style>
-			a.ui-button:hover {
-				cursor:pointer;
-			}
-			a.ui-button {
-				padding: 10px;
-			}
-		</style>
-		<script type="text/javascript">
-			jQuery(document).ready(function(){
-				// Load jquery cookie to remember the last tab visited
-				jQuery('##tabs').tabs( { cookie: { expires: 30 } } );
-				
-				// Hover states on the static widgets
-				jQuery("a.ui-button").hover(
-					function() {
-						jQuery(this).addClass('ui-state-hover');
-					},
-					function() {
-						jQuery(this).removeClass('ui-state-hover');
-					}
-				);
-			});
-		</script>
+		<!--- // Add the STYLE block as a CSS Header Resource --->
+		<cfsavecontent variable="adfGenericElmtMgmtHeaderCSS">
+			<cfoutput>
+			<style>
+				a.ui-button:hover {
+					cursor:pointer;
+				}
+				a.ui-button {
+					padding: 10px;
+				}
+			</style>
+			</cfoutput>
+		</cfsavecontent>
+		<!--- // Add the JavaScript block as a JS Footer Resource --->
+		<cfsavecontent variable="adfGenericElmtMgmtFooterJS">
+			<cfoutput>
+			<script type="text/javascript">
+				jQuery(document).ready(function(){
+					// Load jquery cookie to remember the last tab visited
+					jQuery('##tabs').tabs( { cookie: { expires: 30 } } );
+					
+					// Hover states on the static widgets
+					jQuery("a.ui-button").hover(
+						function() {
+							jQuery(this).addClass('ui-state-hover');
+						},
+						function() {
+							jQuery(this).removeClass('ui-state-hover');
+						}
+					);
+				});
+			</script>
+			</cfoutput>
+		</cfsavecontent>
+		
+		<cfscript>
+			// Load the inline CSS as a CSS Resource
+			application.ADF.scripts.addHeaderCSS(adfGenericElmtMgmtHeaderCSS, "SECONDARY"); //  PRIMARY, SECONDARY, TERTIARY
+			// Load the inline JS as a JS Resource
+			application.ADF.scripts.addFooterJS(adfGenericElmtMgmtFooterJS, "SECONDARY"); //  PRIMARY, SECONDARY, TERTIARY
+		</cfscript>
+		
 		<div id="#divClass#">
 			<!--- Check if we want to render tabs --->
 			<cfif renderTabFormat>
@@ -295,6 +329,7 @@ History:
 																	formName=ceName,
 																	dataPageID=0,
 																	refreshparent=true,
+																	urlParams=urlParams,
 																	formBean=beanName,
 																	formMethod="renderAddEditForm",
 																	lbTitle=addBtnText,
