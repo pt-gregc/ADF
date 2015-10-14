@@ -38,7 +38,7 @@ History:
 --->
 <cfcomponent displayname="ui_1_0" extends="ADF.lib.libraryBase" hint="UI functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_3">
+<cfproperty name="version" value="1_0_4">
 <cfproperty name="type" value="singleton">
 <cfproperty name="ceData" injectedBean="ceData_2_0" type="dependency">
 <cfproperty name="csData" injectedBean="csData_1_2" type="dependency">
@@ -83,6 +83,7 @@ History:
 	2011-03-08 - GAC - Modified - Added the ADFLightbox script headers
 	2011-06-11 - GAC - Modified - Added the linkText parameter to allow linkTitle, lbTitle and linkText to each be defined individually
 									while still maintaining backwards compatiblity with the primary linkTitle (required) parameter
+	2015-10-14 - GAC - Updated the formBean default value to Forms_2_0
 --->
 <cffunction name="buildAddEditLink" access="public" returntype="string" output="false" hint="Returns a nice string to renderAddEditForm with lightbox enabled">
 	<cfargument name="linkTitle" type="string" required="true" hint="Link Title">
@@ -90,13 +91,14 @@ History:
 	<cfargument name="dataPageID" type="numeric" required="false" default="0" hint="Data pageID of the element, 0 is new">
 	<cfargument name="refreshparent" type="boolean" required="false" default="false" hint="refresh the page or not?">
 	<cfargument name="urlParams" type="string" required="false" default="" hint="additional URL parameters to be passed to the form">
-	<cfargument name="formBean" type="string" required="false" default="forms_1_1" hint="bean for the form">
+	<cfargument name="formBean" type="string" required="false" default="forms_2_0" hint="bean for the form">
 	<cfargument name="formMethod" type="string" required="false" default="renderAddEditForm" hint="method for the form">
 	<cfargument name="lbTitle" type="string" required="false" default="#arguments.linkTitle#" hint="lightbox title">
 	<cfargument name="linkClass" type="string" required="false" default="" hint="link class">
 	<cfargument name="appName" type="string" required="false" default="" hint="app name">
 	<cfargument name="uiTheme" type="string" required="false" default="ui-lightness" hint="JQueryUI Theme to load">
 	<cfargument name="linkText" type="string" required="false" default="#arguments.linkTitle#" hint="Link text">
+	
 	<cfscript>
 		var rtnStr = "";
 		var formID = variables.ceData.getFormIDByCEName(arguments.formName);
@@ -110,6 +112,7 @@ History:
 				uParams = "&" & uParams;
 		}
 	</cfscript>
+	
 	<cfsavecontent variable="rtnStr">
 		<cfscript>
 			variables.scripts.loadJQuery();
@@ -150,10 +153,11 @@ History:
 	2011-02-09 - GAC - Modified - Added a jqueryUI theme parameter
 	2011-06-11 - GAC - Modified - Added the linkText parameter to allow linkTitle, lbTitle and linkText to each be defined individually
 									while still maintaining backwards compatiblity with the primary linkTitle (required) parameter  
+	2015-10-14 - GAC - Updated the Bean default value to Forms_2_0
 --->
 <cffunction name="buildLBAjaxProxyLink" access="public" returntype="string" output="false" hint="Returns a nice HTML string from a provided bean and method with lightbox enabled">
 	<cfargument name="linkTitle" type="string" required="true" hint="Link Title">
-	<cfargument name="bean" type="string" required="false" default="forms_1_1" hint="bean">
+	<cfargument name="bean" type="string" required="false" default="forms_2_0" hint="bean">
 	<cfargument name="method" type="string" required="false" default="renderAddEditForm" hint="method">
 	<cfargument name="urlParams" type="string" required="false" default="" hint="URL Parameters">
 	<cfargument name="lbTitle" type="string" required="false" default="#arguments.linkTitle#" hint="Lightbox Title">
@@ -197,10 +201,11 @@ History:
 	2011-03-08 - GAC - Modified - Added the ADFLightbox script headers
 	2011-06-11 - GAC - Modified - Added the linkText parameter to allow linkTitle, lbTitle and linkText to each be defined individually
 									while still maintaining backwards compatiblity with the primary linkTitle (required) parameter
+	2015-10-14 - GAC - Updated the Bean default value to Forms_2_0
 --->
 <cffunction name="buildLightboxProxyLink" access="public" returntype="string" output="false" hint="Returns a nice HTML string from a provided bean and method to call ADFlightbox using lightboxProxy.cfm">
 	<cfargument name="linkTitle" type="string" required="true" hint="Link Title">
-	<cfargument name="bean" type="string" required="false" default="forms_1_1"  hint="Bean name">
+	<cfargument name="bean" type="string" required="false" default="forms_2_0"  hint="Bean name">
 	<cfargument name="method" type="string" required="false" default="renderAddEditForm" hint="method name">
 	<cfargument name="urlParams" type="string" required="false" default="" hint="URL Parameters">
 	<cfargument name="lbTitle" type="string" required="false" default="#arguments.linkTitle#" hint="Lightbox Title">

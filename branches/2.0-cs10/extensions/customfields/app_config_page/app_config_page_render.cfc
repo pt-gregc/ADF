@@ -27,9 +27,9 @@ Custom Field Type:
 Name:
 	app_config_page_render.cfc
 ADF Requirements:
-	scripts_1_0
-	ceData_1_0
-	forms_1_1
+	scripts_2_0
+	ceData_2_0
+	forms_2_0
 History:
 	RLW - Created
 	2010-11-29 - GAC - Added conditional logic inside the select box cfloop to check 
@@ -45,6 +45,7 @@ History:
 					 - Updated the wrapFieldHTML explanation comment block
 	2015-04-29 - DJM - Converted to CFC
 	2015-09-10 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
+	2015-10-14 - GAC - Updated the forms call to Forms_2_0
 --->
 <cfcomponent displayName="AppConfigPage Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 

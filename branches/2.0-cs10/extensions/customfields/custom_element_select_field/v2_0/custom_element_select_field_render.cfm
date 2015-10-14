@@ -33,8 +33,8 @@ Summary:
 	Added Properties to set the field name value, default field value, and field visibility.
 ADF Requirements:
 	csData_2_0
-	scripts_1_2
-	forms_1_1
+	scripts_2_0
+	forms_2_0
 History:
 	2009-10-28 - MFC - Created
 	2009-12-23 - MFC - Resolved error with loading the current value selected.
@@ -376,7 +376,7 @@ To Do:
 				
 				<cfset buttonLabel = "New #xParams.label#">
 				
-				<cfoutput><a href="javascript:;" rel="#application.ADF.ajaxProxy#?bean=Forms_1_1&method=renderAddEditForm&formid=#ceFormID#&datapageid=0&lbAction=norefresh&title=#buttonLabel#&callback=#fqFieldName#_reloadSelection" id="#fqFieldName#_addNewLink" class="ADFLightbox add-button ui-state-default ui-corner-all">#buttonLabel#</a></cfoutput>
+				<cfoutput><a href="javascript:;" rel="#application.ADF.ajaxProxy#?bean=Forms_2_0&method=renderAddEditForm&formid=#ceFormID#&datapageid=0&lbAction=norefresh&title=#buttonLabel#&callback=#fqFieldName#_reloadSelection" id="#fqFieldName#_addNewLink" class="ADFLightbox add-button ui-state-default ui-corner-all">#buttonLabel#</a></cfoutput>
 	 		</cfif>
 			
 		<cfoutput></td></tr></table></cfoutput>		

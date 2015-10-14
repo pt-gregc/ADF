@@ -33,8 +33,8 @@ Summary:
 	Added Properties to set the field name value, default field value, and field visibility.
 ADF Requirements:
 	csData_2_0
-	scripts_1_2
-	forms_1_1
+	scripts_2_0
+	forms_2_0
 History:
 	2009-10-28 - MFC - Created
 	2009-12-23 - MFC - Resolved error with loading the current value selected.
@@ -74,6 +74,7 @@ History:
 	2015-05-13 - DRM - Add isMultiline()
 	2015-05-26 - DJM - Added the 2.0 version
 	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
+	2015-10-14 - GAC - Updated the forms call to Forms_2_0
 
 To Do:
 	2014-04-08 - JTP - Currently we are NOT sorting the list if displayed as checkboxes/radio buttons and user choose sort by display value
@@ -161,7 +162,7 @@ To Do:
 				</script>
 			</cfoutput>
 			
-			<cfoutput><a href="javascript:;" rel="#ajaxComURL#?bean=Forms_1_1&method=renderAddEditForm&formid=#ceFormID#&datapageid=0&lbAction=norefresh&title=#buttonLabel#&callback=#arguments.fieldName#_reloadSelection" id="#arguments.fieldName#_addNewLink" class="ADFLightbox add-button ui-state-default ui-corner-all addNewButton">#buttonLabel#</a></cfoutput>
+			<cfoutput><a href="javascript:;" rel="#ajaxComURL#?bean=Forms_2_0&method=renderAddEditForm&formid=#ceFormID#&datapageid=0&lbAction=norefresh&title=#buttonLabel#&callback=#arguments.fieldName#_reloadSelection" id="#arguments.fieldName#_addNewLink" class="ADFLightbox add-button ui-state-default ui-corner-all addNewButton">#buttonLabel#</a></cfoutput>
 		</cfif>
 	
 	<cfoutput></td></tr></table></cfoutput>		

@@ -33,7 +33,7 @@ Summary:
 	Added Properties to set the field name value, default field value, and field visibility.
 ADF Requirements:
 	csData_2_0
-	scripts_1_2
+	scripts_2_0
 History:
 	2009-07-06 - MFC - Created
 	2010-09-17 - MFC - Updated the Default Value field to add [] to the value
@@ -66,6 +66,7 @@ History:
 	2014-09-19 - GAC - Removed deprecated doLabel and jsLabelUpdater js calls
 	2015-05-26 - DJM - Added the 2.0 version
 	2015-09-02 - DRM - Add getResourceDependencies support, bump version
+	2015-10-14 - GAC - Updated the forms call to Forms_2_0
 --->
 
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
@@ -88,7 +89,7 @@ History:
 
 <!---// CommonSpot 9 Required for the new element data filter criteria --->
 <cfscript>
-	fieldVersion = "2.0.2"; // Variable for the version of the field - Display in Props UI
+	fieldVersion = "2.0.3"; // Variable for the version of the field - Display in Props UI
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;

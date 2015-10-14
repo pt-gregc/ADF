@@ -48,6 +48,7 @@ History:
 	2015-07-09 - GAC - Added datapageID and controlID params to the  loadTopics() ajax call an the 
 					 - Moved the building of the initArgs and selectionArgs struct to the general_chooser.cfc file to allow overrides in the Site Level GC file
 	2015-07-21 - GAC - Additional work to remove the dependency for the jQuery CFJS library
+	2015-10-14 - GAC - Updated the forms call to Forms_2_0
 --->
 <cfcomponent name="general_chooser" extends="ADF.lib.ceData.ceData_2_0">
 
@@ -807,6 +808,7 @@ History:
 	2013-12-12 - GAC - Added the newItemLabel parameter to allow the ADD NEW button to have a custom label
 	2014-03-05 - JTP - Var declarations
 	2014-03-20 - GAC - To be safe force the value of the js_fieldName_CE_FIELD to lowercase so it is sure to match keys data from the callback 
+	2015-10-14 - GAC - Updated the forms call Forms_2_0
 --->
 <cffunction name="loadAddNewLink" access="public" returntype="string" hint="General Chooser - Add New Link HTML content.">
 	<cfargument name="fieldName" type="String" required="true">
@@ -843,7 +845,7 @@ History:
 					js_#arguments.fieldName#_CE_FIELD = '#LCASE(variables.CE_FIELD)#';
 				</script>
 				<div id="add-new-items">
-					<a href="javascript:;" rel="#application.ADF.ajaxProxy#?bean=Forms_1_1&method=renderAddEditForm&formID=#ceFormID#&dataPageId=0&callback=#arguments.fieldName#_formCallback&title=#variables.NEW_ITEM_LABEL##passthroughParamsStr#" class="ADFLightbox ui-state-default ui-corner-all #arguments.fieldName#-ui-buttons">#variables.NEW_ITEM_LABEL#</a>
+					<a href="javascript:;" rel="#application.ADF.ajaxProxy#?bean=Forms_2_0&method=renderAddEditForm&formID=#ceFormID#&dataPageId=0&callback=#arguments.fieldName#_formCallback&title=#variables.NEW_ITEM_LABEL##passthroughParamsStr#" class="ADFLightbox ui-state-default ui-corner-all #arguments.fieldName#-ui-buttons">#variables.NEW_ITEM_LABEL#</a>
 				</div>
 			</cfoutput>
 		</cfsavecontent>
@@ -872,10 +874,11 @@ Arguments:
 History:
 	2013-12-11 - GAC - Created
 	2015-07-10 - GAC - Added the displayText argument
+	2015-10-14 - GAC - Updated the forms call Forms_2_0
 --->
 <cffunction name="loadEditDeleteItemLinks" access="public" returntype="string" hint="General Chooser - HTML for the Edit and Delete Item Links">
 	<cfargument name="fieldName" type="String" required="true">
-	<cfargument name="bean" type="string" required="false" default="Forms_1_1">
+	<cfargument name="bean" type="string" required="false" default="Forms_2_0">
 	<cfargument name="formid" type="numeric" required="false" default="-1">
 	<cfargument name="csPageID" type="numeric" required="false" default="-1">
 	<cfargument name="readonly" type="boolean" default="false" required="false">
@@ -940,10 +943,11 @@ History:
 	2013-12-10 - GAC - Created
 	2015-07-10 - GAC - Added a title attribute to the <a> tag
 					 - Added the displayText argument
+	2015-10-14 - GAC - Updated the forms call Forms_2_0
 --->
 <cffunction name="loadEditItemLink" access="public" returntype="string" hint="General Chooser - Edit Item Link HTML">
 	<cfargument name="fieldName" type="string" required="true">
-	<cfargument name="bean" type="string" required="false" default="Forms_1_1">
+	<cfargument name="bean" type="string" required="false" default="Forms_2_0">
 	<cfargument name="method" type="string" required="false" default="renderAddEditForm">
 	<cfargument name="formid" type="numeric" required="false" default="-1">
 	<cfargument name="csPageID" type="numeric" required="false" default="-1">
@@ -990,10 +994,11 @@ History:
 	2013-12-10 - GAC - Created
 	2015-07-10 - GAC - Added a title attribute to the <a> tag
 					 - Added the displayText argument
+	2015-10-14 - GAC - Updated the forms call Forms_2_0
 --->
 <cffunction name="loadDeleteItemLink" access="public" returntype="string" hint="General Chooser - Delete Item Link HTML">
 	<cfargument name="fieldName" type="string" required="true">
-	<cfargument name="bean" type="string" required="false" default="Forms_1_1">
+	<cfargument name="bean" type="string" required="false" default="Forms_2_0">
 	<cfargument name="method" type="string" required="false" default="renderDeleteForm">
 	<cfargument name="formid" type="numeric" required="false" default="-1">
 	<cfargument name="csPageID" type="numeric" required="false" default="-1">

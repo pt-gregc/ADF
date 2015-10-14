@@ -26,7 +26,7 @@ Name:
 	edit-delete.cfm
 Summary:
 	Renders jQueryUI edit/delete buttons for your datasheet. 
-	This uses forms_1_1 and auto detects its information.
+	This uses forms_2_0 and auto detects its information.
 History:
 	2011-02-07 - RAK - Created
 	2011-02-15 - RAK - Updated to handle client side sorting in a better way.

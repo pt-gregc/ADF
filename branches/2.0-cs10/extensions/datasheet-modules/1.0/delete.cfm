@@ -27,7 +27,6 @@ Name:
 Summary:
 	Renders jQueryUI delete buttons for your datasheet. 
 	Prints out jQueryUI delete buttons for your datasheet. 
-	This uses forms_1_1 and auto detects its information.
 History:
 	2015-06-26 - GAC - Created
 --->

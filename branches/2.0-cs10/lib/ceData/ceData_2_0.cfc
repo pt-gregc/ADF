@@ -38,7 +38,7 @@ History:
 --->
 <cfcomponent displayname="ceData_2_0" extends="ceData_1_1" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="2_0_31">
+<cfproperty name="version" value="2_0_32">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
 <cfproperty name="wikiTitle" value="CEData_2_0">
@@ -75,6 +75,7 @@ History:
 	2013-09-27 - GAC - Updated the Forms Lib that is used to call the getCEFieldNameData function
 	2013-10-23 - GAC - Updated the commonFields logic that turns the formID into a formName
 	2014-03-05 - JTP - Var declarations
+	2015-10-14 - GAC - Updated the forms call to Forms_2_0
 --->
 <cffunction name="buildCEDataArrayFromQuery" access="public" returntype="array" hint="Returns a standard CEData Array to be used in Render Handlers from a ceDataView query">
 	<cfargument name="ceDataQuery" type="query" required="true" hint="ceData Query (usually built from ceDataView) results to be converted">
@@ -103,7 +104,7 @@ History:
 		{
 			// Setup the default common fields 
 			// get the fields structure for this element
-			fieldStruct = server.ADF.objectFactory.getBean("Forms_1_1").getCEFieldNameData(getCENameByFormID(arguments.ceDataQuery["formID"][1]));
+			fieldStruct = server.ADF.objectFactory.getBean("Forms_2_0").getCEFieldNameData(getCENameByFormID(arguments.ceDataQuery["formID"][1]));
 		}
 		
 		// Check if the query column contains "FIC_" and remove
