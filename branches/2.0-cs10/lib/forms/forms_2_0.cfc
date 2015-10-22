@@ -74,24 +74,52 @@ History:
 	<cfscript>
 		var rtnHTML = "";
 		var APIPostToNewWindow = false;
+		var formResultHTML = "";
+		var defaultResultCallback = "application.ADF.forms.renderAddEditFormResult";	
+		var resultCallback = arguments.formResultCallback;
+		var resultCallbackArgs = arguments;	
 		
-		if ( LEN(TRIM(arguments.formResultCallback)) EQ 0 )
-			arguments.formResultCallback = "application.ADF.forms.renderAddEditFormResult";
+		/*
+			// IMPORTANT: The use of "customizedFinalHtml" has been DEPRECATED.
+			//            CommonSpot 10 JS and CSS resources will NOT be available or run using the customizedFinalHtml approach 
+			// 			  Only HTML and inline JS an CSS with render
+			//            Please use the formResultCallback and build a callback with a path to a method in memory or 
+			// 			  path to .cfm module file to handle processing after the form has been submitted!!
+		*/
+		
+		// If we do NOT have a resultCallback path
+		// Use the default resultCallback method path
+		if ( LEN(TRIM(resultCallback)) EQ 0 )
+			resultCallback = defaultResultCallback;
+		
+		// DEV NOTE: An example of an Alternate option for a Form Result Module
+		// resultCallback = "/customcf/adfFormResultModule.cfm"; // file on QAbase10
+	
+		// If customizedFinalHtml has a value pass it through and clear the resultCallback and resultCallbackArgs
+		if ( LEN(TRIM(arguments.customizedFinalHtml)) )
+		{
+			// Pass the customizedFinalHtml to the Form ( to a pre-submit hidden field )
+			formResultHTML = arguments.customizedFinalHtml;
 			
-		// DEV: An example of an Alternate option for a Form Result Module
-		//arguments.formResultCallback = "/customcf/adfFormResultModule.cfm"; // file on QAbase10
+			// And make sure to clear the resultCallback and the resultCallbackArgs
+			resultCallback = "";
+			resultCallbackArgs = StructNew();
+		}				
 			
 		variables.scripts.loadJQuery();
 		variables.scripts.loadADFLightbox();
+		
+		// DEV NOTES: use this dump to see what we are passing as arguments to the RenderSimpleForm resultCallbackArgs (arguments)
+		//application.ADF.utils.doDUMP(resultCallbackArgs,"resultCallbackArgs",0);
 	
 		// Return the HTML for the form
 		rtnHTML = server.CommonSpot.UDF.UI.RenderSimpleForm(dataPageID=arguments.dataPageID, 
 																formID=arguments.formID, 
 																postToNewWindow=APIPostToNewWindow, 
-																customizedFinalHtml="", 
+																customizedFinalHtml=formResultHTML, 
 																behaveAsSimpleForm=arguments.behaveAsSimpleForm,
-																resultCallback=arguments.formResultCallback,
-																resultCallbackArgs=arguments);
+																resultCallback=resultCallback,
+																resultCallbackArgs=resultCallbackArgs);
 																			
 		return rtnHTML;	
 	</cfscript>																	
@@ -120,7 +148,7 @@ Arguments:
 History:
 	2015-10-13 - GAC - Created
 --->
-<cffunction name="renderAddEditFormResult" access="public" returntype="void" output="true" hint="Renders the HTML for result that displays after the renderAddEditForm has been submitted.">
+<cffunction name="renderAddEditFormResult" access="public" returntype="void" hint="Renders the HTML for result that displays after the renderAddEditForm has been submitted.">
 	<cfargument name="formID" type="numeric" required="true" hint="">
 	<cfargument name="dataPageId" type="numeric" required="true" hint="">
 	<cfargument name="lbAction" type="string" required="false" default="norefresh" hint="The action, either norefresh or refreshparent">
@@ -129,7 +157,7 @@ History:
 	<cfargument name="FormValues" type="struct" required="false" default="#StructNew()#" hint="The data passed from the submitted form.">
 	
 	<cfscript>
-		var formResultFooterHTML = "";
+		var formResultFooterJS = "";
 		
 		// Clean Up passed in string values
 		arguments.customizedFinalHtml = TRIM(arguments.customizedFinalHtml);
@@ -151,50 +179,57 @@ History:
 	<!--- // END - DEV NOTES: --->
 	
 	<!--- // DEPRECATED: Render Customized Final HTML inline --->
-	<cfif LEN(arguments.customizedFinalHtml)>
+	<!--- <cfif LEN(arguments.customizedFinalHtml)>
 		<cfoutput>#arguments.customizedFinalHtml#</cfoutput>
-	</cfif>
+	</cfif> --->
 	
-	<cfsavecontent variable="formResultFooterHTML">
+	<cfsavecontent variable="formResultFooterJS">
 		<cfoutput>
-		<script type='text/javascript'>
-			lbResizeWindow();
+		<!--- <script type='text/javascript'> --->
+		lbResizeWindow();
+			
+		<cfif Len(arguments.callback)>
+		jQuery(document).ready(function(){
+			// Build the FormValues JS Object
+			var #ToScript(arguments.FormValues, "formvalues")#  
+			// Set the the FormID as a JS variable
+			var #ToScript(arguments.formid, "formid")#
+			// Set the the DataPageID as a JS variable
+			var #ToScript(arguments.datapageid, "datapageid")#
 				
-			<cfif Len(arguments.callback)>
-			jQuery(document).ready(function(){
-				// Build the FormValues JS Object
-				var #ToScript(arguments.FormValues, "formvalues")#  
-				// Set the the FormID as a JS variable
-				var #ToScript(arguments.formid, "formid")#
-				// Set the the DataPageID as a JS variable
-				var #ToScript(arguments.datapageid, "datapageid")#
-					
-				// Call the ADF form callback with the form values data
-				getCallback('#arguments.callback#', formvalues);
-			});
-			</cfif>
-		</script>
+			// Call the ADF form callback with the form values data
+			getCallback('#arguments.callback#', formvalues);
+		});
+		</cfif>
+		<!--- </script> --->
 		
 		<!--- // If no callback OR customizedFinalHtml then check the LBACTION param. --->
 		<cfif LEN(arguments.customizedFinalHtml) EQ 0 AND LEN(arguments.callback) EQ 0>
-			<!--- If the LB Action is to refresh parent --->
+			<!--- <script type='text/javascript'> --->
 			<cfif arguments.lbAction EQ "refreshparent">
-				<script type='text/javascript'>
-					closeLBReloadParent();
-				</script>
+			<!--- // If the LB Action is to refresh parent --->
+			closeLBReloadParent();
 			<cfelse>
-				<!--- Else if we don't have a callback, then close the LB --->
-				<script type='text/javascript'>
-					closeLB();
-				</script>
+			<!--- //Else if we don't have a callback, then close the LB --->
+			closeLB();
 			</cfif>
+			<!--- </script> --->
 		</cfif>	
 		</cfoutput>
 	</cfsavecontent>
+	
+	<cfoutput>
+		<div style="text-align: center">
+			<div style="padding-top:20px;padding-bottom:30px;">
+				<img id="loading_img" title="Saving, please wait..." src="/commonspot/dashboard/images/dialog/loading.gif">
+				<span id="loading_text">Saving, please wait...</span>
+			</div>
+		</div>
+	</cfoutput>
 
 	<cfscript>
 		// Load the inline JavaScript after the libraries have loaded
-		variables.scripts.addFooterHTML(formResultFooterHTML, "SECONDARY"); //  PRIMARY, SECONDARY, TERTIARY
+		variables.scripts.addFooterJS(formResultFooterJS, "SECONDARY"); //  PRIMARY, SECONDARY, TERTIARY
 	</cfscript>
 </cffunction>
 
