@@ -659,7 +659,7 @@ function doDeleteSelected_#uniqueTableAppend#(msg,errormsg)
 			jQuery.post( '#ajaxComURL#',
 										data,
 										null,
-										"json" )
+										"text" )
 			)
 			.done(function()
 			{
@@ -668,7 +668,7 @@ function doDeleteSelected_#uniqueTableAppend#(msg,errormsg)
 			.fail(function(jqXHR, textStatus, errorThrown)
 			{
 				var msg = (typeof jqXHR.responseText === 'string') ? jqXHR.responseText : 'An error occurred while trying to perform the operation.';
-				alert(msg);
+				alert('Error: ' + msg);
 			});
 }
 
