@@ -1185,6 +1185,8 @@ History:
 			document.getElementById('existingOption').style.display = "";
 			document.getElementById('editAssocOption').style.display = "";
 			document.getElementById('inactiveFieldTr').style.display = "";
+			document.#formname#.#prefix#interfaceOptionsCbox[1].checked = true;
+			document.#formname#.#prefix#interfaceOptionsCbox[2].checked = true;
 			
 			if (selectedAssoc != "")
 				document.getElementById('threeJoinInputs').style.display = "";

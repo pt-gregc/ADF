@@ -58,6 +58,7 @@ History:
 	2015-07-17 - DJM - Fixed catch issue
 	2015-07-22 - DRM - Added passthroughParams setting, list of fields to pass through to addNew and AddExisting buttons if they're in Request.Params
 	2015-07-23 - DJM - Modified RenderGrid() and QueryData() to take parent field's value instead of the whole struct. Also fixed issue with passing pass through params
+	2015-11-05 - DJM - Added code to getDisplayData() to enclose column names in square brackets before executing QoQ to prevent errors due to column names which serve as sql keywords
 --->
 <cfcomponent output="false" displayname="custom element datamanager_base" extends="ADF.core.Base" hint="This the base component for the Custom Element Data Manager field">
 	
@@ -889,6 +890,7 @@ History:
 		var dataColumnList_new = '';
 		var theListLen = 0;
 		var actionColumnWidth = 0;
+		var formattedDataColumnList = '';
 		
 		dataColumnArray = ListToArray(dataColumnList);
 	</cfscript>
@@ -1007,11 +1009,15 @@ History:
 			}
 			
 			dataColumnList_new = ListPrepend(dataColumnList_new, 'Actions');
-			// Logit('datacolumnlist:[#dataColumnList_new#]');	// Actions,AssocDataPageID,ChildDataPageID,ID,Name,ParentID 				
+			// Logit('datacolumnlist:[#dataColumnList_new#]');	// Actions,AssocDataPageID,ChildDataPageID,ID,Name,ParentID
+			
+			dataColumnArray = ListToArray(dataColumnList_new);
+			for(i=1;i LTE ArrayLen(dataColumnArray);i=i+1)
+				formattedDataColumnList = ListAppend(formattedDataColumnList, '[' & Trim(dataColumnArray[i]) &
 		</cfscript>
 
 		<cfquery name="returnData" dbtype="query">
-			SELECT #dataColumnList_new#
+			SELECT #formattedDataColumnList#
 			  FROM childData
 		</cfquery>
 		
