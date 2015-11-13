@@ -71,7 +71,7 @@ History:
 		var newConfidentialityID = 0;
 		var newShowInList = "PageIndex,SearchResults";
 		var newExpirationDate = "";
-		var newExpirationAction = "";
+		var newExpirationAction = ""; // '','Warn','DenyAll','DenyPublic','Redirect'
 		var newExpirationRedirectURL = "";
 		var newExpirationWarningMsg = "";
 		var newMetadata = ArrayNew(1);

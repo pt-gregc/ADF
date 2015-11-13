@@ -541,4 +541,43 @@ History:
 	</cfscript>
 </cffunction>
 
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+Name:
+	$getTemplateIDByName
+Summary:
+	Returns a Commonspot Extended URL String data
+Returns:
+	Numeric
+Arguments:
+	String Name
+Usage:
+	application.ADF.csData.getTemplateIDByName(Name)
+History:
+	2015-11-09 - GAC - Added 
+--->
+<cffunction name="getTemplateIDByName" access="public" returntype="numeric" hint="return the PageID of the template or 0 if not found">
+	<cfargument name="name" required="Yes" type="string" hint="The Template Name">
+
+	<cfscript>
+		var q = QueryNew("temp");
+		var templateID = 0;
+	</cfscript>
+
+	<cfquery name="q" datasource="#request.site.datasource#">
+		select PageID
+			from AvailableTemplates
+		Where ShortDesc = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.name#">
+	</cfquery>
+
+	<cfscript>
+		if ( q.recordcount eq 1 )
+			templateID = q.PageID;
+
+		return templateID;
+	</cfscript>
+</cffunction>
+
 </cfcomponent>
