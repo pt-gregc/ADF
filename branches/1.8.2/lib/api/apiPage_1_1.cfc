@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="apiPage_1_1" extends="ADF.lib.api.apiPage_1_0" hint="API Page functions for the ADF Library">
 
-<cfproperty name="version" value="1_1_0">
+<cfproperty name="version" value="1_1_1">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <cfproperty name="apiRemote" type="dependency" injectedBean="apiRemote_1_0">
 <!---<cfproperty name="utils" type="dependency" injectedBean="utils_1_2">--->
@@ -58,6 +58,7 @@ Arguments:
 	Numeric csPageID			
 History:
 	2015-09-01 - GAC - Created
+	2015-11-10 - GAC - Updated inline comments for the newExpirationAction variable 
 --->
 <cffunction name="createRemote" access="public" returntype="struct" hint="Creates a page.">
 	<cfargument name="pageData" type="struct" required="true" hint="a structure that contains page the required fields as page data.">
@@ -71,7 +72,7 @@ History:
 		var newConfidentialityID = 0;
 		var newShowInList = "PageIndex,SearchResults";
 		var newExpirationDate = "";
-		var newExpirationAction = "";
+		var newExpirationAction = ""; // '','Warn','DenyAll','DenyPublic','Redirect'
 		var newExpirationRedirectURL = "";
 		var newExpirationWarningMsg = "";
 		var newMetadata = ArrayNew(1);
