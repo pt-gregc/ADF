@@ -36,10 +36,11 @@ History:
 	2015-01-13 - GAC - Added getCSObjectStandardMetadata
 	2015-04-06 - GAC - Added getUploadedDocFileSize and getUploadedDocServerPath
 	2015-04-09 - GAC - Added getCSExtURLString 
+	2015-11-06 - GAC - Added the getTemplateIDByName function
 --->
 <cfcomponent displayname="csData_1_3" extends="ADF.lib.csData.csData_1_2" hint="CommonSpot Data Utils functions for the ADF Library">
 
-<cfproperty name="version" value="1_3_8">
+<cfproperty name="version" value="1_3_9">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">
@@ -540,6 +541,45 @@ History:
 		}
 	
 		return returnString;
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+Name:
+	$getTemplateIDByName
+Summary:
+	Returns a Commonspot Extended URL String data
+Returns:
+	Numeric
+Arguments:
+	String Name
+Usage:
+	application.ADF.csData.getTemplateIDByName(Name)
+History:
+	2015-11-09 - GAC - Added 
+--->
+<cffunction name="getTemplateIDByName" access="public" returntype="numeric" hint="return the PageID of the template or 0 if not found">
+	<cfargument name="name" required="Yes" type="string" hint="The Template Name">
+
+	<cfscript>
+		var q = QueryNew("temp");
+		var templateID = 0;
+	</cfscript>
+
+	<cfquery name="q" datasource="#request.site.datasource#">
+		select PageID
+			from AvailableTemplates
+		Where ShortDesc = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.name#">
+	</cfquery>
+
+	<cfscript>
+		if ( q.recordcount eq 1 )
+			templateID = q.PageID;
+
+		return templateID;
 	</cfscript>
 </cffunction>
 
