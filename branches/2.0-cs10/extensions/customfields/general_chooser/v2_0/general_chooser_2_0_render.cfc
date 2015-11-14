@@ -59,6 +59,7 @@ History:
 	2015-09-10 - GAC - Added a isMultiline() call so the label renders at the top
 	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
 	2015-09-10 - GAC - Re-added a isMultiline() call so the label renders at the top
+	2015-11-11 - GAC - General Dev Code clean up
 --->
 <cfcomponent displayName="GeneralChooser_Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -93,30 +94,19 @@ History:
 														args=cftArgs,
 														appName=inputParameters.chooserAppName);
 
+
 		// Build the argument structure to pass into the getSelections calls
 		selectionArgs = application.ADF.utils.runCommand(beanName=inputParameters.chooserCFCName,
 															methodName="getSelectionArgs",
 															args=cftArgs,
 															appName=inputParameters.chooserAppName);
-			
-		/*
-		// init Arg struct
-		initArgs.fieldName = arguments.fieldName;
-		initArgs.readOnly = readOnly;
+
 		
-		// Build the argument structure to pass into the Run Command
-		selectionArgs.item = arguments.value;
-		selectionArgs.queryType = "selected";
-		selectionArgs.csPageID = request.page.id;
-		selectionArgs.fieldID = inputParameters.fieldID;
-		selectionArgs.readOnly = readOnly;
-		*/
 		
 		// Load the scripts
 		application.ADF.scripts.loadJQuery(force=inputParameters.forceScripts);
 		application.ADF.scripts.loadJQueryUI(force=inputParameters.forceScripts);
 		application.ADF.scripts.loadADFLightbox();
-		//application.ADF.scripts.loadCFJS();
 	</cfscript>
 	<!--- <cfscript>
 		renderJSFunctions(argumentCollection=arguments,fieldParameters=inputParameters);

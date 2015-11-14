@@ -239,9 +239,21 @@ Arguments:
 	NA
 History:
 	2015-07-08 - GAC - Created
+	2015-11-11 - GAC - Updated with an example custom param default
 --->
 <cffunction name="getCustomGCparams" access="public" returntype="struct" hint="Additional General Chooser Parameters to be injected in to the render file and passed to other method calls.">
-	<cfreturn StructNew()>
+	<cfscript>
+		var custParams = StructNew();
+		
+		// Custom Parameters
+		// - Category ID Filter Default
+		// -- Option 1: Just set the default 
+		// custParams.categoryID = ""; 
+		// -- Option 2: Allow the Category to be pre-selected by passing in the categoryID from calling page (?categoryID=)
+		// custParams.categoryID = StructKeyExists(request.params,"categoryID") ? request.params.categoryID : "";
+		
+		return custParams;
+	</cfscript>
 </cffunction>
 
 <!---
@@ -265,6 +277,7 @@ History:
 <cffunction name="loadStyles" access="public" returntype="string" output="true" hint="">
 	<cfargument name="fieldName" type="string" required="true">
 	<cfargument name="readonly" type="boolean" default="false" required="false">
+	<cfargument name="gcCustomParams" type="struct" default="#getCustomGCparams()#" required="false">
 	
 	<cfset var retInitHTML = "">
 	<cfsavecontent variable="retInitHTML">
@@ -445,7 +458,7 @@ History:
 	<cfargument name="rendertabindex" type="numeric" default="0" required="false">
 	<cfargument name="csPageID" type="numeric" default="#request.page.id#" required="false">
 	<cfargument name="inputParameters" type="struct" default="#StructNew()#" required="false">
-	<cfargument name="gcCustomParams" type="struct" default="#StructNew()#" required="false">
+	<cfargument name="gcCustomParams" type="struct" default="#getCustomGCparams()#" required="false">
 	
 	<cfscript>
 		var passthroughParamsStr = getPassthroughParamsString(arguments.inputParameters);
@@ -484,7 +497,6 @@ jQuery(function(){
 	jQuery('###arguments.fieldName#-searchBtn').click(function() {
 		//load the search field into currentItems
 		#arguments.fieldName#_searchValues = jQuery('input###arguments.fieldName#-searchFld').val();
-		#arguments.fieldName#_currentValue = jQuery('input###arguments.fieldName#').val();
 		#arguments.fieldName#_loadTopics('search');
 	});
 		
@@ -500,7 +512,8 @@ jQuery(function(){
 // 2013-12-02 - GAC - Updated to allow 'ADD NEW' to be used multiple times before submit
 function #arguments.fieldName#_loadTopics(queryType) 
 {
-	var cValue = jQuery("input###arguments.fieldName#").val();		
+	// Update the currentValue Global variable 
+	#arguments.fieldName#_currentValue = jQuery('input###arguments.fieldName#').val();
 			
 	// Put up the loading message
 	if ( queryType == "selected" )
@@ -517,7 +530,7 @@ function #arguments.fieldName#_loadTopics(queryType)
 		bean: '#arguments.inputParameters.chooserCFCName#',
 		method: 'controller',
 		chooserMethod: 'getSelections',
-		item: cValue,
+		item: #arguments.fieldName#_currentValue,
 		queryType: queryType,
 		searchValues: #arguments.fieldName#_searchValues,
 		csPageID: '#arguments.csPageID#',
@@ -739,7 +752,7 @@ History:
 <cffunction name="loadSearchBox" access="public" returntype="string" hint="General Chooser - Search box HTML content.">
 	<cfargument name="fieldName" type="String" required="true">
 	<cfargument name="readonly" type="boolean" default="false" required="false">
-	<cfargument name="gcCustomParams" type="struct" default="#StructNew()#" required="false">
+	<cfargument name="gcCustomParams" type="struct" default="#getCustomGCparams()#" required="false">
 	
 	<cfscript>
 		var retSearchBoxHTML = "";
@@ -755,7 +768,8 @@ History:
 			<!--- Render out the search box to the field type --->
 			<cfoutput>
 				<div id="search-chooser">
-					<input type="text" class="searchFld-chooser" id="#arguments.fieldName#-searchFld" name="searchbox" tabindex="1" onblur="this.value = this.value || this.defaultValue;" onfocus="this.value='';" value="Search" />
+					<input type="text" class="searchFld-chooser" id="#arguments.fieldName#-searchFld" name="searchbox" value="" placeholder="Search" />
+					<!--- <input type="text" class="searchFld-chooser" id="#arguments.fieldName#-searchFld" name="searchbox" tabindex="1" onblur="this.value = this.value || this.defaultValue;" onfocus="this.value='';" value="" placeholder="Search" /> --->
 					<a href="javascript:;" id="#arguments.fieldName#-searchBtn" class="ui-state-default ui-corner-all #arguments.fieldName#-ui-buttons clsPushButton">Search</a>
 					<cfif variables.SHOW_ALL_LINK EQ true>
 					<!--- Render out the show all link to the field type --->
@@ -815,7 +829,7 @@ History:
 	<cfargument name="readonly" type="boolean" default="false" required="false">
 	<cfargument name="newItemLabel" type="String" default="#variables.NEW_ITEM_LABEL#" required="false">
 	<cfargument name="inputParameters" type="struct" default="#StructNew()#" required="false">
-	<cfargument name="gcCustomParams" type="struct" default="#StructNew()#" required="false">
+	<cfargument name="gcCustomParams" type="struct" default="#getCustomGCparams()#" required="false">
 	
 	<cfscript>
 		var retAddLinkHTML = "";
@@ -843,9 +857,17 @@ History:
 				<!--- // Also... to be safe force the CE_FIELD to lowercase so it is sure to match the CE_FIELD key in callback data objecy --->
 				<script type="text/javascript">
 					js_#arguments.fieldName#_CE_FIELD = '#LCASE(variables.CE_FIELD)#';
+					
+					jQuery(function(){
+						jQuery("a###arguments.fieldName#-add-new-btn").click(function() { 
+							// Open the ADD NEW Dialog lighbox
+							openLB("#application.ADF.lightboxProxy#?bean=Forms_2_0&method=renderAddEditForm&formID=#ceFormID#&dataPageId=0&callback=#arguments.fieldName#_formCallback&title=#variables.NEW_ITEM_LABEL##passthroughParamsStr#");
+						});	
+					});
 				</script>
 				<div id="add-new-items">
-					<a href="javascript:;" rel="#application.ADF.ajaxProxy#?bean=Forms_2_0&method=renderAddEditForm&formID=#ceFormID#&dataPageId=0&callback=#arguments.fieldName#_formCallback&title=#variables.NEW_ITEM_LABEL##passthroughParamsStr#" class="ADFLightbox ui-state-default ui-corner-all #arguments.fieldName#-ui-buttons">#variables.NEW_ITEM_LABEL#</a>
+					<a href="javascript:;" id="#arguments.fieldName#-add-new-btn" class="ui-state-default ui-corner-all #arguments.fieldName#-ui-buttons">#variables.NEW_ITEM_LABEL#</a>
+					<!--- <a href="javascript:;" rel="#application.ADF.ajaxProxy#?bean=Forms_2_0&method=renderAddEditForm&formID=#ceFormID#&dataPageId=0&callback=#arguments.fieldName#_formCallback&title=#variables.NEW_ITEM_LABEL##passthroughParamsStr#" class="ADFLightbox ui-state-default ui-corner-all #arguments.fieldName#-ui-buttons">#variables.NEW_ITEM_LABEL#</a> --->
 				</div>
 			</cfoutput>
 		</cfsavecontent>
@@ -883,7 +905,7 @@ History:
 	<cfargument name="csPageID" type="numeric" required="false" default="-1">
 	<cfargument name="readonly" type="boolean" default="false" required="false">
 	<cfargument name="displayText" type="string" default="Item" required="false">
-	<cfargument name="gcCustomParams" type="struct" default="#StructNew()#" required="false">
+	<cfargument name="gcCustomParams" type="struct" default="#getCustomGCparams()#" required="false">
 	
 	<cfscript>
 		var retItemLinksHTML = ""; 
@@ -954,7 +976,7 @@ History:
 	<!--- <cfargument name="callback" type="sting" required="false" default=""> --->
 	<cfargument name="readonly" type="boolean" default="false" required="false">
 	<cfargument name="displayText" type="string" default="Item" required="false">
-	<cfargument name="gcCustomParams" type="struct" default="#StructNew()#" required="false">
+	<cfargument name="gcCustomParams" type="struct" default="#getCustomGCparams()#" required="false">
 	
 	<cfscript>
 		var retEditLinkHTML = "";
@@ -1005,7 +1027,7 @@ History:
 	<!--- <cfargument name="callback" type="sting" required="false" default=""> --->
 	<cfargument name="readonly" type="boolean" default="false" required="false">
 	<cfargument name="displayText" type="string" default="Item" required="false">
-	<cfargument name="gcCustomParams" type="struct" default="#StructNew()#" required="false">
+	<cfargument name="gcCustomParams" type="struct" default="#getCustomGCparams()#" required="false">
 	
 	<cfscript>
 		var retDeleteLinkHTML = "";
@@ -1043,7 +1065,7 @@ History:
 <cffunction name="loadAvailableLabel" access="public" returntype="string" hint="General Chooser - Loads the Available Items column header">
 	<cfargument name="fieldName" type="String" required="true">
 	<cfargument name="readonly" type="boolean" default="false" required="false">
-	<cfargument name="gcCustomParams" type="struct" default="#StructNew()#" required="false">
+	<cfargument name="gcCustomParams" type="struct" default="#getCustomGCparams()#" required="false">
 	
 	<cfscript>
 		var retLabelHTML = "";
@@ -1077,7 +1099,7 @@ History:
 <cffunction name="loadSelectedLabel" access="public" returntype="string" hint="Loads the Selected Items column header">
 	<cfargument name="fieldName" type="String" required="true">
 	<cfargument name="readonly" type="boolean" default="false" required="false">
-	<cfargument name="gcCustomParams" type="struct" default="#StructNew()#" required="false">
+	<cfargument name="gcCustomParams" type="struct" default="#getCustomGCparams()#" required="false">
 	
 	<cfscript>
 		var retLabelHTML = "";
@@ -1109,7 +1131,7 @@ History:
 	2013-12-12 - GAC - Created
 --->
 <cffunction name="loadChooserInstructions" access="public" returntype="string" hint="General Chooser - Loads the instructions text for the Chooser field">
-	<cfargument name="gcCustomParams" type="struct" default="#StructNew()#" required="false">
+	<cfargument name="gcCustomParams" type="struct" default="#getCustomGCparams()#" required="false">
 	
 	<cfscript>
 		var retInstructionsHTML = "";
@@ -1173,7 +1195,7 @@ History:
 	<cfargument name="csPageID" type="numeric" required="false" default="-1">
 	<cfargument name="fieldID" type="string" required="false" default="">
 	<cfargument name="readonly" type="boolean" default="false" required="false">
-	<cfargument name="gcCustomParams" type="struct" default="#StructNew()#" required="false">
+	<cfargument name="gcCustomParams" type="struct" default="#getCustomGCparams()#" required="false">
 	
 	<cfscript>
 		var retHTML = "";
@@ -1183,8 +1205,17 @@ History:
 		var editDeleteLinks = "";
 		var editDeleteButtonHTML = "";
 		var itemEditDeleteCls = "itemEditDelete";
-		var ceDataArray = getChooserData(arguments.item, arguments.queryType, arguments.searchValues, arguments.csPageID);
+		var ceDataArray = ArrayNew(1);
 		var displayText = '';
+		
+		// Look for additional arguments/values passed in that match the gcCustomParams
+		for ( key IN  arguments.gcCustomParams ) {
+			if ( StructKeyExists(arguments,key) )
+				arguments.gcCustomParams[key] = arguments[key];	
+		}
+		
+		// Get the Items to display
+		ceDataArray = getChooserData(item=arguments.item, queryType=arguments.queryType, searchValues=arguments.searchValues, csPageID=arguments.csPageID, gcCustomParams=arguments.gcCustomParams);
 		
 		// Backward Compatibility - if a DISPLAY_TEXT variable not given or is not defined the ORDER_FIELD will still be used for the Item display text
 		if ( NOT StructKeyExists(variables,"DISPLAY_FIELD") OR LEN(TRIM(variables.DISPLAY_FIELD)) EQ 0 )
@@ -1228,8 +1259,13 @@ History:
 				retHTML = retHTML & "<li id='#ceDataArray[i].Values[variables.CE_FIELD]#' class='#itemCls#'><div class='itemCell' title='#ceDataArray[i].Values[variables.DISPLAY_FIELD]#'>#displayText##editDeleteLinks#</div></li>";
 			}
 		}
+		
+		// Check if we had any values
+		if ( LEN(TRIM(retHTML)) EQ 0 )
+			retHTML = "No records to display.";
+		
+		return retHTML;
 	</cfscript>
-	<cfreturn retHTML>
 </cffunction>
 
 <!---
@@ -1256,29 +1292,35 @@ History:
 	<cfargument name="queryType" type="string" required="false" default="selected">
 	<cfargument name="searchValues" type="string" required="false" default="">
 	<cfargument name="csPageID" type="numeric" required="false" default="-1">
+	<cfargument name="gcCustomParams" type="struct" default="#getCustomGCparams()#" required="false">
 		
 	<cfscript>
 		// Initialize the return variable
 		var retHTML = "";
 		// Get the CE Data
 		var dataArray = ArrayNew(1);
+		
 		// clean the search text
 		if ( arguments.queryType eq "search" )
 			arguments.searchValues = cleanChooserSearchText(arguments.searchValues);
+		
 		// Get custom element data
 		// Check if we are returning all the records when items is empty string and querytype is NOTselected
 		if ( (arguments.queryType EQ "notselected") AND (LEN(arguments.item) LTE 0) )
 			dataArray = getCEData(variables.CUSTOM_ELEMENT);
 		else
 			dataArray = getCEData(variables.CUSTOM_ELEMENT, variables.CE_FIELD, arguments.item, arguments.queryType, arguments.searchValues, variables.SEARCH_FIELDS);
+		
 		// if are returning the selected items
 		// 	sort the dataArray array order to match the passed in items ID order
-		if ( arguments.queryType NEQ "selected" ) {
+		if ( arguments.queryType NEQ "selected" ) 
+		{
 			// sort the dataArray
 			dataArray = arrayOfCEDataSort(dataArray, variables.ORDER_FIELD);
 		}
+		
+		return dataArray;
 	</cfscript>
-	<cfreturn dataArray>
 </cffunction>
 
 <!---
@@ -1299,15 +1341,17 @@ History:
 --->
 <cffunction name="cleanChooserSearchText" access="public" returnType="String" hint="Chooser search text cleaner.">
 	<cfargument name="inText" type="string" required="true">
+	
 	<cfscript>
 		var retText = arguments.inText;	
+		
 		// remove the single quote
 		retText = Replace(retText,chr(39),"&##39;","all");
 		// remove the double quote
 		retText = Replace(retText,chr(34),"&##34;","all");
+		
 		return retText;
 	</cfscript>
-	
 </cffunction>
 
 <cfscript>

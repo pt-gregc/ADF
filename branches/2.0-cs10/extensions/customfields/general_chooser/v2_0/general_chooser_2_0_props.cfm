@@ -53,12 +53,13 @@ History:
 						  - Bump fieldVersion
 	2015-09-02 - DRM - Add getResourceDependencies support, bump version
 	2015-10-14 - GAC - Updated the forms call to Forms_2_0
+	2015-11-11 - GAC - Updated the general_chooser.cfc to better deal with adding custom GC parameters (ie. custom filtering parameters and UI.) See the new samples directory. 
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "2.0.9";
+	fieldVersion = "2.0.10";
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
