@@ -76,8 +76,7 @@ History:
 		var APIPostToNewWindow = false;
 		var formResultHTML = "";
 		var defaultResultCallback = "application.ADF.forms.renderAddEditFormResult";	
-		var resultCallback = arguments.formResultCallback;
-		var resultCallbackArgs = arguments;	
+		var formResultCallbackArgs = arguments;	
 		
 		/*
 			// IMPORTANT: The use of "customizedFinalHtml" has been DEPRECATED.
@@ -89,11 +88,11 @@ History:
 		
 		// If we do NOT have a resultCallback path
 		// Use the default resultCallback method path
-		if ( LEN(TRIM(resultCallback)) EQ 0 )
-			resultCallback = defaultResultCallback;
+		if ( LEN(TRIM(arguments.formResultCallback)) EQ 0 )
+			arguments.formResultCallback = defaultResultCallback;
 		
 		// DEV NOTE: An example of an Alternate option for a Form Result Module
-		// resultCallback = "/customcf/adfFormResultModule.cfm"; // file on QAbase10
+		// resultCallback = "/customcf/adfFormResultModule.cfm"; 	// file on QAbase10
 	
 		// If customizedFinalHtml has a value pass it through and clear the resultCallback and resultCallbackArgs
 		if ( LEN(TRIM(arguments.customizedFinalHtml)) )
@@ -102,15 +101,15 @@ History:
 			formResultHTML = arguments.customizedFinalHtml;
 			
 			// And make sure to clear the resultCallback and the resultCallbackArgs
-			resultCallback = "";
-			resultCallbackArgs = StructNew();
+			arguments.formResultCallback = "";
+			formResultCallbackArgs = StructNew();
 		}				
 			
 		variables.scripts.loadJQuery();
 		variables.scripts.loadADFLightbox();
 		
-		// DEV NOTES: use this dump to see what we are passing as arguments to the RenderSimpleForm resultCallbackArgs (arguments)
-		//application.ADF.utils.doDUMP(resultCallbackArgs,"resultCallbackArgs",0);
+		// DEV NOTES: use this dump to see what we are passing as arguments to the RenderSimpleForm resultCallbackArgs(arguments)
+		//application.ADF.utils.doDUMP(formResultCallbackArgs,"formResultCallbackArgs",0);
 	
 		// Return the HTML for the form
 		rtnHTML = server.CommonSpot.UDF.UI.RenderSimpleForm(dataPageID=arguments.dataPageID, 
@@ -118,8 +117,8 @@ History:
 																postToNewWindow=APIPostToNewWindow, 
 																customizedFinalHtml=formResultHTML, 
 																behaveAsSimpleForm=arguments.behaveAsSimpleForm,
-																resultCallback=resultCallback,
-																resultCallbackArgs=resultCallbackArgs);
+																resultCallback=arguments.formResultCallback,		
+																resultCallbackArgs=formResultCallbackArgs);
 																			
 		return rtnHTML;	
 	</cfscript>																	
