@@ -1013,7 +1013,7 @@ History:
 			
 			dataColumnArray = ListToArray(dataColumnList_new);
 			for(i=1;i LTE ArrayLen(dataColumnArray);i=i+1)
-				formattedDataColumnList = ListAppend(formattedDataColumnList, '[' & Trim(dataColumnArray[i]) &
+				formattedDataColumnList = ListAppend(formattedDataColumnList, '[' & Trim(dataColumnArray[i]) & ']');
 		</cfscript>
 
 		<cfquery name="returnData" dbtype="query">
