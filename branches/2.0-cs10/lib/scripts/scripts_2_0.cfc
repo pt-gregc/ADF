@@ -41,6 +41,8 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 			2015-06-10 - ACW - Updated the component extends to no longer be dependant on the 'ADF' in the extends path
 			2015-07-21 - GAC - Added and updated the loadCFJS function for CFJS v1.3
 			2015-08-20 - DRM - Created 2.0 version for ADF 2.0 and CommonSpot 10
+			2015-11-18 - DRM - Added loadUnregisteredResource method
+									 Modified loadTheme to use an unregistered resource if possible
 	*/
 
 
@@ -60,6 +62,19 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 	public void function loadResources(required string resourcesList)
 	{
 		Server.CommonSpot.udf.resources.loadResources(arguments.resourcesList);
+	}
+
+	/*
+		URL: URL of the resource to load
+		resourceType: 'JavaScript', 'StyleSheet', or the name of a custom resource type
+		location: 'head' or 'foot'
+		resourceGroup: one of 'primary', 'secondary' or 'tertiary'
+		canCombine default="": boolean, except empty str means auto: combine if we can read the file from expandPath(URL), checked when rendering resource request URLs
+		canMinify default="0"; boolean
+	*/
+	public void function loadUnregisteredResource(required string URL, required string resourceType, required string location, required string resourceGroup, string canCombine="", string canMinify="")
+	{
+		Server.CommonSpot.udf.resources.loadUnregisteredResource(argumentCollection=arguments);
 	}
 
 	public void function addHeaderHTML(required string html, required string resourceGroup) // resourceGroup: PRIMARY, SECONDARY, TERTIARY
@@ -94,16 +109,22 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 	public void function loadTheme(string themeName, string defaultResourceName, string parentKey)
 	{
 		var resourceList = resourceAPI.getList(0, arguments.defaultResourceName, "equals");
+		var res = "";
 		var cssURL = "";
 		var listPos = 0;
+
 		if (resourceList.RecordCount == 1 && arrayLen(resourceList.earlyLoadSourceArray[1]) == 1)
 		{
-			cssURL = resourceList.earlyLoadSourceArray[1][1].sourceURL;
+			res = resourceList.earlyLoadSourceArray[1][1];
+			cssURL = res.sourceURL;
 			listPos = listFindNoCase(cssURL, arguments.parentKey, "/");
 			if (listPos > 0 && listPos < (listLen(cssURL, "/") - 1))
 			{
 				cssURL = listSetAt(cssURL, listPos + 1, arguments.themeName, "/");
-				addHeaderHTML('<link href="#cssURL#" rel="stylesheet" type="text/css" />', "SECONDARY");
+				if (res.canCombine == 1) // take that as a proxy for it being local, if not, just render the raw tag
+					loadUnregisteredResource(cssURL, "Stylesheet", "head", "secondary", res.canCombine, res.canMinify);
+				else
+					addHeaderHTML('<link href="#cssURL#" rel="stylesheet" type="text/css">', "SECONDARY");
 			}
 		}
 	}
@@ -251,7 +272,7 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 	{
 		var scriptPath = trim(arguments.overridePath);
 		if (scriptPath != "" && listLast(scriptPath, ".") == "css" && fileExists(expandPath(scriptPath)))
-			addHeaderHTML('<link href="#scriptPath#" rel="stylesheet" type="text/css" />', "SECONDARY");
+			addHeaderHTML('<link href="#scriptPath#" rel="stylesheet" type="text/css">', "SECONDARY");
 		else
 			loadResources("FontAwesome"); // includes both base version and ADF css extension
 	}
