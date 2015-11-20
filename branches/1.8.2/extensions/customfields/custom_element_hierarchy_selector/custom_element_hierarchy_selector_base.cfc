@@ -143,7 +143,7 @@ History:
 			</cfquery>
 		<cfcatch>
 			<cfscript>
-				returnStr = 'Error: An error occured while trying to get the field name for the provided field ID.';
+				returnStr = 'Error: An error occurred while trying to get the field name for the provided field ID.';
 			</cfscript>
 		</cfcatch>
 		</cftry>
