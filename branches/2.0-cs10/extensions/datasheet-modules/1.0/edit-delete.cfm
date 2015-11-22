@@ -52,7 +52,9 @@ History:
 	AjaxDeleteMethod = "renderDeleteForm";
 
 //*******Modification below this should not be needed.*******
-
+	adfDataSheetModHeaderCSS = "";
+	adfDataSheetModFooterJS = "";
+	
 	// Check for Local Button Rendering Overrides
 	if ( !StructKeyExists(variables,"adfDSmodule") )
 		variables.adfDSmodule = StructNew();
@@ -93,22 +95,8 @@ History:
 	application.ADF.scripts.loadADFLightbox();
 </cfscript>
 
-<!--- // REMOVE - the headerData to switch to the ADF 2.0 and CommonSpot 10 loadResources() style --->
-<!--- Need to use cfhtmlhead because if I have a </script> tag it will break the javascript sorting on the datasheet--->
-<!--- <cfsavecontent variable="headerData">
-	<cfoutput>
-		#application.ADF.scripts.loadJQuery()#
-		#application.ADF.scripts.loadJQueryUI()#
-		#application.ADF.scripts.loadADFLightbox()#
-	</cfoutput>
-</cfsavecontent> --->
-<!---If client side sorting is enabled we need to put stuff in the headers--->
-<!--- <cfif eparam.permitClientSideSort>
-	<cfhtmlhead text="#headerData#">
-</cfif> --->
-
 <!--- // Add the ADF DS modules STYLE as a CSS Resource but only render it once --->
-<cfif !StructKeyExists(request,"dsEditDeleteRenderOnce")>
+<cfif Request.DataSheetRow.CurrentRow EQ 1>
 	<cfsavecontent variable="adfDataSheetModHeaderCSS">
 		<cfoutput>
 		<!--- <style> --->
@@ -129,11 +117,11 @@ History:
 	<cfif eparam.permitClientSideSort>
 	<cfsavecontent variable="adfDataSheetModFooterJS">
 		<cfoutput>
-		<!--- <script type="text/javascript"> --->
-			jQuery(document).on('click','.CS_DataSheet_HeaderItem_First_Column,.CS_DataSheet_HeaderItem_Column',function() {
+			//initADFLB();
+			
+			jQuery(document).on('click','.ds-icons,.CS_DataSheet_HeaderItem_First_Column,.CS_DataSheet_HeaderItem_Column',function() {
 		    	initADFLB();
 			});
-		<!--- </script> --->
 		</cfoutput>
 	</cfsavecontent>
 	</cfif>
@@ -145,31 +133,11 @@ History:
 		if ( eparam.permitClientSideSort )
 			application.ADF.scripts.addFooterJS(adfDataSheetModFooterJS, "TERTIARY"); //  PRIMARY, SECONDARY, TERTIARY
 	</cfscript>
-	<cfset request.dsEditDeleteRenderOnce = true>
 </cfif>
 
 <cfsavecontent variable="tdHTML">
 	<cfoutput>		
 		<td align="left" valign="middle" class="ADF-Edit-Delete" style="width:150px;">
-			<!--- // REMOVE - If client side sorting is disabled put the load JQuery information in the better location--->
-			<!--- <cfif not eparam.permitClientSideSort>
-				#headerData#
-			</cfif> --->
-			<!--- <cfif !StructKeyExists(request,"dsEditDeleteRenderOnce")>
-				<style>
-					.ds-icons {
-						padding: 1px 5px;
-						text-decoration: none;
-						margin-left: 5px;
-						margin-right: 5px;
-						width: 16px;
-					}
-					.ds-icons:hover{
-						cursor:pointer;
-					}
-				</style>
-				<cfset request.dsEditDeleteRenderOnce = true>
-			</cfif> --->
 			<table>
 				<tr>
 				<cfif variables.adfDSmodule.renderEditBtn>
@@ -197,6 +165,7 @@ History:
 		</td>
 	</cfoutput>
 </cfsavecontent>
+
 <cfset request.datasheet.currentFormattedValue = tdHTML>
 <!--- Add a blank sort value --->
 <cfset request.datasheet.currentSortValue = "">

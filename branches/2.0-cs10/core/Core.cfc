@@ -54,7 +54,7 @@ History:
 <cfscript>
 	variables.ADFversion = "2.0.0"; // use a dot delimited version number
 	// ADF Build Revision Number
-	variables.buildRev = "1762";
+	variables.buildRev = "1766";
 	// ADF Codename
 	variables.buildName = "Metal Gear Solid";
 	// CS product version, get the decimal value
@@ -292,7 +292,7 @@ History:
 				</cfscript>
 				<!--- // If sever.ADF.buildError Array has any errors... throw an exception (used the cfthrow tag for CF8 compatibility) --->
 				<cfif StructKeyExists(server.ADF,"buildErrors") AND ArrayLen(server.ADF.buildErrors)>
-					<cfthrow type="ADFBuildError" message="ADF Build Errors Occured" detail="Check the server.ADF.buildErrors for Details.">
+					<cfthrow type="ADFBuildError" message="ADF Build Errors Occurred" detail="Check the server.ADF.buildErrors for Details.">
 				</cfif>
 			</cflock>
 			<cfcatch>

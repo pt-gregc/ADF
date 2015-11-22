@@ -187,8 +187,8 @@ History:
 		<!--- <script type='text/javascript'> --->
 		lbResizeWindow();
 			
-		<cfif Len(arguments.callback)>
-		jQuery(document).ready(function(){
+		<cfif LEN(TRIM(arguments.callback))>
+		jQuery(function(){
 			// Build the FormValues JS Object
 			var #ToScript(arguments.FormValues, "formvalues")#  
 			// Set the the FormID as a JS variable
