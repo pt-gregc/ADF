@@ -49,7 +49,7 @@ History:
 	2015-09-24 - GAC - Added installADF and reinstallADF URL parameters to handle the new ADF install processes
 --->
 <!--- // Lock around the entire load ADF processing --->
-<cflock timeout="300" type="exclusive" name="ADF-RESET-LOAD-SITE">
+<!--- <cflock timeout="300" type="exclusive" name="ADF-RESET-LOAD-SITE"> --->
 	<cfscript>
 		adfVersion = "2.0.0";
 		adfFileVersion = "18"; 
@@ -153,4 +153,4 @@ History:
 			<cfhtmlhead text="#adfDumpMsg#">
 		</cfif>
 	</cfif>
-</cflock>
+<!--- </cflock> --->

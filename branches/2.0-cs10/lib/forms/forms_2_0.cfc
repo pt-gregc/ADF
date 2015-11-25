@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="forms_2_0" extends="forms_1_1" hint="Forms Utils functions for the ADF Library">
 
-<cfproperty name="version" value="2_0">
+<cfproperty name="version" value="2_0_2">
 <cfproperty name="type" value="transient">
 <cfproperty name="ceData" injectedBean="ceData_3_0" type="dependency">
 <cfproperty name="scripts" injectedBean="scripts_2_0" type="dependency">
@@ -229,6 +229,49 @@ History:
 	<cfscript>
 		// Load the inline JavaScript after the libraries have loaded
 		variables.scripts.addFooterJS(formResultFooterJS, "SECONDARY"); //  PRIMARY, SECONDARY, TERTIARY
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+	Ron West
+Name:
+	$closeLBandRefresh
+Summary:	
+	Closes the current lightbox and refreshes the parent window
+Returns:
+	Void
+Arguments:
+	Void
+History:
+	2009-10-25 - RLW - Created
+	2010-12-21 - MFC - Updated to use the ADF Lightbox Framework functions
+	2015-11-18 - GAC - Updated to work with scripts_2_0
+--->
+<cffunction name="closeLBAndRefresh" access="public" returntype="void" hint="">
+	
+	<cfscript>
+		var dialogFooterJS = "";
+	
+		variables.scripts.loadJquery(force=1);
+		variables.scripts.loadADFLightbox(force=1);
+	</cfscript>
+	
+	<cfsavecontent variable="dialogFooterJS">
+	<cfoutput>
+		<!--- <script type='text/javascript'>--->
+			jQuery(function(){
+				closeLBReloadParent();
+			});
+		<!---</script>--->
+	</cfoutput>
+	</cfsavecontent>
+	
+	<cfscript>
+		// Load the inline JavaScript after the libraries have loaded
+		variables.scripts.addFooterJS(dialogFooterJS, "TERTIARY"); //  PRIMARY, SECONDARY, TERTIARY
 	</cfscript>
 </cffunction>
 

@@ -54,7 +54,7 @@ History:
 <cfscript>
 	variables.ADFversion = "2.0.0"; // use a dot delimited version number
 	// ADF Build Revision Number
-	variables.buildRev = "1767";
+	variables.buildRev = "1768";
 	// ADF Codename
 	variables.buildName = "Metal Gear Solid";
 	// CS product version, get the decimal value
@@ -223,6 +223,7 @@ History:
 --->
 <cffunction name="reset" access="remote" returnType="Struct">
 	<cfargument name="type" type="string" required="false" default="all" hint="The type of the ADF to reset.  Options are 'Server', 'Site' or 'All'. Defaults to 'All'.">
+	
 	<cfscript>
 		var rtnMsg = "ADF Reset Error: You must be logged in to perform this operation.";
 		var ADFReset = false;
@@ -241,7 +242,7 @@ History:
 	<!--- // Check for reset for the user id logged in OR we have set the force flag --->
 	<cfif (request.user.id gt 0) OR (forceReset)>
 		<cftry>
-			<cflock timeout="120" type="exclusive" name="ADF-RESET">
+			<cflock timeout="600" type="exclusive" name="ADF-RESET">
 				<cfscript>
 			 		// 2010-06-23 jrybacek Determine if user is logged in.
 			  		// 2010-06-23 jrybacek Determine how much of the ADF is being requested to be reset

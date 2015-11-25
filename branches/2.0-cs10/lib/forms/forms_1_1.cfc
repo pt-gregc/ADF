@@ -109,24 +109,16 @@ History:
 		var formResultHTML = "";
 		// Find out if the CE contains an RTE field
 		//var formContainRTE = application.ADF.ceData.containsFieldType(arguments.formID, "formatted_text_block");
-
-		// TEMP FIX - Until loadResource() works with the CS RenderSimpleForm UDF
-		rtnScripts = server.ADF.objectFactory.getBean("scripts_1_2");
 	</cfscript>
+	
 	<!--- Result from the Form Submit --->
 	<cfsavecontent variable="formResultHTML">
 		<!--- Set the form result html to the argument if defined --->
 		<cfoutput>
 			<cfscript>
-				// Load the scripts, check if we need to load
-				//	the JSON scripts for the callback.
-				// 2011-03-26 - MFC - Commented out force JQuery, the loadADFLightbox with force will
-				//						load JQuery.
-				//variables.scripts.loadJQuery(force=1);
-				//variables.scripts.loadADFLightbox(force=1);
-				
-				// TEMP FIX - Until loadResource() works with the CS RenderSimpleForm UDF
-				rtnScripts.loadADFLightbox(force=1);
+				// Load the scripts, check if we need to load the JSON scripts for the callback.
+				variables.scripts.loadJQuery(force=1);
+				variables.scripts.loadADFLightbox(force=1);
 			</cfscript>
 			<script type='text/javascript'>
 				jQuery(document).ready(function(){
@@ -191,7 +183,6 @@ History:
 						};
 					}
 					
-
 					//returns the form values as an object
 					// Obj[fieldName] = fieldValue;
 					function getForm(){
@@ -290,6 +281,7 @@ History:
 		</cfscript>
 		<cfinclude template="/ADF/extensions/datasheet-modules/delete_element_handler.cfm">
 	</cfsavecontent>
+	
 	<cfreturn deleteFormHTML>
 </cffunction>
 
@@ -497,11 +489,13 @@ History:
 			// get the UUID of the element data just submitted by the simple form
 			thisFormEntry  = application.ADF.ceData.getCEData(arguments.elementName,arguments.primaryKey, form[arguments.primaryKey]);
 			// using the UUID, get the PageId (primary key) of the record just submitted
-			if  (Arraylen(thisFormEntry)) {
+			if  (Arraylen(thisFormEntry)) 
+			{
 				thisPageId = thisFormEntry[1].pageID;
 			}
 			// delete the spam record from the element.
-			if (len(thisPageID)) {
+			if (len(thisPageID)) 
+			{
 				application.ADF.ceData.deleteCE(thisPageID);
 			}
 			isValid = false;

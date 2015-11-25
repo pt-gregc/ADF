@@ -38,7 +38,7 @@ History:
 --->
 <cfcomponent displayname="ui_1_0" extends="ADF.lib.libraryBase" hint="UI functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_4">
+<cfproperty name="version" value="1_0_6">
 <cfproperty name="type" value="singleton">
 <cfproperty name="ceData" injectedBean="ceData_2_0" type="dependency">
 <cfproperty name="csData" injectedBean="csData_1_2" type="dependency">
@@ -121,6 +121,7 @@ History:
 		</cfscript>
 		<cfoutput><a href="javascript:;" rel="#application.ADF.lightboxProxy#?bean=#arguments.formBean#&method=#arguments.formMethod#<cfif LEN(TRIM(arguments.appName))>&appName=#arguments.appName#</cfif>&formID=#formID#&dataPageID=#arguments.dataPageID#&lbAction=#lbAction#&title=#arguments.lbTitle##uParams#" class="ADFLightbox<cfif LEN(TRIM(arguments.linkClass))> #arguments.linkClass#</cfif>" title="#arguments.linkTitle#">#arguments.linkText#</a></cfoutput>
 	</cfsavecontent>
+	
 	<cfreturn rtnStr>
 </cffunction>
 
@@ -165,12 +166,15 @@ History:
 	<cfargument name="appName" type="string" required="false" default="" hint="Application name">
 	<cfargument name="uiTheme" type="string" required="false" default="ui-lightness" hint="JQueryUI Library to load">
 	<cfargument name="linkText" type="string" required="false" default="#arguments.linkTitle#" hint="link text">
+	
 	<cfscript>
 		var rtnStr = "";
 	</cfscript>
+	
 	<cfsavecontent variable="rtnStr">
 		<cfoutput>#buildLightboxProxyLink(argumentCollection=arguments)#</cfoutput>
 	</cfsavecontent>
+	
 	<cfreturn rtnStr>
 </cffunction>
 
@@ -213,15 +217,18 @@ History:
 	<cfargument name="appName" type="string" required="false" default="" hint="Application name">
 	<cfargument name="uiTheme" type="string" required="false" default="ui-lightness" hint="JQuery UI Theme to load">
 	<cfargument name="linkText" type="string" required="false" default="#arguments.linkTitle#" hint="Link Text">
+	
 	<cfscript>
 		var rtnStr = "";
 		var uParams = "";
-		if ( LEN(TRIM(arguments.urlParams)) ) {
+		if ( LEN(TRIM(arguments.urlParams)) ) 
+		{
 			uParams = TRIM(arguments.urlParams);
 			if ( Find("&",uParams,"1") NEQ 1 ) 
 				uParams = "&" & uParams;
 		}
 	</cfscript>
+	
 	<cfsavecontent variable="rtnStr">
 		<cfscript>
 			variables.scripts.loadJQuery();
@@ -230,6 +237,7 @@ History:
 		</cfscript>
 		<cfoutput><a href="javascript:;" rel="#application.ADF.lightboxProxy#?bean=#arguments.bean#&method=#arguments.method#<cfif LEN(TRIM(arguments.appName))>&appName=#arguments.appName#</cfif>&title=#arguments.lbTitle##uParams#" class="ADFLightbox<cfif LEN(TRIM(arguments.linkClass))> #arguments.linkClass#</cfif>" title="#arguments.linkTitle#">#arguments.linkText#</a></cfoutput>
 	</cfsavecontent>
+	
 	<cfreturn rtnStr>
 </cffunction>
 
@@ -267,6 +275,7 @@ History:
 	<cfargument name="linkClass" type="string" required="false" default="" hint="Class of the lightbox">
 	<cfargument name="uiTheme" type="string" required="false" default="ui-lightness" hint="UI Theme to load">
 	<cfargument name="linkText" type="string" required="false" default="#arguments.linkTitle#" hint="Text of the link">
+	
 	<cfscript>
 		var rtnStr = "";
 		var csPgURL = "";
@@ -277,12 +286,14 @@ History:
 		else 
 			csPgURL = arguments.csPage;
 
-		if ( LEN(TRIM(arguments.urlParams)) ) {
+		if ( LEN(TRIM(arguments.urlParams)) ) 
+		{
 			uParams = TRIM(arguments.urlParams);
 			if ( Find("&",uParams,"1") NEQ 1 ) 
 				uParams = "&" & uParams;
 		}
 	</cfscript>
+	
 	<cfsavecontent variable="rtnStr">
 		<cfscript>
 			variables.scripts.loadJQuery();
@@ -291,6 +302,7 @@ History:
 		</cfscript>
 		<cfoutput><a href="javascript:;" rel="#csPgURL#?title=#arguments.lbTitle##uParams#" class="ADFLightbox<cfif LEN(TRIM(arguments.linkClass))> #arguments.linkClass#</cfif>" title="#arguments.linkTitle#">#arguments.linkText#</a></cfoutput>
 	</cfsavecontent>
+	
 	<cfreturn rtnStr>
 </cffunction>
 
@@ -322,9 +334,11 @@ History:
 	<cfargument name="lbTitle" type="string" default="" hint="Lightbox Title">
 	<cfargument name="tdClass" type="string" default="" hint="Used to add CSS classes to the outer TD wrapper like 'formResultContainer' for the addEditRenderForm results">
 	<cfargument name="lbCheckLogin" type="boolean" default="1" required="false" hint="Have the lightbox validate login, by default this is on">
+	
 	<cfscript>
 		var retHTML = "";
 	</cfscript>
+	
 	<cfsavecontent variable="retHTML">
 		<cfoutput>
 		<!--- // Output the CS 6.x LB Header --->
@@ -335,6 +349,7 @@ History:
 		#lightboxFooter()#
 		</cfoutput>
 	</cfsavecontent>
+	
 	<cfreturn retHTML>
 </cffunction>
 
@@ -370,6 +385,7 @@ History:
 	<cfargument name="lbTitle" type="string" default="" hint="Lightbox Title">
 	<cfargument name="tdClass" type="string" default="" hint="Used to add CSS classes to the outer TD wrapper like 'formResultContainer' for the addEditRenderForm results">
 	<cfargument name="lbCheckLogin" type="boolean" default="0" required="false" hint="Validate the user is logged in">
+	
 	<cfscript>
 		var retHTML = "";
 		var productVersion = ListFirst(ListLast(request.cp.productversion," "),".");
@@ -381,6 +397,7 @@ History:
 		var CD_CheckLogin = 0;
 		var CD_CheckPageAlive = 0;		
 	</cfscript>
+	
 	<cfif NOT StructKeyExists(request,"HaveRunDlgCommonHead")>
 		<cfsavecontent variable="retHTML">
 			<!--- // Load the CommonSpot Lightbox Header when in version CS 6.0+ --->
@@ -418,6 +435,7 @@ History:
 			</cfif>
 		</cfsavecontent>
 	</cfif>
+	
 	<cfreturn retHTML>
 </cffunction>
 
@@ -442,41 +460,25 @@ History:
 						Added scripts to resize the dialog on load.
 	2011-03-30 - MFC - Changed the lightbox resize to call "lbResizeWindow()" in CS 5.
 	2011-04-07 - RAK - Prevented this from getting called 2x in the same request and producing duplicate stuff
+	2015-11-25 - GAC - Removed CommonSpot version specific logic that was obsolete
 --->
 <cffunction name="lightboxFooter" access="public" returntype="string" output="false" hint="Returns HTML for the CS 6.x lightbox footer (use with the lightboxHeader)">
+	
 	<cfscript>
 		var retHTML = "";
-	   	var productVersion = ListFirst(ListLast(request.cp.productversion," "),".");
 	</cfscript>
+	
 	<cfif NOT StructKeyExists(request,"ADFRanDLGFoot")>
 		<cfset request.ADFRanDLGFoot = true>
 		<cfsavecontent variable="retHTML">
-			<!--- // Load the CommonSpot Lightbox Footer when in version 6.x --->
-			<cfif productVersion GTE 6>
-				<cfoutput></td>
-					</tr>
+			<!--- // Load the CommonSpot DLG Lightbox Footer --->
+			<cfoutput></td>
+				</tr>
 				<CFINCLUDE template="/commonspot/dlgcontrols/dlgcommon-foot.cfm">
-				</cfoutput>
-			<cfelse>
-				<!--- CS 5 and under, close Table Tab --->
-				<cfoutput>
-							</td>
-						</tr>
-					</table>
-					<!--- Load JQuery to resize the dialog after loading --->
-					<cfscript>
-						application.ADF.scripts.loadJQuery();
-					</cfscript>
-					<script type="text/javascript">
-						// Resize with the CS lightbox scripts
-						jQuery(document).ready(function() {
-							lbResizeWindow();
-						});
-					</script>
-				</cfoutput>
-			</cfif>
+			</cfoutput>
 		</cfsavecontent>
 	</cfif>
+	
 	<cfreturn retHTML>
 </cffunction>
 
