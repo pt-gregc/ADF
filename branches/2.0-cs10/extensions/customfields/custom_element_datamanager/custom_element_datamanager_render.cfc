@@ -57,7 +57,8 @@ History:
 	2015-07-21 - DJM - Modified code to have the hidden field render always
 	2015-07-23 - DJM - Modified call to RenderGrid() to take parent field's value using javascript from the form field
 	2015-08-06 - DJM - Modified code to check for AuthorID instead of DateAdded for setting newData variable
-	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
+	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean()
+	2015-12-07 - DJM - Modified JS code to use encodeURIComponent instead of encodeURI since it was not encoding all chars	
 --->
 <cfcomponent displayName="CustomElementDataManager Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -684,9 +685,9 @@ function setCurrentValueAndOpenURL_#uniqueTableAppend#(urlToOpen, linkedFldName,
 			else
 				linkedFldVal = document.getElementsByName(linkedFldName)[0].value;
 			if (buttonName == 'addnew')
-				urlToOpen = urlToOpen + "&csAssoc_ParentInstanceID=" + encodeURI(linkedFldVal) + "&linkedFieldValue=" + encodeURI(linkedFldVal);
+				urlToOpen = urlToOpen + "&csAssoc_ParentInstanceID=" + encodeURIComponent(linkedFldVal) + "&linkedFieldValue=" + encodeURIComponent(linkedFldVal);
 			else
-				urlToOpen = urlToOpen + "&linkedFieldValue=" + encodeURI(linkedFldVal);
+				urlToOpen = urlToOpen + "&linkedFieldValue=" + encodeURIComponent(linkedFldVal);
 		}
 		else
 		{
