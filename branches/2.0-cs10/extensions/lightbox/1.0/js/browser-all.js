@@ -325,7 +325,7 @@ function substringReplace(source,pattern,replacement)
 function unescapeHTML(msg)
 {
 	var msg = msg.replace(/<\/?[^>]+>/gi, '');
-	return msg.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&');
+	return msg.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').replace(/&quot;/g,'"');
 }
 
 function BrowserCheck() {
