@@ -54,7 +54,7 @@ History:
 <cfscript>
 	variables.ADFversion = "2.0.0"; // use a dot delimited version number
 	// ADF Build Revision Number
-	variables.buildRev = "1770";
+	variables.buildRev = "1773";
 	// ADF Codename
 	variables.buildName = "Metal Gear Solid";
 	// CS product version, get the decimal value
@@ -220,6 +220,7 @@ History:
 	2013-10-28 - GAC - Added production mode or development mode designation message to the ADF reset message text
 	2013-12-05 - GAC - Added the forceResetStatus to the returnStruct to pass if the reset was Forced or not
 	2015-09-24 - GAC - Added install and reinstall cases to the ADF reset switch/case to handle the new ADF install process
+	2015-11-25 - GAC - Increased the timeout on the ADF-RESET LOCK 
 --->
 <cffunction name="reset" access="remote" returnType="Struct">
 	<cfargument name="type" type="string" required="false" default="all" hint="The type of the ADF to reset.  Options are 'Server', 'Site' or 'All'. Defaults to 'All'.">
@@ -326,6 +327,7 @@ History:
 			</cfcatch>
 		</cftry>
 	</cfif>
+	
 	<cfscript>
 		//
 		// 2011-06-29 - MT - Set a response header indicating if the ADF was reset or not

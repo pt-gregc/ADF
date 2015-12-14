@@ -460,7 +460,7 @@ History:
 						Added scripts to resize the dialog on load.
 	2011-03-30 - MFC - Changed the lightbox resize to call "lbResizeWindow()" in CS 5.
 	2011-04-07 - RAK - Prevented this from getting called 2x in the same request and producing duplicate stuff
-	2015-11-25 - GAC - Removed CommonSpot version specific logic that was obsolete
+	2015-11-25 - GAC - Removed CommonSpot version 5 specific logic that was obsolete
 --->
 <cffunction name="lightboxFooter" access="public" returntype="string" output="false" hint="Returns HTML for the CS 6.x lightbox footer (use with the lightboxHeader)">
 	
