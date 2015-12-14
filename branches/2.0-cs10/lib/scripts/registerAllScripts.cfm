@@ -10,6 +10,7 @@
 	History
 	2015-09-08 - DRM - Initial version.
 	2015-09-16 - GAC - Updated to add bootstrap-ADF-ext.css to the bootstrap resource registration
+	2015-11-25 - GAC - Updated the BBQ jquery lib to 1.3
 --->
 
 <cfscript>
@@ -454,10 +455,10 @@
 
 	registerResource
 	(
-		"JQueryBBQ 1.2", "SECONDARY",
+		"JQueryBBQ 1.3", "SECONDARY",
 		[],
 		[
-			{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/bbq/jquery.ba-bbq-1.2.1.min.js"}
+			{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/bbq/1.3/jquery.ba-bbq.min.js"}
 		],
 		"JQueryBBQ resources.", "Included in ADF 2.0 and later.", "JQueryBBQ"
 	);

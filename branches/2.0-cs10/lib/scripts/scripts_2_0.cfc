@@ -89,12 +89,20 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 	
 	public void function addFooterJS(required string js, required string resourceGroup) // resourceGroup: PRIMARY, SECONDARY, TERTIARY
 	{
-	  Server.CommonSpot.udf.resources.addFooterJS(js, resourceGroup);
+	  	// Strip the script tags
+		js = ReReplace(js, "<[[:space:]]*script.*?>","", "ALL");
+		js = ReReplace(js, "</script>","", "ALL");
+	  
+	  	Server.CommonSpot.udf.resources.addFooterJS(js, resourceGroup);
 	}
 	 
 	public void function addHeaderCSS(required string css, required string resourceGroup) // resourceGroup: PRIMARY, SECONDARY, TERTIARY
 	{
-	  Server.CommonSpot.udf.resources.addHeaderCSS(css, resourceGroup);
+		// Strip the style tags
+		css = ReReplace(css, "<[[:space:]]*style.*?>","", "ALL");
+		css = ReReplace(css, "</style>","", "ALL");
+	  
+		Server.CommonSpot.udf.resources.addHeaderCSS(css, resourceGroup);
 	}
 
 	/*
@@ -138,7 +146,7 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 			2015-09-24 - GAC - Added jQuery Migrate to load with jQuery by default... since that is ADF assumes will happen
 							 - Added a useMigrate parameter to disable jQuery Migrate
 	*/
-	public void function loadJQuery(string version="", boolean force=0, boolean noConflict=0, useMigrate=1 )
+	public void function loadJQuery(string version="", boolean force=0, boolean noConflict=0, useMigrate=0 )
 	{
 		loadResources("jQuery");
 	
@@ -217,7 +225,7 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 		{
 			writeOutput
 		  	("
-				jQuery(document).ready(function()
+				jQuery(function()
 				{
 					initADFLB();
 				  	if ( (typeof commonspot != 'undefined') && (typeof commonspot.lightbox != 'undefined') ) 
@@ -225,7 +233,7 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 				});
 		  	");
 		}
-		addFooterJS(js,"SECONDARY");
+		addFooterJS(js,"TERTIARY");
 	}
 
 	public void function loadADFStyles()
@@ -336,7 +344,8 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 
 	public void function loadJQueryBBQ(string version="", boolean force=0)
 	{
-		loadResources("JQuery,JQueryBBQ");
+		// jQuery BBQ 1.3 and below require Migrate!!
+		loadResources("JQuery,JQueryMigrate,JQueryBBQ");
 	}
 
 	public void function loadJQueryBlockUI(string version="", boolean force=0)
