@@ -19,6 +19,7 @@ end user license agreement.
 */
 
 /* *************************************************************** */
+/*
 Author: 	
 	PaperThin Inc.
 	M. Carroll
