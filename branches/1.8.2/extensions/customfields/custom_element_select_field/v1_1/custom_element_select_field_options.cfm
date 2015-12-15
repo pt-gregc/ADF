@@ -28,6 +28,7 @@ Summary:
 History:
 	2014-02-26 - DJM - Created						
 	2014-03-17 - GAC - Added dbType="QofQ" to the handle-in-list call inside the getFilteredRecords Query of queries
+	2015-12-15 - DJM - Updated code to send displayText if returnCurrentOnly is true
 --->
 
 <cfscript>
@@ -68,6 +69,11 @@ History:
 	caller.multiple = multiple;
 	caller.label = cfmlInputParams.label;
 	caller.description = getProperties.description;
+	selectedValDisplayText = '';
+	if (attributes.returnCurrentOnly AND ArrayLen(optionsStruct.optionText))
+		selectedValDisplayText = ArrayToList(optionsStruct.optionText, '<br/>');
+
+	caller.selectedValDisplayText = selectedValDisplayText;
 </cfscript>
 <!----// FUNCTIONS //----------------------------->
 
