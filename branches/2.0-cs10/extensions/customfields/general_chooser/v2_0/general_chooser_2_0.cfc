@@ -49,6 +49,7 @@ History:
 					 - Moved the building of the initArgs and selectionArgs struct to the general_chooser.cfc file to allow overrides in the Site Level GC file
 	2015-07-21 - GAC - Additional work to remove the dependency for the jQuery CFJS library
 	2015-10-14 - GAC - Updated the forms call to Forms_2_0
+	2015-12-15 - GAC - Var'ing an unvar'd js variable
 --->
 <cfcomponent name="general_chooser" extends="ADF.lib.ceData.ceData_2_0">
 
@@ -593,7 +594,9 @@ function checkResizeWindow()
 function #arguments.fieldName#_formCallback(formData)
 {
 	formData = typeof formData !== 'undefined' ? formData : {};
-	var cValue = jQuery("input###arguments.fieldName#").val();
+    
+	var tempValue = "";
+    var cValue = jQuery("input###arguments.fieldName#").val();
 
 	// Call the utility function to make sure the JS object keys are all lowercase 
 	formData = #arguments.fieldName#_ConvertCaseOfDataObjKeys(formData,'lower');
