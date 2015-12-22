@@ -113,7 +113,8 @@ History:
 	// - FYI: v2 will break any existing v1 datasheet configurations
 	// - Only use v2 on new datasheet setups! For a new setups "configVersion=2.0" can be passed via the custom script parameters dialog. 
 	scriptConfigVersion = "1.0";
-	
+    //scriptConfigVersion = "2.0"; // TODO: Make the default for ADF 2.0 or make a version 2.0 of this file and set the default.
+
 	// Check to see if the attribute 'configVersion' was passed in.
 	//- This will override the default version of this script 
 	if ( StructKeyExists(attributes,"configVersion") AND LEN(TRIM(attributes.configVersion)) )
