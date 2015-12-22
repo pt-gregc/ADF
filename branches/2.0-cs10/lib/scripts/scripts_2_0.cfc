@@ -317,7 +317,7 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 
 	public void function loadJCrop(boolean force=0)
 	{
-		loadResources("JQuery,JCrop");
+		loadResources("JQuery,JQueryMigrate,JCrop");
 	}
 
 	public void function loadJCycle(string version="", boolean force=0)
