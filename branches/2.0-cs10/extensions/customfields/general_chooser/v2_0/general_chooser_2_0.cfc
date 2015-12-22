@@ -600,6 +600,7 @@ function #arguments.fieldName#_formCallback(formData)
 
 	// Call the utility function to make sure the JS object keys are all lowercase 
 	formData = #arguments.fieldName#_ConvertCaseOfDataObjKeys(formData,'lower');
+	js_#arguments.fieldName#_CE_FIELD = js_#arguments.fieldName#_CE_FIELD.toLowerCase();
 
 	// Load the newest item onto the selected values
 	// 2012-07-31 - MFC - Replaced the CFJS function for "ListLen" and "ListFindNoCase".
