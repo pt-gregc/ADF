@@ -89,7 +89,9 @@ History:
 	2013-12-05 - DRM - Create formatted UTC timestamp in local code, avoids crash logging ADF startup errors when ADF isn't built yet
 	                   default logFile to adf-debug.log, instead of debug.log
 	2014-09-19 - GAC - Add a parameter to make the UTC timestamp optional
+	2015-12-22 - GAC - Moved to the Log_1_0 lib component
 --->
+<!--- // Moved to the Log_1_0 library component --->
 <cffunction name="logAppend" access="public" returntype="void">
 	<cfargument name="msg" type="any" required="true" hint="if this value is NOT a simple string then the value gets converted to sting output using CFDUMP">
 	<cfargument name="logFile" type="string" required="false" default="adf-debug.log">
@@ -97,34 +99,10 @@ History:
 	<cfargument name="logDir" type="string" required="false" default="#request.cp.commonSpotDir#logs/">
 	<cfargument name="label" type="string" required="false" default="" hint="Adds a text label to the log entry">
 	<cfargument name="useUTC" type="boolean" required="false" default="true" hint="Converts the timestamp in the entry and the filename to UTC">
-	
-	<cfscript>
-		var logFileName = arguments.logFile;
-		var dateTimeStamp = mid(now(), 6, 19);
-		
-		if( arguments.addTimeStamp )
-			logFileName = dateFormat(now(), "yyyymmdd") & "." & request.site.name & "." & logFileName;
-		
-		if( len(arguments.label) )
-			arguments.label = arguments.label & "-";
-			
-		if ( arguments.useUTC )
-			dateTimeStamp = mid(dateConvert('local2utc', dateTimeStamp), 6, 19) & " (UTC)";
-	</cfscript>
-	<cftry>
-		<!--- Check if the file exists --->
-		<cfif NOT directoryExists(arguments.logdir)>
-			<cfdirectory action="create" directory="#arguments.logdir#">
-		</cfif>
-		<cfif NOT isSimpleValue(arguments.msg)>
-			<cfset arguments.msg = doDump(arguments.msg,"#arguments.label# - #dateTimeStamp#",0,1)>
-		</cfif>
-		<cffile action="append" file="#arguments.logDir##logFileName#" output="#dateTimeStamp# - #arguments.label# #arguments.msg#" addnewline="true" fixnewline="true">
-		<cfcatch type="any">
-			<cfdump var="#arguments.logDir##logFileName#" label="Log File: #arguments.logDir##logFileName#" />
-			<cfdump expand="false" label="LogAppend() Error" var="#cfcatch#" />
-		</cfcatch>
-	</cftry>
+
+    <cfscript>
+        application.ADF.log.logAppend( argumentCollection=arguments );
+    </cfscript>
 </cffunction>
 
 <!---
@@ -142,20 +120,15 @@ Arguments:
 	Array logs
 History:
 	2009-07-09 - RLW - Created
+	2015-12-22 - GAC - Moved to the Log_1_0 lib component
 --->
+<!--- // Moved to the Log_1_0 library component --->
 <cffunction name="bulkLogAppend" access="public" returntype="void" hint="Takes an array of log writes and calls log append with each write">
 	<cfargument name="logs" type="array" required="true" hint="Array of log append records">
-	<cfscript>
-		var itm = 1;
-		var thisLog = structNew();
-		for( itm; itm lte arrayLen(arguments.logs); itm=itm+1 )
-		{
-			thisLog = arguments.logs[itm];
-			// inspect the record and build argumentCol to pass to logAppend
-			if( structKeyExists(thisLog, "msg") )
-				logAppend(argumentCollection=thisLog);
-		}
-	</cfscript>
+
+    <cfscript>
+        application.ADF.log.bulkLogAppend( argumentCollection=arguments );
+    </cfscript>
 </cffunction>
 
 <!---
