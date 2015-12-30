@@ -427,7 +427,7 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 
 	public void function loadJQueryiCalendar(string version="", boolean force=0)
 	{
-		loadResources("JQuery,JQueryiCalendar");
+		loadResources("JQuery,JQueryMigrate,JQueryiCalendar");
 	}
 
 	public void function loadJQueryImagesLoaded(string version="", boolean force=0)
