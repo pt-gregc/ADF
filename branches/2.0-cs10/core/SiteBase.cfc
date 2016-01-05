@@ -632,7 +632,7 @@ Arguments:
 	String - register
 History:
 	2015-09-21 - GAC - Created
-	2016-01-04 - GAC - Added a check for the the regType URL parameter
+	2016-01-04 - GAC - Added a check for the register URL parameter to pass to the registerScripts function
 --->
 <cffunction name="initADFinstaller" access="public" returnType="string" hint="">
 	<cfargument name="reinstall" type="boolean" required="false" default="false" hint="">
@@ -641,13 +641,13 @@ History:
 	<cfscript>
 		var retMsg = "";
 		
-		// Check for a regType url parameter to be passed in
-		// - "min" only installs the minimum set of resources
+		// Check for a register url parameter to be passed in
+        // - "min" only installs the minimal set of resources
 		if ( StructKeyExists(url,"register") )
 			arguments.register = url.register; 	
 
 		// Call the methods to install required ADF components into the CommonSpot Site
-		// - if they render an output message aappend it to the retMsg variable
+		// - if they render an output message append it to the retMsg variable
 
 		retMsg = registerScripts(reinstall=arguments.reinstall,register=arguments.register);
 
@@ -671,7 +671,7 @@ Arguments:
 	String - register (full or min)
 History:
 	2015-09-24 - GAC - Created
-	2016-01-04 - GAC - Added a regType parameter (options: full,min)
+	2016-01-04 - GAC - Added a register parameter (options: full,min)
 --->
 <cffunction name="registerScripts" access="public" returnType="string" hint="">
 	<cfargument name="reinstall" type="boolean" required="false" default="false" hint="">
@@ -680,14 +680,16 @@ History:
 	<cfscript>
 		var retMsg = "";
 		var resourceAPI = "";
-        var regTypeOptions = "full,min,minimum";
+        var regTypeOptions = "all,full,min,minimum,minimal";
         var regTypeTxt = arguments.register;
 
         if ( ListFindNoCase(regTypeOptions,arguments.register,",") EQ 0 )
             arguments.register = "full";
 
-        if ( arguments.register EQ "min" )
-            regTypeTxt = "minimum";
+        if ( arguments.register EQ "all" )
+            regTypeTxt = "full";
+        else if ( arguments.register EQ "min" OR arguments.register EQ "minimum" )
+            regTypeTxt = "minimal";
 	</cfscript>
 	
 	<!--- // Add Site Install Scripts/Steps --->

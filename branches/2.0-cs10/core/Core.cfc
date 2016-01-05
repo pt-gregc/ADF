@@ -54,7 +54,7 @@ History:
 <cfscript>
 	variables.ADFversion = "2.0.0"; // use a dot delimited version number
 	// ADF Build Revision Number
-	variables.buildRev = "1788";
+	variables.buildRev = "1790";
 	// ADF Codename
 	variables.buildName = "Metal Gear Solid";
 	// CS product version, get the decimal value
@@ -247,7 +247,8 @@ History:
 				<cfscript>
 			 		// 2010-06-23 jrybacek Determine if user is logged in.
 			  		// 2010-06-23 jrybacek Determine how much of the ADF is being requested to be reset
-					switch (uCase(arguments.type)) {
+					switch (uCase(arguments.type)) 
+					{
 						case "ALL":
 							// 2010-06-23 jrybacek Reload ADF server
 							createObject("component", "ADF.core.Core").init();
@@ -280,7 +281,8 @@ History:
 							rtnMsg = "Invalid argument '#arguments.type#' passed to method reset.";
 							break;
 					}
-					if ( ADFReset ) {
+					if ( ADFReset ) 
+					{
 						//Reset the cache.
 						application.ADF.cache = StructNew();
 						// Get the Dev Mode Status to display with reset message
