@@ -5,13 +5,13 @@
 	In general, actual resources created are version specific, and a generic version-less alias is created pointing to it.
 
 	To run this, log into CommonSpot as an admin, then run this code:
-	<cfmodule template="/ADF/lib/scripts/registerAllScripts.cfm"> <!--- optional attribute: updateExisting="1 or 0" --->
+	<cfmodule template="/ADF/lib/scripts/registerAllScripts.cfm"> <!--- optional attributes: updateExisting="1 or 0" register="full or min" --->
 
 	History
 	2015-09-08 - DRM - Initial version.
 	2015-09-16 - GAC - Updated to add bootstrap-ADF-ext.css to the bootstrap resource registration
 	2015-11-25 - GAC - Updated the BBQ jquery lib to 1.3
-	2016-01-04 - GAC - Updated to allow a min set of resources to be loaded
+	2016-01-04 - GAC - Updated to allow a minimal set of resources to be registered
 --->
 
 <cfscript>
@@ -19,7 +19,7 @@
 		attributes.updateExisting = 0;
 
     if ( !structKeyExists(attributes, "register") )
-        attributes.register = "full"; // Options: Full / Min
+        attributes.register = "full"; // Options: full or  min
 
 
 	// COMMONSPOT RESOURCE API
