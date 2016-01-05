@@ -35,7 +35,7 @@ History:
 --->
 <cfcomponent displayname="utils_1_0" extends="ADF.lib.libraryBase" hint="Util functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_12">
+<cfproperty name="version" value="1_0_13">
 <cfproperty name="type" value="singleton">
 <cfproperty name="ceData" type="dependency" injectedBean="ceData_1_0">
 <cfproperty name="wikiTitle" value="Utils_1_0">
@@ -148,7 +148,8 @@ Arguments:
 	Any var - variable to dump
 	String label [optional] - Label for the cfdump
 	Boolean expand [optional] - T/F for the cfdump expand parameter
-	Numeric returnInVar [optional] = Flag for return dump in a variable
+	Numeric returnInVar [optional] - Flag for return dump in a variable
+	Boolean showUDFs [optional] -
 History:
 	2008-06-22 - MFC - Created
 	2009-12-01 - GAC - Added label option for simple values
@@ -158,12 +159,14 @@ History:
 								 Set return value of 'foo' equal to an empty string 
 	2014-01-13 - GAC - Updated the return variable name and simplified the dump output logic
 	2015-06-17 - GAC - Updated the returnInVar argument to be type=boolean 
+	2016-01-04 - GAC - Added a showUDF paramter to pass the showUDFs flag to the cfdump tag
 --->
 <cffunction name="doDump" access="public" returntype="string" output="true" hint="ColdFusion dump of the variable argument.">
 	<cfargument name="var" required="Yes" type="any">
 	<cfargument name="label" required="no" type="string" default="no label">
 	<cfargument name="expand" required="no" type="boolean" default="true">
-	<cfargument name="returnInVar" type="boolean" required="No" default="0">
+	<cfargument name="returnInVar" type="boolean" required="no" default="0">
+	<cfargument name="showUDFs" type="boolean" required="no" default="1">
 	
 	<cfscript>
 		var resultHTML = "";
@@ -174,7 +177,7 @@ History:
 		<cfif IsSimpleValue(arguments.var)>
 			<cfoutput><div><cfif LEN(TRIM(arguments.label)) AND arguments.expand EQ true><strong>#arguments.label#:</strong> </cfif>#arguments.var#</div></cfoutput>
 		<cfelse>
-			<cfdump var="#arguments.var#" label="#arguments.label#" expand="#arguments.expand#">
+			<cfdump var="#arguments.var#" label="#arguments.label#" expand="#arguments.expand#" showUDFs="#arguments.showUDFs#">
 		</cfif>
 	</cfsavecontent>
 

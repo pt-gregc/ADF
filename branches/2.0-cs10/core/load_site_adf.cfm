@@ -134,14 +134,18 @@ History:
 			regularExpression = '[^a-z0-9\.\[\]]]*';
 			if ( Len(url.ADFDumpVar) GT 0 and !ReFindNoCase(regularExpression,url.ADFDumpVar) ) 
 			{
-				utilsObj = CreateObject("component","ADF.lib.utils.utils_1_2");
+                // [GAC] 2016-01-04 - Check to see if we need to render UDFs in the ADFDumpVar dump
+				if ( !StructKeyExists(url,"showUDFs") )
+                    url.showUDFs = 0; // Set to false by default
+					
+                utilsObj = CreateObject("component","ADF.lib.utils.utils_2_0");
 				// [GAC] 2014-05-27 - Added a security fix for the ADF dump var command
 				adfDumpVarData = utilsObj.processADFDumpVar(dumpVarStr=url.ADFDumpVar,sanitize=true);
 				// [GAC] 2014-05-27 - Dump the processed ADFdumpVar data 
 				if ( IsSimpleValue(adfDumpVarData) )
 					adfDumpMsg = adfDumpMsg & utilsObj.dodump(adfDumpVarData, url.ADFDumpVar, true, true);
 				else
-					adfDumpMsg = adfDumpMsg & utilsObj.dodump(adfDumpVarData, url.ADFDumpVar, false, true);
+					adfDumpMsg = adfDumpMsg & utilsObj.dodump(adfDumpVarData, url.ADFDumpVar, false, true, url.showUDFs);
 			}
 			else 
 			{
