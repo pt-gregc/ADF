@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2015.
+PaperThin, Inc. Copyright(C) 2016.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -1507,7 +1507,7 @@ Author:
 Name:
 	$loadJQueryUITimepickerFG
 Summary:
-	Loads the jQuery UI Timepicker FG (François Gélinas) for the Calendar App if not loaded.
+	Loads the jQuery UI Timepicker FG (Franï¿½ois Gï¿½linas) for the Calendar App if not loaded.
 	
 	http://fgelinas.com/code/timepicker/
 Returns:
