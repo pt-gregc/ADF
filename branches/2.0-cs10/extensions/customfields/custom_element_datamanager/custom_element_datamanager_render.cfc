@@ -59,7 +59,10 @@ History:
 	2015-08-06 - DJM - Modified code to check for AuthorID instead of DateAdded for setting newData variable
 	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean()
 	2015-12-07 - DJM - Modified JS code to use encodeURIComponent instead of encodeURI since it was not encoding all chars
-	2016-01-16 - DRM - Remove cellspacing and cellpadding from layout table
+	2016-01-06 - DRM - Remove cellspacing and cellpadding from layout table
+	2016-01-06 - DRM - Add getMinWidth() and getMinHeight()
+	                   Don't use (undefined) return value from ResizeWindow() js function
+	                   Remove some unused js vars
 --->
 <cfcomponent displayName="CustomElementDataManager Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -525,7 +528,7 @@ function loadDataCore_#uniqueTableAppend#(displayOverlay)
 					jQuery("##parentTable_#uniqueTableAppend#").find('.dataTables_scrollBody').css('height', "#arguments.height#");
 					jQuery("##parentTable_#uniqueTableAppend#").find('.dataTables_scrollBody').css('width', "#arguments.width#");
 					jQuery("##parentTable_#uniqueTableAppend#").find('.dataTables_scrollBody.dataTable').css('width', "#arguments.width#");
-					jQuery("##parentTable_#uniqueTableAppend#").find('.dataTables_scrollBody').css('width', ResizeWindow());
+					ResizeWindow();
 				}
 				else
 				{
@@ -538,10 +541,6 @@ function loadDataCore_#uniqueTableAppend#(displayOverlay)
 				if (res#uniqueTableAppend#.aaData.length > 1)
 				{
 					<CFIF inputParameters.sortByType EQ 'manual'>
-						var startPosition;
-						var endPosition;
-						var startVal;
-						var endVal;
 						var rowData;
 						var movedDataPageID = 0;
 						var prevItemsLenBeforeDrop = 0;
@@ -708,6 +707,20 @@ function setCurrentValueAndOpenURL_#uniqueTableAppend#(urlToOpen, linkedFldName,
 	private boolean function isMultiline()
 	{
 		return true;
+	}
+
+
+	public numeric function getMinHeight()
+	{
+		if (structKeyExists(arguments.parameters, "heightValue") && isNumeric(arguments.parameters.heightValue) && arguments.parameters.heightValue > 0)
+			return arguments.parameters.heightValue; // always px
+		return 0;
+	}
+	public numeric function getMinWidth()
+	{
+		if (arguments.parameters.widthUnit == "px" && structKeyExists(arguments.parameters, "widthValue") && isNumeric(arguments.parameters.widthValue) && arguments.parameters.widthValue > 0)
+			return arguments.parameters.widthValue + 160; // 150 is default label width, plus some slack
+		return 0;
 	}
 
 	public string function getResourceDependencies()

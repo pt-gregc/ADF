@@ -58,15 +58,17 @@ History:
 	2015-08-05 - DRM - Update passthorugh params descr
 							 Bump fieldVersion
 	2015-09-02 - DRM - Add getResourceDependencies support, bump version
+	2016-01-06 - DRM - Add prompt about min width units
+							 Bump fieldVersion, min CS version
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "2.0.7";
+	fieldVersion = "2.0.8";
 	
 	// CS version and required Version variables
-	requiredCSversion = 9;
+	requiredCSversion = 10;
 	csVersion = ListFirst(ListLast(request.cp.productversion," "),".");
 </cfscript>	
 
@@ -1403,17 +1405,23 @@ History:
 		<tr>
 			<th class="cs_dlgLabelBold" nowrap="nowrap">Grid Dimensions:</th>
 			<td valign="baseline" nowrap="nowrap">
-				<table><tr><td class="cs_dlgLabelSmall">Width:
+				<table>
+				<tr>
+				<td class="cs_dlgLabelSmall">Width:
 				#Server.CommonSpot.udf.tag.input(type="text", id="#prefix#widthValue", name="#prefix#widthValue", value="#currentValues.widthValue#", size="5", class="InputControl")#
 				<select name="#prefix#widthUnit" id="#prefix#widthUnit">
-					<option value="percent" <cfif currentValues.widthUnit EQ 'percent'>selected</cfif>>%</option>
 					<option value="pixel" <cfif currentValues.widthUnit EQ 'pixel'>selected</cfif>>px</option>
-				</select></td>
+					<option value="percent" <cfif currentValues.widthUnit EQ 'percent'>selected</cfif>>%</option>
+				</select>
+				</td>
 				<td class="cs_dlgLabelSmall">Height:
 				#Server.CommonSpot.udf.tag.input(type="text", id="#prefix#heightValue", name="#prefix#heightValue", value="#currentValues.heightValue#", size="5", class="InputControl")#
 				<select name="#prefix#heightUnit" id="#prefix#heightUnit">
 					<option value="pixel" <cfif currentValues.heightUnit EQ 'pixel'>selected</cfif>>px</option>
-				</select></td></td></tr></table>
+				</select></td>
+				</tr>
+				<tr><td colspan="2" class="cs_dlgLabelSmall" nowrap="nowrap">Use px width to ensure that the form is at least the requested width.</td></tr>
+				</table>
 			</td>
 		</tr>
 		<tr>
