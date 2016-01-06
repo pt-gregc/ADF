@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2015.
+PaperThin, Inc. Copyright(C) 2016.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -632,24 +632,24 @@ Arguments:
 	String - register
 History:
 	2015-09-21 - GAC - Created
-	2016-01-04 - GAC - Added a check for the register URL parameter to pass to the registerScripts function
+	2016-01-04 - GAC - Added a check for the scriptsPackage URL parameter to pass to the registerScripts function
 --->
 <cffunction name="initADFinstaller" access="public" returnType="string" hint="">
 	<cfargument name="reinstall" type="boolean" required="false" default="false" hint="">
-	<cfargument name="register" type="string" required="false" default="full" hint="Options: full or min">
+	<cfargument name="scriptsPackage" type="string" required="false" default="full" hint="Options: full or min">
 	
 	<cfscript>
 		var retMsg = "";
 		
 		// Check for a register url parameter to be passed in
         // - "min" only installs the minimal set of resources
-		if ( StructKeyExists(url,"register") )
-			arguments.register = url.register; 	
+		if ( StructKeyExists(url,"scriptsPackage") )
+			arguments.scriptsPackage = url.scriptsPackage;
 
 		// Call the methods to install required ADF components into the CommonSpot Site
 		// - if they render an output message append it to the retMsg variable
 
-		retMsg = registerScripts(reinstall=arguments.reinstall,register=arguments.register);
+		retMsg = registerScripts(updateExisting=arguments.reinstall,scriptsPackage=arguments.scriptsPackage);
 
 		return retMsg;
 	</cfscript>
@@ -667,45 +667,47 @@ Summary:
 Returns:
 	String
 Arguments:
-	Boolean - reinstall
-	String - register (full or min)
+	Boolean - updateExisting
+	String - scriptsPackage (full or min)
 History:
 	2015-09-24 - GAC - Created
-	2016-01-04 - GAC - Added a register parameter (options: full,min)
+	2016-01-04 - GAC - Added a scriptsPackage parameter to allow minimal load
 --->
 <cffunction name="registerScripts" access="public" returnType="string" hint="">
-	<cfargument name="reinstall" type="boolean" required="false" default="false" hint="">
-    <cfargument name="register" type="string" required="false" default="full" hint="Options: full or min">
+	<cfargument name="updateExisting" type="boolean" required="false" default="0" hint="Flag to update existing scripts">
+    <cfargument name="scriptsPackage" type="string" required="false" default="full" hint="Options: full or min">
 
 	<cfscript>
 		var retMsg = "";
 		var resourceAPI = "";
-        var regTypeOptions = "all,full,min,minimum,minimal";
-        var regTypeTxt = arguments.register;
+        var packageOptions = "all,full,min,minimum,minimal";
+        var packageTxt = arguments.scriptsPackage;
 
-        if ( ListFindNoCase(regTypeOptions,arguments.register,",") EQ 0 )
-            arguments.register = "full";
+        if ( ListFindNoCase(packageOptions,arguments.scriptsPackage,",") EQ 0 )
+            arguments.scriptsPackage = "full";
 
-        if ( arguments.register EQ "all" )
-            regTypeTxt = "full";
-        else if ( arguments.register EQ "min" OR arguments.register EQ "minimum" )
-            regTypeTxt = "minimal";
+        if ( arguments.scriptsPackage EQ "all" )
+		{
+            arguments.scriptsPackage = "full";
+			packageTxt = arguments.scriptsPackage;
+        }
+		else if ( ListFindNoCase("min,minimum",arguments.scriptsPackage) EQ 1 )
+		{
+            arguments.scriptsPackage = "min";
+			packageTxt = "minimal";
+		}
 	</cfscript>
 	
 	<!--- // Add Site Install Scripts/Steps --->
 	<cfsavecontent variable="retMsg">
-		<cfoutput><div> 
-		<h2>- ADF Resource Installer -</h2>
-		<cfif arguments.reinstall>
-			<h3>Re-installing ADF Scripts as CommonSpot Resources...</h3>
-			<cfmodule template="/ADF/lib/scripts/registerAllScripts.cfm" updateExisting="1" register="#arguments.register#">
-			<h3>A #lcase(regTypeTxt)# set of ADF script resources have been re-registered with CommonSpot for site '#request.site.name#'.</h4>
-		<cfelse>
-			<h3>Installing ADF Scripts as CommonSpot Resources...</h3>
-			<cfmodule template="/ADF/lib/scripts/registerAllScripts.cfm" register="#arguments.register#">
-			<h3>A #lcase(regTypeTxt)# set of ADF script resources have been registered with CommonSpot for site '#request.site.name#'.</h3>
-		</cfif>
-		</div></cfoutput>
+		<cfoutput>
+		<div>
+            <h2>- ADF Resource Installer -</h2>
+            <h3><cfif arguments.updateExisting>Re-installing <cfelse>Installing </cfif>ADF Scripts as CommonSpot Resources...</h3>
+            <cfmodule template="/ADF/lib/scripts/registerAllScripts.cfm" updateExisting="#arguments.updateExisting#" scriptsPackage="#arguments.scriptsPackage#">
+            <h4>A #lcase(packageTxt)# set of ADF script resources have been <cfif arguments.updateExisting>re-registered <cfelse>registered </cfif>with CommonSpot for site: '#request.site.name#'.</h4>
+		</div>
+		</cfoutput>
 	</cfsavecontent>
 	
 	<cfscript>

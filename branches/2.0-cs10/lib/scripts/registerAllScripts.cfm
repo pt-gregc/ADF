@@ -5,7 +5,7 @@
 	In general, actual resources created are version specific, and a generic version-less alias is created pointing to it.
 
 	To run this, log into CommonSpot as an admin, then run this code:
-	<cfmodule template="/ADF/lib/scripts/registerAllScripts.cfm"> <!--- optional attributes: updateExisting="1 or 0" register="full or min" --->
+	<cfmodule template="/ADF/lib/scripts/registerAllScripts.cfm"> <!--- optional attributes: updateExisting="1 or 0" scriptsPackage="full or min" --->
 
 	History
 	2015-09-08 - DRM - Initial version.
@@ -18,8 +18,8 @@
 	if ( !structKeyExists(attributes, "updateExisting") )
 		attributes.updateExisting = 0;
 
-    if ( !structKeyExists(attributes, "register") )
-        attributes.register = "full"; // Options: full or  min
+    if ( !structKeyExists(attributes, "scriptsPackage") )
+        attributes.scriptsPackage = "full"; // Options: full or  min
 
 
 	// COMMONSPOT RESOURCE API
@@ -227,7 +227,7 @@
 
     /* SECONDARY - PLUGINS ETC - leaving TERTIARY for customer or app code */
 
-    if ( attributes.register EQ "full" )
+    if ( attributes.scriptsPackage EQ "full" )
     {
         
 		registerResource
