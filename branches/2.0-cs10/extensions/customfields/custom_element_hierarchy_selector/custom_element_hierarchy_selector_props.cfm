@@ -36,15 +36,16 @@ History:
 	2014-09-19 - GAC - Removed deprecated doLabel and jsLabelUpdater js calls
 	2015-05-12 - DJM - Updated the field version to 2.0
 	2015-09-02 - DRM - Add getResourceDependencies support, bump version
+	2016-01-06 - GAC - Added px labels to height and width fields
 --->
 
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "2.0.2";
+	fieldVersion = "2.0.3";
 	
-	requiredVersion = 9;
+	requiredVersion = 10;
 	productVersion = ListFirst(ListLast(request.cp.productversion," "),".");
 </cfscript>	
 
@@ -413,14 +414,14 @@ History:
 		</tr>		
 		<tr>
 			<th valign="baseline" class="cs_dlgLabelBold" nowrap="nowrap">Width:</th>
-			<td valign="baseline">
-				#Server.CommonSpot.udf.tag.input(type="text", id="#prefix#widthValue", name="#prefix#widthValue", value="#currentValues.widthValue#", size="5", class="InputControl")#
+			<td valign="baseline" class="cs_dlgLabelSmall">
+				#Server.CommonSpot.udf.tag.input(type="text", id="#prefix#widthValue", name="#prefix#widthValue", value="#currentValues.widthValue#", size="5", class="InputControl", style="text-align: right;")#px
 			</td>
 		</tr>	
 		<tr>
 			<th valign="baseline" class="cs_dlgLabelBold" nowrap="nowrap">Height:</th>
-			<td valign="baseline">
-				#Server.CommonSpot.udf.tag.input(type="text", id="#prefix#heightValue", name="#prefix#heightValue", value="#currentValues.heightValue#", size="5", class="InputControl")#
+			<td valign="baseline" class="cs_dlgLabelSmall">
+				#Server.CommonSpot.udf.tag.input(type="text", id="#prefix#heightValue", name="#prefix#heightValue", value="#currentValues.heightValue#", size="5", class="InputControl", style="text-align: right;")#px
 			</td>
 		</tr>
 		<tr>
