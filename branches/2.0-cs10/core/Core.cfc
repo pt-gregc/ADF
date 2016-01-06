@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2016.
+PaperThin, Inc.  Copyright (c) 2009-2016.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files
@@ -54,7 +54,7 @@ History:
 <cfscript>
 	variables.ADFversion = "2.0.0"; // use a dot delimited version number
 	// ADF Build Revision Number
-	variables.buildRev = "1793";
+	variables.buildRev = "1797";
 	// ADF Codename
 	variables.buildName = "Metal Gear Solid";
 	// CS product version, get the decimal value
