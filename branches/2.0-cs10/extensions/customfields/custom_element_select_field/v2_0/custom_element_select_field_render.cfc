@@ -75,6 +75,7 @@ History:
 	2015-05-26 - DJM - Added the 2.0 version
 	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
 	2015-10-14 - GAC - Updated the forms call to Forms_2_0
+	2016-01-16 - DRM - Layout table uses valign="middle" instead of top
 
 To Do:
 	2014-04-08 - JTP - Currently we are NOT sorting the list if displayed as checkboxes/radio buttons and user choose sort by display value
@@ -136,7 +137,7 @@ To Do:
 		
 		<cfif inputParameters.addButton EQ "1">
 			<cfoutput>
-				</td><td valign="top" nowrap="nowrap">
+				</td><td valign="middle" nowrap="nowrap">
 			
 				#application.ADF.scripts.loadJQuery()#
 				#application.ADF.scripts.loadJQueryUI()#

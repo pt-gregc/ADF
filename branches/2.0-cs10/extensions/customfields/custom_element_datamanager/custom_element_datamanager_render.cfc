@@ -58,7 +58,8 @@ History:
 	2015-07-23 - DJM - Modified call to RenderGrid() to take parent field's value using javascript from the form field
 	2015-08-06 - DJM - Modified code to check for AuthorID instead of DateAdded for setting newData variable
 	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean()
-	2015-12-07 - DJM - Modified JS code to use encodeURIComponent instead of encodeURI since it was not encoding all chars	
+	2015-12-07 - DJM - Modified JS code to use encodeURIComponent instead of encodeURI since it was not encoding all chars
+	2016-01-16 - DRM - Remove cellspacing and cellpadding from layout table
 --->
 <cfcomponent displayName="CustomElementDataManager Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -255,7 +256,7 @@ History:
 				<CFIF ((elementType NEQ 'metadataForm' AND (newData EQ 0 OR NOT ListFindNoCase(inputParameters.interfaceOptions, 'disableDatamanager'))) OR (elementType EQ 'metadataForm' AND curPageID GT 0))>
 					<cfoutput>
 						#datamanagerObj.renderStyles(propertiesStruct=inputParameters)#
-						<table class="cs_data_manager" border="0" cellpadding="2" cellspacing="2" summary="" id="parentTable_#uniqueTableAppend#"></cfoutput>
+						<table class="cs_data_manager" border="0" cellpadding="0" cellspacing="0" summary="" id="parentTable_#uniqueTableAppend#"></cfoutput>
 						<cfif arguments.displayMode eq "editable">
 						<cfoutput><tr><td>
 							#datamanagerObj.renderButtons(propertiesStruct=inputParameters,currentValues=allAtrs.currentValues,formID=ceFormID,fieldID=arguments.fieldID,parentFormType=elementType,pageID=curPageID)#
