@@ -145,7 +145,7 @@
 	(
 		"JQueryUIDefaultTheme 1.11", "PRIMARY",
 		[
-			{LoadTagType=1, SourceURL="/ADF/thirdParty/jquery/ui/jquery-ui-1.11/css/ui-lightness/jquery-ui.css"}
+			{LoadTagType=1, SourceURL="/ADF/thirdParty/jquery/ui/jquery-ui-1.11/css/ui-lightness/jquery-ui.css", canCombine=0, canMinify=0}
 		],
 		[],
 		"JQueryUIDefaultTheme resources.", "Included in ADF 2.0 and later.", "JQueryUIDefaultTheme,JQueryUIstyles"
