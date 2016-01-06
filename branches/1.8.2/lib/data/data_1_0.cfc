@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="data_1_0" extends="ADF.core.Base" hint="Data Utils component functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_9">
+<cfproperty name="version" value="1_0_10">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Data_1_0">
 
@@ -794,42 +794,51 @@ History:
 					 - Updated to use getToken() to get the value after the equal sign (=)
 	2015-03-18 - GAC - Updated to use listRest() to get the value after the first equal sigin (=), just in case 
 						there maybe more than one equal sign in (=) the string between each ampersand (&) delimiter
+	2015-12-18 - GAC - Updated to make sure any "amp;" leftovers are removed from the key value
  --->
 <cffunction name="queryStringToStruct" access="public" returntype="struct">
 	<cfargument name="inString" type="string" required="false" default="#Request.CGIVars.QUERY_STRING#">
-	
-	<cfscript>
-		//var to hold the final structure
-	    var struct = StructNew();
-	    var i = 1;
-	    var pairi = "";
-	    var keyi = "";
-	    var valuei = "";
-	    var qsarray = "";
-	    var qs = arguments.inString; // default querystring value
-	    
-	    //if there is a second argument, use that as the query string
-	    if (arrayLen(arguments) GT 0) qs = arguments[1];
-	
-	    //put the query string into an array for easier looping
-	    qsarray = listToArray(qs, "&");
-	    //now, loop over the array and build the struct
-	    for ( i=1; i lte arrayLen(qsarray); i=i+1 )
-	    {
-	        pairi = qsarray[i]; // current pair
-	        keyi = listFirst(pairi,"="); 				// current key
-			valuei =  urlDecode(listRest(pairi,"="));   // current value
-	        
-		    // check if key already added to struct
-	        if ( structKeyExists(struct,keyi) ) 
-	        	struct[keyi] = listAppend(struct[keyi],valuei); // add value to list
-	        else 
-	        	structInsert(struct,keyi,valuei); // add new key/value pair
-	    }
-	    
-	    // return the struct
-	    return struct;
-	</cfscript>
+
+    <cfscript>
+        var struct = StructNew();
+        var i = 1;
+        var pairi = "";
+        var keyi = "";
+        var valuei = "";
+        var qsarray = "";
+        var qs = arguments.inString; // default querystring value
+
+        //if there is a second argument, use that as the query string
+        if (arrayLen(arguments) GT 0) qs = arguments[1];
+
+        // Make sure all &amp; are just &
+        if  ( FindNoCase("&amp;",qs) EQ 1 )
+            qs = ReplaceNoCase(qs, "&amp;", "&", "all");
+
+        //put the query string into an array for easier looping
+        qsarray = listToArray(qs, "&");
+
+        //now, loop over the array and build the struct
+        for ( i=1; i lte arrayLen(qsarray); i=i+1 )
+        {
+            pairi = qsarray[i];
+            // Make sure all amp; are removed
+            if  ( FindNoCase("amp;",pairi) EQ 1 )
+                pairi = ReplaceNoCase(pairi, "amp;", "", "one");
+
+            keyi = listFirst(pairi,"="); 				// current key
+            valuei =  urlDecode(listRest(pairi,"="));   // current value
+
+            // check if key already added to struct
+            if ( structKeyExists(struct,keyi) )
+              struct[keyi] = listAppend(struct[keyi],valuei); // add value to list
+            else
+                structInsert(struct,keyi,valuei); // add new key/value pair
+        }
+
+        // return the struct
+        return struct;
+    </cfscript>
 </cffunction>
 
 <!---
