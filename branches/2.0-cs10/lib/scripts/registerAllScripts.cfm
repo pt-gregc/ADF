@@ -167,7 +167,7 @@
 	(
 		"Bootstrap 3.3", "PRIMARY",
 		[
-			{LoadTagType=1, SourceURL="/ADF/thirdParty/jquery/bootstrap/3.3/css/bootstrap.min.css"},
+			{LoadTagType=1, SourceURL="/ADF/thirdParty/jquery/bootstrap/3.3/css/bootstrap.min.css", canCombine=0, canMinify=0},
 			{LoadTagType=1, SourceURL="/ADF/thirdParty/jquery/bootstrap/3.3/css/bootstrap-ADF-ext.css"} // An ADF extension css file that adds glyphicon sizes (lg,2x-10x).
 		],
 		[
