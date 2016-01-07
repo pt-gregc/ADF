@@ -40,7 +40,7 @@ History:
 	2015-04-15 - DJM - Moved ADF renderer base and updated the extends parameter
 	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean()
 	2016-01-06 - GAC - Added a isMultiline() call so the label renders at the top
-	                 - Add getMinWidth() and getMinHeight() (placeholders)
+	                 - Added getMinWidth() and getMinHeight()
 --->
 <cfcomponent displayName="CustomElementHierarchySelector Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -369,18 +369,20 @@ function CascadeDown_#arguments.fieldName#(treeObject,inNode,inCommand) {
 	}
 
 	// Requires a Build of CommonSpot 10 higher than 10.0.0.313
-	/*public numeric function getMinHeight()
+	public numeric function getMinHeight()
 	{
 		if (structKeyExists(arguments.parameters, "heightValue") && isNumeric(arguments.parameters.heightValue) && arguments.parameters.heightValue > 0)
 			return arguments.parameters.heightValue; // always px
 		return 0;
 	}
+	
+	// Requires a Build of CommonSpot 10 higher than 10.0.0.313
 	public numeric function getMinWidth()
 	{
 		if ( structKeyExists(arguments.parameters, "widthValue") && isNumeric(arguments.parameters.widthValue) && arguments.parameters.widthValue > 0)
 			return arguments.parameters.widthValue + 160; // 150 is default label width, plus some slack // always px
 		return 0;
-	}*/
+	}
 
 	private boolean function isMultiline()
 	{
