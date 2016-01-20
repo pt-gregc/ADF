@@ -95,7 +95,7 @@ History:
             if ( StructKeyExists(attributes,"themeName") AND LEN(TRIM(attributes.themeName)) )
                 application.ADF.scripts.loadJQueryUI(themeName=attributes.themeName);
             else
-                application.ADF.scripts.loadJQueryUI();
+            	application.ADF.scripts.loadJQueryUI();
 
             // Load jquery cookie to remember the last tab visited
             application.ADF.scripts.loadJQueryCookie();
@@ -222,20 +222,20 @@ History:
         <cfsavecontent variable="adfGenericElmtMgmtFooterJS">
         <cfoutput>
             <script type="text/javascript">
-                jQuery(document).ready(function(){
-                // Load jquery cookie to remember the last tab visited
-                jQuery('##tabs').tabs( { cookie: { expires: 30 } } );
+                jQuery(function(){
+                    // Load jquery cookie to remember the last tab visited
+                    jQuery('##tabs').tabs( { cookie: { expires: 30 } } );
 
-                // Hover states on the static widgets
-                jQuery("a.ui-button").hover(
-                    function() {
-                        jQuery(this).addClass('ui-state-hover');
-                    },
-                    function() {
-                        jQuery(this).removeClass('ui-state-hover');
-                    }
-                );
-            });
+                    // Hover states on the static widgets
+                    jQuery("a.ui-button").hover(
+                        function() {
+                            jQuery(this).addClass('ui-state-hover');
+                        },
+                        function() {
+                            jQuery(this).removeClass('ui-state-hover');
+                        }
+                    );
+                });
             </script>
         </cfoutput>
         </cfsavecontent>
