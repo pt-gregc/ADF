@@ -99,7 +99,7 @@ History:
 <cfif Request.DataSheetRow.CurrentRow EQ 1>
 	<cfsavecontent variable="adfDataSheetModHeaderCSS">
 		<cfoutput>
-		<!--- <style> --->
+		<style>
 		.ds-icons {
 			padding: 1px 5px;
 			text-decoration: none;
@@ -107,21 +107,23 @@ History:
 			margin-right: 5px;
 			width: 16px;
 		}
-		.ds-icons:hover{
+		.ds-icons:hover {
 			cursor:pointer;
 		}
-		<!--- </style> --->
+		</style>
 		</cfoutput>
 	</cfsavecontent>
 	
 	<cfif eparam.permitClientSideSort>
 	<cfsavecontent variable="adfDataSheetModFooterJS">
 		<cfoutput>
+		    <script>
 			//initADFLB();
 			
 			jQuery(document).on('click','.ds-icons,.CS_DataSheet_HeaderItem_First_Column,.CS_DataSheet_HeaderItem_Column',function() {
 		    	initADFLB();
 			});
+			</script>
 		</cfoutput>
 	</cfsavecontent>
 	</cfif>
