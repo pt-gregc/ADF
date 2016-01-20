@@ -47,7 +47,7 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 
 
 	/* PROPERTIES */
-	property name="version" type="string" default="2_0_0";
+	property name="version" type="string" default="2_0_1";
 	property name="type" value="singleton";
 	property name="wikiTitle" value="Scripts_2_0";
 
@@ -113,28 +113,45 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 			themeName: name of theme you want to load (actually that portion of the file path, regardless of how it's referred to elsewhere)
 			defaultResourceName: name of the registered default resource
 			parentKey: portion of the default resource url BEFORE the one that's the theme name
+	
+		History:
+			2016-01-07 - GAC - Updated the loadTheme to check if the ThemeName is a registered resource before attempting
+							   build the theme's CSS file path from defaultResource's information
+	
 	*/
 	public void function loadTheme(string themeName, string defaultResourceName, string parentKey)
 	{
-		var resourceList = resourceAPI.getList(0, arguments.defaultResourceName, "equals");
+		var regResourceList = resourceAPI.getList(0, arguments.themeName, "equals");
+		var defaultResourceList = "";
 		var res = "";
 		var cssURL = "";
 		var listPos = 0;
 
-		if (resourceList.RecordCount == 1 && arrayLen(resourceList.earlyLoadSourceArray[1]) == 1)
-		{
-			res = resourceList.earlyLoadSourceArray[1][1];
-			cssURL = res.sourceURL;
-			listPos = listFindNoCase(cssURL, arguments.parentKey, "/");
-			if (listPos > 0 && listPos < (listLen(cssURL, "/") - 1))
-			{
-				cssURL = listSetAt(cssURL, listPos + 1, arguments.themeName, "/");
-				if (res.canCombine == 1) // take that as a proxy for it being local, if not, just render the raw tag
-					loadUnregisteredResource(cssURL, "Stylesheet", "head", "secondary", res.canCombine, res.canMinify);
-				else
-					addHeaderHTML('<link href="#cssURL#" rel="stylesheet" type="text/css">', "SECONDARY");
-			}
-		}
+        // if the themeName is a registered resource then use it
+        if ( regResourceList.RecordCount == 1 && arrayLen(regResourceList.earlyLoadSourceArray[1]) == 1 )
+        {
+            loadResources(arguments.themeName);
+        }
+		else
+        {
+            // if the themeName is NOT registered resource... then attempt to build a path and load it.
+            defaultResourceList = resourceAPI.getList(0, arguments.defaultResourceName, "equals");
+
+            if (defaultResourceList.RecordCount == 1 && arrayLen(defaultResourceList.earlyLoadSourceArray[1]) == 1)
+            {
+                res = defaultResourceList.earlyLoadSourceArray[1][1];
+                cssURL = res.sourceURL;
+                listPos = listFindNoCase(cssURL, arguments.parentKey, "/");
+                if (listPos > 0 && listPos < (listLen(cssURL, "/") - 1))
+                {
+                    cssURL = listSetAt(cssURL, listPos + 1, arguments.themeName, "/");
+                    if (res.canCombine == 1) // take that as a proxy for it being local, if not, just render the raw tag
+                        loadUnregisteredResource(cssURL, "Stylesheet", "head", "secondary", res.canCombine, res.canMinify);
+                    else
+                        addHeaderHTML('<link href="#cssURL#" rel="stylesheet" type="text/css">', "SECONDARY");
+                }
+            }
+        }
 	}
 
 
@@ -143,15 +160,18 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 	
 	/*
 		History:
-			2015-09-24 - GAC - Added jQuery Migrate to load with jQuery by default... since that is ADF assumes will happen
+			2015-09-24 - GAC - Added jQuery Migrate to load with jQuery by default
 							 - Added a useMigrate parameter to disable jQuery Migrate
+			2016-01-07 - GAC - Set useMigrate to be disabled by default
+			                 - Switched to used addFooterJS instead of addFooterHTML
 	*/
 	public void function loadJQuery(string version="", boolean force=0, boolean noConflict=0, useMigrate=0 )
 	{
 		loadResources("jQuery");
 	
 		if (arguments.noConflict)
-			addFooterHTML("<script>jQuery.noConflict();</script>", "PRIMARY");
+			addFooterJS("<script>jQuery.noConflict();</script>", "PRIMARY");
+			//addFooterHTML("<script>jQuery.noConflict();</script>", "PRIMARY");
 		
 		// Load the Migrate plugin
 		if ( arguments.useMigrate ) 
@@ -163,8 +183,7 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 		loadResources("JQuery,JQueryMigrate");
 	}
 
-
-	public void function loadJQueryUI(string version="", string themeName="", boolean force=0)
+	public void function loadJQueryUI(string version="", string themeName="", boolean force=0, string defaultThemeOverride="")
 	{
 		loadResources("jQuery,JQueryUI");
 		if (arguments.themeName == "")
@@ -172,7 +191,6 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 		else
 			loadTheme(arguments.themeName, "JQueryUIDefaultTheme", "css");
 	}
-	
 
 	public void function loadJQueryMobile(string version="", boolean force=0)
 	{
