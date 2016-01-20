@@ -123,12 +123,12 @@ History:
 	<cfif ListFindNoCase(inputPropStruct.interfaceOptions,'new') OR ListFindNoCase(inputPropStruct.interfaceOptions,'existing')>
 		<cfsavecontent variable="renderData">
 
-			<cfif ListFindNoCase(inputPropStruct.interfaceOptions,'new')>
-				<cfoutput>#renderAddNewButton(argumentCollection=arguments, passthroughParamsStr=passthroughParamsStr)#</cfoutput>
-			</cfif>
-
 			<cfif ListFindNoCase(inputPropStruct.interfaceOptions,'existing')>
 				<cfoutput>#renderAddExistingButton(argumentCollection=arguments, passthroughParamsStr=passthroughParamsStr)#</cfoutput>
+			</cfif>
+
+			<cfif ListFindNoCase(inputPropStruct.interfaceOptions,'new')>
+				<cfoutput>#renderAddNewButton(argumentCollection=arguments, passthroughParamsStr=passthroughParamsStr)#</cfoutput>
 			</cfif>
 
 			<cfif ListFindNoCase(inputPropStruct.interfaceOptions,'delete')>
