@@ -41,7 +41,7 @@ History:
 --->
 <cfcomponent displayname="csData_1_0" extends="ADF.core.Base" hint="CommonSpot Data Utils functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_16">
+<cfproperty name="version" value="1_0_17">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_0">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_0">
@@ -701,7 +701,7 @@ History:
 	2008-07-25 - MFC - Created
 	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
-<cffunction name="findUploadFileExistsInSubsite" returntype="string" hint="Function returns T/F is file exists in subsite upload folder">
+<cffunction name="findUploadFileExistsInSubsite" access="public" returntype="string" hint="Function returns T/F is file exists in subsite upload folder">
 	<cfargument name="inSubSiteID" type="numeric" required="Yes">
 	<cfargument name="inFileName" type="string" required="Yes">
 	<cfscript>
@@ -744,7 +744,7 @@ History:
 	2008-07-30 - MFC - Created
 	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
-<cffunction name="copyUploadFileToSubsite" returntype="void" hint="Copies the uploaded file from the _cs_uploads to the subsite upload folder.">
+<cffunction name="copyUploadFileToSubsite" access="public" returntype="void" hint="Copies the uploaded file from the _cs_uploads to the subsite upload folder.">
 	<cfargument name="inSubSiteID" type="numeric" required="Yes">
 	<cfargument name="inFilePageID" type="numeric" required="Yes">
 	<cfargument name="inFileName" type="string" required="Yes">
@@ -784,7 +784,7 @@ History:
 						to return the current document
 	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
-<cffunction name="getUploadedDocPublicName" returntype="string" hint="Returns the public file name for the uploaded document">
+<cffunction name="getUploadedDocPublicName" access="public" returntype="string" hint="Returns the public file name for the uploaded document">
 	<cfargument name="inCSPageID" type="numeric" required="Yes">
 	<cfscript>
 		var getDocPublicNames = '';
@@ -943,7 +943,7 @@ History:
 	2008-07-31 - MFC - Created
 	2011-02-09 - RAK - Var'ing un-var'd variables
 --->
-<cffunction name="getUploadedFilePageID" returntype="string" hint="Returns Page ID for the subsite id and uploaded filename.">
+<cffunction name="getUploadedFilePageID" access="public" returntype="string" hint="Returns Page ID for the subsite id and uploaded filename.">
 	<cfargument name="inSubSiteID" type="numeric" required="Yes">
 	<cfargument name="inFileName" type="string" required="Yes">
 	<cfscript>
