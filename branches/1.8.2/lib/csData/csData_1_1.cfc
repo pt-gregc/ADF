@@ -43,7 +43,7 @@ History:
 --->
 <cfcomponent displayname="csData_1_1" extends="ADF.lib.csData.csData_1_0" hint="CommonSpot Data Utils functions for the ADF Library">
 	
-<cfproperty name="version" value="1_1_8">
+<cfproperty name="version" value="1_1_9">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_1">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">
@@ -168,28 +168,33 @@ Arguments:
 History:
  	2010-12-15 - RAK - Created
 	2011-02-09 - RAK - Var'ing un-var'd variables
+	2016-01-28 - GAC - Updated the SQL to get textblock for the page that uses controlName inherited from the template
 --->
 <cffunction name="getTextblockData" access="public" returntype="struct" hint="Given a pageID and name, get the textblock data">
 	<cfargument name="name" type="string" required="true" default="" hint="Textblock Name">
 	<cfargument name="pageID" type="numeric" required="true" default="-1" hint="PageID that contains the textblock">
+
 	<cfscript>
 		var textblockData = '';
 		var returnData = StructNew();
 	</cfscript>
+
 	<cfif Len(name) eq 0 or pageID lt 1>
 		<cfreturn returnData>
 	</cfif>
 	
 	<cfquery name="textblockData" datasource="#request.site.datasource#">
-		 SELECT 	*
+		  SELECT 	*
 			FROM 	Data_TextBlock dtb
-   INNER JOIN 	controlInstance ci on ci.controlID = dtb.controlID
-		  where 	ci.controlName = <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.name#">
-			 and 	ci.pageID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.pageID#">
-			 and 	dtb.versionState = 2;
+      INNER JOIN 	controlInstance ci on ci.controlID = dtb.controlID
+		   WHERE 	ci.controlName = <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.name#">
+			 AND 	dtb.pageID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.pageID#">
+			 AND 	dtb.versionState = 2;
 	</cfquery>
+
 	<cfscript>
-		if(textblockData.recordCount){
+		if ( textblockData.recordCount )
+		{
 			returnData.dateAdded = textblockData.DateAdded;
 			returnData.dateApproved = textblockData.DateApproved;
 			returnData.controlID = textblockData.controlID;
