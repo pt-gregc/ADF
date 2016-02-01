@@ -31,11 +31,11 @@ History:
 	2011-01-26 - GAC - Created
 	2011-10-04 - GAC - Updated csSecurity dependency to csSecurity_1_1
 	2013-11-18 - GAC - Updated the lib dependencies to csSecurity_1_2, utils_1_2, data_1_2
-	2015-06-11 - GAC - Updated the component extends to use the libraryBase path	
+	2015-06-11 - GAC - Updated the component extends to use the libraryBase path
 --->
 <cfcomponent displayname="ajax" extends="ADF.lib.libraryBase" hint="AJAX functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_9">
+<cfproperty name="version" value="1_0_10">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_2">
 <cfproperty name="utils" type="dependency" injectedBean="utils_2_0">
@@ -72,6 +72,7 @@ History:
 	2014-03-17 - JTP - Added logic to log if runCommand fails
 	2014-10-15 - GAC - Set the application.ADF.stieDevMode to a local stieDevMode variable
 					 - Updated a application.utils.logAppend call to use the local utils.logAppend()
+	2016-02-01 - DMB - Update with error handling when attempting to convert the value to a string
 --->
 <!--- // ATTENTION: 
 		Do not call is method directly. Call from inside the AjaxProxy.cfm file (method properties are subject to change) 
@@ -199,7 +200,7 @@ History:
 						if ( isStruct(result.reString) or isArray(result.reString) or isObject(result.reString) ) {
 							hasProcessingError = 1; 
 							// 2012-03-10 - GAC - we need to check if we have a 'message' before we can output it
-							if ( StructKeyExists(result.reString,"message") AND siteDevMode )
+							if ( IsStruct(result.reString) AND StructKeyExists(result.reString,"message") AND siteDevMode )
 								result.reString = "Error: Unable to convert the return value into string. [" & result.reString.message & "]";
 							else
 								result.reString = "Error: Unable to convert the return value into string.";
