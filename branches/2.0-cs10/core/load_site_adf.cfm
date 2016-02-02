@@ -48,6 +48,7 @@ History:
 	2015-08-19 - GAC - Switched the 'Railo' check for the ADFDumpVar to be a NOT ACF check (thanks lucee!!)
 	2015-09-24 - GAC - Added installADF and reinstallADF URL parameters to handle the new ADF install processes
 	2015-11-25 - GAC - Removed the double LOCK around the ADF load/reset process
+	2016-02-02 - GAC - Added configADF and reconfigADF as options to trigger the ADF install process (which right just registers scripts in CS10)
 --->
 <cfscript>
 	adfVersion = "2.0.0";
@@ -90,10 +91,10 @@ History:
 		else if ( StructKeyExists(url,"resetSiteADF") )
 			adfResetType = "SITE";
 		// Check the ADF Installer commands
-		else if ( StructKeyExists(url,"installADF") )
-			adfResetType = "INSTALL";
-		else if ( StructKeyExists(url,"reinstallADF") )
-			adfResetType = "REINSTALL";
+		else if ( StructKeyExists(url,"installADF") OR StructKeyExists(url,"configADF") )
+			adfResetType = "CONFIGURE";
+		else if ( StructKeyExists(url,"reinstallADF") OR StructKeyExists(url,"reconfigADF") )
+			adfResetType = "RECONFIGURE";
 	}
 </cfscript>
 

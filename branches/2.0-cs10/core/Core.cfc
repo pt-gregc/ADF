@@ -54,7 +54,7 @@ History:
 <cfscript>
 	variables.ADFversion = "2.0.0"; // use a dot delimited version number
 	// ADF Build Revision Number
-	variables.buildRev = "1811";
+	variables.buildRev = "1812";
 	// ADF Codename
 	variables.buildName = "Metal Gear Solid";
 	// CS product version, get the decimal value
@@ -221,6 +221,7 @@ History:
 	2013-12-05 - GAC - Added the forceResetStatus to the returnStruct to pass if the reset was Forced or not
 	2015-09-24 - GAC - Added install and reinstall cases to the ADF reset switch/case to handle the new ADF install process
 	2015-11-25 - GAC - Increased the timeout on the ADF-RESET LOCK
+	2016-02-02 - GAC - Added configure and reconfigure as options to trigger the ADF install process (which right just registers scripts in CS10)
 --->
 <cffunction name="reset" access="remote" returnType="Struct">
 	<cfargument name="type" type="string" required="false" default="all" hint="The type of the ADF to reset.  Options are 'Server', 'Site' or 'All'. Defaults to 'All'.">
@@ -269,11 +270,11 @@ History:
 							rtnMsg = "ADF #ADFversion# site '#request.site.name#' has been reset successfully!";
 							ADFReset = true;
 							break;
-						case "INSTALL":
+						case "CONFIGURE": case "INSTALL":
 							rtnMsg = createObject("component","ADF.core.SiteBase").initADFinstaller();
 							ADFReset = false;
 							break;
-						case "REINSTALL":
+                        case "RECONFIGURE": case "REINSTALL":
 							rtnMsg = createObject("component","ADF.core.SiteBase").initADFinstaller(reinstall=true);
 							ADFReset = false;
 							break;
