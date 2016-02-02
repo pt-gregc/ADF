@@ -171,7 +171,6 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 	
 		if (arguments.noConflict)
 			addFooterJS("<script>jQuery.noConflict();</script>", "PRIMARY");
-			//addFooterHTML("<script>jQuery.noConflict();</script>", "PRIMARY");
 		
 		// Load the Migrate plugin
 		if ( arguments.useMigrate ) 

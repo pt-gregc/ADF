@@ -110,7 +110,7 @@
 
 	registerResource
 	(
-		"JQuery 1.11", "PRIMARY",
+		"JQuery 1.12", "PRIMARY",
 		[
 			{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/jquery-1.11.js", canMinify=0}
 		],
