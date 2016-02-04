@@ -292,10 +292,18 @@ History:
 		var qNewPageData = QueryNew("temp");
 		var existingFullFilePath = "";
 		var newUniqueNamePath = "";
-		var titleCharMax = 250; // TODO: replace with commonspot variable
+		var titleCharMax = 250; // CommonSpot Default
 		var titleMaxWords = arguments.pageTitleWordMax;
-		var nameCharMax = 250; // TODO: replace with commonspot variable
+		var nameCharMax = 250; // CommonSpot Default
 		var nameMaxWords = arguments.pageTitleWordMax;
+		var siteSettingsCom = Server.CommonSpot.api.getObject('SiteSettings');
+		var pgSettings = siteSettingsCom.getPagePropsUI();
+
+		// Get the CommonSpot Page Creation setting from the SiteSettings.getPagePropsUI();
+		if ( StructKeyExists(pgSettings,"TitleMaxLength") )
+			titleCharMax = pgSettings.TitleMaxLength;
+		if ( StructKeyExists(pgSettings,"NameMaxLength") )
+			nameCharMax = pgSettings.NameMaxLength;
 
 		// Strip HTML tags
 		newPageTitle = TRIM(variables.data.stripHTMLtags(str=newPageTitle,replaceStr=" "));
