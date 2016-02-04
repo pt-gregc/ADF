@@ -263,6 +263,7 @@ Arguments:
 	String csPageName
 	Numeric csSubsiteID
 	Numeric csPageID
+	Numeric pageTitleWordMax
 	Numeric pageNameWordMax
 	Boolean verbose
 History:
@@ -270,13 +271,15 @@ History:
 	2013-05-29 - GAC - Updated the newUniqueNamePath to switch forward slashes to back slashes
 	2016-02-04 - GAC - Updated to honor the maxChar limit even if the pageTitleWordMax limit is not reached.
 					 	Script reduces the pageTitleWordMax limit until the max char limit is satisfied.
+					 - Added a pageNameWordMax parameter
 --->
 <cffunction name="createUniquePageInfofromPageTitle" access="public" returntype="struct" output="true" hint="Creates a unique page title, page name and file name for a page from a passed in pageTitle">
 	<cfargument name="csPageTitle" type="string" required="true" hint="a page title to build a page name and file name from">
 	<cfargument name="csPageName" type="string" required="true" hint="a page name to build a page name and file name from">
 	<cfargument name="csSubsiteID" type="numeric" required="false" default="0" hint="if subsite is 0 check whole, else check only the specified subsite">
 	<cfargument name="csPageID" type="numeric" required="false" default="0" hint="if a cs pageid is passed in and it matches an existing and valid cs page DO NOT create unique name">
-	<cfargument name="pageTitleWordMax" type="numeric" required="false" default="10" hint="Word limit for page and file names">
+	<cfargument name="pageTitleWordMax" type="numeric" required="false" default="10" hint="Word limit for page title">
+	<cfargument name="pageNameWordMax" type="numeric" required="false" default="#arguments.pageTitleWordMax#" hint="Word limit for page and file names">
 	<cfargument name="verbose" type="boolean" required="false" default="false" hint="Toggle debugging dump outputs">
 
 	<cfscript>
@@ -295,7 +298,7 @@ History:
 		var titleCharMax = 250; // CommonSpot Default
 		var titleMaxWords = arguments.pageTitleWordMax;
 		var nameCharMax = 250; // CommonSpot Default
-		var nameMaxWords = arguments.pageTitleWordMax;
+		var nameMaxWords = arguments.pageNameWordMax;
 		var siteSettingsCom = Server.CommonSpot.api.getObject('SiteSettings');
 		var pgSettings = siteSettingsCom.getPagePropsUI();
 
