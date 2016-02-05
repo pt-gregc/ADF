@@ -38,6 +38,7 @@ History:
 	2013-01-08 - GAC - Added a Date_1_2 lib
 	2014-02-26 - GAC - Updated for version 1.7.0
 	2014-10-08 - GAC - Updated for version 1.8.0
+	2016-02-05 - GAC - Added apiImage_1_0 to 1.8
  -->
 	<v_1.0>
 		<!-- // ajax -->
@@ -183,6 +184,7 @@ History:
 		<api_1_0/>
 		<apiConduitPool_1_0/>
 		<apiElement_1_1/>
+		<apiImage_1_0/>
 		<apiPage_1_1/>
 		<apiKeywords_1_1/>
 		<apiRemote_1_0/>

@@ -34,7 +34,7 @@ History:
 --->
 <cfcomponent displayname="apiImage_1_0" extends="ADF.core.Base" hint="API Image functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_2">
+<cfproperty name="version" value="1_0_3">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <cfproperty name="apiRemote" type="dependency" injectedBean="apiRemote_1_0">
 <cfproperty name="wikiTitle" value="APIImage_1_0">
@@ -102,7 +102,9 @@ History:
 		   	}
 		   	else
 		   	{
-			   	if ( StructKeyExists(cmdResults,"status") AND  StructKeyExists(cmdResults.status,"code") )
+			   	if ( StructKeyExists(cmdResults,"status") AND StructKeyExists(cmdResults.status,"text") )
+			   		result["CMDRESULTS"] = cmdResults.status.text;
+			   	else if ( StructKeyExists(cmdResults,"status") AND StructKeyExists(cmdResults.status,"code") )
 			   		result["CMDRESULTS"] = cmdResults.status.code;
 			   	else
 			   		result["CMDRESULTS"] = cmdResults;
