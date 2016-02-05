@@ -38,6 +38,7 @@ History:
 	2014-02-26 - GAC - Updated for version 1.7.0
 	2014-10-08 - GAC - Updated for version 1.8.0
 	2015-04-07 - GAC - Updated for version 2.0.0
+	2016-02-05 - GAC - Added apiImage_1_0 to 1.8 and 2.0
  -->
 <settings>
 	<v_1.0>
@@ -184,6 +185,7 @@ History:
 		<api_1_0/>
 		<apiConduitPool_1_0/>
 		<apiElement_1_1/>
+		<apiImage_1_0/>
 		<apiPage_1_1/>
 		<apiKeywords_1_1/>
 		<apiRemote_1_0/>
@@ -223,6 +225,7 @@ History:
 		<api_1_0/>
 		<apiConduitPool_1_0/>
 		<apiElement_1_1/>
+		<apiImage_1_0/>
 		<apiPage_1_1/>
 		<apiKeywords_1_1/>
 		<apiRemote_1_0/>
