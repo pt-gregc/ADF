@@ -381,6 +381,8 @@ History:
 	2013-01-31 - JTP - Optimized function for larger data sets
 	2014-02-24 - JTP - Var'ing the local getDataPageValueQrySORTED variable
 	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
+	2016-02-05 - GAC - Removed a usage of Server.CommonSpot.UDF.util.duplicateBean() since it currently does not work with Queries directly.
+	                   This query does not need "Duplicate()" anyway.
 --->
 
 <cffunction name="getCEData" access="public" returntype="array" hint="Returns array of structs for all data matching the Custom Element." output="false">
@@ -461,7 +463,10 @@ History:
 			ceFieldIDNameMap[ceFieldQuery.fieldID[i]] = Replace(ceFieldQuery.fieldName[i], "FIC_", "");
 
 		// Build in the initial query for the CE Data storage
-		ceDataQry = Server.CommonSpot.UDF.util.duplicateBean(ceDefaultFieldQry);
+		ceDataQry = ceDefaultFieldQry;
+		// - 2016-02-05 - Server.CommonSpot.UDF.util.duplicateBean() currently does not work with Queries
+		//ceDataQry = Server.CommonSpot.UDF.util.duplicateBean(ceDefaultFieldQry);
+				
 		getDataPageValueQry = getDataFieldValue(pageID=ValueList(pageIDValueQry.pageID),formid=ceFormID);
 	</cfscript>
 	
