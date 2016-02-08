@@ -179,8 +179,8 @@ History:
 		else if ( structKeyExists(request.params, "pageID") )
 			initArgs.dataPageID = request.params.pageID;
    		
-		if ( structKeyExists(request.params, "controlID") )
-			initArgs.controlID =  request.params.controlID;
+   		if ( structKeyExists(request.params, "controlID") )
+			initArgs.controlID =  request.params.controlID;	
 		
 		return initArgs;
 	</cfscript>
@@ -223,7 +223,7 @@ History:
 		selectionArgs.readOnly = arguments.readOnly;
 		selectionArgs.csPageID = request.page.id;
 		selectionArgs.dataPageID = request.page.id;
-		selectionArgs.controlID = 0;
+   		selectionArgs.controlID = 0;
 		selectionArgs.inputParameters = arguments.inputParameters;
 		selectionArgs.gcCustomParams = getCustomGCparams();
 		
@@ -231,8 +231,8 @@ History:
 			selectionArgs.dataPageID =  request.params.dataPageID;
 		else if ( structKeyExists(request.params, "pageID") )
 			selectionArgs.dataPageID = request.params.pageID;
-
-		if ( structKeyExists(request.params, "controlID") )
+   		
+   		if ( structKeyExists(request.params, "controlID") )
 			selectionArgs.controlID =  request.params.controlID;	
 		
 		return selectionArgs;
@@ -448,8 +448,6 @@ History:
 	2015-07-10 - GAC - Added the arguments scope to the readonly variables
 	2015-07-21 - GAC - Replaced the "ListAppend" and "ListLen" CFJS calls with local functions to remove the dependency on the jQuery Lib 
 					 - Added a missing semicolon after the loadTopics('search') call
-	2015-08-31 - GAC - Removed jQuery.LIVE and replace with jQuery.ON since it has been deprecated since 1.7 and no longer works with jQuery 2.x
-	2015-09-09 - GAC - Removed both jQuery.LIVE() and jQuery.ON() only a jQuery.CLICK() is needed for the search and show all buttons	
 --->
 <cffunction name="renderChooserJS" access="public" returntype="void" output="true" hint="Renders the Chooser CFT's JavaScript.">
 	<cfargument name="fieldName" type="string" required="true">
@@ -462,8 +460,6 @@ History:
 	<cfargument name="gcCustomParams" type="struct" default="#StructNew()#" required="false">
 	
 	<cfscript>
-		var passthroughParamsStr = getPassthroughParamsString(arguments.inputParameters);
-
 		// Set inputParameters Default values
 		if ( NOT StructKeyExists(arguments.inputParameters,"chooserCFCName")  )
 			arguments.inputParameters.chooserCFCName = ListLast(getMetadata().name,".");
@@ -486,7 +482,7 @@ History:
 #arguments.fieldName#.validator = "#arguments.fieldName#_validate()";
 vobjects_#arguments.formname#.push(#arguments.fieldName#);
 	
-var #arguments.fieldName#_ajaxProxyURL = "#application.ADF.ajaxProxy#?#passthroughParamsStr#";
+var #arguments.fieldName#_ajaxProxyURL = "#application.ADF.ajaxProxy#";
 var #arguments.fieldName#_currentValue = "#arguments.currentValue#";
 var #arguments.fieldName#_searchValues = "";
 	
@@ -495,14 +491,15 @@ jQuery(function(){
 	// Resize the window on the page load
 	checkResizeWindow();
 		
-	// Click Event for Show all Items link
-	jQuery('###arguments.fieldName#-showAllItems').click(function() {
+	// JQuery use the LIVE event b/c we are adding links/content dynamically		    
+    // click for show all not-selected items
+    jQuery('###arguments.fieldName#-showAllItems').live("click", function(event){
 	  	// Load all the not-selected options
 	  	#arguments.fieldName#_loadTopics('notselected');
 	});
 	    
-	// Click event for search button
-	jQuery('###arguments.fieldName#-searchBtn').click(function() {
+    // JQuery use the LIVE event b/c we are adding links/content dynamically
+    jQuery('###arguments.fieldName#-searchBtn').live("click", function(event){
   		//load the search field into currentItems
 		#arguments.fieldName#_searchValues = jQuery('input###arguments.fieldName#-searchFld').val();
 		#arguments.fieldName#_currentValue = jQuery('input###arguments.fieldName#').val();
@@ -754,8 +751,6 @@ History:
 	2011-04-28 - GAC - Added a check to see if the old "SHOW_SECTION1" variable was being used 
 						via site or app level override file. If so, then it will pass the value to the SHOW_SEARCH variable
 	2014-01-24 - TP - Updated to allow the the enter key to tigger the submit.
-	2015-07-23 - DRM - Added passthroughParams setting, list of fields to pass through to addNew and AddExisting buttons if they're in Request.Params
-						  - Use placeholder attribute on search field instead of (defective) js
 --->
 <cffunction name="loadSearchBox" access="public" returntype="string" hint="General Chooser - Search box HTML content.">
 	<cfargument name="fieldName" type="String" required="true">
@@ -776,7 +771,7 @@ History:
 			<!--- Render out the search box to the field type --->
 			<cfoutput>
 				<div id="search-chooser">
-					<input type="text" class="searchFld-chooser" id="#arguments.fieldName#-searchFld" name="searchbox" tabindex="1" onfocus="this.value='';" placeholder="Search" />
+					<input type="text" class="searchFld-chooser" id="#arguments.fieldName#-searchFld" name="searchbox" tabindex="1" onblur="this.value = this.value || this.defaultValue;" onfocus="this.value='';" value="Search" />
 					<a href="javascript:;" id="#arguments.fieldName#-searchBtn" class="ui-state-default ui-corner-all #arguments.fieldName#-ui-buttons clsPushButton">Search</a>
 					<cfif variables.SHOW_ALL_LINK EQ true>
 					<!--- Render out the show all link to the field type --->
@@ -834,20 +829,18 @@ History:
 	<cfargument name="fieldName" type="String" required="true">
 	<cfargument name="readonly" type="boolean" default="false" required="false">
 	<cfargument name="newItemLabel" type="String" default="#variables.NEW_ITEM_LABEL#" required="false">
-	<cfargument name="inputParameters" type="struct" default="#StructNew()#" required="false">
 	<cfargument name="gcCustomParams" type="struct" default="#StructNew()#" required="false">
 	
 	<cfscript>
 		var retAddLinkHTML = "";
 		var ceFormID = 0;
-		var passthroughParamsStr = getPassthroughParamsString(arguments.inputParameters);
-
+	
 		// Backward Compatibility to allow the variables from General Chooser v1.0 site and app override GC files to be honored
 		// - if the section2 variable is used and set to false... not ADD button should be displayed
 		if ( StructKeyExists(variables,"SHOW_SECTION2") AND variables.SHOW_SECTION2 EQ false )
 			variables.SHOW_ADD_LINK = false;
-
-		// - if SHOW_ADD_LINK is still true (and SHOW_SECTION2 is true) then check for the ADD_NEW_FLAG variable
+		
+		// - if SHOW_ADD_LINK is still true (and SHOW_SECTION2 is true) then check for the ADD_NEW_FLAG variable	
 		if ( StructKeyExists(variables,"ADD_NEW_FLAG") AND variables.SHOW_ADD_LINK NEQ false )
 			variables.SHOW_ADD_LINK = variables.ADD_NEW_FLAG;
 	</cfscript>
@@ -865,7 +858,7 @@ History:
 					js_#arguments.fieldName#_CE_FIELD = '#LCASE(variables.CE_FIELD)#';
 				</script>
 				<div id="add-new-items">
-					<a href="javascript:;" rel="#application.ADF.ajaxProxy#?bean=Forms_1_1&method=renderAddEditForm&formID=#ceFormID#&dataPageId=0&callback=#arguments.fieldName#_formCallback&title=#variables.NEW_ITEM_LABEL##passthroughParamsStr#" class="ADFLightbox ui-state-default ui-corner-all #arguments.fieldName#-ui-buttons">#variables.NEW_ITEM_LABEL#</a>
+					<a href="javascript:;" rel="#application.ADF.ajaxProxy#?bean=Forms_1_1&method=renderAddEditForm&formID=#ceFormID#&dataPageId=0&callback=#arguments.fieldName#_formCallback&title=#variables.NEW_ITEM_LABEL#" class="ADFLightbox ui-state-default ui-corner-all #arguments.fieldName#-ui-buttons">#variables.NEW_ITEM_LABEL#</a>
 				</div>
 			</cfoutput>
 		</cfsavecontent>
@@ -1326,27 +1319,5 @@ History:
 	</cfscript>
 	
 </cffunction>
-
-
-<cfscript>
-	function getPassthroughParamsString(inputParameters)
-	{
-		var passthroughParamsStr = "";
-		var aParams= "";
-		var i = 0;
-
-		if (structKeyExists(arguments.inputParameters, "passthroughParams") && arguments.inputParameters.passthroughParams != "")
-		{
-			aParams = listToArray(arguments.inputParameters.passthroughParams);
-			for (i = 1; i <= arrayLen(aParams); i++)
-			{
-				if (structKeyExists(request.params, aParams[i]))
-					passthroughParamsStr = "#passthroughParamsStr#&amp;#aParams[i]#=#request.params[aParams[i]]#";
-			}
-		}
-
-		return passthroughParamsStr;
-	}
-</cfscript>
 
 </cfcomponent>
