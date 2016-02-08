@@ -39,6 +39,8 @@ History:
 	2011-06-22 - GAC - Added a callback ID list param in the request.params that are being passed to the callback function 
 						to include IDs of records to be modified by the callback other than the one being deleted 
 	2012-11-01 - DMB - Added exclusion to field loop to prevent the doDelete form field from appearing twice in the form and breaking the logic of the app.
+	2015-11-18 - GAC - Added jQuery document ready around the callback script to make sure the lightbox scripts are loaded before running the callback
+						  -
 --->
 <cfscript>
 	if (NOT StructKeyExists(Request.Params,"doDelete"))
@@ -102,19 +104,27 @@ History:
 		<cfoutput><div style="width:100%;text-align:center;" class="cs_dlgNormal">Record deleted successfully</div></cfoutput>
 		<!--- Call the Callback function if defined --->
 		<cfif StructKeyExists(request.params,"callback") and LEN(request.params.callback)>
+			<cfsavecontent variable="doDeleteFooterJS">
 			<cfoutput>
-			<script type="text/javascript">
-				// Set back the lightbox callback
-				var values = {
-					dataPageID: #request.params.PageID#,
-					formID: #request.params.FormID#
-					<cfif StructKeyExists(request.params,"cbIDlist") AND LEN(TRIM(request.params.cbIDlist))>
-					,cbIDlist: '#request.params.cbIDlist#'
-					</cfif>
-				};
-				getCallback('#request.params.callback#',values);
-			</script>
+			<!--- <script type="text/javascript"> --->
+				jQuery(function(){
+					// Set back the lightbox callback
+					var values = {
+						dataPageID: #request.params.PageID#,
+						formID: #request.params.FormID#
+						<cfif StructKeyExists(request.params,"cbIDlist") AND LEN(TRIM(request.params.cbIDlist))>
+						,cbIDlist: '#request.params.cbIDlist#'
+						</cfif>
+					};
+					getCallback('#request.params.callback#',values);
+				});
+			<!--- </script> --->
 			</cfoutput>
+			</cfsavecontent>
+			<cfscript>
+				// Load the inline JavaScript after the libraries have loaded
+				application.ADF.scripts.addFooterJS(doDeleteFooterJS, "TERTIARY"); //  PRIMARY, SECONDARY, TERTIARY
+			</cfscript>
 		<cfelse>
 			<cfoutput>#application.ADF.forms.closeLBAndRefresh()#</cfoutput>
 		</cfif>
