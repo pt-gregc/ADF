@@ -31,10 +31,11 @@ Version:
 History:
 	2012-12-21 - GAC - Created - New v1.2
 	2013-02-28 - GAC - Added new date functions
+	2015-06-10 - ACW - Updated the component extends to no longer be dependant on the 'ADF' in the extends path
 --->
-<cfcomponent displayname="date_1_2" extends="ADF.lib.date.date_1_1" hint="Date Utils functions for the ADF Library">
+<cfcomponent displayname="date_1_2" extends="date_1_1" hint="Date Utils functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_2">
+<cfproperty name="version" value="1_2_3">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Date_1_2">
 	

@@ -30,10 +30,11 @@ Version:
 	1.0
 History:
 	2009-06-22 - PaperThin, Inc. - Created
+	2015-06-11 - GAC - Updated the component extends to use the libraryBase path
 --->
-<cfcomponent displayname="data_1_0" extends="ADF.core.Base" hint="Data Utils component functions for the ADF Library">
+<cfcomponent displayname="data_1_0" extends="ADF.lib.libraryBase" hint="Data Utils component functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_10">
+<cfproperty name="version" value="1_0_11">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Data_1_0">
 
@@ -740,8 +741,7 @@ Arguments:
 History:
 	2009-07-05 - RLW - Created
 	2011-02-07 - GAC - Added parameter to force all StructKeys to lowercase 
-	2015-09-10 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
-	2015-09-23 - GAC - duplicateBean() is a CS 9.0.3 specific update ... rolling back to Duplicate()
+	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
 --->
 <cffunction name="queryToArrayOfStructures" access="public" returntype="Array" hint="Converts a query to an array of structures">
 	<cfargument name="queryData" type="query" required="true" hint="The query that will be converted into an array of structures">
@@ -769,9 +769,7 @@ History:
 				else
 					thisRow[cols[col]] = arguments.queryData[cols[col]][row];	
 			}
-			// a CS 9.0.3 specific update ... rolling back to Duplicate()
-			//arrayAppend(theArray,Server.CommonSpot.UDF.util.duplicateBean(thisRow));
-			arrayAppend(theArray,duplicate(thisRow));
+			arrayAppend(theArray,Server.CommonSpot.UDF.util.duplicateBean(thisRow));
 		}
 		return theArray;
 	</cfscript>
@@ -1029,8 +1027,7 @@ Arguments:
 History:
 	2009-08-26 - MFC - Created
 	2011-02-02 - RAK - Added the ability to merge lists together
-	2015-09-10 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
-	2015-09-23 - GAC - duplicateBean() is a CS 9.0.3 specific update ... rolling back to Duplicate()
+	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
 --->
 <cffunction name="structMerge" returntype="struct" access="public" hint="Merge two simple or complex structures in one.">
     <cfargument name="struct1" type="struct" required="true">
@@ -1038,9 +1035,7 @@ History:
     <cfargument name="mergeValues" type="boolean" required="false" default="false" hint="Merges values if they can be merged">
    
 	<cfscript>
-		// ACF and CS 9.0.3 specific update ... rolling back to Duplicate()
-		//var retStruct = Server.CommonSpot.UDF.util.duplicateBean(arguments.struct1);  // Set struct1 as the base structure
-		var retStruct = duplicate(arguments.struct1);
+		var retStruct = Server.CommonSpot.UDF.util.duplicateBean(arguments.struct1);  // Set struct1 as the base structure
 		var retStructKeyList = structKeyList(retStruct);
 		var struct2KeyList = structKeyList(arguments.struct2);
 		var currKey = "";
@@ -1317,22 +1312,22 @@ Summary:
 	@author Raymond Camden (ray@camdenfamily.com)
 	@version 2, March 9, 2007
 --->
-<cffunction name="capFirst" returntype="string" output="false">
-    <cfargument name="str" type="string" required="true" />
+<cffunction name="capFirst" returntype="string" output="false" access="public">
+    <cfargument name="str" type="string" required="true">
     
-    <cfset var newstr = "" />
-    <cfset var word = "" />
-    <cfset var separator = "" />
+    <cfset var newstr = "">
+    <cfset var word = "">
+    <cfset var separator = "">
     
     <cfloop index="word" list="#arguments.str#" delimiters=" ">
-        <cfset newstr = newstr & separator & UCase(left(word,1)) />
+        <cfset newstr = newstr & separator & UCase(left(word,1))>
         <cfif len(word) gt 1>
-            <cfset newstr = newstr & right(word,len(word)-1) />
+            <cfset newstr = newstr & right(word,len(word)-1)>
         </cfif>
-        <cfset separator = " " />
+        <cfset separator = " ">
     </cfloop>
 
-    <cfreturn newstr />
+    <cfreturn newstr>
 </cffunction>
 
 <!---
@@ -1347,10 +1342,8 @@ Summary:
 	@return Returns an array.
 	@author Craig Fisher (craig@altainetractive.com)
 	@version 1, September 13, 2001
-	
 History:
-	2015-09-10 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
-	2015-09-23 - GAC - duplicateBean() is a CS 9.0.3 specific update ... rolling back to Duplicate()
+	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
 --->
 <cffunction name="ArrayConcat" access="public" returntype="array" hint="">
 	<cfargument name="a1" type="array" required="true" hint="">
@@ -1365,9 +1358,7 @@ History:
 	    }
 	    for (i=1;i LTE ArrayLen(a2);i=i+1) 
 	    {
-	       // a CS 9.0.3 specific update ... rolling back to Duplicate()
-	       // ArrayAppend(a1, Server.CommonSpot.UDF.util.duplicateBean(a2[i]));
-	       ArrayAppend(a1, duplicate(a2[i]));
+	        ArrayAppend(a1, Server.CommonSpot.UDF.util.duplicateBean(a2[i]));
 	    }
 	    return a1;
 	</cfscript>
