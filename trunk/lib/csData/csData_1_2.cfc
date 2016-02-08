@@ -49,10 +49,11 @@ History:
 	2015-01-05 - GAC - Added isTemplate function
 	2015-01-08 - GAC - Moved isTemplated to csData_1_3	
 	2015-06-09 - DRM - Update application.cs -> Server.CommonSpot.udf, CommonSpot change
+	2015-06-10 - ACW - Updated the component extends to no longer be dependant on the 'ADF' in the extends path
 --->
-<cfcomponent displayname="csData_1_2" extends="ADF.lib.csData.csData_1_1" hint="CommonSpot Data Utils functions for the ADF Library">
+<cfcomponent displayname="csData_1_2" extends="csData_1_1" hint="CommonSpot Data Utils functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_23">
+<cfproperty name="version" value="1_2_24">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">

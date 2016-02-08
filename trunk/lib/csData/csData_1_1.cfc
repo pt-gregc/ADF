@@ -40,10 +40,11 @@ History:
 					 - Added a csPageID parameter to the getRSSFeedURLFromElementID element
 	2012-12-07 - MFC - Moved new functions to CSData v1.2.
 	2015-06-09 - DRM - Update application.cs -> Server.CommonSpot.udf, CommonSpot change
+	2015-06-10 - ACW - Updated the component extends to no longer be dependant on the 'ADF' in the extends path
 --->
-<cfcomponent displayname="csData_1_1" extends="ADF.lib.csData.csData_1_0" hint="CommonSpot Data Utils functions for the ADF Library">
+<cfcomponent displayname="csData_1_1" extends="csData_1_0" hint="CommonSpot Data Utils functions for the ADF Library">
 	
-<cfproperty name="version" value="1_1_9">
+<cfproperty name="version" value="1_1_10">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_1">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">
@@ -177,12 +178,11 @@ History:
 	<cfscript>
 		var textblockData = '';
 		var returnData = StructNew();
+
+		if ( Len(trim(arguments.name)) eq 0 or arguments.pageID lt 1 )
+		    return returnData;
 	</cfscript>
 
-	<cfif Len(name) eq 0 or pageID lt 1>
-		<cfreturn returnData>
-	</cfif>
-	
 	<cfquery name="textblockData" datasource="#request.site.datasource#">
 		  SELECT 	*
 			FROM 	Data_TextBlock dtb

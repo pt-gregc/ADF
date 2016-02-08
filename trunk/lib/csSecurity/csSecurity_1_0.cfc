@@ -31,10 +31,11 @@ Version:
 History:
 	2009-07-08 - MFC - Created
 	2011-10-04 - GAC - Updated comment block headers
+	2015-06-11 - GAC - Updated the component extends to use the libraryBase path
 --->
-<cfcomponent displayname="csSecurity_1_0" extends="ADF.core.Base" hint="Custom Element Data functions for the ADF Library">
+<cfcomponent displayname="csSecurity_1_0" extends="ADF.lib.libraryBase" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_1">
+<cfproperty name="version" value="1_0_2">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="CSSecurity_1_0">
 
