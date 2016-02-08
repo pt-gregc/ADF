@@ -25,17 +25,17 @@ Author:
 Custom Field Type:
 	Custom Element Select Field 
 Name:
-	custom_element_select_field_base.cfc
+	custom_element_select_field_render.cfc
 Summary:
-	This is a pass-through component for the Custom Element Select Field base 
+	This is a pass-through component for the Custom Element Select Field render 
 Version:
 	2.0
 History:
-	2014-03-07 - GAC - Created
+	2015-04-10 - DJM - Created
 	2015-05-26 - DJM - Modified extends to ADF.extensions.customfields.custom_element_select_field.v2_0.custom_element_select_field_render
 --->
-<cfcomponent displayname="custom element select field_base" extends="v2_0.custom_element_select_field_base" output="false" hint="This is a pass-through component for the Custom Element Select Field base">
+<cfcomponent displayname="custom element select field_render" extends="ADF.extensions.customfields.custom_element_select_field.v2_0.custom_element_select_field_render" output="false" hint="This is a pass-through component for the Custom Element Select Field render">
 	
-	<!--- // This is a pass-through component for the Custom Element Select Field base  --->
+	<!--- // This is a pass-through component for the Custom Element Select Field render  --->
 	
 </cfcomponent>

@@ -1,0 +1,12 @@
+/* custom_element_select_field_styles.css */
+
+.addNewButton {
+	font-size: 10px;
+	padding: 2px 4px;
+	text-decoration:none;
+	margin-left: 6px;
+}
+
+a.addNewButton:hover {
+	cursor: pointer;
+}

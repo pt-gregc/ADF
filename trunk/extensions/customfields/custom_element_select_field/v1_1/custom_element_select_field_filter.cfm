@@ -46,15 +46,7 @@ Summary:
 				
 			attributes.fieldNameAttributeValue
 				The value to be set in the HTML output for the 'Name' attribute
-				It is normally set as 'metadata_XRE' where metadata is the object class and XRE is replaced by a numeric valued ynamically in js code
-			
-			attributes.currentValues
-				This attribute contains the current values for the field. This is normally used in combination with attributes.returnCurrentOnly
-				to get the selected values display text to be displayed when user is in the edit filter dialog. The display text is set as caller.selectedValDisplayText
-			
-			attributes.returnCurrentOnly
-				This attribute indicates whether to return just the current values display text or not. This is normally used in combination with attributes.currentValues
-				to get the selected values display text to be displayed when user is in the edit filter dialog. The display text is set as caller.selectedValDisplayText
+		
 		
 	Output: 
 		You must set the following 'caller' scope variables;
@@ -121,35 +113,26 @@ Summary:
 					The code for this function will be included once, no matter how many fields of that type are in the operators list.						
 					
 					For example: if your HTML outputs a simple text <input> control, the function might look like this
-							function setValue_#attributes.CustomFieldTypeID#(objID,value)
+							function setValue_#attributes.CustomFieldTypeID#(fieldid,value)
 							{
-								var fieldName = '#attributes.fieldNameAttributeValue#';
-								fieldName = fieldName.replace("_XRE", "_" + objID);
-								document.getElementById(fieldName).value = value;
-							}
-					Here objID contains the dynamic number value replacing the string 'XRE' in our value passed for fieldNameAttributeValue
-			
-			caller.selectedValDisplayText
-					
-					This is the display string separated by break tags which we display when user comes to the edit dialog of a filter. This is used to
-					display the selected values on the edit screen.
+								document.getElementById(fieldid).value = value;
+							}						
 History:
 	2014-01-14 - TP - Created
 	2014-01-30 - GAC - Moved into a v1_0 version subfolder						
 	2014-02-26 - DJM - Updated version with an external options file
-	2015-12-15 - DJM - Updated code to send displayText if returnCurrentOnly is true
 -------------->
 <cfset caller.operators = "">
 <cfset optionsStruct = StructNew()>
 <cfset cfmlInputParams = ''>
-<cfset caller.selectedValDisplayText = "">
-<cfset selectedValDisplayText = "">
 
 <cfset optionsModule = '/ADF/extensions/customfields/custom_element_select_field/v1_1/custom_element_select_field_options.cfm'>
 
+
+
 <cfif StructKeyExists(attributes, 'currentValues') AND StructKeyExists(attributes, 'returnCurrentOnly') AND attributes.returnCurrentOnly EQ 1>
 	<cfmodule template = "#optionsModule#" attributeCollection="#attributes#">
-	<cfset caller.selectedValDisplayText = selectedValDisplayText>	<!--- selectedValDisplayText value is set in the optionsModule --->
+	<cfset caller.optionsStruct = ArrayToList(optionsStruct.optionText, "<br/>")>
 <cfelse>
 	<cfsavecontent variable="fieldHTML">
 		<cfoutput>
