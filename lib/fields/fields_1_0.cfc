@@ -33,8 +33,10 @@ History:
 	2014-08-04 - GAC - Added new methods getCEFieldID and getCEFieldName
 	2015-02-06 - GAC - Added the new method renderHiddenControlsFromQueryString
 	2015-02-24 - GAC - Added the new method renderHiddenControlsFromRequestParams
+	2015-05-27 - DRM - Added the new method renderCSFormScripts()
+	2015-06-11 - GAC - Updated the component extends to use the libraryBase path
 --->
-<cfcomponent displayname="fields_1_0" extends="ADF.core.Base" hint="Custom Field Type functions for the ADF Library">
+<cfcomponent displayname="fields_1_0" extends="ADF.lib.libraryBase" hint="Custom Field Type functions for the ADF Library">
 
 <cfproperty name="version" value="1_0_5">
 <cfproperty name="type" value="transient">
@@ -433,7 +435,7 @@ History:
 	2015-02-04 - GAC - Created
 	2015-02-18 - GAC - Added a delimiter between the tagIDprefix and the KEY for the input tag ID
 	2015-02-24 - GAC - Rename the excludedKeyList parameter to excludedParamList for consistency
-					 - Moved all of the rendering code and logic to the renderHiddenControlsFromRequestParams() method
+					 	  - Moved all of the rendering code and logic to the renderHiddenControlsFromRequestParams() method
  --->
 <cffunction name="renderHiddenControlsFromQueryString" returntype="string" access="public" hint="Render hidden input controls based on a url query string">
 	<cfargument name="queryString" type="string" required="false" default="#Request.CGIVars.QUERY_STRING#" hint="URL query sting to parse">
@@ -533,5 +535,42 @@ History:
 		return retHTML;
 	</cfscript>
 </cffunction>
+
+
+
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+Name:
+	renderCSFormScripts
+Summary:
+	Outputs javascript utilities for use with CommonSpot 10.0+ custom forms
+	Tracks whether it's already been called in this request, renders only once
+Returns:
+	String
+Arguments: none
+Usage:
+	renderCSFormScripts()
+	call from somewhere that output is enabled
+History:
+	2015-05-27 - DRM - Added
+	2015-05-28 - DRM - added ByFormFieldName variants
+ --->
+<!---<cffunction name="renderCSFormScripts" returntype="void">
+	<cfscript>
+		if (structKeyExists(request, "ADF_csFormScriptsLoaded"))
+			return;
+		request.ADF_csFormScriptsLoaded = 1;
+	</cfscript>
+
+	<!---
+		set up global namespace for ADF js if it's not already defined
+		set up adf.formUtils, package of methods for working with fields in CommonSpot 10.0+ custom forms
+			always available in fieldtype renderers that extend extensions/customfields/adf-form-field-renderer-base.cfc, which all adf and app renderers should
+	--->
+	<cfoutput><script>
+</script></cfoutput>
+</cffunction>--->
 
 </cfcomponent>
