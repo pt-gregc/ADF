@@ -34,8 +34,9 @@ History:
 	2014-04-04 - GAC - Added the doThow method with logging options
 	2014-05-27 - GAC - Added new methods to help secure ADFdumpVar: processADFDumpVar and sanitizeADFDumpVarData
 	2014-10-16 - GAC - Added and updated version of the runCommand method to better handle app based components and logging
+	2015-06-10 - ACW - Updated the component extends to no longer be dependant on the 'ADF' in the extends path
 --->
-<cfcomponent displayname="utils_1_2" extends="ADF.lib.utils.utils_1_1" hint="Util functions for the ADF Library">
+<cfcomponent displayname="utils_1_2" extends="utils_1_1" hint="Util functions for the ADF Library">
 
 <cfproperty name="version" value="1_2_15">
 <cfproperty name="type" value="singleton">
@@ -759,8 +760,7 @@ Arguments:
 History:
  	2014-05-22 - GAC - Created
 	2014-05-27 - GAC - Method cleanup / removed dev dumps
-	2015-09-10 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
-	2015-09-23 - GAC - duplicateBean() is a CS 9.0.3 specific update ... rolling back to Duplicate()
+	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
 --->
 <cffunction name="sanitizeADFDumpVarData" access="public" returntype="any" output="false" hint="Returns a ADFdumpVar data from the ADFdumpVar URL command with secure data sanitized.">
 	<cfargument name="dumpVarStr" type="string" required="false" default="" hint="">
@@ -798,9 +798,7 @@ History:
 				}
 				else
 				{
-					// a CS 9.0.3 specific update ... rolling back to Duplicate()
-					//retData = Server.CommonSpot.UDF.util.duplicateBean(arguments.dumpVarData);
-					retData = duplicate(arguments.dumpVarData);
+					retData = Server.CommonSpot.UDF.util.duplicateBean(arguments.dumpVarData);
 					
 					// Find the instances of the CSPASSWORD stuct key 
 					pwFindArray = StructFindKey(retData,configPWkey,"all");
