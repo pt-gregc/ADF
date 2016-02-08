@@ -46,6 +46,7 @@ History:
 	2015-01-28 - DJM - Added timeout to resize frame function call to avoid multiple scrollbars
 	2015-02-10 - DJM - Added code to hide text inputs related to secondary element when it is set as none
 	2015-05-01 - GAC - Updated to add a forceScript parameter to bypass the ADF renderOnce script loader
+	2015-05-12 - DJM - Updated the field version to 2.0
 	2015-07-03 - DJM - Added code for disableDatamanager interface option
 	2015-07-10 - DRM - Fix allForms  QoQ, change required at least for ACF9/MySQL
 							 Bump fieldVersion
@@ -56,15 +57,21 @@ History:
 							 Bump fieldVersion
 	2015-08-05 - DRM - Update passthorugh params descr
 							 Bump fieldVersion
+	2015-09-02 - DRM - Add getResourceDependencies support, bump version
+	2016-01-06 - DRM - Add prompt about min width units
+							 Bump fieldVersion, min CS version
+	2016-01-20 - DRM - Make order and text of Interface Options consistent, put single quotes around element names only
+							 Switch order of rendered Add New buttons to put join table first
+							 Bump fieldVersion
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "1.0.12";
+	fieldVersion = "2.0.9";
 	
 	// CS version and required Version variables
-	requiredCSversion = 9;
+	requiredCSversion = 10;
 	csVersion = ListFirst(ListLast(request.cp.productversion," "),".");
 </cfscript>	
 
@@ -144,7 +151,7 @@ History:
 		currentValues.forceScripts = 0;
 	if( not structKeyExists(currentValues, "passthroughParams") )
 		currentValues.passthroughParams = "";
-
+	
 	// UI changed to provide the JOIN as a single field instead of child and assoc. So added logic to properly select the join and secondary elements according to the data stored for DB
 	joinObj = '';
 	secondaryObj = '';
@@ -695,8 +702,8 @@ History:
 		}
 		else
 		{
-			document.getElementById("addExistingOpt").innerHTML = "Allow 'Add New " + jQuery("option:selected",jQuery("###prefix#childCustomElementSelect")).text() + "'";
-			document.getElementById("editAssocOpt").innerHTML = "Allow 'Edit' of " + jQuery("option:selected",jQuery("###prefix#childCustomElementSelect")).text();
+			document.getElementById("addExistingOpt").innerHTML = "Allow Add New of '" + jQuery("option:selected",jQuery("###prefix#childCustomElementSelect")).text() + "'";
+			document.getElementById("editAssocOpt").innerHTML = "Allow Edit of '" + jQuery("option:selected",jQuery("###prefix#childCustomElementSelect")).text() + "'";
 			var selectedDisplayFieldIDs = "#currentValues.displayFields#";
 			var selectedDisplayFieldIDArray = selectedDisplayFieldIDs.split(',');
 			var replaceArrayForSelected = selectedDisplayFieldIDs.split(',');			
@@ -768,8 +775,8 @@ History:
 						jQuery("###prefix#parentInstanceIDField").val(#currentValues.parentInstanceIDField#);
 						jQuery("###prefix#childInstanceIDField").val(#currentValues.childInstanceIDField#);
 						var selectedAssocText = jQuery("option:selected",jQuery("###prefix#assocCustomElementSelect")).text();
-						document.getElementById("addNewOpt").innerHTML = "Allow 'Add New " + selectedAssocText + "'";
-						document.getElementById("editChildOpt").innerHTML = "Allow 'Edit' of " + selectedAssocText;
+						document.getElementById("addNewOpt").innerHTML = "Allow Add New of '" + selectedAssocText + "'";
+						document.getElementById("editChildOpt").innerHTML = "Allow Edit of '" + selectedAssocText + "'";
 						document.getElementById('assocCENameSpan').innerHTML = selectedAssocText;
 						document.getElementById('assocChildCENameSpan').innerHTML = selectedAssocText;
 						
@@ -996,8 +1003,8 @@ History:
 				document.getElementById('editChildOptionTextSpan').style.display = "none";	
 			}
 			var selecetdAssocText = jQuery("option:selected",jQuery("###prefix#assocCustomElementSelect")).text();
-			document.getElementById("addNewOpt").innerHTML = "Allow 'Add New " + selecetdAssocText + "'";
-			document.getElementById("editChildOpt").innerHTML = "Allow 'Edit' of " + selecetdAssocText;
+			document.getElementById("addNewOpt").innerHTML = "Allow Add New of '" + selecetdAssocText + "'";
+			document.getElementById("editChildOpt").innerHTML = "Allow Edit' of '" + selecetdAssocText + "'";
 			document.getElementById("#prefix#newOptionText").value = "Add New " + selecetdAssocText;
 			document.getElementById("#prefix#editChildOptionText").value = "Edit " + selecetdAssocText;
 			document.getElementById('threeJoinInputs').style.display = "";
@@ -1162,8 +1169,8 @@ History:
 	updateFieldsOnChildCEChange = function(selectedChild,selectedAssoc,selectedType){
 		if (selectedChild == "")
 		{
-			document.getElementById("addExistingOpt").innerHTML = "Allow 'Add New'";
-			document.getElementById("editAssocOpt").innerHTML = "Allow 'Edit'";
+			document.getElementById("addExistingOpt").innerHTML = "Allow Add New";
+			document.getElementById("editAssocOpt").innerHTML = "Allow Edit";
 			document.getElementById('childElementInputs').style.display = "none";
 			document.getElementById('inactiveFieldTr').style.display = "none";
 			document.getElementById('threeJoinInputs').style.display = "none";
@@ -1176,8 +1183,8 @@ History:
 		{
 			var selectedChildText = jQuery("option:selected",jQuery("###prefix#childCustomElementSelect")).text();
 			selectedAssocWithType = jQuery("option:selected",jQuery("###prefix#assocCustomElementSelect")).val();
-			document.getElementById("addExistingOpt").innerHTML = "Allow 'Add New " + selectedChildText + "'";
-			document.getElementById("editAssocOpt").innerHTML = "Allow 'Edit' of " + selectedChildText;
+			document.getElementById("addExistingOpt").innerHTML = "Allow Add New of '" + selectedChildText + "'";
+			document.getElementById("editAssocOpt").innerHTML = "Allow Edit of '" + selectedChildText + "'";
 			document.getElementById("#prefix#existingOptionText").value = "Add New " + selectedChildText;
 			document.getElementById("#prefix#editAssocOptionText").value = "Edit " + selectedChildText;
 			document.getElementById("#prefix#deleteOptionText").value = "Delete " + selectedChildText;
@@ -1308,11 +1315,12 @@ History:
 		
 		if (selectedChild == "" && selectedAssoc == "")
 		{
-			document.getElementById("deleteOpt").innerHTML = "Allow 'Delete'";
+			document.getElementById("deleteOpt").innerHTML = "Allow Delete";
 		}
 		else
 		{
-			document.getElementById("deleteOpt").innerHTML = "Allow 'Delete' of " + jQuery("option:selected",jQuery("###prefix#childCustomElementSelect")).text();
+			document.getElementById("deleteOpt").innerHTML = "Allow Delete of '" + jQuery("option:selected",jQuery("###prefix#childCustomElementSelect")).text() + "'";
+			document.#formname#.#prefix#interfaceOptionsCbox[4].checked = true;
 		}
 	}
 // -->
@@ -1373,16 +1381,26 @@ History:
 		<tr>
 			<th valign="baseline" class="cs_dlgLabelBold" nowrap="nowrap">Interface Options:</th>
 			<td valign="baseline" class="cs_dlgLabelSmall">
-				<span id="newOption" <cfif secondaryObj EQ "" OR selectedSecondaryCEType NEQ 'global'>style="display:none;"</cfif>>#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", id="#prefix#interfaceOptionsCbox", name="#prefix#interfaceOptionsCbox", value="new", label="<span id='addNewOpt'>Allow 'Add New'</span>", labelIsHTML=1, checked=(ListFindNoCase(currentValues.interfaceOptions,'new')), labelClass="cs_dlgLabelSmall", onclick="#prefix#toggleInputField(this,'new');")#&nbsp;<br/></span>
-				<span id="newOptionTextSpan" <cfif NOT ListFindNoCase(currentValues.interfaceOptions,'new')>style="display:none;padding-left:50px;"<cfelse>style="padding-left:50px;"</cfif>>Button Text:&nbsp;#Server.CommonSpot.udf.tag.input(type="text", id="#prefix#newOptionText", name="#prefix#newOptionText", value="#currentValues.newOptionText#", size="30", class="InputControl")#<br/></span>
-				<span id="existingOption">#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", id="#prefix#interfaceOptionsCbox", name="#prefix#interfaceOptionsCbox", value="existing", label="<span id='addExistingOpt'>Allow 'Add Existing'</span>", labelIsHTML=1, checked=(ListFindNoCase(currentValues.interfaceOptions,'existing')), labelClass="cs_dlgLabelSmall", onclick="#prefix#toggleInputField(this,'existing');")#&nbsp;<br/></span>
+				<span id="existingOption">#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", id="#prefix#interfaceOptionsCbox", name="#prefix#interfaceOptionsCbox", value="existing", label="<span id='addExistingOpt'>Allow Add Existing</span>", labelIsHTML=1, checked=(ListFindNoCase(currentValues.interfaceOptions,'existing')), labelClass="cs_dlgLabelSmall", onclick="#prefix#toggleInputField(this,'existing');")#&nbsp;<br/></span>
+
 				<span id="existingOptionTextSpan" <cfif NOT ListFindNoCase(currentValues.interfaceOptions,'existing')>style="display:none;padding-left:50px;"<cfelse>style="padding-left:50px;"</cfif>>Button Text:&nbsp;#Server.CommonSpot.udf.tag.input(type="text", id="#prefix#existingOptionText", name="#prefix#existingOptionText", value="#currentValues.existingOptionText#", size="30", class="InputControl")#<br/></span>
-				<span id="editAssocOption">#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", id="#prefix#interfaceOptionsCbox", name="#prefix#interfaceOptionsCbox", value="editAssoc", label="<span id='editAssocOpt'>Allow 'Edit'</span>", labelIsHTML=1, checked=(ListFindNoCase(currentValues.interfaceOptions,'editAssoc')), labelClass="cs_dlgLabelSmall", onclick="#prefix#toggleInputField(this,'editAssoc');")#&nbsp;<br/></span>
+
+				<span id="newOption" <cfif secondaryObj EQ "" OR selectedSecondaryCEType NEQ 'global'>style="display:none;"</cfif>>#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", id="#prefix#interfaceOptionsCbox", name="#prefix#interfaceOptionsCbox", value="new", label="<span id='addNewOpt'>Allow Add New</span>", labelIsHTML=1, checked=(ListFindNoCase(currentValues.interfaceOptions,'new')), labelClass="cs_dlgLabelSmall", onclick="#prefix#toggleInputField(this,'new');")#&nbsp;<br/></span>
+
+				<span id="newOptionTextSpan" <cfif NOT ListFindNoCase(currentValues.interfaceOptions,'new')>style="display:none;padding-left:50px;"<cfelse>style="padding-left:50px;"</cfif>>Button Text:&nbsp;#Server.CommonSpot.udf.tag.input(type="text", id="#prefix#newOptionText", name="#prefix#newOptionText", value="#currentValues.newOptionText#", size="30", class="InputControl")#<br/></span>
+
+				<span id="editAssocOption">#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", id="#prefix#interfaceOptionsCbox", name="#prefix#interfaceOptionsCbox", value="editAssoc", label="<span id='editAssocOpt'>Allow Edit</span>", labelIsHTML=1, checked=(ListFindNoCase(currentValues.interfaceOptions,'editAssoc')), labelClass="cs_dlgLabelSmall", onclick="#prefix#toggleInputField(this,'editAssoc');")#&nbsp;<br/></span>
+
 				<span id="editAssocOptionTextSpan" <cfif NOT ListFindNoCase(currentValues.interfaceOptions,'editAssoc')>style="display:none;padding-left:50px;"<cfelse>style="padding-left:50px;"</cfif>>Hover Text:&nbsp;#Server.CommonSpot.udf.tag.input(type="text", id="#prefix#editAssocOptionText", name="#prefix#editAssocOptionText", value="#currentValues.editAssocOptionText#", size="30", class="InputControl")#<br/></span>
-				<span id="editChildOption" <cfif secondaryObj EQ "" OR selectedSecondaryCEType NEQ 'global'>style="display:none;"</cfif>>#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", id="#prefix#interfaceOptionsCbox", name="#prefix#interfaceOptionsCbox", value="editChild", label="<span id='editChildOpt'>Allow 'Edit'</span>", labelIsHTML=1, checked=(ListFindNoCase(currentValues.interfaceOptions,'editChild')), labelClass="cs_dlgLabelSmall", onclick="#prefix#toggleInputField(this,'editChild');")#&nbsp;<br/></span>
+
+				<span id="editChildOption" <cfif secondaryObj EQ "" OR selectedSecondaryCEType NEQ 'global'>style="display:none;"</cfif>>#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", id="#prefix#interfaceOptionsCbox", name="#prefix#interfaceOptionsCbox", value="editChild", label="<span id='editChildOpt'>Allow Edit</span>", labelIsHTML=1, checked=(ListFindNoCase(currentValues.interfaceOptions,'editChild')), labelClass="cs_dlgLabelSmall", onclick="#prefix#toggleInputField(this,'editChild');")#&nbsp;<br/></span>
+
 				<span id="editChildOptionTextSpan" <cfif NOT ListFindNoCase(currentValues.interfaceOptions,'editChild')>style="display:none;padding-left:50px;"<cfelse>style="padding-left:50px;"</cfif>>Hover Text:&nbsp;#Server.CommonSpot.udf.tag.input(type="text", id="#prefix#editChildOptionText", name="#prefix#editChildOptionText", value="#currentValues.editChildOptionText#", size="30", class="InputControl")#<br/></span>
-				#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", id="#prefix#interfaceOptionsCbox", name="#prefix#interfaceOptionsCbox", value="delete", label="<span id='deleteOpt'>Allow 'Delete'</span>", labelIsHTML=1, checked=(ListFindNoCase(currentValues.interfaceOptions,'delete')), labelClass="cs_dlgLabelSmall", onclick="#prefix#toggleInputField(this,'delete');")#&nbsp;<br/></span>
+
+				#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", id="#prefix#interfaceOptionsCbox", name="#prefix#interfaceOptionsCbox", value="delete", label="<span id='deleteOpt'>Allow Delete</span>", labelIsHTML=1, checked=(ListFindNoCase(currentValues.interfaceOptions,'delete')), labelClass="cs_dlgLabelSmall", onclick="#prefix#toggleInputField(this,'delete');")#&nbsp;<br/></span>
+
 				<span id="deleteOptionTextSpan" <cfif NOT ListFindNoCase(currentValues.interfaceOptions,'delete')>style="display:none;padding-left:50px;"<cfelse>style="padding-left:50px;"</cfif>>Hover Text:&nbsp;#Server.CommonSpot.udf.tag.input(type="text", id="#prefix#deleteOptionText", name="#prefix#deleteOptionText", value="#currentValues.deleteOptionText#", size="30", class="InputControl")#<br/></span>
+
 				<span id="disableDMOption">#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", id="#prefix#interfaceOptionsCbox", name="#prefix#interfaceOptionsCbox", value="disableDatamanager", label="Disable Data Manager until initial save", labelIsHTML=1, title="Unchecking this option may cause records which are added via Data manager to be orphaned if the initial Save of the parent custom element is cancelled", checked=((parentElementType EQ 'MetadataForm') OR ListFindNoCase(currentValues.interfaceOptions,'disableDatamanager')), labelClass="cs_dlgLabelSmall", disabled=(parentElementType EQ 'MetadataForm'))#&nbsp;<br/></span>
 			</td>
 		</tr>
@@ -1400,17 +1418,23 @@ History:
 		<tr>
 			<th class="cs_dlgLabelBold" nowrap="nowrap">Grid Dimensions:</th>
 			<td valign="baseline" nowrap="nowrap">
-				<table><tr><td class="cs_dlgLabelSmall">Width:
+				<table>
+				<tr>
+				<td class="cs_dlgLabelSmall">Width:
 				#Server.CommonSpot.udf.tag.input(type="text", id="#prefix#widthValue", name="#prefix#widthValue", value="#currentValues.widthValue#", size="5", class="InputControl")#
 				<select name="#prefix#widthUnit" id="#prefix#widthUnit">
-					<option value="percent" <cfif currentValues.widthUnit EQ 'percent'>selected</cfif>>%</option>
 					<option value="pixel" <cfif currentValues.widthUnit EQ 'pixel'>selected</cfif>>px</option>
-				</select></td>
+					<option value="percent" <cfif currentValues.widthUnit EQ 'percent'>selected</cfif>>%</option>
+				</select>
+				</td>
 				<td class="cs_dlgLabelSmall">Height:
 				#Server.CommonSpot.udf.tag.input(type="text", id="#prefix#heightValue", name="#prefix#heightValue", value="#currentValues.heightValue#", size="5", class="InputControl")#
 				<select name="#prefix#heightUnit" id="#prefix#heightUnit">
 					<option value="pixel" <cfif currentValues.heightUnit EQ 'pixel'>selected</cfif>>px</option>
-				</select></td></td></tr></table>
+				</select></td>
+				</tr>
+				<tr><td colspan="2" class="cs_dlgLabelSmall" nowrap="nowrap">Use px width to ensure that the form is at least the requested width.</td></tr>
+				</table>
 			</td>
 		</tr>
 		<tr>
@@ -1542,15 +1566,6 @@ History:
 			#Server.CommonSpot.udf.tag.checkboxRadio(type="radio", id="#prefix#forceScripts_no", name="#prefix#forceScripts", value="0", label="No", checked=(currentValues.forceScripts EQ 0), labelClass="cs_dlgLabelSmall")#
 		</td>
 	</tr>
-	<!--- <tr>
-		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Force Loading Scripts:</td>
-		<td class="cs_dlgLabelSmall">
-			<label style="color:black;font-size:12px;font-weight:normal;"><input type="radio" id="#prefix#forceScripts" name="#prefix#forceScripts" value="1" <cfif currentValues.forceScripts EQ "1">checked</cfif>> Yes</label>
-			&nbsp;&nbsp;&nbsp;
-			<label style="color:black;font-size:12px;font-weight:normal;"><input type="radio" id="#prefix#forceScripts" name="#prefix#forceScripts" value="0" <cfif currentValues.forceScripts EQ "0">checked</cfif>> No</label>
-			<br />Force the JQuery script to load.
-		</td>
-	</tr> --->
 	<tr>
 		<td class="cs_dlgLabelSmall" colspan="2" style="font-size:7pt;">
 			<hr />
