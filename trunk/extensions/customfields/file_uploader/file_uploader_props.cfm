@@ -26,7 +26,7 @@ Author:
 Custom Field Type:
 	file uploader
 Name:
-	generic_uploader_props.cfm
+	file_uploader_props.cfm
 Summary:
 	Gives a text field allowing user to enter file locations. Then verifies them.
 ADF Requirements:
@@ -36,58 +36,10 @@ History:
 	2014-01-02 - GAC - Added the CFSETTING tag to disable CF Debug results in the props module
 	2014-01-03 - GAC - Added the fieldVersion variable
 	2014-09-19 - GAC - Removed deprecated doLabel and jsLabelUpdater js calls
+	2015-05-12 - DJM - Added redirect CFINCLUDE to point to file_uploader/v2/file_uploader_props.cfm
+	2015-05-26 - DJM - Added redirect CFINCLUDE to point to file_uploader/v3/file_uploader_props.cfm
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
-<cfscript>
-	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "1.0.1"; 
-	
-	// initialize some of the attributes variables
-	typeid = attributes.typeid;
-	prefix = attributes.prefix;
-	formname = attributes.formname;
-	currentValues = attributes.currentValues;
-	if( not structKeyExists(currentValues, "filePath") )
-		currentValues.filePath = "";
-	if( not structKeyExists(currentValues, "filetypes") )
-		currentValues.filetypes = "txt,pdf";
-		
-	application.ADF.scripts.loadJQuery(noConflict=true);
-</cfscript>
-<cfoutput>
-	<script type="text/javascript">
-		fieldProperties['#typeid#'].paramFields = "#prefix#filePath,#prefix#filetypes";
-		fieldProperties['#typeid#'].jsValidator = '#prefix#doValidate';
-
-		function #prefix#doValidate(){
-			filePath = jQuery("###prefix#filePath");
-			if(filePath.length == 0){
-				alert("Please specify a filepath.");
-				return false;
-			}
-			return true;
-		}
-	
-	</script>
-	<table>
-		<tr>
-			<td class="cs_dlgLabelSmall">File Path:</td>
-			<td class="cs_dlgLabelSmall">
-				<input type="text" name="#prefix#filePath" id="#prefix#filePath" value="#currentValues.filePath#" size="40">
-			</td>
-		</tr>
-		<tr>
-			<td class="cs_dlgLabelSmall">Accepted Filetypes (txt,pdf):</td>
-			<td class="cs_dlgLabelSmall">
-				<input type="text" name="#prefix#filetypes" id="#prefix#filetypes" value="#currentValues.filetypes#" size="40">
-			</td>
-		</tr>
-		<tr>
-			<td class="cs_dlgLabelSmall" colspan="2" style="font-size:7pt;">
-				<hr />
-				ADF Custom Field v#fieldVersion#
-			</td>
-		</tr>
-	</table>
-</cfoutput>
+<cfset useCFTversion = "v3">
+<cfinclude template="#useCFTversion#/file_uploader_props.cfm">

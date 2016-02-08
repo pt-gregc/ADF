@@ -7,7 +7,7 @@ Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 the specific language governing rights and limitations under the License.
 
-The Original Code is comprised of the ADF directory
+The Original Code is comprised of the Starter App directory
 
 The Initial Developer of the Original Code is
 PaperThin, Inc.  Copyright (c) 2009-2016.
@@ -17,17 +17,24 @@ By downloading, modifying, distributing, using and/or accessing any files
 in this directory, you agree to the terms and conditions of the applicable 
 end user license agreement.
 --->
-
 <!---
 /* *************************************************************** */
 Author: 	
 	PaperThin, Inc. 
+Custom Field Type:
+	File Uploader
 Name:
-	fileUploadForm.cfm
+	file_uploader_render.cfc
 Summary:
-	This is a redirect file used with the the file_Uploader CFT					
+	This is a pass-through component for the File Uploader render 
+Version:
+	3
 History:
-	2015-06-11 - GAC - Added redirect CFINCLUDE to point to /file_uploader/v3_0/fileUploadForm.cfm
+	2015-05-08 - DJM - Created
+	2015-05-26 - DJM - Modified extends to ADF.extensions.customfields.file_uploader.v3.file_uploader_render
 --->
-<cfset useCFTversion = "v3_0">
-<cfinclude template="#useCFTversion#/fileUploadForm.cfm">
+<cfcomponent displayname="file uploader_render" extends="ADF.extensions.customfields.file_uploader.v3.file_uploader_render" output="false" hint="This is a pass-through component for the File Uploader render">
+	
+	<!--- // This is a pass-through component for the File Uploader render  --->
+	
+</cfcomponent>
