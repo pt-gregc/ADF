@@ -31,7 +31,7 @@ Summary:
 	General Chooser field type.
 	Allows for selection of the custom element records.
 Version:
-	1.2
+	2.0
 History:
 	2009-05-29 - MFC - Created
 	2011-03-20 - MFC - Updated component to simplify the customizations process and performance.
@@ -45,7 +45,8 @@ History:
 	2013-12-05 - GAC - Added standard CS text formatting to the props options 
 	2013-12-10 - GAC - Added redirect CFINCLUDE to point to general_chooser/v1_2/general_chooser_1_2_props.cfm
 	2014-01-02 - GAC - Added the CFSETTING tag to disable CF Debug results in the props module
+	2015-05-26 - DJM - Added redirect CFINCLUDE to point to general_chooser/v2_0/general_chooser_2_0_props.cfm
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
-<cfinclude template="/ADF/extensions/customfields/general_chooser/v1_2/general_chooser_1_2_props.cfm">
+<cfinclude template="/ADF/extensions/customfields/general_chooser/v2_0/general_chooser_2_0_props.cfm">

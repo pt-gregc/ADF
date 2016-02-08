@@ -29,7 +29,7 @@ Name:
 Summary:
 	General Chooser component.
 Version:
-	1.2
+	2.0
 History:
 	2009-10-16 - MFC - Created
 	2009-11-13 - MFC - Updated the Ajax calls to the CFC to call the controller 
@@ -43,9 +43,10 @@ History:
 	2013-10-22 - GAC - Updated to inject the data_1_2 lib in to the variables.data scope since we are extending ceData_2_0
 	2013-10-23 - GAC - Removed data_1_2 injection due to ADF reset errors on startup
 	2013-12-10 - GAC - Updated the extends to point to ADF.extensions.customfields.general_chooser.v1_2.general_chooser_1_2
+	2015-05-26 - DJM - Updated the extends to point to ADF.extensions.customfields.general_chooser.v2_0.general_chooser_2_0
 --->
-<cfcomponent name="general_chooser" extends="ADF.extensions.customfields.general_chooser.v1_2.general_chooser_1_2">
+<cfcomponent name="general_chooser" extends="ADF.extensions.customfields.general_chooser.v2_0.general_chooser_2_0">
 	
-	<!--- // This is pass through file for the v1.2 component for the General Chooser field --->
+	<!--- // This is pass through file for the v2.0 component for the General Chooser field --->
 	
 </cfcomponent>
