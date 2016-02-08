@@ -1,0 +1,11 @@
+Same Records Cache
+
+<!--- // This code goes in the render handler for the same records cache. --->
+<cfscript>
+    if( StructKeyExists(request,"CS_SameRecordsInfo") )
+
+    {
+        request.CS_SameRecordsInfo.renderhandler = '/renderhandlers/press-list.cfm';
+        request.CS_SameRecordsInfo.ElementInfo = attributes.ElementInfo;
+    }
+</cfscript>
