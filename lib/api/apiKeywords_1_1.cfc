@@ -31,12 +31,12 @@ Version:
 History:
 	2015-09-11 - GAC - Created
 --->
-<cfcomponent displayname="apiKeywords_1_1" extends="ADF.lib.api.apiKeywords_1_0" hint="API Keywords functions for the ADF Library">
+<cfcomponent displayname="apiKeywords_1_1" extends="apiKeywords_1_0" hint="API Keywords functions for the ADF Library">
 
 <cfproperty name="version" value="1_1_0">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <cfproperty name="apiRemote" type="dependency" injectedBean="apiRemote_1_0">
-<!---<cfproperty name="utils" type="dependency" injectedBean="utils_1_2">--->
+<!--- <cfproperty name="utils" type="dependency" injectedBean="utils_2_0"> --->
 <cfproperty name="wikiTitle" value="APIKeywords_1_1">
 
 <!---//////////////////////////////////////////////////////--->

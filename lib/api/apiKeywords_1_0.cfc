@@ -30,10 +30,11 @@ Version:
 	1.0
 History:
 	2012-12-26 - MFC - Created
+	2015-06-11 - GAC - Updated the component extends to use the libraryBase path
 --->
-<cfcomponent displayname="apiKeywords_1_0" extends="ADF.core.Base" hint="API Keywords functions for the ADF Library">
+<cfcomponent displayname="apiKeywords_1_0" extends="ADF.lib.libraryBase" hint="API Keywords functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_4">
+<cfproperty name="version" value="1_0_5">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <!--- <cfproperty name="utils" type="dependency" injectedBean="utils_1_2"> --->
 <cfproperty name="wikiTitle" value="APIKeywords_1_0">

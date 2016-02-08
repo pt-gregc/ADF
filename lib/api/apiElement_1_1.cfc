@@ -30,14 +30,15 @@ Version:
 	1.1
 History:
 	2014-09-08 - GAC - Created
+	2015-06-10 - ACW - Updated the component extends to no longer be dependant on the 'ADF' in the extends path
 --->
-<cfcomponent displayname="apiElement_1_1" extends="ADF.lib.api.apiElement_1_0" hint="">
+<cfcomponent displayname="apiElement_1_1" extends="apiElement_1_0" hint="">
 
 <cfproperty name="version" value="1_1_2">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
-<cfproperty name="csData" type="dependency" injectedBean="csData_1_2">
+<cfproperty name="csData" type="dependency" injectedBean="csData_2_0">
 <cfproperty name="apiConduitPool" type="dependency" injectedBean="apiConduitPool_1_0">
-<cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
+<cfproperty name="utils" type="dependency" injectedBean="utils_2_0">
 <cfproperty name="wikiTitle" value="APIElement_1_1">
 
 <!---

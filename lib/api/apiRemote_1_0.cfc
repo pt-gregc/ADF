@@ -31,7 +31,7 @@ Version:
 History:
 	2015-09-01 - GAC - Created
 --->
-<cfcomponent displayname="apiRemote_1_0" extends="ADF.core.Base" hint="CMD API Remote Request functions for the ADF Library">
+<cfcomponent displayname="apiRemote_1_0" extends="ADF.lib.libraryBase" hint="CMD API Remote Request functions for the ADF Library">
 	
 <cfproperty name="version" value="1_0_0">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
