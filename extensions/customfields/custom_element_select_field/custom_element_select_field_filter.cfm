@@ -30,6 +30,7 @@ Summary:
 History:
 	2014-01-14 - TP - Created						
 	2014-01-30 - GAC - Added redirect CFINCLUDE to point to custom_element_select_field/v1_1/custom_element_select_field_filter.cfm
+	2015-05-26 - DJM - Added redirect CFINCLUDE to point to custom_element_select_field/v2_0/custom_element_select_field_filter.cfm
 --->
-<cfset useCFTversion = "v1_1">
+<cfset useCFTversion = "v2_0">
 <cfinclude template="/ADF/extensions/customfields/custom_element_select_field/#useCFTversion#/custom_element_select_field_filter.cfm">
