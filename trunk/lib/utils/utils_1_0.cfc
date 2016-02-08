@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2015.
+PaperThin, Inc.  Copyright (c) 2009-2016.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -30,10 +30,11 @@ Version:
 	1.0
 History:
 	2009-06-22 - MFC - Created
+	2015-05-21 - GAC - Moved the HTMLSafeFormattedTextBox() method to data_1_2 LIB for v1.8.2
 --->
 <cfcomponent displayname="utils_1_0" extends="ADF.core.Base" hint="Util functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_9">
+<cfproperty name="version" value="1_0_11">
 <cfproperty name="type" value="singleton">
 <cfproperty name="ceData" type="dependency" injectedBean="ceData_1_0">
 <cfproperty name="wikiTitle" value="Utils_1_0">
@@ -46,8 +47,8 @@ History:
 	<cfabort>
 </cffunction>
 
-<!--- /**
- * Coverts special characters to character entities, making a string safe for display in HTML.
+<!--- /*
+ * Converts special characters to character entities, making a string safe for display in HTML.
  * Version 2 update by Eli Dickinson (eli.dickinson@gmail.com)
  * Fixes issue of lists not being equal and adding bull
  * v3, extra semicolons
@@ -57,19 +58,11 @@ History:
  * @author Gyrus (eli.dickinson@gmail.com gyrus@norlonto.net)
  * @version 3, August 30, 2006
  */ --->
+<!--- // Moved to data_1_2 LIB for v1.8.2 --->
 <cffunction name="HTMLSafeFormattedTextBox" access="public" returntype="string">
 	<cfargument name="inString" type="string" required="true">
 
-	<cfscript>
-		var badChars = "&amp;nbsp;,&amp;amp;,&quot;,&amp;ndash;,&amp;rsquo;,&amp;ldquo;,&amp;rdquo;,#chr(12)#";
-		var goodChars = "&nbsp;,&amp;,"",&ndash;,&rsquo;,&ldquo;,&rdquo;,&nbsp;";
-
-		// Return immediately if blank string
-		if (NOT Len(Trim(arguments.inString))) return arguments.inString;
-
-		// Do replacing
-		return ReplaceList(arguments.inString, badChars, goodChars);
-	</cfscript>
+	<cfreturn application.ADF.data.HTMLSafeFormattedTextBox(inString=inString)>
 </cffunction>
 
 <!---
@@ -94,7 +87,8 @@ History:
 	2013-11-20 - GAC - Added hints to the msg, addTimeStamp and the label arguments
 	2013-12-05 - DRM - Create formatted UTC timestamp in local code, avoids crash logging ADF startup errors when ADF isn't built yet
 	                   default logFile to adf-debug.log, instead of debug.log
-	2014-09-19 - GAC - Add a parameter to make the UTC timestamp optional
+	2014-09-19 - GAC - Added a parameter to make the UTC timestamp optional
+	2015-12-03 - GAC - Added a parameter to make the timestamp prefix on the log entry optional 
 --->
 <cffunction name="logAppend" access="public" returntype="void">
 	<cfargument name="msg" type="any" required="true" hint="if this value is NOT a simple string then the value gets converted to sting output using CFDUMP">
@@ -103,10 +97,12 @@ History:
 	<cfargument name="logDir" type="string" required="false" default="#request.cp.commonSpotDir#logs/">
 	<cfargument name="label" type="string" required="false" default="" hint="Adds a text label to the log entry">
 	<cfargument name="useUTC" type="boolean" required="false" default="true" hint="Converts the timestamp in the entry and the filename to UTC">
+	<cfargument name="addEntryTimeStamp" type="boolean" required="false" default="true" hint="Allows the timestamp prefix in the log entry to be excluded">
 	
 	<cfscript>
 		var logFileName = arguments.logFile;
 		var dateTimeStamp = mid(now(), 6, 19);
+		var logEntry = "";
 		
 		if( arguments.addTimeStamp )
 			logFileName = dateFormat(now(), "yyyymmdd") & "." & request.site.name & "." & logFileName;
@@ -116,16 +112,23 @@ History:
 			
 		if ( arguments.useUTC )
 			dateTimeStamp = mid(dateConvert('local2utc', dateTimeStamp), 6, 19) & " (UTC)";
+	
+		if ( !isSimpleValue(arguments.msg) ) 
+			arguments.msg = doDump(arguments.msg,"#arguments.label# - #dateTimeStamp#",0,1);
+		
+		logEntry = arguments.label & " " & arguments.msg;
+		if ( arguments.addTimeStampPrefix )
+			logEntry = dateTimeStamp & " - " & logEntry;
 	</cfscript>
+	
 	<cftry>
 		<!--- Check if the file exists --->
 		<cfif NOT directoryExists(arguments.logdir)>
 			<cfdirectory action="create" directory="#arguments.logdir#">
 		</cfif>
-		<cfif NOT isSimpleValue(arguments.msg)>
-			<cfset arguments.msg = doDump(arguments.msg,"#arguments.label# - #dateTimeStamp#",0,1)>
-		</cfif>
-		<cffile action="append" file="#arguments.logDir##logFileName#" output="#dateTimeStamp# - #arguments.label# #arguments.msg#" addnewline="true" fixnewline="true">
+		
+		<cffile action="append" file="#arguments.logDir##logFileName#" output="#logEntry#" addnewline="true" fixnewline="true">
+
 		<cfcatch type="any">
 			<cfdump var="#arguments.logDir##logFileName#" label="Log File: #arguments.logDir##logFileName#" />
 			<cfdump expand="false" label="LogAppend() Error" var="#cfcatch#" />
@@ -190,12 +193,13 @@ History:
 	2010-08-30 - GAC - Added arguments scope to the returnInVar variable
 								 Set return value of 'foo' equal to an empty string 
 	2014-01-13 - GAC - Updated the return variable name and simplified the dump output logic
+	2015-06-17 - Updated the returnInVar argument to be type=boolean 
 --->
 <cffunction name="doDump" access="public" returntype="string" output="true" hint="ColdFusion dump of the variable argument.">
 	<cfargument name="var" required="Yes" type="any">
 	<cfargument name="label" required="no" type="string" default="no label">
 	<cfargument name="expand" required="no" type="boolean" default="true">
-	<cfargument name="returnInVar" type="numeric" required="No" default="0">
+	<cfargument name="returnInVar" type="boolean" required="No" default="0">
 	
 	<cfscript>
 		var resultHTML = "";

@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2015.
+PaperThin, Inc.  Copyright (c) 2009-2016.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files
@@ -35,7 +35,7 @@ History:
 --->
 <cfcomponent displayname="ceData_1_1" extends="ADF.lib.ceData.ceData_1_0" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="1_1_12">
+<cfproperty name="version" value="1_1_13">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_1">
 <cfproperty name="wikiTitle" value="CEData_1_1">
@@ -1506,6 +1506,8 @@ History:
 						Added call to clear the "currentElement" variable when looping in step 2.
 	2013-04-11 - MFC - Updated the calls to "generateStructKey" function for the new function name.
 	2014-03-05 - JTP - Var declarations
+	2015-09-10 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
+	2015-09-23 - GAC - duplicateBean() is a CS 9.0.3 specific update ... rolling back to Duplicate()
 --->
 <cffunction name="differentialSync" access="public" returntype="struct" hint="Given a list of custom elements, create or update or optionally delete elements.">
 	<cfargument name="elementName" type="string" required="true" default="" hint="Name of the element to sync">
@@ -1685,7 +1687,10 @@ History:
 
 				if(isDifferent){
 					//We have a change on our hands! Do something!
+					// a CS 9.0.3 specific update ... rolling back to Duplicate()
+				    //arguments.updateOverride = Server.CommonSpot.UDF.util.duplicateBean(updateOverride);
 				    arguments.updateOverride = duplicate(updateOverride);
+					
 					arguments.updateOverride.args.data = newElement.values;
 					arguments.updateOverride.args.data.dataPageID = currentElement.pageID;
 					ArrayAppend(commandArray,arguments.updateOverride);
@@ -1695,7 +1700,10 @@ History:
 				StructDelete(srcElementStruct,currentKey);
 			}else{
 				//A new guy eh...
+				// a CS 9.0.3 specific update ... rolling back to Duplicate()
+				//arguments.newOverride = Server.CommonSpot.UDF.util.duplicateBean(newOverride);
 				arguments.newOverride = duplicate(newOverride);
+				
 				arguments.newOverride.args.data = StructNew();
 				arguments.newOverride.args.data = newElement.values;
 				ArrayAppend(commandArray,arguments.newOverride);

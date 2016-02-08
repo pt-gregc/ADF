@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2015.
+PaperThin, Inc.  Copyright (c) 2009-2016.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -37,7 +37,7 @@ History:
 --->
 <cfcomponent displayname="utils_1_2" extends="ADF.lib.utils.utils_1_1" hint="Util functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_13">
+<cfproperty name="version" value="1_2_15">
 <cfproperty name="type" value="singleton">
 <cfproperty name="ceData" type="dependency" injectedBean="ceData_2_0">
 <cfproperty name="csData" type="dependency" injectedBean="csData_1_2">
@@ -425,6 +425,8 @@ Arguments:
 	String AuthToken -  future feature
 History:
 	2012-08-16 - GAC - Created
+	2015-08-19 - GAC - Updated for the schedule log file name to only allow .log and .txt files to be generated (as per ACF 10+)
+	     			 - Added the allowedLogExts parameter to allow additional log extensions if set in ACF 10+ server config
 --->
 <cffunction name="setRecurringScheduledTask" access="public" returntype="struct" output="false" hint="Creates or updates a scheduled task that is recurring.">
 	<cfargument name="url" type="string" required="true">
@@ -437,6 +439,8 @@ History:
 	<cfargument name="endTime" type="string" default="" required="false" hint="">
 	<cfargument name="timeout" type="string" default="3600" required="false"> 
 	<cfargument name="AuthToken" type="string" default="" required="false" hint=""> 
+	<cfargument name="allowedLogExts" type="string" default="txt,log" required="false" hint="Comma Delimited list of allowed log file extensions (without the dot)"> 
+	
 	<cfscript>
 		var retResult = StructNew();
 		var schedURL = arguments.url;
@@ -452,9 +456,11 @@ History:
 		var defaultEndDateTime = DateAdd("n",1,defaultStartDateTime);
 		
 		var logFileDir = request.cp.commonSpotDir & "logs/";
-		var fullLogFilePath = logFileDir & arguments.schedLogFileName;
-		var uniqueFullLogFilePath = createUniqueFileName(fullLogFilePath);
-		var uniqueLogFileName = ListLast(uniqueFullLogFilePath,"/");
+		var fullLogFilePath = "";
+		var uniqueFullLogFilePath = "";
+		var uniqueLogFileName = "";
+		var logExt = "";
+		var logFileName = "";
 		
 		var schedStartDate = arguments.startDate;
 		var schedStartTime = arguments.startTime;
@@ -469,6 +475,19 @@ History:
 		
 		// TODO: FUTURE FEATURE: Use for recurring tasks that need authenication to run unattended
 		var validAuthToken = false;
+		
+		// ACF 10+ only allows .log and .txt extension for the generated log files.
+		// Additional extensions can be added to the \cfusion\lib\neo-cron.xml config file.
+		// https://wikidocs.adobe.com/wiki/display/coldfusionen/cfschedule
+		logExt = ListLast(arguments.schedLogFileName,'.');
+		logFileName = Mid(arguments.schedLogFileName, 1, Len(arguments.schedLogFileName)-Len(logExt)-1);
+		
+		if ( ListFindNoCase(arguments.allowedLogExts,logExt) EQ 0 )
+			arguments.schedLogFileName = logFileName & ".log";
+		
+		fullLogFilePath = logFileDir & arguments.schedLogFileName;
+		uniqueFullLogFilePath = createUniqueFileName(fullLogFilePath);
+		uniqueLogFileName = ListLast(uniqueFullLogFilePath,"/");
 		
 		// Verify that the interval passed is valid, if not set the interval to once
 		// - if a numeric value they run the task every X number of seconds
@@ -553,6 +572,7 @@ History:
 			<cfset retResult.status = "success">
 		<cfcatch type="any">
 			<cfset retResult.status = "failed">
+			<!---// TODO: Add Logging --->
 			<cfif StructKeyExists(cfcatch,"message")>
 				<cfset retResult.msg = cfcatch.message>
 			</cfif>
@@ -739,6 +759,8 @@ Arguments:
 History:
  	2014-05-22 - GAC - Created
 	2014-05-27 - GAC - Method cleanup / removed dev dumps
+	2015-09-10 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
+	2015-09-23 - GAC - duplicateBean() is a CS 9.0.3 specific update ... rolling back to Duplicate()
 --->
 <cffunction name="sanitizeADFDumpVarData" access="public" returntype="any" output="false" hint="Returns a ADFdumpVar data from the ADFdumpVar URL command with secure data sanitized.">
 	<cfargument name="dumpVarStr" type="string" required="false" default="" hint="">
@@ -776,7 +798,9 @@ History:
 				}
 				else
 				{
-					retData = Duplicate(arguments.dumpVarData);
+					// a CS 9.0.3 specific update ... rolling back to Duplicate()
+					//retData = Server.CommonSpot.UDF.util.duplicateBean(arguments.dumpVarData);
+					retData = duplicate(arguments.dumpVarData);
 					
 					// Find the instances of the CSPASSWORD stuct key 
 					pwFindArray = StructFindKey(retData,configPWkey,"all");

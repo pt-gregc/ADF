@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2015.
+PaperThin, Inc.  Copyright (c) 2009-2016.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files
@@ -45,12 +45,23 @@ History:
 	2014-09-19 - GAC - Removed deprecated doLabel and jsLabelUpdater js calls
 	2015-01-28 - DJM - Added timeout to resize frame function call to avoid multiple scrollbars
 	2015-02-10 - DJM - Added code to hide text inputs related to secondary element when it is set as none
+	2015-05-01 - GAC - Updated to add a forceScript parameter to bypass the ADF renderOnce script loader
+	2015-07-03 - DJM - Added code for disableDatamanager interface option
+	2015-07-10 - DRM - Fix allForms  QoQ, change required at least for ACF9/MySQL
+							 Bump fieldVersion
+	2015-07-14 - DJM - Added code to display button inputs only when corresponding checkbox is checked
+	2015-07-15 - DJM - Updated code to uncheck the "Disable Data Manager until initial save" checkbox by default
+	2015-07-22 - DRM - Added passthroughParams setting, list of fields to pass through to addNew and AddExisting buttons if they're in Request.Params
+	2015-08-04 - DRM - Show or alert ajax errors
+							 Bump fieldVersion
+	2015-08-05 - DRM - Update passthorugh params descr
+							 Bump fieldVersion
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "1.0.7"; 
+	fieldVersion = "1.0.12";
 	
 	// CS version and required Version variables
 	requiredCSversion = 9;
@@ -129,7 +140,11 @@ History:
 		currentValues.editChildOptionText = "";
 	if( not structKeyExists(currentValues, "deleteOptionText") )
 		currentValues.deleteOptionText = "";
-	
+	if( not structKeyExists(currentValues, "forceScripts") )
+		currentValues.forceScripts = 0;
+	if( not structKeyExists(currentValues, "passthroughParams") )
+		currentValues.passthroughParams = "";
+
 	// UI changed to provide the JOIN as a single field instead of child and assoc. So added logic to properly select the join and secondary elements according to the data stored for DB
 	joinObj = '';
 	secondaryObj = '';
@@ -209,10 +224,10 @@ History:
 </cfscript>
 
 <cfquery name="allForms" dbtype="query">
-	SELECT ID, Name, LOWER(Type) 
+	SELECT ID, Name, LOWER(Type) AS Type
 	  FROM allCustomElements 
-	UNION ALL
-	SELECT ID, FormName AS Name, 'metadataform' AS Type
+				UNION ALL
+	SELECT ID, CAST(FormName AS VARCHAR) AS Name, 'metadataform' AS Type
 	  FROM allMetadataForms
 </cfquery>
 
@@ -249,7 +264,7 @@ History:
 <!--
 	jQuery.noConflict();
 	
-	fieldProperties['#typeid#'].paramFields = "#prefix#childCustomElement,#prefix#parentUniqueField,#prefix#childUniqueField,#prefix#childLinkedField,#prefix#inactiveField,#prefix#inactiveFieldValue,#prefix#displayFields,#prefix#sortByType,#prefix#sortByField,#prefix#sortByDir,#prefix#positionField,#prefix#assocCustomElement,#prefix#secondaryElementType,#prefix#interfaceOptions,#prefix#compOverride,#prefix#parentInstanceIDField,#prefix#childInstanceIDField,#prefix#widthValue,#prefix#widthUnit,#prefix#heightValue,#prefix#heightUnit,#prefix#newOptionText,#prefix#existingOptionText,#prefix#editAssocOptionText,#prefix#editChildOptionText,#prefix#deleteOptionText";
+	fieldProperties['#typeid#'].paramFields = "#prefix#childCustomElement,#prefix#parentUniqueField,#prefix#childUniqueField,#prefix#childLinkedField,#prefix#inactiveField,#prefix#inactiveFieldValue,#prefix#displayFields,#prefix#sortByType,#prefix#sortByField,#prefix#sortByDir,#prefix#positionField,#prefix#assocCustomElement,#prefix#secondaryElementType,#prefix#interfaceOptions,#prefix#compOverride,#prefix#parentInstanceIDField,#prefix#childInstanceIDField,#prefix#widthValue,#prefix#widthUnit,#prefix#heightValue,#prefix#heightUnit,#prefix#newOptionText,#prefix#existingOptionText,#prefix#editAssocOptionText,#prefix#editChildOptionText,#prefix#deleteOptionText,#prefix#forceScripts,#prefix#passthroughParams";
 	fieldProperties['#typeid#'].jsValidator = '#prefix#doValidate';
 	
 	function #prefix#toggleInputField(chkBoxObj,optionValue)
@@ -427,7 +442,7 @@ History:
 			if(document.#formname#.#prefix#interfaceOptionsCbox[i].checked == true)
 			{
 				addToList = 1;
-					valueToAdd = '';
+				valueToAdd = '';
 				if ((i == 0 || i == 3) && selectedType.toLowerCase() != 'global')
 					addToList = 0;
 				if (addToList == 1)
@@ -452,7 +467,7 @@ History:
 							fldValue = trim(document.#formname#.#prefix#deleteOptionText.value);
 							break;		
 					}
-					if ( fldValue == '')
+					if (valueToAdd != 'disableDatamanager' && fldValue == '')
 					{
 						showMsg('Please enter a button/hover text for all the checked interface options.');
 						return false;
@@ -968,8 +983,10 @@ History:
 			{				
 				document.getElementById('newOption').style.display = "";
 				document.getElementById('editChildOption').style.display = "";
-				document.getElementById('newOptionTextSpan').style.display = "";
-				document.getElementById('editChildOptionTextSpan').style.display = "";	
+				if(document.#formname#.#prefix#interfaceOptionsCbox[0].checked == true)
+					document.getElementById('newOptionTextSpan').style.display = "";
+				if(document.#formname#.#prefix#interfaceOptionsCbox[3].checked == true)
+					document.getElementById('editChildOptionTextSpan').style.display = "";	
 			}
 			else
 			{
@@ -1168,6 +1185,8 @@ History:
 			document.getElementById('existingOption').style.display = "";
 			document.getElementById('editAssocOption').style.display = "";
 			document.getElementById('inactiveFieldTr').style.display = "";
+			document.#formname#.#prefix#interfaceOptionsCbox[1].checked = true;
+			document.#formname#.#prefix#interfaceOptionsCbox[2].checked = true;
 			
 			if (selectedAssoc != "")
 				document.getElementById('threeJoinInputs').style.display = "";
@@ -1364,6 +1383,7 @@ History:
 				<span id="editChildOptionTextSpan" <cfif NOT ListFindNoCase(currentValues.interfaceOptions,'editChild')>style="display:none;padding-left:50px;"<cfelse>style="padding-left:50px;"</cfif>>Hover Text:&nbsp;#Server.CommonSpot.udf.tag.input(type="text", id="#prefix#editChildOptionText", name="#prefix#editChildOptionText", value="#currentValues.editChildOptionText#", size="30", class="InputControl")#<br/></span>
 				#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", id="#prefix#interfaceOptionsCbox", name="#prefix#interfaceOptionsCbox", value="delete", label="<span id='deleteOpt'>Allow 'Delete'</span>", labelIsHTML=1, checked=(ListFindNoCase(currentValues.interfaceOptions,'delete')), labelClass="cs_dlgLabelSmall", onclick="#prefix#toggleInputField(this,'delete');")#&nbsp;<br/></span>
 				<span id="deleteOptionTextSpan" <cfif NOT ListFindNoCase(currentValues.interfaceOptions,'delete')>style="display:none;padding-left:50px;"<cfelse>style="padding-left:50px;"</cfif>>Hover Text:&nbsp;#Server.CommonSpot.udf.tag.input(type="text", id="#prefix#deleteOptionText", name="#prefix#deleteOptionText", value="#currentValues.deleteOptionText#", size="30", class="InputControl")#<br/></span>
+				<span id="disableDMOption">#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", id="#prefix#interfaceOptionsCbox", name="#prefix#interfaceOptionsCbox", value="disableDatamanager", label="Disable Data Manager until initial save", labelIsHTML=1, title="Unchecking this option may cause records which are added via Data manager to be orphaned if the initial Save of the parent custom element is cancelled", checked=((parentElementType EQ 'MetadataForm') OR ListFindNoCase(currentValues.interfaceOptions,'disableDatamanager')), labelClass="cs_dlgLabelSmall", disabled=(parentElementType EQ 'MetadataForm'))#&nbsp;<br/></span>
 			</td>
 		</tr>
 		<tr>
@@ -1423,6 +1443,16 @@ History:
 			<td valign="baseline">
 				#Server.CommonSpot.udf.tag.input(type="text", id="#prefix#compOverride", name="#prefix#compOverride", value="#currentValues.compOverride#", size="30", class="InputControl")#
 			</td>
+		</tr>
+		<tr>
+			<th valign="baseline" class="cs_dlgLabelBold" nowrap="nowrap">Passthrough Params:</th>
+			<td valign="baseline">
+				#Server.CommonSpot.udf.tag.input(type="text", id="#prefix#passthroughParams", name="#prefix#passthroughParams", value="#currentValues.passthroughParams#", size="70", class="InputControl")#
+			</td>
+		</tr>
+		<tr>
+			<td valign="baseline" align="right">&nbsp;</td>
+			<td valign="baseline" align="left" class="cs_dlgLabelSmall">Optional comma-delimited list of Form or URL fields to pass through to dialogs invoked when the user presses either of the 'Add New' buttons.</td>
 		</tr>
 		<tr>
 			<td colspan="2" valign="baseline" class="cs_dlgLabel" nowrap="nowrap"><strong>#parentFormLabel#<br/><hr/></strong></td>
@@ -1499,6 +1529,28 @@ History:
 			</td>
 		</tr>
 	</tbody>
+	<tr>
+		<td class="cs_dlgLabelSmall" colspan="2">
+			<hr />
+		</td>
+	</tr>
+	<tr>
+		<th valign="baseline" class="cs_dlgLabelBold" nowrap="nowrap">Force Loading Scripts:</th>
+		<td valign="baseline">
+			#Server.CommonSpot.udf.tag.checkboxRadio(type="radio", id="#prefix#forceScripts_yes", name="#prefix#forceScripts", value="1", label="Yes", checked=(currentValues.forceScripts EQ 1), labelClass="cs_dlgLabelSmall")#
+			&nbsp;&nbsp;&nbsp;
+			#Server.CommonSpot.udf.tag.checkboxRadio(type="radio", id="#prefix#forceScripts_no", name="#prefix#forceScripts", value="0", label="No", checked=(currentValues.forceScripts EQ 0), labelClass="cs_dlgLabelSmall")#
+		</td>
+	</tr>
+	<!--- <tr>
+		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Force Loading Scripts:</td>
+		<td class="cs_dlgLabelSmall">
+			<label style="color:black;font-size:12px;font-weight:normal;"><input type="radio" id="#prefix#forceScripts" name="#prefix#forceScripts" value="1" <cfif currentValues.forceScripts EQ "1">checked</cfif>> Yes</label>
+			&nbsp;&nbsp;&nbsp;
+			<label style="color:black;font-size:12px;font-weight:normal;"><input type="radio" id="#prefix#forceScripts" name="#prefix#forceScripts" value="0" <cfif currentValues.forceScripts EQ "0">checked</cfif>> No</label>
+			<br />Force the JQuery script to load.
+		</td>
+	</tr> --->
 	<tr>
 		<td class="cs_dlgLabelSmall" colspan="2" style="font-size:7pt;">
 			<hr />

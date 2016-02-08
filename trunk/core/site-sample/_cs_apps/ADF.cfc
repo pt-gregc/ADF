@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2015.
+PaperThin, Inc.  Copyright (c) 2009-2016.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -27,7 +27,7 @@ Name:
 Summary:
 	ADF Component for loading the ADF, ADF apps, proxys, and Library into the site.
 Version:
-	1.8.1
+	1.8.2
 History:
 	2011-07-11 - MFC - Updated for ADF V1.5.
 	2013-10-21 - GAC - Added the enable/disable Development Mode function call
@@ -36,7 +36,7 @@ History:
 --->
 <cfcomponent name="ADF" extends="ADF.core.SiteBase">
 	
-<cfproperty name="version" value="1_8_1">
+<cfproperty name="version" value="1_8_2">
 <cfproperty name="file-version" value="7">
 
 <cffunction name="init" returntype="void" access="public">

@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2015.
+PaperThin, Inc.  Copyright (c) 2009-2016.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -23,7 +23,7 @@ end user license agreement.
 Author: 	
 	PaperThin, Inc. 
 Name:
-	apiDocument.cfc
+	apiDocument_1_0.cfc
 Summary:
 	API Uploaded Document functions for the ADF Library
 Version:
@@ -31,12 +31,12 @@ Version:
 History:
 	2012-12-26 - MFC - Created
 --->
-<cfcomponent displayname="apiDocument" extends="ADF.core.Base" hint="CCAPI functions for the ADF Library">
+<cfcomponent displayname="apiDocument_1_0" extends="ADF.core.Base" hint="CCAPI functions for the ADF Library">
 
 <cfproperty name="version" value="1_0_1">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
-<cfproperty name="wikiTitle" value="API Document">
+<cfproperty name="wikiTitle" value="APIDocumen_1_0">
 
 
 </cfcomponent>

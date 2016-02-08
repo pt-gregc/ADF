@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2015.
+PaperThin, Inc.  Copyright (c) 2009-2016.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -27,7 +27,7 @@ Name:
 Summary:
 	Application file.
 Version:
-	1.8.1
+	1.8.2
 History:
 	2009-06-17 - RLW - Created
 	2011-01-19 - RAK - Fixed typo in utils
@@ -42,12 +42,12 @@ History:
 --->
 <cfcomponent>
 	
-	<cfproperty name="version" value="1_8_1">
+	<cfproperty name="version" value="1_8_2">
 	<cfproperty name="file-version" value="1">
 	
 	<cfset this.sessionManagement = true>
 	<!--- // TODO add alias mapping --->
-	<!--- <cfset this.mapping["/ADF"] = ExpandPath("/ADF")> --->
+	<!--- <cfset this.mappings["/ADF"] = ExpandPath("/ADF")> --->
 	
 	<cffunction name="onRequestStart" access="public" returntype="any">
 		<!--- // not needed - include CommonSpots application.cfm --->

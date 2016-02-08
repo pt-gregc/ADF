@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2015.
+PaperThin, Inc.  Copyright (c) 2009-2016.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -64,6 +64,8 @@ History:
 	2014-02-18 - JTP - Added ClearType and ClearAll url parameters
 	2014-03-05 - JTP - Var declarations
 	2014-03-19 - JTP - Added optional renderhandler & classNames attributes as an optimization. 
+	2015-09-10 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
+	2015-09-23 - GAC - duplicateBean() is a CS 9.0.3 specific update ... rolling back to Duplicate()
 --->
 
 <cfscript>
@@ -295,7 +297,11 @@ History:
 <cfscript>
 	// pop the pushed back off the stack
 	if( pushed )
-		request.CS_SameRecordsInfo =  Duplicate(pushed_CS_SameRecordsInfo);
+	{
+		// a CS 9.0.3 specific update ... rolling back to Duplicate()
+		//request.CS_SameRecordsInfo =  Server.CommonSpot.UDF.util.duplicateBean(pushed_CS_SameRecordsInfo);
+		request.CS_SameRecordsInfo =  duplicate(pushed_CS_SameRecordsInfo);
+	}
 </cfscript>
 
 
@@ -348,7 +354,10 @@ History:
 		var retStruct = StructNew();
 		var key = '';
 		
-		retStruct = server.commonspot.udf.util.duplicateBean(arguments.srcStruct);
+		// a CS 9.0.3 specific update ... rolling back to Duplicate()
+		//retStruct = server.commonspot.udf.util.duplicateBean(arguments.srcStruct);
+		retStruct = duplicate(arguments.srcStruct);
+		
 //		for( key in arguments.srcStruct )
 //			retStruct[key] = arguments.srcStruct[key];
 	</cfscript>

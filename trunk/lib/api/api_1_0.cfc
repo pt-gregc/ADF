@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2015.
+PaperThin, Inc.  Copyright (c) 2009-2016.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -23,7 +23,7 @@ end user license agreement.
 Author: 	
 	PaperThin, Inc. 
 Name:
-	api.cfc
+	api_1_0.cfc
 Summary:
 	API functions for the ADF Library
 Version:
@@ -32,9 +32,9 @@ History:
 	2012-12-20 - MFC - Created
 	2014-03-05 - JTP - Var declarations
 --->
-<cfcomponent displayname="api" extends="ADF.core.Base" hint="CCAPI functions for the ADF Library">
+<cfcomponent displayname="api_1_0" extends="ADF.core.Base" hint="CCAPI functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_9">
+<cfproperty name="version" value="1_0_10">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
 <cfproperty name="wikiTitle" value="API">
 
@@ -418,6 +418,7 @@ History:
 /* *************************************************************** */
 History:
 	2012-12-20 - MFC - Created
+	2015-06-22 - GAC - Added setRemoteFlag() and set it to true
 --->
 <cffunction name="runRemote" access="public" returntype="any" output="true" hint="Runs the Command API locally via HTML/XML.">
 	<cfargument name="commandStruct" type="struct" required="false" hint="Command collection as Structure.">
@@ -432,7 +433,9 @@ History:
 		
 		// Setup the Session space
 		initSession();
-		
+		// Make sure our session is flagged remote
+		setRemoteFlag(remoteFlag=true);
+		// Get the subsiteURL for the HTTP request
 		httpSubsiteURL = buildSubsiteFullURL(session.ADF.API.subsiteID);
 		
 		// Psuedo overloading the arguments
@@ -458,7 +461,7 @@ History:
 	
 		// Check if session is logged in
 		if ( arguments.authCommand AND NOT isLoggedIn() )
-			login();
+			login(remote=true,forceSubsite=session.ADF.API.subsiteID);
 		//application.ADF.utils.dodump(session.ADF.API,"session.ADF.API - runRemote",false);
 		
 		// Check if the command requires authentication
@@ -770,6 +773,7 @@ Arguments:
 History:
 	2012-12-26 - MFC - Created
 	2013-10-15 - GAC - Updated to handle the cs_remote for 7.0.1+, 8.0.1+ and 9+
+	2015-09-11 - GAC - Fixed the FindNoCase logic with the cs_remote check
 --->
 <cffunction name="getWebService" access="private" returntype="any">
 	<cfscript>
@@ -790,7 +794,7 @@ History:
 		{	
 		
 			// Use the config webservice URL value to determine the correct wsPath
-			if ( FindNoCase(wsURL,"cs_remote") )
+			if ( FindNoCase("cs_remote",wsURL) )
 				wsPath = "commonspot.webservice.cs_remote";	
 		
 			// Create the local object directly on the server

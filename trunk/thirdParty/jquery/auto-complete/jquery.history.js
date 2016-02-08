@@ -59,7 +59,7 @@ jQuery.extend({
 		// This makes the looping function do something
 		jQuery.historyBackStack.push(hash);
 		
-		jQuery.historyForwardStack.length = 0; // clear forwardStack (true click occured)
+		jQuery.historyForwardStack.length = 0; // clear forwardStack (true click occurred)
 		this.isFirst = true;
 	},
 	

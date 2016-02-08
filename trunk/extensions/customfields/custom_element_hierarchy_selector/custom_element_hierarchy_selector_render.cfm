@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2015.
+PaperThin, Inc.  Copyright (c) 2009-2016.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files
@@ -27,7 +27,15 @@ Custom Field Type:
 Name:
 	custom_element_hierarchy_selector_render.cfm
 Summary:
-	This the render file for the Custom Element Hierarchy Selector field
+	This the render file for the Custom Element Hierarchy Selector field.
+	
+	The Custom Element Hierarchy Selector field provides an interface to display hierarchical data 
+	that is stored in a single Global Custom Element. This Custom Element can be its own containing 
+	Element or another Custom Element.
+	
+Documentation:
+	http://community.paperthin.com/projects/ADF/docs/extensions/customfields/Custom-Element-Hierarchy-Selector.cfm
+	
 ADF Requirements:
 	
 History:
@@ -36,6 +44,8 @@ History:
 	2014-02-27 - JTP - Updated the variable that is used in the validation message
 	2014-04-03 - JTP - Made root node expand when initially opening
 	2014-01-09 - GAC - Updated to load initially selected nodes until after the tree has completely loaded
+	2015-05-01 - GAC - Updated to add a forceScript parameter to bypass the ADF renderOnce script loader
+	2015-06-19 - GAC - Update to add logic to set forceScript to true when in a CS page move 
 --->
 
 <cfscript>
@@ -128,9 +138,18 @@ History:
 			else if (ArrayLen(resultCEData) EQ 0)
 				errorMsgCustom = 'No records found to be displayed for the field.';
 			
-			application.ADF.scripts.loadJQuery(noConflict=true);
+			// Set the forceScripts parameter if it does not exist
+			if ( !StructKeyExists(inputParameters,"forceScripts") )
+				inputParameters.forceScripts = false;
+			
+			/* CS Page Move metadata form fix */
+			// If we are in a metadata form and doing a Page Move then force the scripts to render
+			if ( StructKeyExists(request.params,"actionType") AND request.params.actionType EQ 2 )
+				inputParameters.forceScripts = true;
+			
+			application.ADF.scripts.loadJQuery(force=inputParameters.forceScripts,noConflict=true);	
 			// Here we need to have a function call to load jsTree
-			application.ADF.scripts.loadJSTree(loadStyles=false);
+			application.ADF.scripts.loadJSTree(force=inputParameters.forceScripts,loadStyles=false);
 			
 			// Set the width and height value
 			widthVal = "400px";
