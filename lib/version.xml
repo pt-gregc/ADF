@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<settings>
 <!--
 The contents of this file are subject to the Mozilla Public License Version 1.1
 (the "License"); you may not use this file except in compliance with the
@@ -26,7 +25,7 @@ Name:
 Summary:
 	ADF Library Version XML 
 Version:
-	1.8.2
+	2.0.0
 History:
 	2011-03-19 - RLW - created
 	2011-06-24 - RLW - Added csUpload to version 1.0 and version 1.5.
@@ -38,8 +37,10 @@ History:
 	2013-01-08 - GAC - Added a Date_1_2 lib
 	2014-02-26 - GAC - Updated for version 1.7.0
 	2014-10-08 - GAC - Updated for version 1.8.0
-	2016-02-05 - GAC - Added apiImage_1_0 to 1.8
+	2015-04-07 - GAC - Updated for version 2.0.0
+	2016-02-05 - GAC - Added apiImage_1_0 to 1.8 and 2.0
  -->
+<settings>
 	<v_1.0>
 		<!-- // ajax -->
 		<ajax_1_0/>
@@ -219,4 +220,45 @@ History:
 		<objectListBuilder_1_0/>
 		<paddingSettings_1_0/>
 	</v_1.8>
+	<v_2.0>
+		<ajax_1_0/>
+		<api_1_0/>
+		<apiConduitPool_1_0/>
+		<apiElement_1_1/>
+		<apiImage_1_0/>
+		<apiPage_1_1/>
+		<apiKeywords_1_1/>
+		<apiRemote_1_0/>
+		<apiTextBlock_1_0/>
+		<ccapi_2_0/>
+		<ccapiConfig_1_0/>
+		<csapi_1_0/>
+		<ceData_3_0/>
+		<csUpload_1_0/>
+		<csContent_2_0/>
+		<csSubsite_1_0/>
+		<csPage_2_0/>
+		<csData_2_0/>
+		<csSecurity_1_2/>
+		<data_2_0/>
+		<date_2_0/>
+		<fields_2_0/>
+		<forms_2_0/>
+		<lightbox_1_0/>
+		<log_1_0/>
+		<mobile_2_0/>
+		<presaveform_1_0/>
+		<postsaveform_1_0/>
+		<scheduler_2_0/>
+		<scripts_2_0/>
+		<scriptsService_1_1/>
+		<taxonomy_2_0/>
+		<ui_2_0/>
+		<utils_2_0/>
+		<customElementSelect_1_0/>
+		<customElementDataManager_1_0/>
+		<customElementHierarchySelector_1_0/>
+		<objectListBuilder_1_0/>
+		<paddingSettings_1_0/>
+	</v_2.0>
 </settings>
