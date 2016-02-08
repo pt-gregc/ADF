@@ -1,4 +1,4 @@
-/* 
+/*
 The contents of this file are subject to the Mozilla Public License Version 1.1
 (the "License"); you may not use this file except in compliance with the
 License. You may obtain a copy of the License at http://www.mozilla.org/MPL/
@@ -13,8 +13,8 @@ The Initial Developer of the Original Code is
 PaperThin, Inc.  Copyright (c) 2009-2016.
 All Rights Reserved.
 
-By downloading, modifying, distributing, using and/or accessing any files 
-in this directory, you agree to the terms and conditions of the applicable 
+By downloading, modifying, distributing, using and/or accessing any files
+in this directory, you agree to the terms and conditions of the applicable
 end user license agreement.
 */
 
@@ -28,11 +28,12 @@ Name:
 Summary:
 	ADF Lightbox Framework JavaScript
 Version:
-	1.0.0
+	1.0.3
 History:
 	2010-02-19 - MFC - Created
 	2010-04-19 - MFC - Commented out some functions that conflict with CS 5.x styles.
 	2013-01-03 - GAC - Added missing semi-colons to the ends of variablized functions
+	2015-06-10 - ACW - Updated to use the CKEDITOR as the RTE
 */
 
 function loadNonDashboardFiles()
@@ -40,9 +41,9 @@ function loadNonDashboardFiles()
 	if (setUpComplete())
 		return;
 	var filesToLoad = [];
-	
-	
-	/*	
+
+
+	/*
 	 *	ADF Update - Updated the file paths
 	 */
 	filesToLoad.push({fileName: '/ADF/extensions/lightbox/1.0/js/util.js', fileType: 'script', fileID: null});
@@ -52,62 +53,62 @@ function loadNonDashboardFiles()
 	filesToLoad.push({fileName: '/ADF/extensions/lightbox/1.0/js/lightbox.js', fileType: 'script', fileID: null, callback: setCommonspot});
 	filesToLoad.push({fileName: '/ADF/extensions/lightbox/1.0/js/overrides.js', fileType: 'script', fileID: null});
 	filesToLoad.push({fileName: '/ADF/extensions/lightbox/1.0/js/window_ref.js', fileType: 'script', fileID: null});
-		
-	
+
+
 	loadDashboardFiles(filesToLoad);
 	//temp.onload = newWindow(name,workUrl);
 }
 
-if(typeof IncludeJsCache=='undefined') 
+if(typeof IncludeJsCache=='undefined')
 {
 	IncludeJsCache= {};
 }
-function IncludeJs(src,fileType,fileID,callback,doc) 
+function IncludeJs(src,fileType,fileID,callback,doc)
 {
-	if(typeof doc=="undefined") 
+	if(typeof doc=="undefined")
 	{
 		doc=document;
 	}
-	if(typeof IncludeJsCache[src]!='undefined') 
+	if(typeof IncludeJsCache[src]!='undefined')
 	{
-		if(IncludeJsCache[src].ready) 
+		if(IncludeJsCache[src].ready)
 		{
 			if(typeof callback=='function')
 			{
 				callback(src);
 			}
 		}
-		else 
+		else
 		{
 			IncludeJsCache[src].deferred.push(callback);
 			return;
 		}
 	}
-	else 
+	else
 	{
 		IncludeJsCache[src]={'source':src,'ready':false,'deferred':[]};
 		var scriptElement=doc.createElement(fileType);
 		var is = BrowserCheck();
-		if(is.mozilla) 
+		if(is.mozilla)
 		{
 			scriptElement.readyState='loaded';
-			scriptElement.onload = function() 
+			scriptElement.onload = function()
 			{
 				IncludeJsCache[src].ready=true;
-				if(typeof callback=='function') 
+				if(typeof callback=='function')
 				{
 					callback(src);
 				}
 			};
 		}
-		else 
+		else
 		{
-			scriptElement.onreadystatechange = function() 
+			scriptElement.onreadystatechange = function()
 			{
-				if(scriptElement.readyState=='loaded'||scriptElement.readyState=='complete') 
+				if(scriptElement.readyState=='loaded'||scriptElement.readyState=='complete')
 				{
 					IncludeJsCache[src].ready=true;
-					if(typeof callback=='function') 
+					if(typeof callback=='function')
 					{
 						callback(src);
 					}
@@ -126,8 +127,8 @@ function IncludeJs(src,fileType,fileID,callback,doc)
 				scriptElement.type = 'text/css';
 				scriptElement.rel = 'stylesheet';
 				scriptElement.href = src;
-				break;				
-		}		
+				break;
+		}
 		var headElement=doc.getElementsByTagName('head')[0];
 		headElement.appendChild(scriptElement);
 	}
@@ -140,16 +141,16 @@ function loadDashboardFiles(arrFiles)
 	{
 		callback = arrFiles[i].callback ? arrFiles[i].callback : null;
 		IncludeJs(arrFiles[i].fileName, arrFiles[i].fileType, arrFiles[i].fileID, callback);
-	}	
+	}
 }
 function setUpComplete()
 {
 	if ((top.commonspot && top.commonspot.lightbox) || (parent.commonspot && parent.commonspot.lightbox))
 		return true;
 	else
-		return false;	
+		return false;
 }
-	
+
 function newCenteredWindow(name, url, width, height, windowFeatures)
 {
 	var left = (screen.availWidth - width) / 2;
@@ -176,7 +177,7 @@ function submitFormToNewWindow(windowName, loader, csModule, args)
 	form.target = win;
 	form.submit();
 	document.body.removeChild(form);
-	
+
 	function createField(form, name, value)
 	{
 		var fld = document.createElement('input');
@@ -271,7 +272,7 @@ function getFrameWindow(frameID,frameName)
 {
 	if (frameID)
 		return window.document.getElementById(frameID).contentWindow;
-	
+
 	var frames = window.frames;
 	for (var i=0; i<frames.length; i++)
 	{
@@ -281,31 +282,32 @@ function getFrameWindow(frameID,frameName)
 	return null;
 }
 
+/*
+  2015-06-10 - ACW - Updated to use the CKEDITOR as the RTE 
+*/
 function getContentFromChildFrame(frameName,fieldname,formname)
 {
-   if (formname == null)
+	var innertbVal = '';
+	if (formname == null)
 		formname = "dlgform";
-	var RTEFrame = getFrameWindow(frameName);
-	if (RTEFrame && RTEFrame.saveKTML)
-		RTEFrame.saveKTML(fieldname); // first call the save function of the KTML
-	if (document.getElementById(frameName).contentDocument) { // moz
-		var innertb=eval("document.getElementById('"+frameName+"').contentDocument."+fieldname+formname+"."+fieldname);
-	} else { // IE
-		var innertb=eval("document.frames['"+frameName+"'].document."+fieldname+formname+"."+fieldname);
-	}
+	var editorInstance = CKEDITOR.instances[fieldname];
+	if (editorInstance && editorInstance.getData)
+		innertbVal = editorInstance.getData();
+
 	var tb = eval ('document.' + formname + "." + fieldname);
-	tb.value = innertb.value;
+	tb.value = innertbVal;
 }
+
 function glblLinkHandler(lobj, attr, val)
 {
 	lobj.style[attr]=val;
 }
-// we should replace tons of diff. instances of form validation codes with this one to make 
-// sure we do not have diff. implementations for the same task.	
-function stringTrim(_this,str) 
+// we should replace tons of diff. instances of form validation codes with this one to make
+// sure we do not have diff. implementations for the same task.
+function stringTrim(_this,str)
 {
-   if(!str) str = _this;
-   return str.replace(/^\s*/,"").replace(/\s*$/,"");
+	if(!str) str = _this;
+	return str.replace(/^\s*/,"").replace(/\s*$/,"");
 }
 
 function substringReplace(source,pattern,replacement)
@@ -324,8 +326,7 @@ function substringReplace(source,pattern,replacement)
 function unescapeHTML(msg)
 {
 	var msg = msg.replace(/<\/?[^>]+>/gi, '');
-	//return msg.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&');
-    return msg.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').replace(/&quot;/g,'"');
+	return msg.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').replace(/&quot;/g,'"');
 }
 
 function BrowserCheck() {
@@ -335,7 +336,7 @@ function BrowserCheck() {
 	var re_opera=/Opera.([0-9\.]*)/i;
 	var re_msie=/MSIE.([0-9\.]*)/i;
 	var re_gecko=/gecko/i;
-	var re_safari=/safari\/([\d\.]*)/i;	
+	var re_safari=/safari\/([\d\.]*)/i;
 	var re_mozilla=/firefox\/([\d\.]*)/i;
 	var browserType = {};
 	browserType.mozilla=browserType.ie=browserType.opera=r=false;
@@ -345,21 +346,21 @@ function BrowserCheck() {
 	browserType.opera = /opera/.test(ua);
 	browserType.ie = /msie/.test(ua) && !/opera/.test(ua);
 	browserType.mozilla = /mozilla/.test(ua) && !/(compatible|webkit)/.test(ua);
-	if(ua.match(re_opera)) 
+	if(ua.match(re_opera))
 	{
 		r=ua.match(re_opera);
 		browserType.version=parseFloat(r[1]);
 	}
-	else if(ua.match(re_msie)) 
+	else if(ua.match(re_msie))
 	{
 		r=ua.match(re_msie);
 		browserType.version=parseFloat(r[1]);
 	}
-	else if(ua.match(re_safari)) 
+	else if(ua.match(re_safari))
 	{
 		browserType.version=1.4;
 	}
-	else if(ua.match(re_gecko)) 
+	else if(ua.match(re_gecko))
 	{
 		var re_gecko_version=/rv:\s*([0-9\.]+)/i;
 		r=ua.match(re_gecko_version);
@@ -368,7 +369,7 @@ function BrowserCheck() {
 		{
 			r=ua.match(re_mozilla);
 			browserType.version=parseFloat(r[1]);
-		}		
+		}
 	}
 	else if (ua.match(re_mozilla))
 	{
@@ -394,8 +395,8 @@ var last = function last() {
 };
 
 var each = function each(iterator) {
-    for (var i = 0, length = this.length; i < length; i++)
-      iterator(this[i]);
+	 for (var i = 0, length = this.length; i < length; i++)
+		iterator(this[i]);
 };
 
 if (!Array.last)
@@ -404,21 +405,23 @@ if (!Array.last)
 	Array.prototype.each = each;
 }
 
-if (typeof document.getElementsByClassName == 'undefined') 
+if (typeof document.getElementsByClassName == 'undefined')
 {
 	document.getElementsByClassName = function(searchClass,node,tag) {
 		var classElements = new Array();
-		if ( node == null )
+		if (node == null)
 			node = document;
-		if ( tag == null )
+		if (tag == null)
 			tag = '*';
 		var els = node.getElementsByTagName(tag);
 		var elsLen = els.length;
 		var pattern = new RegExp("(^|\\s)"+searchClass+"(\\s|$)");
-		for (i = 0, j = 0; i < elsLen; i++) {
-			if ( pattern.test(els[i].className) ) {
-			        classElements[j] = els[i];
-			        j++;
+		for (i = 0, j = 0; i < elsLen; i++) 
+		{
+			if (pattern.test(els[i].className))
+			{
+				classElements[j] = els[i];
+				j++;
 			}
 		}
 		return classElements;
