@@ -34,6 +34,7 @@ History:
 	2011-04-08 - MFC - Updated the styles for the Edit and Show/Hide buttons
 	2011-05-13 - RAK - Updated to allow for adding this script directly to the page using attributes
 	2012-03-08 - MFC - Updated to call Forms_1_1.
+	2015-10-14 - GAC - Updated the forms call to Forms_2_0
 --->
 <cfparam name="appName" default="foo">
 <cfparam name="formWidth" default="600">
@@ -98,7 +99,7 @@ History:
 	</style>
 	<div id="configuration">
 		<cfif dataPageID gt 0>
-			<div id="editConfig" rel="#application.ADF.ajaxProxy#?bean=Forms_1_1&method=renderAddEditForm&formID=#formID#&dataPageID=#dataPageID#&lbAction=refreshparent&width=#formWidth#&formHeight=#formHeight#&title=Edit Configuration" class="ADFLightbox ui_button ui-state-default ui-corner-all">Edit Configuration</div>
+			<div id="editConfig" rel="#application.ADF.ajaxProxy#?bean=Forms_2_0&method=renderAddEditForm&formID=#formID#&dataPageID=#dataPageID#&lbAction=refreshparent&width=#formWidth#&formHeight=#formHeight#&title=Edit Configuration" class="ADFLightbox ui_button ui-state-default ui-corner-all">Edit Configuration</div>
 			<div id="configBtn" class="ui_button ui-state-default ui-corner-all">Show/Hide Configuration</div>
 			<dl id="config" style="display:none;">
 				<cfloop list="#structKeyList(appConfig)#" index="key">
@@ -107,7 +108,7 @@ History:
 				</cfloop>
 			</dl>
 		<cfelse>
-			<div id="editConfig" href="javascript:;" rel="#application.ADF.ajaxProxy#?bean=Forms_1_1&method=renderAddEditForm&formID=#formID#&dataPageID=0&lbAction=refreshparent&width=#formWidth#&formHeight=#formHeight#&title=Edit Configuration" class="ADFLightbox ui_button ui-state-default ui-corner-all">Edit Configuration</div>
+			<div id="editConfig" href="javascript:;" rel="#application.ADF.ajaxProxy#?bean=Forms_2_0&method=renderAddEditForm&formID=#formID#&dataPageID=0&lbAction=refreshparent&width=#formWidth#&formHeight=#formHeight#&title=Edit Configuration" class="ADFLightbox ui_button ui-state-default ui-corner-all">Edit Configuration</div>
 		</cfif>
 	</div>
 </cfoutput>

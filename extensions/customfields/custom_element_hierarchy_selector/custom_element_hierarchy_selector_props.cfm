@@ -42,16 +42,18 @@ History:
 	2014-01-16 - DJM - Created
 	2014-01-29 - GAC - Converted to use AjaxProxy and the ADF Lib
 	2014-09-19 - GAC - Removed deprecated doLabel and jsLabelUpdater js calls
-	2015-05-01 - GAC - Updated to add a forceScript parameter to bypass the ADF renderOnce script loader
+	2015-05-12 - DJM - Updated the field version to 2.0
+	2015-09-02 - DRM - Add getResourceDependencies support, bump version
+	2016-01-06 - GAC - Added px labels to height and width fields
 --->
 
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "1.0.6"; 
+	fieldVersion = "2.0.3";
 	
-	requiredVersion = 9;
+	requiredVersion = 10;
 	productVersion = ListFirst(ListLast(request.cp.productversion," "),".");
 </cfscript>	
 
@@ -102,8 +104,6 @@ History:
 		currentValues.rootValue = "";
 	if( not structKeyExists(currentValues, "heightValue") )
 		currentValues.heightValue = "";
-	if( not structKeyExists(currentValues, "forceScripts") )
-		currentValues.forceScripts = 0;	
 		
 	customElementObj = Server.CommonSpot.ObjectFactory.getObject('CustomElement');
 	allCustomElements = customElementObj.getList(type="All", state="Active");
@@ -157,7 +157,7 @@ History:
 <!--
 	jQuery.noConflict();
 	
-	fieldProperties['#typeid#'].paramFields = "#prefix#customElement,#prefix#parentField,#prefix#displayField,#prefix#valueField,#prefix#selectionType,#prefix#widthValue,#prefix#rootValue,#prefix#rootNodeText,#prefix#heightValue,#prefix#cookieField,#prefix#filterCriteria,#prefix#useUdef,#prefix#forceScripts";
+	fieldProperties['#typeid#'].paramFields = "#prefix#customElement,#prefix#parentField,#prefix#displayField,#prefix#valueField,#prefix#selectionType,#prefix#widthValue,#prefix#rootValue,#prefix#rootNodeText,#prefix#heightValue,#prefix#cookieField,#prefix#filterCriteria,#prefix#useUdef";
 	fieldProperties['#typeid#'].defaultValueField = '#prefix#defaultValue';
 	fieldProperties['#typeid#'].jsValidator = '#prefix#doValidate';
 
@@ -422,14 +422,14 @@ History:
 		</tr>		
 		<tr>
 			<th valign="baseline" class="cs_dlgLabelBold" nowrap="nowrap">Width:</th>
-			<td valign="baseline">
-				#Server.CommonSpot.udf.tag.input(type="text", id="#prefix#widthValue", name="#prefix#widthValue", value="#currentValues.widthValue#", size="5", class="InputControl")#
+			<td valign="baseline" class="cs_dlgLabelSmall">
+				#Server.CommonSpot.udf.tag.input(type="text", id="#prefix#widthValue", name="#prefix#widthValue", value="#currentValues.widthValue#", size="5", class="InputControl", style="text-align: right;")#px
 			</td>
 		</tr>	
 		<tr>
 			<th valign="baseline" class="cs_dlgLabelBold" nowrap="nowrap">Height:</th>
-			<td valign="baseline">
-				#Server.CommonSpot.udf.tag.input(type="text", id="#prefix#heightValue", name="#prefix#heightValue", value="#currentValues.heightValue#", size="5", class="InputControl")#
+			<td valign="baseline" class="cs_dlgLabelSmall">
+				#Server.CommonSpot.udf.tag.input(type="text", id="#prefix#heightValue", name="#prefix#heightValue", value="#currentValues.heightValue#", size="5", class="InputControl", style="text-align: right;")#px
 			</td>
 		</tr>
 		<tr>
@@ -470,26 +470,13 @@ History:
 		<CFSET caption="Enter the valid values from selected Values Field that you want selected by default.">
 		<CFINCLUDE template="/commonspot/metadata/form_control/input_control/default_value.cfm">
 		<CFOUTPUT>
-		<tr>
-			<td class="cs_dlgLabelSmall" colspan="2">
-				<hr />
-			</td>
-		</tr>
-		<tr>
-			<th valign="baseline" class="cs_dlgLabelBold" nowrap="nowrap">Force Loading Scripts:</th>
-			<td valign="baseline">
-				#Server.CommonSpot.udf.tag.checkboxRadio(type="radio", id="#prefix#forceScripts_yes", name="#prefix#forceScripts", value="1", label="Yes", checked=(currentValues.forceScripts EQ 1), labelClass="cs_dlgLabelSmall")#
-				&nbsp;&nbsp;&nbsp;
-				#Server.CommonSpot.udf.tag.checkboxRadio(type="radio", id="#prefix#forceScripts_no", name="#prefix#forceScripts", value="0", label="No", checked=(currentValues.forceScripts EQ 0), labelClass="cs_dlgLabelSmall")#
-			</td>
-		</tr>
-		<tr>
-			<td class="cs_dlgLabelSmall" colspan="2" style="font-size:7pt;">
-				<hr />
-				ADF Custom Field v#fieldVersion#
-			</td>
-		</tr>
 	</tbody>
+	<tr>
+		<td class="cs_dlgLabelSmall" colspan="2" style="font-size:7pt;">
+			<hr />
+			ADF Custom Field v#fieldVersion#
+		</td>
+	</tr>
 </table>
 </cfoutput>
 </cfif>

@@ -63,9 +63,8 @@ History:
 	2013-12-09 - JTP - Created
 	2014-02-18 - JTP - Added ClearType and ClearAll url parameters
 	2014-03-05 - JTP - Var declarations
-	2014-03-19 - JTP - Added optional renderhandler & classNames attributes as an optimization. 
+	2014-03-19 - JTP - Added optional renderhandler & classNames attributes as an optimization.
 	2015-09-10 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
-	2015-09-23 - GAC - duplicateBean() is a CS 9.0.3 specific update ... rolling back to Duplicate()
 --->
 
 <cfscript>
@@ -297,11 +296,7 @@ History:
 <cfscript>
 	// pop the pushed back off the stack
 	if( pushed )
-	{
-		// a CS 9.0.3 specific update ... rolling back to Duplicate()
-		//request.CS_SameRecordsInfo =  Server.CommonSpot.UDF.util.duplicateBean(pushed_CS_SameRecordsInfo);
-		request.CS_SameRecordsInfo =  duplicate(pushed_CS_SameRecordsInfo);
-	}
+		request.CS_SameRecordsInfo = Server.CommonSpot.UDF.util.duplicateBean(pushed_CS_SameRecordsInfo);
 </cfscript>
 
 
@@ -347,6 +342,11 @@ History:
 	</cfscript>
 </cffunction>
 
+<!----------------------------------
+	copyStruct	
+History:
+	2015-09-10 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
+------------------------------------>
 <cffunction name="copyStruct" access="private" output="no" returntype="struct">
 	<cfargument name="srcStruct" type="struct" required="Yes">
 	
@@ -354,10 +354,7 @@ History:
 		var retStruct = StructNew();
 		var key = '';
 		
-		// a CS 9.0.3 specific update ... rolling back to Duplicate()
-		//retStruct = server.commonspot.udf.util.duplicateBean(arguments.srcStruct);
-		retStruct = duplicate(arguments.srcStruct);
-		
+		retStruct = server.commonspot.udf.util.duplicateBean(arguments.srcStruct);
 //		for( key in arguments.srcStruct )
 //			retStruct[key] = arguments.srcStruct[key];
 	</cfscript>
