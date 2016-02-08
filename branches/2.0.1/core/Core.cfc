@@ -52,11 +52,11 @@ History:
 <cfproperty name="file-version" value="9">
 
 <cfscript>
-	variables.ADFversion = "2.0.0"; // use a dot delimited version number
+	variables.ADFversion = "2.0.1"; // use a dot delimited version number
 	// ADF Build Revision Number
-	variables.buildRev = "1878";
+	variables.buildRev = "1884";
 	// ADF Codename
-	variables.buildName = "Metal Gear Solid";
+	variables.buildName = "TBA";
 	// CS product version, get the decimal value
 	variables.csVersion = Val(ListLast(request.cp.productversion, " "));
 </cfscript>
