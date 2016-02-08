@@ -32,11 +32,13 @@ ADF Requirements:
 	scripts_1_2
 History:
 	2015-04-17 - SU/SFS - Created
+	2015-05-12 - DJM - Updated the field version to 2.0
+	2015-09-02 - DRM - Add getResourceDependencies support, bump version
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <cfscript>
-	fieldVersion = "1.1.2"; // Variable for the version of the field - Display in Props UI
+	fieldVersion = "2.0.2"; // Variable for the version of the field - Display in Props UI
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
