@@ -28,6 +28,14 @@ Name:
 	custom_element_hierarchy_selector_props.cfc
 Summary:
 	This the props file for the Custom Element Hierarchy Selector field
+	
+	The Custom Element Hierarchy Selector field provides an interface to display hierarchical data 
+	that is stored in a single Global Custom Element. This Custom Element can be its own containing 
+	Element or another Custom Element.
+	
+Documentation:
+	http://community.paperthin.com/projects/ADF/docs/extensions/customfields/Custom-Element-Hierarchy-Selector.cfm
+
 ADF Requirements:
 	
 History:
