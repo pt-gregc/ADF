@@ -32,10 +32,11 @@ History:
 	2009-06-22 - MFC - Created
 	2011-01-14 - MFC - v1.0.1	- Bug fixes to getPageBindingsForTermID.
 									Updates to getTermIDs.
+	2015-06-11 - GAC - Updated the component extends to use the libraryBase path
 --->
-<cfcomponent displayname="taxonomy_1_0" extends="ADF.core.Base" hint="Taxonomy functions for the ADF Library">
+<cfcomponent displayname="taxonomy_1_0" extends="ADF.lib.libraryBase" hint="Taxonomy functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_3">
+<cfproperty name="version" value="1_0_4">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Taxonomy_1_0">
 
