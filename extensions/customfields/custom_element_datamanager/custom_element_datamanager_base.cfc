@@ -60,7 +60,7 @@ History:
 	2015-07-23 - DJM - Modified RenderGrid() and QueryData() to take parent field's value instead of the whole struct. Also fixed issue with passing pass through params
 	2015-11-05 - DJM - Added code to getDisplayData() to enclose column names in square brackets before executing QoQ to prevent errors due to column names which serve as sql keywords
 --->
-<cfcomponent output="false" displayname="custom element datamanager_base" extends="ADF.core.Base" hint="This the base component for the Custom Element Data Manager field">
+<cfcomponent output="false" displayname="custom element datamanager_base" extends="ADF.extensions.customfields.customfieldsBase" hint="This the base component for the Custom Element Data Manager field">
 	
 <cfscript>
 	// Path to this CFT
@@ -81,9 +81,14 @@ History:
 	<cfscript>
 		var renderData = '';
 	</cfscript>
-	<cfsavecontent variable="renderData">
-		<cfoutput><link rel="stylesheet" type="text/css" href="#variables.cftPath#/custom_element_datamanager_styles.css" /></cfoutput>
-	</cfsavecontent>
+	
+	<cfif NOT StructKeyExists(Request, 'dataManagerCSS')>
+		<cfsavecontent variable="renderData">
+			<cfoutput><link rel="stylesheet" type="text/css" href="#variables.cftPath#/custom_element_datamanager_styles.css" /></cfoutput>
+		</cfsavecontent>
+		<cfset Request.dataManagerCSS = 1>
+	</cfif>
+
 	<cfoutput>#renderData#</cfoutput>
 </cffunction>
 
@@ -118,12 +123,12 @@ History:
 	<cfif ListFindNoCase(inputPropStruct.interfaceOptions,'new') OR ListFindNoCase(inputPropStruct.interfaceOptions,'existing')>
 		<cfsavecontent variable="renderData">
 
-			<cfif ListFindNoCase(inputPropStruct.interfaceOptions,'new')>
-				<cfoutput>#renderAddNewButton(argumentCollection=arguments, passthroughParamsStr=passthroughParamsStr)#</cfoutput>
-			</cfif>
-
 			<cfif ListFindNoCase(inputPropStruct.interfaceOptions,'existing')>
 				<cfoutput>#renderAddExistingButton(argumentCollection=arguments, passthroughParamsStr=passthroughParamsStr)#</cfoutput>
+			</cfif>
+
+			<cfif ListFindNoCase(inputPropStruct.interfaceOptions,'new')>
+				<cfoutput>#renderAddNewButton(argumentCollection=arguments, passthroughParamsStr=passthroughParamsStr)#</cfoutput>
 			</cfif>
 
 			<cfif ListFindNoCase(inputPropStruct.interfaceOptions,'delete')>
@@ -864,7 +869,7 @@ History:
 	<cfargument name="dataRecords" type="query" required="true" hint="Query containing the data records">
 	<cfargument name="fieldMapStruct" type="struct" required="true" hint="Structure containing the field types mapping details for the fields">
 	<cfargument name="fieldOrderList" type="string" required="true" hint="Order in which the fields need to be returned">
-	<cfargument name="fieldPermission" type="numeric" required="true" hint="Number indicating user permission on the field; 0 = hidden, 1=readonly, 2=edit">
+	<cfargument name="displayMode" type="string" required="true" hint="String indicating display mode for the field. Possible values - hidden, readonly, editable">
 		
 	<cfscript>
 		var inputPropStruct = arguments.propertiesStruct;
@@ -899,7 +904,7 @@ History:
 		<cfloop query="childData">
 			<cfset renderData = ''>
 			<cfif (ListFindNoCase(inputPropStruct.interfaceOptions,'editAssoc') OR ListFindNoCase(inputPropStruct.interfaceOptions,'editChild') OR ListFindNoCase(inputPropStruct.interfaceOptions,'delete'))
-				AND arguments.fieldPermission EQ 2>	
+				AND arguments.displayMode EQ "editable">	
 				<cfsavecontent variable="renderData">
 					<cfscript>
 						// this will output the content
@@ -1015,7 +1020,7 @@ History:
 			for(i=1;i LTE ArrayLen(dataColumnArray);i=i+1)
 				formattedDataColumnList = ListAppend(formattedDataColumnList, '[' & Trim(dataColumnArray[i]) & ']');
 		</cfscript>
-
+		
 		<cfquery name="returnData" dbtype="query">
 			SELECT #formattedDataColumnList#
 			  FROM childData
@@ -1750,7 +1755,7 @@ History:
 	<cfargument name="propertiesStruct" type="any" required="true" hint="Properties structure for the field in json format"> <!--- // TODO: Update to type="struct" --->
 	<cfargument name="parentInstanceValue" type="string" required="true" hint="Current value of the parent instance field"> 
 	<cfargument name="fieldID" type="numeric" required="true" hint="ID of the field">
-	<cfargument name="fieldPermission" type="numeric" required="true" hint="Number indicating user permission on the field; 0 = hidden, 1=readonly, 2=edit">
+	<cfargument name="displayMode" type="string" required="true" hint="String indicating display mode for the field. Possible values - hidden, readonly, editable">
 	<cfargument name="parentFormType" type="string" required="false" default="CustomElement" hint="Type of the form">
 	<cfargument name="pageID" type="string" required="false" default="0" hint="Page id of the current page; used only when datamanager is used in a metadata form">
 
@@ -1781,7 +1786,7 @@ History:
 														dataRecords=dataRecords.qry,
 														fieldMapStruct=dataRecords.fieldMapStruct,
 														fieldOrderList=dataRecords.fieldOrderList,
-														fieldPermission=arguments.fieldPermission);
+														displayMode=arguments.displayMode);
 														
 														
 			//application.ADF.utils.doDUMP(displayData,"displayData",1);
