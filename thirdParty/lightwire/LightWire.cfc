@@ -354,4 +354,13 @@
     <cfargument name="beanName" required="true" type="string" hint="name of bean to look for"/>
         <cfreturn structKeyExists(variables.config, arguments.beanName )>
 </cffunction>
+
+
+<!---
+	2015-06-17 - DRM - Added this dev tool
+--->
+<cffunction name="getConfig" access="public" output="false" returntype="any" hint="Debug method to return internal config.">
+  <cfreturn variables.config>
+</cffunction>
+
 </cfcomponent>

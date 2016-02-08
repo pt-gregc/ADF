@@ -27,7 +27,7 @@
 
 <!---
 History:
-	2015-07-10 - GAC - Fixed line wrapping of cfscript tag
+	2015-07-10 - GAC - Fixed line wrapping of cfscript tag 
 --->
 <cffunction name="addTransient" returntype="void" hint="I add the configuration properties for a Transient." output="false">
 	<cfargument name="FullClassPath" required="true" type="string" hint="The full class path to the bean including its name. E.g. for com.User.cfc it would be com.User.">
@@ -46,7 +46,7 @@ History:
 	<cfargument name="FullClassPath" required="true" type="string" hint="The full class path to the bean including its name. E.g. for com.UserService.cfc it would be com.UserService.">
 	<cfargument name="BeanName" required="false" default="" type="string" hint="An optional name to be able to use to refer to this bean. If you don't provide this, the name of the bean will be used as a default. E.g. for com.UserService, it'll be named UserService unless you put something else here. If you put UserS, it'd be available as UserS, but NOT as UserService.">
 	<cfargument name="Singleton" required="true" hint="Whether the bean is a Singleton (1) or Transient(0).">
-	<cfargument name="InitMethod" required="false" default="" type="string" hint="A default custom initialization method for LightWire to call on the bean after constructing it fully (including setter and mixin injection) but before returning it.">	
+	<cfargument name="InitMethod" required="false" default="" type="string" hint="A default custom initialization method for LightWire to call on the bean after constructing it fully (including setter and mixin injection) but before returning it.">
 	<cfscript>
 		// Default the name to the name of the bean if no name list is provided.
 		If (Len(trim(BeanName)) LT 1)
