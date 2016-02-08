@@ -34,11 +34,13 @@ History:
 	2013-10-23 - GAC - Removed the cfproperty dependency for the data_1_2 lib and injected directly in the required methods
 	2013-01-15 - GAC - Removed obsolete dev funtions: buildViewforCE and buildViewCodeforCE
 	2014-10-09 - GAC - Updated the BuildView and the BuildRealTypeView methods to use the ADF 1.8 SQL View Naming convention: "vCE_{CustomElementName}" 
+	2015-06-10 - ACW - Updated the component extends to no longer be dependant on the 'ADF' in the extends path
 --->
-<cfcomponent displayname="ceData_2_0" extends="ADF.lib.ceData.ceData_1_1" hint="Custom Element Data functions for the ADF Library">
+<cfcomponent displayname="ceData_2_0" extends="ceData_1_1" hint="Custom Element Data functions for the ADF Library">
 
 <cfproperty name="version" value="2_0_32">
 <cfproperty name="type" value="singleton">
+<cfproperty name="data" type="dependency" injectedBean="data_1_2">
 <cfproperty name="wikiTitle" value="CEData_2_0">
 
 <cfscript>
@@ -73,6 +75,7 @@ History:
 	2013-09-27 - GAC - Updated the Forms Lib that is used to call the getCEFieldNameData function
 	2013-10-23 - GAC - Updated the commonFields logic that turns the formID into a formName
 	2014-03-05 - JTP - Var declarations
+	2015-10-14 - GAC - Updated the forms call to Forms_2_0
 --->
 <cffunction name="buildCEDataArrayFromQuery" access="public" returntype="array" hint="Returns a standard CEData Array to be used in Render Handlers from a ceDataView query">
 	<cfargument name="ceDataQuery" type="query" required="true" hint="ceData Query (usually built from ceDataView) results to be converted">
@@ -101,7 +104,7 @@ History:
 		{
 			// Setup the default common fields 
 			// get the fields structure for this element
-			fieldStruct = server.ADF.objectFactory.getBean("Forms_1_1").getCEFieldNameData(getCENameByFormID(arguments.ceDataQuery["formID"][1]));
+			fieldStruct = server.ADF.objectFactory.getBean("Forms_2_0").getCEFieldNameData(getCENameByFormID(arguments.ceDataQuery["formID"][1]));
 		}
 		
 		// Check if the query column contains "FIC_" and remove
@@ -377,8 +380,9 @@ History:
 	2013-10-23 - GAC - Removed the local dependency for the data_1_2 Lib which was causing errors being extended by the general_chooser.cfc
 	2013-01-31 - JTP - Optimized function for larger data sets
 	2014-02-24 - JTP - Var'ing the local getDataPageValueQrySORTED variable
-	2015-09-10 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
-	2015-09-23 - GAC - duplicateBean() is a CS 9.0.3 specific update ... rolling back to Duplicate()
+	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
+	2016-02-05 - GAC - Removed a usage of Server.CommonSpot.UDF.util.duplicateBean() since it currently does not work with Queries directly.
+	                   This query does not need "Duplicate()" anyway.
 --->
 
 <cffunction name="getCEData" access="public" returntype="array" hint="Returns array of structs for all data matching the Custom Element." output="false">
@@ -459,10 +463,10 @@ History:
 			ceFieldIDNameMap[ceFieldQuery.fieldID[i]] = Replace(ceFieldQuery.fieldName[i], "FIC_", "");
 
 		// Build in the initial query for the CE Data storage
-		// a CS 9.0.3 specific update ... rolling back to Duplicate()
+		ceDataQry = ceDefaultFieldQry;
+		// - 2016-02-05 - Server.CommonSpot.UDF.util.duplicateBean() currently does not work with Queries
 		//ceDataQry = Server.CommonSpot.UDF.util.duplicateBean(ceDefaultFieldQry);
-		ceDataQry = duplicate(ceDefaultFieldQry);
-		
+				
 		getDataPageValueQry = getDataFieldValue(pageID=ValueList(pageIDValueQry.pageID),formid=ceFormID);
 	</cfscript>
 	
