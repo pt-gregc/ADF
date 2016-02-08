@@ -33,10 +33,11 @@ History:
 	2010-02-18 - RLW - Changed web service object to use direct CF component call
 	2011-01-25 - MFC - Update to v1.0.1. Updated dependency to Utils_1_1.
 	2014-10-16 - GAC - Fixed the component display name
+	2015-06-11 - GAC - Updated the component extends to use the libraryBase path
 --->
-<cfcomponent displayname="ccapi_1_0" extends="ADF.core.Base" hint="CCAPI functions for the ADF Library">
+<cfcomponent displayname="ccapi_1_0" extends="ADF.lib.libraryBase" hint="CCAPI functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_4">
+<cfproperty name="version" value="1_0_5">
 <cfproperty name="CoreConfig" type="dependency" injectedBean="CoreConfig">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_1">
 <cfproperty name="wikiTitle" value="CCAPI">

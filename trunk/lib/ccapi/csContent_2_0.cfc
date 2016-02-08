@@ -31,13 +31,15 @@ Version:
 History:
 	2012-12-27 - MFC - Created.  Direct functions to the API Element Library.
 	2014-09-23 - GAC - Updated the apiElement injectedBean dependency to version apiElement_1_1
+	//2014-09-23 - GAC - Removed the apiElement injectedBean dependency due to compatiblity issues with the new api Conduit Page Pool
+	2015-06-10 - ACW - Updated the component extends to no longer be dependant on the 'ADF' in the extends path
 --->
-<cfcomponent displayname="csContent_2_0" extends="ADF.lib.ccapi.csContent_1_0" hint="Constructs a CCAPI instance and then allows you to populate Custom Elements and Textblocks">
+<cfcomponent displayname="csContent_2_0" extends="csContent_1_0" hint="Constructs a CCAPI instance and then allows you to populate Custom Elements and Textblocks">
 
 <cfproperty name="version" value="2_0_7">
 <cfproperty name="type" value="transient">
 <cfproperty name="apiElement" type="dependency" injectedBean="apiElement_1_1">
-<cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
+<cfproperty name="utils" type="dependency" injectedBean="utils_2_0">
 <cfproperty name="wikiTitle" value="CSContent_2_0">
 
 <!---
@@ -70,7 +72,7 @@ History:
 	2013-06-24 - MTT - Added the forceControlName and forceControlID arguments.
 	2014-05-01 - GAC - Fixed typo in the try/catch, switched ( e ANY ) to ( ANY e )
 	2014-09-23 - GAC - Updated to call the apiElement_1_1 via the server bean rather than the injectedBean dependency
-	2015-08-22 - GAC - Updated to allow textblock updates to be passed to the csContent_1_0.populateContent
+	2015-08-22 - GAC - Updated to allow text block updates to be passed to the csContent_1_0.populateContent
 	2015-09-11 - GAC - Var'd the return result variable
 --->
 <cffunction name="populateContent" access="public" returntype="struct" hint="Use this method to populate content for either a Textblock or Custom Element">
@@ -113,8 +115,6 @@ History:
 		
 		if ( StructKeyExists(contentResult,"status") )
 			result.contentUpdated = contentResult.status;
-
-		//result.msg = contentResult.msg;
 		
 		return result; 
 	</cfscript>
