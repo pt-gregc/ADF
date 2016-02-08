@@ -34,10 +34,11 @@ History:
 	2013-09-06 - GAC - Added the listDiff and IsListDifferent functions
 	2014-12-03 - GAC - Added the isNumericList function
 	2015-02-13 - GAC - Added the tagValueCleanup function
-	2015-07-09 - GAC - Added the highlightKeywords function
+	2015-06-10 - ACW - Updated the component extends to no longer be dependant on the 'ADF' in the extends path
+	2015-07-16 - GAC - Added the highlightKeywords function
 	2015-08-13 - GAC - Added arrayOfArraysToQuery function
 --->
-<cfcomponent displayname="data_1_2" extends="ADF.lib.data.data_1_1" hint="Data Utils component functions for the ADF Library">
+<cfcomponent displayname="data_1_2" extends="data_1_1" hint="Data Utils component functions for the ADF Library">
 
 <cfproperty name="version" value="1_2_20">
 <cfproperty name="type" value="singleton">
@@ -63,8 +64,7 @@ History:
 	2012-10-19 - GAC - Created - MOVE INTO THE ADF V1.6
 	2012-12-31 - Added 'objectFieldKeyList' argument for complex fields.
 				 Added temp variables to copy the structure for comparison.
-	2015-09-10 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
-	2015-09-23 - GAC - duplicateBean() is a CS 9.0.3 specific update ... rolling back to Duplicate()
+	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
 --->
 <cffunction name="IsStructDataDifferent" access="public" returntype="boolean" hint="Compares two data structures and then returns a false if they are different">
 	<cfargument name="structDataA" type="struct" required="true" hint="">
@@ -74,11 +74,8 @@ History:
 	
 	<cfscript>
 		var isDifferent = false;
-		// a CS 9.0.3 specific update ... rolling back to Duplicate()
-		//var tempStructDataA = Server.CommonSpot.UDF.util.duplicateBean(arguments.structDataA);
-		//var tempStructDataB = Server.CommonSpot.UDF.util.duplicateBean(arguments.structDataB);
-		var tempStructDataA = duplicate(arguments.structDataA);
-		var tempStructDataB = duplicate(arguments.structDataB);
+		var tempStructDataA = Server.CommonSpot.UDF.util.duplicateBean(arguments.structDataA);
+		var tempStructDataB = Server.CommonSpot.UDF.util.duplicateBean(arguments.structDataB);
 		var isEqual = compareStructData(structDataA=tempStructDataA,structDataB=tempStructDataB,excludeKeyList=arguments.excludeKeyList,objectFieldKeyList=arguments.objectFieldKeyList);
 		if ( NOT isEqual )
 			isDifferent = true;
