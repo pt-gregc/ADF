@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2015.
+PaperThin, Inc.  Copyright (c) 2009-2016.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -36,10 +36,11 @@ History:
 	2015-01-13 - GAC - Added getCSObjectStandardMetadata
 	2015-04-06 - GAC - Added getUploadedDocFileSize and getUploadedDocServerPath
 	2015-04-09 - GAC - Added getCSExtURLString 
+	2015-11-06 - GAC - Added the getTemplateIDByName function
 --->
 <cfcomponent displayname="csData_1_3" extends="ADF.lib.csData.csData_1_2" hint="CommonSpot Data Utils functions for the ADF Library">
 
-<cfproperty name="version" value="1_3_6">
+<cfproperty name="version" value="1_3_9">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">
@@ -215,6 +216,8 @@ History:
 	2015-01-13 - GAC - Created
 	2015-01-28 - GAC - Added Standard Metadata for Templates.
 					 - Added objectType key
+	2015-09-10 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
+	2015-09-23 - GAC - duplicateBean() is a CS 9.0.3 specific update ... rolling back to Duplicate()
 --->
 <cffunction name="getCSObjectStandardMetadata" returntype="struct" access="public" hint="Gets the standard metadata for a commonspot object (page,doc,url) from its pageID">
 	<cfargument name="csPageID" type="numeric" required="true" hint="a commonspot pageid">
@@ -239,8 +242,10 @@ History:
 		}
 		
 		// Duplicate the LOCKED Struture and add the object type string 
-		reData = Duplicate(retMetadata);
-
+		// a CS 9.0.3 specific update ... rolling back to Duplicate()
+		//reData = Server.CommonSpot.UDF.util.duplicateBean(retMetadata);
+		reData = duplicate(retMetadata);
+		
 		if ( !StructIsEmpty(reData) )
 			reData["objectType"] = objType;
 			
@@ -491,13 +496,17 @@ Usage:
 	application.ADF.csData.getCSExtURLString(csPageID)
 History:
 	2015-04-07 - DJM/GAC - Created 
+	2015-04-29 - GAC - Added logic and error logging for the case when no valid page was found
 --->
 <cffunction name="getCSExtURLString" returntype="string" output="true" access="public" hint="Returns a Commonspot Extended URL String data">
 	<cfargument name="csPageID" type="numeric" required="true" hint="">
-
+	<cfargument name="logError" type="boolean" required="false" default="false" hint="">
+	
 	<cfscript>
 		var returnString = arguments.csPageID;
 		var getPageInfo = '';
+		var hasError = false;
+		var logMsg = "";
 	</cfscript>
 	
 	<cfquery name="getPageInfo" DATASOURCE="#Request.Site.Datasource#">
@@ -507,16 +516,70 @@ History:
 	</cfquery>
 	
 	<cfscript>
-		if ( getPageInfo.PageType EQ Request.Constants.pgTypeNormal AND getPageInfo.Uploaded EQ 0 )
-		 	returnString = 'CP___PAGEID=#arguments.csPageID#,#getPageInfo.FileName#,#getPageInfo.SubsiteID#';
-		else if ( (getPageInfo.PageType EQ Request.Constants.pgTypeNormal AND getPageInfo.Uploaded EQ 1) OR getPageInfo.PageType EQ Request.Constants.pgTypeMultimedia OR getPageInfo.PageType EQ Request.Constants.pgTypeMultimediaPlaylist )
-		 	returnString = 'CP___PAGEID=#arguments.csPageID#';
-		else if ( getPageInfo.PageType EQ Request.Constants.pgTypeImage )
-		 	returnString = 'CP___PAGEID=#arguments.csPageID#,#getPageInfo.FileName#';
-		else // PageType as user template,pageset,registered url
-		 	returnString = 'CP___PAGEID=#arguments.csPageID#,#getPageInfo.FileName#,#getPageInfo.SubsiteID#';
-		 
+		if ( getPageInfo.RecordCount )
+		{
+			if ( getPageInfo.PageType EQ Request.Constants.pgTypeNormal AND getPageInfo.Uploaded EQ 0 )
+			 	returnString = 'CP___PAGEID=#arguments.csPageID#,#getPageInfo.FileName#,#getPageInfo.SubsiteID#';
+			else if ( (getPageInfo.PageType EQ Request.Constants.pgTypeNormal AND getPageInfo.Uploaded EQ 1) OR getPageInfo.PageType EQ Request.Constants.pgTypeMultimedia OR getPageInfo.PageType EQ Request.Constants.pgTypeMultimediaPlaylist )
+			 	returnString = 'CP___PAGEID=#arguments.csPageID#';
+			else if ( getPageInfo.PageType EQ Request.Constants.pgTypeImage )
+			 	returnString = 'CP___PAGEID=#arguments.csPageID#,#getPageInfo.FileName#';
+			else // PageType as user template,pageset,registered url
+			 	returnString = 'CP___PAGEID=#arguments.csPageID#,#getPageInfo.FileName#,#getPageInfo.SubsiteID#';
+		}
+		else
+		{
+			// Set the returnString to CP___PAGEID={pageid},invalid-pageid--see-logs,0 
+			returnString = 'CP___PAGEID=#arguments.csPageID#,invalid-pageid--see-logs,0';	
+			
+			// Create Log Msg 
+			if ( arguments.logError )
+			{
+				logMsg = "[csData_1_3.getCSExtURLString] Error attempting to build the CSExtURL string. No valid page found.";
+				server.ADF.objectFactory.getBean("utils_1_2").logAppend(logMsg);	
+			}
+		}
+	
 		return returnString;
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+Name:
+	$getTemplateIDByName
+Summary:
+	Returns a Commonspot Extended URL String data
+Returns:
+	Numeric
+Arguments:
+	String Name
+Usage:
+	application.ADF.csData.getTemplateIDByName(Name)
+History:
+	2015-11-09 - GAC - Added 
+--->
+<cffunction name="getTemplateIDByName" access="public" returntype="numeric" hint="return the PageID of the template or 0 if not found">
+	<cfargument name="name" required="Yes" type="string" hint="The Template Name">
+
+	<cfscript>
+		var q = QueryNew("temp");
+		var templateID = 0;
+	</cfscript>
+
+	<cfquery name="q" datasource="#request.site.datasource#">
+		select PageID
+			from AvailableTemplates
+		Where ShortDesc = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.name#">
+	</cfquery>
+
+	<cfscript>
+		if ( q.recordcount eq 1 )
+			templateID = q.PageID;
+
+		return templateID;
 	</cfscript>
 </cffunction>
 

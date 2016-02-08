@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2015.
+PaperThin, Inc.  Copyright (c) 2009-2016.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -48,10 +48,11 @@ History:
 	2014-09-25 - GAC - Added getCSPageIDByURL function	
 	2015-01-05 - GAC - Added isTemplate function
 	2015-01-08 - GAC - Moved isTemplated to csData_1_3	
+	2015-06-09 - DRM - Update application.cs -> Server.CommonSpot.udf, CommonSpot change
 --->
 <cfcomponent displayname="csData_1_2" extends="ADF.lib.csData.csData_1_1" hint="CommonSpot Data Utils functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_19">
+<cfproperty name="version" value="1_2_23">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">
@@ -261,19 +262,25 @@ Arguments:
 	String csPageName
 	Numeric csSubsiteID
 	Numeric csPageID
+	Numeric pageTitleWordMax
 	Numeric pageNameWordMax
 	Boolean verbose
 History:
 	2012-03-26 - GAC - Created 
 	2013-05-29 - GAC - Updated the newUniqueNamePath to switch forward slashes to back slashes
+	2016-02-04 - GAC - Updated to honor the maxChar limit even if the pageTitleWordMax limit is not reached.
+					 	Script reduces the pageTitleWordMax limit until the max char limit is satisfied.
+					 - Added a pageNameWordMax parameter
 --->
 <cffunction name="createUniquePageInfofromPageTitle" access="public" returntype="struct" output="true" hint="Creates a unique page title, page name and file name for a page from a passed in pageTitle">
 	<cfargument name="csPageTitle" type="string" required="true" hint="a page title to build a page name and file name from">
 	<cfargument name="csPageName" type="string" required="true" hint="a page name to build a page name and file name from">
 	<cfargument name="csSubsiteID" type="numeric" required="false" default="0" hint="if subsite is 0 check whole, else check only the specified subsite">
 	<cfargument name="csPageID" type="numeric" required="false" default="0" hint="if a cs pageid is passed in and it matches an existing and valid cs page DO NOT create unique name">
-	<cfargument name="pageTitleWordMax" type="numeric" required="false" default="10" hint="Word limit for page and file names">
+	<cfargument name="pageTitleWordMax" type="numeric" required="false" default="10" hint="Word limit for page title">
+	<cfargument name="pageNameWordMax" type="numeric" required="false" default="#arguments.pageTitleWordMax#" hint="Word limit for page and file names">
 	<cfargument name="verbose" type="boolean" required="false" default="false" hint="Toggle debugging dump outputs">
+
 	<cfscript>
 		var retResult = StructNew();
 		var newPageTitle = arguments.csPageTitle;
@@ -287,69 +294,99 @@ History:
 		var qNewPageData = QueryNew("temp");
 		var existingFullFilePath = "";
 		var newUniqueNamePath = "";
-				
+		var titleCharMax = 250; // CommonSpot Default
+		var titleMaxWords = arguments.pageTitleWordMax;
+		var nameCharMax = 250; // CommonSpot Default
+		var nameMaxWords = arguments.pageNameWordMax;
+		var siteSettingsCom = Server.CommonSpot.api.getObject('SiteSettings');
+		var pgSettings = siteSettingsCom.getPagePropsUI();
+
+		// Get the CommonSpot Page Creation setting from the SiteSettings.getPagePropsUI();
+		if ( StructKeyExists(pgSettings,"TitleMaxLength") )
+			titleCharMax = pgSettings.TitleMaxLength;
+		if ( StructKeyExists(pgSettings,"NameMaxLength") )
+			nameCharMax = pgSettings.NameMaxLength;
+
 		// Strip HTML tags
 		newPageTitle = TRIM(variables.data.stripHTMLtags(str=newPageTitle,replaceStr=" "));
-		if ( arguments.verbose )					
+		if ( arguments.verbose )
 			application.ADF.utils.doDump(newPageTitle, "newPageTitle - Strip HTML tags", 1);
-	
+
 		// Convert HTML entities to text
 		newPageTitle = TRIM(variables.data.unescapeHTMLentities(str=newPageTitle));
-		if ( arguments.verbose )					
+		if ( arguments.verbose )
 			application.ADF.utils.doDump(newPageTitle, "newPageTitle - Strip HTML entities", 1);
 
 		// Shorten the newPageTitle by a set number of words ( Zero '0' would bypass this modification )
-		if ( arguments.pageTitleWordMax NEQ 0 ) 	
-			newPageTitle = variables.data.trimStringByWordCount(newPageTitle,arguments.pageTitleWordMax,false);
-		if ( arguments.verbose )					
-			application.ADF.utils.doDump(newPageTitle, "newPageTitle - Shortened", 1);		
-		
-		// Create a unique Page Title from the passed in csPageTitle 
+		if ( arguments.pageTitleWordMax NEQ 0 )
+		{
+			//newPageTitle = variables.data.trimStringByWordCount(newPageTitle,arguments.pageTitleWordMax,false);
+			while ( LEN(newPageTitle) GT titleCharMax ) {
+				newPageTitle = variables.data.trimStringByWordCount(newPageTitle,titleMaxWords,false);
+				titleMaxWords = titleMaxWords - 1;
+			}
+		}
+		if ( arguments.verbose )
+			application.ADF.utils.doDump(newPageTitle, "newPageTitle - Shortened", 1);
+
+		// Shorten the newPageTitle by a set number of words ( Zero '0' would bypass this modification )
+		if ( arguments.pageTitleWordMax NEQ 0 )
+		{
+			//newPageName = variables.data.trimStringByWordCount(newPageName,arguments.pageTitleWordMax,false);
+			while ( LEN(newPageName) GT nameCharMax ) {
+				newPageName = variables.data.trimStringByWordCount(newPageName,nameMaxWords,false);
+				nameMaxWords = nameMaxWords - 1;
+			}
+		}
+		if ( arguments.verbose )
+			application.ADF.utils.doDump(newPageName, "newPageName - Shortened", 1);
+
+		// Create a unique Page Title from the passed in csPageTitle
 		// - check the whole site if a SubsiteID is 0
-		// - if a cs pageid is passed in and it matches an existing and valid cs page DO NOT create unique name 
+		// - if a cs pageid is passed in and it matches an existing and valid cs page DO NOT create unique name
 		newPageTitle = createUniquePageTitle(csPageTitle=newPageTitle,csSubsiteID=arguments.csSubsiteID,csPageID=arguments.csPageID);
-		if ( arguments.verbose )					
-			application.ADF.utils.doDump(newPageTitle, "newPageTitle - Unique", 1);			
-			
-		// Build New PageName from the new unique PageTitle 
+		if ( arguments.verbose )
+			application.ADF.utils.doDump(newPageTitle, "newPageTitle - Unique", 1);
+
+		// Build New PageName from the new unique PageTitle
 		newPageName = createUniquePageName(csPageName=newPageName,csSubsiteID=arguments.csSubsiteID,csPageID=arguments.csPageID);
-		if ( arguments.verbose )	
-			application.ADF.utils.doDump(newPageName, "newPageName", 1);		
-		
+		if ( arguments.verbose )
+			application.ADF.utils.doDump(newPageName, "newPageName", 1);
+
 		// Assign to FileName variable from the shortend PageName
 		newFileName = newPageName;
-		
+
 		// Filter out any international characters
 		newFileName = variables.data.filterInternationlChars(newFileName);
 
-		// Make the File Name it CS safe (add dashes, etc.)		
-		newFileName = application.ADF.csData.makeCSSafe(newFileName);	
-		if ( arguments.verbose )	
+		// Make the File Name it CS safe (add dashes, etc.)
+		newFileName = application.ADF.csData.makeCSSafe(newFileName);
+		if ( arguments.verbose )
 			application.ADF.utils.doDump(newFileName, "newFileName", 1);
-		
+
 		newFullFileName = newFileName & ".cfm";
-		if ( arguments.verbose )	
+		if ( arguments.verbose )
 			application.ADF.utils.doDump(newFullFileName, "newFullFileName", 1);
-				
+
 		// Make the file name Unique if needed
-		// - Get the subsite data from destSubsiteID 
+		// - Get the subsite data from destSubsiteID
 		qSubsite = application.ADF.CSData.getSubsiteQueryByID(arguments.csSubsiteID);
 		if ( arguments.verbose )
 			application.ADF.utils.doDump(qSubsite, "qSubsite", 0);
-		
+
 		if ( qSubsite.RecordCount ) {
-			// Get the Destination Subsite URL 
+			// Get the Destination Subsite URL
 			subsiteURL = qSubsite.SUBSITEURL;
-			if ( arguments.verbose )					
+			if ( arguments.verbose )
 				application.ADF.utils.doDump(subsiteURL,"subsiteURL",1);
-		}			
+		}
 
 		// Build potential page URL to Check to see if page name is unique
 		newFullFileURL = subsiteURL & newFullFileName;
 		if ( arguments.verbose )
 			application.ADF.utils.doDump(newFullFileURL,"newFullFileURL",1);
-		
-		// Check to see if file name is unique 
+
+		// Check to see if file name is unique
 		// - Get the page query but the fullFileURL
 		qNewPageData = application.ADF.csData.getCSPageDataByURL(newFullFileURL);
 		if ( arguments.verbose )
@@ -400,8 +437,8 @@ History:
 		retResult["filename"] = newFullFileName; 
 		retResult["filenameNoExt"] = newFileName; 
 		retResult["url"] = newFullFileURL;
-		retResult["type"] = newFullFileURL; 
-		 
+		retResult["type"] = newFullFileURL; //TODO: Find out why Type is set to newFullFileURL?
+
 		return retResult;
 	</cfscript>
 </cffunction>
@@ -567,6 +604,7 @@ Arguments:
 	Boolean includeRegisteredURLS
 History:
 	2013-10-22 - GAC - Created
+	2015-06-09 - DRM - Update application.cs -> Server.CommonSpot.udf, CommonSpot change
 --->
 <cffunction name="getCSPageQueryByTitle" access="public" returntype="query" output="false">
 	<cfargument name="csPageTitle" type="string" required="true">
@@ -577,7 +615,7 @@ History:
 		select  ID, subsiteid, name, Title, FileName
 		  from  sitePages
 		 where  ( title = <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.csPageTitle#">
-				  or  title = <cfqueryparam cfsqltype="cf_sql_varchar" value="#application.CS.Data.ToHTML(arguments.csPageTitle)#"> )
+				  or  title = <cfqueryparam cfsqltype="cf_sql_varchar" value="#Server.CommonSpot.udf.Data.ToHTML(arguments.csPageTitle)#"> )
 		<cfif IsNumeric(arguments.csSubsiteID) AND arguments.csSubsiteID GT 0>
 		   and  subsiteID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.csSubsiteID#">
 		</cfif>
@@ -714,6 +752,7 @@ Arguments:
 	Boolean includeRegisteredURLS
 History:
 	2013-10-22 - GAC - Created
+	2015-06-09 - DRM - Update application.cs -> Server.CommonSpot.udf, CommonSpot change
 --->
 <cffunction name="getCSPageQueryByName" access="public" returntype="query" output="false">
 	<cfargument name="csPageName" type="string" required="true">
@@ -724,7 +763,7 @@ History:
 		select  ID, subsiteid, name, Title, FileName
 		  from  sitePages
 		 where  ( name = <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.csPageName#">
-				  or  name = <cfqueryparam cfsqltype="cf_sql_varchar" value="#application.CS.Data.ToHTML(arguments.csPageName)#"> )
+				  or  name = <cfqueryparam cfsqltype="cf_sql_varchar" value="#Server.CommonSpot.udf.Data.ToHTML(arguments.csPageName)#"> )
 		<cfif IsNumeric(arguments.csSubsiteID) AND arguments.csSubsiteID GT 0>
 		   and  subsiteID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.csSubsiteID#">
 		</cfif>
@@ -880,6 +919,8 @@ Arguments:
 History:
 	2013-10-02 - DMB - Created
 	2014-11-11 - GAC - Removed the reference to application.ADF.csdata... since we are in csdata
+	2015-04-28 - GAC - Updated to use parseCSURL() 
+	2015-07-15 - GAC - Updated to use parseCSURL() even if the value passed in does not contain "CP___PAGEID="
 --->
 <cffunction name="decipherCPPAGEID" access="public" returntype="string" output="true">
 	<cfargument name="cpPageID" type="string" required="true">
@@ -892,8 +933,11 @@ History:
 			strPageID = replacenocase(arguments.cpPageID,"CP___PAGEID=","");
 			strPageID = listFirst(strPageID,",");
 			// Get the url for this PageID
-			strURL = getCSPageURL(strPageID);
+			strURL = parseCSURL(str=strPageID);
 		}
+		else
+			strURL = parseCSURL(str=arguments.cpPageID);
+			
 		return strURL;
 	</cfscript>
 </cffunction>

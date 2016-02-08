@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2015.
+PaperThin, Inc.  Copyright (c) 2009-2016.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -39,10 +39,11 @@ History:
 	2012-09-10 - GAC - Updated inconsistant comment headers
 					 - Added a csPageID parameter to the getRSSFeedURLFromElementID element
 	2012-12-07 - MFC - Moved new functions to CSData v1.2.
+	2015-06-09 - DRM - Update application.cs -> Server.CommonSpot.udf, CommonSpot change
 --->
 <cfcomponent displayname="csData_1_1" extends="ADF.lib.csData.csData_1_0" hint="CommonSpot Data Utils functions for the ADF Library">
 	
-<cfproperty name="version" value="1_1_7">
+<cfproperty name="version" value="1_1_9">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_1">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">
@@ -167,28 +168,33 @@ Arguments:
 History:
  	2010-12-15 - RAK - Created
 	2011-02-09 - RAK - Var'ing un-var'd variables
+	2016-01-28 - GAC - Updated the SQL to get textblock for the page that uses controlName inherited from the template
 --->
 <cffunction name="getTextblockData" access="public" returntype="struct" hint="Given a pageID and name, get the textblock data">
 	<cfargument name="name" type="string" required="true" default="" hint="Textblock Name">
 	<cfargument name="pageID" type="numeric" required="true" default="-1" hint="PageID that contains the textblock">
+
 	<cfscript>
 		var textblockData = '';
 		var returnData = StructNew();
 	</cfscript>
+
 	<cfif Len(name) eq 0 or pageID lt 1>
 		<cfreturn returnData>
 	</cfif>
 	
 	<cfquery name="textblockData" datasource="#request.site.datasource#">
-		 SELECT 	*
+		  SELECT 	*
 			FROM 	Data_TextBlock dtb
-   INNER JOIN 	controlInstance ci on ci.controlID = dtb.controlID
-		  where 	ci.controlName = <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.name#">
-			 and 	ci.pageID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.pageID#">
-			 and 	dtb.versionState = 2;
+      INNER JOIN 	controlInstance ci on ci.controlID = dtb.controlID
+		   WHERE 	ci.controlName = <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.name#">
+			 AND 	dtb.pageID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.pageID#">
+			 AND 	dtb.versionState = 2;
 	</cfquery>
+
 	<cfscript>
-		if(textblockData.recordCount){
+		if ( textblockData.recordCount )
+		{
 			returnData.dateAdded = textblockData.DateAdded;
 			returnData.dateApproved = textblockData.DateApproved;
 			returnData.controlID = textblockData.controlID;
@@ -446,6 +452,7 @@ History:
 	2011-02-23 - GAC - Added global keyword compatibility for CS5.x and CS6.x by moving the global keyword retrieval
 					   to a helper method getGlobalKeywords which has CS version detection
 	2011-03-10 - MFC/GAC - Moved method into v1.1 for new KEYWORD functionality.
+	2015-06-09 - DRM - Update application.cs -> Server.CommonSpot.udf, CommonSpot change
 --->
 <cffunction name="getStandardMetadata" access="public" returntype="struct" hint="Return standard metadata for a page">
 	<cfargument name="csPageID" required="true" type="numeric" hint="Page to get standard metadata for">
@@ -524,7 +531,7 @@ History:
 			stdMetadata.PublicReleaseDate = getData.PublicReleaseDate;
 			stdMetadata.Confidentiality = getData.Confidentiality;
 			if ( IsNumeric(getData.IsPublic) AND getData.IsPublic gt 0 ) 
-				stdMetadata.IncludeInIndex = application.CS.site.IsPublicGetOptions(getData.IsPublic);
+				stdMetadata.IncludeInIndex = Server.CommonSpot.udf.site.IsPublicGetOptions(getData.IsPublic);
 		}
 	</cfscript>
 	<cfreturn stdMetadata>

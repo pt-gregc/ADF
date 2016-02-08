@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2015.
+PaperThin, Inc.  Copyright (c) 2009-2016.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -40,7 +40,7 @@ History:
 --->
 <cfcomponent name="Base" hint="Base component for Custom Application Common Framework">
 
-<cfproperty name="version" value="1_8_1">
+<cfproperty name="version" value="1_8_2">
 <cfproperty name="file-version" value="5">
 	
 <cffunction name="init" output="true" returntype="any">
@@ -92,11 +92,23 @@ Arguments:
 History:
 	2011-09-27 - GAC/MFC - Created
 	2011-09-28 - GAC - Updated to use the VAL function to remove the version numbers after the minor version
+	2015-04-28 - DJM - Updated code to extract the minor version
+	2015-04-28 - GAC - Updated to parse the adfversion using just the major.minor versions digits and strip any addition build versions
 --->
 <cffunction name="getDecimalADFVersion" access="public" returntype="numeric">
 	<cfscript>
 		var ADFversion = getADFversion();
-		return Val(ADFversion);
+		var vArray = ListToArray(ADFversion,'.');
+		var aSize =  ArrayLen(vArray);
+		
+		if ( aSize GT 1 )
+			ADFversion = Val(vArray[1]) & "." & Val(vArray[2]); 
+		else if ( aSize EQ 1 )
+			ADFversion = Val(vArray[1]) & "." & 0; 
+		else
+			ADFversion = 0.0;
+			
+		return ADFversion;
 	</cfscript>
 </cffunction>
 

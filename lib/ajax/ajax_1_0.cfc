@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2015.
+PaperThin, Inc.  Copyright (c) 2009-2016.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -34,7 +34,7 @@ History:
 --->
 <cfcomponent displayname="ajax" extends="ADF.core.Base" hint="AJAX functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_8">
+<cfproperty name="version" value="1_0_9">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_2">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
@@ -71,6 +71,7 @@ History:
 	2014-03-17 - JTP - Added logic to log if runCommand fails
 	2014-10-15 - GAC - Set the application.ADF.stieDevMode to a local stieDevMode variable
 					 - Updated a application.utils.logAppend call to use the local utils.logAppend()
+	2016-02-01 - DMB - Update with error handling when attempting to convert the value to a string
 --->
 <!--- // ATTENTION: 
 		Do not call is method directly. Call from inside the AjaxProxy.cfm file (method properties are subject to change) 
@@ -198,7 +199,7 @@ History:
 						if ( isStruct(result.reString) or isArray(result.reString) or isObject(result.reString) ) {
 							hasProcessingError = 1; 
 							// 2012-03-10 - GAC - we need to check if we have a 'message' before we can output it
-							if ( StructKeyExists(result.reString,"message") AND siteDevMode )
+							if ( IsStruct(result.reString) AND StructKeyExists(result.reString,"message") AND siteDevMode )
 								result.reString = "Error: Unable to convert the return value into string. [" & result.reString.message & "]";
 							else
 								result.reString = "Error: Unable to convert the return value into string.";

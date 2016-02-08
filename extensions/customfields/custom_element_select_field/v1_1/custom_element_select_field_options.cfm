@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2015.
+PaperThin, Inc.  Copyright (c) 2009-2016.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -28,6 +28,7 @@ Summary:
 History:
 	2014-02-26 - DJM - Created						
 	2014-03-17 - GAC - Added dbType="QofQ" to the handle-in-list call inside the getFilteredRecords Query of queries
+	2015-12-15 - DJM - Updated code to send displayText if returnCurrentOnly is true
 --->
 
 <cfscript>
@@ -68,6 +69,11 @@ History:
 	caller.multiple = multiple;
 	caller.label = cfmlInputParams.label;
 	caller.description = getProperties.description;
+	selectedValDisplayText = '';
+	if (attributes.returnCurrentOnly AND ArrayLen(optionsStruct.optionText))
+		selectedValDisplayText = ArrayToList(optionsStruct.optionText, '<br/>');
+
+	caller.selectedValDisplayText = selectedValDisplayText;
 </cfscript>
 <!----// FUNCTIONS //----------------------------->
 

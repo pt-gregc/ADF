@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2015.
+PaperThin, Inc.  Copyright (c) 2009-2016.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -33,12 +33,12 @@ History:
 --->
 <cfcomponent displayname="apiElement_1_1" extends="ADF.lib.api.apiElement_1_0" hint="">
 
-<cfproperty name="version" value="1_1_1">
+<cfproperty name="version" value="1_1_2">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <cfproperty name="csData" type="dependency" injectedBean="csData_1_2">
 <cfproperty name="apiConduitPool" type="dependency" injectedBean="apiConduitPool_1_0">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
-<cfproperty name="wikiTitle" value="API Elements">
+<cfproperty name="wikiTitle" value="APIElement_1_1">
 
 <!---
 /* *************************************************************** */
@@ -68,6 +68,7 @@ History:
 					 - Cleaned up the logic for passing in PageID and SubsiteID values via the data or using the Force Arguments 
 					 - Removed the dependancy for setting a subsiteID in the config or passing in a ForceSubsiteID
 	2015-04-09 - GAC - Updated the error and logging message rendering 
+	2015-05-21 - GAC - Enabled the cfbreak in the pagePool loop after the max attempts have been reached
 --->
 <cffunction name="populateCustom" access="public" returntype="struct" output="true">
 	<cfargument name="elementName" type="string" required="true" hint="The name of the element from the CCAPI configuration">
@@ -186,9 +187,10 @@ History:
 																	,controlName="ccapiGCEPoolControl_#pagePoolParams.pageID#_#pagePoolParams.FormID#"
 																);
 					arguments.forceUsername = pagePoolParams.csuserid;
+					// TODO: add decryption to the lookup of this pagePool password - should be stored encrypted in the config file
 			 		arguments.forcePassword = variables.apiConduitPool.getConduitPoolPagePasswordFromAPIConfig(pageID=pagePoolParams.pageID);
 					
-					// If a valid pageID is returned the BREAK the WHILE loop
+					// If a valid pageID is returned then BREAK the WHILE loop
 					break;	
 				}
 				else
@@ -227,8 +229,8 @@ History:
 				// Count the attempt to request a conduit page from the pool
 				pagePoolAttemptCount = pagePoolAttemptCount + 1;
 				
-				// If the attempts are greater than the max attempts use the default conduit page (and get in line to WAIT)
-				// ( DO WE KILL THE WHOLE REQUEST or DO WE USE DEFAULT CONDUIT PAGEID )
+				// If the attempts are greater than the max attempts KILL THE WHOLE REQUEST 
+				// TODO: Maybe instead of killing the request we should pass the request to the standard conduit page and just get in line and wait for our turn
 				if ( pagePoolAttemptCount GTE pagePoolMaxAttempts)
 				{
 					// Log the issue!!  
@@ -238,7 +240,7 @@ History:
 						pagePoolLogText = "Element [#arguments.elementName#] RequestID: #pagePoolRequestID# - Warning: Requested a Conduit Page #pagePoolAttemptCount# Times. Max Exceeded!";
 						pagePoolLog.msg = _apiLogMsgWrapper(logMsg=pagePoolLog.msg,logEntry=pagePoolLogText);
 					}
-					//break;
+					break;
 				}
 			}	
 		}

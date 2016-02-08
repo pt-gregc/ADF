@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2015.
+PaperThin, Inc.  Copyright (c) 2009-2016.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files
@@ -49,6 +49,13 @@ History:
 	2015-03-19 - DJM - Added code to check for elementtype for honoring newData variable to fix metadata form issue
 	2015-04-02 - DJM - Modified code to handle show/hide of Actions column returned
 	2015-04-10 - DJM - Added code to check for field permission for rendering controls
+	2015-05-01 - GAC - Updated to add a forceScript parameter to bypass the ADF renderOnce script loader
+	2015-07-03 - DJM - Added code for disableDatamanager interface option
+	2015-07-14 - DJM - Added code to get elements by name if not found by ID
+	2015-07-21 - DJM - Modified code to have the hidden field render always
+	2015-07-23 - DJM - Modified call to RenderGrid() to take parent field's value using javascript from the form field
+	2015-08-06 - DJM - Modified code to check for AuthorID instead of DateAdded for setting newData variable
+	2015-12-07 - DJM - Modified JS code to use encodeURIComponent instead of encodeURI since it was not encoding all chars
 --->
 <cfscript>
 	requiredCSversion = 9;
@@ -101,12 +108,16 @@ History:
 <cfscript>
 	if ( NOT IsDefined('newData') )
 	{			
-		if (StructKeyExists(attributes.currentValues, 'DateAdded'))
+		if (StructKeyExists(attributes.currentValues, 'AuthorID') AND attributes.currentValues.AuthorID GT 0)
 			newData = 0;
 		else
 			newData = 1;
 	}	
-	request.showSaveAndContinue = newData;	// forces showing or hiding of 'Save & Continue' button
+	
+	if (getFieldDetails.Action NEQ 'special' AND NOT ListFindNoCase(attributes.parameters[fieldQuery.inputID].interfaceOptions, 'disableDatamanager'))
+		request.showSaveAndContinue = 0;
+	else
+		request.showSaveAndContinue = newData;	// forces showing or hiding of 'Save & Continue' button
 </cfscript>
 
 <cfparam name="attributes.callingElement" default="">
@@ -263,9 +274,14 @@ History:
 			heightVal = "150px";
 			if (IsNumeric(inputParameters.heightValue))
 				heightVal = "#inputParameters.heightValue#px";
+				
+			// Set the forceScripts parameter if it does not exist
+			if ( !StructKeyExists(inputParameters,"forceScripts") )
+				inputParameters.forceScripts = false;
 		
-			application.ADF.scripts.loadJQuery(noConflict=true);
-			application.ADF.scripts.loadJQueryUI();
+			application.ADF.scripts.loadJQuery(force=inputParameters.forceScripts,noConflict=true);
+			application.ADF.scripts.loadJQueryUI(force=inputParameters.forceScripts);
+			// Always force the loading of JQuery DataTables
 			application.ADF.scripts.loadJQueryDataTables(force=true,loadStyles="false");
 		</CFSCRIPT>
 		
@@ -276,9 +292,13 @@ History:
 				</style>
 			</CFOUTPUT>
 		</CFIF>
-	
+		
+		<cfif fieldpermission eq 2>
+			<CFOUTPUT>#Server.CommonSpot.UDF.tag.input(type="hidden", name="#fqFieldName#", value="")#</CFOUTPUT>
+		</cfif>
+		
 		<CFIF inputParameters.childCustomElement neq ''>
-			<CFIF (elementType NEQ 'metadataForm' AND newData EQ 0) OR (elementType EQ 'metadataForm' AND curPageID GT 0)>
+			<CFIF ((elementType NEQ 'metadataForm' AND (newData EQ 0 OR NOT ListFindNoCase(inputParameters.interfaceOptions, 'disableDatamanager'))) OR (elementType EQ 'metadataForm' AND curPageID GT 0))>
 				<CFOUTPUT>
 					#datamanagerObj.renderStyles(propertiesStruct=inputParameters)#
 					<table class="cs_data_manager" border="0" cellpadding="2" cellspacing="2" summary="" id="parentTable_#uniqueTableAppend#"></CFOUTPUT>
@@ -307,23 +327,22 @@ History:
 			<CFELSE>
 			<CFOUTPUT><table class="cs_data_manager" border="0" cellpadding="0" cellspacing="0" summary="">
 				<tr><td class="cs_dlgLabel">#childFormName# records can only be added once the #parentFormLabel# record is saved.</td></tr>
-				</table>
-				#Server.CommonSpot.UDF.tag.input(type="hidden", name="#fqFieldName#", value="")#</CFOUTPUT>
+				</table></CFOUTPUT>
 			</CFIF>
 		</CFIF>
 	</CFIF>
-
-	<CFIF fieldpermission lt 2>
-		<CFOUTPUT>#Server.CommonSpot.UDF.tag.input(type="hidden", name=fqFieldName)#</CFOUTPUT>
-	</CFIF>
-
+	
+	<cfif fieldpermission lt 2>
+		<CFOUTPUT>#Server.CommonSpot.UDF.tag.input(type="hidden", name="#fqFieldName#")#</CFOUTPUT>
+	</cfif>
+	
 	<cfif attributes.rendermode eq 'standard'>
 		<cfoutput></td></tr></cfoutput>
 		<CFIF fieldpermission gt 0>
 			<cfoutput>#description_row#</cfoutput>
 		</CFIF>
 	</cfif>
-
+	
 	<cfif fieldPermission gt 0>
 		<cfoutput>
 		<script type="text/javascript" src="/commonspot/dashboard/js/nondashboard-util.js"></script>
@@ -331,19 +350,22 @@ History:
 			<!--	
 			var oTable#uniqueTableAppend# = '';
 			
-
-			if ( typeof commonspot == 'undefined' )
-			{
-				var commonspot = {};
-			 	commonspot = top.commonspot.util.merge(commonspot, top.commonspot, 1, 0);
-			} 
+			jQuery( function () {
+				if ( typeof commonspot == 'undefined' )
+				{
+					var commonspot = {};
+				 	commonspot = top.commonspot.util.merge(commonspot, top.commonspot, 1, 0);
+				} 
 			
-			jQuery.ajaxSetup({ cache: false, async: true });	
+			
+				jQuery.ajaxSetup({ cache: false, async: true });
+			
 		
-			top.commonspot.util.event.addEvent(window, "load", function(){
-																	loadData_#uniqueTableAppend#(0)
-																});
-			top.commonspot.util.event.addEvent(window, "resize", resize_#uniqueTableAppend#);
+				top.commonspot.util.event.addEvent(window, "load", function(){
+																		loadData_#uniqueTableAppend#(0)
+																	});
+				top.commonspot.util.event.addEvent(window, "resize", resize_#uniqueTableAppend#);
+			});
 			
 			function resize_#uniqueTableAppend#()
 			{
@@ -393,6 +415,22 @@ History:
 					commonspotNonDashboard.util.displayMessageOverlay('datamanager_#uniqueTableAppend#', 'overlayDivStyle', 'Please Wait...');	
 				var res#uniqueTableAppend# = '';
 				var retData#uniqueTableAppend# = '';
+				var parentInstanceIDVal = '';
+				var parentInstanceFld = '';					
+		
+				<CFIF elementType EQ 'MetadataForm' AND inputParameters.parentUniqueField EQ '{{pageid}}'>
+					parentInstanceIDVal = '#curPageID#';
+				<CFELSE>
+					parentInstanceFld = 'fic_#ceFormID#_#inputParameters.parentUniqueField#';
+				</CFIF>
+				
+				if (parentInstanceFld != '' && (document.getElementById(parentInstanceFld) != null || document.getElementsByName(parentInstanceFld)[0] != null))
+				{
+					if (document.getElementById(parentInstanceFld) != null)
+						parentInstanceIDVal = document.getElementById(parentInstanceFld).value;
+					else
+						parentInstanceIDVal = document.getElementsByName(parentInstanceFld)[0].value;
+				}
 				
 				dataToBeSent#uniqueTableAppend# = { 
 						bean: '#ajaxBeanName#',
@@ -404,7 +442,7 @@ History:
 						parentFormType : '#elementType#',
 						pageID : #curPageID#,
 						propertiesStruct : JSON.stringify(<cfoutput>#SerializeJSON(inputParameters)#</cfoutput>),
-						currentValues : JSON.stringify(<cfoutput>#SerializeJSON(attributes.currentvalues)#</cfoutput>),
+						parentInstanceValue : parentInstanceIDVal,
 						fieldPermission : #fieldpermission#						
 				 };
 				 
@@ -608,9 +646,10 @@ History:
 						}
 					}
 				})
-				.fail(function() 
+				.fail(function(jqXHR, textStatus, errorThrown)
 				{
-					document.getElementById('errorMsgSpan').innerHTML = 'An error occurred while trying to perform the operation.';
+					var msg = (typeof jqXHR.responseText === 'string') ? jqXHR.responseText : 'An error occurred while trying to perform the operation.';
+					document.getElementById('errorMsgSpan').innerHTML = msg;
 					document.getElementById('customElementData_#uniqueTableAppend#').style.display = "none";
 					ResizeWindow();
 				});
@@ -652,16 +691,47 @@ History:
 				 };
 				 
 				jQuery.when(
-
-							jQuery.post( '#ajaxComURL#', 
-													data, 
-													null, 
-													"json" )
-
-						).done( 
-						
-							function() { onSuccess_#uniqueTableAppend#('Success'); } 
-						);
+					jQuery.post( '#ajaxComURL#',
+												data,
+												null,
+												"json" )
+					)
+					.done(function()
+					{
+						onSuccess_#uniqueTableAppend#('Success');
+					})
+					.fail(function(jqXHR, textStatus, errorThrown)
+					{
+						var msg = (typeof jqXHR.responseText === 'string') ? jqXHR.responseText : 'An error occurred while trying to perform the operation.';
+						alert(msg);
+					});
+			}
+			
+			function setCurrentValueAndOpenURL_#uniqueTableAppend#(urlToOpen, linkedFldName, buttonName)
+			{
+				var linkedFldVal = '';
+				if (linkedFldName != '')
+				{
+					if (document.getElementById(linkedFldName) != null || document.getElementsByName(linkedFldName)[0] != null)
+					{
+						if (document.getElementById(linkedFldName) != null)
+							linkedFldVal = document.getElementById(linkedFldName).value;
+						else
+							linkedFldVal = document.getElementsByName(linkedFldName)[0].value;
+						if (buttonName == 'addnew')
+							urlToOpen = urlToOpen + "&csAssoc_ParentInstanceID=" + encodeURIComponent(linkedFldVal) + "&linkedFieldValue=" + encodeURIComponent(linkedFldVal);
+						else
+							urlToOpen = urlToOpen + "&linkedFieldValue=" + encodeURIComponent(linkedFldVal);
+					}
+					else
+					{
+						if (buttonName == 'addnew')
+							urlToOpen = urlToOpen + "&csAssoc_ParentInstanceID=&linkedFieldValue=";
+						else
+							urlToOpen = urlToOpen + "&linkedFieldValue=";
+					}
+				}
+				top.commonspot.lightbox.openDialog(urlToOpen);
 			}
 			// -->
 		</script>

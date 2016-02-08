@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2015.
+PaperThin, Inc.  Copyright (c) 2009-2016.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -37,13 +37,13 @@ History:
 
 <cfcomponent displayname="apiConduitPool_1_0" extends="ADF.core.Base" hint="API Conduit Page Pool functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_3">
+<cfproperty name="version" value="1_0_4">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <cfproperty name="ccapi" type="dependency" injectedBean="ccapi_2_0">
 <cfproperty name="csData" type="dependency" injectedBean="csData_1_2">
 <cfproperty name="ceData" type="dependency" injectedBean="ceData_2_0">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
-<cfproperty name="wikiTitle" value="API Conduit Pool">
+<cfproperty name="wikiTitle" value="APIConduitPool_1_0">
 
 <cfscript>
 	// API Pool Default Variables
@@ -84,6 +84,8 @@ Arguments:
 	None
 History:
 	2014-09-08 - GAC - Created
+	2015-09-10 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
+	2015-09-23 - GAC - duplicateBean() is a CS 9.0.3 specific update ... rolling back to Duplicate()
 --->
 <cffunction name="initApiPoolVars" returntype="void" output="false" access="private" hint="Initializes the API Conduit Page Pool variables">
 	<cfscript>
@@ -113,7 +115,10 @@ History:
 		// Build the ADF API POOL data structure. 
 		
 		// associative array of available pages
-		adfAPIpoolVars.AvailablePoolPages = Duplicate(adfAPIpoolConfig.Pages); // Duplicate Config Page for the Pool Available pages
+		// a CS 9.0.3 specific update ... rolling back to Duplicate()
+		//adfAPIpoolVars.AvailablePoolPages = Server.CommonSpot.UDF.util.duplicateBean(adfAPIpoolConfig.Pages);
+		adfAPIpoolVars.AvailablePoolPages = duplicate(adfAPIpoolConfig.Pages); // Duplicate Config Page for the Pool Available pages
+		
 		// associative array of Pages that are being processed
 		adfAPIpoolVars.ProcessingPoolPages = StructNew();
 		// An array of pending Requests
@@ -531,7 +536,7 @@ History:
 		var delStatus = false;
 		var requestQueue = ReadRequestQueueArray();
 		
-	    // LOCKing handle here by the parent calling method getConduitPageFromPool()
+	    // LOCKing handled here by the parent calling method getConduitPageFromPool()
 	    if ( ArrayLen(requestQueue) GTE arguments.queuePos )
 	  		delStatus = ArrayDeleteAt(requestQueue,arguments.queuePos);
 	  	
@@ -1229,6 +1234,7 @@ History:
 			{
 				if ( StructKeyExists(poolPages[key],"pageid") AND poolPages[key].pageid EQ arguments.pageID AND StructKeyExists(poolPages[key],"cspassword") )
 				{
+					// TODO: encrypt/decrypt this password 
 					retPassword = poolPages[key].cspassword;	
 					break;
 				}

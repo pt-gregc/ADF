@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2015.
+PaperThin, Inc.  Copyright (c) 2009-2016.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -35,7 +35,7 @@ History:
 ---> 
 <cfcomponent displayname="csPage_2_0" extends="ADF.lib.ccapi.csPage_1_1" hint="Constructs a CCAPI instance and then creates or deletes a page with the given information">
 
-<cfproperty name="version" value="2_0_5">
+<cfproperty name="version" value="2_0_6">
 <cfproperty name="type" value="transient">
 <cfproperty name="ccapi" type="dependency" injectedBean="ccapi_2_0">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
@@ -90,11 +90,13 @@ History:
 	2013-02-08 - MFC - Updated logging variable in error handling.
 	2013-02-12 - MFC - Moved the "metadataStructToArray" code to a function in CSData.
 	2014-03-05 - JTP - Var declarations
+	2015-09-09 - GAC - Updated the custom metadata conversion to check if the data is already in a Array of Structs format
 --->
 <cffunction name="createPage" access="public" output="true" returntype="struct" hint="Creates a page using the argument data passed in">
 	<cfargument name="stdMetadata" type="struct" required="true" hint="Standard Metadata would include 'Title, Description, TemplateId, SubsiteID etc...'">
 	<cfargument name="custMetadata" type="struct" required="true" hint="Custom Metadata would be any custom metadata for the new page ex. customMetadata['formName']['fieldname']">
 	<cfargument name="activatePage" type="numeric" required="false" default="1" hint="Flag to make the new page active or inactive"> 
+
 	<cfscript>
 		var contentResult = "";
 		// Merge the custom metadata form into the standard metadata form to make a single data structure
@@ -114,14 +116,17 @@ History:
 		var apiConfig = variables.api.getAPIConfig();
 		var result = StructNew();
 		
-		// Convert Metadata Struct into an Array of values
+		// Convert Metadata Struct into an Array of values if needed
 		//	FieldName = The name of the field in the metadata form.
 		//	FormName = The name of the metadata form.
 		//	Value = The value of the metadata field.
-		pageData.metadata = variables.csData.metadataStructToArray(metadata=arguments.custMetadata);		
+		if ( IsStruct(arguments.custMetadata) OR !IsArray(arguments.custMetadata) )
+			pageData.metadata = variables.csData.metadataStructToArray(metadata=arguments.custMetadata);		
+		else
+			pageData.metadata = arguments.custMetadata;
 		
 		// Call the API apiElement Lib Component
-		contentResult = variables.apiPage.create(pageData=pageData);
+		contentResult = variables.apiPage.create(pageData=pageData,activatePage=arguments.activatePage);
 		
 		// Format the result in the way that was previously constructed
 		result.contentUpdated = contentResult.CMDSTATUS;
@@ -134,14 +139,17 @@ History:
 		if ( isStruct(apiConfig) 
 			AND StructKeyExists(apiConfig, "logging")
 			AND StructKeyExists(apiConfig.logging, "enabled")
-			AND apiConfig.logging.enabled == 1 ) {
+			AND apiConfig.logging.enabled == 1 ) 
+		{
 			
-			if ( result.contentUpdated ){
+			if ( result.contentUpdated )
+			{
 				logStruct.msg = "#request.formattedTimestamp# - Page [Page ID = #result.newPageID#] [Title = #arguments.stdMetadata.title#]";
 				logStruct.logFile = 'API_Page_create.log';
 				arrayAppend(logArray, logStruct);
 			}
-			else {
+			else 
+			{
 				// Check if the error is a CFCATCH struct
 				if ( isStruct(result.msg)
 						AND StructKeyExists(result.msg, "message")

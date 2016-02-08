@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2015.
+PaperThin, Inc.  Copyright (c) 2009-2016.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -236,7 +236,7 @@ History:
 			// NOTE: always logging in to make sure that we create page in correct subsite
 			variables.ccapi.login(arguments.deletePageData.subsiteID);
 	
-			// Page create parameters
+			// Page data parameters
 			pageData = arguments.deletePageData;
 	
 			// invoke createPage API call

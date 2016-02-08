@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2015.
+PaperThin, Inc.  Copyright (c) 2009-2016.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -34,7 +34,7 @@ History:
 --->
 <cfcomponent displayname="ccapi_2_0" extends="ADF.lib.ccapi.ccapi_1_0" hint="CCAPI functions for the ADF Library">
 	
-<cfproperty name="version" value="2_0_3">
+<cfproperty name="version" value="2_0_4">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
 <cfproperty name="wikiTitle" value="CCAPI">
@@ -72,6 +72,7 @@ History:
 	2012-01-23 - MFC - Modified to call the API library.
 	2014-03-05 - JTP - Var declarations
 	2014-03-07 - GAC - Updated the var'd apiConfig variable for backwards compatiblity
+	2015-06-22 - GAC - Added the super.initCCAPI() call for backward compatibility
 --->
 <cffunction name="initCCAPI" access="public" returntype="void" hint="Initializes the CCAPI object using the settings in the ccapi.xml file from the site root">
 	<cfscript>
@@ -87,6 +88,9 @@ History:
 		setSiteURL(apiConfig.wsVars.siteURL);
 		setWebServiceURL(apiConfig.wsVars.webserviceURL);
 		setSubsiteID(apiConfig.wsVars.subsiteID);
+		
+		// for backward compatibility
+		super.initCCAPI();
 	</cfscript>
 </cffunction>
 

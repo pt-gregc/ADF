@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2015.
+PaperThin, Inc.  Copyright (c) 2009-2016.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -36,7 +36,7 @@ History:
 --->
 <cfcomponent displayname="fields_1_0" extends="ADF.core.Base" hint="Custom Field Type functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_4">
+<cfproperty name="version" value="1_0_5">
 <cfproperty name="type" value="transient">
 <cfproperty name="wikiTitle" value="Fields_1_0">
 
@@ -474,6 +474,8 @@ Usage:
 	renderHiddenControlsFromRequestParams(paramsStruct,allowedParamList,excludedParamList,preventDups,tagClass,tagIDprefix)
 History:
 	2015-02-24 - GAC - Created
+	2015-09-09 - KE  - Updated the hidden field VALUE to use the HTML entity for double quotes so if the value contains a 
+						double quote it will render the hidden field properly
  --->
 <cffunction name="renderHiddenControlsFromRequestParams" returntype="string" access="public" hint="Render hidden input controls based on the request.params data url and form param struct">
 	<cfargument name="paramsStruct" type="struct" required="false" default="#request.params#" hint="request.params data structure to parse">
@@ -512,6 +514,7 @@ History:
 				AND ListFindNoCase(arguments.excludedParamList,pKey,",") EQ 0 
 				AND ListFindNoCase(paramDupList,pKey) EQ 0 )
 			{
+				pValue = Replace(pValue,'"','&quot;','ALL');
 				retHTML = retHTML & '<input type="hidden" name="#pKey#" value="#pValue#"';
 				if ( LEN(TRIM(arguments.tagIDprefix)) )
 					retHTML = retHTML & ' id="#tagIDprefix#_#pKey#"';

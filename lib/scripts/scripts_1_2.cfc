@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2015.
+PaperThin, Inc.  Copyright (c) 2009-2016.
 All Rights Reserved.
 
 By downloading, modifying, distributing, using and/or accessing any files 
@@ -37,11 +37,12 @@ History:
 	2014-09-16 - GAC - Updated references to thirdparty to thirdParty for case sensitivity
 	2015-02-17 - GAC - Added a loadJQueryTimeAgo function to load version 1.4 by default
 	2015-04-22 - GAC - Added the loadCKEditor and the loadTypeAheadBundle functions	
-
+	2015-07-21 - GAC - Added and updated the loadCFJS function for CFJS v1.3	
+	2015-09-18 - GAC - Deprecated the loadJQueryUIForm() script 
 --->
 <cfcomponent displayname="scripts_1_2" extends="ADF.lib.scripts.scripts_1_1" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" value="1_2_25">
+<cfproperty name="version" value="1_2_31">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_1" type="dependency">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Scripts_1_2">
@@ -102,6 +103,58 @@ History:
 /* *************************************************************** */
 Author: 	
 	PaperThin, Inc.
+	G. Cronkright
+Name:
+	$loadCFJS
+Summary:
+	Loads the CFJS JQuery Plug-in Headers if not loaded.
+	http://cfjs.riaforge.org/
+	https://github.com/topherj/cfjs
+
+	Function Listing:
+	https://github.com/topherj/cfjs/wiki/CFJS-Function-List
+Returns:
+	None
+Arguments:
+	String - version - CFJS version to load.
+	Boolean - Force
+History:
+	2015-07-21 - GAC - Added for version 1.3 of CFJS
+	                 - Updated to use versioned directories
+--->
+<cffunction name="loadCFJS" access="public" output="true" returntype="void" hint="Loads the CFJS jQuery Plug-in Headers if not loaded.">
+	<cfargument name="version" type="string" required="true" default="1.3" hint="CFJS version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
+	
+	<cfscript>
+		var outputHTML = "";
+		var thirdPartyLibPath = "/ADF/thirdParty/jquery/cfjs/";
+		
+		// Make the version backwards compatiable to remove minor build numbers.
+		arguments.version = variables.scriptsService.getMajorMinorVersion(arguments.version);
+		
+		// Append the version to the thirdPartyLibPath
+		thirdPartyLibPath = thirdPartyLibPath & arguments.version & "/"; 
+	</cfscript>
+
+	<cfsavecontent variable="outputHTML">
+		<cfoutput>
+			<script type="text/javascript" src="#thirdPartyLibPath#jquery.cfjs.min.js"></script>
+		</cfoutput>
+	</cfsavecontent>
+	<cfoutput>
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce("cfjs",outputHTML)#
+		</cfif>
+	</cfoutput>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
 Name:
 	$loadCKEditor
 Summary:
@@ -124,6 +177,7 @@ Arguments:
 	Boolean - force - Forces CKEditor script header to load.
 History:
 	2015-04-22 - GAC - Created
+	2015-05-21 - GAC - With the addition of the scriptsService.jsCommentStripper() the CDN URL can now use the scripts js loader
 --->
 <cffunction name="loadCKEditor" access="public" output="true" returntype="void" hint="Loads the ckeditor scriptHeaders if not loaded."> 
 	<cfargument name="version" type="string" required="false" default="4.4.7" hint="Optional: CKeditor version to load. Used only when loading from ckeditor CDN.">
@@ -159,6 +213,8 @@ History:
 			<!--- // If we can't find site level files or forceCDN is true... load ckeditor from the CDN --->
 			<cfif loadViaCDN>
 				<!--- // [GAC 2015-04-23] - currently external URLs get stripped if we use the renderScriptOnce javascript loader --->
+				<!--- // [GAC 2015-05-21] using scriptsService.jsCommentStripper() this is no longer an issue --->
+				<!--- REMOVE - <cfset disableJSloader = true> --->
 				<cfset disableJSloader = true>
 				<script type="text/javascript" src="//cdn.ckeditor.com/#arguments.version#/#arguments.package#/ckeditor.js"></script>
 			</cfif>
@@ -413,11 +469,14 @@ History:
 						loading v1.9 or greater.
 	2014-05-05 - GAC - Updated the default jQuery version to 1.11
 	2014-12-03 - GAC - Updated to fix the version detection logic for the loadMigratePlugin
+	2015-05-01 - GAC - Added a flag to use cfhtmlhead to render the generated scripts in the HEAD of the page
 --->
 <cffunction name="loadJQuery" access="public" returntype="void" hint="Loads the JQuery Headers if not loaded.">
 	<cfargument name="version" type="string" required="false" default="1.11" hint="JQuery version to load.">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfargument name="noConflict" type="boolean" required="false" default="0" hint="JQuery no conflict flag.">
+	<cfargument name="renderInHead" type="boolean" required="false" default="false" hint="Flag to render the script in the document head.">
+	
 	<cfscript>
 		// Flag to determine if we load the JQuery Migrate plugin after the loading process
 		var loadMigratePlugin = false; 
@@ -437,12 +496,54 @@ History:
 		}
 				
 		// Call the super function to load
-		super.loadJQuery(version=arguments.version, force=arguments.force, noConflict=arguments.noConflict);
+		super.loadJQuery(version=arguments.version, force=arguments.force, noConflict=arguments.noConflict, renderInHead=arguments.renderInHead);
 		
 		// Check that we need to load with JQuery Migrate plugin
 		if ( loadMigratePlugin )
-			loadJQueryMigrate(force=arguments.force);
+			loadJQueryMigrate(force=arguments.force, renderInHead=arguments.renderInHead);
 	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$loadJQueryBlockUI
+Summary:
+	Loads the JQuery BlockUI plugin which can be triggered to block ui during ajax call
+Returns:
+	None
+Arguments:
+	String - version - JQuery BlockUI version to load.
+	Boolean - Force
+History:
+	2015-06-26 - GAC - Added version BlockUI v2.7 
+--->
+<cffunction name="loadJQueryBlockUI" access="public" output="true" returntype="void" hint="Loads the JQuery BlockUI plugin if not loaded.">
+	<cfargument name="version" type="string" required="false" default="2.7" hint="JQuery BlockUI plugin version to load.">
+	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
+	<cfargument name="renderInHead" type="boolean" required="false" default="false" hint="Flag to render the script in the document head.">
+	
+	<cfscript>
+		var outputHTML = "";
+		var thirdPartyLibPath = "/ADF/thirdParty/jquery/blockUI/";
+		
+		// 2011-12-28 - MFC - Make the version backwards compatiable to remove minor build numbers.
+		arguments.version = variables.scriptsService.getMajorMinorVersion(arguments.version);
+	</cfscript>
+	<cfsavecontent variable="outputHTML">
+		<cfoutput>
+			<script type="text/javascript" src="#thirdPartyLibPath##arguments.version#/jquery.blockUI.min.js"></script>
+		</cfoutput>
+	</cfsavecontent>
+	<cfoutput>
+		<cfif arguments.force>
+			#outputHTML#
+		<cfelse>
+			#variables.scriptsService.renderScriptOnce(scriptName="jQueryBlockUI",outputHTML=outputHTML,renderInHead=arguments.renderInHead)#
+		</cfif>
+	</cfoutput>
 </cffunction>
 
 <!---
@@ -653,13 +754,16 @@ History:
 	2013-02-06 - MFC - Moved the "Restructured the thirdParty folders & versions" support code to
 						the Scripts 1.1 to make backwards compatibable.
 	2013-11-14 - DJM - Added a loadStyle parameter
+	2015-05-01 - GAC - Added a flag to use cfhtmlhead to render the generated scripts in the HEAD of the page
 --->
 <cffunction name="loadJQueryDataTables" access="public" output="true" returntype="void" hint="Loads the JQuery DataTables Headers if not loaded.">
 	<cfargument name="version" type="string" required="false" default="1.9" hint="JQuery DataTables version to load.">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery DataTables script header to load.">
 	<cfargument name="loadStyles" type="boolean" required="false" default="true" hint="Boolean flag incicating if we need to load styles">
+	<cfargument name="renderInHead" type="boolean" required="false" default="false" hint="Flag to render the script in the document head.">
+	
 	<cfscript>
-		super.loadJQueryDataTables(version=arguments.version, force=arguments.force, loadStyles=arguments.loadStyles);
+		super.loadJQueryDataTables(version=arguments.version, force=arguments.force, loadStyles=arguments.loadStyles, renderInHead=arguments.renderInHead);
 	</cfscript>
 </cffunction>
 
@@ -841,6 +945,8 @@ History:
 <cffunction name="loadJQueryMigrate" access="public" output="true" returntype="void" hint="Loads the JQuery Migrate Plugin for Jquery backwards compatibility.">
 	<cfargument name="version" type="string" required="false" default="1.2" hint="JQuery Migrate version to load.">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery Migrate script header to load.">
+	<cfargument name="renderInHead" type="boolean" required="false" default="false" hint="Flag to render the script in the document head.">
+	
 	<cfset var outputHTML = "">
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
@@ -851,7 +957,7 @@ History:
 		<cfif arguments.force>
 			#outputHTML#
 		<cfelse>
-			#variables.scriptsService.renderScriptOnce("jQueryMigrate",outputHTML)#
+			#variables.scriptsService.renderScriptOnce(scriptName="jQueryMigrate",outputHTML=outputHTML,renderInHead=arguments.renderInHead)#
 		</cfif>
 	</cfoutput>
 </cffunction>
@@ -1239,23 +1345,24 @@ History:
 					   Updated the IF statement to check the decimal places is only 1 length.
 	2014-09-30 - GAC - Changed the theme loading folders for 1.11. 
 	2015-04-17 - GAC - Pulled out the jQueryUI Style sheet code and moved it to its own function
+	2015-05-01 - GAC - Added a flag to use cfhtmlhead to render the generated scripts in the HEAD of the page
 --->
 <cffunction name="loadJQueryUI" access="public" output="true" returntype="void" hint="Loads the JQuery UI Headers if not loaded."> 
 	<cfargument name="version" type="string" required="false" default="1.11" hint="JQuery version to load.">
 	<cfargument name="themeName" type="string" required="false" default="ui-lightness" hint="UI Theme Name (directory name)">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery UI script header to load.">
+	<cfargument name="renderInHead" type="boolean" required="false" default="false" hint="Flag to render the script in the document head.">
 	
 	<cfscript>
 		var outputHTML = "";
 		// 2011-12-28 - MFC - Make the version backwards compatiable to remove minor build numbers.
 		arguments.version = variables.scriptsService.getMajorMinorVersion(arguments.version);
 	</cfscript>
-	<!--- Check the version, if less than "1.9"
-			AND the decimal places is only 1 length (this prevents the comparison of '1.10')
-		  Then call the Scripts 1.1 function to load. --->
-	<cfif arguments.version LTE 1.8 AND LEN(ListLast(arguments.version, ".")) EQ 1>
+ 
+	<!--- // Check the version, if less than or equal "1.8.x" then call the Scripts 1.1 function to load. --->
+	<cfif ListFirst(version,".") EQ 0 OR (ListFirst(version,".") LTE 1 AND ListFirst(ListRest(version,"."),".") LTE 8)>
 		<cfscript>
-			super.loadJQueryUI(version=arguments.version,themeName=arguments.themeName,force=arguments.force);
+			super.loadJQueryUI(version=arguments.version,themeName=arguments.themeName,force=arguments.force,renderInHead=arguments.renderInHead);
 		</cfscript>
 	<cfelse>
 		<cfsavecontent variable="outputHTML">
@@ -1267,11 +1374,11 @@ History:
 			<cfif arguments.force>
 				#outputHTML#
 			<cfelse>
-				#variables.scriptsService.renderScriptOnce("jQueryUI",outputHTML)#
+				#variables.scriptsService.renderScriptOnce(scriptName="jQueryUI",outputHTML=outputHTML,renderInHead=arguments.renderInHead)#
 			</cfif>
 		</cfoutput>
 		<cfscript>
-			loadJQueryUIstyles(version=arguments.version,themeName=arguments.themeName,force=arguments.force);
+			loadJQueryUIstyles(version=arguments.version,themeName=arguments.themeName,force=arguments.force,renderInHead=arguments.renderInHead);
 		</cfscript>
 	</cfif>
 </cffunction>
@@ -1292,11 +1399,15 @@ Arguments:
 	Boolean - force - Forces JQuery script header to load.
 History:
 	2015-04-17 - GAC - Created
+	2015-05-01 - GAC - Added a flag to use cfhtmlhead to render the generated scripts in the HEAD of the page
+	2015-08-06 - GAC - Updated renderScriptOnce scriptName to avoid loading more that one UI theme stylesheet 
 --->
 <cffunction name="loadJQueryUIstyles" access="public" output="true" returntype="void" hint="Loads the JQuery UI Headers if not loaded."> 
 	<cfargument name="version" type="string" required="false" default="1.11" hint="JQuery version to load.">
 	<cfargument name="themeName" type="string" required="false" default="ui-lightness" hint="UI Theme Name (directory name)">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery UI script header to load.">
+	<cfargument name="renderInHead" type="boolean" required="false" default="false" hint="Flag to render the script in the document head.">
+	
 	<cfscript>
 		var outputHTML = "";
 		// Make the version backwards compatiable to remove minor build numbers.
@@ -1315,7 +1426,7 @@ History:
 		<cfif arguments.force>
 			#outputHTML#
 		<cfelse>
-			#variables.scriptsService.renderScriptOnce("jQueryUIstyle_#arguments.themeName#",outputHTML)#
+			#variables.scriptsService.renderScriptOnce(scriptName="jQueryUIstyles",outputHTML=outputHTML,renderInHead=arguments.renderInHead)#
 		</cfif>
 	</cfoutput>
 </cffunction>
@@ -1336,13 +1447,16 @@ Arguments:
 History:
 	2011-09-27 - MTT - Created
 	2012-08-16 - GAC - Added the force parameter
+	2015-09-18 - GAC - Deprecated this function by commiting out the code that renders the script tag that loads it
 --->
+<!---// DEPRECATED: The loadJQueryUIForm() has been deprecated will no longer load the jquery.ui.form.js script --->
+<!---// The project has been archived by google code but can still be found as this address (if needed): https://code.google.com/p/jquery-ui-form/ --->
 <cffunction name="loadJQueryUIForm" access="public" output="true" returntype="void" hint="Loads the form plugin for jquery ui">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfset var outputHTML = "">
-	<cfsavecontent variable="outputHTML">
+	<!--- <cfsavecontent variable="outputHTML">
 		<script type="text/javascript" src="/ADF/thirdParty/jquery/ui/form/jquery.ui.form.js"></script>
-	</cfsavecontent>
+	</cfsavecontent> --->
 	<cfoutput>
 		<cfif arguments.force>
 			#outputHTML#
@@ -1403,7 +1517,7 @@ Author:
 Name:
 	$loadJQueryUITimepickerFG
 Summary:
-	Loads the jQuery UI Timepicker FG (François Gélinas) for the Calendar App if not loaded.
+	Loads the jQuery UI Timepicker FG (Franï¿½ois Gï¿½linas) for the Calendar App if not loaded.
 	
 	http://fgelinas.com/code/timepicker/
 Returns:
@@ -1413,6 +1527,7 @@ Arguments:
 	Boolean - force - Forces JQuery script header to load.
 History:
 	2013-02-06 - GAC - Created
+	2015-05-20 - DJM - Modified the css file name to refer to the correct file
 --->
 <cffunction name="loadJQueryUITimepickerFG" access="public" output="true" returntype="void" hint="Loads the jQuery UI Timepicker Addon for the Calendar App if not loaded.">
 	<cfargument name="version" type="string" required="false" default="0.3" hint="JQueryUI Timepicker Addon version to load.">
@@ -1422,7 +1537,7 @@ History:
 	</cfscript>
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
-		<link href="/ADF/thirdParty/jquery/ui/timepicker-fg/#arguments.version#/jquery-ui-timepicker.css" rel="stylesheet" type="text/css" />
+		<link href="/ADF/thirdParty/jquery/ui/timepicker-fg/#arguments.version#/jquery.ui.timepicker.css" rel="stylesheet" type="text/css" />
 		<script type="text/javascript" src="/ADF/thirdParty/jquery/ui/timepicker-fg/#arguments.version#/jquery.ui.timepicker.js" charset="utf-8"></script>
 		</cfoutput>
 	</cfsavecontent>
