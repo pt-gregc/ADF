@@ -1,4 +1,4 @@
-<!--- 
+<!---
 The contents of this file are subject to the Mozilla Public License Version 1.1
 (the "License"); you may not use this file except in compliance with the
 License. You may obtain a copy of the License at http://www.mozilla.org/MPL/
@@ -10,18 +10,18 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
 
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2015.
+PaperThin, Inc.  Copyright (c) 2009-2016.
 All Rights Reserved.
 
-By downloading, modifying, distributing, using and/or accessing any files 
-in this directory, you agree to the terms and conditions of the applicable 
+By downloading, modifying, distributing, using and/or accessing any files
+in this directory, you agree to the terms and conditions of the applicable
 end user license agreement.
 --->
 
 <!---
 /* *************************************************************** */
-Author: 	
-	PaperThin, Inc. 
+Author:
+	PaperThin, Inc.
 Name:
 	Core.cfc
 Summary:
@@ -40,7 +40,7 @@ History:
 	2012-07-11 - MFC - Modified - New v1.6.0 branch.
 	2013-03-15 - MFC - Modified - New v1.6.1 branch.
 	2013-05-21 - MFC - Modified - New v1.6.2 branch.
-	2013-10-21 - GAC - Modified - Added 'file-version' property for ADF core files 
+	2013-10-21 - GAC - Modified - Added 'file-version' property for ADF core files
 	2014-02-26 - GAC - Modified - New v1.7.0 branch.
 	2014-02-26 - GAC - Modified - New v1.7.1 branch.
 	2014-10-07 - GAC - Updated for version 1.8.0
@@ -48,58 +48,64 @@ History:
 --->
 <cfcomponent name="Core" hint="Core component for Application Development Framework">
 
-<cfproperty name="version" value="1_8_2">
-<cfproperty name="file-version" value="7">
+<cfproperty name="version" value="2_0_0">
+<cfproperty name="file-version" value="9">
 
 <cfscript>
-	variables.ADFversion = "1.8.2"; // use a dot delimited version number
+	variables.ADFversion = "2.0.0"; // use a dot delimited version number
 	// ADF Build Revision Number
-	variables.buildRev = "1821";
+	variables.buildRev = "1822";
 	// ADF Codename
-	variables.buildName = "Metal Gear";
+	variables.buildName = "Metal Gear Solid";
 	// CS product version, get the decimal value
 	variables.csVersion = Val(ListLast(request.cp.productversion, " "));
 </cfscript>
-	
+
 <cffunction name="init" output="true" returntype="void">
 	<cfscript>
 		// Check if the ADF variable does not exist in server scope
-		if ( NOT StructKeyExists(server, "ADF") ) 
+		if ( NOT StructKeyExists(server, "ADF") )
 		{
 			server.ADF = StructNew();
 			server.ADF.environment = StructNew();  // Stores the App and Site configuration data
 		}
-		
+
 		server.ADF.beanConfig = StructNew();  // Stores the server bean configuration
 		server.ADF.objectFactory = StructNew(); // Stores the server object factory
-		server.ADF.dependencyStruct = StructNew();  // Stores the bean dependency list 
+		server.ADF.dependencyStruct = StructNew();  // Stores the bean dependency list
 		server.ADF.library = StructNew(); // Stores library components
 		server.ADF.proxyWhiteList = StructNew(); // Stores Ajax Proxy White List
-		server.ADF.dir = expandPath('/ADF');
+
+		server.ADF.url = "/ADF";
+		server.ADF.dir = expandPath(server.ADF.url);
+		server.ADF.comPath = RemoveChars(server.ADF.url,1,1);
+		server.ADF.mappingPath = getADFMapping();
+
 		server.ADF.buildErrors = ArrayNew(1); // Place to store errors that occur while building the ADF
 		server.ADF.version = getADFversion(); // Get the ADF version
 		server.ADF.csVersion = getCSVersion(); // Get the ADF version
 		server.ADF.buildRev = variables.buildRev;
 		server.ADF.buildName = variables.buildName;
-				
-		// Build object factory 
+
+		// Build object factory
 		server.ADF.beanConfig = createObject("component","ADF.core.lightwire.BeanConfig").init();
 		server.ADF.objectFactory = createObject("component","ADF.core.lightwire.LightWireExtendedBase").init(server.ADF.beanConfig);
-		
+
 		// Load the Ajax white list proxy
-		server.ADF.proxyWhiteList = createObject("component","ADF.core.Config").getConfigViaXML(expandPath("/ADF/lib/ajax/proxyWhiteList.xml"));
+		server.ADF.proxyWhiteList = createObject("component","ADF.core.Config").getConfigViaXML(expandPath("#server.ADF.url#/lib/ajax/proxyWhiteList.xml"));
 	</cfscript>
 </cffunction>
 
 <!---
 /* *************************************************************** */
-Author: 	M. Carroll
+Author:
+	M. Carroll
 Name:
 	getADFMapping
 Summary:
 	Returns the hard-coded ADF mapping for the server
-	
-	Used primarily for importing custom element, metadata forms, and 
+
+	Used primarily for importing custom element, metadata forms, and
 		custom field types.
 Returns:
 	String - ADF Mapping
@@ -114,7 +120,7 @@ History:
 
 <!---
 /* *************************************************************** */
-Author: 	
+Author:
 	PaperThin, Inc.
 	G. Cronkright
 Name:
@@ -135,7 +141,7 @@ History:
 
 <!---
 /* *************************************************************** */
-Author: 
+Author:
 	PaperThin, Inc.
 	M. Carroll
 Name:
@@ -150,13 +156,13 @@ History:
 	2011-04-05 - MFC - Created
 --->
 <cffunction name="getCSVersion" access="public" returntype="numeric">
-	<!--- Return CS version from the Product Version variable --->
+	<!--- // Returns CS version from the Product Version variable --->
 	<cfreturn variables.csVersion>
 </cffunction>
 
 <!---
 /* *************************************************************** */
-Author: 
+Author:
 	PaperThin, Inc.
 	G. Cronkright
 Name:
@@ -174,15 +180,15 @@ History:
 <cffunction name="getSiteDevModeStatus" access="public" returntype="boolean">
 	<Cfscript>
 		var status = false;
-		if ( StructKeyExists(application,"ADF") AND StructKeyExists(application.ADF,"siteDevMode") AND IsBoolean(application.ADF.siteDevMode) AND application.ADF.siteDevMode ) 
-			status = true;				
+		if ( StructKeyExists(application,"ADF") AND StructKeyExists(application.ADF,"siteDevMode") AND IsBoolean(application.ADF.siteDevMode) AND application.ADF.siteDevMode )
+			status = true;
 		return status;
 	</Cfscript>
 </cffunction>
 
 <!---
 /* *************************************************************** */
-Author: 	
+Author:
 	jrybacek
 Name:
 	reset
@@ -197,7 +203,7 @@ History:
 	2010-06-23 - jrybacek - Created
 	2010-10-29
 	2010-12-15 - GAC - Modified - Added the ADF version to the reset message
-	2010-12-20 - MFC - Modified - Added check at top to verify if ADF space exists in the SERVER and APPLICATION 
+	2010-12-20 - MFC - Modified - Added check at top to verify if ADF space exists in the SERVER and APPLICATION
 									and set the force reset flag.
 	2011-01-19 - RAK - Modified - Added cache reset
 	2011-01-20 - GAC - Modified - Gets the ADF version from the getADFversion function
@@ -213,9 +219,13 @@ History:
 	2013-01-23 - MFC - Increased the CFLOCK timeout to "120".
 	2013-10-28 - GAC - Added production mode or development mode designation message to the ADF reset message text
 	2013-12-05 - GAC - Added the forceResetStatus to the returnStruct to pass if the reset was Forced or not
+	2015-09-24 - GAC - Added install and reinstall cases to the ADF reset switch/case to handle the new ADF install process
+	2015-11-25 - GAC - Increased the timeout on the ADF-RESET LOCK
+	2016-02-02 - GAC - Added configure and reconfigure as options to trigger the ADF install process (which right just registers scripts in CS10)
 --->
 <cffunction name="reset" access="remote" returnType="Struct">
 	<cfargument name="type" type="string" required="false" default="all" hint="The type of the ADF to reset.  Options are 'Server', 'Site' or 'All'. Defaults to 'All'.">
+
 	<cfscript>
 		var rtnMsg = "ADF Reset Error: You must be logged in to perform this operation.";
 		var ADFReset = false;
@@ -230,15 +240,16 @@ History:
 		if ( NOT StructKeyExists(server, "ADF") OR NOT StructKeyExists(application, "ADF") )
 			forceReset = true;
 	</cfscript>
-	
+
 	<!--- // Check for reset for the user id logged in OR we have set the force flag --->
 	<cfif (request.user.id gt 0) OR (forceReset)>
 		<cftry>
-			<cflock timeout="120" type="exclusive" name="ADF-RESET">
+			<cflock timeout="600" type="exclusive" name="ADF-RESET">
 				<cfscript>
 			 		// 2010-06-23 jrybacek Determine if user is logged in.
 			  		// 2010-06-23 jrybacek Determine how much of the ADF is being requested to be reset
-					switch (uCase(arguments.type)) {
+					switch (uCase(arguments.type)) 
+					{
 						case "ALL":
 							// 2010-06-23 jrybacek Reload ADF server
 							createObject("component", "ADF.core.Core").init();
@@ -259,39 +270,48 @@ History:
 							rtnMsg = "ADF #ADFversion# site '#request.site.name#' has been reset successfully!";
 							ADFReset = true;
 							break;
+						case "CONFIGURE": case "INSTALL":
+							rtnMsg = createObject("component","ADF.core.SiteBase").initADFinstaller();
+							ADFReset = false;
+							break;
+                        case "RECONFIGURE": case "REINSTALL":
+							rtnMsg = createObject("component","ADF.core.SiteBase").initADFinstaller(reinstall=true);
+							ADFReset = false;
+							break;
 						default:
 							rtnMsg = "Invalid argument '#arguments.type#' passed to method reset.";
 							break;
 					}
-					if ( ADFReset ) {
+					if ( ADFReset ) 
+					{
 						//Reset the cache.
 						application.ADF.cache = StructNew();
 						// Get the Dev Mode Status to display with reset message
 						devModeStatus =  getSiteDevModeStatus();
 						// Append the dev or production mode text to the rtnMsg string
-						if ( devModeStatus ) 
-							rtnMsg = rtnMsg & " [Development Mode]";	
-						else 
+						if ( devModeStatus )
+							rtnMsg = rtnMsg & " [Development Mode]";
+						else
 							rtnMsg = rtnMsg & " [Production Mode]";
 					}
 				</cfscript>
 				<!--- // If sever.ADF.buildError Array has any errors... throw an exception (used the cfthrow tag for CF8 compatibility) --->
 				<cfif StructKeyExists(server.ADF,"buildErrors") AND ArrayLen(server.ADF.buildErrors)>
-					<cfthrow type="ADFBuildError" message="ADF Build Errors Occured" detail="Check the server.ADF.buildErrors for Details.">
+					<cfthrow type="ADFBuildError" message="ADF Build Errors Occurred" detail="Check the server.ADF.buildErrors for Details.">
 				</cfif>
 			</cflock>
 			<cfcatch>
 				<cfsavecontent variable="dump">
 					<!--- Dump the cfcatch --->
 					<cfdump var="#cfcatch#" label="cfcatch" expand="false">
-					
+
 					<!--- Dump the server.ADF --->
 					<cfif NOT StructKeyExists(server, "ADF")>
 						<cfoutput><p>server.ADF Does not exist.</p></cfoutput>
 					<cfelse>
 						<cfdump var="#server.ADF#" label="server.ADF" expand="false">
 					</cfif>
-					
+
 					<!--- Dump the application.ADF --->
 					<!--- 2011-05-03 - MFC - Commented out 'application.ADF' cfdump from the debug log. --->
 					<!--- <cfif NOT StructKeyExists(application, "ADF")>
@@ -310,12 +330,13 @@ History:
 			</cfcatch>
 		</cftry>
 	</cfif>
+
 	<cfscript>
 		//
 		// 2011-06-29 - MT - Set a response header indicating if the ADF was reset or not
 		//
 		getPageContext().getResponse().setHeader( "X-CS_ADF_Reset" , "#ADFReset#" );
-		
+
 		returnStruct.success = ADFReset;
 		returnStruct.message = "&nbsp;" & DateFormat(now(),"yyyy-mm-dd") & " " & TimeFormat(now(),"hh:mm:ss") & " - " & rtnMsg;
 		returnStruct.forceResetStatus = forceReset;

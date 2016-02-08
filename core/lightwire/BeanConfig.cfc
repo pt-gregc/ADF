@@ -29,9 +29,10 @@ Summary:
 History:
 	2014-02-26 - GAC - Updated for version 1.7.0
 	2014-10-07 - GAC - Updated for version 1.8.0
+	2015-06-10 - ACW - Updated the component extends to no longer be dependant on the 'ADF' in the extends path
 --->
 
-<cfcomponent name="BeanConfig" extends="ADF.core.lightwire.LightWireConfigExtendedBase" hint="A LightWire configuration bean.">
+<cfcomponent name="BeanConfig" extends="LightWireConfigExtendedBase" hint="A LightWire configuration bean.">
 <!--- 
 BEAN DEFINITION SYNTAX
 SINGLETONS:
@@ -99,8 +100,8 @@ Adds a constructor property to a bean.
 - PropertyValue:any:required - The value of the property to add. Can be of any simple or complex type (anything from a string or a boolean to a struct or even an object that isn't being managed by LightWire).
 --->
 
-<cfproperty name="version" value="1_8_2">
-<cfproperty name="update" value="1">
+<cfproperty name="version" value="2_0_0">
+<cfproperty name="update" value="2">
 
 <cffunction name="init" output="true" returntype="any" hint="I initialize the config bean.">
 	
