@@ -34,10 +34,11 @@ History:
 						Segmented out the lightbox header and footer in independant functions
 	2011-02-09 - GAC - Removed self-closing CF tag slashes
 	2013-11-18 - GAC - Updated the lib dependencies to scripts_1_2, csData_1_2, ceData_2_0
+	2015-06-11 - GAC - Updated the component extends to use the libraryBase path
 --->
-<cfcomponent displayname="ui_1_0" extends="ADF.core.Base" hint="UI functions for the ADF Library">
+<cfcomponent displayname="ui_1_0" extends="ADF.lib.libraryBase" hint="UI functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_2">
+<cfproperty name="version" value="1_0_6">
 <cfproperty name="type" value="singleton">
 <cfproperty name="ceData" injectedBean="ceData_2_0" type="dependency">
 <cfproperty name="csData" injectedBean="csData_1_2" type="dependency">
@@ -82,6 +83,7 @@ History:
 	2011-03-08 - GAC - Modified - Added the ADFLightbox script headers
 	2011-06-11 - GAC - Modified - Added the linkText parameter to allow linkTitle, lbTitle and linkText to each be defined individually
 									while still maintaining backwards compatiblity with the primary linkTitle (required) parameter
+	2015-10-14 - GAC - Updated the formBean default value to Forms_2_0
 --->
 <cffunction name="buildAddEditLink" access="public" returntype="string" output="false" hint="Returns a nice string to renderAddEditForm with lightbox enabled">
 	<cfargument name="linkTitle" type="string" required="true" hint="Link Title">
@@ -89,13 +91,14 @@ History:
 	<cfargument name="dataPageID" type="numeric" required="false" default="0" hint="Data pageID of the element, 0 is new">
 	<cfargument name="refreshparent" type="boolean" required="false" default="false" hint="refresh the page or not?">
 	<cfargument name="urlParams" type="string" required="false" default="" hint="additional URL parameters to be passed to the form">
-	<cfargument name="formBean" type="string" required="false" default="forms_1_1" hint="bean for the form">
+	<cfargument name="formBean" type="string" required="false" default="forms_2_0" hint="bean for the form">
 	<cfargument name="formMethod" type="string" required="false" default="renderAddEditForm" hint="method for the form">
 	<cfargument name="lbTitle" type="string" required="false" default="#arguments.linkTitle#" hint="lightbox title">
 	<cfargument name="linkClass" type="string" required="false" default="" hint="link class">
 	<cfargument name="appName" type="string" required="false" default="" hint="app name">
 	<cfargument name="uiTheme" type="string" required="false" default="ui-lightness" hint="JQueryUI Theme to load">
 	<cfargument name="linkText" type="string" required="false" default="#arguments.linkTitle#" hint="Link text">
+	
 	<cfscript>
 		var rtnStr = "";
 		var formID = variables.ceData.getFormIDByCEName(arguments.formName);
@@ -109,6 +112,7 @@ History:
 				uParams = "&" & uParams;
 		}
 	</cfscript>
+	
 	<cfsavecontent variable="rtnStr">
 		<cfscript>
 			variables.scripts.loadJQuery();
@@ -117,6 +121,7 @@ History:
 		</cfscript>
 		<cfoutput><a href="javascript:;" rel="#application.ADF.lightboxProxy#?bean=#arguments.formBean#&method=#arguments.formMethod#<cfif LEN(TRIM(arguments.appName))>&appName=#arguments.appName#</cfif>&formID=#formID#&dataPageID=#arguments.dataPageID#&lbAction=#lbAction#&title=#arguments.lbTitle##uParams#" class="ADFLightbox<cfif LEN(TRIM(arguments.linkClass))> #arguments.linkClass#</cfif>" title="#arguments.linkTitle#">#arguments.linkText#</a></cfoutput>
 	</cfsavecontent>
+	
 	<cfreturn rtnStr>
 </cffunction>
 
@@ -149,10 +154,11 @@ History:
 	2011-02-09 - GAC - Modified - Added a jqueryUI theme parameter
 	2011-06-11 - GAC - Modified - Added the linkText parameter to allow linkTitle, lbTitle and linkText to each be defined individually
 									while still maintaining backwards compatiblity with the primary linkTitle (required) parameter  
+	2015-10-14 - GAC - Updated the Bean default value to Forms_2_0
 --->
 <cffunction name="buildLBAjaxProxyLink" access="public" returntype="string" output="false" hint="Returns a nice HTML string from a provided bean and method with lightbox enabled">
 	<cfargument name="linkTitle" type="string" required="true" hint="Link Title">
-	<cfargument name="bean" type="string" required="false" default="forms_1_1" hint="bean">
+	<cfargument name="bean" type="string" required="false" default="forms_2_0" hint="bean">
 	<cfargument name="method" type="string" required="false" default="renderAddEditForm" hint="method">
 	<cfargument name="urlParams" type="string" required="false" default="" hint="URL Parameters">
 	<cfargument name="lbTitle" type="string" required="false" default="#arguments.linkTitle#" hint="Lightbox Title">
@@ -160,12 +166,15 @@ History:
 	<cfargument name="appName" type="string" required="false" default="" hint="Application name">
 	<cfargument name="uiTheme" type="string" required="false" default="ui-lightness" hint="JQueryUI Library to load">
 	<cfargument name="linkText" type="string" required="false" default="#arguments.linkTitle#" hint="link text">
+	
 	<cfscript>
 		var rtnStr = "";
 	</cfscript>
+	
 	<cfsavecontent variable="rtnStr">
 		<cfoutput>#buildLightboxProxyLink(argumentCollection=arguments)#</cfoutput>
 	</cfsavecontent>
+	
 	<cfreturn rtnStr>
 </cffunction>
 
@@ -196,10 +205,11 @@ History:
 	2011-03-08 - GAC - Modified - Added the ADFLightbox script headers
 	2011-06-11 - GAC - Modified - Added the linkText parameter to allow linkTitle, lbTitle and linkText to each be defined individually
 									while still maintaining backwards compatiblity with the primary linkTitle (required) parameter
+	2015-10-14 - GAC - Updated the Bean default value to Forms_2_0
 --->
 <cffunction name="buildLightboxProxyLink" access="public" returntype="string" output="false" hint="Returns a nice HTML string from a provided bean and method to call ADFlightbox using lightboxProxy.cfm">
 	<cfargument name="linkTitle" type="string" required="true" hint="Link Title">
-	<cfargument name="bean" type="string" required="false" default="forms_1_1"  hint="Bean name">
+	<cfargument name="bean" type="string" required="false" default="forms_2_0"  hint="Bean name">
 	<cfargument name="method" type="string" required="false" default="renderAddEditForm" hint="method name">
 	<cfargument name="urlParams" type="string" required="false" default="" hint="URL Parameters">
 	<cfargument name="lbTitle" type="string" required="false" default="#arguments.linkTitle#" hint="Lightbox Title">
@@ -207,15 +217,18 @@ History:
 	<cfargument name="appName" type="string" required="false" default="" hint="Application name">
 	<cfargument name="uiTheme" type="string" required="false" default="ui-lightness" hint="JQuery UI Theme to load">
 	<cfargument name="linkText" type="string" required="false" default="#arguments.linkTitle#" hint="Link Text">
+	
 	<cfscript>
 		var rtnStr = "";
 		var uParams = "";
-		if ( LEN(TRIM(arguments.urlParams)) ) {
+		if ( LEN(TRIM(arguments.urlParams)) ) 
+		{
 			uParams = TRIM(arguments.urlParams);
 			if ( Find("&",uParams,"1") NEQ 1 ) 
 				uParams = "&" & uParams;
 		}
 	</cfscript>
+	
 	<cfsavecontent variable="rtnStr">
 		<cfscript>
 			variables.scripts.loadJQuery();
@@ -224,6 +237,7 @@ History:
 		</cfscript>
 		<cfoutput><a href="javascript:;" rel="#application.ADF.lightboxProxy#?bean=#arguments.bean#&method=#arguments.method#<cfif LEN(TRIM(arguments.appName))>&appName=#arguments.appName#</cfif>&title=#arguments.lbTitle##uParams#" class="ADFLightbox<cfif LEN(TRIM(arguments.linkClass))> #arguments.linkClass#</cfif>" title="#arguments.linkTitle#">#arguments.linkText#</a></cfoutput>
 	</cfsavecontent>
+	
 	<cfreturn rtnStr>
 </cffunction>
 
@@ -261,6 +275,7 @@ History:
 	<cfargument name="linkClass" type="string" required="false" default="" hint="Class of the lightbox">
 	<cfargument name="uiTheme" type="string" required="false" default="ui-lightness" hint="UI Theme to load">
 	<cfargument name="linkText" type="string" required="false" default="#arguments.linkTitle#" hint="Text of the link">
+	
 	<cfscript>
 		var rtnStr = "";
 		var csPgURL = "";
@@ -271,12 +286,14 @@ History:
 		else 
 			csPgURL = arguments.csPage;
 
-		if ( LEN(TRIM(arguments.urlParams)) ) {
+		if ( LEN(TRIM(arguments.urlParams)) ) 
+		{
 			uParams = TRIM(arguments.urlParams);
 			if ( Find("&",uParams,"1") NEQ 1 ) 
 				uParams = "&" & uParams;
 		}
 	</cfscript>
+	
 	<cfsavecontent variable="rtnStr">
 		<cfscript>
 			variables.scripts.loadJQuery();
@@ -285,6 +302,7 @@ History:
 		</cfscript>
 		<cfoutput><a href="javascript:;" rel="#csPgURL#?title=#arguments.lbTitle##uParams#" class="ADFLightbox<cfif LEN(TRIM(arguments.linkClass))> #arguments.linkClass#</cfif>" title="#arguments.linkTitle#">#arguments.linkText#</a></cfoutput>
 	</cfsavecontent>
+	
 	<cfreturn rtnStr>
 </cffunction>
 
@@ -316,9 +334,11 @@ History:
 	<cfargument name="lbTitle" type="string" default="" hint="Lightbox Title">
 	<cfargument name="tdClass" type="string" default="" hint="Used to add CSS classes to the outer TD wrapper like 'formResultContainer' for the addEditRenderForm results">
 	<cfargument name="lbCheckLogin" type="boolean" default="1" required="false" hint="Have the lightbox validate login, by default this is on">
+	
 	<cfscript>
 		var retHTML = "";
 	</cfscript>
+	
 	<cfsavecontent variable="retHTML">
 		<cfoutput>
 		<!--- // Output the CS 6.x LB Header --->
@@ -329,6 +349,7 @@ History:
 		#lightboxFooter()#
 		</cfoutput>
 	</cfsavecontent>
+	
 	<cfreturn retHTML>
 </cffunction>
 
@@ -364,6 +385,7 @@ History:
 	<cfargument name="lbTitle" type="string" default="" hint="Lightbox Title">
 	<cfargument name="tdClass" type="string" default="" hint="Used to add CSS classes to the outer TD wrapper like 'formResultContainer' for the addEditRenderForm results">
 	<cfargument name="lbCheckLogin" type="boolean" default="0" required="false" hint="Validate the user is logged in">
+	
 	<cfscript>
 		var retHTML = "";
 		var productVersion = ListFirst(ListLast(request.cp.productversion," "),".");
@@ -375,6 +397,7 @@ History:
 		var CD_CheckLogin = 0;
 		var CD_CheckPageAlive = 0;		
 	</cfscript>
+	
 	<cfif NOT StructKeyExists(request,"HaveRunDlgCommonHead")>
 		<cfsavecontent variable="retHTML">
 			<!--- // Load the CommonSpot Lightbox Header when in version CS 6.0+ --->
@@ -412,6 +435,7 @@ History:
 			</cfif>
 		</cfsavecontent>
 	</cfif>
+	
 	<cfreturn retHTML>
 </cffunction>
 
@@ -436,41 +460,25 @@ History:
 						Added scripts to resize the dialog on load.
 	2011-03-30 - MFC - Changed the lightbox resize to call "lbResizeWindow()" in CS 5.
 	2011-04-07 - RAK - Prevented this from getting called 2x in the same request and producing duplicate stuff
+	2015-11-25 - GAC - Removed CommonSpot version 5 specific logic that was obsolete
 --->
 <cffunction name="lightboxFooter" access="public" returntype="string" output="false" hint="Returns HTML for the CS 6.x lightbox footer (use with the lightboxHeader)">
+	
 	<cfscript>
 		var retHTML = "";
-	   	var productVersion = ListFirst(ListLast(request.cp.productversion," "),".");
 	</cfscript>
+	
 	<cfif NOT StructKeyExists(request,"ADFRanDLGFoot")>
 		<cfset request.ADFRanDLGFoot = true>
 		<cfsavecontent variable="retHTML">
-			<!--- // Load the CommonSpot Lightbox Footer when in version 6.x --->
-			<cfif productVersion GTE 6>
-				<cfoutput></td>
-					</tr>
+			<!--- // Load the CommonSpot DLG Lightbox Footer --->
+			<cfoutput></td>
+				</tr>
 				<CFINCLUDE template="/commonspot/dlgcontrols/dlgcommon-foot.cfm">
-				</cfoutput>
-			<cfelse>
-				<!--- CS 5 and under, close Table Tab --->
-				<cfoutput>
-							</td>
-						</tr>
-					</table>
-					<!--- Load JQuery to resize the dialog after loading --->
-					<cfscript>
-						application.ADF.scripts.loadJQuery();
-					</cfscript>
-					<script type="text/javascript">
-						// Resize with the CS lightbox scripts
-						jQuery(document).ready(function() {
-							lbResizeWindow();
-						});
-					</script>
-				</cfoutput>
-			</cfif>
+			</cfoutput>
 		</cfsavecontent>
 	</cfif>
+	
 	<cfreturn retHTML>
 </cffunction>
 
