@@ -41,6 +41,7 @@ History:
 						- This moves the lightbox URL variable "application.ADF.ajaxProxy" to inside the buildAddEditLink and updates it to application.ADF.lightboxProxy for ADF 1.5
 	2011-06-23 - MFC - Updated to allow for adding this custom script directly to the page using attributes.
 	2011-08-23 - MFC - Updated to allow JQuery UI theme as custom element attributes.
+	2015-10-14 - GAC - Code clean up removed old form_1_1 reference
 --->
 
 <!--- STEPS TO IMPLEMENT
@@ -119,7 +120,6 @@ Option 2:
 
 <div id="addNew" style="padding:20px;">
 	<cfif LEN(request.user.userid)>
-		<!--- <a href="javascript:;" rel="#application.ADF.ajaxProxy#?bean=Forms_1_1&method=renderAddEditForm&formid=#request.params.formid#&datapageid=0&lbAction=refreshparent&title=#request.params.addButtonTitle#&addMainTable=false" id="addNew" title="#request.params.addButtonTitle#" class="ADFLightbox add-button ui-state-default ui-corner-all">#request.params.addButtonTitle#</a><br /> --->
 		#application.ADF.ui.buildAddEditLink(
 					linkTitle=request.params.addButtonTitle
 					,formName=ceName
