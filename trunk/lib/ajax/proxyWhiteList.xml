@@ -8,6 +8,7 @@
 	<ajaxService_1_0>addSubsite,loadGeneralChooser</ajaxService_1_0>
 	<forms_1_0>renderAddEditForm,renderDeleteForm</forms_1_0>
 	<forms_1_1>renderAddEditForm,renderDeleteForm,loadCFFormProtect,verifyCFFormProtect</forms_1_1>
+	<forms_2_0>renderAddEditForm,renderDeleteForm,loadCFFormProtect,verifyCFFormProtect</forms_2_0>
 	<link_builder>htmlAddEditLinkBuilder,renderLinks,listManagement,removeLink</link_builder>
 	<utils_1_0>getCFTypes,scriptExists,getFieldTypes,updateCustomFieldType,updateListItems</utils_1_0>
 	<utils_1_1>getThumbnailOfResource</utils_1_1>

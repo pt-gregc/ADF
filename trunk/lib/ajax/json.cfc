@@ -27,9 +27,10 @@ Authors: Jehiah Czebotar (jehiah@gmail.com)
 
 Version: 1.9 February 20, 2008
 	2011-02-09 - RAK - Var'ing un-var'd variables
+	2015-06-11 - GAC - Updated the component extends to use the libraryBase path
 --->
 
-<cfcomponent displayname="json_1_0" output="No" extends="ADF.core.Base">
+<cfcomponent displayname="json_1_0" output="No" extends="ADF.lib.libraryBase">
 	<cfproperty name="version" default="1_0_0">
 	<cfproperty name="type" value="singleton">
 	
