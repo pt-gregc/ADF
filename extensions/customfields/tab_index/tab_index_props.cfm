@@ -30,12 +30,13 @@ History:
  	2012-11-27 - MFC - Created
 	2014-01-02 - GAC - Added the CFSETTING tag to disable CF Debug results in the props module
 	2014-09-19 - GAC - Removed deprecated doLabel and jsLabelUpdater js calls
+	2015-12-22 - GAC - Converted to CFC
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "1.0.1"; 
+	fieldVersion = "2.0.0";
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
@@ -65,18 +66,8 @@ History:
 	<script language="JavaScript" type="text/javascript">
 		// register the fields with global props object, this uses the name of the field
 		fieldProperties['#typeid#'].paramFields = '';
-		// allows this field to have a common onSubmit Validator
-		//fieldProperties['#typeid#'].jsValidator = '#prefix#doValidate';
-
-		//Validation function, this specific instance checks to verify they entered a valid value.
-		/* function #prefix#doValidate(){
-			if(jQuery("###prefix#defaultText").val().length){
-				return true;
-			}
-			alert("Please enter a value for the default text.");
-			return false;
-		} */
 	</script>
+
 	<table>
 		<tr>
 			<td class="cs_dlgLabelSmall" colspan="2">

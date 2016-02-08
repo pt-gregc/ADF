@@ -36,12 +36,14 @@ History:
 	2011-02-02 - RAK - Updated to allow for customizing number of stars and half stars
 	2014-01-02 - GAC - Added the CFSETTING tag to disable CF Debug results in the props module
 	2014-01-03 - GAC - Added the fieldVersion variable
+	2015-05-20 - DJM - Modified the fieldVersion variable to be 2.0
+	2015-09-02 - DRM - Add getResourceDependencies support, bump version
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "1.0"; 
+	fieldVersion = "2.0.3";
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
