@@ -31,10 +31,11 @@ Version:
 History:
 	2010-12-10 - RAK - Created
 	2015-04-27 - GAC - Added jsCommentStripper and its processing and helper functions
+	2015-06-10 - ACW - Updated the component extends to no longer be dependant on the 'ADF' in the extends path
 --->
-<cfcomponent displayname="scriptsService_1_1" extends="ADF.lib.scripts.scriptsService_1_0" hint="Scripts Service functions for the ADF Library">
+<cfcomponent displayname="scriptsService_1_1" extends="scriptsService_1_0" hint="Scripts Service functions for the ADF Library">
 
-<cfproperty name="version" value="1_1_6">
+<cfproperty name="version" value="1_1_7">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="ScriptsService_1_1">
 
