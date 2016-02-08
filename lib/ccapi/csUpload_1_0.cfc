@@ -32,13 +32,16 @@ History:
 	2009-06-17 - MFC - Created
 	2011-03-20 - RLW - Updated to use the new ccapi_1_0 component (was the original ccapi.cfc file)
 	2013-11-18 - GAC - Updated the lib dependency to utils_1_2
+	2015-06-11 - GAC - Updated the component extends to use the libraryBase path
+	2015-10-09 - GAC - Set the ccapi injectedBean to use ccapi_1_0 since ccapi_2_0 uses the CMD API which logs in/out differently and causes errors
 ---> 
-<cfcomponent displayname="csUpload_1_0" hint="Constructs a CCAPI instance and then allows you to Upload Images" extends="ADF.core.Base">
+<cfcomponent displayname="csUpload_1_0" extends="ADF.lib.libraryBase" hint="Constructs a CCAPI instance and then allows you to Upload Images">
 
-<cfproperty name="version" value="1_0_1">
+<cfproperty name="version" value="1_0_3">
 <cfproperty name="type" value="transient">
+<!--- // Must Use ccapi_1_0 here - ccapi_2_0 uses the CMD API which logs in/out differently --->
 <cfproperty name="ccapi" type="dependency" injectedBean="ccapi_1_0">
-<cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
+<cfproperty name="utils" type="dependency" injectedBean="utils_2_0">
 <cfproperty name="wikiTitle" value="CSUpload_1_0">
 
 <!---

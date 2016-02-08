@@ -32,16 +32,17 @@ History:
 	2013-01-01 - MFC - Created - New v2.0 to support ADF v1.6.
 	2013-02-12 - MFC - Added injection dependency with CSData v1.2.
 	2015-01-22 - GAC - Added the injection dependency for ccapi_2_0 to allow the inherited csPage_1_0.deletePage() to work
+	2015-06-10 - ACW - Updated the component extends to no longer be dependant on the 'ADF' in the extends path
 ---> 
-<cfcomponent displayname="csPage_2_0" extends="ADF.lib.ccapi.csPage_1_1" hint="Constructs a CCAPI instance and then creates or deletes a page with the given information">
+<cfcomponent displayname="csPage_2_0" extends="csPage_1_1" hint="Constructs a CCAPI instance and then creates or deletes a page with the given information">
 
-<cfproperty name="version" value="2_0_6">
+<cfproperty name="version" value="2_0_7">
 <cfproperty name="type" value="transient">
 <cfproperty name="ccapi" type="dependency" injectedBean="ccapi_2_0">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <cfproperty name="apiPage" type="dependency" injectedBean="apiPage_1_0">
-<cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
-<cfproperty name="csData" type="dependency" injectedBean="csData_1_2">
+<cfproperty name="utils" type="dependency" injectedBean="utils_2_0">
+<cfproperty name="csData" type="dependency" injectedBean="csData_2_0">
 <cfproperty name="wikiTitle" value="CSPage_2_0">
 
 <cfscript>
@@ -90,7 +91,6 @@ History:
 	2013-02-08 - MFC - Updated logging variable in error handling.
 	2013-02-12 - MFC - Moved the "metadataStructToArray" code to a function in CSData.
 	2014-03-05 - JTP - Var declarations
-	2015-09-09 - GAC - Updated the custom metadata conversion to check if the data is already in a Array of Structs format
 --->
 <cffunction name="createPage" access="public" output="true" returntype="struct" hint="Creates a page using the argument data passed in">
 	<cfargument name="stdMetadata" type="struct" required="true" hint="Standard Metadata would include 'Title, Description, TemplateId, SubsiteID etc...'">

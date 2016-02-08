@@ -31,10 +31,11 @@ Version:
 History:
 	2009-06-17 - RLW - Created
 	2011-03-20 - RLW - Updated to use the new ccapi_1_0 component (was the original ccapi.cfc file)
+	2015-06-11 - GAC - Updated the component extends to use the libraryBase path
 ---> 
-<cfcomponent displayname="csPage_1_0" extends="ADF.core.Base" hint="Constructs a CCAPI instance and then creates or deletes a page with the given information">
+<cfcomponent displayname="csPage_1_0" extends="ADF.lib.libraryBase" hint="Constructs a CCAPI instance and then creates or deletes a page with the given information">
 
-<cfproperty name="version" value="1_0_3">
+<cfproperty name="version" value="1_0_4">
 <cfproperty name="type" value="transient">
 <cfproperty name="ccapi" type="dependency" injectedBean="ccapi_1_0">
 <cfproperty name="csData" type="dependency" injectedBean="csData_1_0">
