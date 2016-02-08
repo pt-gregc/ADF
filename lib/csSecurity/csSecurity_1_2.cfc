@@ -30,10 +30,11 @@ Version:
 	1.2
 History:
 	2012-12-07 - MFC - Created
+	2015-06-10 - ACW - Updated the component extends to no longer be dependant on the 'ADF' in the extends path
 --->
-<cfcomponent displayname="csSecurity_1_2" extends="ADF.lib.csSecurity.csSecurity_1_1" hint="Security functions for the ADF Library">
+<cfcomponent displayname="csSecurity_1_2" extends="csSecurity_1_1" hint="Security functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_1">
+<cfproperty name="version" value="1_2_2">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
 <cfproperty name="wikiTitle" value="CSSecurity_1_2">

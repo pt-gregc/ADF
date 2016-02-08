@@ -36,11 +36,11 @@ History:
 	2015-01-13 - GAC - Added getCSObjectStandardMetadata
 	2015-04-06 - GAC - Added getUploadedDocFileSize and getUploadedDocServerPath
 	2015-04-09 - GAC - Added getCSExtURLString 
-	2015-11-06 - GAC - Added the getTemplateIDByName function
+	2015-06-10 - ACW - Updated the component extends to no longer be dependant on the 'ADF' in the extends path
 --->
-<cfcomponent displayname="csData_1_3" extends="ADF.lib.csData.csData_1_2" hint="CommonSpot Data Utils functions for the ADF Library">
+<cfcomponent displayname="csData_1_3" extends="csData_1_2" hint="CommonSpot Data Utils functions for the ADF Library">
 
-<cfproperty name="version" value="1_3_9">
+<cfproperty name="version" value="1_3_8">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">
@@ -216,8 +216,7 @@ History:
 	2015-01-13 - GAC - Created
 	2015-01-28 - GAC - Added Standard Metadata for Templates.
 					 - Added objectType key
-	2015-09-10 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
-	2015-09-23 - GAC - duplicateBean() is a CS 9.0.3 specific update ... rolling back to Duplicate()
+	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
 --->
 <cffunction name="getCSObjectStandardMetadata" returntype="struct" access="public" hint="Gets the standard metadata for a commonspot object (page,doc,url) from its pageID">
 	<cfargument name="csPageID" type="numeric" required="true" hint="a commonspot pageid">
@@ -242,10 +241,8 @@ History:
 		}
 		
 		// Duplicate the LOCKED Struture and add the object type string 
-		// a CS 9.0.3 specific update ... rolling back to Duplicate()
-		//reData = Server.CommonSpot.UDF.util.duplicateBean(retMetadata);
-		reData = duplicate(retMetadata);
-		
+		reData = Server.CommonSpot.UDF.util.duplicateBean(retMetadata);
+
 		if ( !StructIsEmpty(reData) )
 			reData["objectType"] = objType;
 			
