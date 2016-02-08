@@ -33,16 +33,17 @@ History:
 	2014-10-08 - GAC - Updated dev comments
 	2014-12-19 - GAC - Updated apiConfig logic to protect against apiConfig config issues
 					 - Added additional header comments 
+	2015-06-11 - GAC - Updated the component extends to use the libraryBase path
 --->
 
-<cfcomponent displayname="apiConduitPool_1_0" extends="ADF.core.Base" hint="API Conduit Page Pool functions for the ADF Library">
+<cfcomponent displayname="apiConduitPool_1_0" extends="ADF.lib.libraryBase" hint="API Conduit Page Pool functions for the ADF Library">
 
 <cfproperty name="version" value="1_0_4">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <cfproperty name="ccapi" type="dependency" injectedBean="ccapi_2_0">
-<cfproperty name="csData" type="dependency" injectedBean="csData_1_2">
-<cfproperty name="ceData" type="dependency" injectedBean="ceData_2_0">
-<cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
+<cfproperty name="csData" type="dependency" injectedBean="csData_2_0">
+<cfproperty name="ceData" type="dependency" injectedBean="ceData_3_0">
+<cfproperty name="utils" type="dependency" injectedBean="utils_2_0">
 <cfproperty name="wikiTitle" value="APIConduitPool_1_0">
 
 <cfscript>
@@ -84,8 +85,7 @@ Arguments:
 	None
 History:
 	2014-09-08 - GAC - Created
-	2015-09-10 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
-	2015-09-23 - GAC - duplicateBean() is a CS 9.0.3 specific update ... rolling back to Duplicate()
+	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
 --->
 <cffunction name="initApiPoolVars" returntype="void" output="false" access="private" hint="Initializes the API Conduit Page Pool variables">
 	<cfscript>
@@ -115,10 +115,7 @@ History:
 		// Build the ADF API POOL data structure. 
 		
 		// associative array of available pages
-		// a CS 9.0.3 specific update ... rolling back to Duplicate()
-		//adfAPIpoolVars.AvailablePoolPages = Server.CommonSpot.UDF.util.duplicateBean(adfAPIpoolConfig.Pages);
-		adfAPIpoolVars.AvailablePoolPages = duplicate(adfAPIpoolConfig.Pages); // Duplicate Config Page for the Pool Available pages
-		
+		adfAPIpoolVars.AvailablePoolPages = Server.CommonSpot.UDF.util.duplicateBean(adfAPIpoolConfig.Pages); // Duplicate Config Page for the Pool Available pages
 		// associative array of Pages that are being processed
 		adfAPIpoolVars.ProcessingPoolPages = StructNew();
 		// An array of pending Requests

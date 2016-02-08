@@ -30,11 +30,13 @@ Version:
 	1.0
 History:
 	2012-12-26 - MFC - Created
-	2016-01-29 - GAC - Added createFromDataRemote and deleteRemote methods
+	2015-06-11 - GAC - Updated the component extends to use the libraryBase path
+    2016-01-29 - GAC - Added createFromDataRemote and deleteRemote methods
+    2016-02-05 - GAC - Added getGalleries and getGalleryIDByName methods
 --->
-<cfcomponent displayname="apiImage_1_0" extends="ADF.core.Base" hint="API Image functions for the ADF Library">
+<cfcomponent displayname="apiImage_1_0" extends="ADF.lib.libraryBase" hint="API Image functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_3">
+<cfproperty name="version" value="1_0_6">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <cfproperty name="apiRemote" type="dependency" injectedBean="apiRemote_1_0">
 <cfproperty name="wikiTitle" value="APIImage_1_0">
@@ -57,9 +59,11 @@ Arguments:
 	Boolean isPublic
 	Numeric categoryID
 	String description
+	Numeric galleryIDorName
 	Array metadata
 History:
 	2016-01-29 - GAC - Created
+	2016-02-05 - GAC - Added the galleryIDorName parameter
 --->
 <cffunction name="createFromDataRemote" access="public" returntype="struct" hint="">
 	<cfargument name="subsiteIDOrURL" type="string" required="true" hint="">
@@ -68,6 +72,7 @@ History:
 	<cfargument name="isPublic" type="boolean" required="false" default="true">
 	<cfargument name="categoryID" type="numeric" required="false" default="1">
 	<cfargument name="description" type="string" required="false" default="image">
+	<cfargument name="galleryIDorName" type="string" required="false" default="1" hint="Optional. Defaults to '1' the CS 'Default Image Gallery'">
 	<cfargument name="metadata" type="array" required="false" default="#ArrayNew(1)#">
 
 	<cfscript>
@@ -75,6 +80,23 @@ History:
 		var cmdResults = StructNew();
 		var commandArgs = StructNew();
 		var imageID = 0;
+		var galleryID = 1;
+		var galleryName = "";
+	
+		// Attempt to lookup the galleryID from the galleryName	
+		if ( !IsNumeric(arguments.galleryIDorName) AND LEN(TRIM(arguments.galleryIDorName)) NEQ 0 )
+		{
+			galleryID = application.ADF.apiImage.getGalleryIDByName(name=arguments.galleryIDorName);	
+			if ( galleryID LTE 0 )
+			{
+				galleryID = 1;
+				Server.CommonSpot.addLogEntry("Provided Image Gallery Name could not be convered to an Image Gallery ID. Using default Gallery ID.");	
+			}
+		}	
+		else if ( IsNumeric(arguments.galleryIDorName) AND arguments.galleryIDorName GTE 1 )
+			galleryID = arguments.galleryIDorName;
+		else
+			Server.CommonSpot.addLogEntry("Provided Image Gallery Name/ID was not valid. Using default Gallery ID.");	
 
 		commandArgs['Target'] = "image";
 		commandArgs['method'] = "createFromData";
@@ -85,6 +107,7 @@ History:
 		commandArgs['args'].isPublic = arguments.isPublic;
 		commandArgs['args'].categoryID = arguments.categoryID;
 		commandArgs['args'].description = arguments.description;
+		commandArgs['args'].galleryID = galleryID;
 		commandArgs['args'].metadata = arguments.metadata;
 
 		try
@@ -99,6 +122,9 @@ History:
 		   		result["CMDSTATUS"] = true;
 				result["MSG"] = "Success: image was created.";
 				imageID = cmdResults.data;
+				
+				if ( galleryID EQ 2 ) 
+					Server.CommonSpot.addLogEntry("Uploaded Image was added to the CCAPI User's Private Image Gallery.");	
 		   	}
 		   	else
 		   	{
@@ -125,6 +151,7 @@ History:
 
 		result["fileName"] = arguments.fileName;
 		result["imageID"] = imageID;
+		result["imageGalleryID"] = galleryID;
 
 		return result;
 	</cfscript>
@@ -195,6 +222,75 @@ History:
 				result["CMDRESULTS"] = e;
 		}
 		return result;
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$getGalleries
+Summary:
+	Gets a query of commonspot image galleries using the public command API.
+Returns:	
+	Query
+Arguments:
+	NA			
+History:
+	2016-02-05 - GAC - Created
+--->
+<cffunction name="getGalleries" access="public" returntype="query" hint="Gets a query of commonspot image galleries using the public command API.">
+
+	<cfscript>
+		var imgGalCom = Server.CommonSpot.api.getObject('ImageGallery');
+		var imgGalQry = imgGalCom.getList();
+		
+		return imgGalQry;
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$getGalleryIDByName
+Summary:
+	Gets the ID of commonspot image gallery by name using the public command API.
+Returns:	
+	Numeric
+Arguments:
+	String name			
+History:
+	2016-02-05 - GAC - Created
+--->
+<cffunction name="getGalleryIDByName" access="public" returntype="numeric" hint="Gets the ID of commonspot image gallery by name using the public command API.">
+	<cfargument name="name" type="string" required="true" hint="name of a  commonspot image gallery">
+	
+	<cfscript>
+		var retID = 0; 
+		var imgGalQry = getGalleries();
+		var filterQry = QueryNew("temp");
+		
+		// Did we get the Default or Private image gallery names?
+		if ( arguments.name EQ "Default Image Gallery" )
+			return 1;
+		else if ( arguments.name EQ "Private Images" ) 
+			return 2; // This will cause issues if used with an API create request since it will be the image gallery of the CCAPI user.
+	</cfscript>	
+	
+	<cfquery name="filterQry" dbtype="query">
+		SELECT ID, Name, Status
+		FROM imgGalQry
+		WHERE Name = <cfqueryPARAM value="#arguments.name#" CFSQLType='CF_SQL_VARCHAR'> 
+	</cfquery>
+	
+	<cfscript>
+		if ( filterQry.RecordCount ) 
+			retID = filterQry.ID[1];	
+		
+		return retID;
 	</cfscript>
 </cffunction>
 

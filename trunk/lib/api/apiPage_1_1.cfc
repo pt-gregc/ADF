@@ -31,12 +31,12 @@ Version:
 History:
 	2015-09-11 - GAC - Created
 --->
-<cfcomponent displayname="apiPage_1_1" extends="ADF.lib.api.apiPage_1_0" hint="API Page functions for the ADF Library">
+<cfcomponent displayname="apiPage_1_1" extends="apiPage_1_0" hint="API Page functions for the ADF Library">
 
-<cfproperty name="version" value="1_1_1">
+<cfproperty name="version" value="1_1_0">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <cfproperty name="apiRemote" type="dependency" injectedBean="apiRemote_1_0">
-<!---<cfproperty name="utils" type="dependency" injectedBean="utils_1_2">--->
+<!--- <cfproperty name="utils" type="dependency" injectedBean="utils_2_0"> --->
 <cfproperty name="wikiTitle" value="APIPage_1_1">
 
 <!---//////////////////////////////////////////////////////--->
@@ -58,7 +58,6 @@ Arguments:
 	Numeric csPageID			
 History:
 	2015-09-01 - GAC - Created
-	2015-11-10 - GAC - Updated inline comments for the newExpirationAction variable 
 --->
 <cffunction name="createRemote" access="public" returntype="struct" hint="Creates a page.">
 	<cfargument name="pageData" type="struct" required="true" hint="a structure that contains page the required fields as page data.">
@@ -601,13 +600,13 @@ Arguments:
 	Numeric csPageID			
 History:
 	2015-09-01 - GAC - Created
+	2016-02-05 - Removed extra var'd variable
 --->
 <cffunction name="deletePageRedirectsRemote" access="public" returntype="struct" hint="Deletes a commonspot page redirects using the public command API.">
 	<cfargument name="csPageID" type="numeric" required="true" hint="numeric commonspot page id">
 	
 	<cfscript>
 		var pageResult = StructNew();
-		var pageCmdResult = StructNew();
 		var commandArgs = StructNew();
 		var redirectData = getPageRedirectsRemote(csPageID=arguments.csPageID);
 		var redirectIDlist = "";
@@ -665,6 +664,7 @@ Arguments:
 	Numeric csPageID			
 History:
 	2015-09-01 - GAC - Created
+	2016-02-05 - GAC - var'd the unvar'd pageResult variable
 --->
 <cffunction name="getPageRedirectsRemote" access="public" returntype="struct" hint="Gets a query of commonspot page redirects using the public command API.">
 	<cfargument name="csPageID" type="numeric" required="true" hint="numeric commonspot page id">
@@ -673,6 +673,7 @@ History:
 		var redirectQry = QueryNew("temp");
 		var pageCmdResults = StructNew();
 		var commandArgs = StructNew();
+		var pageResult = StuctNew();
 		
 		commandArgs['Target'] = "Redirects";
 		commandArgs['method'] = "getListForPage";
@@ -726,14 +727,13 @@ Arguments:
 	Numeric csPageID				
 History:
 	2015-09-01 - GAC - Created
+	2016-02-05 - Removed extra var'd variable
 --->
 <cffunction name="invalidatePageCacheRemote" access="public" returntype="struct" hint="Invalidates the Page Cache for the specified page.">
 	<cfargument name="csPageID" type="numeric" required="true" hint="numeric commonspot page id">
 	
 	<cfscript>
 		var pageResult = StructNew();
-		//var pageComponent = Server.CommonSpot.api.getObject('Page');
-		var pageCmdResults = "";
 		var commandArgs = StructNew();
 		
 		commandArgs['Target'] = "Page";

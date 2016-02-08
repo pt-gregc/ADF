@@ -30,14 +30,14 @@ Version:
 	1.0
 History:
 	2012-12-26 - MFC - Created
-	2015-11-06 - GAC - Added the deleteRemote function
+	2015-06-11 - GAC - Updated the component extends to use the libraryBase path
+	2015-11-06 - GAC - Added the deleteRemote function 
 --->
-<cfcomponent displayname="apiSubsite_1_0" extends="ADF.core.Base" hint="API Subsite functions for the ADF Library">
+<cfcomponent displayname="apiSubsite_1_0" extends="ADF.lib.libraryBase" hint="API Subsite functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_2">
+<cfproperty name="version" value="1_0_3">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
-<cfproperty name="apiRemote" type="dependency" injectedBean="apiRemote_1_0">
-<!--- <cfproperty name="utils" type="dependency" injectedBean="utils_1_2"> --->
+<!--- <cfproperty name="utils" type="dependency" injectedBean="utils_2_0"> --->
 <cfproperty name="wikiTitle" value="APISubsite_1_0">
 
 <!---
