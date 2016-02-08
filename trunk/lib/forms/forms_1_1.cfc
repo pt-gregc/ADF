@@ -33,10 +33,11 @@ History:
 	2010-12-20 - MFC - Updated Forms_1_1 for dependency to Scripts_1_1.
 	2011-09-09 - GAC - Minor comment updates and formatting
 	2013-11-18 - GAC - Updated the lib dependencies to scripts_1_2 and ceData_2_0
+	2015-06-10 - ACW - Updated the component extends to no longer be dependant on the 'ADF' in the extends path
 --->
-<cfcomponent displayname="forms_1_1" extends="ADF.lib.forms.forms_1_0" hint="Form functions for the ADF Library">
+<cfcomponent displayname="forms_1_1" extends="forms_1_0" hint="Form functions for the ADF Library">
 
-<cfproperty name="version" value="1_1_8">
+<cfproperty name="version" value="1_1_9">
 <cfproperty name="type" value="transient">
 <cfproperty name="ceData" injectedBean="ceData_2_0" type="dependency">
 <cfproperty name="scripts" injectedBean="scripts_1_2" type="dependency">
@@ -90,6 +91,8 @@ History:
 	2012-01-03 - MFC - Added check that the field has the name attribute.
 	2012-02-03 - MFC - Updates to the lightbox callback to store the form in "top.commonspot".
 	2013-02-06 - MFC - Removed JS 'alert' commands for CS 8.0.1 and CS 9 compatibility
+	2015-09-10 - GAC - Removed jQuery.LIVE and replaced it with a jQuery.ON call since it has been deprected since 1.7 and no longer works with jQuery 2.x
+	2015-10-09 - GAC - Added a workaround to fix for the ADF Lightbox form result javascript issues with the CommonSpot loadResource() 
 --->
 <cffunction name="renderAddEditForm" access="public" returntype="String" hint="Returns the HTML for an Add/Edit Custom element record">
 	<cfargument name="formID" type="numeric" required="true" hint="Form ID to render">
@@ -107,16 +110,14 @@ History:
 		// Find out if the CE contains an RTE field
 		//var formContainRTE = application.ADF.ceData.containsFieldType(arguments.formID, "formatted_text_block");
 	</cfscript>
+	
 	<!--- Result from the Form Submit --->
 	<cfsavecontent variable="formResultHTML">
 		<!--- Set the form result html to the argument if defined --->
 		<cfoutput>
 			<cfscript>
-				// Load the scripts, check if we need to load
-				//	the JSON scripts for the callback.
-				// 2011-03-26 - MFC - Commented out force JQuery, the loadADFLightbox with force will
-				//						load JQuery.
-				//variables.scripts.loadJQuery(force=1);
+				// Load the scripts, check if we need to load the JSON scripts for the callback.
+				variables.scripts.loadJQuery(force=1);
 				variables.scripts.loadADFLightbox(force=1);
 			</cfscript>
 			<script type='text/javascript'>
@@ -170,7 +171,8 @@ History:
 					//Setting this up so that on page load the cookie gets filled with existing values, if there are any
 					jQuery(document).ready(function (){
 						handleFormChange();
-						jQuery("##proxyButton1").live('click',handleFormChange);
+						jQuery(document).on("click","##proxyButton1",handleFormChange);
+						//jQuery("##proxyButton1").live('click',handleFormChange);
 					});
 					
 					function handleFormChange(){
@@ -181,7 +183,6 @@ History:
 						};
 					}
 					
-
 					//returns the form values as an object
 					// Obj[fieldName] = fieldValue;
 					function getForm(){
@@ -280,6 +281,7 @@ History:
 		</cfscript>
 		<cfinclude template="/ADF/extensions/datasheet-modules/delete_element_handler.cfm">
 	</cfsavecontent>
+	
 	<cfreturn deleteFormHTML>
 </cffunction>
 
@@ -487,11 +489,13 @@ History:
 			// get the UUID of the element data just submitted by the simple form
 			thisFormEntry  = application.ADF.ceData.getCEData(arguments.elementName,arguments.primaryKey, form[arguments.primaryKey]);
 			// using the UUID, get the PageId (primary key) of the record just submitted
-			if  (Arraylen(thisFormEntry)) {
+			if  (Arraylen(thisFormEntry)) 
+			{
 				thisPageId = thisFormEntry[1].pageID;
 			}
 			// delete the spam record from the element.
-			if (len(thisPageID)) {
+			if (len(thisPageID)) 
+			{
 				application.ADF.ceData.deleteCE(thisPageID);
 			}
 			isValid = false;
