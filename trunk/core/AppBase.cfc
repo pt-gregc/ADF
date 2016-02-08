@@ -36,11 +36,12 @@ History:
 	2013-10-21 - GAC - Added 'file-version' property for ADF core files 
 	2014-02-26 - GAC - Updated for version 1.7.0
 	2014-10-07 - GAC - Updated for version 1.8.0
+	2015-06-10 - ACW - Updated the component extends to no longer be dependant on the 'ADF' in the extends path
 --->
-<cfcomponent name="AppBase" extends="ADF.core.Base" hint="App Base component for the ADF">
+<cfcomponent name="AppBase" extends="Base" hint="App Base component for the ADF">
 
-<cfproperty name="version" value="1_8_2">
-<cfproperty name="file-version" value="3">
+<cfproperty name="version" value="2_0_0">
+<cfproperty name="file-version" value="4">
 
 <cffunction name="init" output="true" returntype="any">
 	<cfscript>

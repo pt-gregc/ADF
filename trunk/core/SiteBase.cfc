@@ -37,11 +37,14 @@ History:
 	                   in lib components after application.ADF is built
 	2014-10-07 - GAC - Updated for version 1.8.0
 	2014-12-03 - GAC - Updates for Adobe ColdFusion 11 compatibility
+	2015-06-10 - ACW - Updated the component extends to no longer be dependant on the 'ADF' in the extends path
+	2015-09-24 - GAC - Added the initADFinstaller()  method to handle ADF install tasks
+					 - Added the registerAllScripts() method to handle adding the ADF scripts as resources to CommonSpot
 --->
-<cfcomponent displayname="SiteBase" extends="ADF.core.AppBase">
+<cfcomponent displayname="SiteBase" extends="AppBase">
 
-<cfproperty name="version" value="1_8_2">
-<cfproperty name="file-version" value="6">
+<cfproperty name="version" value="2_0_0">
+<cfproperty name="file-version" value="9">
 
 <!---
 /* *************************************************************** */
@@ -61,6 +64,7 @@ History:
 	2011-03-20 - MFC - Reconfigured Proxy White List to store in application space 
 						to avoid conflicts with multiple sites. 
 					   Declare variable for Application space.
+	2015-06-26 - GAC - Copy ADF paths from Server Space
 --->
 <cffunction name="initSite" access="private" returntype="void">
 	
@@ -72,6 +76,12 @@ History:
 		application.ADF.dependencyStruct = StructNew();  // Stores the bean dependency list
 		application.ADF.siteAppList = ""; // Stores a list of the sites Apps loaded
 		application.ADF.version = "";
+		
+		application.ADF.url = server.ADF.url;
+		application.ADF.dir = server.ADF.dir;
+		application.ADF.comPath = server.ADF.comPath; 
+		application.ADF.mappingPath = server.ADF.mappingPath;
+		
 		// Set the proxyWhiteList from the Server Apps ProxyWhiteList
 		application.ADF.proxyWhiteList = server.ADF.proxyWhiteList;
 		// Set the site to NOT enable siteDevMode by default
@@ -604,6 +614,104 @@ History:
 				}	
 			}
 		}
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$initADFinstaller
+Summary:
+	Loads the postInit methods found in the loaded ADF lib components 
+Returns:
+	String
+Arguments:
+	Boolean - reinstall
+	String - register
+History:
+	2015-09-21 - GAC - Created
+	2016-01-04 - GAC - Added a check for the scriptsPackage URL parameter to pass to the registerScripts function
+--->
+<cffunction name="initADFinstaller" access="public" returnType="string" hint="">
+	<cfargument name="reinstall" type="boolean" required="false" default="false" hint="">
+	<cfargument name="scriptsPackage" type="string" required="false" default="full" hint="Options: full or min">
+	
+	<cfscript>
+		var retMsg = "";
+		
+		// Check for a register url parameter to be passed in
+        // - "min" only installs the minimal set of resources
+		if ( StructKeyExists(url,"scriptsPackage") )
+			arguments.scriptsPackage = url.scriptsPackage;
+
+		// Call the methods to install required ADF components into the CommonSpot Site
+		// - if they render an output message append it to the retMsg variable
+
+		retMsg = registerScripts(updateExisting=arguments.reinstall,scriptsPackage=arguments.scriptsPackage);
+
+		return retMsg;
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$registerScripts
+Summary:
+	Calls the /lib/scripts/registerAllScripts.cfm cfmodule to register the ADF 
+	scripts libraries as resouces in CommonSpot
+Returns:
+	String
+Arguments:
+	Boolean - updateExisting
+	String - scriptsPackage (full or min)
+History:
+	2015-09-24 - GAC - Created
+	2016-01-04 - GAC - Added a scriptsPackage parameter to allow minimal load
+--->
+<cffunction name="registerScripts" access="public" returnType="string" hint="">
+	<cfargument name="updateExisting" type="boolean" required="false" default="0" hint="Flag to update existing scripts">
+    <cfargument name="scriptsPackage" type="string" required="false" default="full" hint="Options: full or min">
+
+	<cfscript>
+		var retMsg = "";
+		var resourceAPI = "";
+        var packageOptions = "all,full,min,minimum,minimal";
+        var packageTxt = arguments.scriptsPackage;
+
+        if ( ListFindNoCase(packageOptions,arguments.scriptsPackage,",") EQ 0 )
+            arguments.scriptsPackage = "full";
+
+        if ( arguments.scriptsPackage EQ "all" )
+		{
+            arguments.scriptsPackage = "full";
+			packageTxt = arguments.scriptsPackage;
+        }
+		else if ( ListFindNoCase("min,minimum",arguments.scriptsPackage) EQ 1 )
+		{
+            arguments.scriptsPackage = "min";
+			packageTxt = "minimal";
+		}
+	</cfscript>
+	
+	<!--- // Add Site Install Scripts/Steps --->
+	<cfsavecontent variable="retMsg">
+		<cfoutput>
+		<div>
+            <h2>- ADF Resource Installer -</h2>
+            <h3><cfif arguments.updateExisting>Re-installing <cfelse>Installing </cfif>ADF Scripts as CommonSpot Resources...</h3>
+            <cfmodule template="/ADF/lib/scripts/registerAllScripts.cfm" updateExisting="#arguments.updateExisting#" scriptsPackage="#arguments.scriptsPackage#">
+            <h4>A #lcase(packageTxt)# set of ADF script resources have been <cfif arguments.updateExisting>re-registered <cfelse>registered </cfif>with CommonSpot for site: '#request.site.name#'.</h4>
+		</div>
+		</cfoutput>
+	</cfsavecontent>
+	
+	<cfscript>
+		return retMsg;
 	</cfscript>
 </cffunction>
 
