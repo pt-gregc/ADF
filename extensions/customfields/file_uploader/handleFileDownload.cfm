@@ -1,38 +1,36 @@
-<cfif StructKeyExists(request.params,"fieldID") and StructKeyExists(request.params,"fileName")>
-	<cfscript>
-		fieldDefaultValues = application.ADF.ceData.getFieldParamsByID(request.params.fieldID);
-		fileName = request.params.fileName;
+<!--- 
+The contents of this file are subject to the Mozilla Public License Version 1.1
+(the "License"); you may not use this file except in compliance with the
+License. You may obtain a copy of the License at http://www.mozilla.org/MPL/
 
-		//Get the display name, remove the --UUID from the text. Maintain the extension
-		totalLength = Len(fileName);
-		extension = listLast(fileName,".");
-		removeLength = Len(extension)+38;
-		displayName = Left(fileName,totalLength-removeLength)&"."&extension;
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+the specific language governing rights and limitations under the License.
 
+The Original Code is comprised of the ADF directory
 
-		filePath = "";
-		if(StructKeyExists(fieldDefaultValues,"filePath")){
-			concatenator = '';
-			if(Find('/',fieldDefaultValues.filePath)){
-				concatenator = '/';
-			}else{
-				concatenator = '\';
-			}
-			if(right(fieldDefaultValues.filePath, 1) is concatenator){
-				concatenator = "";
-			}
-			filePath = fieldDefaultValues.filePath&concatenator&fileName;
-		}
-	</cfscript>
-   <cfheader name="content-disposition" value="attachment; filename=#displayName#;">
- 	<cfcontent file="#filePath#" type="unknown" deletefile="no">
-<cfelse>
-	<cfoutput>
-		Invalid parameters. <br/>
-		Expecting:<br/>
-		fieldID - the field ID from the custom element record<br/>
-		fileName - the filename that is stored in the record
-	</cfoutput>
-</cfif>
+The Initial Developer of the Original Code is
+PaperThin, Inc.  Copyright (c) 2009-2016.
+All Rights Reserved.
 
+By downloading, modifying, distributing, using and/or accessing any files 
+in this directory, you agree to the terms and conditions of the applicable 
+end user license agreement.
+--->
+
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc. 
+Name:
+	handleFileDownload.cfm
+Summary:
+	This is a redirect file used with the the file_Uploader CFT					
+History:
+	2015-06-11 - GAC - Added redirect CFINCLUDE to point to /file_uploader/v3_0/handleFileUpload.cfm
+--->
+<cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
+
+<cfset useCFTversion = "v3_0">
+<cfinclude template="#useCFTversion#/handleFileDownload.cfm">
 
