@@ -30,12 +30,13 @@ Version:
 	1.1
 History:
 	2011-01-14 - MFC - Created
+	2015-06-10 - ACW - Updated the component extends to no longer be dependant on the 'ADF' in the extends path
 	2015-09-09 - Added the getTaxonomyInfo method
 			   - Added the handleTaxonomyFileImport methond
 --->
-<cfcomponent displayname="taxonomy_1_1" extends="ADF.lib.taxonomy.taxonomy_1_0" hint="Taxonomy functions for the ADF Library">
+<cfcomponent displayname="taxonomy_1_1" extends="taxonomy_1_0" hint="Taxonomy functions for the ADF Library">
 
-<cfproperty name="version" value="1_1_4">
+<cfproperty name="version" value="1_1_5">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Taxonomy_1_1">
 
