@@ -1,6 +1,6 @@
 ## INSTRUCTIONS TO USE OBJECT LIST BUILDER
 
-1. Create a Global Custom Element that has data. In this case, we created a custom element called CourseListBuilder with the following fields:
+1. Create a Global Custom Element that has data. In this case, we used CourseBuilder custom element with the following fields:
 		CourseID (Text),
 		CourseInstructor (Text),
 		CourseTitle (Small Text Area),
@@ -9,30 +9,28 @@
 		CourseDescription (Formatted Text Block)
 		
 		
-2. Add records to the CourseListBuilder custom element. You can add records either from the Site Administration->Elements & Forms->Elements->(Name of Element)->View Data->Add New Record OR from a page that has a datasheet on it configured for the custom element.
+2. Add records to CourseBuilder custom element.
 
 
 3. Import the Custom Field Type : Object-List-Builder
-	(Site Administration->Elements & Forms->Field Types and Masks->Import Custom Field Type)
-
-	Custom Field Type zip Import Archive:
+	Custom Field Type zip Import Archive:	
 		/ADF/extensions/customfields/object_list_builder/exported-objects/Object-List-Builder-Custom-Field-Type.zip
 
 	The Custom Field Type has the following files:
-		object_list_builder_render.cfm (render module)
-		object_list_builder_props.cfm (properties module)
-		object_list_builder_base.cfc (base componenet)
-		call_renderitem.cfm (render module for the records on the page)
-		object_list_builder_pre_save_hook.cfm (pre processor for ObjectListBuilder data)
-		listFormats.xml (XML file with render formats for the ObjectListBuilder)
-		object_list_builder_editor_styles.css (styles to be used in the ckEditor)
-		object_list_builder_styles.css (styles to be used in the ObjectListBuilder dialog)
+			object_list_builder_render.cfm (render module)
+			object_list_builder_props.cfm (properties module)
+			object_list_builder_base.cfc (base componenet)
+			call_renderitem.cfm (render module for the records on the page)
+			object_list_builder_pre_save_hook.cfm (pre processor for ObjectListBuilder data)
+			listFormats.xml (XML file with render formats for the ObjectListBuilder)
+			object_list_builder_editor_styles.css (styles to be used in the ckEditor)
+			object_list_builder_styles.css (styles to be used in the ObjectListBuilder dialog)
 	
 			
 4. Add or modify a pre-save-form-hook.cfm file in the site's root directory. 
-	If you do not have an existing pre-save-form-hook.cfm file you can use the one that is located here:
+	If you do not have an existing pre-save-form-hook.cfm file you can use the that is located here:
 		/ADF/extensions/customfields/object_list_builder/site-files/pre-save-form-hook.cfm
-	Adding pre-save-form-hook.cfm to the site for the first time will require a CF restart.
+	(If adding a new hook file to the site a CF restart will be required.)	
 
 	If you already have a pre-save-form-hook.cfm installed in your site root, copy the following <cfinclude> line into that file:
 	<cfinclude template="/ADF/extensions/customfields/object_list_builder/object_list_builder_pre_save_hook.cfm">
@@ -42,7 +40,7 @@
 	This config XML file contains the listFormats array. Each item in the array is a structure with the following required keys:
 	
 	Copied {custom}ListFormats.xml File Site Level Location:
-		/ADF/extensions/customfields/object_list_builder/site-files/_cs_apps/config/courseListFormats.xml
+		/ADF/extensions/customfields/object_list_builder/site-files/_cs_apps/config/{custom}ListFormats.xml
 	
 	Example ListFormats XML Node:
 		<format>
@@ -56,26 +54,26 @@
 	Legend:
 		formatName - unique name for the format			
 		displayName - display name for the format shown in ckEditor and ObjectListBuilder dialog		
-		structure - structure of format, all of the data is wrapped in a CDATA to allow for special characters
+		structure - structure of format
 		isDefault - boolean flag indicating if this format should be the default format
-		wrapperTag - used by ckEditor. ckEditor generates valid HTML and if you put tags like H1-H6 or any block level tags, make sure the wrapperTag is also a block level tag. Default wrapperTag is Div.
+		wrapperTag - used by ckEditor. ckEditor generates valid HTML and if you put tags like H1-H6 or any block level tags, make sure the 			    wrapperTag is also a block level tag. Default wrapperTag is Div.
 
-	Standard Example Config file:
+	Standard Config file:
 		/ADF/extensions/customfields/object_list_builder/listFormats.xml
 		
-	Custom Example Config File:
+	Example File:
 		/ADF/extensions/customfields/object_list_builder/site-files/_cs_apps/config/courseListFormats.xml
 
 
 6. Create a configuration component in your site's "/_cs_apps/components/" directory
 		Name this component based on your Global Custom Element (Eg. courseListBuilder.cfc) 
-		Set the CFC's extends attribute to: extends="ADF.lib.fields.objectListBuilder_1_0" (objectListBuilder_1_0 is a new component added to ADF v1.8.1)
+		Set the the CFCs extends to: extends="ADF.lib.fields.objectListBuilder_1_0"
 		Create a <cfscript> block at the top of the configuration component
 		Add the follow following variables and set values for each:
 
-			variables.cftPath  // path to the ObjectListBuilder custom field type Eg: "/ADF/extensions/customfields/object_list_builder";
+			variables.cftPath  // path to the ObjectListBuilder custom element Eg: "/ADF/extensions/customfields/object_list_builder";
 			variables.ceID // ID of source customElement Eg: 4032;
-			variables.customElement // Name of the source customElement Eg: "CourseListBuilder";
+			variables.customElement // Name of the source customElement Eg: "courseRecords";
 			variables.searchFields // Searchable fields in source customElement, used by bloodhound and typeahead in the ObjectListBuilder dialog Eg: "CourseID,CourseInstructor,CourseTitle";
 			variables.IDField // UniqueID in the source customElement Eg: "CourseID";
 			variables.orderByClause // source customElement column. This should be present in variables.columnList and variables.searchFields Eg: "CourseTitle ASC";
@@ -125,3 +123,15 @@ Addtional Information:
 			listformat - plugin used for ObjectListBuilder's formats display
 			cslink - plugin used to invoke CommonSpot's insert-link dialog.
 			csimage - plugin used to invoke CommonSpot's insert-image dialog and access to CommonSpot's Image Gallery.
+
+
+
+
+
+
+	
+			
+	
+		
+	
+			
