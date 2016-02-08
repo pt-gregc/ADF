@@ -33,10 +33,11 @@ History:
 	2011-02-01 - GAC - Added dependency to csData_1_1
 	2011-03-31 - GAC - Added dependency to data_1_1
 	2012-12-07 - MFC - Moved new functions to Utils v1.2.
+	2015-06-10 - ACW - Updated the component extends to no longer be dependant on the 'ADF' in the extends path
 --->
-<cfcomponent displayname="utils_1_1" extends="ADF.lib.utils.utils_1_0" hint="Util functions for the ADF Library">
+<cfcomponent displayname="utils_1_1" extends="utils_1_0" hint="Util functions for the ADF Library">
 
-<cfproperty name="version" value="1_1_5">
+<cfproperty name="version" value="1_1_6">
 <cfproperty name="type" value="singleton">
 <cfproperty name="ceData" type="dependency" injectedBean="ceData_1_1">
 <cfproperty name="csData" type="dependency" injectedBean="csData_1_1">
