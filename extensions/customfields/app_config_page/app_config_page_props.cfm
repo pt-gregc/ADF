@@ -27,8 +27,10 @@ Custom Field Type:
 Name:
 	app_config_page_props.cfm
 ADF Requirements:
-	csData_1_0
-	forms_1_1
+	csData_2_0
+	forms_2_0
+	script_2_0
+	utils_2_0
 History:
 	RLW - Created
 	2011-08-11 - GAC - Updated - Set to use the application.ADF.scripts instead of the objectFactory.getBean
@@ -37,12 +39,15 @@ History:
 	2014-01-02 - GAC - Added the CFSETTING tag to disable CF Debug results in the props module
 	2014-01-03 - GAC - Added the fieldVersion variable
 	2014-09-19 - GAC - Removed deprecated doLabel and jsLabelUpdater js calls
+	2015-05-12 - DJM - Updated the field version to 2.0
+	2015-09-02 - DRM - Add getResourceDependencies support, bump version
+	2015-10-14 - GAC - Updated the forms call to Forms_2_0
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "1.0.1"; 
+	fieldVersion = "2.0.3";
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
@@ -108,7 +113,7 @@ History:
 			// make call to check path
 			jQuery.post("#application.ADF.ajaxProxy#",
 				{
-					bean: "utils_1_0",
+					bean: "utils_2_0",
 					method: "scriptExists",
 					templatePath: templatePath
 				}, function(results){
