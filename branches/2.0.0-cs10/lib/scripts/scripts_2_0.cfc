@@ -122,7 +122,7 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 	*/
 	public void function loadTheme(string themeName, string defaultResourceName, string parentKey)
 	{
-		var regResourceList = resourceAPI.getList(name=arguments.themeName);
+		var regResourceList = resourceAPI.getList(searchString=arguments.themeName, searchOperator='equals');
 		var defaultResourceList = "";
 		var res = "";
 		var cssURL = "";
@@ -136,7 +136,7 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 		else
 		{
 			// if the themeName is NOT registered resource... then attempt to build a path and load it.
-			defaultResourceList = resourceAPI.getList(name=arguments.defaultResourceName);
+			defaultResourceList = resourceAPI.getList(searchString=arguments.themeName, searchOperator='equals');
 
 			if (defaultResourceList.RecordCount == 1 && arrayLen(defaultResourceList.earlyLoadSourceArray[1]) == 1)
 			{
