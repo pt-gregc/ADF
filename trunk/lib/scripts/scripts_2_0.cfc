@@ -117,11 +117,12 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 		History:
 			2016-01-07 - GAC - Updated the loadTheme to check if the ThemeName is a registered resource before attempting
 							   build the theme's CSS file path from defaultResource's information
+			2016-02-08 - AW - Updated resourceAPI.getList()								
 	
 	*/
 	public void function loadTheme(string themeName, string defaultResourceName, string parentKey)
 	{
-		var regResourceList = resourceAPI.getList(0, arguments.themeName, "equals");
+		var regResourceList = resourceAPI.getList(name=arguments.themeName);
 		var defaultResourceList = "";
 		var res = "";
 		var cssURL = "";
@@ -135,7 +136,7 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 		else
         {
             // if the themeName is NOT registered resource... then attempt to build a path and load it.
-            defaultResourceList = resourceAPI.getList(0, arguments.defaultResourceName, "equals");
+            defaultResourceList = resourceAPI.getList(name=arguments.defaultResourceName);
 
             if (defaultResourceList.RecordCount == 1 && arrayLen(defaultResourceList.earlyLoadSourceArray[1]) == 1)
             {
