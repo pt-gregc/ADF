@@ -214,8 +214,9 @@
 		"ADFStyles resources.", "Included in ADF 2.0 and later.", ""
 	);
 
+    // NOT ALLOWED ANYMORE
     // NOTE: using CommonSpot version number here
-    registerResource
+    /* registerResource
     (
         "CommonSpotStyles 10.0", "SECONDARY",
         [
@@ -223,7 +224,7 @@
         ],
         [],
         "CommonSpotStyles resources.", "Included in ADF 2.0 and later.", "CommonSpotStyles"
-    );
+    );*/
 
     /* SECONDARY - PLUGINS ETC - leaving TERTIARY for customer or app code */
 
@@ -260,12 +261,13 @@
             "CKEditor resources.", "Included in ADF 2.0 and later.", "CKEditor"
         );
 
+
         function getCKEditorDefaultLocation(string version="4.5.3", string package="full", boolean useCDN=0, boolean force=0)
         {
             var libPath = "";
             var loadViaCDN = arguments.useCDN;
-            var csScriptLibPath = "/cs_customization/ckeditor/ckeditor.js";
-            var adfScriptLibPath = "/_cs_apps/thirdParty/ckeditor/ckeditor.js";
+            var csScriptLibPath = Request.SubSiteCache[1].CFSubSiteURL & "/cs_customization/ckeditor/ckeditor.js";
+            var adfScriptLibPath = Request.SubSiteCache[1].CFSubSiteURL & "/_cs_apps/thirdParty/ckeditor/ckeditor.js";
             var packageList = "basic,standard,standard-all,full,full-all";
 
             if (len(trim(arguments.package)) == 0 || listFindNoCase(packageList, arguments.package) == 0)
@@ -273,16 +275,16 @@
 
             if (!loadViaCDN)
             {
-                if (fileExists(expandPath(csScriptLibPath)))
+                if ( fileExists(csScriptLibPath) )
                     libPath = csScriptLibPath;
-                else if (fileExists(expandPath(adfScriptLibPath)))
+                else if ( fileExists(adfScriptLibPath) )
                     libPath = adfScriptLibPath;
                 else
                     loadViaCDN = true;
             }
             if (loadViaCDN)
                 libPath = "http://cdn.ckeditor.com/#arguments.version#/#arguments.package#/ckeditor.js";
-            // or we could do this:
+                // or we could do this:
                 //libPath = Server.CommonSpot.ObjectFactory.getObject("FormattedTextblock").getEditorDefaultLocation();
             return libPath;
         }
@@ -965,7 +967,7 @@
             "QTip resources.", "Included in ADF 2.0 and later.", "QTip"
         );
 
-        /* HIGH: there's nothing like this in the ADF
+        /* HIGH: there's nothing like this in the ADF thirdParty folder
         registerResource
         (
             "SimplePassMeter", "SECONDARY",

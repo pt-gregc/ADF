@@ -590,17 +590,18 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 		loadResources("NiceForms,CommonSpotStyles");
 	}*/
 
-	public void function loadCommonSpotStyles()
+    // NOT ALLOWED ANYMORE
+	/*public void function loadCommonSpotStyles()
 	{
 		loadResources("CommonSpotStyles");
-	}
+	}*/
 
 	public void function loadQTip(string version="", boolean force=0)
 	{
 		loadResources("JQuery,QTip");
 	}
 
-	/* HIGH: there's nothing like this in the ADF
+	/* HIGH: there's nothing like this in the ADF thirdParty folder
 	public void function loadSimplePassMeter(boolean force=0)
 	{
 		loadResources("JQuery,SimplePassMeter");

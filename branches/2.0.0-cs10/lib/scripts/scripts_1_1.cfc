@@ -1689,8 +1689,9 @@ History:
 	2011-02-09 - RAK - Var'ing un-var'd variables
 	2011-06-24 - GAC - Added CFOUTPUTS around the renderScriptOnce method call
 	2012-08-16 - GAC - Added the force parameter
+	2016-02-09 - GAC - Does not exist in the ADF thirdParty folder
 --->
-<cffunction name="loadSimplePassMeter" access="public" output="true" returntype="void" hint="Loads the simplePassMeter plugin for jQuery">
+<!---<cffunction name="loadSimplePassMeter" access="public" output="true" returntype="void" hint="Loads the simplePassMeter plugin for jQuery">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
 	<cfscript>
 		var outputHTML = '';
@@ -1708,7 +1709,7 @@ History:
 			#variables.scriptsService.renderScriptOnce("simplePassMeter",outputHTML)#
 		</cfif>
 	</cfoutput>
-</cffunction>
+</cffunction>--->
 
 <!---
 /* *************************************************************** */
