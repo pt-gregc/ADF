@@ -34,6 +34,7 @@ History:
 	2014-01-16 - DJM - Created
 	2014-01-29 - GAC - Converted to use AjaxProxy and the ADF Lib
     2014-04-21 - JTP - Added logic so that if filter has an expression we don't cache it
+    2016-02-09 - JTP - Fixed issues with obj hierarchy select from different element
 --->
 <cfcomponent output="false" displayname="custom_element_hierarchy_selector_base" extends="ADF.extensions.customfields.customfieldsBase" hint="Contains base functions to handle hierarchy selector">
 	
@@ -102,7 +103,9 @@ History:
 				if (StructKeyExists(application, 'objectHierarchyCustomField') 
 					AND StructKeyExists(Application.objectHierarchyCustomField, arguments.elementID)
 					AND StructKeyExists(Application.objectHierarchyCustomField[arguments.elementID], arguments.fieldID)
-					AND StructKeyExists(Application.objectHierarchyCustomField[arguments.elementID][arguments.fieldID], 'cache'))
+					AND StructKeyExists(Application.objectHierarchyCustomField[arguments.elementID][arguments.fieldID], 'cache')
+					AND ArrayLen( Application.objectHierarchyCustomField[arguments.elementID][arguments.fieldID].cache ) gt 0 
+					)
 				{	
 					dataMemArray = Application.objectHierarchyCustomField[arguments.elementID][arguments.fieldID].cache;
 				}	
@@ -177,7 +180,9 @@ History:
 			var isMemGood = 1;
 			var cacheLastUpdate = '';
 			var fieldProperties = arguments.propertiesStruct;
-			var objLastUpdate = request.site.availControls[fieldProperties.customElement].lastUpdateSinceRestart;
+			// var objLastUpdate = request.site.availControls[arguments.elementID].lastUpdateSinceRestart;
+			var eID = fieldProperties.customElement;			
+			var objLastUpdate = request.site.availControls[eID].lastUpdateSinceRestart;
 			var cacheData = ArrayNew(1);
 			var cfmlFilterCriteria = StructNew();
 			var filterArray = ArrayNew(1);
@@ -192,10 +197,10 @@ History:
 		<cflock name="objHierarchy" timeout="5" type="readOnly">
 			<cfscript>	
 				if (StructKeyExists(application, 'objectHierarchyCustomField')
-					AND StructKeyExists(application.objectHierarchyCustomField, arguments.elementID)
-					AND StructKeyExists(application.objectHierarchyCustomField[arguments.elementID], arguments.fieldID))
+					AND StructKeyExists(application.objectHierarchyCustomField, eID)
+					AND StructKeyExists(application.objectHierarchyCustomField[eID], arguments.fieldID))
 				{
-					memoryCache = application.objectHierarchyCustomField[arguments.elementID][arguments.fieldID];
+					memoryCache = application.objectHierarchyCustomField[eID][arguments.fieldID];
 				}
 			</cfscript>
 		</cflock>
@@ -292,7 +297,9 @@ History:
 			var inputPropStruct = arguments.propertiesStruct;
 			var cfmlFilterCriteria = StructNew();
 			var customElementObj = Server.CommonSpot.ObjectFactory.getObject('CustomElement');
-			var ceFields = customElementObj.getFields(elementID=inputPropStruct.customElement);
+			// var ceFields = customElementObj.getFields(elementID=arguments.elementID);
+			var ceFields = customElementObj.getFields(elementID=inputPropStruct.CustomElement);
+			// var parentFieldName = getFieldName(allFieldsQuery=ceFields, fieldID=arguments.fieldID);
 			var parentFieldName = getFieldName(allFieldsQuery=ceFields, fieldID=inputPropStruct.parentField);
 			var displayFieldName = '';
 			var valueFieldName = '';
@@ -309,6 +316,7 @@ History:
 		</cfscript>
 
 		<cftry>
+
 			<cfscript>
 				if (ListFirst(parentFieldName,':') NEQ 'Error')
 				{
@@ -319,7 +327,6 @@ History:
 				else
 					errorMsg = ListRest(parentFieldName,':');
 
-				
 				if( NOT Len(ErrorMsg) AND ListFirst(displayFieldName,':') NEQ 'Error' )
 				{
 					if( NOT ListFindNoCase(fieldList, displayFieldName) AND displayFieldName neq '' )
@@ -329,7 +336,7 @@ History:
 				else
 					errorMsg = ListRest(displayFieldName,':');
 			</cfscript>
-			
+
 			<cfif NOT Len(ErrorMsg) AND ListFirst(valueFieldName,':') NEQ 'Error'>
 				<cfscript>
 					if (NOT ListFindNoCase(fieldList, valueFieldName))
@@ -378,7 +385,7 @@ History:
 					}						
 					addedParents[inputPropStruct.rootValue] = StructNew();
 				</cfscript>
-
+				
 				<cfif getFormattedData.RecordCount>
 					<cfloop query="getFormattedData">
 						<cfscript>

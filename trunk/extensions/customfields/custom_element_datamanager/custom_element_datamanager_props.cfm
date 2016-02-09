@@ -63,12 +63,13 @@ History:
 	2016-01-20 - DRM - Make order and text of Interface Options consistent, put single quotes around element names only
 							 Switch order of rendered Add New buttons to put join table first
 							 Bump fieldVersion
+	2016-02-09 - DRM - Bump fieldVersion
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "2.0.9";
+	fieldVersion = "2.0.10";
 	
 	// CS version and required Version variables
 	requiredCSversion = 10;

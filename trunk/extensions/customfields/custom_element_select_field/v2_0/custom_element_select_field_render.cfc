@@ -76,6 +76,7 @@ History:
 	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
 	2015-10-14 - GAC - Updated the forms call to Forms_2_0
 	2016-01-16 - DRM - Layout table uses valign="middle" instead of top
+    2016-02-09 - JTP - Change button text
 
 To Do:
 	2014-04-08 - JTP - Currently we are NOT sorting the list if displayed as checkboxes/radio buttons and user choose sort by display value
@@ -96,7 +97,7 @@ To Do:
 		var selection_list = (cType eq 'select') ? 1: 0;
 		var readOnly = (arguments.displayMode EQ 'readonly') ? true : false;	
 		var ajaxComURL = application.ADF.ajaxProxy;
-		var buttonLabel = "New #inputParameters.label#";
+		var buttonLabel = "New...";
 		var cftPath = "/ADF/extensions/customfields/custom_element_select_field/v2_0";
 	
 		inputParameters = setDefaultParameters(argumentCollection=arguments);

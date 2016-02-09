@@ -63,6 +63,7 @@ History:
 	2016-01-06 - DRM - Add getMinWidth() and getMinHeight()
 	                   Don't use (undefined) return value from ResizeWindow() js function
 	                   Remove some unused js vars
+	2016-02-09 - DRM - Hard code minimum values in getMinWidth() and getMinHeight()
 --->
 <cfcomponent displayName="CustomElementDataManager Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -714,13 +715,13 @@ function setCurrentValueAndOpenURL_#uniqueTableAppend#(urlToOpen, linkedFldName,
 	{
 		if (structKeyExists(arguments.parameters, "heightValue") && isNumeric(arguments.parameters.heightValue) && arguments.parameters.heightValue > 0)
 			return arguments.parameters.heightValue; // always px
-		return 0;
+		return 200;
 	}
 	public numeric function getMinWidth()
 	{
 		if (arguments.parameters.widthUnit == "px" && structKeyExists(arguments.parameters, "widthValue") && isNumeric(arguments.parameters.widthValue) && arguments.parameters.widthValue > 0)
 			return arguments.parameters.widthValue + 160; // 150 is default label width, plus some slack
-		return 0;
+		return 800;
 	}
 
 	public string function getResourceDependencies()
