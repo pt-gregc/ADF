@@ -86,22 +86,22 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 	{
 		Server.CommonSpot.udf.resources.addFooterHTML(html, resourceGroup);
 	}
-	
+
 	public void function addFooterJS(required string js, required string resourceGroup) // resourceGroup: PRIMARY, SECONDARY, TERTIARY
 	{
-	  	// Strip the script tags
+		// Strip the script tags
 		js = ReReplace(js, "<[[:space:]]*script.*?>","", "ALL");
 		js = ReReplace(js, "</script>","", "ALL");
-	  
-	  	Server.CommonSpot.udf.resources.addFooterJS(js, resourceGroup);
+
+		Server.CommonSpot.udf.resources.addFooterJS(js, resourceGroup);
 	}
-	 
+
 	public void function addHeaderCSS(required string css, required string resourceGroup) // resourceGroup: PRIMARY, SECONDARY, TERTIARY
 	{
 		// Strip the style tags
 		css = ReReplace(css, "<[[:space:]]*style.*?>","", "ALL");
 		css = ReReplace(css, "</style>","", "ALL");
-	  
+
 		Server.CommonSpot.udf.resources.addHeaderCSS(css, resourceGroup);
 	}
 
@@ -113,12 +113,12 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 			themeName: name of theme you want to load (actually that portion of the file path, regardless of how it's referred to elsewhere)
 			defaultResourceName: name of the registered default resource
 			parentKey: portion of the default resource url BEFORE the one that's the theme name
-	
+
 		History:
 			2016-01-07 - GAC - Updated the loadTheme to check if the ThemeName is a registered resource before attempting
-							   build the theme's CSS file path from defaultResource's information
-			2016-02-08 - AW - Updated resourceAPI.getList()								
-	
+								build the theme's CSS file path from defaultResource's information
+			2016-02-08 - AW - Updated resourceAPI.getList()
+
 	*/
 	public void function loadTheme(string themeName, string defaultResourceName, string parentKey)
 	{
@@ -128,53 +128,53 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 		var cssURL = "";
 		var listPos = 0;
 
-        // if the themeName is a registered resource then use it
-        if ( regResourceList.RecordCount == 1 && arrayLen(regResourceList.earlyLoadSourceArray[1]) == 1 )
-        {
-            loadResources(arguments.themeName);
-        }
+		// if the themeName is a registered resource then use it
+		if ( regResourceList.RecordCount == 1 && arrayLen(regResourceList.earlyLoadSourceArray[1]) == 1 )
+		{
+			loadResources(arguments.themeName);
+		}
 		else
-        {
-            // if the themeName is NOT registered resource... then attempt to build a path and load it.
-            defaultResourceList = resourceAPI.getList(name=arguments.defaultResourceName);
+		{
+			// if the themeName is NOT registered resource... then attempt to build a path and load it.
+			defaultResourceList = resourceAPI.getList(name=arguments.defaultResourceName);
 
-            if (defaultResourceList.RecordCount == 1 && arrayLen(defaultResourceList.earlyLoadSourceArray[1]) == 1)
-            {
-                res = defaultResourceList.earlyLoadSourceArray[1][1];
-                cssURL = res.sourceURL;
-                listPos = listFindNoCase(cssURL, arguments.parentKey, "/");
-                if (listPos > 0 && listPos < (listLen(cssURL, "/") - 1))
-                {
-                    cssURL = listSetAt(cssURL, listPos + 1, arguments.themeName, "/");
-                    if (res.canCombine == 1) // take that as a proxy for it being local, if not, just render the raw tag
-                        loadUnregisteredResource(cssURL, "Stylesheet", "head", "secondary", res.canCombine, res.canMinify);
-                    else
-                        addHeaderHTML('<link href="#cssURL#" rel="stylesheet" type="text/css">', "SECONDARY");
-                }
-            }
-        }
+			if (defaultResourceList.RecordCount == 1 && arrayLen(defaultResourceList.earlyLoadSourceArray[1]) == 1)
+			{
+				res = defaultResourceList.earlyLoadSourceArray[1][1];
+				cssURL = res.sourceURL;
+				listPos = listFindNoCase(cssURL, arguments.parentKey, "/");
+				if (listPos > 0 && listPos < (listLen(cssURL, "/") - 1))
+				{
+					cssURL = listSetAt(cssURL, listPos + 1, arguments.themeName, "/");
+					if (res.canCombine == 1) // take that as a proxy for it being local, if not, just render the raw tag
+						loadUnregisteredResource(cssURL, "Stylesheet", "head", "secondary", res.canCombine, res.canMinify);
+					else
+						addHeaderHTML('<link href="#cssURL#" rel="stylesheet" type="text/css">', "SECONDARY");
+				}
+			}
+		}
 	}
 
 
 	/* PRIMARY - MAJOR LIBRARIES */
-	
-	
+
+
 	/*
 		History:
 			2015-09-24 - GAC - Added jQuery Migrate to load with jQuery by default
 							 - Added a useMigrate parameter to disable jQuery Migrate
 			2016-01-07 - GAC - Set useMigrate to be disabled by default
-			                 - Switched to used addFooterJS instead of addFooterHTML
+								- Switched to used addFooterJS instead of addFooterHTML
 	*/
 	public void function loadJQuery(string version="", boolean force=0, boolean noConflict=0, useMigrate=0 )
 	{
 		loadResources("jQuery");
-	
+
 		if (arguments.noConflict)
 			addFooterJS("<script>jQuery.noConflict();</script>", "PRIMARY");
-		
+
 		// Load the Migrate plugin
-		if ( arguments.useMigrate ) 
+		if ( arguments.useMigrate )
 			loadResources("JQueryMigrate");
 	}
 
@@ -196,7 +196,7 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 	{
 		loadResources("jQuery,JQueryMobile");
 	}
-	
+
 
 	public void function loadBootstrap(string version="", boolean force=0, boolean useDefaultTheme=0)
 	{
@@ -216,40 +216,40 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 	{
 		var js = "";
 	 	loadResources("jQuery,ADFLightbox");
-	
+
 		if (structKeyExists(request,"ADFLightboxLoaded"))
 			return; // TODO: throw("Why are you loadinging again!");
 		else
-		   	request.ADFLightboxLoaded = 1;
-		  	
+			request.ADFLightboxLoaded = 1;
+
 		// Set a default Width
 		if ( NOT StructKeyExists(request.params, "width") )
 			request.params.width = 500;
-		
+
 		// Set a default Height
 		if ( NOT StructKeyExists(request.params, "height") )
 			request.params.height = 500;
-		
+
 		// Set a default Title
 		if ( NOT StructKeyExists(request.params, "title") )
 			request.params.title = "";
-		
+
 		// Set a default Subtitle
 		if ( NOT StructKeyExists(request.params, "subtitle") )
 			request.params.subtitle = "";
-	
+
 		// Build the ADFlightbox INIT JS block
 		saveContent variable="js"
 		{
 			writeOutput
-		  	("
+			("
 				jQuery(function()
 				{
 					initADFLB();
-				  	if ( (typeof commonspot != 'undefined') && (typeof commonspot.lightbox != 'undefined') ) 
-				   		commonspot.lightbox.initCurrent(#request.params.width#, #request.params.height#, { title: '#request.params.title#', subtitle: '#request.params.subtitle#', close: 'true', reload: 'true' });
+					if ( (typeof commonspot != 'undefined') && (typeof commonspot.lightbox != 'undefined') )
+							commonspot.lightbox.initCurrent(#request.params.width#, #request.params.height#, { title: '#request.params.title#', subtitle: '#request.params.subtitle#', close: 'true', reload: 'true' });
 				});
-		  	");
+			");
 		}
 		addFooterJS(js,"TERTIARY");
 	}

@@ -41,6 +41,7 @@ History:
 	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean()
 	2016-01-06 - GAC - Added a isMultiline() call so the label renders at the top
 	                 - Added getMinWidth() and getMinHeight()
+    2016-02-09 - JTP - Put back duplicate and added structKeyExists
 --->
 <cfcomponent displayName="CustomElementHierarchySelector Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -51,7 +52,8 @@ History:
 	
 	<cfscript>
 		var allAtrs = getAllAttributes();
-		var inputParameters =  Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
+		// var inputParameters =  Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
+		var inputParameters =  duplicate(arguments.parameters);
 		var uniqueTableAppend = arguments.fieldID;
 		var ceFormID = arguments.formID;
 		var customElementObj = Server.CommonSpot.ObjectFactory.getObject('CustomElement');
@@ -77,11 +79,11 @@ History:
 					ceFormID = allAtrs.fields.formID[1];*/
 			
 			bMemory = selectorObj.isMemoryStructureGood(propertiesStruct=inputParameters,elementID=ceFormID,fieldID=arguments.fieldID);
-			
+	
 			if (bMemory EQ 0)
 				selectorObj.buildMemoryStructure(propertiesStruct=inputParameters,elementID=ceFormID,fieldID=arguments.fieldID);
 			
-			resultCEData = selectorObj.getFilteredData(propertiesStruct=inputParameters,currentValues=arguments.value,elementID=ceFormID,fieldID=arguments.fieldID);
+			resultCEData = selectorObj.getFilteredData( propertiesStruct=inputParameters,currentValues=arguments.value,elementID=ceFormID,fieldID=arguments.fieldID);
 			
 			if (IsArray(resultCEData) AND ArrayLen(resultCEData) AND NOT IsSimpleValue(resultCEData[1]))
 				errorMsgCustom = '';
@@ -93,10 +95,10 @@ History:
 			application.ADF.scripts.loadJSTree(loadStyles=false);
 			
 			// Set the width and height value
-			if (IsNumeric(inputParameters.widthValue))
+			if ( StructKeyExists(inputParameters,'widthValue') AND IsNumeric(inputParameters.widthValue))
 				widthVal = "#inputParameters.widthValue#px";
 			
-			if (IsNumeric(inputParameters.heightValue))
+			if ( StructKeyExists(inputParameters,'heightValue') AND IsNumeric(inputParameters.heightValue))
 				heightVal = "#inputParameters.heightValue#px";
 			
 			// Prepend the current values with fieldID
@@ -108,7 +110,7 @@ History:
 				}
 			}
 		</cfscript>
-		<cfif inputParameters.customElement neq ''>
+		<cfif structKeyExists(inputParameters,"customElement") and (inputParameters.customElement neq '')>
 			<cfoutput>
 				#selectorObj.renderStyles(propertiesStruct=inputParameters)#
 				<span id="errorMsgSpan" class="cs_dlgError">#errorMsgCustom#</span>
