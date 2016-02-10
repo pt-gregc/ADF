@@ -33,7 +33,8 @@ ADF Requirements:
 History:
 	2015-04-17 - SU/SFS - Created
 	2015-05-07 - DJM - Converted to CFC
-	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
+	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean()
+	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
 --->
 <cfcomponent displayName="ObjectListBuilder Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -42,7 +43,7 @@ History:
 	<cfargument name="fieldDomID" type="string" required="yes">
 	<cfargument name="value" type="string" required="yes">
 	<cfscript>
-		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
+		var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
 		var currentValue = arguments.value;	// the field's current value
 		var readOnly = (arguments.displayMode EQ 'readonly') ? true : false;
 		var wraptag = 'div';
@@ -321,7 +322,7 @@ History:
 	<cfargument name="ajaxBeanName" type="string" required="yes">
 	
 	<cfscript>
-		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.fieldParamaters);
+		var inputParameters = application.ADF.data.duplicateStruct(arguments.fieldParamaters);
 		var colsList = arguments.columnList;
 		var ajaxComURL = application.ADF.ajaxProxy;
 	</cfscript>
@@ -413,7 +414,7 @@ History:
 	{
 		if(!events)
 			var events = 'onclick,ondblclick,onfocus,onmousedown,onmouseup,onmouseover,onmouseout,onchange,oncontextmenu,onkeypress';
-		var aEvents = events.split(',')
+		var aEvents = events.split(',');
 		for(var i = 0; i < aEvents.length; i++)
 			obj[aEvents[i]] = doNothingNow;
 	}
@@ -575,7 +576,7 @@ History:
 		}
 		</cfloop>
 		);			
-	}	
+	};
 
 	
 	function parseEditorContent()
@@ -643,7 +644,7 @@ History:
 	{
 		// executes when complete page is fully loaded, including all frames, objects and images
 		var winWidth = jQuery(window).width();
-		var winHeight = jQuery(top.window).height()
+		var winHeight = jQuery(top.window).height();
 		//debugger;
 		var parsedH = parseInt(winHeight);
 		var parsedW = parseInt(winWidth);
@@ -657,7 +658,7 @@ History:
 		jQuery('##containerDIV').css('overflowY','auto');
 		jQuery('##containerDIV').css('maxHeight',parseInt(parsedH-250));
 		jQuery('##cs_commondlg').css('overflow','hidden');
-	}
+	};
 
 
 	jQuery(window).resize(reSizeLocal);
@@ -671,7 +672,7 @@ History:
 	<cfargument name="fieldDomID" type="string" required="yes">
 	<cfargument name="value" type="string" required="yes">
 	<cfscript>
-		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
+		var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
 		
 		if ( NOT StructKeyExists(inputParameters, "fldID") OR LEN(inputParameters.fldID) LTE 0 )
 			inputParameters.fldID = arguments.fieldName;

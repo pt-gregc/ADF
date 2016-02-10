@@ -41,6 +41,7 @@ History:
 	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
 	2015-09-22 - JTP - Updated the jQuery syntax to get the current selected value
 	2015-10-13 - GAC - Updated the orderby parameter that is passed to the csData.getSiteTemplates
+	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
 --->
 <cfcomponent displayName="TemplateSelect Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -50,7 +51,7 @@ History:
 	<cfargument name="value" type="string" required="yes">
 
 	<cfscript>
-		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
+		var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
 		var currentValue = arguments.value;	// the field's current value
 		var readOnly = (arguments.displayMode EQ 'readonly') ? true : false;
 		var xparamsExceptionsList = "appBeanName,appPropsVarName";
@@ -97,7 +98,7 @@ History:
 	<cfargument name="fieldParameters" type="struct" required="yes">
 	
 	<cfscript>
-		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.fieldParameters);
+		var inputParameters = application.ADF.data.duplicateStruct(arguments.fieldParameters);
 		// Added for future use
 		// TODO: Add options in Props for a Bean and a Method that return a custom Subsite Struct
 		var templateStructBeanName = "csData_2_0";
@@ -167,7 +168,7 @@ jQuery(document).ready(function() {
 	<cfargument name="fieldDomID" type="string" required="yes">
 	<cfargument name="value" type="string" required="yes">
 	<cfscript>
-		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
+		var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
 		
 		if ( NOT StructKeyExists(inputParameters, "filterList") OR LEN(inputParameters.filterList) LTE 0 )
 			inputParameters.filterList = "";

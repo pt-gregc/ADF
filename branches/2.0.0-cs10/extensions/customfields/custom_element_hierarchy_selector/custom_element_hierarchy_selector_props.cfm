@@ -51,7 +51,7 @@ History:
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "2.0.3";
+	fieldVersion = "2.0.4";
 	
 	requiredVersion = 10;
 	productVersion = ListFirst(ListLast(request.cp.productversion," "),".");
@@ -164,47 +164,47 @@ History:
 	function #prefix#doValidate()
 	{
 		var isSelected = 0;
-		if ( document.#formname#.#prefix#customElement.selectedIndex == 0 )
+		if ( document.#formname#.#prefix#customElement.selectedIndex == 0; )
 		{
 			showMsg('Please select a custom element.');
 			document.#formname#.#prefix#customElement.focus();
 			return false;
-		}
-		if ( document.#formname#.#prefix#parentField.selectedIndex <= 0 )
+		};
+		if ( document.#formname#.#prefix#parentField.selectedIndex <= 0; )
 		{
 			showMsg('Please select a parent field for the custom element.');
 			document.#formname#.#prefix#parentField.focus();
 			return false;
-		}
-		if ( document.#formname#.#prefix#displayField.selectedIndex <= 0 )
+		};
+		if ( document.#formname#.#prefix#displayField.selectedIndex <= 0; )
 		{
 			showMsg('Please select a display field for the custom element.');
 			document.#formname#.#prefix#displayField.focus();
 			return false;
-		}
-		if ( document.#formname#.#prefix#valueField.selectedIndex <= 0 )
+		};
+		if ( document.#formname#.#prefix#valueField.selectedIndex <= 0; )
 		{
 			showMsg('Please select a value field for the custom element.');
 			document.#formname#.#prefix#valueField.focus();
 			return false;
-		}
+		};
 		if ( document.#formname#.#prefix#widthValue.value.length > 0 && !checkinteger(document.#formname#.#prefix#widthValue.value) ) 
 		{
 			showMsg('Please enter a valid integer as width value.');
-			setFocus(document.#formname#.#prefix#widthValue);
-			return false;
-		}
+    setFocus(document.#formname#.#prefix#widthValue)
+    return false;
+		};;
 		if ( document.#formname#.#prefix#heightValue.value.length > 0 && !checkinteger(document.#formname#.#prefix#heightValue.value) ) {
 			showMsg('Please enter a valid integer as height value.');
-			setFocus(document.#formname#.#prefix#heightValue);
-			return false;
-		}
+    setFocus(document.#formname#.#prefix#heightValue)
+    return false;
+		};;
 		
 		for (var i=0; i < document.#formname#.#prefix#selectionType.length;i=i+1)
 		{
 			if (document.#formname#.#prefix#selectionType[i].checked)
 				isSelected = 1;
-		}
+		};
 		
 		if( isSelected == 0 )
 		{
@@ -212,7 +212,7 @@ History:
 			return false;
 		}		
 		return true;
-	}
+	};;;;;
 	
 	// Function to Convert AjaxProxy data to CF Query data object
 	function #prefix#convertAjaxProxyObj2CFqueryObj(objData)
@@ -338,7 +338,7 @@ History:
 		}
 		#prefix#clearFilter();
 		checkFrameSize();
-	}
+	};
 	
 	function #prefix#clearFilter()
 	{
@@ -348,7 +348,7 @@ History:
 		var onClickAppend = onClickAttrVal.substr(1, onClickAttrVal.length - 16);
 		var onClickFunction = onClickAppend + "&hasFilter=0');";	
 		document.getElementById('#prefix#filterBtn').setAttribute("onclick", onClickFunction);
-	}
+	};
 	
 // -->
 </script>

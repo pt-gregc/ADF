@@ -41,6 +41,7 @@ History:
 	2015-08-16 - GAC - Moved the default value for the Font Awesome versions to the top of the component
 					 - Fixed issue with datafile read error message
 					 - Fixed clearInput to not show the string '(blank)' after clicking
+	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
 --->
 <cfcomponent displayName="FontAwesomeSelect_Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -55,7 +56,7 @@ History:
 	<cfargument name="value" type="string" required="yes">
 	
 	<cfscript>
-		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
+		var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
 		var currentValue = arguments.value;	// the field's current value
 		var readOnly = (arguments.displayMode EQ 'readonly') ? true : false;
 		var iconDataArr = ArrayNew(1);
@@ -192,7 +193,7 @@ History:
 	<cfargument name="fieldParameters" type="struct" required="yes">
 	
 	<cfscript>
-		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.fieldParameters);
+		var inputParameters = application.ADF.data.duplicateStruct(arguments.fieldParameters);
 	</cfscript>
 
 <cfoutput>
@@ -356,7 +357,7 @@ function clearInput_#arguments.fieldName#()
 	<cfscript>
 		var defaultFAversion = variables.defaultFAversion;
 		var defaultIconDataFile = variables.defaultIconDataFile;
-		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
+		var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
 		
 		// Set the defaults
 		if( NOT StructKeyExists(inputParameters,'ShowSize') )

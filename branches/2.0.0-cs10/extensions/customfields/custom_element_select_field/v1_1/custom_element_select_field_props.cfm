@@ -80,7 +80,7 @@ History:
 
 <!---// CommonSpot 9 Required for the new element data filter criteria --->
 <cfscript>
-	fieldVersion = "1.1.5"; // Variable for the version of the field - Display in Props UI
+	fieldVersion = "1.1.6"; // Variable for the version of the field - Display in Props UI
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
@@ -254,27 +254,27 @@ History:
 		{
 			document.#formname#.#prefix#renderSelectOption[0].disabled = true;
 			document.#formname#.#prefix#renderSelectOption[1].checked = true;
-		}
+		};;
 		else
 			document.#formname#.#prefix#renderSelectOption[0].disabled = false;
-	}
+	};;
 		
 	function #prefix#doValidate()
 	{
 		if ( document.#formname#.#prefix#widthValue.value.length > 0 && !checkinteger(document.#formname#.#prefix#widthValue.value) ) 
 		{
 			showMsg('Please enter a valid integer as width value.');
-			setFocus(document.#formname#.#prefix#widthValue);
-			return false;
-		}
+    setFocus(document.#formname#.#prefix#widthValue)
+    return false;
+		};;
 		if ( document.#formname#.#prefix#heightValue.value.length > 0 && !checkinteger(document.#formname#.#prefix#heightValue.value) )
 		{
 			showMsg('Please enter a valid integer as height value.');
-			setFocus(document.#formname#.#prefix#heightValue);
-			return false;
-		}
+    setFocus(document.#formname#.#prefix#heightValue)
+    return false;
+		};;
 		return true;
-	}
+	};;;;
 	
 	jQuery(document).ready(function()
 	{
@@ -447,7 +447,7 @@ History:
 					document.getElementById('#prefix#clearBtn').style.display = "none";
 					urlVal = urlVal.replace("hasFilter=1", "hasFilter=0");
 					return urlVal.replace(regex, "controlTypeID=" + results);
-				}
+				};
 				else
 					return urlVal;
 			});
@@ -471,7 +471,7 @@ History:
 	//Handle getting the tab data and populate the select boxes.
 	function #prefix#handleTabsFromFormIDPost(results)
 	{
-		var fields = new Object();
+		var fields = {};
 		if (typeof results === "string"){
 			results = jQuery.parseJSON(results);
 		}
@@ -516,7 +516,7 @@ History:
 		var onClickAttrVal = document.getElementById('#prefix#filterBtn').getAttribute("onclick");
 		onClickAttrVal = onClickAttrVal.replace("hasFilter=1", "hasFilter=0");	
 		document.getElementById('#prefix#filterBtn').setAttribute("onclick", onClickAttrVal);
-	}
+	};
 </script>
 
 <table cellpadding="2" cellspacing="2" summary="" border="0">

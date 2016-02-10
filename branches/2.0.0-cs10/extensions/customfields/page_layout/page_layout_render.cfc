@@ -36,7 +36,8 @@ History:
 								select is not checking the radio field.
 	2011-03-28 - MFC - Added check for if the photo URL is defined.
 	2015-05-11 - DJM - Converted to CFC
-	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
+	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean()
+	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
 --->
 <cfcomponent displayName="PageLayout Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -45,7 +46,7 @@ History:
 	<cfargument name="fieldDomID" type="string" required="yes">
 	<cfargument name="value" type="string" required="yes">
 	<cfscript>
-		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
+		var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
 		var currentValue = arguments.value;	// the field's current value	 
 		var layoutOptions = ArrayNew(1);
 		var newOption = structNew();
