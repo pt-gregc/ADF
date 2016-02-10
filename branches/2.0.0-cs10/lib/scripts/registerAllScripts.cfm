@@ -194,9 +194,13 @@
 	(
 		"ADFLightbox 1.0", "SECONDARY",
 		[
-			{LoadTagType=1, SourceURL="/ADF/extensions/lightbox/1.0/css/lightbox_overrides.css"},
+		    // TEMP FIX: workaround for the restriction on registering "/commonspot" resources
+		    // - loading "/commonspot" resources is handled via the loadADFLightbox()
+		    {LoadTagType=1, SourceURL="/ADF/extensions/lightbox/1.0/css/lightbox_overrides.css", canCombine=0, canMinify=0}
+		    
+			 /* {LoadTagType=1, SourceURL="/ADF/extensions/lightbox/1.0/css/lightbox_overrides.css"},
 			{LoadTagType=1, SourceURL="/commonspot/javascript/lightbox/lightbox.css"},
-			{LoadTagType=1, SourceURL="/commonspot/dashboard/css/buttons.css"}
+			{LoadTagType=1, SourceURL="/commonspot/dashboard/css/buttons.css"} */
 		],
 		[
 			{LoadTagType=2, SourceURL="/ADF/extensions/lightbox/1.0/js/framework.js"}
