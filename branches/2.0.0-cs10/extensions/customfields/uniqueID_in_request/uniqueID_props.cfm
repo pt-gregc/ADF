@@ -77,7 +77,7 @@ History:
 		// handling the copy label function. **bug - This is not actually getting called, keeping it in here until future update fixes**
 		function #prefix#doLabel(str){
 			document.#formname#.#prefix#label.value = str;
-		};
+		}
 
 		//Validation function, this specific instance checks to verify they entered a valid value.
 		/* function #prefix#doValidate(){

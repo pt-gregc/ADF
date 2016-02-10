@@ -481,8 +481,8 @@ function loadDataCore_#uniqueTableAppend#(displayOverlay)
 						var obj = { "sTitle": columnsArray[i], "mDataProp": i+1, "sWidth": null };
 					}
 					columns.push(obj);
-}
-        oTable#uniqueTableAppend# = jQuery("##customElementData_#uniqueTableAppend#").dataTable({
+				};
+				oTable#uniqueTableAppend# = jQuery("##customElementData_#uniqueTableAppend#").dataTable({
 					"bFilter": false,
 					"bPaginate": false,
 					"bLengthChange": false,

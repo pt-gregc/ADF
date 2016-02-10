@@ -576,7 +576,7 @@ History:
 		}
 		</cfloop>
 		);			
-	};
+	}	
 
 	
 	function parseEditorContent()
@@ -658,7 +658,7 @@ History:
 		jQuery('##containerDIV').css('overflowY','auto');
 		jQuery('##containerDIV').css('maxHeight',parseInt(parsedH-250));
 		jQuery('##cs_commondlg').css('overflow','hidden');
-	};
+	}
 
 
 	jQuery(window).resize(reSizeLocal);

@@ -160,7 +160,7 @@ var #toScript(arguments.dataResults, "#arguments.fieldName#_jsResultCEData")#
 
 jQuery( function () {
 	loadJSTreeData_#arguments.fieldName#();
-});;
+});
 
 function loadJSTreeData_#arguments.fieldName#()
 {					

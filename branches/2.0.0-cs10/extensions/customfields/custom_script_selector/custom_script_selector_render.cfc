@@ -72,7 +72,7 @@ function #arguments.fieldName#_validateScript(){
 		bean: "utils_1_0",
 		method: "scriptExists",
 		templatePath: templatePath
-	};
+	}
 	var rtn = true;
 	jQuery.ajax({
 		url:"#application.ADF.ajaxProxy#?"+jQuery.param(params),

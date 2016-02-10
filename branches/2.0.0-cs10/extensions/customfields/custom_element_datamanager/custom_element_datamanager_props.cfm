@@ -307,7 +307,7 @@ History:
 				spanObj = document.getElementById('deleteOptionTextSpan');
 				inputText = 'Delete ' + document.#formname#.#prefix#childCustomElementSelect.options[document.#formname#.#prefix#childCustomElementSelect.selectedIndex].text;
 				break;		
-		};;;;;;;;;;;;;;;;;;;;
+		}
 		if (chkBoxObj.checked == true)
 		{
 			fldObj.value = inputText;
@@ -326,7 +326,7 @@ History:
 		var selectedJoin = '';
 		var selectedSecondary = '';
 		var selectedType = '';
-		if ( document.#formname#.#prefix#childCustomElementSelect.selectedIndex == 0; )
+		if ( document.#formname#.#prefix#childCustomElementSelect.selectedIndex == 0 )
 		{
 			showMsg('Please select a custom element.');
 			return false;
@@ -334,9 +334,9 @@ History:
 		else
 		{
 			selectedJoin = document.#formname#.#prefix#childCustomElementSelect.options[document.#formname#.#prefix#childCustomElementSelect.selectedIndex].value;
-		};;;
+		}
 	<cfif dlgtype NEQ 'metadata'>
-		if ( document.#formname#.#prefix#parentUniqueField.selectedIndex <= 0; )
+		if ( document.#formname#.#prefix#parentUniqueField.selectedIndex <= 0 )
 		{
 			showMsg('Please select a unique field for the parent custom element.');
 			return false;
@@ -352,7 +352,7 @@ History:
 			else
 			{
 				document.#formname#.#prefix#childUniqueField.value = document.#formname#.#prefix#secondaryUniqueField.options[document.#formname#.#prefix#secondaryUniqueField.selectedIndex].value;
-			};;;;
+			}
 			selectedSecondary = document.#formname#.#prefix#assocCustomElementSelect.options[document.#formname#.#prefix#assocCustomElementSelect.selectedIndex].value;
 			var selectedSecondaryArray = selectedSecondary.split('||');
 			if (selectedSecondaryArray.length == 2)
@@ -364,7 +364,7 @@ History:
 			{
 				selectedSecondary = selectedSecondaryArray[0];
 			}
-		};;;;
+		}
 		else if (document.#formname#.#prefix#assocCustomElementSelect.selectedIndex <= 0)
 		{
 			if (document.#formname#.#prefix#joinUniqueField.selectedIndex <= 0)
@@ -375,32 +375,32 @@ History:
 			else
 			{
 				document.#formname#.#prefix#childUniqueField.value = document.#formname#.#prefix#joinUniqueField.options[document.#formname#.#prefix#joinUniqueField.selectedIndex].value;
-			};;;;
-		};
-		if ( document.#formname#.#prefix#displayFields.value.length == 0; )
+			}
+		}
+		if ( document.#formname#.#prefix#displayFields.value.length == 0 )
 		{
 			showMsg('Please select a display field.');
 			return false;
 		}
 		if ( document.#formname#.#prefix#widthValue.value.length > 0 && !checkinteger(document.#formname#.#prefix#widthValue.value) ) {
 			showMsg('Please enter a valid integer width value for the data table.');
-			setFocus(document.#formname#.#prefix#widthValue)
+			setFocus(document.#formname#.#prefix#widthValue);
 			return false;
-		};;
+		}
 		if ( checkinteger(document.#formname#.#prefix#widthValue.value) && document.#formname#.#prefix#widthValue.value > 100) {
 			selectedWidthUnitVal = document.#formname#.#prefix#widthUnit.options[document.#formname#.#prefix#widthUnit.selectedIndex].value;
 			if (selectedWidthUnitVal == 'percent')
 			{
 				showMsg('Please enter a valid integer as width percent value.');
-				setFocus(document.#formname#.#prefix#widthValue)
+				setFocus(document.#formname#.#prefix#widthValue);
 				return false;
-			};;
-		};;;
+			}
+		}
 		if ( document.#formname#.#prefix#heightValue.value.length > 0 && !checkinteger(document.#formname#.#prefix#heightValue.value) ) {
 			showMsg('Please enter a valid integer height value for the data table.');
-			setFocus(document.#formname#.#prefix#heightValue)
+			setFocus(document.#formname#.#prefix#heightValue);
 			return false;
-		};;
+		}
 		if ( document.#formname#.#prefix#sortByType[0].checked == true && document.#formname#.#prefix#sortByField.selectedIndex <= 0)
 		{
 			showMsg('Please select a field to sort on.');
@@ -416,9 +416,9 @@ History:
 			showMsg('Position field cannot be same as child custom element unique field.');
 			return false;
 		}
-		if ( document.#formname#.#prefix#assocCustomElementSelect.selectedIndex <= 0; )
+		if ( document.#formname#.#prefix#assocCustomElementSelect.selectedIndex <= 0 )
 		{
-			if ( document.#formname#.#prefix#childLinkedField.selectedIndex <= 0; )
+			if ( document.#formname#.#prefix#childLinkedField.selectedIndex <= 0 )
 			{
 				showMsg('Please select a unique field for the child custom element linked field.');
 				return false;
@@ -429,15 +429,15 @@ History:
 				showMsg('Position field cannot be same as child custom element linked field.');
 				return false;
 			}
-		};;;;;
+		}
 		else
 		{
-			if ( document.#formname#.#prefix#parentInstanceIDField.selectedIndex <= 0; )
+			if ( document.#formname#.#prefix#parentInstanceIDField.selectedIndex <= 0 )
 			{
 				showMsg('Please select a parent instanceID field.');
 				return false;
 			}
-			if ( document.#formname#.#prefix#childInstanceIDField.selectedIndex <= 0; )
+			if ( document.#formname#.#prefix#childInstanceIDField.selectedIndex <= 0 )
 			{
 				showMsg('Please select a child instanceID field.');
 				return false;
@@ -460,21 +460,21 @@ History:
 					switch (valueToAdd)
 					{
 						case 'new':
-							fldValue = trim(document.#formname#.#prefix#newOptionText.value)
+							fldValue = trim(document.#formname#.#prefix#newOptionText.value);
 							break;
 						case 'existing':
-							fldValue = trim(document.#formname#.#prefix#existingOptionText.value)
+							fldValue = trim(document.#formname#.#prefix#existingOptionText.value);
 							break;
 						case 'editAssoc':
-							fldValue = trim(document.#formname#.#prefix#editAssocOptionText.value)
+							fldValue = trim(document.#formname#.#prefix#editAssocOptionText.value);
 							break;
 						case 'editChild':
-							fldValue = trim(document.#formname#.#prefix#editChildOptionText.value)
+							fldValue = trim(document.#formname#.#prefix#editChildOptionText.value);
 							break;
 						case 'delete':
-							fldValue = trim(document.#formname#.#prefix#deleteOptionText.value)
+							fldValue = trim(document.#formname#.#prefix#deleteOptionText.value);
 							break;		
-					};;;;;;;;;;
+					}
 					if (valueToAdd != 'disableDatamanager' && fldValue == '')
 					{
 						showMsg('Please enter a button/hover text for all the checked interface options.');
@@ -487,46 +487,46 @@ History:
 							valueToAdd = 'new';
 							document.#formname#.#prefix#newOptionText.value = document.#formname#.#prefix#existingOptionText.value;
 							document.#formname#.#prefix#existingOptionText.value = "";
-						};;;
+						}
 						else if (valueToAdd == 'editAssoc')
 						{
 							valueToAdd = 'editChild';
 							document.#formname#.#prefix#editChildOptionText.value = document.#formname#.#prefix#editAssocOptionText.value;
 							document.#formname#.#prefix#editAssocOptionText.value = "";
-						};;;
+						}
 					}
 					if(interfaceOptionsList.length > 0)
 						interfaceOptionsList = interfaceOptionsList + ',' + valueToAdd;
 					else
 						interfaceOptionsList = valueToAdd;
-				};;
+				}
 			}
-		};
+		}
 		
 		if (document.#formname#.#prefix#assocCustomElementSelect.selectedIndex <= 0)
 		{
 			document.#formname#.#prefix#existingOptionText.value = "";
 			document.#formname#.#prefix#editAssocOptionText.value = "";
-		};;
+		}
 		
 		document.#formname#.#prefix#interfaceOptions.value = interfaceOptionsList;
 		
-		var compOverrideValue = trim(document.#formname#.#prefix#compOverride.value)
+		var compOverrideValue = trim(document.#formname#.#prefix#compOverride.value);
 		document.#formname#.#prefix#compOverride.value = compOverrideValue;
 		
 		if (document.#formname#.#prefix#assocCustomElementSelect.selectedIndex > 0)
 		{
 			document.#formname#.#prefix#childCustomElement.value = selectedSecondary;
 			document.#formname#.#prefix#assocCustomElement.value = selectedJoin;
-		};;
+		}
 		else
 		{
 			document.#formname#.#prefix#childCustomElement.value = selectedJoin;
 			document.#formname#.#prefix#assocCustomElement.value = selectedSecondary;
-		};;
+		}
 		
 		return true;
-	};;;;;;;;;;;;;;;;;;;;;;;;;
+	}
 	
 	function #prefix#selectRadio(optionSel)
 	{
@@ -535,14 +535,14 @@ History:
 			document.#formname#.#prefix#sortByType[0].checked = true;
 			document.getElementById('positionFieldSpan').style.display = "none";
 			document.#formname#.#prefix#positionField.selectedIndex = 0;
-		};;
+		}
 		else
 		{
 			document.#formname#.#prefix#sortByType[1].checked = true;
 			document.getElementById('positionFieldSpan').style.display = "";
 			document.#formname#.#prefix#sortByField.selectedIndex = 0;
 			document.#formname#.#prefix#sortByDir.selectedIndex = 0;
-		};;;
+		}
 	}
 	
 	function #prefix#showInactiveValueFld()
@@ -557,8 +557,8 @@ History:
 		{
 			document.getElementById('inactiveValueSpan').style.display = "none";
 			document.#formname#.#prefix#inactiveFieldValue.value = "";
-		};
-	};
+		}
+	}
 	
 	// Function to Convert AjaxProxy data to CF Query data object
 	function #prefix#convertAjaxProxyObj2CFqueryObj(objData)
@@ -641,7 +641,7 @@ History:
 					currentVal = listItemValue;
 			});
 			document.#formname#.#prefix#displayFields.value = currentVal;
-		});;
+		});
 			
 		jQuery( "###prefix#allFields, ###prefix#displayFieldsSelected" ).on( "sortstop", function( e, ui ) {
 			var currentVal = "";
@@ -653,7 +653,7 @@ History:
 					currentVal = listItemValue;
 			});
 			document.#formname#.#prefix#displayFields.value = currentVal;
-		});;
+		});
 	});
 	
 	onLoadFunction = function(){
@@ -769,7 +769,7 @@ History:
 						jQuery("###prefix#displayFieldsSelected").children().end().append(selectedDisplayFieldsFromChild);
 						jQuery("###prefix#childLinkedField").val(#currentValues.childLinkedField#);
 						jQuery("###prefix#joinUniqueField").val(#currentValues.childUniqueField#);
-
+						return;
 					}
 					else
 					{
@@ -860,7 +860,7 @@ History:
 <CFIF currentValues.deleteOptionText EQ ''>
 	document.getElementById('#prefix#deleteOptionText').value = 'Delete ' + jQuery("option:selected",jQuery("###prefix#childCustomElementSelect")).text();
 </CFIF>
-	};;;;
+	}
 	
 	assocOptionFunction = function(){
 		var selectedAssocWithType = jQuery("option:selected",jQuery("###prefix#assocCustomElementSelect")).val();
@@ -927,7 +927,7 @@ History:
 							}
 							currentVal = currentValArray.join();
 							document.#formname#.#prefix#displayFields.value = currentVal;
-						};;
+						}
 					});
 					
 					jQuery("###prefix#sortByField > option").each(function(i, item){
@@ -937,7 +937,7 @@ History:
 							jQuery(item).remove();
 							if (sortByFieldSelectedValue != "" && listItemValue == sortByFieldSelectedValue)
 								document.#formname#.#prefix#sortByField.selectedIndex = 0;
-						};
+						}
 					});
 				}
 				else
@@ -962,9 +962,9 @@ History:
 			
 			document.#formname#.#prefix#displayFields.value = "";
 			updateFieldsOnAssocCEChange(selectedAssoc,selectedType,selectedChild);
-		};
+		}
 		window.setTimeout("checkFrameSize(1)",100);
-	};;;;;;;;
+	}
 	
 	updateFieldsOnAssocCEChange = function(selectedAssoc,selectedType,selectedChild){
 		if (selectedType.toLowerCase() == 'metadataform')
@@ -983,7 +983,7 @@ History:
 				document.getElementById('twoJoinInputs').style.display = "";
 			document.getElementById('threeJoinInputs').style.display = "none";
 			document.getElementById('secondaryElementInputs').style.display = "none";
-
+			return;
 		}
 		else
 		{
@@ -995,7 +995,7 @@ History:
 					document.getElementById('newOptionTextSpan').style.display = "";
 				if(document.#formname#.#prefix#interfaceOptionsCbox[3].checked == true)
 					document.getElementById('editChildOptionTextSpan').style.display = "";	
-			};;
+			}
 			else
 			{
 				document.getElementById('newOption').style.display = "none";
@@ -1050,7 +1050,7 @@ History:
 				document.getElementById('errorMsgSpan').innerHTML = '#errorMsgCustom#';
 			});
 		}
-	};
+	}
 	
 	childOptionFunction = function(){		
 		var selectedAssocWithType = jQuery("option:selected",jQuery("###prefix#assocCustomElementSelect")).val();
@@ -1128,7 +1128,7 @@ History:
 							}
 							currentVal = currentValArray.join();
 							document.#formname#.#prefix#displayFields.value = currentVal;
-						};;
+						}
 					});					
 					
 					jQuery("###prefix#sortByField > option").each(function(i, item){
@@ -1138,7 +1138,7 @@ History:
 							jQuery(item).remove();
 							if (sortByFieldSelectedValue != "" && listItemValue == sortByFieldSelectedValue)
 								document.#formname#.#prefix#sortByField.selectedIndex = 0;
-						};
+						}
 					});
 				}
 				else
@@ -1152,7 +1152,7 @@ History:
 			.then(function() {
 				updateFieldsOnChildCEChange(selectedChild,selectedAssoc,selectedType);
 			});
-		};;
+		}
 		else
 		{
 			jQuery("###prefix#allFields").children().remove().end();
@@ -1163,9 +1163,9 @@ History:
 			document.#formname#.#prefix#childLinkedField.selectedIndex = 0;
 			document.#formname#.#prefix#displayFields.value = "";
 			updateFieldsOnChildCEChange(selectedChild,selectedAssoc,selectedType);
-		};;
+		}
 		checkFrameSize(1);
-	};;;;;;;;;;;;
+	}
 	
 	updateFieldsOnChildCEChange = function(selectedChild,selectedAssoc,selectedType){
 		if (selectedChild == "")
@@ -1178,8 +1178,8 @@ History:
 			document.getElementById('twoJoinInputs').style.display = "none";
 			document.#formname#.#prefix#assocCustomElementSelect.selectedIndex = 0;
 			assocOptionFunction();
-
-		};
+			return;
+		}
 		else
 		{
 			var selectedChildText = jQuery("option:selected",jQuery("###prefix#childCustomElementSelect")).text();
@@ -1294,8 +1294,8 @@ History:
 			});
 		
 			#prefix#showInactiveValueFld();
-		};;
-	};
+		}
+	}
 	
 	displayDeleteBtnText = function(){
 		var selectedAssocWithType = jQuery("option:selected",jQuery("###prefix#assocCustomElementSelect")).val();
@@ -1322,8 +1322,8 @@ History:
 		{
 			document.getElementById("deleteOpt").innerHTML = "Allow Delete of '" + jQuery("option:selected",jQuery("###prefix#childCustomElementSelect")).text() + "'";
 			document.#formname#.#prefix#interfaceOptionsCbox[4].checked = true;
-		};
-	};
+		}
+	}
 // -->
 </script>
 </cfoutput>

@@ -97,17 +97,17 @@ History:
 			if ( !checkinteger(document.#formname#.#prefix#columns.value) )
 			{
 				showMsg('Please enter a valid number of columns for this field.');
-    setFocus(document.#formname#.#prefix#columns)
-    return false;
-			};;
+				setFocus(document.#formname#.#prefix#columns);
+				return false;
+			}
 			if ( !checkinteger(document.#formname#.#prefix#rows.value) )
 			{
 				showMsg('Please enter a valid number of rows for this field.');
-    setFocus(document.#formname#.#prefix#rows)
-    return false;
-			};;
+				setFocus(document.#formname#.#prefix#rows);
+				return false;
+			}
 			return true;
-		};;
+		}
 	</script>
 	<table>
 		<tr>

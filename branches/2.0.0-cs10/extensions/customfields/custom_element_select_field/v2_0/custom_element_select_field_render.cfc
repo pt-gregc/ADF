@@ -211,7 +211,7 @@ function #arguments.fieldName#_loadSelection()
 	});
 	// put the selected value into the
 	jQuery("input[name=#arguments.fieldName#]").val(selectedVal);
-};
+}
 
 // Function to set the field as disabled
 function #inputParameters.fldName#_disableFld()
