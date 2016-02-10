@@ -136,7 +136,7 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 		else
 		{
 			// if the themeName is NOT registered resource... then attempt to build a path and load it.
-			defaultResourceList = resourceAPI.getList(searchString=arguments.defaultResourceName, searchOperator='equals');
+			defaultResourceList = resourceAPI.getList(name=arguments.defaultResourceName);
 
 			if (defaultResourceList.RecordCount == 1 && arrayLen(defaultResourceList.earlyLoadSourceArray[1]) == 1)
 			{
@@ -215,10 +215,7 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 	public void function loadADFLightbox(string version="", boolean force=0)
 	{
 		var js = "";
-		var csLightboxCSS = "/commonspot/javascript/lightbox/lightbox.css";
-		var csButtonsCSS = "/commonspot/dashboard/css/buttons.css";
-
-	 	loadResources("jQuery,ADFLightbox");
+	 	loadResources("jQuery,ADFLightbox,CSLightbox");
 
 		if (structKeyExists(request,"ADFLightboxLoaded"))
 			return; // TODO: throw("Why are you loadinging again!");
@@ -240,10 +237,6 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 		// Set a default Subtitle
 		if ( NOT StructKeyExists(request.params, "subtitle") )
 			request.params.subtitle = "";
-
-        // TEMP FIX: workaround for the restriction on registering "/commonspot" resources
-        loadUnregisteredResource(csLightboxCSS, "Stylesheet", "head", "secondary", 0, 0);
-        loadUnregisteredResource(csButtonsCSS, "Stylesheet", "head", "secondary", 0, 0);
 
 		// Build the ADFlightbox INIT JS block
 		saveContent variable="js"
