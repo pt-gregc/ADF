@@ -110,22 +110,22 @@
 
 	registerResource
 	(
-		"JQuery 1.12", "PRIMARY",
+		"jQuery 1.12", "PRIMARY",
 		[
 			{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/jquery-1.11.js", canMinify=0}
 		],
 		[],
-		"JQuery resources.", "Included in ADF 2.0 and later.", "JQuery"
+		"jQuery resources.", "Included in ADF 2.0 and later.", "jQuery"
 	);
 
 	registerResource
 	(
-		"JQueryMigrate 1.2", "PRIMARY",
+		"jQueryMigrate 1.2", "PRIMARY",
 		[
 			{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/migrate/jquery-migrate-1.2.js", canMinify=0}
 		],
 		[],
-		"JQueryMigrate resources.", "Included in ADF 2.0 and later.", "JQueryMigrate"
+		"jQueryMigrate resources.", "Included in ADF 2.0 and later.", "jQueryMigrate"
 	);
 
 
@@ -133,34 +133,34 @@
 
 	registerResource
 	(
-		"JQueryUI 1.11", "PRIMARY",
+		"jQueryUI 1.11", "PRIMARY",
 		[],
 		[
 			{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/ui/jquery-ui-1.11/js/jquery-ui-1.11.js", canMinify=0}
 		],
-		"JQueryUI resources.", "Included in ADF 2.0 and later.", "JQueryUI"
+		"jQueryUI resources.", "Included in ADF 2.0 and later.", "jQueryUI"
 	);
 
 	registerResource
 	(
-		"JQueryUIDefaultTheme 1.11", "PRIMARY",
+		"jQueryUIDefaultTheme 1.11", "PRIMARY",
 		[
 			{LoadTagType=1, SourceURL="/ADF/thirdParty/jquery/ui/jquery-ui-1.11/css/ui-lightness/jquery-ui.css", canCombine=0, canMinify=0}
 		],
 		[],
-		"JQueryUIDefaultTheme resources.", "Included in ADF 2.0 and later.", "JQueryUIDefaultTheme,JQueryUIstyles"
+		"jQueryUIDefaultTheme resources.", "Included in ADF 2.0 and later.", "jQueryUIDefaultTheme,jQueryUIstyles"
 	);
 
 	registerResource
 	(
-		"JQueryMobile 1.4", "PRIMARY",
+		"jQueryMobile 1.4", "PRIMARY",
 		[
 			{LoadTagType=1, SourceURL="/ADF/thirdParty/jquery/mobile/1.4/jquery.mobile-1.4.min.css"}
 		],
 		[
 			{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/mobile/1.4/jquery.mobile-1.4.min.js"}
 		],
-		"JQueryMobile resources.", "Included in ADF 2.0 and later.", "JQueryMobile"
+		"jQueryMobile resources.", "Included in ADF 2.0 and later.", "jQueryMobile"
 	);
 
 	registerResource
@@ -330,12 +330,12 @@
 		// NOTE: version is actually as registered, but that's not in the file name, renaming it would break any direct callers
 		registerResource
 		(
-			"JQueryCookie 1.2", "SECONDARY",
+			"jQueryCookie 1.2", "SECONDARY",
 			[],
 			[
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/cookie/jquery.cookie.js"}
 			],
-			"JQueryCookie resources.", "Included in ADF 2.0 and later.", "JQueryCookie"
+			"jQueryCookie resources.", "Included in ADF 2.0 and later.", "jQueryCookie"
 		);
 
 		// TODO: no version number anywhere I found
@@ -370,182 +370,182 @@
 
 		registerResource
 		(
-			"JQueryTimers 1.1", "SECONDARY",
+			"jQueryTimers 1.1", "SECONDARY",
 			[],
 			[
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/galleryview/jquery-galleryview-1.1/jquery.timers-1.1.2.js"}
 			],
-			"JQueryTimers resources.", "Included in ADF 2.0 and later.", "JQueryTimers"
+			"jQueryTimers resources.", "Included in ADF 2.0 and later.", "jQueryTimers"
 		);
 
 		registerResource
 		(
-			"JQueryEasing 1.3", "SECONDARY",
+			"jQueryEasing 1.3", "SECONDARY",
 			[],
 			[
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/easing/jquery.easing.1.3.js"}
 			],
-			"GalleryView resources.", "Included in ADF 2.0 and later.", "JQueryEasing"
+			"GalleryView resources.", "Included in ADF 2.0 and later.", "jQueryEasing"
 		);
 
 		// TODO: no version number I found
 		registerResource
 		(
-			"JCarousel", "SECONDARY",
+			"jCarousel", "SECONDARY",
 			[
 				{LoadTagType=1, SourceURL="/ADF/thirdParty/jquery/jcarousel/jquery.jcarousel.css"}
 			],
 			[
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/jcarousel/jquery.jcarousel.pack.js"}
 			],
-			"JCarousel resources.", "Included in ADF 2.0 and later.", ""
+			"jCarousel resources.", "Included in ADF 2.0 and later.", ""
 		);
 
 		// TODO: no version number I found
 		registerResource
 		(
-			"JCarouselDefaultSkin", "SECONDARY",
+			"jCarouselDefaultSkin", "SECONDARY",
 			[
 				{LoadTagType=1, SourceURL="/ADF/thirdParty/jquery/jcarousel/skins/tango/skin.css"}
 			],
 			[],
-			"JCarouselDefaultSkin resources.", "Included in ADF 2.0 and later.", ""
+			"jCarouselDefaultSkin resources.", "Included in ADF 2.0 and later.", ""
 		);
 
 		// NOTE: version is actually as registered, but that's not in the file name, renaming it would break any direct callers
 		registerResource
 		(
-			"JCrop 0.9", "SECONDARY",
+			"jCrop 0.9", "SECONDARY",
 			[
 				{LoadTagType=1, SourceURL="/ADF/thirdParty/jquery/jcrop/css/jquery.Jcrop.css"}
 			],
 			[
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/jcrop/js/jquery.Jcrop.min.js"}
 			],
-			"JCrop resources.", "Included in ADF 2.0 and later.", "JCrop"
+			"jCrop resources.", "Included in ADF 2.0 and later.", "jCrop"
 		);
 
 		registerResource
 		(
-			"JCycle 2.9", "SECONDARY",
+			"jCycle 2.9", "SECONDARY",
 			[],
 			[
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/jcycle/jquery.cycle.all-2.9.js"}
 			],
-			"JCycle resources.", "Included in ADF 2.0 and later.", "JCycle"
+			"jCycle resources.", "Included in ADF 2.0 and later.", "jCycle"
 		);
 
 		registerResource
 		(
-			"JCycle2 20130909", "SECONDARY",
+			"jCycle2 20130909", "SECONDARY",
 			[],
 			[
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/jcycle2/20130909/jquery.cycle2.min.js"}
 			],
-			"JCycle2 resources.", "Included in ADF 2.0 and later.", "JCycle2"
+			"jCycle2 resources.", "Included in ADF 2.0 and later.", "jCycle2"
 		);
 
 		// NOTE: version is actually as registered, but that's not in the file name, renaming it would break any direct callers
 		registerResource
 		(
-			"JQueryAutocomplete 5.0", "SECONDARY",
+			"jQueryAutocomplete 5.0", "SECONDARY",
 			[
 				{LoadTagType=1, SourceURL="/ADF/thirdParty/jquery/auto-complete/jquery.auto-complete.css"}
 			],
 			[
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/auto-complete/jquery.auto-complete.min.js"}
 			],
-			"JQueryAutocomplete resources.", "Included in ADF 2.0 and later.", "JQueryAutocomplete"
+			"jQueryAutocomplete resources.", "Included in ADF 2.0 and later.", "jQueryAutocomplete"
 		);
 
 		// NOTE: version is actually as registered, but that's not in the file name, renaming it would break any direct callers
 		registerResource
 		(
-			"JQueryMetadata 5.0", "SECONDARY",
+			"jQueryMetadata 5.0", "SECONDARY",
 			[],
 			[
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/auto-complete/jquery.metadata.js"},
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/auto-complete/jquery.auto-complete.min.js"}
 			],
-			"JQueryAutocomplete resources.", "Included in ADF 2.0 and later.", "JQueryMetadata"
+			"jQueryAutocomplete resources.", "Included in ADF 2.0 and later.", "jQueryMetadata"
 		);
 
 		registerResource
 		(
-			"JQueryBBQ 1.3", "SECONDARY",
+			"jQueryBBQ 1.3", "SECONDARY",
 			[],
 			[
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/bbq/1.3/jquery.ba-bbq.min.js"}
 			],
-			"JQueryBBQ resources.", "Included in ADF 2.0 and later.", "JQueryBBQ"
+			"jQueryBBQ resources.", "Included in ADF 2.0 and later.", "jQueryBBQ"
 		);
 
 		registerResource
 		(
-			"JQueryBlockUI 2.7", "SECONDARY",
+			"jQueryBlockUI 2.7", "SECONDARY",
 			[],
 			[
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/blockUI/2.7/jquery.blockUI.min.js"}
 			],
-			"JQueryBlockUI resources.", "Included in ADF 2.0 and later.", "JQueryBlockUI"
+			"jQueryBlockUI resources.", "Included in ADF 2.0 and later.", "jQueryBlockUI"
 		);
 
 		registerResource
 		(
-			"JQueryCalculation 0.4", "SECONDARY",
+			"jQueryCalculation 0.4", "SECONDARY",
 			[],
 			[
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/calculation/0.4/jquery.calculation.min.js"}
 			],
-			"JQueryCalculation resources.", "Included in ADF 2.0 and later.", "JQueryCalculation"
+			"jQueryCalculation resources.", "Included in ADF 2.0 and later.", "jQueryCalculation"
 		);
 
 		registerResource
 		(
-			"JQueryCalcX 1.1", "SECONDARY",
+			"jQueryCalcX 1.1", "SECONDARY",
 			[],
 			[
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/calcx/1.1/jquery.calx.min.js"}
 			],
-			"JQueryCalcX resources.", "Included in ADF 2.0 and later.", "JQueryCalcX"
+			"jQueryCalcX resources.", "Included in ADF 2.0 and later.", "jQueryCalcX"
 		);
 
 		// NOTE: version is actually as registered, but that's not in the file name, renaming it would break any direct callers
 		registerResource
 		(
-			"JQueryCapty 0.2", "SECONDARY",
+			"jQueryCapty 0.2", "SECONDARY",
 			[
 				{LoadTagType=1, SourceURL="/ADF/thirdParty/jquery/capty/css/jquery.capty.css"}
 			],
 			[
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/capty/js/jquery.capty.min.js"}
 			],
-			"JQueryCapty resources.", "Included in ADF 2.0 and later.", "JQueryCapty"
+			"jQueryCapty resources.", "Included in ADF 2.0 and later.", "jQueryCapty"
 		);
 
 		registerResource
 		(
-			"JQueryCheckboxes 2.1", "SECONDARY",
+			"jQueryCheckboxes 2.1", "SECONDARY",
 			[],
 			[
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/checkboxes/jquery.checkboxes-2.1.min.js"}
 			],
-			"JQueryCheckboxes resources.", "Included in ADF 2.0 and later.", "JQueryCheckboxes"
+			"jQueryCheckboxes resources.", "Included in ADF 2.0 and later.", "jQueryCheckboxes"
 		);
 
 		registerResource
 		(
-			"JQueryDataTables 1.9", "SECONDARY",
+			"jQueryDataTables 1.9", "SECONDARY",
 			[],
 			[
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/datatables/1.9/js/jquery.dataTables.min.js"}
 			],
-			"JQueryDataTables resources.", "Included in ADF 2.0 and later.", "JQueryDataTables"
+			"jQueryDataTables resources.", "Included in ADF 2.0 and later.", "jQueryDataTables"
 		);
 
 		registerResource
 		(
-			"JQueryDataTablesStyles 1.9", "SECONDARY",
+			"jQueryDataTablesStyles 1.9", "SECONDARY",
 			[
 				{LoadTagType=1, SourceURL="/ADF/thirdParty/jquery/datatables/1.9/css/demo_page.css"},
 				{LoadTagType=1, SourceURL="/ADF/thirdParty/jquery/datatables/1.9/css/demo_table_jui.css"},
@@ -554,70 +554,70 @@
 				{LoadTagType=1, SourceURL="/ADF/thirdParty/jquery/datatables/1.9/css/jquery.dataTables_themeroller.css"}
 			],
 			[],
-			"JQueryDataTables resources.", "Included in ADF 2.0 and later.", "JQueryDataTablesStyles"
+			"jQueryDataTables resources.", "Included in ADF 2.0 and later.", "jQueryDataTablesStyles"
 		);
 
 		// NOTE: version is actually as registered, but that's not in the file name, renaming it would break any direct callers
 		registerResource
 		(
-			"JQueryDatePick 4.0", "SECONDARY",
+			"jQueryDatePick 4.0", "SECONDARY",
 			[
 				{LoadTagType=1, SourceURL="/ADF/thirdParty/jquery/datepick/jquery.datepick.css"}
 			],
 			[
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/datepick/jquery.datepick.js"}
 			],
-			"JQueryDatePick resources.", "Included in ADF 2.0 and later.", "JQueryDatePick"
+			"jQueryDatePick resources.", "Included in ADF 2.0 and later.", "jQueryDatePick"
 		);
 
 		// NOTE: version is actually as registered, but that's not in the file name, renaming it would break any direct callers
 		registerResource
 		(
-			"JQueryDoTimeout 1.0", "SECONDARY",
+			"jQueryDoTimeout 1.0", "SECONDARY",
 			[],
 			[
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/dotimeout/jquery.dotimeout.plugin.js", canMinify=0}
 			],
-			"JQueryDoTimeout resources.", "Included in ADF 2.0 and later.", "JQueryDoTimeout"
+			"jQueryDoTimeout resources.", "Included in ADF 2.0 and later.", "jQueryDoTimeout"
 		);
 
 		// NOTE: no version number
 		registerResource
 		(
-			"JQueryDump", "SECONDARY",
+			"jQueryDump", "SECONDARY",
 			[],
 			[
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/dump/jquery.dump.js"}
 			],
-			"JQueryDump resources.", "Included in ADF 2.0 and later.", ""
+			"jQueryDump resources.", "Included in ADF 2.0 and later.", ""
 		);
 
 		registerResource
 		(
-			"JQueryFancyBox 1.3", "SECONDARY",
+			"jQueryFancyBox 1.3", "SECONDARY",
 			[
 				{LoadTagType=1, SourceURL="/ADF/thirdParty/jquery/fancybox/jquery.fancybox-1.3.4.css"}
 			],
 			[
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/fancybox/jquery.fancybox-1.3.4.pack.js"}
 			],
-			"JQueryFancyBox resources.", "Included in ADF 2.0 and later.", "JQueryFancyBox"
+			"jQueryFancyBox resources.", "Included in ADF 2.0 and later.", "jQueryFancyBox"
 		);
 
 		registerResource
 		(
-			"JQueryField 0.9", "SECONDARY",
+			"jQueryField 0.9", "SECONDARY",
 			[],
 			[
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/field/jquery.field-0.9.8.min.js"}
 			],
-			"JQueryField resources.", "Included in ADF 2.0 and later.", "JQueryField"
+			"jQueryField resources.", "Included in ADF 2.0 and later.", "jQueryField"
 		);
 
 		// NOTE: version is actually as registered, but that's not in the file name, renaming it would break any direct callers
 		registerResource
 		(
-			"JQueryFileUpload 5.0", "SECONDARY",
+			"jQueryFileUpload 5.0", "SECONDARY",
 			[
 				{LoadTagType=1, SourceURL="/ADF/thirdParty/jquery/fileupload/jquery.fileupload-ui.css"}
 			],
@@ -626,86 +626,86 @@
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/fileupload/jquery.fileupload.js"},
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/fileupload/jquery.fileupload-ui.js"}
 			],
-			"JQueryFileUpload resources.", "Included in ADF 2.0 and later.", "JQueryFileUpload"
+			"jQueryFileUpload resources.", "Included in ADF 2.0 and later.", "jQueryFileUpload"
 		);
 
 		registerResource
 		(
-			"JQueryHighlight 3.0", "SECONDARY",
+			"jQueryHighlight 3.0", "SECONDARY",
 			[],
 			[
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/highlight/jquery.highlight-3.0.0.yui.js", canMinify=0}
 			],
-			"JQueryHighlight resources.", "Included in ADF 2.0 and later.", "JQueryHighlight"
+			"jQueryHighlight resources.", "Included in ADF 2.0 and later.", "jQueryHighlight"
 		);
 
 		// NOTE: version is actually as registered, but that's not in the file name, renaming it would break any direct callers
 		registerResource
 		(
-			"JQueryHotkeys 0.8", "SECONDARY",
+			"jQueryHotkeys 0.8", "SECONDARY",
 			[],
 			[
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/hotkeys/jquery.hotkeys.js"}
 			],
-			"JQueryHotkeys resources.", "Included in ADF 2.0 and later.", "JQueryHotkeys"
+			"jQueryHotkeys resources.", "Included in ADF 2.0 and later.", "jQueryHotkeys"
 		);
 
 		registerResource
 		(
-			"JQueryiCalendar 1.1", "SECONDARY",
+			"jQueryiCalendar 1.1", "SECONDARY",
 			[
 				{LoadTagType=1, SourceURL="/ADF/thirdParty/jquery/icalendar/1.1/jquery.icalendar.pt.css"}
 			],
 			[
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/icalendar/1.1/jquery.icalendar.pt.js"}
 			],
-			"JQueryiCalendar resources.", "Included in ADF 2.0 and later.", "JQueryiCalendar"
+			"jQueryiCalendar resources.", "Included in ADF 2.0 and later.", "jQueryiCalendar"
 		);
 
 		registerResource
 		(
-			"JQueryImagesLoaded 3.0", "SECONDARY",
+			"jQueryImagesLoaded 3.0", "SECONDARY",
 			[],
 			[
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/imagesloaded/3.0/imagesloaded.pkgd.min.js"}
 			],
-			"JQueryImagesLoaded resources.", "Included in ADF 2.0 and later.", "JQueryImagesLoaded"
+			"jQueryImagesLoaded resources.", "Included in ADF 2.0 and later.", "jQueryImagesLoaded"
 		);
 
 		registerResource
 		(
-			"JQueryJeditable 1.7", "SECONDARY",
+			"jQueryJeditable 1.7", "SECONDARY",
 			[],
 			[
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/jeditable/1.7/jquery.jeditable.min.js"}
 			],
-			"JQueryJeditable resources.", "Included in ADF 2.0 and later.", "JQueryJeditable"
+			"jQueryJeditable resources.", "Included in ADF 2.0 and later.", "jQueryJeditable"
 		);
 
 		registerResource
 		(
-			"JQueryJSON 2.2", "SECONDARY",
+			"jQueryJSON 2.2", "SECONDARY",
 			[],
 			[
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/json/jquery.json-2.2.min.js"}
 			],
-			"JQueryJSON resources.", "Included in ADF 2.0 and later.", "JQueryJSON"
+			"jQueryJSON resources.", "Included in ADF 2.0 and later.", "jQueryJSON"
 		);
 
 		registerResource
 		(
-			"JQueryMouseWheel 3.0", "SECONDARY",
+			"jQueryMouseWheel 3.0", "SECONDARY",
 			[],
 			[
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/mousewheel/jquery.mousewheel-3.0.4.pack.js"}
 			],
-			"JQueryMouseWheel resources.", "Included in ADF 2.0 and later.", "JQueryMouseWheel"
+			"jQueryMouseWheel resources.", "Included in ADF 2.0 and later.", "jQueryMouseWheel"
 		);
 
 		// NOTE: version is actually as registered, but that's not in the file name, renaming it would break any direct callers
 		registerResource
 		(
-			"JQueryMultiselect 1.1", "SECONDARY",
+			"jQueryMultiselect 1.1", "SECONDARY",
 			[
 				{LoadTagType=1, SourceURL="/ADF/thirdParty/jquery/multiselect/jquery.multiselect.css"},
 				{LoadTagType=1, SourceURL="/ADF/thirdParty/jquery/multiselect/jquery.multiselect.filter.css"}
@@ -714,59 +714,59 @@
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/multiselect/jquery.multiselect.min.js"},
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/multiselect/jquery.multiselect.filter.min.js"}
 			],
-			"JQueryMultiselect resources.", "Included in ADF 2.0 and later.", "JQueryMultiselect"
+			"jQueryMultiselect resources.", "Included in ADF 2.0 and later.", "jQueryMultiselect"
 		);
 
 		registerResource
 		(
-			"JQueryNMCFormHelper 1.0", "SECONDARY",
+			"jQueryNMCFormHelper 1.0", "SECONDARY",
 			[],
 			[
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/nmcFormHelper/1.0/nmcFormHelper.min.js"}
 			],
-			"JQueryNMCFormHelper resources.", "Included in ADF 2.0 and later.", "JQueryNMCFormHelper"
+			"jQueryNMCFormHelper resources.", "Included in ADF 2.0 and later.", "jQueryNMCFormHelper"
 		);
 
 		registerResource
 		(
-			"JQueryPlupload", "SECONDARY",
+			"jQueryPlupload", "SECONDARY",
 			[],
 			[
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/plupload/js/plupload.full.js", canMinify=0}
 			],
-			"JQueryPlupload resources.", "Included in ADF 2.0 and later.", ""
+			"jQueryPlupload resources.", "Included in ADF 2.0 and later.", ""
 		);
 
 		registerResource
 		(
-			"JQuerySelectboxes 2.2", "SECONDARY",
+			"jQuerySelectboxes 2.2", "SECONDARY",
 			[],
 			[
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/selectboxes/jquery.selectboxes-2.2.4.min.js"}
 			],
-			"JQuerySelectboxes resources.", "Included in ADF 2.0 and later.", "JQuerySelectboxes"
+			"jQuerySelectboxes resources.", "Included in ADF 2.0 and later.", "jQuerySelectboxes"
 		);
 
 		registerResource
 		(
-			"JQuerySuperfish 1.4", "SECONDARY",
+			"jQuerySuperfish 1.4", "SECONDARY",
 			[
 				{LoadTagType=1, SourceURL="/ADF/thirdParty/jquery/superfish/css/superfish.css"}
 			],
 			[
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/superfish/jquery.superfish-1.4.8.js"}
 			],
-			"JQuerySuperfish resources.", "Included in ADF 2.0 and later.", "JQuerySuperfish"
+			"jQuerySuperfish resources.", "Included in ADF 2.0 and later.", "jQuerySuperfish"
 		);
 
 		registerResource
 		(
-			"JQueryHoverIntent 1.4", "SECONDARY",
+			"jQueryHoverIntent 1.4", "SECONDARY",
 			[],
 			[
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/superfish/hoverIntent.js"}
 			],
-			"JQueryHoverIntent resources.", "Included in ADF 2.0 and later.", "JQueryHoverIntent"
+			"jQueryHoverIntent resources.", "Included in ADF 2.0 and later.", "jQueryHoverIntent"
 		);
 
 		registerResource
@@ -791,79 +791,79 @@
 
 		registerResource
 		(
-			"JQuerySWFUpload 2.2", "SECONDARY",
+			"jQuerySWFUpload 2.2", "SECONDARY",
 			[],
 			[
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/swfupload/swfupload-2.2.0.1/swfupload.js"}
 			],
-			"JQuerySWFUpload resources.", "Included in ADF 2.0 and later.", "JQuerySWFUpload"
+			"jQuerySWFUpload resources.", "Included in ADF 2.0 and later.", "jQuerySWFUpload"
 		);
 
 		registerResource
 		(
-			"JQuerySWFUploadQueue 2.2", "SECONDARY",
+			"jQuerySWFUploadQueue 2.2", "SECONDARY",
 			[],
 			[
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/swfupload/swfupload-2.2.0.1/swfupload.queue.js"}
 			],
-			"JQuerySWFUpload resources.", "Included in ADF 2.0 and later.", "JQuerySWFUploadQueue"
+			"jQuerySWFUpload resources.", "Included in ADF 2.0 and later.", "jQuerySWFUploadQueue"
 		);
 
 		registerResource
 		(
-			"JQueryTemplates 1.0", "SECONDARY",
+			"jQueryTemplates 1.0", "SECONDARY",
 			[],
 			[
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/templates/jquery.tmpl.min.js"}
 			],
-			"JQueryTemplates resources.", "Included in ADF 2.0 and later.", "JQueryTemplates"
+			"jQueryTemplates resources.", "Included in ADF 2.0 and later.", "jQueryTemplates"
 		);
 
 		registerResource
 		(
-			"JQueryTextLimit 2209.07", "SECONDARY",
+			"jQueryTextLimit 2209.07", "SECONDARY",
 			[],
 			[
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/textlimit/jquery.textlimit.plugin.js"}
 			],
-			"JQueryTextLimit resources.", "Included in ADF 2.0 and later.", "JQueryTextLimit"
+			"jQueryTextLimit resources.", "Included in ADF 2.0 and later.", "jQueryTextLimit"
 		);
 
 		registerResource
 		(
-			"JQueryTimeAgo 1.4", "SECONDARY",
+			"jQueryTimeAgo 1.4", "SECONDARY",
 			[],
 			[
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/timeago/1.4/jquery.timeago-1.4.1.js"}
 			],
-			"JQueryTimeAgo resources.", "Included in ADF 2.0 and later.", "JQueryTimeAgo"
+			"jQueryTimeAgo resources.", "Included in ADF 2.0 and later.", "jQueryTimeAgo"
 		);
 
 		registerResource
 		(
-			"JQueryTools 1.2", "SECONDARY",
+			"jQueryTools 1.2", "SECONDARY",
 			[],
 			[
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/tools/1.2/jquery.tools.min.js"}
 			],
-			"JQueryTools resources.", "Included in ADF 2.0 and later.", "JQueryTools"
+			"jQueryTools resources.", "Included in ADF 2.0 and later.", "jQueryTools"
 		);
 
 		registerResource
 		(
-			"JQueryUIStars", "SECONDARY",
+			"jQueryUIStars", "SECONDARY",
 			[
 				{LoadTagType=1, SourceURL="/ADF/thirdParty/jquery/ui/stars/3.0/ui.stars.min.css"}
 			],
 			[
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/ui/stars/3.0/ui.stars.min.js"}
 			],
-			"JQueryUIStars resources.", "Included in ADF 2.0 and later.", ""
+			"jQueryUIStars resources.", "Included in ADF 2.0 and later.", ""
 		);
 
 		registerResource
 		(
-			"JQueryUITimepickerAddon 1.2", "SECONDARY",
+			"jQueryUITimepickerAddon 1.2", "SECONDARY",
 			[
 				{LoadTagType=1, SourceURL="/ADF/thirdParty/jquery/ui/timepicker-addon/1.2/jquery-ui-timepicker-addon.css"}
 			],
@@ -871,19 +871,19 @@
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/ui/timepicker-addon/1.2/jquery-ui-timepicker-addon.js"},
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/ui/timepicker-addon/1.2/jquery-ui-sliderAccess.js"}
 			],
-			"JQueryUITimepickerAddon resources.", "Included in ADF 2.0 and later.", "JQueryUITimepickerAddon"
+			"jQueryUITimepickerAddon resources.", "Included in ADF 2.0 and later.", "jQueryUITimepickerAddon"
 		);
 
 		registerResource
 		(
-			"JQueryUITimepickerFG 0.3", "SECONDARY",
+			"jQueryUITimepickerFG 0.3", "SECONDARY",
 			[
 				{LoadTagType=1, SourceURL="/ADF/thirdParty/jquery/ui/timepicker-fg/0.3/jquery.ui.timepicker.css"}
 			],
 			[
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/ui/timepicker-fg/0.3/jquery.ui.timepicker.js"}
 			],
-			"JQueryUITimepickerFG resources.", "Included in ADF 2.0 and later.", "JQueryUITimepickerFG"
+			"jQueryUITimepickerFG resources.", "Included in ADF 2.0 and later.", "jQueryUITimepickerFG"
 		);
 
 		registerResource
