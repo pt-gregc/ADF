@@ -129,26 +129,52 @@
 	);
 
 
-	// major libs that load in the footer
+	// START - major libs that load in the footer
 
+    jQueryUIversion = "1.11";
+
+    /* jQuery UI Theme Javascript Resources */
 	registerResource
 	(
-		"jQueryUI 1.11", "PRIMARY",
+		"jQueryUI #jQueryUIversion#", "PRIMARY",
 		[],
 		[
-			{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/ui/jquery-ui-1.11/js/jquery-ui-1.11.js", canMinify=0}
+			{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/ui/jquery-ui-#jQueryUIversion#/js/jquery-ui-#jQueryUIversion#.js", canMinify=0}
 		],
 		"jQueryUI resources.", "Included in ADF 2.0 and later.", "jQueryUI"
 	);
 
+    /* jQuery UI Default Theme CSS fallback */
 	registerResource
 	(
-		"jQueryUIDefaultTheme 1.11", "PRIMARY",
+		"jQueryUIDefaultTheme #jQueryUIversion#", "PRIMARY",
 		[
-			{LoadTagType=1, SourceURL="/ADF/thirdParty/jquery/ui/jquery-ui-1.11/css/ui-lightness/jquery-ui.css", canCombine=0, canMinify=0}
+			{LoadTagType=1, SourceURL="/ADF/thirdParty/jquery/ui/jquery-ui-#jQueryUIversion#/css/ui-lightness/jquery-ui.css", canCombine=0, canMinify=0}
 		],
 		[],
 		"jQueryUIDefaultTheme resources.", "Included in ADF 2.0 and later.", "jQueryUIDefaultTheme,jQueryUIstyles"
+	);
+
+    /* jQuery UI Theme CSS example: ui-lightness */
+	registerResource
+	(
+		"jQueryUI UI-Lightness #jQueryUIversion#", "PRIMARY",
+		[
+			{LoadTagType=1, SourceURL="/ADF/thirdParty/jquery/ui/jquery-ui-#jQueryUIversion#/css/ui-lightness/jquery-ui.css", canCombine=0, canMinify=0}
+		],
+		[],
+		"jQueryUI UI-Lightness Theme resources.", "Included in ADF 2.0 and later.", "ui-lightness"
+	);
+
+	/* jQuery UI Theme CSS example: Redmond */
+	registerResource
+	(
+		"jQueryUI Redmond #jQueryUIversion#", "PRIMARY",
+		[
+			{LoadTagType=1, SourceURL="/ADF/thirdParty/jquery/ui/jquery-ui-#jQueryUIversion#/css/redmond/jquery-ui.css", canCombine=0, canMinify=0}
+		],
+		[],
+		"jQueryUI Redmond Theme resources.", "Included in ADF 2.0 and later.", "redmond"
 	);
 
 	registerResource
@@ -168,7 +194,7 @@
 		"Bootstrap 3.3", "PRIMARY",
 		[
 			{LoadTagType=1, SourceURL="/ADF/thirdParty/jquery/bootstrap/3.3/css/bootstrap.min.css", canCombine=0, canMinify=0},
-			{LoadTagType=1, SourceURL="/ADF/thirdParty/jquery/bootstrap/3.3/css/bootstrap-ADF-ext.css"} // An ADF extension css file that adds glyphicon sizes (lg,2x-10x).
+			{LoadTagType=1, SourceURL="/ADF/thirdParty/jquery/bootstrap/3.3/css/bootstrap-ADF-ext.css", canCombine=0, canMinify=0} // An ADF extension css file that adds glyphicon sizes (lg,2x-10x).
 		],
 		[
 			{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/bootstrap/3.3/js/bootstrap.min.js"}
