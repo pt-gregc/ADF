@@ -56,7 +56,6 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 	variables.resourceAPI = Server.CommonSpot.ObjectFactory.getObject("Resource");
 
 
-
 	/* UTILITIES */
 
 	public void function loadResources(required string resourcesList)
@@ -127,6 +126,8 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 		var res = "";
 		var cssURL = "";
 		var listPos = 0;
+		var errMsg = "";
+		var themeLoadFailed = false;
 
 		// if the themeName is a registered resource then use it
 		if ( regResourceList.RecordCount == 1 && arrayLen(regResourceList.earlyLoadSourceArray[1]) == 1 )
@@ -136,22 +137,44 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 		else
 		{
 			// if the themeName is NOT registered resource... then attempt to build a path and load it.
-			defaultResourceList = resourceAPI.getList(name=arguments.defaultResourceName);
+			defaultResourceList = resourceAPI.getList(searchString=arguments.defaultResourceName, searchOperator='equals');
 
 			if (defaultResourceList.RecordCount == 1 && arrayLen(defaultResourceList.earlyLoadSourceArray[1]) == 1)
 			{
 				res = defaultResourceList.earlyLoadSourceArray[1][1];
 				cssURL = res.sourceURL;
 				listPos = listFindNoCase(cssURL, arguments.parentKey, "/");
+				
+				// If possible replace the defaultThemeName with the passed in themeName in the defaultResouce's URL
+				// ... otherwise just use the registered Default Theme URL
 				if (listPos > 0 && listPos < (listLen(cssURL, "/") - 1))
 				{
 					cssURL = listSetAt(cssURL, listPos + 1, arguments.themeName, "/");
-					if (res.canCombine == 1) // take that as a proxy for it being local, if not, just render the raw tag
-						loadUnregisteredResource(cssURL, "Stylesheet", "head", "secondary", res.canCombine, res.canMinify);
-					else
-						addHeaderHTML('<link href="#cssURL#" rel="stylesheet" type="text/css">', "SECONDARY");
+					if ( fileExists(Request.Site.Dir & cssURL) )
+					    loadUnregisteredResource(cssURL, "Stylesheet", "head", "secondary", 0, 0);
+                    else
+                        themeLoadFailed = true;
+				}
+				else
+				    themeLoadFailed = true;
+
+				if ( themeLoadFailed )
+				{
+					 // This case handles the bad cssURL and uses the default resource
+					loadResources(arguments.defaultResourceName);
+
+					errMsg = "Could not find the requested 'theme' resource: #arguments.themeName# using the default theme: #arguments.defaultResourceName#. Please register the required theme as a CommonSpot Resource.";
+					Server.CommonSpot.addLogEntry(errMsg);
+                    //throw(errMsg);
 				}
 			}
+			else
+            {
+                // This case handles the missing default resource ... see log for more details
+                errMsg = "Could not find the requested 'theme' resources: #arguments.themeName# or the default: #arguments.defaultResourceName#. Please register the required themes as CommonSpot Resources.";
+                Server.CommonSpot.addLogEntry(errMsg);
+                //throw(errMsg);
+            }
 		}
 	}
 
@@ -185,7 +208,10 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 
 	public void function loadJQueryUI(string version="", string themeName="", boolean force=0, string defaultThemeOverride="")
 	{
+		arguments.themeName = trim(arguments.themeName);
+		
 		loadResources("jQuery,jQueryUI");
+		
 		if (arguments.themeName == "")
 			loadResources("jQueryUIDefaultTheme");
 		else
@@ -304,7 +330,7 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 	{
 		var scriptPath = trim(arguments.overridePath);
 		if (scriptPath != "" && listLast(scriptPath, ".") == "css" && fileExists(expandPath(scriptPath)))
-			addHeaderHTML('<link href="#scriptPath#" rel="stylesheet" type="text/css">', "SECONDARY");
+			loadUnregisteredResource(scriptPath, "Stylesheet", "head", "secondary", 0, 0);
 		else
 			loadResources("FontAwesome"); // includes both base version and ADF css extension
 	}
@@ -327,7 +353,10 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 
 	public void function loadJCarousel(string skinName="", boolean force=0, string version="")
 	{
+		arguments.skinName = trim(arguments.skinName);
+		
 		loadResources("jQuery,jCarousel");
+		
 		if (arguments.skinName == "")
 			loadResources("jCarouselDefaultSkin");
 		else
@@ -369,7 +398,8 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 	public void function loadJQueryBBQ(string version="", boolean force=0)
 	{
 		// jQuery BBQ 1.3 and below require Migrate!!
-		loadResources("jQuery,jQueryMigrate,jQueryBBQ");
+		loadResources("jQuery,jQueryBBQ");  // jQueryMigrate not needed for bbq-1.3.adf
+		//loadResources("jQuery,jQueryMigrate,jQueryBBQ");
 	}
 
 	public void function loadJQueryBlockUI(string version="", boolean force=0)
@@ -572,10 +602,11 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 		if (arguments.loadStyles)
 		{
 			arguments.theme = trim(arguments.theme);
+
 			if (arguments.theme == "")
-				loadResources("JSTreeDefaultStyles");
+				loadResources("JSTreeDefaultStyles"); 
 			else
-				loadTheme(arguments.theme, "JSTreeDefaultStyles", "themes");
+		  		loadTheme(arguments.theme, "JSTreeDefaultStyles", "themes");
 		}
 	}
 

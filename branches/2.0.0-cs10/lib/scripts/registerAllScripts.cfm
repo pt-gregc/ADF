@@ -112,7 +112,7 @@
 	(
 		"jQuery 1.12", "PRIMARY",
 		[
-			{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/jquery-1.11.js", canMinify=0}
+			{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/jquery-1.12.js", canMinify=0}
 		],
 		[],
 		"jQuery resources.", "Included in ADF 2.0 and later.", "jQuery"
@@ -220,7 +220,7 @@
 	(
 		"ADFLightbox 1.0", "SECONDARY",
 		[
-			{LoadTagType=1, SourceURL="/ADF/extensions/lightbox/1.0/css/lightbox_overrides.css"}
+			{LoadTagType=1, SourceURL="/ADF/extensions/lightbox/1.0/css/lightbox_overrides.css", canCombine=0, canMinify=0}
 		],
 		[
 			{LoadTagType=2, SourceURL="/ADF/extensions/lightbox/1.0/js/framework.js"}
