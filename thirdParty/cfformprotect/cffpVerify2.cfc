@@ -32,7 +32,8 @@ NOTES       : Dave Shuck - created
 			  									received. Update Akismet function to log to same file and not log as passed if 
 			  									the key validation failed.
 History:
-	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
+	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean()
+	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 </pre>
 ">
@@ -355,7 +356,7 @@ History:
 		var Result = StructNew();
 		var i = "";
 		// Make a duplicate since this is passed by reference and we don't want to modify the original data
-		var FormStructCopy = Server.CommonSpot.UDF.util.duplicateBean(arguments.FormStruct);
+		var FormStructCopy = application.ADF.data.duplicateStruct(arguments.FormStruct);
 		var UrlCount = "";
 		
 		Result.Pass = true;

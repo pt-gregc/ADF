@@ -33,7 +33,8 @@ History:
 	2014-09-15 - Created
 	2014-09-29 - GAC - Added Padding Value normalization to remove the label from the default values
 	2015-04-28 - DJM - Added own CSS
-	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
+	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean()
+	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
 --->
 <cfcomponent displayName="PaddingSettings Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -43,7 +44,7 @@ History:
 	<cfargument name="value" type="string" required="yes">
 	
 	<cfscript>
-		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
+		var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
 		var currentValue = arguments.value;	// the field's current value
 		var top = '';
 		var right = '';
@@ -106,7 +107,7 @@ History:
 	<cfargument name="fieldParameters" type="struct" required="yes">
 	
 	<cfscript>
-		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.fieldParameters);
+		var inputParameters = application.ADF.data.duplicateStruct(arguments.fieldParameters);
 	</cfscript>
 <cfoutput>
 <script type="text/javascript">
@@ -131,7 +132,7 @@ function onChange_#inputParameters.fieldID#()
 	<cfargument name="fieldDomID" type="string" required="yes">
 	<cfargument name="value" type="string" required="yes">
 	<cfscript>
-		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
+		var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
 		
 		// Validate if the property field has been defined
 		if ( NOT StructKeyExists(inputParameters, "fldID") OR LEN(inputParameters.fldID) LTE 0 )

@@ -37,7 +37,8 @@ History:
 	2011-02-02 - RAK - Updated to allow for customizing number of stars and half stars
 	2012-01-03 - MFC - Commented out JS code to prevent JS error in the form.
 	2015-05-20 - DJM - Converted to CFC
-	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
+	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean()
+	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
 --->
 <cfcomponent displayName="StarRatingField Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -46,7 +47,7 @@ History:
 	<cfargument name="fieldDomID" type="string" required="yes">
 	<cfargument name="value" type="string" required="yes">
 	<cfscript>
-		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
+		var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
 		var numberOfStars = 5;
 		var halfStars = 0;
 		var currentValue = arguments.value;	// the field's current value

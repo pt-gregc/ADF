@@ -72,8 +72,8 @@ History:
 	2015-04-10 - DJM - Converted to CFC
 	2015-04-24 - DJM - Added own CSS
 	2015-05-13 - DRM - Add isMultiline()
-	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
-
+	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean()
+	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
 To Do:
 	2014-04-08 - JTP - Currently we are NOT sorting the list if displayed as checkboxes/radio buttons and user choose sort by display value
 --->
@@ -86,7 +86,7 @@ To Do:
 	
 	<cfscript>
 		var allAtrs = getAllAttributes();
-		var inputParameters =  Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
+		var inputParameters =  application.ADF.data.duplicateStruct(arguments.parameters);
 		var currentValue = arguments.value;	// the field's current value
 		var ceFormID = 0;
 		var cType = application.ADF.customElementSelect.getFieldType(inputParameters);
@@ -177,7 +177,7 @@ To Do:
 	<cfargument name="updatedValue" type="string" required="yes">
 	
 	<cfscript>
-		var inputParameters =  Server.CommonSpot.UDF.util.duplicateBean(arguments.fieldParameters);
+		var inputParameters =  application.ADF.data.duplicateStruct(arguments.fieldParameters);
 		var readOnly = (arguments.displayMode EQ 'readonly') ? true :false;	
 		
 		// Ajax URL to the proxy component in the context of the site
@@ -202,7 +202,7 @@ function #arguments.fieldName#_loadSelection()
 	jQuery("###arguments.fieldName#_div").find(':checked').each(function(index,item){			
 	</cfif>
 		if(selectedVal.length)
-			selectedVal += ","
+			selectedVal += ",";
 		selectedVal += jQuery(item).val();
 	});
 	// put the selected value into the
@@ -315,7 +315,7 @@ function onSuccess_#arguments.fieldName#(data)
 	<cfargument name="value" type="string" required="yes">
 	
 	<cfscript>
-		var inputParameters =  Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
+		var inputParameters =  application.ADF.data.duplicateStruct(arguments.parameters);
 		
 		// Set the defaults
 		if ( StructKeyExists(inputParameters, "forceScripts") AND (inputParameters.forceScripts EQ "1") )

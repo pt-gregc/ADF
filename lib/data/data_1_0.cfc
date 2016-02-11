@@ -30,11 +30,12 @@ Version:
 	1.0
 History:
 	2009-06-22 - PaperThin, Inc. - Created
-	2015-06-11 - GAC - Updated the component extends to use the libraryBase path
+	2015-06-11 - Updated the component extends to use the libraryBase path
+	2016-02-09 - Due to data lib dependacies added duplicateStruct to the base data_1_0 lib
 --->
 <cfcomponent displayname="data_1_0" extends="ADF.lib.libraryBase" hint="Data Utils component functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_11">
+<cfproperty name="version" value="1_0_12">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Data_1_0">
 
@@ -741,7 +742,8 @@ Arguments:
 History:
 	2009-07-05 - RLW - Created
 	2011-02-07 - GAC - Added parameter to force all StructKeys to lowercase 
-	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
+	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean()
+	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
 --->
 <cffunction name="queryToArrayOfStructures" access="public" returntype="Array" hint="Converts a query to an array of structures">
 	<cfargument name="queryData" type="query" required="true" hint="The query that will be converted into an array of structures">
@@ -769,7 +771,7 @@ History:
 				else
 					thisRow[cols[col]] = arguments.queryData[cols[col]][row];	
 			}
-			arrayAppend(theArray,Server.CommonSpot.UDF.util.duplicateBean(thisRow));
+			arrayAppend(theArray,duplicateStruct(thisRow));
 		}
 		return theArray;
 	</cfscript>
@@ -1027,7 +1029,8 @@ Arguments:
 History:
 	2009-08-26 - MFC - Created
 	2011-02-02 - RAK - Added the ability to merge lists together
-	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
+	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean()
+	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
 --->
 <cffunction name="structMerge" returntype="struct" access="public" hint="Merge two simple or complex structures in one.">
     <cfargument name="struct1" type="struct" required="true">
@@ -1035,7 +1038,7 @@ History:
     <cfargument name="mergeValues" type="boolean" required="false" default="false" hint="Merges values if they can be merged">
    
 	<cfscript>
-		var retStruct = Server.CommonSpot.UDF.util.duplicateBean(arguments.struct1);  // Set struct1 as the base structure
+		var retStruct = duplicateStruct(arguments.struct1);  // Set struct1 as the base structure
 		var retStructKeyList = structKeyList(retStruct);
 		var struct2KeyList = structKeyList(arguments.struct2);
 		var currKey = "";
@@ -1343,7 +1346,8 @@ Summary:
 	@author Craig Fisher (craig@altainetractive.com)
 	@version 1, September 13, 2001
 History:
-	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
+	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean()
+	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
 --->
 <cffunction name="ArrayConcat" access="public" returntype="array" hint="">
 	<cfargument name="a1" type="array" required="true" hint="">
@@ -1358,7 +1362,7 @@ History:
 	    }
 	    for (i=1;i LTE ArrayLen(a2);i=i+1) 
 	    {
-	        ArrayAppend(a1, Server.CommonSpot.UDF.util.duplicateBean(a2[i]));
+	        ArrayAppend(a1, duplicateStruct(a2[i]));
 	    }
 	    return a1;
 	</cfscript>
@@ -1592,6 +1596,37 @@ History:
 		// Merge the firstSet and lastSet back to the UUID
 		retUUID = firstSet & "-" & ListGetAt(arguments.uuid, 2, "-") & "-" & ListGetAt(arguments.uuid, 3, "-") & "-" & lastSet;
 		return retUUID;
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author:
+    PaperThin, Inc.
+Name:
+    $duplicateStruct
+Summary:
+    Uses CommonSpot duplicateBean to make a duplicate copy of a complex data structure,
+    if the complex data is a Query it uses the native CF duplicate function
+Returns:
+    Any
+Arguments:
+    Any - dataStruct
+Usage:
+    application.ADF.data.duplicateStruct(dataStruct)
+History:
+    2015-02-24 - Created
+--->
+<cffunction name="duplicateStruct" access="public" returntype="any" hint="Uses CommonSpot duplicateBean to make a duplicate copy of a complex data structure, if the complex data is a Query it uses the native CF duplicate function">
+	<cfargument name="dataStruct" type="any" required="true">
+	
+	<cfscript>
+		if ( isSimpleValue( arguments.dataStruct ) )
+			return arguments.dataStruct;
+		else if ( isQuery( arguments.dataStruct ) )
+        	return duplicate(arguments.dataStruct);
+        else
+        	return server.commonspot.udf.util.duplicateBean(arguments.dataStruct);
 	</cfscript>
 </cffunction>
 

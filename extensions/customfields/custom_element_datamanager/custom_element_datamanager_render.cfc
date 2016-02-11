@@ -64,6 +64,7 @@ History:
 	                   Don't use (undefined) return value from ResizeWindow() js function
 	                   Remove some unused js vars
 	2016-02-09 - DRM - Hard code minimum values in getMinWidth() and getMinHeight()
+	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
 --->
 <cfcomponent displayName="CustomElementDataManager Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -75,7 +76,7 @@ History:
 	
 	<cfscript>
 		var allAtrs = getAllAttributes();
-		var inputParameters =  Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
+		var inputParameters =  application.ADF.data.duplicateStruct(arguments.parameters);
 		var uniqueTableAppend = arguments.fieldID;
 		var ceFormID = arguments.formID;
 		var elementType = '';
@@ -314,7 +315,7 @@ History:
 	<cfargument name="newData" type="string" required="yes">
 	
 	<cfscript>
-		var inputParameters =  Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
+		var inputParameters =  application.ADF.data.duplicateStruct(arguments.parameters);
 		var allAtrs = getAllAttributes();
 		var uniqueTableAppend = arguments.fieldID;
 		// Ajax URL to the proxy component in the context of the site

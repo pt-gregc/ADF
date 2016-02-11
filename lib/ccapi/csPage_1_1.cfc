@@ -98,7 +98,8 @@ History:
 	2014-03-05 - JTP - Var declarations
 	2014-05-01 - GAC - Fixed typo in the try/catch, switched ( e ANY ) to ( ANY e )
 	2015-02-03 - GAC - Updated catch block to check for e.Message and e.Details structkeys
-	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
+	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean()
+	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
 --->	
 <cffunction name="copyPage" access="public" returntype="boolean" hint="Duplicates the page from source to destination using destination template. ">
 	<cfargument name="sourcePageID" type="numeric" required="true">

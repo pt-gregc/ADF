@@ -1,4 +1,4 @@
-<!--- 
+/*
 The contents of this file are subject to the Mozilla Public License Version 1.1
 (the "License"); you may not use this file except in compliance with the
 License. You may obtain a copy of the License at http://www.mozilla.org/MPL/
@@ -16,11 +16,11 @@ All Rights Reserved.
 By downloading, modifying, distributing, using and/or accessing any files 
 in this directory, you agree to the terms and conditions of the applicable 
 end user license agreement.
---->
+*/
 
-<!---
 /* *************************************************************** */
-Author: 	
+/*
+Author:
 	PaperThin, Inc. 
 Name:
 	data_2_0.cfc
@@ -30,12 +30,13 @@ Version:
 	2.0
 History:
 	2015-08-31 - GAC - Created
---->
-<cfcomponent displayname="data_2_0" extends="data_1_2" hint="Data Utils component functions for the ADF Library">
+*/
+component displayname="data_2_0" extends="data_1_2" hint="Data Utils component functions for the ADF Library" output="no"
+{
+    /* PROPERTIES */
+	property name="version" type="string" default="2_0_1";
+	property name="type" value="singleton";
+	property name="wikiTitle" value="Data_2_0";
 
-<cfproperty name="version" value="2_0_0">
-<cfproperty name="type" value="singleton">
-<cfproperty name="wikiTitle" value="Data_2_0">
 
-
-</cfcomponent>
+}
