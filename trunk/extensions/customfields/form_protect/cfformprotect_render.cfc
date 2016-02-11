@@ -32,7 +32,8 @@ ADF Requirements:
 History:
 	2014-01-02 - GAC - Added comment header block
 	2015-05-08 - DJM - Converted to CFC
-	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
+	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean()
+	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
 --->
 <cfcomponent displayName="CFFormProtect Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -51,7 +52,7 @@ History:
 	<cfargument name="value" type="string" required="yes">
 	
 	<cfscript>
-		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
+		var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
 		var currentValue = arguments.value;	// the field's current value
 		var incScript = inputParameters.cfformprotect;
 		// Load CFFORMPROTECT

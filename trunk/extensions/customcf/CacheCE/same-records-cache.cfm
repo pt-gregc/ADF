@@ -64,7 +64,8 @@ History:
 	2014-02-18 - JTP - Added ClearType and ClearAll url parameters
 	2014-03-05 - JTP - Var declarations
 	2014-03-19 - JTP - Added optional renderhandler & classNames attributes as an optimization.
-	2015-09-10 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
+	2015-09-10 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean()
+	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
 --->
 
 <cfscript>
@@ -295,8 +296,8 @@ History:
 
 <cfscript>
 	// pop the pushed back off the stack
-	if( pushed )
-		request.CS_SameRecordsInfo = Server.CommonSpot.UDF.util.duplicateBean(pushed_CS_SameRecordsInfo);
+	if ( pushed )
+		request.CS_SameRecordsInfo = application.ADF.data.duplicateStruct(pushed_CS_SameRecordsInfo);
 </cfscript>
 
 
@@ -345,19 +346,14 @@ History:
 <!----------------------------------
 	copyStruct	
 History:
-	2015-09-10 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
+	2015-09-10 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean()
+	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
+
 ------------------------------------>
 <cffunction name="copyStruct" access="private" output="no" returntype="struct">
 	<cfargument name="srcStruct" type="struct" required="Yes">
 	
 	<cfscript>
-		var retStruct = StructNew();
-		var key = '';
-		
-		retStruct = server.commonspot.udf.util.duplicateBean(arguments.srcStruct);
-//		for( key in arguments.srcStruct )
-//			retStruct[key] = arguments.srcStruct[key];
+        return application.ADF.data.duplicateStruct(arguments.srcStruct);
 	</cfscript>
-	
-	<cfreturn retStruct>
 </cffunction> 

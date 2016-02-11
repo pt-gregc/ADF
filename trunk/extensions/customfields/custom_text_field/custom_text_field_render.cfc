@@ -41,7 +41,8 @@ History:
 	2013-02-14 - GAC - Updated to add in the CS6+ security setting for the wrapFieldHTML function
 					 - Cleaned up old and unnecessary code
 	2015-04-27 - DJM - Added own CSS
-	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
+	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean()
+	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
 --->
 <cfcomponent displayName="CustomTextField Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -50,7 +51,7 @@ History:
 	<cfargument name="fieldDomID" type="string" required="yes">
 	<cfargument name="value" type="string" required="yes">
 	<cfscript>
-		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
+		var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
 		var currentValue = arguments.value;	// the field's current value
 		var readOnly = (arguments.displayMode EQ 'readonly') ? true : false;
 		
@@ -93,7 +94,7 @@ History:
 	<cfargument name="value" type="string" required="yes">
 	
 	<cfscript>
-		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
+		var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
 		
 		if ( NOT StructKeyExists(inputParameters, "fldName") )
 		inputParameters.fldName = arguments.fieldName;

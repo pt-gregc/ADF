@@ -44,7 +44,7 @@ History:
 	<cfargument name="value" type="string" required="yes">
 	
 	<cfscript>
-		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
+		var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
 		var currentValue = arguments.value;	// the field's current value
 		var readOnly = (arguments.displayMode EQ 'readonly') ? true : false;
 		var glyphiconDataArr = ArrayNew(1);
@@ -171,7 +171,7 @@ History:
 	<cfargument name="fieldParameters" type="struct" required="yes">
 	
 	<cfscript>
-		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.fieldParameters);
+		var inputParameters = application.ADF.data.duplicateStruct(arguments.fieldParameters);
 	</cfscript>
 
 <cfoutput>
@@ -291,7 +291,7 @@ function clearInput_#arguments.fieldName#()
 	<cfscript>
 		var defaultBootstrapVersion = variables.defaultBootstrapVersion;
         var defaultGlyphIconDataFile = variables.defaultGlyphIconDataFile;
-		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
+		var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
 
 		// Set the defaults
 		if( NOT StructKeyExists(inputParameters,'ShowSize') )

@@ -55,7 +55,8 @@ History:
 	2014-03-20 - GAC - Force the keys in the formData object from the 'ADD NEW' callback to lowercase so it is sure to match js_fieldName_CE_FIELD  value 
 	2014-10-10 - GAC - Added a new props field to allow the app name used for resolving the Chooser Bean Name to be specified
 	2015-04-23 - DJM - Added own CSS
-	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
+	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean()
+	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
 --->
 <cfcomponent displayName="GeneralChooser Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -66,7 +67,7 @@ History:
 	
 	<cfoutput>
 		<cfscript>
-			var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
+			var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
 			var currentValue = arguments.value;	// the field's current value
 			var readOnly = (arguments.displayMode EQ 'readonly') ? true : false;
 			var initArgs = StructNew();
@@ -195,7 +196,7 @@ History:
 	<cfargument name="fieldParameters" type="struct" required="yes">
 	
 	<cfscript>
-		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.fieldParameters);
+		var inputParameters = application.ADF.data.duplicateStruct(arguments.fieldParameters);
 		var readOnly = (arguments.displayMode EQ 'readonly') ? true : false;
 	</cfscript>
 
@@ -396,7 +397,7 @@ function #inputParameters.fieldID#_ConvertCaseOfDataObjKeys(dataobj,keycase)
 	keycase = typeof keycase !== 'undefined' ? keycase : "lower"; //lower OR upper
 	var key, keys = Object.keys(dataobj);
 	var n = keys.length;
-	var newobj={}
+	var newobj={};
 	while (n--) {
 	  key = keys[n];
 	  if ( keycase == 'lower' )
@@ -418,7 +419,7 @@ function #inputParameters.fieldID#_ConvertCaseOfDataObjKeys(dataobj,keycase)
 	<cfargument name="value" type="string" required="yes">
 	
 	<cfscript>
-		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
+		var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
 		
 		// overwrite the field ID to be unique
 		inputParameters.fieldID = arguments.fieldName;

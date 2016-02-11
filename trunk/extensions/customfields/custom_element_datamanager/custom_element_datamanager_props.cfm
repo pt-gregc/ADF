@@ -69,7 +69,7 @@ History:
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "2.0.10";
+	fieldVersion = "2.0.11";
 	
 	// CS version and required Version variables
 	requiredCSversion = 10;
@@ -958,7 +958,7 @@ History:
 			
 			jQuery("###prefix#displayFieldsSelected").children().remove().end();
 				
-			jQuery("###prefix#sortByField").children().remove().end().append("<option value=\"\"> - Select -</option>");;
+			jQuery("###prefix#sortByField").children().remove().end().append("<option value=\"\"> - Select -</option>");
 			
 			document.#formname#.#prefix#displayFields.value = "";
 			updateFieldsOnAssocCEChange(selectedAssoc,selectedType,selectedChild);

@@ -760,7 +760,8 @@ Arguments:
 History:
  	2014-05-22 - GAC - Created
 	2014-05-27 - GAC - Method cleanup / removed dev dumps
-	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
+	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean()
+	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
 --->
 <cffunction name="sanitizeADFDumpVarData" access="public" returntype="any" output="false" hint="Returns a ADFdumpVar data from the ADFdumpVar URL command with secure data sanitized.">
 	<cfargument name="dumpVarStr" type="string" required="false" default="" hint="">
@@ -798,7 +799,7 @@ History:
 				}
 				else
 				{
-					retData = Server.CommonSpot.UDF.util.duplicateBean(arguments.dumpVarData);
+					retData = variables.data.duplicateStruct(arguments.dumpVarData);
 					
 					// Find the instances of the CSPASSWORD stuct key 
 					pwFindArray = StructFindKey(retData,configPWkey,"all");

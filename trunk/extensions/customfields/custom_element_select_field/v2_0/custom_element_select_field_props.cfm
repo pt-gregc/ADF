@@ -89,7 +89,7 @@ History:
 
 <!---// CommonSpot 9 Required for the new element data filter criteria --->
 <cfscript>
-	fieldVersion = "2.0.3"; // Variable for the version of the field - Display in Props UI
+	fieldVersion = "2.0.4"; // Variable for the version of the field - Display in Props UI
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;

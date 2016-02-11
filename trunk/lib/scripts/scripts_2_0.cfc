@@ -32,11 +32,11 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 		History:
 			2012-12-07 - RAK - Created - New v1.2
 			2013-03-01 - GAC - Updated jQuery iCalendar comment headers
-			2013-09-05 - GAC - Updated with functions for and jQuery qTip2 JQuery ImagesLoaded
+			2013-09-05 - GAC - Updated with functions for and jQuery qTip2 jQuery ImagesLoaded
 			2013-09-27 - DMB - Added a function to load jQuery Cycle2 lib
 			2014-05-19 - GAC - Added functions for jQuery plug-ins: jEditable, Calx, Calculation
 			2014-09-16 - GAC - Updated references to thirdparty to thirdParty for case sensitivity
-			2015-02-17 - GAC - Added a loadJQueryTimeAgo function to load version 1.4 by default
+			2015-02-17 - GAC - Added a loadjQueryTimeAgo function to load version 1.4 by default
 			2015-04-22 - GAC - Added the loadCKEditor and the loadTypeAheadBundle functions
 			2015-06-10 - ACW - Updated the component extends to no longer be dependant on the 'ADF' in the extends path
 			2015-07-21 - GAC - Added and updated the loadCFJS function for CFJS v1.3
@@ -54,7 +54,6 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 
 	/* EXTERNAL COMPONENTS */
 	variables.resourceAPI = Server.CommonSpot.ObjectFactory.getObject("Resource");
-
 
 
 	/* UTILITIES */
@@ -122,11 +121,13 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 	*/
 	public void function loadTheme(string themeName, string defaultResourceName, string parentKey)
 	{
-		var regResourceList = resourceAPI.getList(name=arguments.themeName);
+		var regResourceList = resourceAPI.getList(searchString=arguments.themeName, searchOperator='equals');
 		var defaultResourceList = "";
 		var res = "";
 		var cssURL = "";
 		var listPos = 0;
+		var errMsg = "";
+		var themeLoadFailed = false;
 
 		// if the themeName is a registered resource then use it
 		if ( regResourceList.RecordCount == 1 && arrayLen(regResourceList.earlyLoadSourceArray[1]) == 1 )
@@ -136,22 +137,44 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 		else
 		{
 			// if the themeName is NOT registered resource... then attempt to build a path and load it.
-			defaultResourceList = resourceAPI.getList(name=arguments.defaultResourceName);
+			defaultResourceList = resourceAPI.getList(searchString=arguments.defaultResourceName, searchOperator='equals');
 
 			if (defaultResourceList.RecordCount == 1 && arrayLen(defaultResourceList.earlyLoadSourceArray[1]) == 1)
 			{
 				res = defaultResourceList.earlyLoadSourceArray[1][1];
 				cssURL = res.sourceURL;
 				listPos = listFindNoCase(cssURL, arguments.parentKey, "/");
+				
+				// If possible replace the defaultThemeName with the passed in themeName in the defaultResouce's URL
+				// ... otherwise just use the registered Default Theme URL
 				if (listPos > 0 && listPos < (listLen(cssURL, "/") - 1))
 				{
 					cssURL = listSetAt(cssURL, listPos + 1, arguments.themeName, "/");
-					if (res.canCombine == 1) // take that as a proxy for it being local, if not, just render the raw tag
-						loadUnregisteredResource(cssURL, "Stylesheet", "head", "secondary", res.canCombine, res.canMinify);
-					else
-						addHeaderHTML('<link href="#cssURL#" rel="stylesheet" type="text/css">', "SECONDARY");
+					if ( fileExists(Request.Site.Dir & cssURL) )
+					    loadUnregisteredResource(cssURL, "Stylesheet", "head", "secondary", 0, 0);
+                    else
+                        themeLoadFailed = true;
+				}
+				else
+				    themeLoadFailed = true;
+
+				if ( themeLoadFailed )
+				{
+					 // This case handles the bad cssURL and uses the default resource
+					loadResources(arguments.defaultResourceName);
+
+					errMsg = "Could not find the requested 'theme' resource: #arguments.themeName# using the default theme: #arguments.defaultResourceName#. Please register the required theme as a CommonSpot Resource.";
+					Server.CommonSpot.addLogEntry(errMsg);
+                    //throw(errMsg);
 				}
 			}
+			else
+            {
+                // This case handles the missing default resource ... see log for more details
+                errMsg = "Could not find the requested 'theme' resources: #arguments.themeName# or the default: #arguments.defaultResourceName#. Please register the required themes as CommonSpot Resources.";
+                Server.CommonSpot.addLogEntry(errMsg);
+                //throw(errMsg);
+            }
 		}
 	}
 
@@ -175,26 +198,29 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 
 		// Load the Migrate plugin
 		if ( arguments.useMigrate )
-			loadResources("JQueryMigrate");
+			loadResources("jQueryMigrate");
 	}
 
 	public void function loadJQueryMigrate()
 	{
-		loadResources("JQuery,JQueryMigrate");
+		loadResources("jQuery,jQueryMigrate");
 	}
 
 	public void function loadJQueryUI(string version="", string themeName="", boolean force=0, string defaultThemeOverride="")
 	{
-		loadResources("jQuery,JQueryUI");
+		arguments.themeName = trim(arguments.themeName);
+		
+		loadResources("jQuery,jQueryUI");
+		
 		if (arguments.themeName == "")
-			loadResources("JQueryUIDefaultTheme");
+			loadResources("jQueryUIDefaultTheme");
 		else
-			loadTheme(arguments.themeName, "JQueryUIDefaultTheme", "css");
+			loadTheme(arguments.themeName, "jQueryUIDefaultTheme", "css");
 	}
 
 	public void function loadJQueryMobile(string version="", boolean force=0)
 	{
-		loadResources("jQuery,JQueryMobile");
+		loadResources("jQuery,jQueryMobile");
 	}
 
 
@@ -212,10 +238,16 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 
 	/* SECONDARY - PLUGINS ETC */
 
+    /*
+        History:
+            2016-02-10 - ACW - Added the "CSLightbox" as a CommonSpot registered resource
+    */
 	public void function loadADFLightbox(string version="", boolean force=0)
 	{
 		var js = "";
-	 	loadResources("jQuery,ADFLightbox");
+
+		// NOTE: This loadResources MUST contain "CSLightbox" which is a CommonSpot registered resource
+	 	loadResources("jQuery,ADFLightbox,CSLightbox");
 
 		if (structKeyExists(request,"ADFLightboxLoaded"))
 			return; // TODO: throw("Why are you loadinging again!");
@@ -286,7 +318,7 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 
 	public void function loadDynatree(boolean force=0)
 	{
-		loadResources("jQuery,jQueryUI,JQueryCookie,Dynatree");
+		loadResources("jQuery,jQueryUI,jQueryCookie,Dynatree");
 	}
 
 	public void function loadFileUploader(boolean force=0)
@@ -298,7 +330,7 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 	{
 		var scriptPath = trim(arguments.overridePath);
 		if (scriptPath != "" && listLast(scriptPath, ".") == "css" && fileExists(expandPath(scriptPath)))
-			addHeaderHTML('<link href="#scriptPath#" rel="stylesheet" type="text/css">', "SECONDARY");
+			loadUnregisteredResource(scriptPath, "Stylesheet", "head", "secondary", 0, 0);
 		else
 			loadResources("FontAwesome"); // includes both base version and ADF css extension
 	}
@@ -306,201 +338,205 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 	public void function loadGalleryView(string version="", string themeName="", boolean force=0)
 	{
 		// NOTE: themeName arg was ignored in prior (1.2) version
-		loadResources("JQuery,GalleryView,JQueryTimers,JQueryEasing");
+		loadResources("jQuery,GalleryView,jQueryTimers,jQueryEasing");
 	}
 
 	public void function loadJQueryTimers()
 	{
-		loadResources("JQuery,JQueryTimers");
+		loadResources("jQuery,jQueryTimers");
 	}
 
 	public void function loadJQueryEasing(string version="", boolean force=0)
 	{
-		loadResources("JQuery,JQueryEasing");
+		loadResources("jQuery,jQueryEasing");
 	}
 
 	public void function loadJCarousel(string skinName="", boolean force=0, string version="")
 	{
-		loadResources("JQuery,JCarousel");
+		arguments.skinName = trim(arguments.skinName);
+		
+		loadResources("jQuery,jCarousel");
+		
 		if (arguments.skinName == "")
-			loadResources("JCarouselDefaultSkin");
+			loadResources("jCarouselDefaultSkin");
 		else
-			loadTheme(arguments.themeName, "JCarouselDefaultSkin", "skins");
+			loadTheme(arguments.themeName, "jCarouselDefaultSkin", "skins");
 	}
 
 	public void function loadJCarouselDefaultSkin()
 	{
-		loadResources("JCarouselDefaultSkin");
+		loadResources("jCarouselDefaultSkin");
 	}
 
 	public void function loadJCrop(boolean force=0)
 	{
-		loadResources("JQuery,JQueryMigrate,JCrop");
+		loadResources("jQuery,jQueryMigrate,jCrop");
 	}
 
 	public void function loadJCycle(string version="", boolean force=0)
 	{
-		loadResources("JQuery,JCycle");
+		loadResources("jQuery,jCycle");
 	}
 
 	public void function loadJCycle2(string version="", boolean force=0, boolean enablelog=0)
 	{
-		loadResources("JQuery,JCycle2");
+		loadResources("jQuery,jCycle2");
 		if (!arguments.enableLog)
 			addFooterHTML('<script>jQuery.fn.cycle.log = jQuery.noop</script>', "TERTIARY");
 	}
 
 	public void function loadJQueryAutocomplete(boolean force=0)
 	{
-		loadResources("JQuery,JQueryAutocomplete,JQueryMetadata");
+		loadResources("jQuery,jQueryAutocomplete,jQueryMetadata");
 	}
 
 	public void function loadJQueryMetadata()
 	{
-		loadResources("JQuery,JQueryMetadata");
+		loadResources("jQuery,jQueryMetadata");
 	}
 
 	public void function loadJQueryBBQ(string version="", boolean force=0)
 	{
 		// jQuery BBQ 1.3 and below require Migrate!!
-		loadResources("JQuery,JQueryMigrate,JQueryBBQ");
+		loadResources("jQuery,jQueryBBQ");  // jQueryMigrate not needed for bbq-1.3.adf
+		//loadResources("jQuery,jQueryMigrate,jQueryBBQ");
 	}
 
 	public void function loadJQueryBlockUI(string version="", boolean force=0)
 	{
-		loadResources("JQuery,JQueryBlockUI");
+		loadResources("jQuery,jQueryBlockUI");
 	}
 
 	public void function loadJQueryCalculation(string version="", boolean force=0)
 	{
-		loadResources("JQuery,JQueryCalculation");
+		loadResources("jQuery,jQueryCalculation");
 	}
 
 	public void function loadJQueryCalcX(string version="", boolean force=0)
 	{
-		loadResources("JQuery,JQueryCalcX");
+		loadResources("jQuery,jQueryCalcX");
 	}
 
 	public void function loadJQueryCapty(boolean force=0)
 	{
-		loadResources("JQuery,JQueryCapty");
+		loadResources("jQuery,jQueryCapty");
 	}
 
 	public void function loadJQueryCheckboxes(string version="", boolean force=0)
 	{
-		loadResources("JQuery,JQueryCheckboxes");
+		loadResources("jQuery,jQueryCheckboxes");
 	}
 
 	public void function loadJQueryCookie(boolean force=0)
 	{
-		loadResources("JQuery,JQueryCookie");
+		loadResources("jQuery,jQueryCookie");
 	}
 
 	public void function loadJQueryDataTables(string version="", boolean force=0, boolean loadStyles=1)
 	{
-		loadResources("JQuery,JQueryDataTables");
+		loadResources("jQuery,jQueryDataTables");
 		if (arguments.loadStyles)
-			loadResources("JQueryDataTablesStyles");
+			loadResources("jQueryDataTablesStyles");
 	}
 
 	public void function loadJQueryDatePick(boolean force=0)
 	{
-		loadResources("JQuery,JQueryDatePick");
+		loadResources("jQuery,jQueryDatePick");
 	}
 
 	public void function loadJQueryDoTimeout(boolean force=0)
 	{
-		loadResources("JQuery,JQueryDoTimeout");
+		loadResources("jQuery,jQueryDoTimeout");
 	}
 
 	public void function loadJQueryDump(boolean force=0)
 	{
-		loadResources("JQuery,JQueryDump");
+		loadResources("jQuery,jQueryDump");
 	}
 
 	public void function loadJQueryFancyBox(string version="", boolean force=0)
 	{
-		loadResources("JQuery,JQueryFancyBox,JQueryEasing,JQueryMouseWheel");
+		loadResources("jQuery,jQueryFancyBox,jQueryEasing,jQueryMouseWheel");
 	}
 
 	public void function loadJQueryField(string version="")
 	{
-		loadResources("JQuery,JQueryField");
+		loadResources("jQuery,jQueryField");
 	}
 
 	public void function loadJQueryFileUpload(boolean force=0)
 	{
-		loadResources("JQuery,JQueryFileUpload");
+		loadResources("jQuery,jQueryFileUpload");
 	}
 
 	public void function loadJQueryHighlight(string version="", boolean force=0)
 	{
-		loadResources("JQuery,JQueryHighlight");
+		loadResources("jQuery,jQueryHighlight");
 	}
 
 	public void function loadJQueryHotkeys(boolean force=0)
 	{
-		loadResources("JQuery,JQueryHotkeys");
+		loadResources("jQuery,jQueryHotkeys");
 	}
 
 	public void function loadJQueryiCalendar(string version="", boolean force=0)
 	{
-		loadResources("JQuery,JQueryMigrate,JQueryiCalendar");
+		loadResources("jQuery,jQueryMigrate,jQueryiCalendar");
 	}
 
 	public void function loadJQueryImagesLoaded(string version="", boolean force=0)
 	{
-		loadResources("JQuery,JQueryImagesLoaded");
+		loadResources("jQuery,jQueryImagesLoaded");
 	}
 
 	public void function loadJQueryJeditable(string version="", boolean force=0)
 	{
-		loadResources("JQuery,JQueryJeditable");
+		loadResources("jQuery,jQueryJeditable");
 	}
 
 	public void function loadJQueryJSON(string version="", boolean force=0)
 	{
-		loadResources("JQuery,JQueryJSON");
+		loadResources("jQuery,jQueryJSON");
 	}
 
 	public void function loadJQueryMouseWheel(string version="", boolean force=0)
 	{
-		loadResources("JQuery,JQueryMouseWheel");
+		loadResources("jQuery,jQueryMouseWheel");
 	}
 
 	public void function loadJQueryMultiselect(boolean force=0)
 	{
-		loadResources("JQuery,JQueryMultiselect");
+		loadResources("jQuery,jQueryMultiselect");
 	}
 
 	public void function loadJQueryNMCFormHelper(string version="", boolean force=0)
 	{
-		loadResources("JQuery,JQueryNMCFormHelper");
+		loadResources("jQuery,jQueryNMCFormHelper");
 	}
 
 	public void function loadJQueryPlupload(boolean force=0)
 	{
-		loadResources("JQuery,JQueryPlupload");
+		loadResources("jQuery,jQueryPlupload");
 	}
 
 	public void function loadJQuerySelectboxes(string version="", boolean force=0)
 	{
-		loadResources("JQuery,JQuerySelectboxes");
+		loadResources("jQuery,jQuerySelectboxes");
 	}
 
 	public void function loadJQuerySuperfish(string version="", boolean force=0)
 	{
-		loadResources("JQuery,JQueryHoverIntent,JQuerySuperfish");
+		loadResources("jQuery,jQueryHoverIntent,jQuerySuperfish");
 	}
 
 	public void function loadJQueryHoverIntent()
 	{
-		loadResources("JQuery,JQueryHoverIntent");
+		loadResources("jQuery,jQueryHoverIntent");
 	}
 
 	public void function loadjQuerySWFObject(string version="", boolean force=0)
 	{
-		loadResources("JQuery,jQuerySWFObject");
+		loadResources("jQuery,jQuerySWFObject");
 	}
 
 	public void function loadSWFObject(string version="", boolean force=0)
@@ -510,49 +546,49 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 
 	public void function loadJQuerySWFUpload(string version="", boolean useQueue=0, boolean force=0)
 	{
-		loadResources("JQuery,JQuerySWFUpload");
+		loadResources("jQuery,jQuerySWFUpload");
 		if (arguments.useQueue)
-			loadResources("JQuerySWFUploadQueue");
+			loadResources("jQuerySWFUploadQueue");
 	}
 
 	public void function loadJQueryTemplates(boolean force=0)
 	{
-		loadResources("JQuery,JQueryTemplates");
+		loadResources("jQuery,jQueryTemplates");
 	}
 
 	public void function loadJQueryTextLimit(boolean force=0)
 	{
-		loadResources("JQuery,JQueryTextLimit");
+		loadResources("jQuery,jQueryTextLimit");
 	}
 
 	public void function loadJQueryTimeAgo(string version="", boolean force=0)
 	{
-		loadResources("JQuery,JQueryTimeAgo");
+		loadResources("jQuery,jQueryTimeAgo");
 	}
 
 	public void function loadJQueryTools(string version="", boolean force=0)
 	{
-		loadResources("JQuery,JQueryTools");
+		loadResources("jQuery,jQueryTools");
 	}
 
 	public void function loadJQueryUIForm()
 	{
-		loadResources("JQuery,JQueryUI,JQueryUIForm");
+		loadResources("jQuery,jQueryUI,jQueryUIForm");
 	}
 
 	public void function loadJQueryUIStars(string version="", boolean force=0)
 	{
-		loadResources("JQuery,JQueryUI,JQueryUIStars");
+		loadResources("jQuery,jQueryUI,jQueryUIStars");
 	}
 
 	public void function loadJQueryUITimepickerAddon(string version="", boolean force=0)
 	{
-		loadResources("JQuery,JQueryUI,JQueryUITimepickerAddon");
+		loadResources("jQuery,jQueryUI,jQueryUITimepickerAddon");
 	}
 
 	public void function loadJQueryUITimepickerFG(string version="", boolean force=0)
 	{
-		loadResources("JQuery,JQueryUI,JQueryUITimepickerFG");
+		loadResources("jQuery,jQueryUI,jQueryUITimepickerFG");
 	}
 
 	public void function loadJSONJS(boolean force=0)
@@ -562,14 +598,15 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 
 	public void function loadJSTree(string version="", boolean force=0, boolean loadStyles=0, string theme="")
 	{
-		loadResources("JQuery,JSTree");
+		loadResources("jQuery,JSTree");
 		if (arguments.loadStyles)
 		{
 			arguments.theme = trim(arguments.theme);
+
 			if (arguments.theme == "")
-				loadResources("JSTreeDefaultStyles");
+				loadResources("JSTreeDefaultStyles"); 
 			else
-				loadTheme(arguments.theme, "JSTreeDefaultStyles", "themes");
+		  		loadTheme(arguments.theme, "JSTreeDefaultStyles", "themes");
 		}
 	}
 
@@ -590,25 +627,26 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 		loadResources("NiceForms,CommonSpotStyles");
 	}*/
 
-	public void function loadCommonSpotStyles()
+    // NOT ALLOWED ANYMORE
+	/*public void function loadCommonSpotStyles()
 	{
 		loadResources("CommonSpotStyles");
-	}
+	}*/
 
 	public void function loadQTip(string version="", boolean force=0)
 	{
-		loadResources("JQuery,QTip");
+		loadResources("jQuery,QTip");
 	}
 
-	/* HIGH: there's nothing like this in the ADF
+	/* HIGH: there's nothing like this in the ADF thirdParty folder
 	public void function loadSimplePassMeter(boolean force=0)
 	{
-		loadResources("JQuery,SimplePassMeter");
+		loadResources("jQuery,SimplePassMeter");
 	}*/
 
 	public void function loadTableSorter(string version="", boolean force=0)
 	{
-		loadResources("JQuery,TableSorter");
+		loadResources("jQuery,TableSorter");
 	}
 
 	public void function loadTableSorterPager()
@@ -625,22 +663,22 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 
 	public void function loadThickbox()
 	{
-		loadResources("JQuery,Thickbox");
+		loadResources("jQuery,Thickbox");
 	}
 
 	public void function loadTipsy()
 	{
-		loadResources("JQuery,Tipsy");
+		loadResources("jQuery,Tipsy");
 	}
 
 	public void function loadTypeAheadBundle()
 	{
-		loadResources("JQuery,TypeAheadBundle");
+		loadResources("jQuery,TypeAheadBundle");
 	}
 
 	public void function loadUploadify()
 	{
-		loadResources("JQuery,Uploadify,jQuerySWFObject");
+		loadResources("jQuery,Uploadify,jQuerySWFObject");
 	}
 
 	public void function loadUsedKeyboard()

@@ -33,7 +33,8 @@ ADF Requirements:
 History:
 	2013-02-06 - GAC - Created
 	2015-05-20 - DJM - Converted to CFC
-	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
+	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean()
+	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
 --->
 <cfcomponent displayName="TimePicker Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -42,7 +43,7 @@ History:
 	<cfargument name="fieldDomID" type="string" required="yes">
 	<cfargument name="value" type="string" required="yes">
 	<cfscript>
-		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
+		var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
 		var currentValue = arguments.value;	// the field's current value
 		var readOnly = (arguments.displayMode EQ 'readonly') ? true : false;
 		var displayValue = "";
@@ -105,7 +106,7 @@ History:
 	<cfargument name="fieldParameters" type="struct" required="yes">
 	<cfargument name="useClockIcon" type="boolean" required="yes">
 	<cfscript>
-		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.fieldParameters);
+		var inputParameters = application.ADF.data.duplicateStruct(arguments.fieldParameters);
 	</cfscript>
 <cfoutput><script type="text/javascript">
 <!--
@@ -182,7 +183,7 @@ jQuery(function() {
 	<cfargument name="value" type="string" required="yes">
 	
 	<cfscript>
-		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
+		var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
 		// inputParameters fields that cannot be overridden by the App
 		var inputParametersExceptionsList = "fldID,appBeanName,appPropsVarName";
 		

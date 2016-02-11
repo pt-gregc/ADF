@@ -180,7 +180,7 @@ History:
         PaperThin, Inc.
         G. Cronkright
     Name:
-        $doStepLogging
+        $doTextLogging
     Summary:
         Creates a Log file with line-by-line text based log entries based on the simple or complex data.
     Returns:
@@ -196,11 +196,11 @@ History:
         Numeric - breakSize
         String - delimiter
     Usage:
-        doStepLogging(methodName,processName,appName,logMsg,logData,addBreak,breakChar,breakSize,delimiter)
+        doTextLogging(methodName,processName,appName,logMsg,logData,addBreak,breakChar,breakSize,delimiter)
     History:
         2015-11-24 - GAC - Created
     --->
-    <cffunction name="doStepLogging" access="public" returntype="void" hint="Creates a Log file with line-by-line text based log entries based on the simple or complex data.">
+    <cffunction name="doTextLogging" access="public" returntype="void" hint="Creates a Log file with line-by-line text based log entries based on the simple or complex data.">
         <cfargument name="methodName" type="string" required="false" default="Used as a prefix in the log entry">
         <cfargument name="processName" type="string" required="false" default="General" hint="Used as a prefix in the log entry and as part of the log file name">
         <cfargument name="appName" type="string" required="false" default="ADF" hint="Used as part of the log file name">
@@ -212,7 +212,7 @@ History:
         <cfargument name="delimiter" type="string" required="false" default=":" hint="a column delimiter character used to seperate data on a single line.">
 
         <cfscript>
-            var logFileName = stepLogFileName(processName=arguments.processName,appName=arguments.appName);
+            var logFileName = textLogFileName(processName=arguments.processName,appName=arguments.appName);
             var logPrefix = arguments.processName & arguments.delimiter & " ";
 
             // Prepend the processName and if exists the methodName
@@ -222,7 +222,7 @@ History:
             if ( LEN(TRIM(arguments.logMsg)) )
                 logAppend( msg=logPrefix & arguments.logMsg, logfile=logFileName );
 
-            doStepLogData(logFilename=logFileName,logPrefix=logPrefix,logData=arguments.logData,delimiter=arguments.delimiter);
+            doTextLogData(logFilename=logFileName,logPrefix=logPrefix,logData=arguments.logData,delimiter=arguments.delimiter);
 
             if ( arguments.addBreak AND arguments.breakSize GT 0 )
                 logAppend( msg=RepeatString(arguments.breakChar,arguments.breakSize), logfile=logFileName );
@@ -235,7 +235,7 @@ History:
         PaperThin, Inc.
         G. Cronkright
     Name:
-        $doStepLogData
+        $doTextLogData
     Summary:
         Renders the data passed in as text log entries.
     Returns:
@@ -247,11 +247,11 @@ History:
         String - breakChar
         String - delimiter
     Usage:
-        doStepLogData(logFilename,logPrefix,logData)
+        doTextLogData(logFilename,logPrefix,logData)
     History:
         2015-11-24 - GAC - Created
     --->
-    <cffunction name="doStepLogData" access="public" returntype="void" hint="Renders the data passed in as text log entries.">
+    <cffunction name="doTextLogData" access="public" returntype="void" hint="Renders the data passed in as text log entries.">
         <cfargument name="logFilename" type="string" required="true">
         <cfargument name="logPrefix" type="string" required="false" default="">
         <cfargument name="logData" type="any" required="false" default="">
@@ -262,13 +262,13 @@ History:
             var logMsg = "";
 
             if ( IsArray(arguments.logData) )
-                doStepLogArray(logFilename=arguments.logFileName,logPrefix=arguments.logPrefix,logData=arguments.logData,delimiter=arguments.delimiter);
+                doTextLogArray(logFilename=arguments.logFileName,logPrefix=arguments.logPrefix,logData=arguments.logData,delimiter=arguments.delimiter);
             else if ( IsStruct(arguments.logData) )
-                doStepLogStruct(logFilename=arguments.logFileName,logPrefix=arguments.logPrefix,logData=arguments.logData,delimiter=arguments.delimiter);
+                doTextLogStruct(logFilename=arguments.logFileName,logPrefix=arguments.logPrefix,logData=arguments.logData,delimiter=arguments.delimiter);
             else if ( IsQuery(arguments.logData) )
-                doStepLogQuery(logFilename=arguments.logFileName,logPrefix=arguments.logPrefix,logData=arguments.logData,delimiter=arguments.delimiter);
+                doTextLogQuery(logFilename=arguments.logFileName,logPrefix=arguments.logPrefix,logData=arguments.logData,delimiter=arguments.delimiter);
             else if ( IsSimpleValue(arguments.logData) )
-                doStepLogSimple(logFilename=arguments.logFileName,logPrefix=arguments.logPrefix,logData=arguments.logData);
+                doTextLogSimple(logFilename=arguments.logFileName,logPrefix=arguments.logPrefix,logData=arguments.logData);
             else
                 logAppend( msg=arguments.logPrefix & "[[Complex Object]] ", logfile=arguments.logFileName );
 
@@ -283,7 +283,7 @@ History:
        PaperThin, Inc.
        G. Cronkright
     Name:
-       $doStepLogSimple
+       $doTextLogSimple
     Summary:
        Renders the simple data as a text log entry
     Returns:
@@ -294,11 +294,11 @@ History:
        String - logData
        Boolean - cleanData
     Usage:
-       doStepLogSimple(logFilename,logPrefix,logData,cleanData)
+       doTextLogSimple(logFilename,logPrefix,logData,cleanData)
     History:
        2015-11-24 - GAC - Created
     --->
-    <cffunction name="doStepLogSimple" access="public" returntype="void" hint="Renders the simple data as a text log entry">
+    <cffunction name="doTextLogSimple" access="public" returntype="void" hint="Renders the simple data as a text log entry">
         <cfargument name="logFilename" type="string" required="true">
         <cfargument name="logPrefix" type="string" required="false" default="">
         <cfargument name="logData" type="string" required="false" default="">
@@ -322,7 +322,7 @@ History:
        PaperThin, Inc.
        G. Cronkright
     Name:
-       $doStepLogArray
+       $doTextLogArray
     Summary:
        Renders array data as multiple text log entries
     Returns:
@@ -333,11 +333,11 @@ History:
        String - logData
        String - delimiter
     Usage:
-       doStepLogArray(logFilename,logPrefix,logData,delimiter)
+       doTextLogArray(logFilename,logPrefix,logData,delimiter)
     History:
        2015-11-24 - GAC - Created
     --->
-    <cffunction name="doStepLogArray" access="public" returntype="void" hint="Renders array data as text log entries">
+    <cffunction name="doTextLogArray" access="public" returntype="void" hint="Renders array data as text log entries">
         <cfargument name="logFilename" type="string" required="true">
         <cfargument name="logPrefix" type="string" required="false" default="">
         <cfargument name="logData" type="array" required="false" default="#ArrayNew(1)#">
@@ -356,7 +356,7 @@ History:
                 dataValue = arguments.logData[i];
 
                 logMsg = arguments.logPrefix & "[" & dataName & "]" & arguments.delimiter & " ";
-                doStepLogData(logFilename=arguments.logFileName,logPrefix=logMsg,logData=dataValue,delimiter=arguments.delimiter);
+                doTextLogData(logFilename=arguments.logFileName,logPrefix=logMsg,logData=dataValue,delimiter=arguments.delimiter);
             }
         </cfscript>
     </cffunction>
@@ -367,7 +367,7 @@ History:
        PaperThin, Inc.
        G. Cronkright
     Name:
-       $doStepLogStruct
+       $doTextLogStruct
     Summary:
        Renders struct data as multiple text log entries
     Returns:
@@ -378,11 +378,11 @@ History:
        String - logData
        String - delimiter
     Usage:
-       doStepLogStruct(logFilename,logPrefix,logData,cleanData)
+       doTextLogStruct(logFilename,logPrefix,logData,cleanData)
     History:
        2015-11-24 - GAC - Created
     --->
-    <cffunction name="doStepLogStruct" access="public" returntype="void" hint="Renders struct data as text log entries">
+    <cffunction name="doTextLogStruct" access="public" returntype="void" hint="Renders struct data as text log entries">
         <cfargument name="logFilename" type="string" required="true">
         <cfargument name="logPrefix" type="string" required="false" default="">
         <cfargument name="logData" type="struct" required="false" default="#StructNew()#">
@@ -402,7 +402,7 @@ History:
                 if ( dataName NEQ "FieldNames" )
                 {
                     logMsg = arguments.logPrefix & "[" & dataName & "]" & arguments.delimiter & " ";
-                    doStepLogData(logFilename=arguments.logFileName,logPrefix=logMsg,logData=dataValue,delimiter=arguments.delimiter);
+                    doTextLogData(logFilename=arguments.logFileName,logPrefix=logMsg,logData=dataValue,delimiter=arguments.delimiter);
                 }
             }
         </cfscript>
@@ -414,7 +414,7 @@ History:
        PaperThin, Inc.
        G. Cronkright
     Name:
-       $doStepLogQuery
+       $doTextLogQuery
     Summary:
        Renders query data as multiple text log entries
     Returns:
@@ -425,11 +425,11 @@ History:
        String - logData
        String - delimiter
     Usage:
-       doStepLogQuery(logFilename,logPrefix,logData,cleanData)
+       doTextLogQuery(logFilename,logPrefix,logData,cleanData)
     History:
        2015-11-24 - GAC - Created
     --->
-    <cffunction name="doStepLogQuery" access="public" returntype="void" hint="Renders query data as multiple text log entries">
+    <cffunction name="doTextLogQuery" access="public" returntype="void" hint="Renders query data as multiple text log entries">
         <cfargument name="logFilename" type="string" required="true">
         <cfargument name="logPrefix" type="string" required="false" default="">
         <cfargument name="logData" type="query" required="false" default="#QueryNew('temp')#">
@@ -450,7 +450,7 @@ History:
                 dataValue = application.ADF.data.queryRowToStruct(query=arguments.logData,rowNum=i);
 
                 logMsg = arguments.logPrefix & " -- " & dataName & " -- ";
-                doStepLogStruct(logFilename=arguments.logFileName,logPrefix=logMsg,logData=dataValue,delimiter=arguments.delimiter);
+                doTextLogStruct(logFilename=arguments.logFileName,logPrefix=logMsg,logData=dataValue,delimiter=arguments.delimiter);
             }
         </cfscript>
     </cffunction>
@@ -461,7 +461,7 @@ History:
       PaperThin, Inc.
       G. Cronkright
     Name:
-      $stepLogFileName
+      $TextLogFileName
     Summary:
       Builds the log file name from data passed in
     Returns:
@@ -470,11 +470,11 @@ History:
       String - processName
       String - appName
     Usage:
-      stepLogFileName(processName,appName)
+      textLogFileName(processName,appName)
     History:
       2015-11-24 - GAC - Created
     --->
-    <cffunction name="stepLogFileName" access="public" returntype="string" hint="Builds the log file name from data passed in">
+    <cffunction name="textLogFileName" access="public" returntype="string" hint="Builds the log file name from data passed in">
         <cfargument name="processName" type="string" required="false" default="General">
         <cfargument name="appName" type="string" required="false" default="Import">
 
@@ -490,7 +490,7 @@ History:
         PaperThin, Inc.
         G. Cronkright
     Name:
-        $deleteStepLog
+        $deleteTextLog
     Summary:
         Used to delete logs file based on the standard naming convention
     Returns:
@@ -501,18 +501,18 @@ History:
         Boolean - addTimeStamp
         String - logDir
     Usage:
-        deleteStepLog(processName,appName,addTimeStamp,logDir)
+        deleteTextLog(processName,appName,addTimeStamp,logDir)
     History:
         2015-11-24 - GAC - Created
     --->
-    <cffunction name="deleteStepLog" access="public" returntype="void" hint="Used to delete logs file based on the standard naming convention">
+    <cffunction name="deleteTextLog" access="public" returntype="void" hint="Used to delete logs file based on the standard naming convention">
         <cfargument name="processName" type="string" required="false" default="General">
         <cfargument name="appName" type="string" required="false" default="ADF">
         <cfargument name="addTimeStamp" type="boolean" required="false" default="true" hint="Adds a date stamp to the file name">
         <cfargument name="logDir" type="string" required="false" default="#request.cp.commonSpotDir#logs/">
 
         <cfscript>
-            var logFileName = stepLogFileName(processName=arguments.processName,appName=arguments.appName);
+            var logFileName = textLogFileName(processName=arguments.processName,appName=arguments.appName);
             var fullFilePath = "";
 
             if( arguments.addTimeStamp )

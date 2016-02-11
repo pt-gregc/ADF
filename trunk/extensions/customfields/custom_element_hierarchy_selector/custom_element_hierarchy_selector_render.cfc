@@ -42,6 +42,7 @@ History:
 	2016-01-06 - GAC - Added a isMultiline() call so the label renders at the top
 	                 - Added getMinWidth() and getMinHeight()
     2016-02-09 - JTP - Put back duplicate and added structKeyExists
+    2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
 --->
 <cfcomponent displayName="CustomElementHierarchySelector Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -52,8 +53,7 @@ History:
 	
 	<cfscript>
 		var allAtrs = getAllAttributes();
-		// var inputParameters =  Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
-		var inputParameters =  duplicate(arguments.parameters);
+		var inputParameters =  application.ADF.data.duplicateStruct(arguments.parameters);
 		var uniqueTableAppend = arguments.fieldID;
 		var ceFormID = arguments.formID;
 		var customElementObj = Server.CommonSpot.ObjectFactory.getObject('CustomElement');
@@ -141,7 +141,7 @@ History:
 	<cfargument name="dataResults" type="array" required="yes">
 	
 	<cfscript>
-		var inputParameters =  Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
+		var inputParameters =  application.ADF.data.duplicateStruct(arguments.parameters);
 		var allAtrs = getAllAttributes();
 		
 		// Set the 'multiple' property

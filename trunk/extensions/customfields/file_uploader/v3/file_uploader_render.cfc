@@ -35,7 +35,8 @@ History:
 	2013-01-21 - SFS - Moved the CFT hidden fields back outside of the <td> wrapper for the field to make more valid HTML
 	2015-05-08 - DJM - Converted to CFC
 	2015-05-26 - DJM - Added the 3.0 version
-	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
+	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean()
+	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
 --->
 <cfcomponent displayName="FileUploader Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -44,7 +45,7 @@ History:
 	<cfargument name="fieldDomID" type="string" required="yes">
 	<cfargument name="value" type="string" required="yes">
 	<cfscript>
-		var inputParameters = Server.CommonSpot.UDF.util.duplicateBean(arguments.parameters);
+		var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
 		var currentValue = arguments.value;	// the field's current value
 		var readOnly = (arguments.displayMode EQ 'readonly') ? true : false;
 		var uploadUUID = CreateUUID();

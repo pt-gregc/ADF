@@ -41,7 +41,7 @@ History:
 //writedump( var="#currentValues#", expand="no" );
 	
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "1.0.0";
+	fieldVersion = "1.0.1";
 	
 	// initialize some of the attributes variables
 	showSize = 0;
