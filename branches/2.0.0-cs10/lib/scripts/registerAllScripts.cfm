@@ -501,7 +501,8 @@
 			"jQueryBBQ 1.3", "SECONDARY",
 			[],
 			[
-				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/bbq/1.3/jquery.ba-bbq.min.js"}
+				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/bbq/1.3.adf/jquery.ba-bbq.js"}
+				/* {LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/bbq/1.3/jquery.ba-bbq.min.js"}*/
 			],
 			"jQueryBBQ resources.", "Included in ADF 2.0 and later.", "jQueryBBQ"
 		);
