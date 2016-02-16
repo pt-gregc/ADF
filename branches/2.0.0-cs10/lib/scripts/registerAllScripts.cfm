@@ -1107,4 +1107,32 @@
 	}
 </cfscript>
 
-<cfoutput><h1>Resources registered.</h1></cfoutput>
+<!---<cfoutput><h1>Resources registered.</h1></cfoutput>--->
+
+<script>
+    // Append to a text file in the _cs_apps/adf_resources/inventory.log folder the name and aliases of each resource registered.
+    // a "registerAllScripts.cfm" removeExisting=1 OR deRegister=1(?) will remove only the resources found in this file (created by this script).
+
+    // Build cffile action="append" to create and update the file or use log.doTextLogging()
+    // Probably should keep the data in a WDDX packet for easy parsing
+    // The INVENTORY FILE should have timestamp in it ... but not in the filename. keep a running list of auto installed resources.
+    // Script should create folder if does not exist
+    // The INVENTORY FILE should keep the Resource Name and all aliases
+    // When the REMOVE script is run it should remove the record from the INVENTORY FILE.
+    // When the UpdateExisting=1  is run the scirpt should update the record... or add a new if existing record is not found (same as current register behavior)
+    // When the registerAllScripts.cfm (no params) is run... add and non-existing resources to the file.
+    // ScriptsService_2_0 would be a good place to handle this processing code.
+    // Methods Needed:
+    //  createFile()
+    //  updateFile()
+    //  readFile()
+    //  createDataPacket()
+    //  updateDataPacket()
+    //  readDataPacket()
+    //  writeDataPacket()
+    //  deleteResourceEntry()
+    //  addResourceEntry()
+    //  updateResourceEntry()
+    //  getResourceEntryByName()
+    //  getResourceEntryByAlias()-?
+</script>

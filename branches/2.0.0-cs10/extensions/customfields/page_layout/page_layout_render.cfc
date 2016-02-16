@@ -38,6 +38,9 @@ History:
 	2015-05-11 - DJM - Converted to CFC
 	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean()
 	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
+	2016-02-16 - GAC - Added getResourceDependencies support
+					 	  - Added loadResourceDependencies support
+		 				  - Moved resource loading to the loadResourceDependencies() method
 --->
 <cfcomponent displayName="PageLayout Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -45,6 +48,7 @@ History:
 	<cfargument name="fieldName" type="string" required="yes">
 	<cfargument name="fieldDomID" type="string" required="yes">
 	<cfargument name="value" type="string" required="yes">
+
 	<cfscript>
 		var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
 		var currentValue = arguments.value;	// the field's current value	 
@@ -113,9 +117,6 @@ History:
 	
 	<cfoutput>
 		<div class="main">
-			<cfscript>
-				application.ADF.scripts.loadJQuery();
-			</cfscript>
 	</cfoutput>
 	<cfscript>
 		renderJSFunctions(argumentCollection=arguments);
@@ -218,9 +219,23 @@ function #arguments.fieldName#_loadSelection(optionName) {
 
 
 <cfscript>
+	private boolean function isMultiline()
+	{
+		return true;
+	}
+
+	/*
+		IMPORTANT: Since loadResourceDependencies() is using ADF.scripts loadResources methods, getResourceDependencies() and
+		loadResourceDependencies() must stay in sync by accounting for all of required resources for this Custom Field Type.
+	*/
+	public void function loadResourceDependencies()
+	{
+		// Load registered Resources via the ADF scripts_2_0
+		application.ADF.scripts.loadJQuery();
+	}
 	public string function getResourceDependencies()
 	{
-		return listAppend(super.getResourceDependencies(), "jQuery");
+		return "jQuery";
 	}
 </cfscript>
 
