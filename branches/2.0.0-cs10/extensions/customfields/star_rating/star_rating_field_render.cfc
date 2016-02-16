@@ -49,6 +49,7 @@ History:
 	<cfargument name="fieldName" type="string" required="yes">
 	<cfargument name="fieldDomID" type="string" required="yes">
 	<cfargument name="value" type="string" required="yes">
+	
 	<cfscript>
 		var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
 		var numberOfStars = 5;
@@ -128,7 +129,10 @@ jQuery(document).ready(function(){
 	public void function loadResourceDependencies()
 	{
 		var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
-
+		
+		if ( !StructKeyExists(inputParameters,"uiTheme") )
+			inputParameters.uiTheme = "ui-lightness";
+		
 		// Load registered Resources via the ADF scripts_2_0
 		application.ADF.scripts.loadJQuery();
 		application.ADF.scripts.loadJQueryUI(themeName=inputParameters.uiTheme);

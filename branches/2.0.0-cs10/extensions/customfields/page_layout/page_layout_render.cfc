@@ -112,16 +112,11 @@ History:
 		newOption.image = "/ADF/extensions/customfields/page_layout/thumbs/right_channel.gif";
 		ArrayAppend(layoutOptions, newOption);
 		
-		renderStyles(argumentCollection=arguments);	
-	</cfscript>
-	
-	<cfoutput>
-		<div class="main">
-	</cfoutput>
-	<cfscript>
+		renderStyles(argumentCollection=arguments);
 		renderJSFunctions(argumentCollection=arguments);
 	</cfscript>
 	<cfoutput>
+		<div class="main">
 			<!--- Loop over the array of options --->
 			<cfloop index="i" from="1" to="#ArrayLen(layoutOptions)#" >
 				<!--- Set the current option name b/c we use it multiple times --->

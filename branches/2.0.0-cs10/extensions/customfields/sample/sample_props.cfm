@@ -63,6 +63,7 @@ History:
 	// Setup the default values
 	defaultValues = StructNew();
 	defaultValues.defaultText = "This is the defaulted text";
+	defaultValues.uiTheme = "ui-lightness";
 
 	// This will override the current values with the default values.
 	// In normal use this should not need to be modified.
@@ -85,7 +86,7 @@ History:
 <cfoutput>
 	<script language="JavaScript" type="text/javascript">
 		// register the fields with global props object, this uses the name of the field
-		fieldProperties['#typeid#'].paramFields = '#prefix#defaultText';
+		fieldProperties['#typeid#'].paramFields = '#prefix#defaultText,#prefix#uiTheme';
 		// allows this field to have a common onSubmit Validator
 		fieldProperties['#typeid#'].jsValidator = '#prefix#doValidate';
 
@@ -110,6 +111,12 @@ History:
 			--->
 			<td class="cs_dlgLabelSmall">
 				<input type="text" id="#prefix#defaultText" name="#prefix#defaultText" value="#currentValues.defaultText#">
+			</td>
+		</tr>
+		<tr>
+			<td class="cs_dlgLabelSmall">UI Theme:</td>
+			<td class="cs_dlgLabelSmall">
+				<input type="text" name="#prefix#uiTheme" id="#prefix#uiTheme" class="cs_dlgControl" value="#currentValues.uiTheme#" size="40">
 			</td>
 		</tr>
 		<tr>
