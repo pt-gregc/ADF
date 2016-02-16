@@ -47,6 +47,7 @@ History:
 	2015-09-10 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
 	2015-10-14 - GAC - Updated the forms call to Forms_2_0
 	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
+	2016-02-16 - DRM - Implement loadResourceDependencies()
 --->
 <cfcomponent displayName="AppConfigPage Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -63,9 +64,6 @@ History:
 		var itm = '';
 		var pageData = '';
 		var cftPath = '/ADF/extensions/customfields/app_config_page';
-		
-		// Load JQuery to the script
-		application.ADF.scripts.loadJQuery();
 	
 		// check the pages that have the attached script or RH in use
 		if( inputParameters.scriptType eq "Custom Script" )
@@ -148,9 +146,13 @@ jQuery(function(){
 		return "Please select a page.";
 	}
 
+	public string function loadResourceDependencies()
+	{
+		application.ADF.scripts.loadJQuery();
+	}
 	public string function getResourceDependencies()
 	{
-		return listAppend(super.getResourceDependencies(), "jQuery");
+		return "jQuery";
 	}
 </cfscript>
 </cfcomponent>

@@ -42,21 +42,32 @@ History:
 	2015-05-12 - DJM - Updated the field version to 2.0
 	2015-09-02 - DRM - Add getResourceDependencies support, bump version
 	2015-10-14 - GAC - Updated the forms call to Forms_2_0
+	2016-02-16 - DRM - Implement resource detection
+						  - Bump field version
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
+<!--- // if this module loads resources, do it here.. --->
+<cfscript>
+	application.ADF.scripts.loadJQuery(noConflict=true);
+	application.ADF.scripts.loadJQueryUI();
+</cfscript>
+
+<!--- ... then exit if all we're doing is detecting required resources --->
+<cfif Request.RenderState.RenderMode EQ "getResources">
+  <cfexit>
+</cfif>
+
+
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "2.0.4";
+	fieldVersion = "2.0.5";
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
 	prefix = attributes.prefix;
 	formname = attributes.formname;
 	currentValues = attributes.currentValues;
-	
-	application.ADF.scripts.loadJQuery(noConflict=true);
-	application.ADF.scripts.loadJQueryUI();
 	
 	btnClass = application.ADF.scripts.jQueryUIButtonClass();
 </cfscript>
