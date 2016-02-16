@@ -39,7 +39,8 @@ History:
 	2015-05-12 - DJM - Updated the field version to 2.0
 	2015-09-02 - DRM - Add getResourceDependencies support, bump version
 	2016-02-16 - GAC - Added getResourceDependencies and loadResourceDependencies support to the Render
-			         - Added the getResources check to the Props
+			     		  - Added the getResources check to the Props
+			     		  - Bumped field version
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
@@ -66,7 +67,7 @@ History:
 	// Setup the default values
 	defaultValues = StructNew();
 	defaultValues.allowSubsiteAdd = "no";
-	defaultValues.uiTheme = "smoothness";
+	defaultValues.uiTheme = "ui-lightness";
 	defaultValues.filterList = "";
 	
 	//-- App Override Variables --//
