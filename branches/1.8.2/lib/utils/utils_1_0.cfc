@@ -77,8 +77,13 @@ Summary:
 Returns:
 	void
 Arguments:
-	String msg - the message to be logged
-	String logFile [optional] - an alternative log file
+	String msg
+	String logFile
+	Boolean addTimeStamp
+	String logDir
+	String label
+	Boolean useUTC
+	Boolean addEntryTimeStampPrefix
 History:
 	2008-06-17 - RLW - Created
 	2011-07-15 - RAK - Converted msg to be able to take anything
@@ -97,7 +102,7 @@ History:
 	<cfargument name="logDir" type="string" required="false" default="#request.cp.commonSpotDir#logs/">
 	<cfargument name="label" type="string" required="false" default="" hint="Adds a text label to the log entry">
 	<cfargument name="useUTC" type="boolean" required="false" default="true" hint="Converts the timestamp in the entry and the filename to UTC">
-	<cfargument name="addEntryTimeStamp" type="boolean" required="false" default="true" hint="Allows the timestamp prefix in the log entry to be excluded">
+	<cfargument name="addEntryTimeStampPrefix" type="boolean" required="false" default="true" hint="Allows the timestamp prefix in the log entry to be excluded">
 	
 	<cfscript>
 		var logFileName = arguments.logFile;
@@ -117,12 +122,13 @@ History:
 			arguments.msg = doDump(arguments.msg,"#arguments.label# - #dateTimeStamp#",0,1);
 		
 		logEntry = arguments.label & " " & arguments.msg;
-		if ( arguments.addTimeStampPrefix )
+
+		if ( arguments.addEntryTimeStampPrefix )
 			logEntry = dateTimeStamp & " - " & logEntry;
 	</cfscript>
 	
 	<cftry>
-		<!--- Check if the file exists --->
+		<!--- // Check if the file exists --->
 		<cfif NOT directoryExists(arguments.logdir)>
 			<cfdirectory action="create" directory="#arguments.logdir#">
 		</cfif>
