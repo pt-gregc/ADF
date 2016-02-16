@@ -31,12 +31,23 @@ History:
 	2014-01-02 - GAC - Added the CFSETTING tag to disable CF Debug results in the props module
 	2014-09-19 - GAC - Removed deprecated doLabel and jsLabelUpdater js calls
 	2015-12-22 - GAC - Converted to CFC
+	2016-02-16 - GAC - Added the getResources check
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
+<!--- // if this module loads resources, do it here.. --->
+<!---<cfscript>
+    // No resources to load
+</cfscript>--->
+
+<!--- ... then exit if all we're doing is detecting required resources --->
+<cfif Request.RenderState.RenderMode EQ "getResources">
+  <cfexit>
+</cfif>
+
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "2.0.0";
+	fieldVersion = "2.0.1";
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
@@ -56,7 +67,8 @@ History:
 		//	OR the default value does not exist in the current values
 		if( ( StructKeyExists(currentValues, defaultValueArray[i]) 
 				AND (NOT LEN(currentValues[defaultValueArray[i]])) )
-				OR (NOT StructKeyExists(currentValues, defaultValueArray[i])) ){
+				OR (NOT StructKeyExists(currentValues, defaultValueArray[i])) )
+		{
 			currentValues[defaultValueArray[i]] = defaultValues[defaultValueArray[i]];
 		}
 	}

@@ -28,6 +28,8 @@ Summary:
 History:
  	2012-11-27 - MFC - Created
  	2015-12-22 - GAC - Converted to CFC
+ 	2016-02-16 - GAC - Added getResourceDependencies support
+	                 - Added loadResourceDependencies support
 --->
 <cfcomponent displayName="TabIndex_Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -39,9 +41,6 @@ History:
         <cfscript>
             var currentValue = arguments.value;	// the field's current value
             var tabIndexFooterJS = "";
-
-            // Load JQuery
-            application.ADF.scripts.loadJQuery();
         </cfscript>
 
         <cfsavecontent variable="tabIndexFooterJS">
@@ -83,5 +82,19 @@ History:
         {
             renderControl(argumentCollection=arguments);
         }
+
+			/*
+				IMPORTANT: Since loadResourceDependencies() is using ADF.scripts loadResources methods, getResourceDependencies() and
+				loadResourceDependencies() must stay in sync by accounting for all of required resources for this Custom Field Type.
+			*/
+			public void function loadResourceDependencies()
+			{
+				// Load registered Resources via the ADF scripts_2_0
+				application.ADF.scripts.loadJQuery();
+			}
+			public string function getResourceDependencies()
+			{
+				return "jQuery";
+			}
     </cfscript>
 </cfcomponent>
