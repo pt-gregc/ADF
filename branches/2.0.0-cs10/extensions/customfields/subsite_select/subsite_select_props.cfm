@@ -10,7 +10,7 @@ the specific language governing rights and limitations under the License.
 The Original Code is comprised of the ADF directory
  
 The Initial Developer of the Original Code is
-PaperThin, Inc. Copyright(C) 2014.
+PaperThin, Inc.  Copyright (c) 2009-2016.
 All Rights Reserved.
  
 By downloading, modifying, distributing, using and/or accessing any files
@@ -38,12 +38,24 @@ History:
 	2014-09-19 - GAC - Removed deprecated doLabel and jsLabelUpdater js calls
 	2015-05-12 - DJM - Updated the field version to 2.0
 	2015-09-02 - DRM - Add getResourceDependencies support, bump version
+	2016-02-16 - GAC - Added getResourceDependencies and loadResourceDependencies support to the Render
+			         - Added the getResources check to the Props
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
+<!--- // if this module loads resources, do it here.. --->
+<!---<cfscript>
+    // No resources to load
+</cfscript>--->
+
+<!--- ... then exit if all we're doing is detecting required resources --->
+<cfif Request.RenderState.RenderMode EQ "getResources">
+  <cfexit>
+</cfif>
+
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "2.0.3";
+	fieldVersion = "2.0.4";
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
@@ -70,7 +82,8 @@ History:
 		//	OR the default value does not exist in the current values
 		if( ( StructKeyExists(currentValues, defaultValueArray[i]) 
 				AND (NOT LEN(currentValues[defaultValueArray[i]])) )
-				OR (NOT StructKeyExists(currentValues, defaultValueArray[i])) ){
+				OR (NOT StructKeyExists(currentValues, defaultValueArray[i])) )
+        {
 			currentValues[defaultValueArray[i]] = defaultValues[defaultValueArray[i]];
 		}
 	}

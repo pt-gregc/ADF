@@ -40,6 +40,9 @@ History:
 	2015-04-28 - DJM - Converted to CFC
 	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean()
 	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
+	2016-02-16 - GAC - Added getResourceDependencies support
+	                 - Added loadResourceDependencies support
+	                 - Moved resource loading to the loadResourceDependencies() method
 --->
 <cfcomponent displayName="SubsiteSelect Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -56,7 +59,8 @@ History:
 		inputParameters = setDefaultParameters(argumentCollection=arguments);
 
 		// Optional ADF App Override for the Custom Field Type
-		if ( LEN(TRIM(inputParameters.appBeanName)) AND LEN(TRIM(inputParameters.appPropsVarName)) ) {
+		if ( LEN(TRIM(inputParameters.appBeanName)) AND LEN(TRIM(inputParameters.appPropsVarName)) )
+		{
 			inputParameters = application.ADF.utils.appOverrideCSParams(
 														csParams=inputParameters,
 														appName=inputParameters.appBeanName,
@@ -65,10 +69,10 @@ History:
 													);
 		}
 		
-		// load the jQuery library
-		application.ADF.scripts.loadJQuery();
-		application.ADF.scripts.loadJQueryUI(themeName=inputParameters.uiTheme);
-		application.ADF.scripts.loadJQuerySelectboxes();
+		// MOVED resource loading to the loadResourceDependencies() method
+		//application.ADF.scripts.loadJQuery();
+		//application.ADF.scripts.loadJQueryUI(themeName=inputParameters.uiTheme);
+		//application.ADF.scripts.loadJQuerySelectboxes();
 			
 		renderJSFunctions(argumentCollection=arguments, fieldParameters=inputParameters);
 	</cfscript>
@@ -245,9 +249,27 @@ function #arguments.fieldName#addSubsite(name, displayName, description)
 		return "";
 	}
 
+    /*
+        IMPORTANT: getResourceDependencies() and loadResourceDependencies() must stay in sync by accounting for all of
+        required resources for this Custom Field Type
+    */
 	public string function getResourceDependencies()
 	{
 		return listAppend(super.getResourceDependencies(), "jQuery,jQueryUI,JQuerySelectboxes");
 	}
+
+	public void function loadResourceDependencies()
+    {
+        var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
+
+        // Load registered Resources via the ADF scripts_2_0
+        application.ADF.scripts.loadJQuery();
+		application.ADF.scripts.loadJQueryUI(themeName=inputParameters.uiTheme);
+		application.ADF.scripts.loadJQuerySelectboxes();
+
+        // if this renderer extends another one that may require its own resources, it should load those too, like this:
+        //super.loadResourceDependencies();
+    }
 </cfscript>
+
 </cfcomponent>
