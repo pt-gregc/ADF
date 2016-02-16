@@ -426,7 +426,7 @@ Arguments:
 History:
 	2012-08-16 - GAC - Created
 	2015-08-19 - GAC - Updated for the schedule log file name to only allow .log and .txt files to be generated (as per ACF 10+)
-	     				  - Added the allowedLogExts parameter to allow additional log extensions if set in ACF 10+ server config
+					 - Added the allowedLogExts parameter to allow additional log extensions if set in ACF 10+ server config
 	2016-02-16 - GAC - Added a param for passing in a schedule log directory
 --->
 <cffunction name="setRecurringScheduledTask" access="public" returntype="struct" output="false" hint="Creates or updates a scheduled task that is recurring.">
