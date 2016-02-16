@@ -40,8 +40,8 @@ History:
 	2015-09-02 - DRM - Add getResourceDependencies support, bump version
 	2016-02-16 - GAC - Added getResourceDependencies and loadResourceDependencies support to the Render
 			     		  - Added the getResources check to the Props
-			     		  - Bumped field version
 			     		  - Added uiTheme parameter
+			     		  - Bumped field version
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 

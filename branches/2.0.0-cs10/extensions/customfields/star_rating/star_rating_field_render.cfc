@@ -136,7 +136,7 @@ jQuery(document).ready(function(){
 	}
 	public string function getResourceDependencies()
 	{
-		return listAppend("jQuery,jQueryUI,jQueryStars";
+		return "jQuery,jQueryUI,jQueryStars";
 	}
 </cfscript>
 
