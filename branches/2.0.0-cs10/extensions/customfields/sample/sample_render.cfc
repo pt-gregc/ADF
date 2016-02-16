@@ -36,6 +36,9 @@ History:
 	2015-04-29 - DJM - Converted to CFC
 	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean()
 	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
+	2016-02-16 - GAC - Added getResourceDependencies support
+						  - Added loadResourceDependencies support
+						  - Moved resource loading to the loadResourceDependencies() method
 --->
 <cfcomponent displayName="Sample Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -53,10 +56,8 @@ History:
 		if(!Len(currentvalue) AND StructKeyExists(inputParameters, "defaultText")){
 			currentValue = inputParameters.defaultText;
 		}
-		
-		// Load JQuery
-		application.ADF.scripts.loadJQuery();
 	</cfscript>
+
 	<cfoutput>
 		<input name="#arguments.fieldName#" id='#arguments.fieldName#' value="#currentValue#" <cfif readOnly>disabled="disabled"</cfif>>
 	</cfoutput>
@@ -70,9 +71,21 @@ History:
 		return "";
 	}
 
+	/*
+		IMPORTANT: Since loadResourceDependencies() is using ADF.scripts loadResources methods, getResourceDependencies() and
+		loadResourceDependencies() must stay in sync by accounting for all of required resources for this Custom Field Type.
+	*/
+	public void function loadResourceDependencies()
+	{
+		var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
+
+		// Load registered Resources via the ADF scripts_2_0
+		application.ADF.scripts.loadJQuery();
+		application.ADF.scripts.loadJQueryUI(themeName=inputParameters.uiTheme);
+	}
 	public string function getResourceDependencies()
 	{
-		return listAppend(super.getResourceDependencies(), "jQuery");
+		return "jQuery,jQueryUI";
 	}
 </cfscript>
 </cfcomponent>
