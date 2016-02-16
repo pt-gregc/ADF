@@ -35,7 +35,7 @@ History:
 --->
 <cfcomponent displayname="utils_1_0" extends="ADF.lib.libraryBase" hint="Util functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_14">
+<cfproperty name="version" value="1_0_15">
 <cfproperty name="type" value="singleton">
 <cfproperty name="ceData" type="dependency" injectedBean="ceData_1_0">
 <cfproperty name="wikiTitle" value="Utils_1_0">
@@ -78,8 +78,13 @@ Summary:
 Returns:
 	void
 Arguments:
-	String msg - the message to be logged
-	String logFile [optional] - an alternative log file
+	String msg
+	String logFile
+	Boolean addTimeStamp
+	String logDir
+	String label
+	Boolean useUTC
+	Boolean addEntryTimeStampPrefix
 History:
 	2008-06-17 - RLW - Created
 	2011-07-15 - RAK - Converted msg to be able to take anything
@@ -89,7 +94,8 @@ History:
 	2013-12-05 - DRM - Create formatted UTC timestamp in local code, avoids crash logging ADF startup errors when ADF isn't built yet
 	                   default logFile to adf-debug.log, instead of debug.log
 	2014-09-19 - GAC - Add a parameter to make the UTC timestamp optional
-	2015-12-22 - GAC - Moved to the Log_1_0 lib component
+	2015-12-03 - GAC - Added a parameter to make the timestamp prefix on the log entry optional 
+	2015-12-22 - GAC - Moved to the Log_1_0 lib component	
 --->
 <!--- // Moved to the Log_1_0 library component --->
 <cffunction name="logAppend" access="public" returntype="void">
@@ -99,7 +105,7 @@ History:
 	<cfargument name="logDir" type="string" required="false" default="#request.cp.commonSpotDir#logs/">
 	<cfargument name="label" type="string" required="false" default="" hint="Adds a text label to the log entry">
 	<cfargument name="useUTC" type="boolean" required="false" default="true" hint="Converts the timestamp in the entry and the filename to UTC">
-
+	<cfargument name="addEntryTimeStampPrefix" type="boolean" required="false" default="true" hint="Allows the timestamp prefix in the log entry to be excluded">
     <cfscript>
         application.ADF.log.logAppend( argumentCollection=arguments );
     </cfscript>
