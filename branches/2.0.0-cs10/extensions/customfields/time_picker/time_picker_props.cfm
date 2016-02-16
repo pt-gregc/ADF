@@ -38,12 +38,27 @@ History:
 	2014-09-19 - GAC - Removed deprecated doLabel and jsLabelUpdater js calls
 	2015-05-20 - DJM - Modified the fieldVersion variable to be 2.0
 	2015-09-02 - DRM - Add getResourceDependencies support, bump version
+	2016-02-16 - GAC - Added getResourceDependencies and loadResourceDependencies support to the Render
+					 - Added the getResources check to the Props
+			     	 - Bumped field version
+					 - Fixed a doValidate() issue with a jQuery attribute
 --->
-<cfsetting enablecfoutputonly="Yes" showdebugoutput="No">o">
+<cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
+
+<!--- // load resources here --->
+<cfscript>
+	// Load the jQuery Header
+	application.ADF.scripts.loadJQuery(noConflict=true);
+</cfscript>
+
+<!--- ... then exit if all we're doing is detecting required resources --->
+<cfif Request.RenderState.RenderMode EQ "getResources">
+  <cfexit>
+</cfif>
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "2.0.3";
+	fieldVersion = "2.0.4";
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
@@ -69,7 +84,7 @@ History:
 	defaultValues = StructNew();
 	defaultValues.fldID = "";
 	
-	defaultValues.uiTheme = "redmond";
+	defaultValues.uiTheme = "ui-lightness";
 	defaultValues.displayType = pickerArray[1].name;
 	defaultValues.fldIcon = "none"; //option: clock
 	defaultValues.fldIconImg = "/ADF/extensions/customfields/time_picker/clock.png";
@@ -91,13 +106,11 @@ History:
 		//	OR the default value does not exist in the current values
 		if( ( StructKeyExists(currentValues, defaultValueArray[i]) 
 				AND (NOT LEN(currentValues[defaultValueArray[i]])) )
-				OR (NOT StructKeyExists(currentValues, defaultValueArray[i])) ){
+				OR (NOT StructKeyExists(currentValues, defaultValueArray[i])) )
+		{
 			currentValues[defaultValueArray[i]] = defaultValues[defaultValueArray[i]];
 		}
 	}
-		
-	// Load the jQuery Header 
-	application.ADF.scripts.loadJQuery(noConflict=true);
 </cfscript>
 
 <cfoutput>
@@ -109,7 +122,7 @@ History:
 
 		function #prefix#doValidate()
 		{
-			if( jQuery("###prefix#displayType").attr("value").length == 0 )
+			if( jQuery("###prefix#displayType").val().length == 0 )
 			{
 				alert('Please select a time picker');
 				jQuery("###prefix#displayType").focus();
