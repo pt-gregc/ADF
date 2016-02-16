@@ -28,7 +28,7 @@ Name:
 Summary:
 	CFT to render a list for jquery UI theme options
 Version:
-	1.0.0
+	2.0
 History:
 	2011-06-14 - GAC - Created
 	2011-06-16 - GAC - Fixed the default jqueryUIurl and slashes for non Windows OS's
@@ -40,12 +40,25 @@ History:
 	2014-09-19 - GAC - Removed deprecated doLabel and jsLabelUpdater js calls
 	2015-05-12 - DJM - Updated the field version to 2.0
 	2015-09-02 - DRM - Add getResourceDependencies support, bump version
+	2016-02-16 - GAC - Added getResourceDependencies and loadResourceDependencies support to the Render
+			     		  - Added the getResources check to the Props
+			     		  - Bumped field version
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
+<!--- // if this module loads resources, do it here.. --->
+<!---<cfscript>
+    // No resources to load
+</cfscript>--->
+
+<!--- ... then exit if all we're doing is detecting required resources --->
+<cfif Request.RenderState.RenderMode EQ "getResources">
+  <cfexit>
+</cfif>
+
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "2.0.3";
+	fieldVersion = "2.0.4";
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
@@ -54,7 +67,7 @@ History:
 	currentValues = attributes.currentValues;
 	
 	uiFilterStr = "jquery-ui";
-	defaultVersion = "jquery-ui-1.8";
+	defaultVersion = "jquery-ui-1.11";
 	jQueryUIurl = "/ADF/thirdParty/jquery/ui";
 	jQueryUIpath = Replace(ExpandPath(jQueryUIurl),"\","/","all");
 
