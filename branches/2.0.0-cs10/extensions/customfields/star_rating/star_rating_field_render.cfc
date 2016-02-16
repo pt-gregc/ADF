@@ -39,6 +39,9 @@ History:
 	2015-05-20 - DJM - Converted to CFC
 	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean()
 	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
+	2016-02-16 - GAC - Added getResourceDependencies support
+	                 - Added loadResourceDependencies support
+	                 - Moved resource loading to the loadResourceDependencies() method
 --->
 <cfcomponent displayName="StarRatingField Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -55,18 +58,12 @@ History:
 		var currentVal = '';
 		var i = 0;
 		
-		if(StructKeyExists(inputParameters,"numberOfStars")){
+		if(StructKeyExists(inputParameters,"numberOfStars"))
 			numberOfStars = inputParameters.numberOfStars;
-		}
 		
-		if(StructKeyExists(inputParameters,"halfStars")){
+		if(StructKeyExists(inputParameters,"halfStars"))
 			halfStars = inputParameters.halfStars;
-		}
-		// Load the scripts
-		application.ADF.scripts.loadJQuery();
-		application.ADF.scripts.loadJQueryUI();
-		application.ADF.scripts.loadJQueryUIStars();
-		
+
 		renderJSFunctions(argumentCollection=arguments, halfStars=halfStars);
 	</cfscript>
 <cfoutput>
@@ -124,9 +121,22 @@ jQuery(document).ready(function(){
 		return "Please select a value for the #arguments.label# field.";
 	}
 
+    /*
+		IMPORTANT: Since loadResourceDependencies() is using ADF.scripts loadResources methods, getResourceDependencies() and
+		loadResourceDependencies() must stay in sync by accounting for all of required resources for this Custom Field Type.
+	*/
+	public void function loadResourceDependencies()
+	{
+		var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
+
+		// Load registered Resources via the ADF scripts_2_0
+		application.ADF.scripts.loadJQuery();
+		application.ADF.scripts.loadJQueryUI(themeName=inputParameters.uiTheme);
+		application.ADF.scripts.loadJQueryUIStars();
+	}
 	public string function getResourceDependencies()
 	{
-		return listAppend(super.getResourceDependencies(), "jQuery,jQueryUI,jQueryStars");
+		return listAppend("jQuery,jQueryUI,jQueryStars";
 	}
 </cfscript>
 
