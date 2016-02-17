@@ -53,13 +53,26 @@ History:
 						  - Bump fieldVersion
 	2015-09-02 - DRM - Add getResourceDependencies support, bump version
 	2015-10-14 - GAC - Updated the forms call to Forms_2_0
-	2015-11-11 - GAC - Updated the general_chooser.cfc to better deal with adding custom GC parameters (ie. custom filtering parameters and UI.) See the new samples directory. 
+	2015-11-11 - GAC - Updated the general_chooser.cfc to better deal with adding custom GC parameters (ie. custom filtering parameters and UI.) See the new samples directory. \
+	2016-02-17 - GAC - Added getResourceDependencies and loadResourceDependencies support to the Render
+			     		  - Added the getResources check to the Props
+			     		  - Bumped field version
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
+<!--- // if this module loads resources, do it here.. --->
+<!---<cfscript>
+    // No resources to load
+</cfscript>--->
+
+<!--- ... then exit if all we're doing is detecting required resources --->
+<cfif Request.RenderState.RenderMode EQ "getResources">
+  <cfexit>
+</cfif>
+
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "2.0.11";
+	fieldVersion = "2.0.12";
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
@@ -71,11 +84,14 @@ History:
 	defaultValues = StructNew();
 	defaultValues.chooserCFCName = "";
 	defaultValues.chooserAppName = "";
-	defaultValues.forceScripts = "0";
+	defaultValues.uiTheme = "ui-lightness";
 	defaultValues.minSelections = "0";
 	defaultValues.maxSelections = "0";
 	defaultValues.loadAvailable = "0";
 	defaultValues.passthroughParams = "";
+
+	// Deprecated Settings
+	defaultValues.forceScripts = "0";
 
    //This will override the default values with the current values.
    currentValueArray = StructKeyArray(currentValues);
@@ -88,7 +104,7 @@ History:
 <cfoutput>
 	<script language="JavaScript" type="text/javascript">
 		// register the fields with global props object
-		fieldProperties['#typeid#'].paramFields = '#prefix#chooserCFCName,#prefix#chooserAppName,#prefix#forceScripts,#prefix#minSelections,#prefix#maxSelections,#prefix#loadAvailable,#prefix#passthroughParams';
+		fieldProperties['#typeid#'].paramFields = '#prefix#chooserCFCName,#prefix#chooserAppName,#prefix#forceScripts,#prefix#minSelections,#prefix#maxSelections,#prefix#loadAvailable,#prefix#passthroughParams,#prefix#uiTheme';
 		// allows this field to have a common onSubmit Validator
 		fieldProperties['#typeid#'].jsValidator = '#prefix#doValidate';
 
@@ -103,9 +119,13 @@ History:
 			return true;
 		}
 	</script>
+
+	<!--- // Deprecated Settings --->
+	<input type="hidden" name="#prefix#forceScripts" id="#prefix#forceScripts" value="#defaultValues.forceScripts#">
+
 	<table>
 		<tr valign="top">
-			<td class="cs_dlgLabelBold" nowrap="nowrap">Chooser Bean Name:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Chooser Bean Name:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" id="#prefix#chooserCFCName" name="#prefix#chooserCFCName" value="#defaultValues.chooserCFCName#" size="50"><br />
 				Name of the Object Factory Bean that will be used when rendering and
@@ -114,7 +134,7 @@ History:
 			</td>
 		</tr>
 		<tr valign="top">
-			<td class="cs_dlgLabelBold" nowrap="nowrap">Chooser App Name:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Chooser App Name:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" id="#prefix#chooserAppName" name="#prefix#chooserAppName" value="#defaultValues.chooserAppName#" size="50"><br />
 				The App Name that will be used to resolve the Chooser Bean Name
@@ -122,7 +142,14 @@ History:
 				<br />Note: This is optional. If left blank, it will use the first matching Bean Name found in the ADF object.
 			</td>
 		</tr>
-		<tr valign="top">
+		<tr>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">UI Theme:</td>
+			<td class="cs_dlgLabelSmall">
+				<input type="text" name="#prefix#uiTheme" id="#prefix#uiTheme" class="cs_dlgControl" value="#defaultValues.uiTheme#" size="50">
+			</td>
+		</tr>
+		<!--- // Deprecated Setting --->
+		<!---<tr valign="top">
 			<td class="cs_dlgLabelBold" nowrap="nowrap">Force Loading Scripts:</td>
 			<td class="cs_dlgLabelSmall">
 				<label style="color:black;font-size:12px;font-weight:normal;">Yes <input type="radio" id="#prefix#forceScripts" name="#prefix#forceScripts" value="1" <cfif defaultValues.forceScripts EQ "1">checked</cfif>></label>
@@ -130,23 +157,23 @@ History:
 				<label style="color:black;font-size:12px;font-weight:normal;">No <input type="radio" id="#prefix#forceScripts" name="#prefix#forceScripts" value="0" <cfif defaultValues.forceScripts EQ "0">checked</cfif>></label>
 				<br />Force the JQuery, JQuery UI, and Thickbox scripts to load on the chooser loading.
 			</td>
-		</tr>
+		</tr>--->
 		<tr valign="top">
-			<td class="cs_dlgLabelBold" nowrap="nowrap">Minimum Number of Selections:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Minimum Number of Selections:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" id="#prefix#minSelections" name="#prefix#minSelections" value="#defaultValues.minSelections#" size="10"><br />
 				<span>Default: 0 (Use 0 to make a selection optional)</span>
 			</td>
 		</tr>
 		<tr valign="top">
-			<td class="cs_dlgLabelBold" nowrap="nowrap">Maximum Number of Selections:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Maximum Number of Selections:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" id="#prefix#maxSelections" name="#prefix#maxSelections" value="#defaultValues.maxSelections#" size="10"><br />
 				<span>Default: 0 (Use 0 for unlimited selections)</span>
 			</td>
 		</tr>
 		<tr valign="top">
-			<td class="cs_dlgLabelBold" nowrap="nowrap">Load All Available Selections:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Load All Available Selections:</td>
 			<td class="cs_dlgLabelSmall">
 				<label style="color:black;font-size:12px;font-weight:normal;">Yes <input type="radio" id="#prefix#loadAvailable" name="#prefix#loadAvailable" value="1" <cfif defaultValues.loadAvailable EQ "1">checked</cfif>></label>
 				&nbsp;&nbsp;&nbsp;

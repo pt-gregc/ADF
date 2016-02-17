@@ -74,7 +74,9 @@ History:
 	variables.SELECT_ITEM_HEIGHT = 30;
 	variables.SELECT_ITEM_WIDTH = 225;
 	variables.SELECT_ITEM_CLASS = "ui-state-default";
-	variables.JQUERY_UI_THEME = "ui-lightness";
+
+	// Deprecated Setting - MOVED to the CFT props
+	//variables.JQUERY_UI_THEME = "ui-lightness";
 	
 	// VARIABLES for v1.1
 	variables.SHOW_SEARCH = true;  // Boolean
