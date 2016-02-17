@@ -148,16 +148,6 @@ History:
 				<input type="text" name="#prefix#uiTheme" id="#prefix#uiTheme" class="cs_dlgControl" value="#defaultValues.uiTheme#" size="50">
 			</td>
 		</tr>
-		<!--- // Deprecated Setting --->
-		<!---<tr valign="top">
-			<td class="cs_dlgLabelBold" nowrap="nowrap">Force Loading Scripts:</td>
-			<td class="cs_dlgLabelSmall">
-				<label style="color:black;font-size:12px;font-weight:normal;">Yes <input type="radio" id="#prefix#forceScripts" name="#prefix#forceScripts" value="1" <cfif defaultValues.forceScripts EQ "1">checked</cfif>></label>
-				&nbsp;&nbsp;&nbsp;
-				<label style="color:black;font-size:12px;font-weight:normal;">No <input type="radio" id="#prefix#forceScripts" name="#prefix#forceScripts" value="0" <cfif defaultValues.forceScripts EQ "0">checked</cfif>></label>
-				<br />Force the JQuery, JQuery UI, and Thickbox scripts to load on the chooser loading.
-			</td>
-		</tr>--->
 		<tr valign="top">
 			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Minimum Number of Selections:</td>
 			<td class="cs_dlgLabelSmall">
