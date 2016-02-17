@@ -880,7 +880,7 @@
 		(
 			"jQueryUIStars", "SECONDARY",
 			[
-				{LoadTagType=1, SourceURL="/ADF/thirdParty/jquery/ui/stars/3.0/ui.stars.min.css"}
+				{LoadTagType=1, SourceURL="/ADF/thirdParty/jquery/ui/stars/3.0/ui.stars.min.css", canCombine=0, canMinify=0}
 			],
 			[
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/ui/stars/3.0/ui.stars.min.js"}
