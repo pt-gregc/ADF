@@ -64,6 +64,7 @@ History:
 	2016-02-17 - GAC - Added getResourceDependencies support
 	                 - Added loadResourceDependencies support
 	                 - Moved resource loading to the loadResourceDependencies() method
+	                 - Moved UI theme property to the CFT props
 --->
 <cfcomponent displayName="GeneralChooser_Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -236,8 +237,8 @@ History:
 		else
 			inputParameters.chooserAppName = TRIM(inputParameters.chooserAppName);
 
-		//if ( NOT StructKeyExists(inputParameters, "uiTheme") OR LEN(inputParameters.uiTheme) LTE 0 )
-		//	inputParameters.uiTheme = "ui-lightness";
+		if ( NOT StructKeyExists(inputParameters, "uiTheme") OR LEN(inputParameters.uiTheme) LTE 0 )
+			inputParameters.uiTheme = "ui-lightness";
 		
 		return inputParameters;
 	</cfscript>

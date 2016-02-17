@@ -63,6 +63,7 @@ History:
 	defaultValues = StructNew();
 	defaultValues.componentPath = "";
 	defaultValues.uiTheme = "ui-lightness";
+	
 	// Deprecated Settings
 	defaultValues.forceScripts = "0";
 	
@@ -125,15 +126,6 @@ History:
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#uiTheme" id="#prefix#uiTheme" class="cs_dlgControl" value="#currentValues.uiTheme#" size="50">
 			</td>
-		</tr>
-		<!--- <tr>
-			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Force Loading Scripts:</td>
-			<td class="cs_dlgLabelSmall">
-				<label style="color:black;font-size:12px;font-weight:normal;">Yes <input type="radio" id="#prefix#forceScripts" name="#prefix#forceScripts" value="1" <cfif currentValues.forceScripts EQ "1">checked</cfif>></label>
-				&nbsp;&nbsp;&nbsp;
-				<label style="color:black;font-size:12px;font-weight:normal;">No <input type="radio" id="#prefix#forceScripts" name="#prefix#forceScripts" value="0" <cfif currentValues.forceScripts EQ "0">checked</cfif>></label>
-				<br />Force the JQuery script to load.
-			</td> --->
 		</tr>
 	</tbody>
 	<tr>
