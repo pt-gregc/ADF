@@ -35,6 +35,9 @@ History:
 	2015-05-07 - DJM - Converted to CFC
 	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean()
 	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
+	2016-02-16 - GAC - Added getResourceDependencies support
+	                 - Added loadResourceDependencies support
+	                 - Moved resource loading to the loadResourceDependencies() method
 --->
 <cfcomponent displayName="ObjectListBuilder Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -76,9 +79,6 @@ History:
 		var ajaxBeanName = 'objectListBuilder';
 		
 		inputParameters = setDefaultParameters(argumentCollection=arguments);
-		
-		application.ADF.scripts.loadJQuery(noConflict=true);
-		application.ADF.scripts.loadJQueryUI();	
 		
 		if (StructKeyExists(inputParameters, "componentPath") AND inputParameters.componentPath neq "")
 		{
@@ -660,7 +660,6 @@ History:
 		jQuery('##cs_commondlg').css('overflow','hidden');
 	}
 
-
 	jQuery(window).resize(reSizeLocal);
 //-->
 </script>
@@ -677,14 +676,21 @@ History:
 		if ( NOT StructKeyExists(inputParameters, "fldID") OR LEN(inputParameters.fldID) LTE 0 )
 			inputParameters.fldID = arguments.fieldName;
 		
-		if (StructKeyExists(inputParameters, 'msg') AND  Len(inputParameters.msg) GT 0)
+		if ( StructKeyExists(inputParameters, 'msg') AND  Len(inputParameters.msg) GT 0 )
 			msg = inputParameters.msg;
+
+		if ( NOT StructKeyExists(inputParameters, "uiTheme") OR LEN(inputParameters.uiTheme) LTE 0 )
+			inputParameters.uiTheme = "ui-lightness";
 		
 		return inputParameters;
 	</cfscript>
 </cffunction>
 
 <cfscript>
+	private boolean function isMultiline()
+	{
+		return true;
+	}
 	private any function getValidationJS(required string formName, required string fieldName, required boolean isRequired)
 	{
 		return 'validate_#arguments.fieldName#()';
@@ -695,9 +701,23 @@ History:
 		return "Object list is empty.";
 	}
 
+	/*
+		IMPORTANT: Since loadResourceDependencies() is using ADF.scripts loadResources methods, getResourceDependencies() and
+		loadResourceDependencies() must stay in sync by accounting for all of required resources for this Custom Field Type.
+	*/
+	public void function loadResourceDependencies()
+	{
+		var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
+
+		inputParameters = setDefaultParameters(argumentCollection=arguments);
+
+		// Load registered Resources via the ADF scripts_2_0
+		application.ADF.scripts.loadJQuery(noConflict=true);
+		application.ADF.scripts.loadJQueryUI(themeName=inputParameters.uiTheme);
+	}
 	public string function getResourceDependencies()
 	{
-		return listAppend(super.getResourceDependencies(), "jQuery,jQueryUI");
+		return "jQuery,jQueryUI";
 	}
 </cfscript>
 

@@ -134,7 +134,7 @@ History:
 
 	<table>
 		<tr>
-			<td class="cs_dlgLabelSmall">Field ID:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Field ID:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#fldID" id="#prefix#fldID" class="cs_dlgControl" value="#currentValues.fldID#" size="40">
 				<br/><span>Please enter the field ID to be used via JavaScript.  If blank, will use default CS field name.</span>
@@ -147,7 +147,7 @@ History:
 			<td class="cs_dlgLabelSmall" colspan="2"><strong>Field Configuration Settings:</strong></td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall">Display Type:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Display Type:</td>
 			<td class="cs_dlgLabelSmall">
 				<!--- <input type="text" name="#prefix#displayType" id="#prefix#displayType" class="cs_dlgControl" value="#currentValues.displayType#" size="40"> --->
 				<select name="#prefix#displayType" id="#prefix#displayType" class="cs_dlgControl">
@@ -159,31 +159,31 @@ History:
 			</td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall">UI Theme:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">UI Theme:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#uiTheme" id="#prefix#uiTheme" class="cs_dlgControl" value="#currentValues.uiTheme#" size="40">
 			</td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall">JS Display Format:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">JS Display Format:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#jsTimeMask" id="#prefix#jsTimeMask" class="cs_dlgControl" value="#currentValues.jsTimeMask#" size="40">
 			</td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall">CF Display Format:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">CF Display Format:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#cfTimeMask" id="#prefix#cfTimeMask" class="cs_dlgControl" value="#currentValues.cfTimeMask#" size="40">
 			</td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall">Standardized Date:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Standardized Date:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#standardizedDateStr" id="#prefix#standardizedDateStr" class="cs_dlgControl" value="#currentValues.standardizedDateStr#" size="40">
 			</td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall">Show Icon next to Field:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Show Icon next to Field:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="radio" name="#prefix#fldIcon" id="#prefix#fldIcon_none" value="none" <cfif currentValues.fldIcon eq 'none'>checked</cfif>>
 				<label for="#prefix#fldIcon_none">
@@ -207,14 +207,14 @@ History:
 			</td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall" valign="top">App Bean Name:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">App Bean Name:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#appBeanName" id="#prefix#appBeanName" class="cs_dlgControl" value="#currentValues.appBeanName#" size="40">
 				<br/><span>Please enter the ADF Applications's AppName to override these configuration settings.</span>
 			</td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall" valign="top">App Props Variable Name:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">App Props Variable Name:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#appPropsVarName" id="#prefix#appPropsVarName" class="cs_dlgControl" value="#currentValues.appPropsVarName#" size="40">
 				<br/><span>Please enter the App Props Variable name that contains PROPS keys and values to override.</span> 

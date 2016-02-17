@@ -79,13 +79,13 @@ History:
 	</script>
 	<table>
 		<tr>
-			<td class="cs_dlgLabelSmall">Number of Stars</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Number of Stars</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#numberOfStars" id="#prefix#numberOfStars" value="#currentValues.numberOfStars#" size="5">
 			</td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall">Half Stars</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Half Stars</td>
 			<td class="cs_dlgLabelSmall">
 	
 				<input type="radio" name="#prefix#halfStars" value="1" id="#prefix#halfStars1" <cfif currentValues.halfStars>checked="checked"</cfif>><label for="#prefix#halfStars1">On</label> <br/>
@@ -93,7 +93,7 @@ History:
 			</td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall">UI Theme:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">UI Theme:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#uiTheme" id="#prefix#uiTheme" class="cs_dlgControl" value="#currentValues.uiTheme#" size="40">
 			</td>

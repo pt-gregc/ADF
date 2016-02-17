@@ -212,7 +212,7 @@ function #arguments.fieldName#addSubsite(name, displayName, description)
 		if ( NOT StructKeyExists(inputParameters, "allowSubsiteAdd") OR LEN(inputParameters.allowSubsiteAdd) LTE 0 )
 			inputParameters.allowSubsiteAdd = "no";
 		if ( NOT StructKeyExists(inputParameters, "uiTheme") OR LEN(inputParameters.uiTheme) LTE 0 )
-			inputParameters.uiTheme = "smoothness";
+			inputParameters.uiTheme = "ui-lightness";
 		if ( NOT StructKeyExists(inputParameters, "filterList") OR LEN(inputParameters.filterList) LTE 0 )
 			inputParameters.filterList = "";	
 			

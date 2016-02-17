@@ -101,7 +101,7 @@ History:
 	</script>
 	<table>
 		<tr>
-			<td class="cs_dlgLabelSmall" nowrap="nowrap" valign="top">Possible Values:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Possible Values:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#PossibleValues" id="#prefix#PossibleValues" class="cs_dlgControl" value="#PossibleValues#" size="60">
 				<br/>If Possible Values are specified, then the user is presented with a selection list of values. 
@@ -111,7 +111,7 @@ History:
 		</tr>
 
 		<tr>
-			<td class="cs_dlgLabelSmall" nowrap="nowrap" valign="top">Show:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Show:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="checkbox" name="#prefix#ShowTop" id="#prefix#ShowTop" value="1" class="cs_dlgControl" <cfif ShowTop eq 1>checked="checked"</cfif>><label for="#prefix#ShowTop">Top</label> &nbsp;
 				<input type="checkbox" name="#prefix#ShowRight" id="#prefix#ShowRight" value="1" class="cs_dlgControl" <cfif ShowRight eq 1>checked="checked"</cfif>><label for="#prefix#ShowRight">Right</label> &nbsp;
@@ -122,25 +122,25 @@ History:
 		
 		
 		<tr>
-			<td class="cs_dlgLabelSmall" nowrap="nowrap" valign="top">Top Default:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Top Default:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#Top" id="#prefix#Top" class="cs_dlgControl" value="#top#" size="4" style="text-align:right;">px
 			</td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall" nowrap="nowrap" valign="top">Right Default:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Right Default:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#Right" id="#prefix#Right" class="cs_dlgControl" value="#right#" size="4" style="text-align:right;">px
 			</td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall" nowrap="nowrap" valign="top">Bottom Default:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Bottom Default:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#Bottom" id="#prefix#Bottom" class="cs_dlgControl" value="#bottom#" size="4" style="text-align:right;">px
 			</td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall" nowrap="nowrap" valign="top">Left Default:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Left Default:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#Left" id="#prefix#Left" class="cs_dlgControl" value="#left#" size="4" style="text-align:right;">px
 			</td>

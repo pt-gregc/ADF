@@ -110,7 +110,7 @@ History:
 	</script>
 	<table>
 		<tr>
-			<td class="cs_dlgLabelSmall" valign="top">Template Filter List:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Template Filter List:</td>
 			<td class="cs_dlgLabelSmall">
 				<textarea type="text" name="#prefix#filterList" id="#prefix#filterList" class="cs_dlgControl" rows="3" cols="60" wrap="soft">#currentValues.filterList#</textarea>
 				<br/><span>(Comma-Delimited list of Templates Names OR Template Page IDs to exclude. Using a part of a Template Name excludes all templates that contain that part in the name.)</span>
@@ -122,7 +122,7 @@ History:
 			</td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall">Edit Once:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Edit Once:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="radio" name="#prefix#editOnce" id="#prefix#editOnce" value="0" <cfif currentValues.editOnce EQ 0>checked</cfif>>False
 				<input type="radio" name="#prefix#editOnce" id="#prefix#editOnce" value="1" <cfif currentValues.editOnce EQ 1>checked</cfif>>True
@@ -140,14 +140,14 @@ History:
 			</td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall" valign="top">App Bean Name:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">App Bean Name:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#appBeanName" id="#prefix#appBeanName" class="cs_dlgControl" value="#currentValues.appBeanName#" size="40">
 				<br/><span>Please enter the ADF Applications's AppName to override these configuration settings.</span>
 			</td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall" valign="top">App Props Variable Name:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">App Props Variable Name:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#appPropsVarName" id="#prefix#appPropsVarName" class="cs_dlgControl" value="#currentValues.appPropsVarName#" size="40">
 				<br/><span>Please enter the App Props Variable name that contains PROPS keys and values to override.</span> 

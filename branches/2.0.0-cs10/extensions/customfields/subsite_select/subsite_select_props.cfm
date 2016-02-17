@@ -107,13 +107,13 @@ History:
 			</td>
 		</tr> --->
 		<tr>
-			<td class="cs_dlgLabelSmall">UI Theme:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">UI Theme:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#uiTheme" id="#prefix#uiTheme" class="cs_dlgControl" value="#currentValues.uiTheme#" size="40">
 			</td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall" valign="top">Subsite Name Filter List:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Subsite Name Filter List:</td>
 			<td class="cs_dlgLabelSmall">
 				<!--- <input type="text" name="#prefix#filterList" id="#prefix#filterList" class="cs_dlgControl" value="#currentValues.filterList#" size="40"> --->
 				<textarea type="text" name="#prefix#filterList" id="#prefix#filterList" class="cs_dlgControl" rows="3" cols="60" wrap="soft">#currentValues.filterList#</textarea>
@@ -130,14 +130,14 @@ History:
 			</td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall" valign="top">App Bean Name:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">App Bean Name:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#appBeanName" id="#prefix#appBeanName" class="cs_dlgControl" value="#currentValues.appBeanName#" size="40">
 				<br/><span>Please enter the ADF Applications's AppName to override these configuration settings.</span>
 			</td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall" valign="top">App Props Variable Name:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">App Props Variable Name:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#appPropsVarName" id="#prefix#appPropsVarName" class="cs_dlgControl" value="#currentValues.appPropsVarName#" size="40">
 				<br/><span>Please enter the App Props Variable name that contains PROPS keys and values to override.</span> 

@@ -101,7 +101,7 @@ History:
 	</script>
 	<table>
 		<tr>
-			<td class="cs_dlgLabelSmall">
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">
 				<label for="#prefix#defaultValue">Default Text:</label>
 			</td>
 			<!---
@@ -114,7 +114,7 @@ History:
 			</td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall">UI Theme:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">UI Theme:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#uiTheme" id="#prefix#uiTheme" class="cs_dlgControl" value="#currentValues.uiTheme#" size="40">
 			</td>

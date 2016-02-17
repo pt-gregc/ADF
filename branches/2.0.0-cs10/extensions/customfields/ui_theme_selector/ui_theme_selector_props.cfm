@@ -101,7 +101,7 @@ History:
 	</script>
 	<table>
 		<tr>
-			<td class="cs_dlgLabelSmall" valign="top" nowrap="nowrap">Select an installed jQuery UI Version:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Select an installed jQuery UI Version:</td>
 			<td class="cs_dlgLabelSmall">
 				<select name="#prefix#uiVersionPath" id="#prefix#uiVersionPath" class="cs_dlgControl">
 		           	<cfloop query="qVersions">
