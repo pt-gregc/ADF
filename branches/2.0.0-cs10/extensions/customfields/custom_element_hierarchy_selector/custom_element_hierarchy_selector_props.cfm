@@ -45,13 +45,25 @@ History:
 	2015-05-12 - DJM - Updated the field version to 2.0
 	2015-09-02 - DRM - Add getResourceDependencies support, bump version
 	2016-01-06 - GAC - Added px labels to height and width fields
+	2016-02-18 - DRM - Add resource detection support (do nothing and exit)
+						  - Bump field version
 --->
+
+<!--- // if this module loads resources, do it here.. --->
+<cfscript>
+	// none
+</cfscript>
+
+<!--- ... then exit if all we're doing is detecting required resources --->
+<cfif Request.RenderState.RenderMode EQ "getResources">
+  <cfexit>
+</cfif>
 
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "2.0.4";
+	fieldVersion = "2.0.5";
 	
 	requiredVersion = 10;
 	productVersion = ListFirst(ListLast(request.cp.productversion," "),".");

@@ -16,6 +16,9 @@
 .jstree-wholerow-ul{position:relative;display:inline-block;min-width:100%}
 .jstree-wholerow-ul .jstree-anchor,.jstree-wholerow-ul .jstree-icon{position:relative}
 .jstree-wholerow-ul .jstree-wholerow{width:100%;cursor:pointer;position:absolute;left:0;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}
+
+.jstree-default .jstree-disabled.jstree-clicked {background: #fff !important;}
+
 .vakata-context{display:none}
 .vakata-context,.vakata-context ul{margin:0;padding:2px;position:absolute;background:#f5f5f5;border:1px solid #979797;-moz-box-shadow:5px 5px 4px -4px #666;-webkit-box-shadow:2px 2px 2px #999;box-shadow:2px 2px 2px #999}
 .vakata-context ul{list-style:none;left:100%;margin-top:-2.7em;margin-left:-4px}
