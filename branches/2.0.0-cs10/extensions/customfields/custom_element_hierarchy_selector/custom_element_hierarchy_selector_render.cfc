@@ -48,6 +48,9 @@ History:
 							 Add loadResourceDependencies() support
 							 Break getting data and selectorObject out into their own methods
 							 Don't duplicate arguments.parameters, just use it, other minor cleanup
+	2016-02-19 - DRM - Move more default styling into custom_element_hierarchy_selector_styles.css
+							 Add styling there for .jstree-disabled on parent div, remove ad hoc js for that
+							 Rename disableJSTree to jsTreeDisable, add possible TODOs for it
 --->
 <cfcomponent displayName="CustomElementHierarchySelector Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -102,7 +105,7 @@ History:
 				#selectorObj.renderStyles(propertiesStruct=params)#
 				<span id="errorMsgSpan" class="cs_dlgError">#errorMsgCustom#</span>
 				<cfif NOT Len(errorMsgCustom)>
-					<div class="jstree-default-small" style="width:#widthVal#; height:#heightVal#; border:1px solid ##999999; overflow-y:scroll; background-color:white;" id="jstree_#arguments.fieldName#"></div>
+					<div class="jstree-default-small" style="width:#widthVal#; height:#heightVal#;" id="jstree_#arguments.fieldName#"></div>
 				</cfif>
 				<!-- hidden -->
 				#Server.CommonSpot.UDF.tag.input(type="hidden", id="#arguments.fieldName#", name="#arguments.fieldName#", value="#arguments.value#")#
@@ -185,10 +188,10 @@ function loadJSTreeData_#arguments.fieldName#()
 			<cfif autoSelectParents>
 			,"cascade" : ""
 			</cfif>
-		},
+		}
 
 		<cfif bMult>
-		"plugins" : [ "checkbox" ]
+		, "plugins" : [ "checkbox" ]
 		</cfif>
 	});
 
@@ -225,7 +228,7 @@ function loadInitialSelectedNodes_#arguments.fieldName#()
 		</cfif>
 
 		<cfif arguments.displayMode eq "readonly">
-		disableJSTree('##jstree_#arguments.fieldName#');
+		jsTreeDisable('##jstree_#arguments.fieldName#');
 		</cfif>
 	});
 }
@@ -334,7 +337,7 @@ function GetParentNode_#arguments.fieldName#(inNode)
 	return ParentNode;
 }
 
-function disableJSTree(treeSelector)
+function jsTreeDisable(treeSelector)
 {
 	// disable nodes
 	jQuery(treeSelector + ' .jstree-anchor').each( function() {
@@ -351,9 +354,14 @@ function disableJSTree(treeSelector)
 	// disable dbl click open-close
 	jQuery(treeSelector).jstree().settings.core.dblclick_toggle = false;
 
-	// set bg of tree div
-	jQuery(treeSelector)
-		.css({background: '##e6e6e6'}); // css for disabled open nodes provides more contrast w this: .jstree-default .jstree-disabled.jstree-clicked
+	// set jstree-disabled class on whole tree div
+	jQuery(treeSelector).addClass('jstree-disabled');
+
+	/*
+		TODO: disable context menu, drag and drop
+			for possible implementations, see http://stackoverflow.com/questions/34883409/disable-the-whole-jstree/35057572##answer-35410583
+		TODO: ideally this would be a jsTree plugin
+	*/
 }
 
 <cfif autoSelectParents> 
