@@ -40,6 +40,7 @@ History:
 	2015-05-12 - DJM - Converted to CFC
 	2015-09-10 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean()
 	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
+	2016-02-19 - DRM - Implement loadResourceDependencies()
 --->
 <cfcomponent displayName="CEFormSelect Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -55,9 +56,6 @@ History:
 		var customElementQry = application.ADF.ceData.getAllCustomElements();
 		
 		inputParameters = setDefaultParameters(argumentCollection=arguments);
-		
-		// Load JQuery
-		application.ADF.scripts.loadJQuery();
 	</cfscript>
 
 	<cfoutput>
@@ -103,6 +101,10 @@ History:
 	public string function getResourceDependencies()
 	{
 		return listAppend(super.getResourceDependencies(), "jQuery");
+	}
+	public void function loadResourceDependencies()
+	{
+		application.ADF.scripts.loadJQuery();
 	}
 </cfscript>
 
