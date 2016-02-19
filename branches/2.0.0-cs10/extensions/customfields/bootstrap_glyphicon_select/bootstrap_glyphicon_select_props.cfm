@@ -30,7 +30,21 @@ Version:
 	1.0
 History:
 	2015-09-15 - Created
+	2016-02-19 - DRM - Resource detection exit
+							 Bump field version
 --->
+
+<!--- // if this module loads resources, do it here.. --->
+<!---<cfscript>
+	// none
+</cfscript>--->
+
+<!--- ... then exit if all we're doing is detecting required resources --->
+<cfif Request.RenderState.RenderMode EQ "getResources">
+  <cfexit>
+</cfif>
+
+
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <cfscript>
@@ -41,7 +55,7 @@ History:
 //writedump( var="#currentValues#", expand="no" );
 	
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "1.0.1";
+	fieldVersion = "1.0.2";
 	
 	// initialize some of the attributes variables
 	showSize = 0;
