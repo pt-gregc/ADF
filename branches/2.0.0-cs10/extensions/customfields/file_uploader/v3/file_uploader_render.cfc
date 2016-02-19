@@ -59,10 +59,6 @@ History:
 		var imageURL = "/ADF/extensions/customfields/file_uploader/v3/handleFileDownload.cfm?subsiteURL=#request.subsite.url#&fieldID=#arguments.fieldID#&filename=";
 		var concatenator = "";
 
-		//application.ADF.scripts.loadJQuery();
-		//application.ADF.scripts.loadADFLightbox();
-		//application.ADF.scripts.loadJQueryUI();
-		
 		valueRenderParams.currentValue = currentValue;
 		currentValueRenderData = application.ADF.utils.runCommand(fieldDefaultValues.beanName,"getCurrentValueRenderData",valueRenderParams);
 		
@@ -151,6 +147,11 @@ function #arguments.fieldName#clearButtonClick(){
 </cffunction>
 
 <cfscript>
+	private boolean function isMultiline()
+	{
+		return true;
+	}
+
 	/*
 		IMPORTANT: Since loadResourceDependencies() is using ADF.scripts loadResources methods, getResourceDependencies() and
 		loadResourceDependencies() must stay in sync by accounting for all of required resources for this Custom Field Type.

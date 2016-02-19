@@ -30,7 +30,7 @@ History:
  	2011-09-02 - RAK - Created
 	2015-05-26 - DJM - Added the 3.0 version
 --->
-<cfcomponent name="sampleUploader" extends="ADF.extensions.customfields.file_uploader.v3.file_uploader">
+<cfcomponent name="sampleUploader" extends="ADF.extensions.customfields.file_uploader.file_uploader">
 	<cfscript>
 		variables.acceptedExtensions = "png,gif,jpg,jpeg";
 
