@@ -51,6 +51,7 @@ History:
 	2016-02-19 - DRM - Move more default styling into custom_element_hierarchy_selector_styles.css
 							 Add styling there for .jstree-disabled on parent div, remove ad hoc js for that
 							 Rename disableJSTree to jsTreeDisable, add possible TODOs for it
+							 Remove duplicate hidden field in some situations
 --->
 <cfcomponent displayName="CustomElementHierarchySelector Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -107,8 +108,6 @@ History:
 				<cfif NOT Len(errorMsgCustom)>
 					<div class="jstree-default-small" style="width:#widthVal#; height:#heightVal#;" id="jstree_#arguments.fieldName#"></div>
 				</cfif>
-				<!-- hidden -->
-				#Server.CommonSpot.UDF.tag.input(type="hidden", id="#arguments.fieldName#", name="#arguments.fieldName#", value="#arguments.value#")#
 			</cfoutput>
 		</cfif>
 		
@@ -118,9 +117,7 @@ History:
 		</cfscript>
 	</cfif>
 
-	<cfif arguments.displayMode neq "editable">
-		<cfoutput>#Server.CommonSpot.UDF.tag.input(type="hidden", name=arguments.fieldName)#</cfoutput>
-	</cfif>
+	<cfoutput>#Server.CommonSpot.UDF.tag.input(type="hidden", id="#arguments.fieldName#", name="#arguments.fieldName#", value="#arguments.value#")#</cfoutput>
 </cffunction>
 
 
