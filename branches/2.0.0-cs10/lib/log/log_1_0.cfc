@@ -32,8 +32,9 @@ History:
 	2015-12-15 - GAC - Created
 --->
 <cfcomponent displayname="log_1_0" extends="ADF.lib.libraryBase" hint="Logging tools for the ADF Library">
-    <cfproperty name="version" value="1_0_0">
+    <cfproperty name="version" value="1_0_1">
     <cfproperty name="type" value="singleton">
+    <cfproperty name="utils" type="dependency" injectedBean="utils_2_0">
     <cfproperty name="wikiTitle" value="Log_1_0">
 
 	<!---
@@ -75,6 +76,7 @@ History:
 		<cfargument name="label" type="string" required="false" default="" hint="Adds a text label to the log entry">
 		<cfargument name="useUTC" type="boolean" required="false" default="true" hint="Converts the timestamp in the entry and the filename to UTC">
 		<cfargument name="addEntryTimeStampPrefix" type="boolean" required="false" default="true" hint="Allows the timestamp prefix in the log entry to be excluded">
+
 		<cfscript>
 			var logFileName = arguments.logFile;
 			var dateTimeStamp = mid(now(), 6, 19);
@@ -89,7 +91,7 @@ History:
 				dateTimeStamp = mid(dateConvert('local2utc', dateTimeStamp), 6, 19) & " (UTC)";
 	
 			if ( !isSimpleValue(arguments.msg) ) 
-				arguments.msg = doDump(arguments.msg,"#arguments.label# - #dateTimeStamp#",0,1);
+				arguments.msg = variables.utils.doDump(arguments.msg,"#arguments.label# - #dateTimeStamp#",0,1);
 		
 			logEntry = arguments.label & " " & arguments.msg;
 
