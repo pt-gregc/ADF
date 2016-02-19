@@ -47,7 +47,7 @@ History:
 	2016-01-06 - GAC - Added px labels to height and width fields
 	2016-02-18 - DRM - Add resource detection support (do nothing and exit)
 						  - Bump field version
-	2016-02-19 - DRM - Bump field version (twice) for cfc and css changes
+	2016-02-19 - DRM - Bump field version (three times) for cfc and css changes
 --->
 
 <!--- // if this module loads resources, do it here.. --->
@@ -64,7 +64,7 @@ History:
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "2.0.7";
+	fieldVersion = "2.0.8";
 	
 	requiredVersion = 10;
 	productVersion = ListFirst(ListLast(request.cp.productversion," "),".");

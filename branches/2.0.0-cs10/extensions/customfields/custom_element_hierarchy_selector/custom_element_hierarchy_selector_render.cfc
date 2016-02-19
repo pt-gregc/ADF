@@ -212,6 +212,11 @@ function loadInitialSelectedNodes_#arguments.fieldName#()
 			jQuery('##jstree_#arguments.fieldName#').jstree("select_node", arr, true);
 		}
 		
+		<!---
+			2016-02-19 - DRM: this makes no sense to me
+				It's possible someone may want some nodes open initially, but the configured rootValue isn't a reasonable way to request that
+				If for instance the rootValue is the ID of an existing record, why should that mean the root node gets expanded?
+		--->
 		<cfif params.rootValue neq "">
 		jQuery('##jstree_#arguments.fieldName#').jstree( "open_node", '#fieldQuery.InputID#_#params.rootValue#' );		
 		</cfif>
@@ -220,7 +225,7 @@ function loadInitialSelectedNodes_#arguments.fieldName#()
 			arguments.value is the ParentID; this tests if the current node is a child of the root node, and highlighting it if so, like happens in other cases
 			TODO: handle this in multi-select mode
 		--->
-		<cfif arguments.value eq params.rootValue>
+		<cfif arguments.value eq params.rootValue and not bMult>
 		jQuery('.jstree-anchor').addClass('jstree-clicked'); // so root node is highlighted w/o opening
 		</cfif>
 
