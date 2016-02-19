@@ -36,12 +36,26 @@ History:
 	2014-01-03 - GAC - Added the fieldVersion variable
 	2014-09-19 - GAC - Removed deprecated doLabel and jsLabelUpdater js calls
 	2015-05-12 - DJM - Updated the field version to 2.0
+	2016-02-19 - DRM - Resource detection exit
+							 Bump field version
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
+
+<!--- // if this module loads resources, do it here.. --->
+<!---<cfscript>
+	// none
+</cfscript>--->
+
+<!--- ... then exit if all we're doing is detecting required resources --->
+<cfif Request.RenderState.RenderMode EQ "getResources">
+  <cfexit>
+</cfif>
+
+
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "2.0.2";
+	fieldVersion = "2.0.3";
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
