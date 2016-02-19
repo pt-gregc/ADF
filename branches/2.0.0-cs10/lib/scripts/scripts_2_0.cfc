@@ -89,19 +89,19 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 	public void function addFooterJS(required string js, required string resourceGroup) // resourceGroup: PRIMARY, SECONDARY, TERTIARY
 	{
 		// Strip the script tags
-		js = ReReplace(js, "<[[:space:]]*script.*?>","", "ALL");
-		js = ReReplace(js, "</script>","", "ALL");
+		arguments.js = ReplaceNoCase(arguments.js, "</script>", "", "ALL");
+		arguments.js = ReReplaceNoCase(arguments.js, "<[[:space:]]*script.*?>", "", "ALL");
 
-		Server.CommonSpot.udf.resources.addFooterJS(js, resourceGroup);
+		Server.CommonSpot.udf.resources.addFooterJS(arguments.js, arguments.resourceGroup);
 	}
 
 	public void function addHeaderCSS(required string css, required string resourceGroup) // resourceGroup: PRIMARY, SECONDARY, TERTIARY
 	{
 		// Strip the style tags
-		css = ReReplace(css, "<[[:space:]]*style.*?>","", "ALL");
-		css = ReReplace(css, "</style>","", "ALL");
+		arguments.css = ReplaceNoCase(arguments.css, "</style>", "", "ALL");
+		arguments.css = ReReplaceNoCase(arguments.css, "<[[:space:]]*style.*?>", "", "ALL");
 
-		Server.CommonSpot.udf.resources.addHeaderCSS(css, resourceGroup);
+		Server.CommonSpot.udf.resources.addHeaderCSS(arguments.css, arguments.resourceGroup);
 	}
 
 	/*
