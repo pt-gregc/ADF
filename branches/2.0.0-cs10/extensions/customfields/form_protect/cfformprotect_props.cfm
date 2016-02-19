@@ -87,7 +87,7 @@ History:
 	</script>
 	<table>
 		<tr>
-			<td class="cs_dlgLabelSmall">Script Path:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Script Path:</td>
 			<td class="cs_dlgLabelSmall">
 			<input type="text" name="#prefix#cfformprotect" id="#prefix#cfformprotect" class="cs_dlgControl" value="#currentValues.cfformprotect#" size="60"><br/>
 			<span>Please enter the relative path and script to cfinclude (i.e. /ADF/thirdParty/cfformprotect/cffp.cfm)</span></td>

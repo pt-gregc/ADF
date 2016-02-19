@@ -100,7 +100,7 @@ History:
 	</script>
 	<table>
 		<tr>
-			<td class="cs_dlgLabelSmall" nowrap="nowrap" valign="top">Show:</td>
+			<td class="cs_dlgLabelBold" nowrap="nowrap" valign="top">Show:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="checkbox" name="#prefix#ShowSize" id="#prefix#ShowSize" value="1" class="cs_dlgControl" <cfif ShowSize eq 1>checked="checked"</cfif>><label for="#prefix#ShowSize">Size</label> &nbsp;
 				<input type="checkbox" name="#prefix#ShowFixedWidth" id="#prefix#ShowFixedWidth" value="1" class="cs_dlgControl" <cfif ShowFixedWidth eq 1>checked="checked"</cfif>><label for="#prefix#ShowFixedWidth">Fixed Width</label> &nbsp;
@@ -114,7 +114,7 @@ History:
 			</td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall" nowrap="nowrap" valign="top">Icon Data File (csv):</td>
+			<td class="cs_dlgLabelBold" nowrap="nowrap" valign="top">Icon Data File (csv):</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#iconDataFile" id="#prefix#iconDataFile" class="cs_dlgControl" value="#iconDataFile#" size="60">
 				<br/>Specify a relative path to a comma-delimited (.csv) override icon data file.
