@@ -34,8 +34,21 @@ History:
 	2014-12-03 - GAC - Updated to fix for bad version folder "Major.Minor.Maintenance" for thirdParty folder. Now is only "Major.Minor" version folder.
 	2015-05-12 - DJM - Updated the field version to 2.0
 	2015-09-02 - DRM - Add getResourceDependencies support, bump version
+	2016-02-19 - GAC - Added getResourceDependencies and loadResourceDependencies support to the Render
+					 - Added the getResources check to the Props
+			     	 - Bumped field version
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
+
+<!--- // if this module loads resources, do it here.. --->
+<!---<cfscript>
+	// none
+</cfscript>--->
+
+<!--- ... then exit if all we're doing is detecting required resources --->
+<cfif Request.RenderState.RenderMode EQ "getResources">
+  <cfexit>
+</cfif>
 
 <cfscript>
 	prefix = attributes.prefix;
@@ -45,7 +58,7 @@ History:
 //writedump( var="#currentValues#", expand="no" );
 	
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "2.0.3";
+	fieldVersion = "2.0.4";
 	
 	// initialize some of the attributes variables
 	showSize = 0;

@@ -42,6 +42,8 @@ History:
 					 - Fixed issue with datafile read error message
 					 - Fixed clearInput to not show the string '(blank)' after clicking
 	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
+	2016-02-19 - GAC - Added loadResourceDependencies support
+	                 - Moved resource loading to the loadResourceDependencies() method
 --->
 <cfcomponent displayName="FontAwesomeSelect_Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -104,10 +106,6 @@ History:
 				break;
 			}
 		}
-
-		application.ADF.scripts.loadJQuery();
-		// Use jQuery to Add Font Awesome CSS to head dynamically
-		application.ADF.scripts.loadFontAwesome(dynamicHeadRender=true);
 	</cfscript>
 
 	<cfif NOT StructKeyExists(Request,'cftfontAwesomeSelectCSS')>
@@ -397,14 +395,24 @@ function clearInput_#arguments.fieldName#()
 		return "Please select a value for the #arguments.label# field.";
 	}
 
-	public string function getResourceDependencies()
-	{
-		return listAppend(super.getResourceDependencies(), "jQuery,FontAwesome");
-	}
-	
 	private boolean function isMultiline()
 	{
 		return true;
+	}
+
+	/*
+		IMPORTANT: Since loadResourceDependencies() is using ADF.scripts loadResources methods, getResourceDependencies() and
+		loadResourceDependencies() must stay in sync by accounting for all of required resources for this Custom Field Type.
+	*/
+	public void function loadResourceDependencies()
+	{
+		// Load registered Resources via the ADF scripts_2_0
+		application.ADF.scripts.loadJQuery();
+		application.ADF.scripts.loadFontAwesome();
+	}
+	public string function getResourceDependencies()
+	{
+		return "jQuery,FontAwesome";
 	}
 </cfscript>
 
