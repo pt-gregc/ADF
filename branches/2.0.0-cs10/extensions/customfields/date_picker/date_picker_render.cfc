@@ -73,7 +73,7 @@ History:
 
 		renderJSFunctions(argumentCollection=arguments, fieldParameters=inputParameters,useCalendarIcon=useCalendarIcon);
 
-		// After JS functions are render handle the HTML the Calendar Icon image rendering
+		// After JS functions are rendered then handle the HTML the Calendar Icon image rendering
 		if (inputParameters.displayType EQ "UIdatepicker")
 			useCalendarIcon = false;
 	</cfscript>
