@@ -36,6 +36,10 @@ History:
 	2015-05-13 - DJM - Converted to CFC
 	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean()
 	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
+	2016-02-19 - GAC - Added getResourceDependencies support
+					     - Added loadResourceDependencies support
+					 	  - Moved resource loading to the loadResourceDependencies() method
+						  - Moved appOverrideCSParams into the setDefaultParameters() method so loadResourceDependencies() loads the correct params
 --->
 <cfcomponent displayName="DatePicker Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -66,28 +70,17 @@ History:
 		// Set Default Icon Options 
 		if ( inputParameters.fldIcon EQ "calendar")
 			useCalendarIcon = true;	
-	
-		// jQuery Headers
-		application.ADF.scripts.loadJQuery();
-		application.ADF.scripts.loadJQueryUI(themeName=inputParameters.uiTheme);
-		// Load the DateJS Plugin Headers
-		application.ADF.scripts.loadDateJS();
-		// Load the DateFormat Plugin Headers
-		application.ADF.scripts.loadDateFormat();
 
-		if ( inputParameters.displayType EQ "datepick" ) {
-			application.ADF.scripts.loadJQueryDatePick();
-		}
-		
 		renderJSFunctions(argumentCollection=arguments, fieldParameters=inputParameters,useCalendarIcon=useCalendarIcon);
-		
+
+		// After JS functions are render handle the HTML the Calendar Icon image rendering
 		if (inputParameters.displayType EQ "UIdatepicker")
 			useCalendarIcon = false;
 	</cfscript>
 
 	<cfif inputParameters.fldClearDate EQ 'yes'>
 		<cfoutput><style>
-			.#arguments.fieldName#_smalllink{
+			.#arguments.fieldName#_smalllink {
 				font-size: 9px;
 			}
 		</style></cfoutput>
@@ -150,8 +143,9 @@ jQuery(function() {
 	jQuery("###inputParameters.fldID#_picker").datepicker( datePickerOptions_#arguments.fieldName# );
 	
 	// Set the offset to help with displaying inside an lightbox
-	jQuery.extend(jQuery.datepicker,{_checkOffset:function(inst,offset,isFixed){offset.top=40; offset.left=200; return offset;}});
-	
+	jQuery.extend(jQuery.datepicker,{_checkOffset:function(inst,offset,isFixed){return offset}});
+	//THIS LINE IS NOT WORKING CORRECTLY (USE LINE ABOVE): jQuery.extend(jQuery.datepicker,{_checkOffset:function(inst,offset,isFixed){offset.top=40; offset.left=200; return offset;}});
+		
 	<!--- // Now set the bUseCalendarIcon variable to false since the plugin js handles rendering it --->
 	<cfset bUseCalendarIcon = false>
 	
@@ -225,7 +219,7 @@ jQuery(function() {
 			inputParameters.fldID = TRIM(inputParameters.fldID);
 		
 		if ( NOT StructKeyExists(inputParameters, "uiTheme") OR LEN(inputParameters.uiTheme) LTE 0 )
-			inputParameters.uiTheme = "redmond";
+			inputParameters.uiTheme = "ui-lightness";
 			
 		if ( NOT StructKeyExists(inputParameters, "displayType") OR LEN(inputParameters.displayType) LTE 0 )
 			inputParameters.displayType = "UIdatepicker";
@@ -284,9 +278,31 @@ jQuery(function() {
 		return structKeyExists(arguments.parameters, "fldClearDate") && arguments.parameters.fldClearDate == "yes";
 	}
 
+	/*
+		IMPORTANT: Since loadResourceDependencies() is using ADF.scripts loadResources methods, getResourceDependencies() and
+		loadResourceDependencies() must stay in sync by accounting for all of required resources for this Custom Field Type.
+	*/
+	public void function loadResourceDependencies()
+	{
+		var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
+
+		inputParameters = setDefaultParameters(argumentCollection=arguments);
+
+		// Load registered Resources via the ADF scripts_2_0
+		application.ADF.scripts.loadJQuery();
+		application.ADF.scripts.loadJQueryUI(themeName=inputParameters.uiTheme);
+		// Load the DateJS Plugin Headers
+		application.ADF.scripts.loadDateJS();
+		// Load the DateFormat Plugin Headers
+		application.ADF.scripts.loadDateFormat();
+
+		// Load the UI Date Picker Plugin Headers
+		if ( inputParameters.displayType IS "datepick" )
+			application.ADF.scripts.loadJQueryDatePick();
+	}
 	public string function getResourceDependencies()
 	{
-		return listAppend(super.getResourceDependencies(), "jQuery,jQueryUI,DateJS,DateFormat,JQueryDatePick");
+		return "jQuery,jQueryUI,DateJS,DateFormat,JQueryDatePick";
 	}
 </cfscript>
 
