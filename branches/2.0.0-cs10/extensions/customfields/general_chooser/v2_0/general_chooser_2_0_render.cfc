@@ -94,6 +94,7 @@ History:
 		cftArgs.rendertabindex = arguments.rendertabindex;
 		cftArgs.inputParameters = inputParameters;
 
+
 		// init the initArgs struct
 		initArgs = application.ADF.utils.runCommand(beanName=inputParameters.chooserCFCName,
 														methodName="getInitArgs",
@@ -258,6 +259,11 @@ History:
 	private boolean function isMultiline()
 	{
 		return true;
+	}
+
+	private boolean function useDescription()
+	{
+		return false;
 	}
 
 	/*

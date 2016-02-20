@@ -57,6 +57,7 @@ History:
 	2016-02-17 - GAC - Added getResourceDependencies and loadResourceDependencies support to the Render
 			     		  - Added the getResources check to the Props
 			     		  - Bumped field version
+	2016-02-19 - GAC - Disabled the field description
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
@@ -72,7 +73,7 @@ History:
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "2.0.12";
+	fieldVersion = "2.0.13";
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
