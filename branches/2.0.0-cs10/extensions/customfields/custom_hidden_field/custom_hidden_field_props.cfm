@@ -36,12 +36,25 @@ History:
 	2014-01-02 - GAC - Added the CFSETTING tag to disable CF Debug results in the props module
 	2014-09-19 - GAC - Removed deprecated doLabel and jsLabelUpdater js calls
 	2015-05-12 - DJM - Updated the field version to 2.0
+	2016-02-16 - GAC - Added getResourceDependencies and loadResourceDependencies support to the Render
+			     		  - Added the getResources check to the Props
+			     		  - Bumped field version
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
+<!--- // if this module loads resources, do it here.. --->
+<!---<cfscript>
+    // No resources to load
+</cfscript>--->
+
+<!--- ... then exit if all we're doing is detecting required resources --->
+<cfif Request.RenderState.RenderMode EQ "getResources">
+  <cfexit>
+</cfif>
+
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "2.0.2";
+	fieldVersion = "2.0.3";
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
@@ -79,14 +92,14 @@ History:
 	</script>
 	<table>
 		<tr>
-			<td class="cs_dlgLabelSmall">Field ID:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Field ID:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#fieldID" id="#prefix#fieldID" class="cs_dlgControl" value="#currentValues.fieldID#" size="40">
 				<br/><span>Please enter the field ID to be used via JavaScript.  If blank, will use default name.</span>
 			</td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall">Field Class Name:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Field Class Name:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#fieldClass" id="#prefix#fieldClass" class="cs_dlgControl" value="#currentValues.fieldClass#" size="40">
 				<br/><span>Please enter a class name to be used by JavaScript.  If blank, a class attribute will not be added.</span>
