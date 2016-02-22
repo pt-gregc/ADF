@@ -42,15 +42,16 @@ History:
 	2012-01-05 - GAC - Added a default variables for the props parameters
 	2012-01-10 - GAC - Removed obsolete show/hide field description logic
 	2012-04-11 - GAC - Changed the includeDescription option to be true by default
-					 	  - Updated the readOnly check to use the cs6 fieldPermission parameter
-					 	  - Updated the wrapFieldHTML explanation comment block
+					 - Updated the readOnly check to use the cs6 fieldPermission parameter
+					 - Updated the wrapFieldHTML explanation comment block
 	2012-04-13 - GAC - Fixed an issue with the Textarea Field ID not getting a value if a xparams.fldName was not entered in the props 
-						  - Added an optional parameter to assign a CSS property to the textarea field resizing handle
+					 - Added an optional parameter to assign a CSS property to the textarea field resizing handle
 	2014-12-15 - GAC - Fixed the Default Value and the user defined expression functionality
 	2015-04-27 - DJM - Added own CSS
 	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean()
 	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
 	2016-02-22 - GAC - Added commented out loadResourceDependencies() and getResourceDependencies() for future use
+						  - Added the setDefaultParameters so defaults with come through to the rendered styles
 --->
 <cfcomponent displayName="CustomTextAreaField Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -94,6 +95,7 @@ History:
 <!---
 History:
     2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
+    2016-02-22 - GAC - Added the setDefaultParameters so defaults with come through to the rendered styles
 --->
 <cffunction name="renderStyles" returntype="void" access="private">
 	<cfargument name="fieldName" type="string" required="yes">
@@ -101,6 +103,9 @@ History:
 	<cfargument name="value" type="string" required="yes">
 	<cfscript>
 		var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
+
+		inputParameters = setDefaultParameters(argumentCollection=arguments);
+
 		// Valid Textarea resize handle options
 		var resizeOptions = "none,both,horizontal,vertical";
 	</cfscript>

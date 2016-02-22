@@ -163,9 +163,6 @@ History:
 			.imageChoice span{
 				font-size: 9px;
 			}
-			.main {
-				width: 590px;
-			}
 		</style>
 	</cfoutput>
 </cffunction>
@@ -212,8 +209,23 @@ function #arguments.fieldName#_loadSelection(optionName) {
 	<cfreturn showChoice>
 </cffunction>
 
-
 <cfscript>
+	// Requires a Build of CommonSpot 10 higher than 10.0.0.313
+	public numeric function getMinHeight()
+	{
+		if (structKeyExists(arguments.parameters, "heightValue") && isNumeric(arguments.parameters.heightValue) && arguments.parameters.heightValue > 0)
+			return arguments.parameters.heightValue; // always px
+		return 0;
+	}
+
+	// Requires a Build of CommonSpot 10 higher than 10.0.0.313
+	public numeric function getMinWidth()
+	{
+		if ( structKeyExists(arguments.parameters, "widthValue") && isNumeric(arguments.parameters.widthValue) && arguments.parameters.widthValue > 0)
+			return arguments.parameters.widthValue + 160; // 150 is default label width, plus some slack // always px
+		return 0;
+	}
+	
 	private boolean function isMultiline()
 	{
 		return true;

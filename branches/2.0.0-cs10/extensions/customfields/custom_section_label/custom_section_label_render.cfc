@@ -36,6 +36,7 @@ History:
 	2016-02-22 - GAC - Added getResourceDependencies support
 	                 - Added loadResourceDependencies support
 			 			  - Moved resource loading to the loadResourceDependencies() method
+	2016-02-22 - DRM - Fixed a missing DIV issue
 --->
 <cfcomponent displayName="CustomSectionLabel Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -74,14 +75,13 @@ History:
 		// Overriding renderLabelContainerStart
 		writeOutput('<div#idHTML# class="CS_FormFieldLabelContainer#_labelClass#" style="width:100% !important; text-align:left !important;">#labelTagHTML#');
 		
-		if (NOT inputParameters.hideLabelText)
-			renderLabel(argumentCollection=arguments);
-		
 		// Conditional overriding renderLabelContainerEnd
-		if (NOT inputParameters.hideLabelText)
-			renderLabelContainerEnd(argumentCollection=arguments);
-		else
+		if (inputParameters.hideLabelText)
 			writeOutput('</span>');
+		else
+			renderLabel(argumentCollection=arguments);
+
+		renderLabelContainerEnd(argumentCollection=arguments);
 		
 		renderControlContainerStart(argumentCollection=arguments);
 		renderControlContainerEnd(argumentCollection=arguments);
