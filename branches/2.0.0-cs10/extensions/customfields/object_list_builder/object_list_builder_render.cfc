@@ -38,6 +38,8 @@ History:
 	2016-02-16 - GAC - Added getResourceDependencies support
 	                 - Added loadResourceDependencies support
 	                 - Moved resource loading to the loadResourceDependencies() method
+  	2016-02-22 - GAC - Updated to set the UI Theme via CFT props
+					 	  - Moved JS resource loading from the base.cfc to the loadResourceDependencies() method
 --->
 <cfcomponent displayName="ObjectListBuilder Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -49,6 +51,7 @@ History:
 		var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
 		var currentValue = arguments.value;	// the field's current value
 		var readOnly = (arguments.displayMode EQ 'readonly') ? true : false;
+		var textAreaJS = '';
 		var wraptag = 'div';
 		var compOverridePath = "";
 		var ext = '';
@@ -156,7 +159,6 @@ History:
 	</cfoutput>--->
 
 	<cffile action="read" file="#filePath#" variable="objectList">
-
 	<!---<cfset application.adf.utils.logappend(msg=objectList, logfile='debugOLB.html', label='objectList')>--->
 
 	<cfscript>
@@ -167,9 +169,12 @@ History:
 
 	<!---<cfset application.adf.utils.logappend(msg=colsArr, logfile='debugOLB.html', label='colsArr')>--->
 
+	<cfscript>
+		// Load custom Styles 
+		datamanagerObj.renderStyles();
+	</cfscript>
+
 	<cfoutput>
-		#datamanagerObj.renderJS()#
-		#datamanagerObj.renderStyles()#
 	<tr><td colspan="2">
 	<table width="950" border="0" class="borderedTable" id="borderedTable" cellspacing="0" cellpadding="2" summary="">
 		<!--- left bar --->
@@ -214,6 +219,8 @@ History:
 			<td width="560" valign="top" id="ckEditoTD">
 				<div class="frameOverlay" id="frameOverlay">
 				<textarea name="#arguments.fieldName#" id="#arguments.fieldName#">#parsedVal#</textarea>
+				<cfsavecontent variable="textAreaJS">
+				<cfoutput>
 				<script>
 					CKEDITOR.replace( '#arguments.fieldName#',
 					{
@@ -300,7 +307,9 @@ History:
 					CKEDITOR.plugins.addExternal( 'csimage', '/ADF/extensions/customfields/object_list_builder/plugins/csimage/' );
 					CKEDITOR.plugins.addExternal( 'cslink', '/ADF/extensions/customfields/object_list_builder/plugins/cslink/' );
 		
-				</script>	
+				</script>
+				</cfoutput>
+				</cfsavecontent>
 				</div> 
 			</td>	
 		</tr>
@@ -308,6 +317,9 @@ History:
 	</td></tr>
 	</cfoutput>
 	<cfscript>
+		// Load the TextArea CKEditor JS
+		application.ADF.scripts.addFooterJS(textAreaJS, "TERTIARY"); //  PRIMARY, SECONDARY, TERTIARY
+		// Load the additional CFT JS 
 		renderJSFunctions(argumentCollection=arguments, fieldParamaters=inputParameters, objectList=objectList, columnList=colsList, ajaxBeanName=ajaxBeanName);
 	</cfscript>
 </cffunction>
@@ -325,7 +337,10 @@ History:
 		var inputParameters = application.ADF.data.duplicateStruct(arguments.fieldParamaters);
 		var colsList = arguments.columnList;
 		var ajaxComURL = application.ADF.ajaxProxy;
+		var js = "";
 	</cfscript>
+
+<cfsavecontent variable="js">
 <cfoutput>
 <script type="text/javascript">
 <!--
@@ -614,7 +629,7 @@ History:
 		editor.setData(html);
 	}	
 	var hasTabs = [];
-	jQuery(document).ready(function()	
+	jQuery(function()	
 	{
 		editor = CKEDITOR.instances['#arguments.fieldName#'];
 		hasTabs = jQuery('.cs_tab_inactive');
@@ -664,6 +679,12 @@ History:
 //-->
 </script>
 </cfoutput>
+</cfsavecontent>
+
+<cfscript>
+	// Must load after the CKEditor Library loads
+	application.ADF.scripts.addFooterJS(js, "TERTIARY"); //  PRIMARY, SECONDARY, TERTIARY
+</cfscript>
 </cffunction>
 
 <cffunction name="setDefaultParameters" returntype="struct" access="private">
@@ -687,10 +708,27 @@ History:
 </cffunction>
 
 <cfscript>
+	// Requires a Build of CommonSpot 10 higher than 10.0.0.313
+	public numeric function getMinHeight()
+	{
+		if (structKeyExists(arguments.parameters, "heightValue") && isNumeric(arguments.parameters.heightValue) && arguments.parameters.heightValue > 0)
+			return arguments.parameters.heightValue; // always px
+		return 0;
+	}
+
+	// Requires a Build of CommonSpot 10 higher than 10.0.0.313
+	public numeric function getMinWidth()
+	{
+		if ( structKeyExists(arguments.parameters, "widthValue") && isNumeric(arguments.parameters.widthValue) && arguments.parameters.widthValue > 0)
+			return arguments.parameters.widthValue + 160; // 150 is default label width, plus some slack // always px
+		return 0;
+	}
+	
 	private boolean function isMultiline()
 	{
 		return true;
 	}
+
 	private any function getValidationJS(required string formName, required string fieldName, required boolean isRequired)
 	{
 		return 'validate_#arguments.fieldName#()';
@@ -714,10 +752,12 @@ History:
 		// Load registered Resources via the ADF scripts_2_0
 		application.ADF.scripts.loadJQuery(noConflict=true);
 		application.ADF.scripts.loadJQueryUI(themeName=inputParameters.uiTheme);
+		application.ADF.scripts.loadTypeAheadBundle();
+		application.ADF.scripts.loadCKEditor();
 	}
 	public string function getResourceDependencies()
 	{
-		return "jQuery,jQueryUI";
+		return "jQuery,jQueryUI,TypeAheadBundle,CKEditor";
 	}
 </cfscript>
 
