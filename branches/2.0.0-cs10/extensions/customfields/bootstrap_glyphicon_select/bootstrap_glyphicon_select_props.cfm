@@ -32,6 +32,7 @@ History:
 	2015-09-15 - Created
 	2016-02-19 - DRM - Resource detection exit
 							 Bump field version
+	2016-02-22 - GAC - Updated field label class
 --->
 
 <!--- // if this module loads resources, do it here.. --->
@@ -55,7 +56,7 @@ History:
 //writedump( var="#currentValues#", expand="no" );
 	
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "1.0.2";
+	fieldVersion = "1.0.3";
 	
 	// initialize some of the attributes variables
 	showSize = 0;
@@ -82,7 +83,7 @@ History:
 	</script>
 	<table>
 		<tr>
-			<td class="cs_dlgLabelSmall" nowrap="nowrap" valign="top">Show:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Show:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="checkbox" name="#prefix#ShowSize" id="#prefix#ShowSize" value="1" class="cs_dlgControl" <cfif ShowSize eq 1>checked="checked"</cfif>><label for="#prefix#ShowSize">Size</label> &nbsp;
 				
@@ -92,7 +93,7 @@ History:
 			</td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall" nowrap="nowrap" valign="top">Icon Data File (csv):</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Icon Data File (csv):</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#glyphiconDataFile" id="#prefix#glyphiconDataFile" class="cs_dlgControl" value="#glyphiconDataFile#" size="60">
 				<br/>Specify a relative path to a comma-delimited (.csv) override icon data file.

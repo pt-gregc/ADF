@@ -38,6 +38,7 @@ History:
 	2015-05-12 - DJM - Updated the field version to 2.0
 	2016-02-19 - DRM - Resource detection exit
 							 Bump field version
+	2016-02-22 - GAC - Updated field label class
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
@@ -55,7 +56,7 @@ History:
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "2.0.3";
+	fieldVersion = "2.0.4";
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
@@ -89,7 +90,7 @@ History:
 	</script>
 	<table>
 		<tr>
-			<td class="cs_dlgLabelSmall">Field ID:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Field ID:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#fldID" id="#prefix#fldID" class="cs_dlgControl" value="#currentValues.fldID#" size="40">
 				<br/><span>Please enter the field ID to be used via JavaScript.  If blank, will use default CS field name.</span>

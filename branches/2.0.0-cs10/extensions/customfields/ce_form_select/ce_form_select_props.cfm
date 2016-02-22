@@ -39,6 +39,7 @@ History:
 	2015-09-02 - DRM - Add getResourceDependencies support, bump version
 	2016-02-19 - DRM - Resource detection exit
 							 Bump field version
+	2016-02-22 - GAC - Updated field label class
 --->
 
 <!--- // if this module loads resources, do it here.. --->
@@ -56,7 +57,7 @@ History:
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "2.0.4";
+	fieldVersion = "2.0.5";
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
@@ -85,7 +86,7 @@ History:
 	</script>
 	<table>
 		<tr>
-			<td class="cs_dlgLabelSmall">Field ID:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Field ID:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#fldID" id="#prefix#fldID" class="cs_dlgControl" value="#currentValues.fldID#" size="40">
 				<br/><span>Please enter the field ID to be used via JavaScript.  If blank, will use default CS field name.</span>

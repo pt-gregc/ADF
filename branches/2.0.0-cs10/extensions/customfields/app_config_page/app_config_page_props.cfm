@@ -44,6 +44,7 @@ History:
 	2015-10-14 - GAC - Updated the forms call to Forms_2_0
 	2016-02-16 - DRM - Implement resource detection
 						  - Bump field version
+	2016-02-22 - GAC - Updated field label class
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
@@ -61,7 +62,7 @@ History:
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "2.0.5";
+	fieldVersion = "2.0.6";
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
@@ -146,14 +147,14 @@ History:
 			</td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall">Script URL:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Script URL:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#scriptURL" id="#prefix#scriptURL" value="#currentValues.scriptURL#" size="55" />
 				<br />e.g. /ADF/apps/my_app/customcf/my_file.cfm <em>or</em> /ADF/apps/my_app/renderhandlers/my_file.cfm
 			</td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall">&nbsp;</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">&nbsp;</td>
 			<td class="cs_dlgLabelSmall">
 				<div id="#prefix#results">
 					<div id="#prefix#control">
@@ -169,7 +170,7 @@ History:
 			</td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall">Type:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Type:</td>
 			<td class="cs_dlgLabelSmall">
 				<select name="#prefix#scriptType" id="#prefix#scriptType" size="1">
 					<option value="Custom Script"<cfif currentValues.scriptType eq "Custom Script"> selected="selected"</cfif>>Custom Script</option>
@@ -178,7 +179,7 @@ History:
 			</td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall">Page Data to record:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Page Data to record:</td>
 			<td class="cs_dlgLabelSmall">
 				<select name="#prefix#pagePart" id="#prefix#pagePart" size="1">
 					<option value="pageURL"<cfif currentValues.pagePart eq "pageURL"> selected="selected"</cfif>>Page URL</option>
