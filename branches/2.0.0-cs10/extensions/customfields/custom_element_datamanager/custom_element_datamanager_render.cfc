@@ -730,7 +730,7 @@ function setCurrentValueAndOpenURL_#uniqueTableAppend#(urlToOpen, linkedFldName,
 	{
 		application.ADF.scripts.loadJQuery(noConflict=true);
 		application.ADF.scripts.loadJQueryUI();
-		application.ADF.scripts.loadJQueryDataTables(force=true,loadStyles="false");
+		application.ADF.scripts.loadJQueryDataTables(loadStyles="false");
 	}
 </cfscript>	
 

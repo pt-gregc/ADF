@@ -76,8 +76,10 @@ History:
 	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
 	2015-10-14 - GAC - Updated the forms call to Forms_2_0
 	2016-01-16 - DRM - Layout table uses valign="middle" instead of top
-    2016-02-09 - JTP - Change button text
-    2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
+	2016-02-09 - JTP - Change button text
+	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
+	2016-02-22 - DRM - Implement loadResourceDependencies()
+							 Remove duplicate loadJQuery() calls
 To Do:
 	2014-04-08 - JTP - Currently we are NOT sorting the list if displayed as checkboxes/radio buttons and user choose sort by display value
 --->
@@ -125,11 +127,6 @@ To Do:
 				currentValue = inputParameters.defaultVal;
 		}
 		
-		// Load JQuery to the script
-		application.ADF.scripts.loadJQuery(force=inputParameters.forceScripts);
-		if( selection_list AND StructKeyExists(inputParameters, 'SortOption') AND inputParameters.SortOption eq 'useDisplay' )
-			application.ADF.scripts.loadJQuerySelectboxes();
-		
 		renderJSFunctions(argumentCollection=arguments, fieldParameters=inputParameters, formID=ceFormID, isSelectionList=selection_list, controlType=cType, updatedValue=currentValue);
 	</cfscript>
 	
@@ -139,10 +136,6 @@ To Do:
 		<cfif inputParameters.addButton EQ "1">
 			<cfoutput>
 				</td><td valign="middle" nowrap="nowrap">
-			
-				#application.ADF.scripts.loadJQuery()#
-				#application.ADF.scripts.loadJQueryUI()#
-				#application.ADF.scripts.loadADFLightbox()#
 				<cfif NOT StructKeyExists(Request, 'customSelectCSS')>
 					<cfoutput>
 						<link rel="stylesheet" type="text/css" href="#cftPath#/custom_element_select_field_styles.css" />
@@ -322,11 +315,6 @@ function onSuccess_#arguments.fieldName#(data)
 		var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
 		
 		// Set the defaults
-		if ( StructKeyExists(inputParameters, "forceScripts") AND (inputParameters.forceScripts EQ "1") )
-			inputParameters.forceScripts = true;
-		else
-			inputParameters.forceScripts = false;
-			
 		if ( NOT StructKeyExists(inputParameters,"multipleSelect") OR !IsBoolean(inputParameters.multipleSelect) )
 			inputParameters.multipleSelect = false;
 			
@@ -381,6 +369,23 @@ function onSuccess_#arguments.fieldName#(data)
 	public string function getResourceDependencies()
 	{
 		return listAppend(super.getResourceDependencies(), "jQuery,jQueryUI,ADFLightbox,jQuerySelectboxes");
+	}
+	public string function loadResourceDependencies()
+	{
+		var inputParameters = setDefaultParameters(argumentCollection=arguments);
+		var cType = application.ADF.customElementSelect.getFieldType(inputParameters);
+		var selection_list = (cType eq 'select') ? 1: 0;
+
+		application.ADF.scripts.loadJQuery();
+
+		if (selection_list AND StructKeyExists(inputParameters, 'SortOption') AND inputParameters.SortOption eq 'useDisplay')
+			application.ADF.scripts.loadJQuerySelectboxes();
+
+		if (inputParameters.addButton == 1)
+		{
+			application.ADF.scripts.loadJQueryUI();
+			application.ADF.scripts.loadADFLightbox();
+		}
 	}
 </cfscript>
 

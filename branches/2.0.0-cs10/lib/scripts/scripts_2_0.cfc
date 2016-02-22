@@ -434,9 +434,13 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 
 	public void function loadJQueryDataTables(string version="", boolean force=0, boolean loadStyles=1)
 	{
+								if (structKeyExists(server, "rtk"))
+									server.rtk.log.write(ResourcesToLoad=Request.RenderState.ResourcesToLoad, ResourcesRequested=Request.RenderState.ResourcesRequested);
 		loadResources("jQuery,jQueryDataTables");
 		if (arguments.loadStyles)
 			loadResources("jQueryDataTablesStyles");
+								if (structKeyExists(server, "rtk"))
+									server.rtk.log.write(ResourcesToLoad=Request.RenderState.ResourcesToLoad, ResourcesRequested=Request.RenderState.ResourcesRequested);
 	}
 
 	public void function loadJQueryDatePick(boolean force=0)
@@ -687,7 +691,7 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 	}
 
 	// last because an arg named 'package' messes up IDEA's syntax highlighting from here on out, as of IDEA 141.2311.1
-	public void function loadCKEditor(string version="4.5.3", string package="full", boolean useCDN=0, boolean force=0)
+	public void function loadCKEditor(version="4.5.3", package="full", useCDN=0, force=0)
 	{
 		loadResources("CKEditor");
 	}
