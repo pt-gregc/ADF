@@ -155,6 +155,21 @@ History:
 	{
 		return true;
 	}
+
+	/*
+		IMPORTANT: If loadResourceDependencies() are using ADF.scripts loadResources methods, getResourceDependencies() and
+		loadResourceDependencies() must stay in sync by accounting for all of required resources for this Custom Field Type.
+	*/
+	/* If resources are needed load them here ... */
+	/*public void function loadResourceDependencies()
+	{
+		// Load registered Resources
+	}*/
+	/* ...and list the resource names or aliases here... */
+	/*public string function getResourceDependencies()
+	{
+		return "";
+	}*/
 </cfscript>
 
 </cfcomponent>
