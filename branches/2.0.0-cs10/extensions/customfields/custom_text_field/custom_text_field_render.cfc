@@ -43,6 +43,10 @@ History:
 	2015-04-27 - DJM - Added own CSS
 	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean()
 	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
+	2016-02-22 - GAC - Added getResourceDependencies support
+						  - Added loadResourceDependencies support
+						  - Moved resource loading to the loadResourceDependencies() method
+						  - Moved appOverrideCSParams into the setDefaultParameters() method so loadResourceDependencies() loads the correct params
 --->
 <cfcomponent displayName="CustomTextField Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -77,9 +81,6 @@ History:
 		// Check the Edit Once flag 
 		if ( LEN(currentValue) AND inputParameters.editOnce )
 			readOnly = true;
-			
-		// Load JQuery
-		application.ADF.scripts.loadJQuery();
 	</cfscript>
 	
 	<cfoutput>
@@ -121,9 +122,18 @@ History:
 		return '';
 	}
 
+	/*
+		IMPORTANT: Since loadResourceDependencies() is using ADF.scripts loadResources methods, getResourceDependencies() and
+		loadResourceDependencies() must stay in sync by accounting for all of required resources for this Custom Field Type.
+	*/
+	public void function loadResourceDependencies()
+	{
+		// Load registered Resources via the ADF scripts_2_0
+		application.ADF.scripts.loadJQuery();
+	}
 	public string function getResourceDependencies()
 	{
-		return listAppend(super.getResourceDependencies(), "jQuery");
+		return "jQuery";
 	}
 </cfscript>
 
