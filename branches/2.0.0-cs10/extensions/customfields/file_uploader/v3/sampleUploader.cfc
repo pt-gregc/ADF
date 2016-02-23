@@ -36,7 +36,7 @@ History:
 		//Default settings, you can override these in your extended cfc
 		variables.acceptedExtensions = "pdf,doc,docx,xls,xlsx";
 		variables.maxSize = "1000"; //In kB
-		variables.destinationDir = "#expandPath(request.subsiteCache[1].url&'fileuploads/')#";
+		variables.destinationDir = Request.Site.Dir & 'fileuploads/';
 		variables.overwriteExistingFiles = false;
 
 		//Thumbnails
