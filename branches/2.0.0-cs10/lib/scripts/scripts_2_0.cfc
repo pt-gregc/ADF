@@ -206,16 +206,20 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 		loadResources("jQuery,jQueryMigrate");
 	}
 
+	/*
+		History:
+			2016-02-23 - GAC - Allow loadTheme() to handle if a themeName was not passed in
+	*/
 	public void function loadJQueryUI(string version="", string themeName="", boolean force=0, string defaultThemeOverride="")
 	{
 		arguments.themeName = trim(arguments.themeName);
 		
 		loadResources("jQuery,jQueryUI");
 		
-		if (arguments.themeName == "")
-			loadResources("jQueryUIDefaultTheme");
-		else
-			loadTheme(arguments.themeName, "jQueryUIDefaultTheme", "css");
+		if ( arguments.themeName == "" )
+			arguments.themeName = "jQueryUIDefaultTheme";
+
+		loadTheme(arguments.themeName, "jQueryUIDefaultTheme", "css");
 	}
 
 	public void function loadJQueryMobile(string version="", boolean force=0)
@@ -223,7 +227,21 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 		loadResources("jQuery,jQueryMobile");
 	}
 
+	/*
+		History:
+			2016-02-19 - GAC - Added as a passthrough for existing code that was looking for loadJQueryUIStyles()
+			2016-02-23 - GAC - Allow loadTheme() to handle if a themeName was not passed in
+	*/
+	public void function loadJQueryUIStyles(string themeName="")
+	{
+		arguments.themeName = trim(arguments.themeName);
 
+		if ( arguments.themeName == "" )
+			arguments.themeName = "jQueryUIDefaultTheme";
+
+		loadTheme(arguments.themeName, "jQueryUIDefaultTheme", "css");
+	}
+	
 	public void function loadBootstrap(string version="", boolean force=0, boolean useDefaultTheme=0)
 	{
 		loadResources("jQuery,Bootstrap");
@@ -397,8 +415,9 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 
 	public void function loadJQueryBBQ(string version="", boolean force=0)
 	{
+		loadResources("jQuery,jQueryBBQ");  // jQueryMigrate not needed for bbq-1.3.adf.js
+		
 		// jQuery BBQ 1.3 and below require Migrate!!
-		loadResources("jQuery,jQueryBBQ");  // jQueryMigrate not needed for bbq-1.3.adf
 		//loadResources("jQuery,jQueryMigrate,jQueryBBQ");
 	}
 
@@ -434,18 +453,15 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 
 	public void function loadJQueryDataTables(string version="", boolean force=0, boolean loadStyles=1)
 	{
-								if (structKeyExists(server, "rtk"))
-									server.rtk.log.write(ResourcesToLoad=Request.RenderState.ResourcesToLoad, ResourcesRequested=Request.RenderState.ResourcesRequested);
 		loadResources("jQuery,jQueryDataTables");
 		if (arguments.loadStyles)
 			loadResources("jQueryDataTablesStyles");
-								if (structKeyExists(server, "rtk"))
-									server.rtk.log.write(ResourcesToLoad=Request.RenderState.ResourcesToLoad, ResourcesRequested=Request.RenderState.ResourcesRequested);
 	}
 
 	public void function loadJQueryDatePick(boolean force=0)
 	{
-		loadResources("jQuery,jQueryDatePick");
+		// jQuery jDatePick requires Migrate!!
+		loadResources("jQuery,jQueryMigrate,jQueryDatePick");
 	}
 
 	public void function loadJQueryDoTimeout(boolean force=0)
@@ -691,7 +707,7 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 	}
 
 	// last because an arg named 'package' messes up IDEA's syntax highlighting from here on out, as of IDEA 141.2311.1
-	public void function loadCKEditor(version="4.5.3", package="full", useCDN=0, force=0)
+	public void function loadCKEditor(string version="4.5.3", string package="full", boolean useCDN=0, boolean force=0)
 	{
 		loadResources("CKEditor");
 	}
