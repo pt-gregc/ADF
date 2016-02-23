@@ -66,12 +66,7 @@ History:
 	<cfif NOT StructKeyExists(request,"ADFRanCSPageResourceHead")>
 		<cfset request.ADFRanCSPageResourceHead = true>
 		<cfsavecontent variable="outputHTML">
-		<!--- // Load the Page Header --->
-		<cfscript>
-			// Add the CS Header variables
-			Request.CD_IncludeOverrides = 0;
-		</cfscript>
-
+		<!--- // Render the Page Header --->
 		<cfoutput>
 		<!DOCTYPE html>
 		<html>
@@ -82,6 +77,7 @@ History:
 		</cfoutput>
 		</cfsavecontent>
 	</cfif>
+	
 	<cfoutput>#outputHTML#</cfoutput>
 </cffunction>
 
@@ -108,10 +104,17 @@ History:
 
 	<cfif NOT StructKeyExists(request,"ADFRanCSPageResourceFoot")>
 		<cfset request.ADFRanCSPageResourceFoot = true>
+
+		<cfscript>
+			// Load the CommonSpot Resource Queue
+			Server.CommonSpot.UDF.resources.renderQueued();
+		</cfscript>
+
 		<cfsavecontent variable="outputHTML">
-			<!--- // Load the CommonSpot Footer --->
+			<!--- // Render the Page Footer --->
 			<cfoutput>
-				<cfinclude template="/commonspot/dlgcontrols/dlgcommon-foot.cfm">
+					</body>
+				</html>
 			</cfoutput>
 		</cfsavecontent>
 	</cfif>
