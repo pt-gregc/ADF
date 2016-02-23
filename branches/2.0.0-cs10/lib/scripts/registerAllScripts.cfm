@@ -589,7 +589,7 @@
 		(
 			"jQueryDatePick 4.0", "SECONDARY",
 			[
-				{LoadTagType=1, SourceURL="/ADF/thirdParty/jquery/datepick/jquery.datepick.css"}
+				{LoadTagType=1, SourceURL="/ADF/thirdParty/jquery/datepick/jquery.datepick.css", canCombine=0, canMinify=0}
 			],
 			[
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/datepick/jquery.datepick.js"}
@@ -925,23 +925,26 @@
 
 		registerResource
 		(
-			"JSTree 3.0", "SECONDARY",
+			"JSTree 3.2", "SECONDARY",
 			[],
 			[
-				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/jsTree/3.0/jstree.min.js"}
+				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/jsTree/3.2/jstree.min.js", canMinify=0}
 			],
 			"JSTree resources.", "Included in ADF 2.0 and later.", "JSTree"
 		);
+		// TODO: Future feature to remove old versions of registered resources with with the same alias
+		// removeResource("JSTree 3.0");
 
 		registerResource
 		(
-			"JSTreeDefaultStyles 3.0", "SECONDARY",
+			"JSTreeDefaultStyles 3.2", "SECONDARY",
 			[
-				{LoadTagType=1, SourceURL="/ADF/thirdParty/jquery/jsTree/3.0/themes/default/style.min.css"}
+				{LoadTagType=1, SourceURL="/ADF/thirdParty/jquery/jsTree/3.2/themes/default/style.min.css", canMinify=0}
 			],
 			[],
 			"JSTreeDefaultStyles resources.", "Included in ADF 2.0 and later.", "JSTreeDefaultStyles"
 		);
+		// removeResource("JSTree 3.0");
 
 		// NOTE: version is actually as registered, but that's not in the file name, renaming it would break any direct callers
 		registerResource
@@ -1108,31 +1111,3 @@
 </cfscript>
 
 <!---<cfoutput><h1>Resources registered.</h1></cfoutput>--->
-
-<script>
-    // Append to a text file in the _cs_apps/adf_resources/inventory.log folder the name and aliases of each resource registered.
-    // a "registerAllScripts.cfm" removeExisting=1 OR deRegister=1(?) will remove only the resources found in this file (created by this script).
-
-    // Build cffile action="append" to create and update the file or use log.doTextLogging()
-    // Probably should keep the data in a WDDX packet for easy parsing
-    // The INVENTORY FILE should have timestamp in it ... but not in the filename. keep a running list of auto installed resources.
-    // Script should create folder if does not exist
-    // The INVENTORY FILE should keep the Resource Name and all aliases
-    // When the REMOVE script is run it should remove the record from the INVENTORY FILE.
-    // When the UpdateExisting=1  is run the scirpt should update the record... or add a new if existing record is not found (same as current register behavior)
-    // When the registerAllScripts.cfm (no params) is run... add and non-existing resources to the file.
-    // ScriptsService_2_0 would be a good place to handle this processing code.
-    // Methods Needed:
-    //  createFile()
-    //  updateFile()
-    //  readFile()
-    //  createDataPacket()
-    //  updateDataPacket()
-    //  readDataPacket()
-    //  writeDataPacket()
-    //  deleteResourceEntry()
-    //  addResourceEntry()
-    //  updateResourceEntry()
-    //  getResourceEntryByName()
-    //  getResourceEntryByAlias()-?
-</script>

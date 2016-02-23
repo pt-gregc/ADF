@@ -369,16 +369,20 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 		loadResources("jQuery,jQueryEasing");
 	}
 
+	/*
+		History:
+			2016-02-23 - GAC - Allow loadTheme() to handle if a skinName was not passed in
+	*/
 	public void function loadJCarousel(string skinName="", boolean force=0, string version="")
 	{
 		arguments.skinName = trim(arguments.skinName);
 		
 		loadResources("jQuery,jCarousel");
 		
-		if (arguments.skinName == "")
-			loadResources("jCarouselDefaultSkin");
-		else
-			loadTheme(arguments.themeName, "jCarouselDefaultSkin", "skins");
+		if ( arguments.skinName == "" )
+			arguments.skinName = "jCarouselDefaultSkin";
+
+		loadTheme(arguments.skinName, "jCarouselDefaultSkin", "skins");
 	}
 
 	public void function loadJCarouselDefaultSkin()
@@ -616,6 +620,10 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 		loadResources("JSONJS");
 	}
 
+	/*
+		History:
+			2016-02-23 - GAC - Allow loadTheme() to handle if a theme was not passed in
+	*/
 	public void function loadJSTree(string version="", boolean force=0, boolean loadStyles=0, string theme="")
 	{
 		loadResources("jQuery,JSTree");
@@ -623,10 +631,10 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 		{
 			arguments.theme = trim(arguments.theme);
 
-			if (arguments.theme == "")
-				loadResources("JSTreeDefaultStyles"); 
-			else
-		  		loadTheme(arguments.theme, "JSTreeDefaultStyles", "themes");
+			if ( arguments.theme == "" )
+				arguments.theme="JSTreeDefaultStyles";
+
+			loadTheme(arguments.theme, "JSTreeDefaultStyles", "themes");
 		}
 	}
 
