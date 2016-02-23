@@ -35,7 +35,7 @@ History:
 --->
 <cfcomponent displayname="utils_1_0" extends="ADF.lib.libraryBase" hint="Util functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_15">
+<cfproperty name="version" value="1_0_16">
 <cfproperty name="type" value="singleton">
 <cfproperty name="ceData" type="dependency" injectedBean="ceData_1_0">
 <cfproperty name="wikiTitle" value="Utils_1_0">
@@ -610,14 +610,22 @@ Returns:
 Arguments:
 	String templatePath
 History:
- 2009-11-29 - RLW - Created
+	2009-11-29 - RLW - Created
+ 	2016-02-23 - GAC - Updated to check with expandPath first and then try again without expandPath
 --->
 <cffunction name="scriptExists" access="public" returntype="boolean" hint="">
 	<cfargument name="templatePath" type="string" required="true">
+
 	<cfscript>
-		var exists = fileExists(expandPath(arguments.templatePath));
+		var exists = false;
+
+		if ( fileExists(expandPath(arguments.templatePath)) )
+			exists = true;
+		else if ( fileExists(arguments.templatePath) )
+			exists = true;
+
+		return exists;
 	</cfscript>
-	<cfreturn exists>
 </cffunction>
 
 <!---

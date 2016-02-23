@@ -647,6 +647,7 @@ Arguments:
 	String - type
 	String - detail
 	Boolean - logerror
+	String - logfile
 History:
  	2014-04-04 - GAC - Created
 --->
