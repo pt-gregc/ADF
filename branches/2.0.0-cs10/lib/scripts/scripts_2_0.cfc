@@ -163,7 +163,7 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 					 // This case handles the bad cssURL and uses the default resource
 					loadResources(arguments.defaultResourceName);
 
-					errMsg = "Could not find the requested 'theme' resource: #arguments.themeName# using the default theme: #arguments.defaultResourceName#. Please register the required theme as a CommonSpot Resource.";
+					errMsg = "Could not find the requested theme resource '#arguments.themeName#', using the default theme '#arguments.defaultResourceName#' instead. Please register the required theme as a CommonSpot Resource.";
 					Server.CommonSpot.addLogEntry(errMsg);
                     //throw(errMsg);
 				}
@@ -171,7 +171,7 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 			else
             {
                 // This case handles the missing default resource ... see log for more details
-                errMsg = "Could not find the requested 'theme' resources: #arguments.themeName# or the default: #arguments.defaultResourceName#. Please register the required themes as CommonSpot Resources.";
+                errMsg = "Could not find the requested theme resources '#arguments.themeName#' or the default theme '#arguments.defaultResourceName#'. Please register the required themes as CommonSpot Resources.";
                 Server.CommonSpot.addLogEntry(errMsg);
                 //throw(errMsg);
             }
