@@ -1,6 +1,13 @@
 /* app_config_page_styles.css */
 
-.smallerLabel {
+
+.cft_acpSmallLabel {
+	font-family: Verdana,Arial;
+	font-size: 0.8em;
+	color: #000000;
+}
+
+.cft_acpSmallerLabel {
 	font-family: Verdana,Arial;
 	font-size: 0.6em;
 	color: #000000;

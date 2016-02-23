@@ -45,6 +45,7 @@ History:
 	2016-02-16 - DRM - Implement resource detection
 						  - Bump field version
 	2016-02-22 - GAC - Updated field label class
+	2016-02-23 - GAC - Updated to fix issues with validating the entered scriptURL and returning the correct status
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
@@ -62,7 +63,7 @@ History:
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "2.0.6";
+	fieldVersion = "2.0.7";
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
@@ -109,7 +110,7 @@ History:
 
 		function #prefix#doValidate()
 		{
-			if( jQuery("###prefix#scriptURL").attr("value").length == 0 )
+			if( jQuery("###prefix#scriptURL").val().length == 0 )
 			{
 				alert('Please enter a valid value for the Script URL');
 				jQuery("###prefix#scriptURL").focus();
@@ -118,7 +119,7 @@ History:
 			return true;
 		}
 		function #prefix#checkFileExists(){
-			var templatePath = jQuery("###prefix#scriptURL").attr("value");
+			var templatePath = jQuery("###prefix#scriptURL").val();
 			// clear the check
 			jQuery("###prefix#checkbox").hide();
 			jQuery("###prefix#caution").hide();
@@ -128,9 +129,11 @@ History:
 					bean: "utils_2_0",
 					method: "scriptExists",
 					templatePath: templatePath
-				}, function(results){
+				}, 
+				function(results)
+				{
 					// show the results
-					if( results == "YES" )
+					if( results )
 						jQuery("###prefix#checkbox").show();
 					else
 						jQuery("###prefix#caution").show();
