@@ -40,11 +40,12 @@ History:
 	2014-02-26 - GAC - Updated for version 1.7.0
 	2014-10-07 - GAC - Updated for version 1.8.0
 	2015-08-19 - GAC - Updated for version 2.0.0
+	2016-02-23 - GAC - Updated references to required lib components
 --->
 <cfcomponent>
 	
 	<cfproperty name="version" value="2_0_0">
-	<cfproperty name="file-version" value="2">
+	<cfproperty name="file-version" value="3">
 	
 	<cfset this.sessionManagement = true>
 	
@@ -59,8 +60,8 @@ History:
 			else if( structKeyExists(request, "params") AND structKeyExists(request.params, "subsiteURL") AND LEN(request.params.subsiteURL) ) // Check if subsiteURL is defined in request.params and has a value.
 				loadSiteAppSpace(request.params.subsiteURL);
 			// Verify the security for the logged in user
-			if ( NOT server.ADF.objectFactory.getBean("csSecurity_1_1").isValidContributor() )
-				server.ADF.objectFactory.getBean("utils_1_0").abort();
+			if ( NOT server.ADF.objectFactory.getBean("csSecurity_1_2").isValidContributor() )
+				server.ADF.objectFactory.getBean("utils_2_0").abort();
 		</cfscript>
 	</cffunction>
 	
