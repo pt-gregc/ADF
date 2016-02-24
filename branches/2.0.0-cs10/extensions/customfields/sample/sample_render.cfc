@@ -78,18 +78,19 @@ History:
 	*/
 	public void function loadResourceDependencies()
 	{
-		var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
-		
-		if ( !StructKeyExists(inputParameters,"uiTheme") )
-			inputParameters.uiTheme = "ui-lightness";
+		var themeName = "jQueryUIDefaultTheme"; // Use the registered Default UITheme instead an actual theme name
+
+		if ( StructKeyExists(arguments.parameters,"uiTheme") )
+			themeName = arguments.parameters.uiTheme;
 		
 		// Load registered Resources via the ADF scripts_2_0
 		application.ADF.scripts.loadJQuery();
-		application.ADF.scripts.loadJQueryUI(themeName=inputParameters.uiTheme);
+		application.ADF.scripts.loadJQueryUI(themeName=themeName);
 	}
 	public string function getResourceDependencies()
 	{
 		return "jQuery,jQueryUI,jQueryUIDefaultTheme";
 	}
 </cfscript>
+
 </cfcomponent>
