@@ -222,21 +222,6 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 		loadTheme(arguments.themeName, "jQueryUIDefaultTheme", "css");
 	}
 
-	public void function loadJQueryUIStyles(string themeName="")
-	{
-		arguments.themeName = trim(arguments.themeName);
-
-		if (arguments.themeName == "")
-			loadResources("jQueryUIDefaultTheme");
-		else
-			loadTheme(arguments.themeName, "jQueryUIDefaultTheme", "css");
-	}
-
-	public void function loadJQueryMobile(string version="", boolean force=0)
-	{
-		loadResources("jQuery,jQueryMobile");
-	}
-
 	/*
 		History:
 			2016-02-19 - GAC - Added as a passthrough for existing code that was looking for loadJQueryUIStyles()
@@ -251,7 +236,12 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 
 		loadTheme(arguments.themeName, "jQueryUIDefaultTheme", "css");
 	}
-	
+
+	public void function loadJQueryMobile(string version="", boolean force=0)
+	{
+		loadResources("jQuery,jQueryMobile");
+	}
+
 	public void function loadBootstrap(string version="", boolean force=0, boolean useDefaultTheme=0)
 	{
 		loadResources("jQuery,Bootstrap");
