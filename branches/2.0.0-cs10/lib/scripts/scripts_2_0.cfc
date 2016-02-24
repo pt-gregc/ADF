@@ -222,6 +222,16 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 		loadTheme(arguments.themeName, "jQueryUIDefaultTheme", "css");
 	}
 
+	public void function loadJQueryUIStyles(string themeName="")
+	{
+		arguments.themeName = trim(arguments.themeName);
+
+		if (arguments.themeName == "")
+			loadResources("jQueryUIDefaultTheme");
+		else
+			loadTheme(arguments.themeName, "jQueryUIDefaultTheme", "css");
+	}
+
 	public void function loadJQueryMobile(string version="", boolean force=0)
 	{
 		loadResources("jQuery,jQueryMobile");
