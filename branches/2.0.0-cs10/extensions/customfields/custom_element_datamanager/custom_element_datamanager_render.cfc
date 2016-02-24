@@ -724,7 +724,7 @@ function setCurrentValueAndOpenURL_#uniqueTableAppend#(urlToOpen, linkedFldName,
 
 	public string function getResourceDependencies()
 	{
-		return listAppend(super.getResourceDependencies(), "jQuery,jQueryUI,JQueryDataTables");
+		return listAppend(super.getResourceDependencies(), "jQuery,jQueryUI,JQueryDataTables,jQueryUIDefaultTheme");
 	}
 	public string function loadResourceDependencies()
 	{

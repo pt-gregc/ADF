@@ -140,7 +140,7 @@ jQuery(document).ready(function(){
 	}
 	public string function getResourceDependencies()
 	{
-		return "jQuery,jQueryUI,jQueryStars";
+		return "jQuery,jQueryUI,jQueryStars,jQueryUIDefaultTheme";
 	}
 </cfscript>
 

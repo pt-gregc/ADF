@@ -757,7 +757,7 @@ History:
 	}
 	public string function getResourceDependencies()
 	{
-		return "jQuery,jQueryUI,TypeAheadBundle,CKEditor";
+		return "jQuery,jQueryUI,TypeAheadBundle,CKEditor,jQueryUIDefaultTheme";
 	}
 </cfscript>
 

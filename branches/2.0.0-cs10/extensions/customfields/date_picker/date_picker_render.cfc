@@ -297,12 +297,12 @@ jQuery(function() {
 		application.ADF.scripts.loadDateFormat();
 
 		// Load the UI Date Picker Plugin Headers
-		if ( inputParameters.displayType IS "datepick" )
+		if ( inputParameters.displayType EQ "datepick" )
 			application.ADF.scripts.loadJQueryDatePick();
 	}
 	public string function getResourceDependencies()
 	{
-		return "jQuery,jQueryUI,DateJS,DateFormat,JQueryDatePick";
+		return "jQuery,jQueryUI,DateJS,DateFormat,JQueryDatePick,jQueryUIDefaultTheme";
 	}
 </cfscript>
 

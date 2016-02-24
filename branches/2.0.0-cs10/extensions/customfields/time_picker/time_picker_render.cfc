@@ -265,7 +265,7 @@ jQuery(function() {
 	}
 	public string function getResourceDependencies()
 	{
-		return "jQuery,jQueryUI,DateJS,DateFormat,JQueryUITimepickerAddon,JQueryUITimepickerFG";
+		return "jQuery,jQueryUI,DateJS,DateFormat,JQueryUITimepickerAddon,JQueryUITimepickerFG,jQueryUIDefaultTheme";
 	}
 </cfscript>
 

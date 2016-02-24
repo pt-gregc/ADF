@@ -283,7 +283,7 @@ History:
 	}
 	public string function getResourceDependencies()
 	{
-		return "jQuery,jQueryUI,ADFLightbox";
+		return "jQuery,jQueryUI,ADFLightbox,jQueryUIDefaultTheme";
 	}
 </cfscript>
 

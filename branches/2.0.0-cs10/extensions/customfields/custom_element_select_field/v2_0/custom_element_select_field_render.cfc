@@ -368,7 +368,7 @@ function onSuccess_#arguments.fieldName#(data)
 
 	public string function getResourceDependencies()
 	{
-		return listAppend(super.getResourceDependencies(), "jQuery,jQueryUI,ADFLightbox,jQuerySelectboxes");
+		return listAppend(super.getResourceDependencies(), "jQuery,jQueryUI,ADFLightbox,jQuerySelectboxes,jQueryUIDefaultTheme");
 	}
 	public string function loadResourceDependencies()
 	{

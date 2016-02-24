@@ -262,7 +262,7 @@ function #arguments.fieldName#addSubsite(name, displayName, description)
 	}
 	public string function getResourceDependencies()
 	{
-		return "jQuery,jQueryUI,JQuerySelectboxes";
+		return "jQuery,jQueryUI,JQuerySelectboxes,jQueryUIDefaultTheme";
 	}
 </cfscript>
 

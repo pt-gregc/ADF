@@ -89,7 +89,7 @@ History:
 	}
 	public string function getResourceDependencies()
 	{
-		return "jQuery,jQueryUI";
+		return "jQuery,jQueryUI,jQueryUIDefaultTheme";
 	}
 </cfscript>
 </cfcomponent>
