@@ -17,7 +17,7 @@
 		/ADF/extensions/customfields/object_list_builder/exported-objects/Object-List-Builder-Custom-Field-Type.zip
 
 	The Custom Field Type has the following files:
-			object_list_builder_render.cfm (render module)
+			object_list_builder_render.cfc (render module)
 			object_list_builder_props.cfm (properties module)
 			object_list_builder_base.cfc (base componenet)
 			call_renderitem.cfm (render module for the records on the page)
