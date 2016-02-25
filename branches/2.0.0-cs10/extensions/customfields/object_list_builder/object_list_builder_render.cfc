@@ -41,6 +41,7 @@ History:
   	2016-02-22 - GAC - Updated to set the UI Theme via CFT props
 					 	  - Moved JS resource loading from the base.cfc to the loadResourceDependencies() method
 	2016-02-25 - SU  - Updated to fix the field from rendering off the page
+				  - GAC - Added a field specific style fix full-width field rendering issue
 --->
 <cfcomponent displayName="ObjectListBuilder Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -172,11 +173,10 @@ History:
 
 	<cfscript>
 		// Load custom Styles 
-		datamanagerObj.renderStyles();
+		datamanagerObj.renderStyles(argumentCollection=arguments);
 	</cfscript>
 
 	<cfoutput>
-	<tr><td colspan="2">
 	<table width="950" border="0" class="borderedTable" id="borderedTable" cellspacing="0" cellpadding="2" summary="">
 		<!--- left bar --->
 		<tr>
@@ -315,7 +315,7 @@ History:
 			</td>	
 		</tr>
 	</table>
-	</td></tr>
+
 	</cfoutput>
 	<cfscript>
 		// Load the TextArea CKEditor JS

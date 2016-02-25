@@ -35,6 +35,8 @@ History:
 	2016-02-22 - GAC - Updated to set the UI Theme via CFT props
 					 	  - Moved JS resource loading to the render.cfc to the loadResourceDependencies() method
 	2016-20-25 - GAC - In the renderStyles method added load once protection around the loadUnregisteredResource loading
+						  - Removed obsolete tr/td tags used with pre-CS10 forms
+						  - Added a field specific style fix full-width field rendering issue
 --->
 <cfcomponent output="false" displayname="ObjectListBuilder" extends="ADF.core.Base" hint="This is the base component for the ObjectListBuilder custom field type">
 	
@@ -417,6 +419,24 @@ History:
 			application.ADF.scripts.loadUnregisteredResource(variables.cftListFormatFilePath, "Stylesheet", "head", "secondary", 0, 0);
 			Request.objectListBuilderCSS = 1;
 		}
+	</cfscript>
+	
+	<!--- // Dynamic field specific CCS override --->
+	<cfsavecontent variable="cftOlbFldCSS">
+	<cfoutput>
+	<style>
+		###arguments.fieldDomID#_controls {
+		  display: block;
+		  width: 950px;
+		  max-width: 1000px !important;
+		}
+	</style>
+	</cfoutput>
+	</cfsavecontent>
+	
+	<cfscript>
+		// Load the dynamic CSS for the field
+		application.ADF.scripts.addHeaderCSS(cftOlbFldCSS, "SECONDARY"); //  PRIMARY, SECONDARY, TERTIARY
 	</cfscript>
 </cffunction>
 

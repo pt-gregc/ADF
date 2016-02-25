@@ -38,7 +38,9 @@ History:
 			     		  - Added the getResources check to the Props
 			     		  - Bumped field version
 	2016-02-25 - GAC - In the _base.cfc added load once protection around the loadUnregisteredResource loading
-	2016-02-25 - SU  - Updated to fix the field from rendering off the page
+						  - Removed obsolete tr/td tags used with pre-CS10 forms
+						  - Added a field specific style fix full-width field rendering issue
+				  - SU  - Updated to fix the field from rendering off the page
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
@@ -53,7 +55,7 @@ History:
 </cfif>
 
 <cfscript>
-	fieldVersion = "2.0.6"; // Variable for the version of the field - Display in Props UI
+	fieldVersion = "2.0.7"; // Variable for the version of the field - Display in Props UI
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
