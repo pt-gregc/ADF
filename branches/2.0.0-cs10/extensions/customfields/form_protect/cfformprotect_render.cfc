@@ -37,6 +37,7 @@ History:
 	2016-02-17 - GAC - Added getResourceDependencies support
 	                 - Added loadResourceDependencies support
 	                 - Moved resource loading to the loadResourceDependencies() method
+	2016-02-25 - DMB - Fixed loadResourceDependencies to check for the form protect struct keys.
 --->
 <cfcomponent displayName="CFFormProtect Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -128,11 +129,11 @@ History:
 	*/
 	public void function loadResourceDependencies()
 	{
-		if ( application.cfformprotect.config.mouseMovement )
+		if ( structKeyExists(application,"cfformprotect") and structKeyExists(application.cfformprotect,"config") and application.cfformprotect.config.mouseMovement )
 		{
 			application.ADF.scripts.loadmouseMovement();
 		}
-		if ( application.cfformprotect.config.usedKeyboard )
+		if ( structKeyExists(application,"cfformprotect") and structKeyExists(application.cfformprotect,"config") and application.cfformprotect.config.usedKeyboard )
 		{
 			application.ADF.scripts.loadUsedKeyboard();
 		}
