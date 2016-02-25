@@ -1,3 +1,35 @@
+<!---
+The contents of this file are subject to the Mozilla Public License Version 1.1
+(the "License"); you may not use this file except in compliance with the
+License. You may obtain a copy of the License at http://www.mozilla.org/MPL/
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+the specific language governing rights and limitations under the License.
+
+The Original Code is comprised of the Starter App directory
+
+The Initial Developer of the Original Code is
+PaperThin, Inc.  Copyright (c) 2009-2016.
+All Rights Reserved.
+
+By downloading, modifying, distributing, using and/or accessing any files
+in this directory, you agree to the terms and conditions of the applicable 
+end user license agreement.
+--->
+ 
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Custom Field Type:
+	cffp.cfm
+Name:
+	cffp
+
+History:
+	2016-02-25 - DMB - Added resource load.
+--->
 <!--- This path should start from the web root and work forward from
 			there, if you don't have it in the web root --->
 <cfset cffpPath = "/cfformprotect">
@@ -7,7 +39,8 @@
 
 <!--- Bas van der Graaf (bvdgraaf@e-dynamics.nl): Make sure JS is only included once when securing multiple forms with cfformprotect. --->
 <cfif not structkeyExists(request,"cffpJS")>
-	<cfhtmlhead text="<script type='text/javascript' src='#cffpPath#/js/cffp.js'></script>">
+	<!--- <cfhtmlhead text="<script type='text/javascript' src='#cffpPath#/js/cffp.js'></script>"> --->
+	<cfset application.ADF.scripts.loadUnregisteredResource("#cffpPath#/js/cffp.js", "Javascript", "head", "secondary", 0, 0)>
 	<cfset request.cffpJS = true>
 </cfif>
 
