@@ -34,6 +34,7 @@ History:
 					       so it would NOT write the temp json files in the /ADF directory
 	2016-02-22 - GAC - Updated to set the UI Theme via CFT props
 					 	  - Moved JS resource loading to the render.cfc to the loadResourceDependencies() method
+	2016-20-25 - GAC - In the renderStyles method added load once protection around the loadUnregisteredResource loading
 --->
 <cfcomponent output="false" displayname="ObjectListBuilder" extends="ADF.core.Base" hint="This is the base component for the ObjectListBuilder custom field type">
 	
@@ -392,6 +393,9 @@ History:
 
 <!-------------------------------------------
 	renderStyles()
+
+	History:
+		2016-20-25 - GAC - added load once protection around the loadUnregisteredResource loading
 ------------------------------------------->
 <cffunction name="renderStyles" access="public" returntype="void" hint="Method to render the styles for object list builder.">
 	<cfscript>
@@ -405,10 +409,14 @@ History:
 		if ( !StructKeyExists(variables,"cftListFormatFilePath") OR LEN(TRIM(variables.cftListFormatFilePath)) EQ 0 )
 			variables.cftListFormatFilePath = variables.cftPath & listFormatFilePath;
 
-		// load cft stylesheet
-		application.ADF.scripts.loadUnregisteredResource(variables.cftStyleFilePath, "Stylesheet", "head", "secondary", 0, 0);
-		// load ListFormat stylesheet
-		application.ADF.scripts.loadUnregisteredResource(variables.cftListFormatFilePath, "Stylesheet", "head", "secondary", 0, 0);
+		if ( !StructKeyExists(Request, 'objectListBuilderCSS') )
+		{
+			// load cft stylesheet
+			application.ADF.scripts.loadUnregisteredResource(variables.cftStyleFilePath, "Stylesheet", "head", "secondary", 0, 0);
+			// load ListFormat stylesheet
+			application.ADF.scripts.loadUnregisteredResource(variables.cftListFormatFilePath, "Stylesheet", "head", "secondary", 0, 0);
+			Request.objectListBuilderCSS = 1;
+		}
 	</cfscript>
 </cffunction>
 
