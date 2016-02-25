@@ -129,14 +129,8 @@ History:
 	*/
 	public void function loadResourceDependencies()
 	{
-		if ( structKeyExists(application,"cfformprotect") and structKeyExists(application.cfformprotect,"config") and application.cfformprotect.config.mouseMovement )
-		{
 			application.ADF.scripts.loadmouseMovement();
-		}
-		if ( structKeyExists(application,"cfformprotect") and structKeyExists(application.cfformprotect,"config") and application.cfformprotect.config.usedKeyboard )
-		{
 			application.ADF.scripts.loadUsedKeyboard();
-		}
 	}
 	public string function getResourceDependencies()
 	{
