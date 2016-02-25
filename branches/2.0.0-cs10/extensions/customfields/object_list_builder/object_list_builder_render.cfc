@@ -40,6 +40,7 @@ History:
 	                 - Moved resource loading to the loadResourceDependencies() method
   	2016-02-22 - GAC - Updated to set the UI Theme via CFT props
 					 	  - Moved JS resource loading from the base.cfc to the loadResourceDependencies() method
+	2016-02-25 - SU  - Updated to fix the field from rendering off the page
 --->
 <cfcomponent displayName="ObjectListBuilder Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -650,7 +651,7 @@ History:
 
 	//		if (hasTabs.length)
 	//			parsedH -= 20;
-			//alert(parsedH);
+
 			editor.resize( '100%', parsedH, false ,true );
 		}
 		catch(e){}
@@ -660,8 +661,12 @@ History:
 		// executes when complete page is fully loaded, including all frames, objects and images
 		var winWidth = jQuery(window).width();
 		var winHeight = jQuery(top.window).height();
-		//debugger;
-		var parsedH = parseInt(winHeight);
+		
+	//		var parsedH = parseInt(winHeight);
+		var parsedH = jQuery('##borderedTable').height();
+		if (parsedH < 700)
+			parsedH = 700;
+			
 		var parsedW = parseInt(winWidth);
 		if (hasTabs.length)
 			parsedH -= 40;		

@@ -37,7 +37,8 @@ History:
 	2016-02-17 - GAC - Added getResourceDependencies and loadResourceDependencies support to the Render
 			     		  - Added the getResources check to the Props
 			     		  - Bumped field version
-	2016-20-25 - GAC - In the _base.cfc added load once protection around the loadUnregisteredResource loading
+	2016-02-25 - GAC - In the _base.cfc added load once protection around the loadUnregisteredResource loading
+	2016-02-25 - SU  - Updated to fix the field from rendering off the page
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
@@ -52,7 +53,7 @@ History:
 </cfif>
 
 <cfscript>
-	fieldVersion = "2.0.5"; // Variable for the version of the field - Display in Props UI
+	fieldVersion = "2.0.6"; // Variable for the version of the field - Display in Props UI
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
