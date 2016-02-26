@@ -43,6 +43,7 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 			2015-08-20 - DRM - Created 2.0 version for ADF 2.0 and CommonSpot 10
 			2015-11-18 - DRM - Added loadUnregisteredResource method
 									 Modified loadTheme to use an unregistered resource if possible
+			2016-02-26 - GAC - Updated default params loadUnregisteredResource()
 	*/
 
 
@@ -68,10 +69,10 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 		resourceType: 'JavaScript', 'StyleSheet', or the name of a custom resource type
 		location: 'head' or 'foot'
 		resourceGroup: one of 'primary', 'secondary' or 'tertiary'
-		canCombine default="": boolean, except empty str means auto: combine if we can read the file from expandPath(URL), checked when rendering resource request URLs
-		canMinify default="0"; boolean
+		canCombine default=0: boolean, except empty str means auto: combine if we can read the file from expandPath(URL), checked when rendering resource request URLs
+		canMinify default=0; boolean
 	*/
-	public void function loadUnregisteredResource(required string URL, required string resourceType, required string location, required string resourceGroup, string canCombine="", string canMinify="")
+	public void function loadUnregisteredResource(required string URL, required string resourceType, required string location, required string resourceGroup, string canCombine=0, string canMinify=0)
 	{
 		Server.CommonSpot.udf.resources.loadUnregisteredResource(argumentCollection=arguments);
 	}
