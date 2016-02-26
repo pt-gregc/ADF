@@ -56,15 +56,15 @@
 				writeOutput("Alias with this name already exists, skipped: #arguments.name#<br>");
 				return;
 			}
-			else if (attributes.updateExisting != 0)
-			{
-				arguments.id = resSpecs.id;
-				action = "updated";
-			}
-			else
+			else if (attributes.updateExisting == 0)
 			{
 				writeOutput("Resource already exists, skipped: #arguments.name#<br>");
 				return;
+			}
+			else
+			{
+				arguments.id = resSpecs.id;
+				action = "updated";
 			}
 		}
 		arguments.earlyLoadSourceArray = getResourceArray(arguments.earlyLoadSourceArray);
