@@ -89,7 +89,7 @@ ccapiConfig.password = "password";
 			ccapiConfig.localServicePath = "commonspot.webservice.cs_remote";
 		}
 		
-		// Check for URL varaibles
+		// Check for URL variables
 		doCCAPIdump = false;
 		if ( StructKeyExists(request.params,"ccapiDump") AND IsBoolean(request.params.ccapiDump) )
 			doCCAPIdump = request.params.ccapiDump;

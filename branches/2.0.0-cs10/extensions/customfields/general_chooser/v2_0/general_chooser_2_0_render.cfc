@@ -43,7 +43,7 @@ History:
 							Removed Ajax loading process.
 	2011-03-27 - MFC - Updated for Add/Edit/Delete callback.
 	2011-09-21 - RAK - Added max/min selections
-	2011-10-20 - GAC - Added defualt value check for the minSelections and maxSelections xParams varaibles
+	2011-10-20 - GAC - Added defualt value check for the minSelections and maxSelections xParams variables
 	2012-01-04 - SS - The field now honors the "required" setting in Standard Options.
 	2012-03-19 - MFC - Added "loadAvailable" option to set if the available selections load
 							when the form loads.
