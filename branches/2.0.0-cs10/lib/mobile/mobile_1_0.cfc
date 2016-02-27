@@ -101,7 +101,7 @@ History:
  <cfargument name="accept"    type="string" default="#cgi.http_accept#">
  <cfargument name="setCookie" type="boolean" default="0">
  <cfscript>
-	  var deviceStuct = structNew();
+	  var deviceStruct = structNew();
  	  var deviceType = "desktop";
 	  var isMblBrowser = "False";
 	  var paths = ListToArray(expandPath("/ADF/thirdParty/uagentinfo/UAgentInfo.jar"));
@@ -121,10 +121,10 @@ History:
 			isMblBrowser = "True";
 	  }
 	  // populate deviceStruct with info on our mobile device
-	    deviceStuct["isMobileBrowser"] = isMblBrowser;
-		deviceStuct["mobileBrowserType"] = TRIM(deviceType);
-		deviceStuct["useragent"] = TRIM(userAgent);
-		deviceStuct["httpaccept"] = TRIM(accept);
+	    deviceStruct["isMobileBrowser"] = isMblBrowser;
+		deviceStruct["mobileBrowserType"] = TRIM(deviceType);
+		deviceStruct["useragent"] = TRIM(userAgent);
+		deviceStruct["httpaccept"] = TRIM(accept);
 	// set a cookie flagging the device as a mobile device	
 	if ((arguments.setCookie) and (isMblBrowser is "True")) {
 		 cookie.isMobileBrowser = "True";
@@ -132,7 +132,7 @@ History:
 	   else if ((arguments.setCookie) and (isMblBrowser is "False")) {
 		 cookie.isMobileBrowser = "False";
 	   }
-	return deviceStuct;
+	return deviceStruct;
  </cfscript>
 </cffunction>
 

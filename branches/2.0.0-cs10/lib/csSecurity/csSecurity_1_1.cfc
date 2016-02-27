@@ -112,7 +112,7 @@ History:
 		var newItem = "";
 		// Loop over proxyWhiteList Structure
 		for ( key IN proxyStruct ){
-			// Create the new StuctKey without the version suffix
+			// Create the new StructKey without the version suffix
 			newKey = ListFirst(key,"_");
 			// If a pruned struct key already exists in the new proxy struct add the unique methods to the existing methods list
 			if ( StructKeyExists(retStruct,newKey) )

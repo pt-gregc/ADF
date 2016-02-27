@@ -33,7 +33,7 @@ History:
 	2011-06-14 - GAC - Created
 	2011-06-16 - GAC - Fixed the default jqueryUIurl and slashes for non Windows OS's
 	2011-07-07 - GAC - Fixed a typo in the property field label
-	2012-01-11 - GAC - set jqueryUIurl to match the case of the directory stucture
+	2012-01-11 - GAC - set jqueryUIurl to match the case of the directory structure
 	2012-02-21 - GAC - added fixes additional fixes for slashes 
 	2014-01-02 - GAC - Added the CFSETTING tag to disable CF Debug results in the props module
 	2014-01-03 - GAC - Added the fieldVersion variable

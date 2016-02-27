@@ -804,7 +804,7 @@ History:
 				{
 					retData = variables.data.duplicateStruct(arguments.dumpVarData);
 					
-					// Find the instances of the CSPASSWORD stuct key 
+					// Find the instances of the CSPASSWORD struct key
 					pwFindArray = StructFindKey(retData,configPWkey,"all");
 					
 					// Loop over the Find Array and REPLACE each value with a TEMP string

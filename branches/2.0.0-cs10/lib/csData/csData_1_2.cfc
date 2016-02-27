@@ -125,32 +125,32 @@ History:
 --->
 <cffunction name="getCustomMetadatawithFieldLabelsKeys" access="public" returntype="Struct" hint="Returns a custom metadata structure with the field name keys converted to field labels (keeping the values for each)">
 	<cfargument name="cspageid" type="numeric" required="true" hint="commonspot pageID">
-	<!--- <cfargument name="customMetadata" type="struct" required="true" hint="commonspot custom meta data stucture"> --->
+	<!--- <cfargument name="customMetadata" type="struct" required="true" hint="commonspot custom meta data Structure"> --->
 	<cfscript>
 		var rtnStruct = StructNew();
-		var cmDataStuct = getCustomMetadata(pageid=arguments.cspageid,convertTaxonomyTermsToIDs=1);
-		//var cmDataStuct = arguments.customMetadata;
+		var cmDataStruct = getCustomMetadata(pageid=arguments.cspageid,convertTaxonomyTermsToIDs=1);
+		//var cmDataStruct = arguments.customMetadata;
 		var thisForm = "";
 		var thisField = "";
 		var paramType = "label";
 		var custMetadataLabel = "";
 		// Loop over the custom metadata structure that was passed in
-		for ( key in cmDataStuct ) {
+		for ( key in cmDataStruct ) {
 			// set the Key to the thisForm variable
 			thisForm = key;
-			// check to see if the thisForm contains stucture
-			if ( IsStruct(cmDataStuct[thisForm]) )
+			// check to see if the thisForm contains Structure
+			if ( IsStruct(cmDataStruct[thisForm]) )
 			{
 				// Create the new return struct for this form
 				rtnStruct[thisForm] = StructNew();
 				// loop over the field in the current form
-				for (key in cmDataStuct[thisForm]) {
+				for (key in cmDataStruct[thisForm]) {
 					// Set the Key to the thisField variable
 					thisField = key;
 					// Get the LABEL value for this field
 					custMetadataLabel = getCustomMetadataFieldParamValue(cspageid=arguments.cspageid,formname=thisForm,fieldname=thisField,fieldparam=paramType);
 					// Set the new LABEL key for the return struct for this form
-					rtnStruct[thisForm][custMetadataLabel] = cmDataStuct[thisForm][thisField];
+					rtnStruct[thisForm][custMetadataLabel] = cmDataStruct[thisForm][thisField];
 				}
 			}
 		}	

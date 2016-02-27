@@ -32,7 +32,7 @@ Version:
 History:
 	2011-06-14 - GAC - Created
 	2011-06-16 - GAC - Fixed the default jqueryUIurl and slashes for non Windows OS's
-	2012-01-11 - GAC - set jqueryUIurl to match the case of the directory stucture
+	2012-01-11 - GAC - set jqueryUIurl to match the case of the directory structure
 					 - cleaned up some unused jquery code
 					 - added text input if no records are returned by the theme directory query
 	2012-02-21 - GAC - added additional fixes for slashes 
