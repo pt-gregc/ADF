@@ -1606,8 +1606,15 @@ Author:
 Name:
     $duplicateStruct
 Summary:
-    Uses CommonSpot duplicateBean to make a duplicate copy of a complex data structure,
-    if the complex data is a Query it uses the native CF duplicate function
+	This function allows special conditions around the use of the CF Duplicate() method
+	
+	Note:
+	 At one point this method used CommonSpot's duplicateBean() to duplicate complex data structures,
+	 if the complex data was a Query it uses the native CF duplicate function
+
+	// IMPORTANT:
+	// As of CommonSpot Build 10.0.0.355 the UDF DuplicateBean() does not actually Duplicate() CommonSpot LOCKED structure.
+	// it copies them by reference... and you will get an error if you try to modify a copied data structure.
 Returns:
     Any
 Arguments:
@@ -1615,7 +1622,8 @@ Arguments:
 Usage:
     application.ADF.data.duplicateStruct(dataStruct)
 History:
-    2015-02-24 - Created
+    2016-01-24 - GAC - Created
+	 2016-02-26 - GAC - Removed the use of the CS UDF duplicateBean()
 --->
 <cffunction name="duplicateStruct" access="public" returntype="any" hint="Uses CommonSpot duplicateBean to make a duplicate copy of a complex data structure, if the complex data is a Query it uses the native CF duplicate function">
 	<cfargument name="dataStruct" type="any" required="true">
@@ -1623,10 +1631,18 @@ History:
 	<cfscript>
 		if ( isSimpleValue( arguments.dataStruct ) )
 			return arguments.dataStruct;
-		else if ( isQuery( arguments.dataStruct ) )
+		else 
         	return duplicate(arguments.dataStruct);
-        else
-        	return server.commonspot.udf.util.duplicateBean(arguments.dataStruct);
+		
+		// Removed the CS UDF duplicateBean() since it was copying and not duplicating
+		/*
+			if ( isSimpleValue( arguments.dataStruct ) )
+				return arguments.dataStruct;
+			else if ( isQuery( arguments.dataStruct ) )
+	        	return duplicate(arguments.dataStruct);
+	      else
+	      	return server.commonspot.udf.util.duplicateBean(arguments.dataStruct); 
+		*/
 	</cfscript>
 </cffunction>
 
