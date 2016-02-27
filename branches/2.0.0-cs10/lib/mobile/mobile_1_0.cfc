@@ -38,7 +38,7 @@ History:
 --->
 <cfcomponent displayname="mobile_1_0" extends="ADF.lib.libraryBase" hint="Mobile component functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_4">
+<cfproperty name="version" value="1_0_5">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Mobile_1_0">
 
@@ -95,6 +95,7 @@ Arguments:
 History:
 	2012-07-09 - DMB - Created based on http://www.mobileesp.com
 	2014-09-16 - GAC - Updated the thirdParty path for case-sensitivity
+	2016-02-26 - GAC - Fixed a typo with "struct" 
 --->
 <cffunction name="mobileDetect" output="no" returnType="struct" access="public">
  <cfargument name="userAgent" type="string" default="#cgi.http_user_agent#">
@@ -121,7 +122,7 @@ History:
 			isMblBrowser = "True";
 	  }
 	  // populate deviceStruct with info on our mobile device
-	    deviceStruct["isMobileBrowser"] = isMblBrowser;
+	  	deviceStruct["isMobileBrowser"] = isMblBrowser;
 		deviceStruct["mobileBrowserType"] = TRIM(deviceType);
 		deviceStruct["useragent"] = TRIM(userAgent);
 		deviceStruct["httpaccept"] = TRIM(accept);

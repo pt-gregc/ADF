@@ -53,7 +53,7 @@ History:
 --->
 <cfcomponent displayname="csData_1_2" extends="csData_1_1" hint="CommonSpot Data Utils functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_24">
+<cfproperty name="version" value="1_2_25">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">
@@ -122,6 +122,7 @@ Arguments:
 	Numeric cspageid
 History:
 	2012-02-17 - GAC - Created
+	2016-02-26 - GAC - Fixed a typo with "struct" 
 --->
 <cffunction name="getCustomMetadatawithFieldLabelsKeys" access="public" returntype="Struct" hint="Returns a custom metadata structure with the field name keys converted to field labels (keeping the values for each)">
 	<cfargument name="cspageid" type="numeric" required="true" hint="commonspot pageID">
