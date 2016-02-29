@@ -37,12 +37,25 @@ History:
 	2014-01-03 - GAC - Added the fieldVersion variable
 	2014-09-19 - GAC - Removed deprecated doLabel and jsLabelUpdater js calls
 	2015-09-02 - DRM - Add getResourceDependencies support, bump version
+	2016-02-22 - GAC - Added getResourceDependencies and loadResourceDependencies support to the Render
+			     		  - Added the getResources check to the Props
+			     		  - Bumped field version
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
+<!--- // if this module loads resources, do it here.. --->
+<!---<cfscript>
+    // No resources to load
+</cfscript>--->
+
+<!--- ... then exit if all we're doing is detecting required resources --->
+<cfif Request.RenderState.RenderMode EQ "getResources">
+  <cfexit>
+</cfif>
+
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "2.0.3";
+	fieldVersion = "2.0.4";
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
@@ -67,7 +80,8 @@ History:
 		//	OR the default value does not exist in the current values
 		if( ( StructKeyExists(currentValues, defaultValueArray[i]) 
 				AND (NOT LEN(currentValues[defaultValueArray[i]])) )
-				OR (NOT StructKeyExists(currentValues, defaultValueArray[i])) ){
+				OR (NOT StructKeyExists(currentValues, defaultValueArray[i])) )
+		{
 			currentValues[defaultValueArray[i]] = defaultValues[defaultValueArray[i]];
 		}
 	}
@@ -92,14 +106,14 @@ History:
 	</script>
 	<table>
 		<tr>
-			<td class="cs_dlgLabelSmall">Label ID:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Label ID:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#labelID" id="#prefix#labelID" value="#currentValues.labelID#" size="40">
 				<br/><span>Please enter the label ID to be used on the &lt;LABEL&gt; tag.  If blank, will use the default id.</span>
 			</td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall">Label Class Name:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Label Class Name:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#labelClass" id="#prefix#labelClass" class="cs_dlgControl" value="#currentValues.labelClass#" size="40">
 				<br/><span>Please enter a class name to be used on the &lt;LABEL&gt; tag.  If blank, a class attribute will not be added.</span>
@@ -109,14 +123,14 @@ History:
 			<td colspan="2" class="cs_dlgLabelSmall"><hr></td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall">Description ID:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Description ID:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#descptID" id="#prefix#descptID" value="#currentValues.descptID#" size="40">
 				<br/><span>Please enter the description ID to be used on a &lt;DIV&gt; wrapper.  If blank, will use the default wrapper font tag.</span>
 			</td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall">Description Class Name:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Description Class Name:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#descptClass" id="#prefix#descptClass" class="cs_dlgControl" value="#currentValues.descptClass#" size="40">
 				<br/><span>Please enter the description Class to be used on a &lt;DIV&gt; wrapper.  If blank, a class attribute will not be added.</span>
@@ -126,7 +140,7 @@ History:
 			<td colspan="2" class="cs_dlgLabelSmall"><hr></td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall">Hide Label Text:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Hide Label Text:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="radio" name="#prefix#hideLabelText" id="#prefix#hideLabelText" value="1" <cfif currentValues.hideLabelText EQ 1>checked</cfif>>Yes
 				<input type="radio" name="#prefix#hideLabelText" id="#prefix#hideLabelText" value="0" <cfif currentValues.hideLabelText EQ 0>checked</cfif>>No

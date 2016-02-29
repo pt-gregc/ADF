@@ -28,8 +28,10 @@ Name:
 Summary:
 	Custom field type to select from the CS templates
 ADF Requirements:
-	scripts_1_0
-	csData_1_0
+	scripts
+	csData
+	data
+	utils
 History:
 	2007-01-24 - RLW - Created
 	2011-10-22 - MFC - Set the default selected value to be stored when loading the CFT.
@@ -42,6 +44,10 @@ History:
 	2015-09-22 - JTP - Updated the jQuery syntax to get the current selected value
 	2015-10-13 - GAC - Updated the orderby parameter that is passed to the csData.getSiteTemplates
 	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
+	2016-02-16 - GAC - Added getResourceDependencies support
+	                 - Added loadResourceDependencies support
+	                 - Moved resource loading to the loadResourceDependencies() method
+	                 - Moved appOverrideCSParams into the setDefaultParameters() method so loadResourceDependencies() loads the correct params
 --->
 <cfcomponent displayName="TemplateSelect Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -54,24 +60,9 @@ History:
 		var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
 		var currentValue = arguments.value;	// the field's current value
 		var readOnly = (arguments.displayMode EQ 'readonly') ? true : false;
-		var xparamsExceptionsList = "appBeanName,appPropsVarName";
 		var selectField = "select_#arguments.fieldName#";
 	
 		inputParameters = setDefaultParameters(argumentCollection=arguments);
-		
-		// Optional ADF App Override for the Custom Field Type parameters
-		If ( LEN(TRIM(inputParameters.appBeanName)) AND LEN(TRIM(inputParameters.appPropsVarName)) ) {
-			inputParameters = application.ADF.utils.appOverrideCSParams(
-														csParams=inputParameters,
-														appName=inputParameters.appBeanName,
-														appParamsVarName=inputParameters.appPropsVarName,
-														paramsExceptionList=xparamsExceptionsList
-													);
-		}
-	
-		// Updated scripts to load with the site ADF
-		application.ADF.scripts.loadJQuery();
-		application.ADF.scripts.loadJQuerySelectboxes();
 	
 		if ( LEN(currentValue) AND inputParameters.editOnce )
 			readOnly = true;
@@ -156,7 +147,7 @@ function #arguments.fieldName#_loadBinding() {
 	jQuery("input[name=#arguments.fieldName#]").val(jQuery("###arguments.fieldName#_select option:selected").val());
 }
 
-jQuery(document).ready(function() {
+jQuery(function() {
 	#arguments.fieldName#_loadTemplates();
 });
 //-->
@@ -167,8 +158,10 @@ jQuery(document).ready(function() {
 	<cfargument name="fieldName" type="string" required="yes">
 	<cfargument name="fieldDomID" type="string" required="yes">
 	<cfargument name="value" type="string" required="yes">
+
 	<cfscript>
 		var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
+		var xparamsExceptionsList = "appBeanName,appPropsVarName";
 		
 		if ( NOT StructKeyExists(inputParameters, "filterList") OR LEN(inputParameters.filterList) LTE 0 )
 			inputParameters.filterList = "";
@@ -180,6 +173,17 @@ jQuery(document).ready(function() {
 			inputParameters.appBeanName = "";
 		if ( NOT StructKeyExists(inputParameters, "appPropsVarName") OR LEN(inputParameters.appPropsVarName) LTE 0 )
 			inputParameters.appPropsVarName = "";
+
+		// Optional ADF App Override for the Custom Field Type parameters
+		if ( LEN(TRIM(inputParameters.appBeanName)) AND LEN(TRIM(inputParameters.appPropsVarName)) )
+		{
+			inputParameters = application.ADF.utils.appOverrideCSParams(
+														csParams=inputParameters,
+														appName=inputParameters.appBeanName,
+														appParamsVarName=inputParameters.appPropsVarName,
+														paramsExceptionList=xparamsExceptionsList
+													);
+		}
 		
 		return inputParameters;
 	</cfscript>
@@ -198,6 +202,19 @@ jQuery(document).ready(function() {
 		return "Please select a value for the #arguments.label# field.";
 	}
 
+	/*
+		IMPORTANT: Since loadResourceDependencies() is using ADF.scripts loadResources methods, getResourceDependencies() and
+		loadResourceDependencies() must stay in sync by accounting for all of required resources for this Custom Field Type.
+	*/
+	public void function loadResourceDependencies()
+	{
+		// Load registered Resources via the ADF scripts_2_0
+		application.ADF.scripts.loadJQuery();
+		application.ADF.scripts.loadJQuerySelectboxes();
+
+		// if this renderer extends another one that may require its own resources, it should load those too, like this:
+		//super.loadResourceDependencies();
+	}
 	public string function getResourceDependencies()
 	{
 		return listAppend(super.getResourceDependencies(), "jQuery,jQuerySelectboxes");

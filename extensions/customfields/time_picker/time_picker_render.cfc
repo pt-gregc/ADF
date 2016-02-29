@@ -35,6 +35,10 @@ History:
 	2015-05-20 - DJM - Converted to CFC
 	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean()
 	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
+	2016-02-16 - GAC - Added getResourceDependencies support
+	                 - Added loadResourceDependencies support
+	                 - Moved resource loading to the loadResourceDependencies() method
+	                 - Moved appOverrideCSParams into the setDefaultParameters() method so loadResourceDependencies() loads the correct params
 --->
 <cfcomponent displayName="TimePicker Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -42,6 +46,7 @@ History:
 	<cfargument name="fieldName" type="string" required="yes">
 	<cfargument name="fieldDomID" type="string" required="yes">
 	<cfargument name="value" type="string" required="yes">
+
 	<cfscript>
 		var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
 		var currentValue = arguments.value;	// the field's current value
@@ -55,7 +60,8 @@ History:
 		
 		inputParameters = setDefaultParameters(argumentCollection=arguments);
 
-		if ( LEN(TRIM(currentValue)) ) {
+		if ( LEN(TRIM(currentValue)) )
+		{
 			// Fix bad or incorrect date/time entries stored
 			currentValue = application.ADF.date.csDateFormat(currentValue,currentValue);
 			// Strip the standardizedDateStr from the currentValue and do a TimeFormat for Display 
@@ -66,22 +72,9 @@ History:
 		if ( inputParameters.fldIcon EQ "clock")
 			useClockIcon = true;
 
-		// jQuery Headers
-		application.ADF.scripts.loadJQuery();
-		application.ADF.scripts.loadJQueryUI(themeName=inputParameters.uiTheme);
-		// Load the DateJS Plugin Headers
-		application.ADF.scripts.loadDateJS();
-		// Load the DateFormat Plugin Headers
-		application.ADF.scripts.loadDateFormat();
-
-		if ( inputParameters.displayType IS "UItimepickerAddon" ) {
-			application.ADF.scripts.loadJQueryUITimepickerAddon();
-			if ( LEN(TRIM(inputParameters.jsTimeMask)) EQ 0  )
-				inputParameters.jsTimeMask = "h:mm TT"; 
-		}
-		else if ( inputParameters.displayType IS "UItimepickerFG" ) {
-			application.ADF.scripts.loadJQueryUITimepickerFG();
-		}
+		// Set Default jsTimeMask Options for UItimepickerAddon
+		if ( inputParameters.displayType IS "UItimepickerAddon" AND LEN(TRIM(inputParameters.jsTimeMask)) EQ 0  )
+				inputParameters.jsTimeMask = "h:mm TT";
 		
 		renderJSFunctions(argumentCollection=arguments,fieldParameters=inputParameters,useClockIcon=useClockIcon);
 	</cfscript>
@@ -105,6 +98,7 @@ History:
 	<cfargument name="value" type="string" required="yes">
 	<cfargument name="fieldParameters" type="struct" required="yes">
 	<cfargument name="useClockIcon" type="boolean" required="yes">
+
 	<cfscript>
 		var inputParameters = application.ADF.data.duplicateStruct(arguments.fieldParameters);
 	</cfscript>
@@ -194,7 +188,7 @@ jQuery(function() {
 			inputParameters.fldID = TRIM(inputParameters.fldID);
 		
 		if ( NOT StructKeyExists(inputParameters, "uiTheme") OR LEN(inputParameters.uiTheme) LTE 0 )
-			inputParameters.uiTheme = "redmond";
+			inputParameters.uiTheme = "ui-lightness";
 		
 		if ( NOT StructKeyExists(inputParameters, "displayType") OR LEN(inputParameters.displayType) LTE 0 )
 			inputParameters.displayType = "UItimepickerAddon";	
@@ -217,7 +211,8 @@ jQuery(function() {
 			inputParameters.appPropsVarName = "";
 
 		// Optional ADF App Override for the Custom Field Type inputParameters
-		If ( LEN(TRIM(inputParameters.appBeanName)) AND LEN(TRIM(inputParameters.appPropsVarName)) ) {
+		If ( LEN(TRIM(inputParameters.appBeanName)) AND LEN(TRIM(inputParameters.appPropsVarName)) )
+		{
 			inputParameters = application.ADF.utils.appOverrideCSParams(
 														csParams=inputParameters,
 														appName=inputParameters.appBeanName,
@@ -243,9 +238,34 @@ jQuery(function() {
 		return "Please select a value for the #arguments.label# field.";
 	}
 
+	/*
+		IMPORTANT: Since loadResourceDependencies() is using ADF.scripts loadResources methods, getResourceDependencies() and
+		loadResourceDependencies() must stay in sync by accounting for all of required resources for this Custom Field Type.
+	*/
+	public void function loadResourceDependencies()
+	{
+		var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
+
+		inputParameters = setDefaultParameters(argumentCollection=arguments);
+
+		// Load registered Resources via the ADF scripts_2_0
+		application.ADF.scripts.loadJQuery();
+		application.ADF.scripts.loadJQueryUI(themeName=inputParameters.uiTheme);
+		// Load the DateJS Plugin Headers
+		application.ADF.scripts.loadDateJS();
+		// Load the DateFormat Plugin Headers
+		application.ADF.scripts.loadDateFormat();
+
+		// Load the UI Time Picker Plugin Headers
+		if ( inputParameters.displayType IS "UItimepickerAddon" )
+			application.ADF.scripts.loadJQueryUITimepickerAddon();
+		else if ( inputParameters.displayType IS "UItimepickerFG" )
+			application.ADF.scripts.loadJQueryUITimepickerFG();
+
+	}
 	public string function getResourceDependencies()
 	{
-		return listAppend(super.getResourceDependencies(), "jQuery,jQueryUI,DateJS,DateFormat,JQueryUITimepickerAddon,JQueryUITimepickerFG");
+		return "jQuery,jQueryUI,DateJS,DateFormat,JQueryUITimepickerAddon,JQueryUITimepickerFG,jQueryUIDefaultTheme";
 	}
 </cfscript>
 

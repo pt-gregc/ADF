@@ -42,12 +42,25 @@ History:
 	2014-01-09 - GAC - Updated a typo in the Edit Once props description
 	2015-05-12 - DJM - Updated the field version to 2.0
 	2015-09-02 - DRM - Add getResourceDependencies support, bump version
+	2016-02-22 - GAC - Added getResourceDependencies and loadResourceDependencies support to the Render
+			     		  - Added the getResources check to the Props
+			     		  - Bumped field version
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
+<!--- // if this module loads resources, do it here.. --->
+<!---<cfscript>
+    // No resources to load
+</cfscript>--->
+
+<!--- ... then exit if all we're doing is detecting required resources --->
+<cfif Request.RenderState.RenderMode EQ "getResources">
+  <cfexit>
+</cfif>
+
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "2.0.3";
+	fieldVersion = "2.0.4";
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
@@ -87,21 +100,21 @@ History:
 	</script>
 	<table>
 		<tr>
-			<td class="cs_dlgLabelSmall">Field ID:</td>
+			<td class="cs_dlgLabelBold">Field ID:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#fldName" id="#prefix#fldName" class="cs_dlgControl" value="#currentValues.fldName#" size="40">
 				<br/><span>Please enter the field ID to be used via JavaScript.  If blank, will use default field name.</span>
 			</td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall">Class Name:</td>
+			<td class="cs_dlgLabelBold">Class Name:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#fldClass" id="#prefix#fldClass" class="cs_dlgControl" value="#currentValues.fldClass#" size="40">
 				<br/><span>Please enter a class name to be used via JavaScript or CSS.  If blank, a class attribute will not be added.</span>
 			</td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall">Field Size:</td>
+			<td class="cs_dlgLabelBold">Field Size:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#fldSize" id="#prefix#fldSize" class="cs_dlgControl" value="#currentValues.fldSize#" size="40">
 				<br/><span>Enter a display size for this field.</span>
@@ -114,7 +127,7 @@ History:
 			</td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall">Edit Once:</td>
+			<td class="cs_dlgLabelBold">Edit Once:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="radio" name="#prefix#editOnce" id="#prefix#editOnce" value="0" <cfif currentValues.editOnce EQ 0>checked</cfif>>False
 				<input type="radio" name="#prefix#editOnce" id="#prefix#editOnce" value="1" <cfif currentValues.editOnce EQ 1>checked</cfif>>True

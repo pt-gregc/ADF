@@ -37,12 +37,27 @@ History:
 	2014-09-19 - GAC - Removed deprecated doLabel and jsLabelUpdater js calls
 	2015-05-12 - DJM - Updated the field version to 2.0
 	2015-09-02 - DRM - Add getResourceDependencies support, bump version
+	2016-02-19 - DRM - Resource detection exit
+							 Bump field version
+	2016-02-22 - GAC - Updated field label class
 --->
+
+<!--- // if this module loads resources, do it here.. --->
+<!---<cfscript>
+	// none
+</cfscript>--->
+
+<!--- ... then exit if all we're doing is detecting required resources --->
+<cfif Request.RenderState.RenderMode EQ "getResources">
+  <cfexit>
+</cfif>
+
+
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "2.0.3";
+	fieldVersion = "2.0.5";
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
@@ -71,7 +86,7 @@ History:
 	</script>
 	<table>
 		<tr>
-			<td class="cs_dlgLabelSmall">Field ID:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Field ID:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#fldID" id="#prefix#fldID" class="cs_dlgControl" value="#currentValues.fldID#" size="40">
 				<br/><span>Please enter the field ID to be used via JavaScript.  If blank, will use default CS field name.</span>

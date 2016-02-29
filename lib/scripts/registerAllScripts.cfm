@@ -56,15 +56,15 @@
 				writeOutput("Alias with this name already exists, skipped: #arguments.name#<br>");
 				return;
 			}
-			else if (attributes.updateExisting != 0)
-			{
-				arguments.id = resSpecs.id;
-				action = "updated";
-			}
-			else
+			else if (attributes.updateExisting == 0)
 			{
 				writeOutput("Resource already exists, skipped: #arguments.name#<br>");
 				return;
+			}
+			else
+			{
+				arguments.id = resSpecs.id;
+				action = "updated";
 			}
 		}
 		arguments.earlyLoadSourceArray = getResourceArray(arguments.earlyLoadSourceArray);
@@ -589,7 +589,7 @@
 		(
 			"jQueryDatePick 4.0", "SECONDARY",
 			[
-				{LoadTagType=1, SourceURL="/ADF/thirdParty/jquery/datepick/jquery.datepick.css"}
+				{LoadTagType=1, SourceURL="/ADF/thirdParty/jquery/datepick/jquery.datepick.css", canCombine=0, canMinify=0}
 			],
 			[
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/datepick/jquery.datepick.js"}
@@ -880,7 +880,7 @@
 		(
 			"jQueryUIStars", "SECONDARY",
 			[
-				{LoadTagType=1, SourceURL="/ADF/thirdParty/jquery/ui/stars/3.0/ui.stars.min.css"}
+				{LoadTagType=1, SourceURL="/ADF/thirdParty/jquery/ui/stars/3.0/ui.stars.min.css", canCombine=0, canMinify=0}
 			],
 			[
 				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/ui/stars/3.0/ui.stars.min.js"}
@@ -925,23 +925,26 @@
 
 		registerResource
 		(
-			"JSTree 3.0", "SECONDARY",
+			"JSTree 3.2", "SECONDARY",
 			[],
 			[
-				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/jsTree/3.0/jstree.min.js"}
+				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/jsTree/3.2/jstree.min.js", canMinify=0}
 			],
 			"JSTree resources.", "Included in ADF 2.0 and later.", "JSTree"
 		);
+		// TODO: Future feature to remove old versions of registered resources with with the same alias
+		// removeResource("JSTree 3.0");
 
 		registerResource
 		(
-			"JSTreeDefaultStyles 3.0", "SECONDARY",
+			"JSTreeDefaultStyles 3.2", "SECONDARY",
 			[
-				{LoadTagType=1, SourceURL="/ADF/thirdParty/jquery/jsTree/3.0/themes/default/style.min.css"}
+				{LoadTagType=1, SourceURL="/ADF/thirdParty/jquery/jsTree/3.2/themes/default/style.min.css", canMinify=0}
 			],
 			[],
 			"JSTreeDefaultStyles resources.", "Included in ADF 2.0 and later.", "JSTreeDefaultStyles"
 		);
+		// removeResource("JSTree 3.0");
 
 		// NOTE: version is actually as registered, but that's not in the file name, renaming it would break any direct callers
 		registerResource
@@ -1107,4 +1110,4 @@
 	}
 </cfscript>
 
-<cfoutput><h1>Resources registered.</h1></cfoutput>
+<!---<cfoutput><h1>Resources registered.</h1></cfoutput>--->

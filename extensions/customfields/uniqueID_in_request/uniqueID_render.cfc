@@ -25,12 +25,14 @@ Author:
 Name:
 	uniqueID_render.cfc
 Version:
-	1.1
+	2.0
 History:
 	2014-01-07 - GAC - Converted the CFT to the ADF standard CFT format using the forms.wrapFieldHTML method
 	2015-04-30 - DJM - Converted to CFC
 	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean()
 	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
+	2016-02-16 - GAC - Added getResourceDependencies support
+	                 - Added loadResourceDependencies support
 --->
 <cfcomponent displayName="UniqueID Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -123,5 +125,22 @@ History:
 		return inputParameters;
 	</cfscript>
 </cffunction>
+
+<cfscript>
+	/*
+		IMPORTANT: Since loadResourceDependencies() is using ADF.scripts loadResources methods, getResourceDependencies() and
+		loadResourceDependencies() must stay in sync by accounting for all of required resources for this Custom Field Type.
+	*/
+    //  if your renderer makes use of CommonSpot or ADF registered resources, tell exports about them, like this
+    /*public void function loadResourceDependencies()
+    {
+        // No resources to load
+    }*/
+    /* public string function getResourceDependencies()
+    {
+        // No resources to get
+        return "";
+    }*/
+</cfscript>
 
 </cfcomponent>

@@ -67,9 +67,13 @@ History:
 	2015-05-26 - DJM - Added the 2.0 version
 	2015-09-02 - DRM - Add getResourceDependencies support, bump version
 	2015-10-14 - GAC - Updated the forms call to Forms_2_0
+	2016-02-22 - DRM - Resource detection exit
+							 Remove forceScripts UI
+							 Bump field version
 --->
 
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
+
 
 <cfscript>
 	requiredCSversion = 9;
@@ -87,9 +91,25 @@ History:
 	<cfexit>
 </cfif>
 
+
+<!--- if we're still here, this is CommonSpot 10+ --->
+
+
+<!--- // if this module loads resources, do it here.. --->
+<cfscript>
+	application.ADF.scripts.loadJQuery(noConflict=true);
+	application.ADF.scripts.loadJQuerySelectboxes();
+</cfscript>
+
+<!--- ... then exit if all we're doing is detecting required resources --->
+<cfif Request.RenderState.RenderMode EQ "getResources">
+  <cfexit>
+</cfif>
+
+
 <!---// CommonSpot 9 Required for the new element data filter criteria --->
 <cfscript>
-	fieldVersion = "2.0.4"; // Variable for the version of the field - Display in Props UI
+	fieldVersion = "2.0.5"; // Variable for the version of the field - Display in Props UI
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
@@ -105,7 +125,6 @@ History:
 	defaultValues.renderField = "yes";
 	defaultValues.defaultVal = "";
 	defaultValues.fldName = "";
-	defaultValues.forceScripts = "0";
 	defaultValues.displayFieldBuilder = "";
 	defaultValues.filterCriteria = "";
 	defaultValues.addButton = 0;
@@ -158,9 +177,6 @@ History:
 	customElements = application.ADF.ceData.getAllCustomElements();
 	// 2013-11-15 - GAC - Set to use 'ceData_2_0'
 	ajaxCEDataBean = "ceData_2_0";
-	
-	application.ADF.scripts.loadJQuery(noConflict=true);
-	application.ADF.scripts.loadJQuerySelectboxes();
 	
 	ceObj = Server.CommonSpot.ObjectFactory.getObject("CustomElement");
 	statementsArray = ArrayNew(1);
@@ -253,7 +269,7 @@ History:
 
 <cfoutput>
 <script type="text/javascript">
-	fieldProperties['#typeid#'].paramFields = "#prefix#customElement,#prefix#valueField,#prefix#displayField,#prefix#renderField,#prefix#defaultVal,#prefix#fldName,#prefix#forceScripts,#prefix#displayFieldBuilder,#prefix#filterCriteria,#prefix#addButton,#prefix#multipleSelect,#prefix#renderSelectOption,#prefix#fieldtype,#prefix#multipleSelectSize,#prefix#widthValue,#prefix#heightValue,#prefix#renderClearSelectionLink,#prefix#sortOption";
+	fieldProperties['#typeid#'].paramFields = "#prefix#customElement,#prefix#valueField,#prefix#displayField,#prefix#renderField,#prefix#defaultVal,#prefix#fldName,#prefix#displayFieldBuilder,#prefix#filterCriteria,#prefix#addButton,#prefix#multipleSelect,#prefix#renderSelectOption,#prefix#fieldtype,#prefix#multipleSelectSize,#prefix#widthValue,#prefix#heightValue,#prefix#renderClearSelectionLink,#prefix#sortOption";
 	// allows this field to have a common onSubmit Validator
 	fieldProperties['#typeid#'].jsValidator = '#prefix#doValidate';
 
@@ -691,15 +707,6 @@ History:
 			<td class="cs_dlgLabelSmall">
 				<label style="color:black;font-size:12px;font-weight:normal;"><input type="radio" name="#prefix#renderField" id="#prefix#renderField" value="yes" <cfif currentValues.renderField eq 'yes'>checked</cfif>> Visible</label>
 				<label style="color:black;font-size:12px;font-weight:normal;"><input type="radio" name="#prefix#renderField" id="#prefix#renderField" value="no" <cfif currentValues.renderField eq 'no'>checked</cfif>> Hidden</label>
-			</td>
-		</tr>
-		<tr>
-			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Force Loading Scripts:</td>
-			<td class="cs_dlgLabelSmall">
-				<label style="color:black;font-size:12px;font-weight:normal;"><input type="radio" id="#prefix#forceScripts" name="#prefix#forceScripts" value="1" <cfif currentValues.forceScripts EQ "1">checked</cfif>> Yes</label>
-				&nbsp;&nbsp;&nbsp;
-				<label style="color:black;font-size:12px;font-weight:normal;"><input type="radio" id="#prefix#forceScripts" name="#prefix#forceScripts" value="0" <cfif currentValues.forceScripts EQ "0">checked</cfif>> No</label>
-				<br />Force the JQuery script to load.
 			</td>
 		</tr>
 	</tbody>

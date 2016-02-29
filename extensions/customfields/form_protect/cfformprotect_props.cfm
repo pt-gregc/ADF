@@ -35,18 +35,32 @@ History:
 	2014-01-03 - GAC - Added the fieldVersion variable
 	2014-09-19 - GAC - Removed deprecated doLabel and jsLabelUpdater js calls
 	2015-09-02 - DRM - Add getResourceDependencies support, bump version
+	2016-02-19 - GAC - Added getResourceDependencies and loadResourceDependencies support to the Render
+			     		  - Added the getResources check to the Props
+			     		  - Bumped field version
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
+<!--- // if this module loads resources, do it here.. --->
+<!---<cfscript>
+    // No resources to load
+</cfscript>--->
+
+<!--- ... then exit if all we're doing is detecting required resources --->
+<cfif Request.RenderState.RenderMode EQ "getResources">
+  <cfexit>
+</cfif>
+
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "1.0.4";
+	fieldVersion = "1.0.5";
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
 	prefix = attributes.prefix;
 	formname = attributes.formname;
 	currentValues = attributes.currentValues;
+
 	if( not structKeyExists(currentValues, "cfformprotect") )
 		currentValues.cfformprotect = "/ADF/thirdParty/cfformprotect/cffp.cfm";
 </cfscript>
@@ -73,7 +87,7 @@ History:
 	</script>
 	<table>
 		<tr>
-			<td class="cs_dlgLabelSmall">Script Path:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Script Path:</td>
 			<td class="cs_dlgLabelSmall">
 			<input type="text" name="#prefix#cfformprotect" id="#prefix#cfformprotect" class="cs_dlgControl" value="#currentValues.cfformprotect#" size="60"><br/>
 			<span>Please enter the relative path and script to cfinclude (i.e. /ADF/thirdParty/cfformprotect/cffp.cfm)</span></td>

@@ -43,6 +43,7 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 			2015-08-20 - DRM - Created 2.0 version for ADF 2.0 and CommonSpot 10
 			2015-11-18 - DRM - Added loadUnregisteredResource method
 									 Modified loadTheme to use an unregistered resource if possible
+			2016-02-26 - GAC - Updated default params loadUnregisteredResource()
 	*/
 
 
@@ -68,10 +69,10 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 		resourceType: 'JavaScript', 'StyleSheet', or the name of a custom resource type
 		location: 'head' or 'foot'
 		resourceGroup: one of 'primary', 'secondary' or 'tertiary'
-		canCombine default="": boolean, except empty str means auto: combine if we can read the file from expandPath(URL), checked when rendering resource request URLs
-		canMinify default="0"; boolean
+		canCombine default=0: boolean, except empty str means auto: combine if we can read the file from expandPath(URL), checked when rendering resource request URLs
+		canMinify default=0; boolean
 	*/
-	public void function loadUnregisteredResource(required string URL, required string resourceType, required string location, required string resourceGroup, string canCombine="", string canMinify="")
+	public void function loadUnregisteredResource(required string URL, required string resourceType, required string location, required string resourceGroup, string canCombine=0, string canMinify=0)
 	{
 		Server.CommonSpot.udf.resources.loadUnregisteredResource(argumentCollection=arguments);
 	}
@@ -89,19 +90,19 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 	public void function addFooterJS(required string js, required string resourceGroup) // resourceGroup: PRIMARY, SECONDARY, TERTIARY
 	{
 		// Strip the script tags
-		js = ReReplace(js, "<[[:space:]]*script.*?>","", "ALL");
-		js = ReReplace(js, "</script>","", "ALL");
+		arguments.js = ReplaceNoCase(arguments.js, "</script>", "", "ALL");
+		arguments.js = ReReplaceNoCase(arguments.js, "<[[:space:]]*script.*?>", "", "ALL");
 
-		Server.CommonSpot.udf.resources.addFooterJS(js, resourceGroup);
+		Server.CommonSpot.udf.resources.addFooterJS(arguments.js, arguments.resourceGroup);
 	}
 
 	public void function addHeaderCSS(required string css, required string resourceGroup) // resourceGroup: PRIMARY, SECONDARY, TERTIARY
 	{
 		// Strip the style tags
-		css = ReReplace(css, "<[[:space:]]*style.*?>","", "ALL");
-		css = ReReplace(css, "</style>","", "ALL");
+		arguments.css = ReplaceNoCase(arguments.css, "</style>", "", "ALL");
+		arguments.css = ReReplaceNoCase(arguments.css, "<[[:space:]]*style.*?>", "", "ALL");
 
-		Server.CommonSpot.udf.resources.addHeaderCSS(css, resourceGroup);
+		Server.CommonSpot.udf.resources.addHeaderCSS(arguments.css, arguments.resourceGroup);
 	}
 
 	/*
@@ -151,9 +152,9 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 				{
 					cssURL = listSetAt(cssURL, listPos + 1, arguments.themeName, "/");
 					if ( fileExists(Request.Site.Dir & cssURL) )
-					    loadUnregisteredResource(cssURL, "Stylesheet", "head", "secondary", 0, 0);
-                    else
-                        themeLoadFailed = true;
+						loadUnregisteredResource(cssURL, "Stylesheet", "head", "secondary", 0, 0);
+				 	else
+						themeLoadFailed = true;
 				}
 				else
 				    themeLoadFailed = true;
@@ -163,18 +164,18 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 					 // This case handles the bad cssURL and uses the default resource
 					loadResources(arguments.defaultResourceName);
 
-					errMsg = "Could not find the requested 'theme' resource: #arguments.themeName# using the default theme: #arguments.defaultResourceName#. Please register the required theme as a CommonSpot Resource.";
+					errMsg = "Could not find the requested theme resource '#arguments.themeName#', using the default theme '#arguments.defaultResourceName#' instead. Please register the required theme as a CommonSpot Resource.";
 					Server.CommonSpot.addLogEntry(errMsg);
                     //throw(errMsg);
 				}
 			}
 			else
-            {
-                // This case handles the missing default resource ... see log for more details
-                errMsg = "Could not find the requested 'theme' resources: #arguments.themeName# or the default: #arguments.defaultResourceName#. Please register the required themes as CommonSpot Resources.";
-                Server.CommonSpot.addLogEntry(errMsg);
-                //throw(errMsg);
-            }
+			{
+				 // This case handles the missing default resource ... see log for more details
+				 errMsg = "Could not find the requested theme resources '#arguments.themeName#' or the default theme '#arguments.defaultResourceName#'. Please register the required themes as CommonSpot Resources.";
+				 Server.CommonSpot.addLogEntry(errMsg);
+				 //throw(errMsg);
+			}
 		}
 	}
 
@@ -206,23 +207,41 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 		loadResources("jQuery,jQueryMigrate");
 	}
 
+	/*
+		History:
+			2016-02-23 - GAC - Allow loadTheme() to handle if a themeName was not passed in
+	*/
 	public void function loadJQueryUI(string version="", string themeName="", boolean force=0, string defaultThemeOverride="")
 	{
 		arguments.themeName = trim(arguments.themeName);
 		
 		loadResources("jQuery,jQueryUI");
 		
-		if (arguments.themeName == "")
-			loadResources("jQueryUIDefaultTheme");
-		else
-			loadTheme(arguments.themeName, "jQueryUIDefaultTheme", "css");
+		if ( arguments.themeName == "" )
+			arguments.themeName = "jQueryUIDefaultTheme";
+
+		loadTheme(arguments.themeName, "jQueryUIDefaultTheme", "css");
+	}
+
+	/*
+		History:
+			2016-02-19 - GAC - Added as a passthrough for existing code that was looking for loadJQueryUIStyles()
+			2016-02-23 - GAC - Allow loadTheme() to handle if a themeName was not passed in
+	*/
+	public void function loadJQueryUIStyles(string themeName="")
+	{
+		arguments.themeName = trim(arguments.themeName);
+
+		if ( arguments.themeName == "" )
+			arguments.themeName = "jQueryUIDefaultTheme";
+
+		loadTheme(arguments.themeName, "jQueryUIDefaultTheme", "css");
 	}
 
 	public void function loadJQueryMobile(string version="", boolean force=0)
 	{
 		loadResources("jQuery,jQueryMobile");
 	}
-
 
 	public void function loadBootstrap(string version="", boolean force=0, boolean useDefaultTheme=0)
 	{
@@ -351,16 +370,20 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 		loadResources("jQuery,jQueryEasing");
 	}
 
+	/*
+		History:
+			2016-02-23 - GAC - Allow loadTheme() to handle if a skinName was not passed in
+	*/
 	public void function loadJCarousel(string skinName="", boolean force=0, string version="")
 	{
 		arguments.skinName = trim(arguments.skinName);
 		
 		loadResources("jQuery,jCarousel");
 		
-		if (arguments.skinName == "")
-			loadResources("jCarouselDefaultSkin");
-		else
-			loadTheme(arguments.themeName, "jCarouselDefaultSkin", "skins");
+		if ( arguments.skinName == "" )
+			arguments.skinName = "jCarouselDefaultSkin";
+
+		loadTheme(arguments.skinName, "jCarouselDefaultSkin", "skins");
 	}
 
 	public void function loadJCarouselDefaultSkin()
@@ -397,8 +420,9 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 
 	public void function loadJQueryBBQ(string version="", boolean force=0)
 	{
+		loadResources("jQuery,jQueryBBQ");  // jQueryMigrate not needed for bbq-1.3.adf.js
+		
 		// jQuery BBQ 1.3 and below require Migrate!!
-		loadResources("jQuery,jQueryBBQ");  // jQueryMigrate not needed for bbq-1.3.adf
 		//loadResources("jQuery,jQueryMigrate,jQueryBBQ");
 	}
 
@@ -441,7 +465,8 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 
 	public void function loadJQueryDatePick(boolean force=0)
 	{
-		loadResources("jQuery,jQueryDatePick");
+		// jQuery jDatePick requires Migrate!!
+		loadResources("jQuery,jQueryMigrate,jQueryDatePick");
 	}
 
 	public void function loadJQueryDoTimeout(boolean force=0)
@@ -596,6 +621,10 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 		loadResources("JSONJS");
 	}
 
+	/*
+		History:
+			2016-02-23 - GAC - Allow loadTheme() to handle if a theme was not passed in
+	*/
 	public void function loadJSTree(string version="", boolean force=0, boolean loadStyles=0, string theme="")
 	{
 		loadResources("jQuery,JSTree");
@@ -603,10 +632,10 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 		{
 			arguments.theme = trim(arguments.theme);
 
-			if (arguments.theme == "")
-				loadResources("JSTreeDefaultStyles"); 
-			else
-		  		loadTheme(arguments.theme, "JSTreeDefaultStyles", "themes");
+			if ( arguments.theme == "" )
+				arguments.theme="JSTreeDefaultStyles";
+
+			loadTheme(arguments.theme, "JSTreeDefaultStyles", "themes");
 		}
 	}
 

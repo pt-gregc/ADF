@@ -37,6 +37,9 @@ History:
 	2015-05-26 - DJM - Added the 3.0 version
 	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean()
 	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
+	2016-02-19 - GAC - Added getResourceDependencies support
+	                 - Added loadResourceDependencies support
+	                 - Moved resource loading to the loadResourceDependencies() method
 --->
 <cfcomponent displayName="FileUploader Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -56,10 +59,6 @@ History:
 		var imageURL = "/ADF/extensions/customfields/file_uploader/v3/handleFileDownload.cfm?subsiteURL=#request.subsite.url#&fieldID=#arguments.fieldID#&filename=";
 		var concatenator = "";
 
-		application.ADF.scripts.loadJQuery();
-		application.ADF.scripts.loadADFLightbox();
-		application.ADF.scripts.loadJQueryUI();
-		
 		valueRenderParams.currentValue = currentValue;
 		currentValueRenderData = application.ADF.utils.runCommand(fieldDefaultValues.beanName,"getCurrentValueRenderData",valueRenderParams);
 		
@@ -147,11 +146,31 @@ function #arguments.fieldName#clearButtonClick(){
 </cfoutput>
 </cffunction>
 
-
 <cfscript>
+	private boolean function isMultiline()
+	{
+		return true;
+	}
+
+	/*
+		IMPORTANT: Since loadResourceDependencies() is using ADF.scripts loadResources methods, getResourceDependencies() and
+		loadResourceDependencies() must stay in sync by accounting for all of required resources for this Custom Field Type.
+	*/
+	public void function loadResourceDependencies()
+	{
+		var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
+
+		if( not structKeyExists(inputParameters, "uiTheme") )
+			inputParameters.uiTheme = "ui-lightness";
+
+		// Load registered Resources via the ADF scripts_2_0
+		application.ADF.scripts.loadJQuery();
+		application.ADF.scripts.loadJQueryUI(themeName=inputParameters.uiTheme);
+		application.ADF.scripts.loadADFLightbox();
+	}
 	public string function getResourceDependencies()
 	{
-		return listAppend(super.getResourceDependencies(), "jQuery,jQueryUI,ADFLightbox");
+		return "jQuery,jQueryUI,ADFLightbox,jQueryUIDefaultTheme";
 	}
 </cfscript>
 

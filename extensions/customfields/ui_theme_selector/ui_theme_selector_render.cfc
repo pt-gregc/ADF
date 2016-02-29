@@ -32,7 +32,7 @@ Version:
 History:
 	2011-06-14 - GAC - Created
 	2011-06-16 - GAC - Fixed the default jqueryUIurl and slashes for non Windows OS's
-	2012-01-11 - GAC - set jqueryUIurl to match the case of the directory stucture
+	2012-01-11 - GAC - set jqueryUIurl to match the case of the directory structure
 					 - cleaned up some unused jquery code
 					 - added text input if no records are returned by the theme directory query
 	2012-02-21 - GAC - added additional fixes for slashes 
@@ -46,6 +46,9 @@ History:
 	2015-04-29 - DJM - Added own CSS
 	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean()
 	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
+	2016-02-16 - GAC - Added getResourceDependencies support
+	                 - Added loadResourceDependencies support
+			 			  - Moved resource loading to the loadResourceDependencies() method
 --->
 <cfcomponent displayName="UIThemeSelector Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -59,7 +62,7 @@ History:
 		var currentValue = arguments.value;	// the field's current value
 		var readOnly = (arguments.displayMode EQ 'readonly') ? true : false;
 		var uiFilterOutList = ".svn,base"; 		// Add DIRs that need to be filtered from the theme drop down	
-		var defaultVersion = "jquery-ui-1.9";
+		var defaultVersion = "jquery-ui-1.11";
 		var defaultTheme = ""; 					//ui-lightness
 		var jQueryUIurl = "/ADF/thirdParty/jquery/ui/";
 		var jQueryUIpath = ExpandPath(jQueryUIurl); 
@@ -71,9 +74,6 @@ History:
 		
 		if ( LEN(TRIM(currentValue)) EQ 0 )
 			currentValue = defaultTheme;
-		
-		// jQuery Headers
-		application.ADF.scripts.loadJQuery();	
 	</cfscript>
 
 	<!--- // Get a list of jQuery UI themes for the version of jQuery --->
@@ -141,9 +141,19 @@ History:
 		return "Please select a value for the #arguments.label# field.";
 	}
 
+	/*
+		IMPORTANT: Since loadResourceDependencies() is using ADF.scripts loadResources methods, getResourceDependencies() and
+		loadResourceDependencies() must stay in sync by accounting for all of required resources for this Custom Field Type.
+	*/
+	public void function loadResourceDependencies()
+	{
+		// Load registered Resources via the ADF scripts_2_0
+		application.ADF.scripts.loadJQuery();
+	}
 	public string function getResourceDependencies()
 	{
-		return listAppend(super.getResourceDependencies(), "jQuery");
+		return "jQuery";
 	}
 </cfscript>
+
 </cfcomponent>

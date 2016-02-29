@@ -38,7 +38,7 @@ History:
 --->
 <cfcomponent displayname="utils_1_2" extends="utils_1_1" hint="Util functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_15">
+<cfproperty name="version" value="1_2_17">
 <cfproperty name="type" value="singleton">
 <cfproperty name="ceData" type="dependency" injectedBean="ceData_2_0">
 <cfproperty name="csData" type="dependency" injectedBean="csData_1_2">
@@ -428,6 +428,7 @@ History:
 	2012-08-16 - GAC - Created
 	2015-08-19 - GAC - Updated for the schedule log file name to only allow .log and .txt files to be generated (as per ACF 10+)
 	     			 - Added the allowedLogExts parameter to allow additional log extensions if set in ACF 10+ server config
+	2016-02-16 - GAC - Added a param for passing in a schedule log directory
 --->
 <cffunction name="setRecurringScheduledTask" access="public" returntype="struct" output="false" hint="Creates or updates a scheduled task that is recurring.">
 	<cfargument name="url" type="string" required="true">
@@ -441,7 +442,8 @@ History:
 	<cfargument name="timeout" type="string" default="3600" required="false"> 
 	<cfargument name="AuthToken" type="string" default="" required="false" hint=""> 
 	<cfargument name="allowedLogExts" type="string" default="txt,log" required="false" hint="Comma Delimited list of allowed log file extensions (without the dot)"> 
-	
+	<cfargument name="schedLogDir" type="string" default="#request.cp.commonSpotDir#logs/" required="false">
+
 	<cfscript>
 		var retResult = StructNew();
 		var schedURL = arguments.url;
@@ -456,7 +458,7 @@ History:
 		var defaultStartDateTime = DateAdd("n",defaultMinStartDelay,Now()); 
 		var defaultEndDateTime = DateAdd("n",1,defaultStartDateTime);
 		
-		var logFileDir = request.cp.commonSpotDir & "logs/";
+		var logFileDir = arguments.schedLogDir;
 		var fullLogFilePath = "";
 		var uniqueFullLogFilePath = "";
 		var uniqueLogFileName = "";
@@ -474,7 +476,7 @@ History:
 		var schedInterval = defaultInterval;
 		var schedRequestTimeOut = defaultRequestTimeOut;
 		
-		// TODO: FUTURE FEATURE: Use for recurring tasks that need authenication to run unattended
+		// TODO: FUTURE FEATURE: Use for recurring tasks that need authentication to run unattended
 		var validAuthToken = false;
 		
 		// ACF 10+ only allows .log and .txt extension for the generated log files.
@@ -645,6 +647,7 @@ Arguments:
 	String - type
 	String - detail
 	Boolean - logerror
+	String - logfile
 History:
  	2014-04-04 - GAC - Created
 --->
@@ -801,7 +804,7 @@ History:
 				{
 					retData = variables.data.duplicateStruct(arguments.dumpVarData);
 					
-					// Find the instances of the CSPASSWORD stuct key 
+					// Find the instances of the CSPASSWORD struct key
 					pwFindArray = StructFindKey(retData,configPWkey,"all");
 					
 					// Loop over the Find Array and REPLACE each value with a TEMP string

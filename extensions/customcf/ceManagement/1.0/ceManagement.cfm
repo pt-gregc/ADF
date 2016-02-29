@@ -60,22 +60,47 @@ Custom Script Parameters Tab Examples:
 
 History:
 	2015-12-23 - GAC - Moved base script to allow for versioning and simplification of future iterations
+	2016-02-19 - GAC - Updated to add the "getResources" check
 --->
 
 <!--- // The version of this custom script code --->
-<cfset scriptVersion = "1.3.0">
+<cfset scriptVersion = "1.3.1">
 
 <!--- // Optional ADF App Override Attributes for the Custom Script Parameters tab --->
-<!--- // !!!! DO NOT MODIFY THIS OVERRIDE LOGIC to force changes via the Custom Script Parameters from the CommonSpot UI!!! --->
+<!--- // !!!! DO NOT MODIFY THIS OVERRIDE LOGIC and to be able to force changes via the Custom Script Parameters from the CommonSpot UI!!! --->
 <cfscript>
-    if ( StructKeyExists(attributes,"appBeanName") AND LEN(TRIM(attributes.appBeanName)) AND StructKeyExists(attributes,"appParamsVarName") AND LEN(TRIM(attributes.appParamsVarName)) ) {
+    if ( StructKeyExists(attributes,"appBeanName") AND LEN(TRIM(attributes.appBeanName)) AND StructKeyExists(attributes,"appParamsVarName") AND LEN(TRIM(attributes.appParamsVarName)) )
+    {
         attributes = application.ADF.utils.appOverrideCSParams(
-                                                        csParams=attributes,
-                                                        appName=attributes.appBeanName,
-                                                        appParamsVarName=attributes.appParamsVarName,
-                                                        paramsExceptionList="appBeanName,appParamsVarName");
+																			  csParams=attributes,
+																			  appName=attributes.appBeanName,
+																			  appParamsVarName=attributes.appParamsVarName,
+																			  paramsExceptionList="appBeanName,appParamsVarName"
+                                                        );
     }
+</cfscript>
 
+<!--- // load all resources...  --->
+<cfscript>
+    application.ADF.scripts.loadJQuery();
+
+		if ( StructKeyExists(attributes,"themeName") AND LEN(TRIM(attributes.themeName)) )
+			application.ADF.scripts.loadJQueryUI(themeName=attributes.themeName);
+		else
+			application.ADF.scripts.loadJQueryUI();
+
+		// Load jquery cookie to remember the last tab visited
+		application.ADF.scripts.loadJQueryCookie();
+		// Load ADFlightbox headers
+		application.ADF.scripts.loadADFLightbox();
+</cfscript>
+
+<!--- ... then exit if all we're doing is detecting required resources --->
+<cfif Request.RenderState.RenderMode EQ "getResources">
+  <cfexit>
+</cfif>
+
+<cfscript>
     // This is the default script Configuration Version
     // - FYI: Changing this value will break any existing v1 datasheet configurati
     scriptConfigVersion = "1.0";
@@ -90,17 +115,6 @@ History:
 <cfoutput>
     <cfif structKeyExists(attributes,"elementName") and Len(attributes.elementName)>
         <cfscript>
-            application.ADF.scripts.loadJQuery();
-
-            if ( StructKeyExists(attributes,"themeName") AND LEN(TRIM(attributes.themeName)) )
-                application.ADF.scripts.loadJQueryUI(themeName=attributes.themeName);
-            else
-            	application.ADF.scripts.loadJQueryUI();
-
-            // Load jquery cookie to remember the last tab visited
-            application.ADF.scripts.loadJQueryCookie();
-            application.ADF.scripts.loadADFLightbox();
-
             // Check for CS Author Mode
             csMode = "";
             if ( StructKeyExists(request,"renderstate") AND StructKeyExists(request.renderstate,"rendermode") )

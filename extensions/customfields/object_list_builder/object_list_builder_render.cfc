@@ -35,6 +35,13 @@ History:
 	2015-05-07 - DJM - Converted to CFC
 	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean()
 	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
+	2016-02-16 - GAC - Added getResourceDependencies support
+	                 - Added loadResourceDependencies support
+	                 - Moved resource loading to the loadResourceDependencies() method
+  	2016-02-22 - GAC - Updated to set the UI Theme via CFT props
+					 	  - Moved JS resource loading from the base.cfc to the loadResourceDependencies() method
+	2016-02-25 - SU  - Updated to fix the field from rendering off the page
+				  - GAC - Added a field specific style fix full-width field rendering issue
 --->
 <cfcomponent displayName="ObjectListBuilder Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -46,6 +53,7 @@ History:
 		var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
 		var currentValue = arguments.value;	// the field's current value
 		var readOnly = (arguments.displayMode EQ 'readonly') ? true : false;
+		var textAreaJS = '';
 		var wraptag = 'div';
 		var compOverridePath = "";
 		var ext = '';
@@ -76,9 +84,6 @@ History:
 		var ajaxBeanName = 'objectListBuilder';
 		
 		inputParameters = setDefaultParameters(argumentCollection=arguments);
-		
-		application.ADF.scripts.loadJQuery(noConflict=true);
-		application.ADF.scripts.loadJQueryUI();	
 		
 		if (StructKeyExists(inputParameters, "componentPath") AND inputParameters.componentPath neq "")
 		{
@@ -156,7 +161,6 @@ History:
 	</cfoutput>--->
 
 	<cffile action="read" file="#filePath#" variable="objectList">
-
 	<!---<cfset application.adf.utils.logappend(msg=objectList, logfile='debugOLB.html', label='objectList')>--->
 
 	<cfscript>
@@ -167,10 +171,12 @@ History:
 
 	<!---<cfset application.adf.utils.logappend(msg=colsArr, logfile='debugOLB.html', label='colsArr')>--->
 
+	<cfscript>
+		// Load custom Styles 
+		datamanagerObj.renderStyles(argumentCollection=arguments);
+	</cfscript>
+
 	<cfoutput>
-		#datamanagerObj.renderJS()#
-		#datamanagerObj.renderStyles()#
-	<tr><td colspan="2">
 	<table width="950" border="0" class="borderedTable" id="borderedTable" cellspacing="0" cellpadding="2" summary="">
 		<!--- left bar --->
 		<tr>
@@ -214,6 +220,8 @@ History:
 			<td width="560" valign="top" id="ckEditoTD">
 				<div class="frameOverlay" id="frameOverlay">
 				<textarea name="#arguments.fieldName#" id="#arguments.fieldName#">#parsedVal#</textarea>
+				<cfsavecontent variable="textAreaJS">
+				<cfoutput>
 				<script>
 					CKEDITOR.replace( '#arguments.fieldName#',
 					{
@@ -300,14 +308,19 @@ History:
 					CKEDITOR.plugins.addExternal( 'csimage', '/ADF/extensions/customfields/object_list_builder/plugins/csimage/' );
 					CKEDITOR.plugins.addExternal( 'cslink', '/ADF/extensions/customfields/object_list_builder/plugins/cslink/' );
 		
-				</script>	
+				</script>
+				</cfoutput>
+				</cfsavecontent>
 				</div> 
 			</td>	
 		</tr>
 	</table>
-	</td></tr>
+
 	</cfoutput>
 	<cfscript>
+		// Load the TextArea CKEditor JS
+		application.ADF.scripts.addFooterJS(textAreaJS, "TERTIARY"); //  PRIMARY, SECONDARY, TERTIARY
+		// Load the additional CFT JS 
 		renderJSFunctions(argumentCollection=arguments, fieldParamaters=inputParameters, objectList=objectList, columnList=colsList, ajaxBeanName=ajaxBeanName);
 	</cfscript>
 </cffunction>
@@ -325,7 +338,10 @@ History:
 		var inputParameters = application.ADF.data.duplicateStruct(arguments.fieldParamaters);
 		var colsList = arguments.columnList;
 		var ajaxComURL = application.ADF.ajaxProxy;
+		var js = "";
 	</cfscript>
+
+<cfsavecontent variable="js">
 <cfoutput>
 <script type="text/javascript">
 <!--
@@ -614,7 +630,7 @@ History:
 		editor.setData(html);
 	}	
 	var hasTabs = [];
-	jQuery(document).ready(function()	
+	jQuery(function()	
 	{
 		editor = CKEDITOR.instances['#arguments.fieldName#'];
 		hasTabs = jQuery('.cs_tab_inactive');
@@ -635,7 +651,7 @@ History:
 
 	//		if (hasTabs.length)
 	//			parsedH -= 20;
-			//alert(parsedH);
+
 			editor.resize( '100%', parsedH, false ,true );
 		}
 		catch(e){}
@@ -645,8 +661,12 @@ History:
 		// executes when complete page is fully loaded, including all frames, objects and images
 		var winWidth = jQuery(window).width();
 		var winHeight = jQuery(top.window).height();
-		//debugger;
-		var parsedH = parseInt(winHeight);
+		
+	//		var parsedH = parseInt(winHeight);
+		var parsedH = jQuery('##borderedTable').height();
+		if (parsedH < 700)
+			parsedH = 700;
+			
 		var parsedW = parseInt(winWidth);
 		if (hasTabs.length)
 			parsedH -= 40;		
@@ -660,11 +680,16 @@ History:
 		jQuery('##cs_commondlg').css('overflow','hidden');
 	}
 
-
 	jQuery(window).resize(reSizeLocal);
 //-->
 </script>
 </cfoutput>
+</cfsavecontent>
+
+<cfscript>
+	// Must load after the CKEditor Library loads
+	application.ADF.scripts.addFooterJS(js, "TERTIARY"); //  PRIMARY, SECONDARY, TERTIARY
+</cfscript>
 </cffunction>
 
 <cffunction name="setDefaultParameters" returntype="struct" access="private">
@@ -677,14 +702,38 @@ History:
 		if ( NOT StructKeyExists(inputParameters, "fldID") OR LEN(inputParameters.fldID) LTE 0 )
 			inputParameters.fldID = arguments.fieldName;
 		
-		if (StructKeyExists(inputParameters, 'msg') AND  Len(inputParameters.msg) GT 0)
+		if ( StructKeyExists(inputParameters, 'msg') AND  Len(inputParameters.msg) GT 0 )
 			msg = inputParameters.msg;
+
+		if ( NOT StructKeyExists(inputParameters, "uiTheme") OR LEN(inputParameters.uiTheme) LTE 0 )
+			inputParameters.uiTheme = "ui-lightness";
 		
 		return inputParameters;
 	</cfscript>
 </cffunction>
 
 <cfscript>
+	// Requires a Build of CommonSpot 10 higher than 10.0.0.313
+	public numeric function getMinHeight()
+	{
+		if (structKeyExists(arguments.parameters, "heightValue") && isNumeric(arguments.parameters.heightValue) && arguments.parameters.heightValue > 0)
+			return arguments.parameters.heightValue; // always px
+		return 0;
+	}
+
+	// Requires a Build of CommonSpot 10 higher than 10.0.0.313
+	public numeric function getMinWidth()
+	{
+		if ( structKeyExists(arguments.parameters, "widthValue") && isNumeric(arguments.parameters.widthValue) && arguments.parameters.widthValue > 0)
+			return arguments.parameters.widthValue + 160; // 150 is default label width, plus some slack // always px
+		return 0;
+	}
+	
+	private boolean function isMultiline()
+	{
+		return true;
+	}
+
 	private any function getValidationJS(required string formName, required string fieldName, required boolean isRequired)
 	{
 		return 'validate_#arguments.fieldName#()';
@@ -695,9 +744,25 @@ History:
 		return "Object list is empty.";
 	}
 
+	/*
+		IMPORTANT: Since loadResourceDependencies() is using ADF.scripts loadResources methods, getResourceDependencies() and
+		loadResourceDependencies() must stay in sync by accounting for all of required resources for this Custom Field Type.
+	*/
+	public void function loadResourceDependencies()
+	{
+		var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
+
+		inputParameters = setDefaultParameters(argumentCollection=arguments);
+
+		// Load registered Resources via the ADF scripts_2_0
+		application.ADF.scripts.loadJQuery(noConflict=true);
+		application.ADF.scripts.loadJQueryUI(themeName=inputParameters.uiTheme);
+		application.ADF.scripts.loadTypeAheadBundle();
+		application.ADF.scripts.loadCKEditor();
+	}
 	public string function getResourceDependencies()
 	{
-		return listAppend(super.getResourceDependencies(), "jQuery,jQueryUI");
+		return "jQuery,jQueryUI,TypeAheadBundle,CKEditor,jQueryUIDefaultTheme";
 	}
 </cfscript>
 

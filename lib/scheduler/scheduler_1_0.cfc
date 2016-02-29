@@ -40,7 +40,7 @@ History:
 --->
 <cfcomponent displayname="scheduler_1_0" extends="ADF.lib.libraryBase" hint="Scheduler base for the ADF">
 	
-<cfproperty name="version" value="1_0_11">
+<cfproperty name="version" value="1_0_12">
 <cfproperty name="type" value="singleton">
 <cfproperty name="scripts" type="dependency" injectedBean="scripts_1_2">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
@@ -186,7 +186,8 @@ History:
 	2011-09-26 - GAC - Updated application.schedule to be application.ADFscheduler 
 	2011-09-27 - GAC - Added a call to delete the CF Scheduled Task after process is marked as 'complete'
 					   Converted application.ADF references to the local 'variables.'.
-	2014-04-11 - GAC - Updated to allow the AppName passed to the runCommand  
+	2014-04-11 - GAC - Updated to allow the AppName passed to the runCommand
+	2016-02-16 - GAC - Updated for the schedule log file name to have a .log extension (as per ACF 10+)
 --->
 <cffunction name="processNextScheduleItem" access="public" returntype="boolean" hint="Executes the next item in the schedule. If there are no more it marks the schedule as ran.">
 	<cfargument name="scheduleName" type="string" required="true" hint="Unique name for the schedule you want to run">
@@ -198,7 +199,7 @@ History:
 		var currentCommand = "";
 		var siteName = request.site.name;
 		var logFilePrefix = dateFormat(now(), "yyyymmdd") & "." & siteName & ".";
-		var schedLogFileName = logFilePrefix & "scheduledStatus-" & arguments.scheduleName & ".html";
+		var schedLogFileName = logFilePrefix & "scheduledStatus-" & arguments.scheduleName & ".log";
 		
 		// Verify the schedule structure exists
 		if ( !StructKeyExists(application,"ADFscheduler") )
@@ -682,14 +683,15 @@ History:
 	2011-08-29 - MFC - Created
 	2011-09-17 - GAC - Added a check to verify that application.schedule variable exists
 	2011-09-26 - GAC - Updated application.schedule to be application.ADFscheduler 
-	2011-09-27 - GAC - Converted application.ADF references to the local 'variables.'. 
+	2011-09-27 - GAC - Converted application.ADF references to the local 'variables.'.
+	2016-02-16 - GAC - Updated for the schedule log file name to have a .log extension (as per ACF 10+)
 --->
 <cffunction name="setSchedule" access="private" returntype="boolean" output="true" hint="Sets the scheduled task">
 	<cfargument name="scheduleName" type="string" required="true" hint="Unique name for the schedule you want to run">
 	<cfscript>
 		var scheduleURL = "http://#cgi.server_name#:#cgi.server_port##application.ADF.ajaxProxy#?bean=scheduler_1_0&method=processNextScheduleItem&scheduleName=#arguments.scheduleName#";
 		var logFilePrefix = dateFormat(now(), "yyyymmdd") & "." & request.site.name & ".";
-		var schedLogFileName = logFilePrefix & "scheduledStatus-" & arguments.scheduleName & ".html";
+		var schedLogFileName = logFilePrefix & "scheduledStatus-" & arguments.scheduleName & ".log";
 		var currentSchedule = "";
 	
 		// Verify the schedule structure exists

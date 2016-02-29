@@ -35,7 +35,7 @@ History:
 --->
 <cfcomponent displayname="ajax" extends="ADF.lib.libraryBase" hint="AJAX functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_10">
+<cfproperty name="version" value="1_0_11">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_2">
 <cfproperty name="utils" type="dependency" injectedBean="utils_2_0">
@@ -73,6 +73,7 @@ History:
 	2014-10-15 - GAC - Set the application.ADF.stieDevMode to a local stieDevMode variable
 					 - Updated a application.utils.logAppend call to use the local utils.logAppend()
 	2016-02-01 - DMB - Update with error handling when attempting to convert the value to a string
+	2016-02-16 - GAC - Update the try/catch around RunCommand to correct log the error
 --->
 <!--- // ATTENTION: 
 		Do not call is method directly. Call from inside the AjaxProxy.cfm file (method properties are subject to change) 
@@ -130,17 +131,18 @@ History:
 			{
 				// convert the params that are passed in to the args struct before passing them to runCommand method
 				args = variables.utils.buildRunCommandArgs(request.params,argExcludeList);
-				try {
+				try
+				{
 					// Run the Bean, Method and Args and get a return value
 					result.reString = variables.utils.runCommand(trim(bean),trim(method),args,trim(appName));
 				} 
-				catch( Any e ) 
+				catch( any e )
 				{
-					variables.utils.logAppend( msg=cfcatch, label='Error in AjaxProxy calling utils.runCommand()', logfile='adf-ajax-proxy.html' );				
 					debug = 1;
 					hasCommandError = 1; // try/catch thows and error skip the runCommand return data processing
 					// Set Error output to the return String
 					result.reString = e;
+					variables.utils.logAppend( msg=e, label='Error in AjaxProxy calling utils.runCommand()', logfile='adf-ajax-proxy.html' );
 				}	
 				
 				// Build the DUMP for debugging the RAW value of result.reString
@@ -150,6 +152,7 @@ History:
 					if ( !StructKeyExists(result,"reString") ){debugRaw="void";}else{debugRaw=result.reString;}
 						reDebugRaw = variables.utils.doDump(debugRaw,"RAW OUTPUT",1,1);
 				}
+
 				// if runCommand throws an error skip processing jump down to the debug output
 				if ( !hasCommandError ) 
 				{
@@ -192,12 +195,14 @@ History:
 							// make return is an XML string
 							if ( IsXML(result.reString) ) 
 								result.reString = XmlParse(result.reString);
-							if ( !IsXmlDoc(result.reString) ) {
+							if ( !IsXmlDoc(result.reString) )
+							{
 								hasProcessingError = 1; 
 								result.reString = "Error: unable to convert the return value to xml";
 							}
 						}
-						if ( isStruct(result.reString) or isArray(result.reString) or isObject(result.reString) ) {
+						if ( isStruct(result.reString) or isArray(result.reString) or isObject(result.reString) )
+						{
 							hasProcessingError = 1; 
 							// 2012-03-10 - GAC - we need to check if we have a 'message' before we can output it
 							if ( IsStruct(result.reString) AND StructKeyExists(result.reString,"message") AND siteDevMode )
@@ -206,7 +211,8 @@ History:
 								result.reString = "Error: Unable to convert the return value into string.";
 						}
 					}
-					else {
+					else
+					{
 						// The method call returned void and destroyed the result.reString variable
 						hasProcessingError = 0;  // returning void is not considered an error
 						// result.reString = "Error: return value came back as 'void'"; 

@@ -60,7 +60,7 @@ History:
 	</script>
 	<table>
 		<tr>
-			<td class="cs_dlgLabelSmall">Bean Name:</td>
+			<td class="cs_dlgLabelBold">Bean Name:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#beanName" id="#prefix#beanName" value="#currentValues.beanName#" size="40"><br>
 				Name of the Object Factory Bean that will hold the configuration for the file uploader. By default it is

@@ -34,12 +34,25 @@ History:
 	2014-01-03 - GAC - Added the fieldVersion variable
 	2014-09-19 - GAC - Removed deprecated doLabel and jsLabelUpdater js calls
 	2015-09-02 - DRM - Add getResourceDependencies support, bump version
+	2016-02-16 - GAC - Added getResourceDependencies and loadResourceDependencies support to the Render
+						  - Added the getResources check to the Props
+						  - Bumped field version
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
+<!--- // if this module loads resources, do it here.. --->
+<!---<cfscript>
+    // No resources to load
+</cfscript>--->
+
+<!--- ... then exit if all we're doing is detecting required resources --->
+<cfif Request.RenderState.RenderMode EQ "getResources">
+  <cfexit>
+</cfif>
+
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "2.0.3";
+	fieldVersion = "2.0.4";
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
@@ -50,6 +63,7 @@ History:
 	// Setup the default values
 	defaultValues = StructNew();
 	defaultValues.defaultText = "This is the defaulted text";
+	defaultValues.uiTheme = "ui-lightness";
 
 	// This will override the current values with the default values.
 	// In normal use this should not need to be modified.
@@ -72,7 +86,7 @@ History:
 <cfoutput>
 	<script language="JavaScript" type="text/javascript">
 		// register the fields with global props object, this uses the name of the field
-		fieldProperties['#typeid#'].paramFields = '#prefix#defaultText';
+		fieldProperties['#typeid#'].paramFields = '#prefix#defaultText,#prefix#uiTheme';
 		// allows this field to have a common onSubmit Validator
 		fieldProperties['#typeid#'].jsValidator = '#prefix#doValidate';
 
@@ -87,7 +101,7 @@ History:
 	</script>
 	<table>
 		<tr>
-			<td class="cs_dlgLabelSmall">
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">
 				<label for="#prefix#defaultValue">Default Text:</label>
 			</td>
 			<!---
@@ -97,6 +111,12 @@ History:
 			--->
 			<td class="cs_dlgLabelSmall">
 				<input type="text" id="#prefix#defaultText" name="#prefix#defaultText" value="#currentValues.defaultText#">
+			</td>
+		</tr>
+		<tr>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">UI Theme:</td>
+			<td class="cs_dlgLabelSmall">
+				<input type="text" name="#prefix#uiTheme" id="#prefix#uiTheme" class="cs_dlgControl" value="#currentValues.uiTheme#" size="40">
 			</td>
 		</tr>
 		<tr>

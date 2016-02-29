@@ -40,6 +40,10 @@ History:
 	2015-04-28 - DJM - Converted to CFC
 	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean()
 	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
+	2016-02-16 - GAC - Added getResourceDependencies support
+	                 - Added loadResourceDependencies support
+	                 - Moved resource loading to the loadResourceDependencies() method
+	                 - Moved appOverrideCSParams into the setDefaultParameters() method so loadResourceDependencies() loads the correct params
 --->
 <cfcomponent displayName="SubsiteSelect Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -50,26 +54,10 @@ History:
 	<cfscript>
 		var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
 		var readOnly = (arguments.displayMode EQ 'readonly') ? true : false;
-		var xparamsExceptionsList = "appBeanName,appPropsVarName";
 		var selectField = "select_#arguments.fieldName#";
 		
 		inputParameters = setDefaultParameters(argumentCollection=arguments);
 
-		// Optional ADF App Override for the Custom Field Type
-		if ( LEN(TRIM(inputParameters.appBeanName)) AND LEN(TRIM(inputParameters.appPropsVarName)) ) {
-			inputParameters = application.ADF.utils.appOverrideCSParams(
-														csParams=inputParameters,
-														appName=inputParameters.appBeanName,
-														appParamsVarName=inputParameters.appPropsVarName,
-														paramsExceptionList=xparamsExceptionsList
-													);
-		}
-		
-		// load the jQuery library
-		application.ADF.scripts.loadJQuery();
-		application.ADF.scripts.loadJQueryUI(themeName=inputParameters.uiTheme);
-		application.ADF.scripts.loadJQuerySelectboxes();
-			
 		renderJSFunctions(argumentCollection=arguments, fieldParameters=inputParameters);
 	</cfscript>
 	
@@ -102,7 +90,7 @@ History:
 		var selectField = "select_#arguments.fieldName#";
 		// Added for future use
 		// TODO: Add options in Props for a Bean and a Method that return a custom Subsite Struct
-		var subsiteStructBeanName = "csData_1_2";
+		var subsiteStructBeanName = "csData_2_0";
 		var subsiteStructMethodName = "getSubsiteStruct";
 		var currentValue = arguments.value;	// the field's current value
 		var currentValueText = "";
@@ -219,11 +207,12 @@ function #arguments.fieldName#addSubsite(name, displayName, description)
 	
 	<cfscript>
 		var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
+		var xparamsExceptionsList = "appBeanName,appPropsVarName";
 		
 		if ( NOT StructKeyExists(inputParameters, "allowSubsiteAdd") OR LEN(inputParameters.allowSubsiteAdd) LTE 0 )
 			inputParameters.allowSubsiteAdd = "no";
 		if ( NOT StructKeyExists(inputParameters, "uiTheme") OR LEN(inputParameters.uiTheme) LTE 0 )
-			inputParameters.uiTheme = "smoothness";
+			inputParameters.uiTheme = "ui-lightness";
 		if ( NOT StructKeyExists(inputParameters, "filterList") OR LEN(inputParameters.filterList) LTE 0 )
 			inputParameters.filterList = "";	
 			
@@ -232,6 +221,17 @@ function #arguments.fieldName#addSubsite(name, displayName, description)
 			inputParameters.appBeanName = "";
 		if ( NOT StructKeyExists(inputParameters, "appPropsVarName") OR LEN(inputParameters.appPropsVarName) LTE 0 )
 			inputParameters.appPropsVarName = "";
+
+		// Optional ADF App Override for the Custom Field Type
+		if ( LEN(TRIM(inputParameters.appBeanName)) AND LEN(TRIM(inputParameters.appPropsVarName)) )
+		{
+			inputParameters = application.ADF.utils.appOverrideCSParams(
+														csParams=inputParameters,
+														appName=inputParameters.appBeanName,
+														appParamsVarName=inputParameters.appPropsVarName,
+														paramsExceptionList=xparamsExceptionsList
+													);
+		}
 		
 		return inputParameters;
 	</cfscript>
@@ -245,9 +245,25 @@ function #arguments.fieldName#addSubsite(name, displayName, description)
 		return "";
 	}
 
+	/*
+		IMPORTANT: Since loadResourceDependencies() is using ADF.scripts loadResources methods, getResourceDependencies() and
+		loadResourceDependencies() must stay in sync by accounting for all of required resources for this Custom Field Type.
+	*/
+	public void function loadResourceDependencies()
+	{
+		var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
+
+		inputParameters = setDefaultParameters(argumentCollection=arguments);
+
+		// Load registered Resources via the ADF scripts_2_0
+		application.ADF.scripts.loadJQuery();
+		application.ADF.scripts.loadJQueryUI(themeName=inputParameters.uiTheme);
+		application.ADF.scripts.loadJQuerySelectboxes();
+	}
 	public string function getResourceDependencies()
 	{
-		return listAppend(super.getResourceDependencies(), "jQuery,jQueryUI,JQuerySelectboxes");
+		return "jQuery,jQueryUI,JQuerySelectboxes,jQueryUIDefaultTheme";
 	}
 </cfscript>
+
 </cfcomponent>

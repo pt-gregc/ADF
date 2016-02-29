@@ -47,6 +47,8 @@ History:
 	2015-09-10 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
 	2015-10-14 - GAC - Updated the forms call to Forms_2_0
 	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
+	2016-02-16 - DRM - Implement loadResourceDependencies()
+	2016-02-23 - GAC - Updated to fix issues with the Help text
 --->
 <cfcomponent displayName="AppConfigPage Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -63,9 +65,6 @@ History:
 		var itm = '';
 		var pageData = '';
 		var cftPath = '/ADF/extensions/customfields/app_config_page';
-		
-		// Load JQuery to the script
-		application.ADF.scripts.loadJQuery();
 	
 		// check the pages that have the attached script or RH in use
 		if( inputParameters.scriptType eq "Custom Script" )
@@ -74,12 +73,19 @@ History:
 			pageDataArr = application.ADF.csData.pagesContainingRH(inputParameters.scriptURL);
 			
 		renderJSFunctions(argumentCollection=arguments);
+		
+		// load cft stylesheet
+		if ( !StructKeyExists(Request, 'appConfigPageCSS') )
+		{
+			application.ADF.scripts.loadUnregisteredResource('#cftPath#/app_config_page_styles.css', "Stylesheet", "head", "secondary", 0, 0);
+			Request.appConfigPageCSS = 1;
+		}
 	</cfscript>
 	
-	<cfif NOT StructKeyExists(Request, 'appConfigPageCSS')>
-			<cfoutput><link rel="stylesheet" type="text/css" href="#cftPath#/app_config_page_styles.css" /></cfoutput>
+	<!--- <cfif NOT StructKeyExists(Request, 'appConfigPageCSS')>
+		<cfoutput><link rel="stylesheet" type="text/css" href="#cftPath#/app_config_page_styles.css" /></cfoutput> 
 		<cfset Request.appConfigPageCSS = 1>
-	</cfif>
+	</cfif> --->
 	
 	<cfoutput>
 		<select name="#arguments.fieldName#" id="#arguments.fieldName#" size="1">
@@ -97,14 +103,15 @@ History:
 				</cfif>
 			</cfloop>
 		</select>
-		<br />
-		<a href="javascript:;" id="#arguments.fieldName#helpLink" class="smallerLabel">
-			<span id="#arguments.fieldName#showHelpLabel">Show Help</span>
-			<span id="#arguments.fieldName#hideHelpLabel" style="display:none;">Hide Help</span>
-		</a>
-		<div id="#arguments.fieldName#helpText" style="display:none;" class="smallerLabel">
-		Select the Page URL from the list of pages provided.  Note: if your page does not exist in the list
-		then please check the Application installation instructions. It is more than likely you forgot to create the page containing the script: #inputParameters.scriptURL#
+		<div>
+			<a href="javascript:;" id="#arguments.fieldName#helpLink" class="cft_acpSmallerLabel">
+				<span id="#arguments.fieldName#showHelpLabel">Show Help</span>
+				<span id="#arguments.fieldName#hideHelpLabel" style="display:none;">Hide Help</span>
+			</a>
+			<div id="#arguments.fieldName#helpText" style="display:none; width: 100%; white-space: normal;" class="cft_acpSmallLabel">
+			Select the Page URL from the list of pages provided. <br /> Note: If the page does not exist in the list
+			then please check the Application installation instructions. It is more than likely a page was not created containing the script:<br /> #inputParameters.scriptURL#
+			</div>
 		</div>
 	</cfoutput>
 </cffunction>
@@ -136,6 +143,11 @@ jQuery(function(){
 </cffunction>
 
 <cfscript>
+	private boolean function isMultiline()
+	{
+		return true;
+	}
+
 	private any function getValidationJS(required string formName, required string fieldName, required boolean isRequired)
 	{
 		if (arguments.isRequired)
@@ -148,9 +160,13 @@ jQuery(function(){
 		return "Please select a page.";
 	}
 
+	public string function loadResourceDependencies()
+	{
+		application.ADF.scripts.loadJQuery();
+	}
 	public string function getResourceDependencies()
 	{
-		return listAppend(super.getResourceDependencies(), "jQuery");
+		return "jQuery";
 	}
 </cfscript>
 </cfcomponent>

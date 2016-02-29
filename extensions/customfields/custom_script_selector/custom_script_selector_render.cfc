@@ -69,7 +69,7 @@ History:
 function #arguments.fieldName#_validateScript(){
 	var templatePath = jQuery("###arguments.fieldName#").val();
 	var params = {
-		bean: "utils_1_0",
+		bean: "utils_2_0",
 		method: "scriptExists",
 		templatePath: templatePath
 	}
@@ -100,6 +100,20 @@ function #arguments.fieldName#_validateScript(){
 	private string function getValidationMsg()
 	{
 		return "";
+	}
+
+	/*
+		IMPORTANT: Since loadResourceDependencies() is using ADF.scripts loadResources methods, getResourceDependencies() and
+		loadResourceDependencies() must stay in sync by accounting for all of required resources for this Custom Field Type.
+	*/
+	public void function loadResourceDependencies()
+	{
+		// Load registered Resources via the ADF scripts_2_0
+		application.ADF.scripts.loadJQuery();
+	}
+	public string function getResourceDependencies()
+	{
+		return "jQuery";
 	}
 </cfscript>
 

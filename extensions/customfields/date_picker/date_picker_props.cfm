@@ -38,12 +38,27 @@ History:
 	2014-09-19 - GAC - Removed deprecated doLabel and jsLabelUpdater js calls
 	2015-05-14 - DJM - Updated the field version to 2.0
 	2015-09-02 - DRM - Add getResourceDependencies support, bump version
+	2016-02-19 - GAC - Added getResourceDependencies and loadResourceDependencies support to the Render
+					     - Added the getResources check to the Props
+					     - Bumped field version
+					     - Fixed a doValidate() issue with a jQuery attribute
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
+<!--- // load resources here --->
+<cfscript>
+	// Load the jQuery Header
+	application.ADF.scripts.loadJQuery(noConflict=true);
+</cfscript>
+
+<!--- ... then exit if all we're doing is detecting required resources --->
+<cfif Request.RenderState.RenderMode EQ "getResources">
+  <cfexit>
+</cfif>
+
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "2.0.3";
+	fieldVersion = "2.0.4";
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
@@ -77,7 +92,7 @@ History:
 	defaultValues = StructNew();
 	defaultValues.fldID = "";
 	
-	defaultValues.uiTheme = "redmond";
+	defaultValues.uiTheme = "ui-lightness";
 	defaultValues.displayType = pickerArray[1].name;
 	defaultValues.fldIcon = "none"; //option: calendar
 	defaultValues.fldClearDate = 'no';
@@ -105,9 +120,6 @@ History:
 			currentValues[defaultValueArray[i]] = defaultValues[defaultValueArray[i]];
 		}
 	}
-
-	// Load the jQuery Header 
-	application.ADF.scripts.loadJQuery(noConflict=true);
 </cfscript>
 
 <cfoutput>
@@ -119,7 +131,7 @@ History:
 
 		function #prefix#doValidate()
 		{
-			if( jQuery("###prefix#displayType").attr("value").length == 0 )
+			if( jQuery("###prefix#displayType").val().length == 0 )
 			{
 				alert('Please select a date picker');
 				jQuery("###prefix#displayType").focus();
@@ -146,7 +158,7 @@ History:
 
 	<table>
 		<tr>
-			<td class="cs_dlgLabelSmall">Field ID:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Field ID:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#fldID" id="#prefix#fldID" class="cs_dlgControl" value="#currentValues.fldID#" size="60">
 				<br><span>Please enter the field ID to be used via JavaScript.  If blank, will use default CS field name.</span>
@@ -156,7 +168,7 @@ History:
 			<td class="cs_dlgLabelSmall" colspan="2"><hr></td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall">Display Type:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Display Type:</td>
 			<td class="cs_dlgLabelSmall">
 				<select name="#prefix#displayType" id="#prefix#displayType" class="cs_dlgControl">
 					<option value="">-SELECT-</option>
@@ -167,25 +179,25 @@ History:
 			</td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall">UI Theme:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">UI Theme:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#uiTheme" id="#prefix#uiTheme" class="cs_dlgControl" value="#currentValues.uiTheme#" size="60">
 			</td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall">JS Display Format:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">JS Display Format:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#jsDateMask" id="#prefix#jsDateMask" class="cs_dlgControl" value="#currentValues.jsDateMask#" size="60">
 			</td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall">CF Display Format:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">CF Display Format:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#cfDateMask" id="#prefix#cfDateMask" class="cs_dlgControl" value="#currentValues.cfDateMask#" size="60">
 			</td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall">Standardized Time Type:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Standardized Time Type:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="radio" name="#prefix#standardizedTimeType" id="#prefix#standardizedTimeType_start" value="start" <cfif currentValues.standardizedTimeType eq 'start'>checked</cfif>>
 				<label for="#prefix#standardizedTimeType_start">
@@ -209,7 +221,7 @@ History:
 			</td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall">Standardized Time:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Standardized Time:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#standardizedTimeStr" id="#prefix#standardizedTimeStr" class="cs_dlgControl" value="#currentValues.standardizedTimeStr#" size="60">
 				<br/><span>Since CS Date fields store a date/time string (YYYY-MM-DD HH:MM:SS) we generally want to capture the start of the day time '00:00:00' for Start Dates and capture end of the day time '23:59:59' for End Dates. But this value can be any valid time string.</span> 
@@ -217,7 +229,7 @@ History:
 		</tr>
 		
 		<tr>
-			<td class="cs_dlgLabelSmall">Show icon next to Field:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Show icon next to Field:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="radio" name="#prefix#fldIcon" id="#prefix#fldIcon_none" value="none" <cfif currentValues.fldIcon eq 'none'>checked</cfif>>
 				<label for="#prefix#fldIcon_none">
@@ -232,7 +244,7 @@ History:
 			</td>
 		</tr>
 		<tr>
-		<td class="cs_dlgLabelSmall" valign="top">Show Clear Date Link:</td>
+		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Show Clear Date Link:</td>
 			<td class="cs_dlgLabelSmall">
 			<input type="radio" name="#prefix#fldClearDate" id="#prefix#fldClearDate_yes" value="yes" <cfif currentValues.fldClearDate eq 'yes'>checked</cfif>><label for="#prefix#fldClearDate_yes">Yes</label>&nbsp;&nbsp;
 			<input type="radio" name="#prefix#fldClearDate" id="#prefix#fldClearDate_no" value="no" <cfif currentValues.fldClearDate eq 'no'>checked</cfif>><label for="#prefix#fldClearDate_no">No</label>
@@ -248,14 +260,14 @@ History:
 			</td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall" valign="top">App Bean Name:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">App Bean Name:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#appBeanName" id="#prefix#appBeanName" class="cs_dlgControl" value="#currentValues.appBeanName#" size="60">
 				<br/><span>Please enter the ADF Applications's AppName to override these configuration settings.</span>
 			</td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall" valign="top">App Props Variable Name:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">App Props Variable Name:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#appPropsVarName" id="#prefix#appPropsVarName" class="cs_dlgControl" value="#currentValues.appPropsVarName#" size="60">
 				<br/><span>Please enter the App Props Variable name that contains PROPS keys and values to override.</span> 

@@ -41,8 +41,17 @@ History:
 	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean()
 	2016-01-06 - GAC - Added a isMultiline() call so the label renders at the top
 	                 - Added getMinWidth() and getMinHeight()
-    2016-02-09 - JTP - Put back duplicate and added structKeyExists
-    2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
+   2016-02-09 - JTP - Put back duplicate and added structKeyExists
+   2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
+	2016-02-18 - DRM - Handle readonly mode
+							 Highlight root node if selected node is a direct child of it (single select mode only)
+							 Add loadResourceDependencies() support
+							 Break getting data and selectorObject out into their own methods
+							 Don't duplicate arguments.parameters, just use it, other minor cleanup
+	2016-02-19 - DRM - Move more default styling into custom_element_hierarchy_selector_styles.css
+							 Add styling there for .jstree-disabled on parent div, remove ad hoc js for that
+							 Rename disableJSTree to jsTreeDisable, add possible TODOs for it
+							 Remove duplicate hidden field in some situations
 --->
 <cfcomponent displayName="CustomElementHierarchySelector Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -50,16 +59,11 @@ History:
 	<cfargument name="fieldName" type="string" required="yes">
 	<cfargument name="fieldDomID" type="string" required="yes">
 	<cfargument name="value" type="string" required="yes">
-	
+
 	<cfscript>
-		var allAtrs = getAllAttributes();
-		var inputParameters =  application.ADF.data.duplicateStruct(arguments.parameters);
-		var uniqueTableAppend = arguments.fieldID;
-		var ceFormID = arguments.formID;
+		var params = arguments.parameters;
 		var customElementObj = Server.CommonSpot.ObjectFactory.getObject('CustomElement');
-		var ajaxBeanName = 'customElementHierarchySelector';
-		var selectorObj = application.ADF[ajaxBeanName];
-		var bMemory = 0;
+		var selectorObj = getSelectorObj();
 		var errorMsgCustom = 'An error occurred while trying to perform the operation.';
 		var resultCEData = ArrayNew(1);
 		var widthVal = "400px";
@@ -67,39 +71,25 @@ History:
 		var fldCurValArray = ListToArray(arguments.value);
 		var fldCurValWithFldID = '';
 		var i = 0;
+
+		params.rootValue = trim(params.rootValue);
 	</cfscript>
 	
 	<cfif arguments.displayMode neq "hidden">
 		<cfscript>
-			/*if (StructKeyExists(Request.Params, 'controlTypeID'))
-					ceFormID = Request.Params.controlTypeID;
-				else if (StructKeyExists(Request.Params, 'formID'))
-					ceFormID = Request.Params.formID;
-				else if (StructKeyExists(allAtrs, 'fields'))
-					ceFormID = allAtrs.fields.formID[1];*/
-			
-			bMemory = selectorObj.isMemoryStructureGood(propertiesStruct=inputParameters,elementID=ceFormID,fieldID=arguments.fieldID);
-	
-			if (bMemory EQ 0)
-				selectorObj.buildMemoryStructure(propertiesStruct=inputParameters,elementID=ceFormID,fieldID=arguments.fieldID);
-			
-			resultCEData = selectorObj.getFilteredData( propertiesStruct=inputParameters,currentValues=arguments.value,elementID=ceFormID,fieldID=arguments.fieldID);
+			resultCEData = getData(propertiesStruct=params, elementID=arguments.formID, fieldID=arguments.fieldID, value=arguments.value);
 			
 			if (IsArray(resultCEData) AND ArrayLen(resultCEData) AND NOT IsSimpleValue(resultCEData[1]))
 				errorMsgCustom = '';
 			else if (ArrayLen(resultCEData) EQ 0)
 				errorMsgCustom = 'No records found to be displayed for the field.';
 			
-			application.ADF.scripts.loadJQuery(noConflict=true);
-			// Here we need to have a function call to load jsTree
-			application.ADF.scripts.loadJSTree(loadStyles=false);
-			
 			// Set the width and height value
-			if ( StructKeyExists(inputParameters,'widthValue') AND IsNumeric(inputParameters.widthValue))
-				widthVal = "#inputParameters.widthValue#px";
+			if (StructKeyExists(params,'widthValue') AND IsNumeric(params.widthValue))
+				widthVal = "#params.widthValue#px";
 			
-			if ( StructKeyExists(inputParameters,'heightValue') AND IsNumeric(inputParameters.heightValue))
-				heightVal = "#inputParameters.heightValue#px";
+			if (StructKeyExists(params,'heightValue') AND IsNumeric(params.heightValue))
+				heightVal = "#params.heightValue#px";
 			
 			// Prepend the current values with fieldID
 			if (ArrayLen(fldCurValArray))
@@ -110,15 +100,14 @@ History:
 				}
 			}
 		</cfscript>
-		<cfif structKeyExists(inputParameters,"customElement") and (inputParameters.customElement neq '')>
+
+		<cfif structKeyExists(params,"customElement") and (params.customElement neq '')>
 			<cfoutput>
-				#selectorObj.renderStyles(propertiesStruct=inputParameters)#
+				#selectorObj.renderStyles(propertiesStruct=params)#
 				<span id="errorMsgSpan" class="cs_dlgError">#errorMsgCustom#</span>
 				<cfif NOT Len(errorMsgCustom)>
-					<div class="jstree-default-small" style="width:#widthVal#; height:#heightVal#; border:1px solid ##999999; overflow-y:scroll; background-color:white;" id="jstree_#arguments.fieldName#"></div>
+					<div class="jstree-default-small" style="width:#widthVal#; height:#heightVal#;" id="jstree_#arguments.fieldName#"></div>
 				</cfif>
-				<!-- hidden -->
-				#Server.CommonSpot.UDF.tag.input(type="hidden", id="#arguments.fieldName#", name="#arguments.fieldName#", value="#arguments.value#")#
 			</cfoutput>
 		</cfif>
 		
@@ -128,10 +117,30 @@ History:
 		</cfscript>
 	</cfif>
 
-	<cfif arguments.displayMode neq "editable">
-		<cfoutput>#Server.CommonSpot.UDF.tag.input(type="hidden", name=arguments.fieldName)#</cfoutput>
-	</cfif>
+	<cfoutput>#Server.CommonSpot.UDF.tag.input(type="hidden", id="#arguments.fieldName#", name="#arguments.fieldName#", value="#arguments.value#")#</cfoutput>
 </cffunction>
+
+
+<cfscript>
+	private array function getData(required struct propertiesStruct, required numeric elementID, required numeric fieldID, required string value)
+	{
+		var data = [];
+		var selectorObj = getSelectorObj();
+		var isInMemory = selectorObj.isMemoryStructureGood(propertiesStruct=arguments.propertiesStruct, elementID=arguments.elementID, fieldID=arguments.fieldID);
+		if (isInMemory == 0)
+			selectorObj.buildMemoryStructure(propertiesStruct=arguments.propertiesStruct, elementID=arguments.elementID, fieldID=arguments.fieldID);
+		data = selectorObj.getFilteredData(propertiesStruct=arguments.propertiesStruct, elementID=arguments.elementID, fieldID=arguments.fieldID, currentValues=arguments.value);
+		return data;
+	}
+
+	private any function getSelectorObj()
+	{
+		var ajaxBeanName = 'customElementHierarchySelector';
+		var selectorObj = application.ADF[ajaxBeanName];
+		return selectorObj;
+	}
+</cfscript>
+
 
 <cffunction name="renderJSFunctions" returntype="void" access="private">
 	<cfargument name="fieldName" type="string" required="yes">
@@ -141,17 +150,16 @@ History:
 	<cfargument name="dataResults" type="array" required="yes">
 	
 	<cfscript>
-		var inputParameters =  application.ADF.data.duplicateStruct(arguments.parameters);
-		var allAtrs = getAllAttributes();
+		var params =  arguments.parameters;
 		
 		// Set the 'multiple' property
-		var bMult = (inputParameters.selectionType EQ 'single') ? false : true;
+		var bMult = (params.selectionType EQ 'single') ? false : true;
 		
 		// Set the 'triState' property
-		var triState = (inputParameters.selectionType EQ 'multiAuto') ? true : false;
+		var triState = (params.selectionType EQ 'multiAuto') ? true : false;
 		
 		// Set the 'auto select parent' property
-		var autoSelectParents = (inputParameters.selectionType EQ 'multiAutoParents') ? true : false;
+		var autoSelectParents = (params.selectionType EQ 'multiAutoParents') ? true : false;
 	</cfscript>
 	
 <cfoutput><script type="text/javascript">
@@ -164,47 +172,28 @@ jQuery( function () {
 
 function loadJSTreeData_#arguments.fieldName#()
 {					
-		jQuery('##jstree_#arguments.fieldName#').jstree({
-			"core" : {
-				"multiple" : #bMult#, 
-				"themes" : { icons: false, variant: "small", responsive: false },
-				"data" : #arguments.fieldName#_jsResultCEData,
-			},
+	jQuery('##jstree_#arguments.fieldName#').jstree({
+		"core" : {
+			"multiple" : #bMult#,
+			"themes" : { icons: false, variant: "small", responsive: false },
+			"data" : #arguments.fieldName#_jsResultCEData,
+		},
 
-			"checkbox" : {
-				"keep_selected_style" : false 
-				,"three_state" : #triState#
-				<cfif autoSelectParents> 
-				,"cascade" : ""
-				</cfif>
-			},
-			
-			<cfif bMult>												
-			"plugins" : [ "checkbox" ]
+		"checkbox" : {
+			"keep_selected_style" : false
+			,"three_state" : #triState#
+			<cfif autoSelectParents>
+			,"cascade" : ""
 			</cfif>
-		});
-							
-		// Load initially selected nodes for this tree
-		loadInitialSelectedNodes_#arguments.fieldName#();
-	
-	/* MOVED TO TO ITS OWN FUNCTION - also updated to load after tree has complete loaded
-		// set current selection
-		var tmp = '#arguments.curFieldValueWithID#';
-		if ( tmp != '' ) 
-		{
-			var arr = tmp.split(",");
-	
-			jQuery('##jstree_#arguments.fieldName#').jstree( "select_node", arr );
-		
-			for( var i=0; i < arr.length; i++ )
-			{
-				var node = arr[i];
-				MakeOpen_#arguments.fieldName#(node);
-			}			
 		}
-	
-		jQuery('##jstree_#arguments.fieldName#').jstree( "open_node", '#fieldQuery.InputID#_#inputParameters.rootValue#' );
-	*/ 
+
+		<cfif bMult>
+		, "plugins" : [ "checkbox" ]
+		</cfif>
+	});
+
+	// Load initially selected nodes for this tree
+	loadInitialSelectedNodes_#arguments.fieldName#();
 }
 
 function loadInitialSelectedNodes_#arguments.fieldName#()
@@ -220,11 +209,28 @@ function loadInitialSelectedNodes_#arguments.fieldName#()
 			// convert string to array
 			var arr = tmp.split(",");
 			
-			jQuery('##jstree_#arguments.fieldName#').jstree("select_node", arr , true); 
+			jQuery('##jstree_#arguments.fieldName#').jstree("select_node", arr, true);
 		}
 		
-		<cfif LEN(TRIM(inputParameters.rootValue))>
-		jQuery('##jstree_#arguments.fieldName#').jstree( "open_node", '#fieldQuery.InputID#_#inputParameters.rootValue#' );		
+		<!---
+			2016-02-19 - DRM: this makes no sense to me
+				It's possible someone may want some nodes open initially, but the configured rootValue isn't a reasonable way to request that
+				If for instance the rootValue is the ID of an existing record, why should that mean the root node gets expanded?
+		--->
+		<cfif params.rootValue neq "">
+		jQuery('##jstree_#arguments.fieldName#').jstree( "open_node", '#fieldQuery.InputID#_#params.rootValue#' );		
+		</cfif>
+
+		<!---
+			arguments.value is the ParentID; this tests if the current node is a child of the root node, and highlighting it if so, like happens in other cases
+			TODO: handle this in multi-select mode
+		--->
+		<cfif arguments.value eq params.rootValue and not bMult>
+		jQuery('.jstree-anchor').addClass('jstree-clicked'); // so root node is highlighted w/o opening
+		</cfif>
+
+		<cfif arguments.displayMode eq "readonly">
+		jsTreeDisable('##jstree_#arguments.fieldName#');
 		</cfif>
 	});
 }
@@ -277,11 +283,8 @@ function setSelectedNodes_#arguments.fieldName#(selectedNodesList)
 
 function MakeOpen_#arguments.fieldName#(node)
 {
-	var parent = 0;
-
-	parent  = jQuery('##jstree_#arguments.fieldName#').jstree( "get_parent", node );
-	
-	if ( parent == false ) 
+	var parent = jQuery('##jstree_#arguments.fieldName#').jstree( "get_parent", node);
+	if (!parent)
 		return;
 		
 	if( parent != '##' )
@@ -336,6 +339,33 @@ function GetParentNode_#arguments.fieldName#(inNode)
 	return ParentNode;
 }
 
+function jsTreeDisable(treeSelector)
+{
+	// disable nodes
+	jQuery(treeSelector + ' .jstree-anchor').each( function() {
+   	jQuery(treeSelector).jstree().disable_node(this.id);
+	});
+
+	// disable open-close btns
+	jQuery(treeSelector + ' .jstree-ocl')
+		.off('click.block')
+		.on('click.block', function() {
+		return false;
+	});
+
+	// disable dbl click open-close
+	jQuery(treeSelector).jstree().settings.core.dblclick_toggle = false;
+
+	// set jstree-disabled class on whole tree div
+	jQuery(treeSelector).addClass('jstree-disabled');
+
+	/*
+		TODO: disable context menu, drag and drop
+			for possible implementations, see http://stackoverflow.com/questions/34883409/disable-the-whole-jstree/35057572##answer-35410583
+		TODO: ideally this would be a jsTree plugin
+	*/
+}
+
 <cfif autoSelectParents> 
 function CascadeUp_#arguments.fieldName#(treeObject,inNode,inCommand) {
 	ParentNode = treeObject.jstree('get_parent', inNode);
@@ -365,10 +395,17 @@ function CascadeDown_#arguments.fieldName#(treeObject,inNode,inCommand) {
 		return "Please select a value for the #arguments.label# field.";
 	}
 
+
+	public void function loadResourceDependencies()
+	{
+		application.ADF.scripts.loadJQuery(noConflict=true);
+		application.ADF.scripts.loadJSTree(loadStyles=false);
+	}
 	public string function getResourceDependencies()
 	{
 		return listAppend(super.getResourceDependencies(), "jQuery,JSTree");
 	}
+
 
 	// Requires a Build of CommonSpot 10 higher than 10.0.0.313
 	public numeric function getMinHeight()

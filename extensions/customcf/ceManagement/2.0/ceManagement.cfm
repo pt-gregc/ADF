@@ -31,7 +31,19 @@ Attributes:
 	See "/ADF/extensions/customcf/ceManagement/1.0/ceManagement.cfm" for docs and a list of "Attributes"
 History:
 	2015-12-23 - GAC - Created
+	2016-02-19 - GAC - Added commented stubs for the "getResources" check
 --->
+
+<!--- // if this module loads resources, do it here.. --->
+<!---<cfscript>
+    // No resources to load
+</cfscript>--->
+
+<!--- ... then exit if all we're doing is detecting required resources --->
+<!---<cfif Request.RenderState.RenderMode EQ "getResources">
+  <cfexit>
+</cfif>--->
+
 <cfscript>
         // set the default config version to "2.0"
         if ( !StructKeyExists(attributes,"configVersion") OR LEN(TRIM(attributes.configVersion)) EQ 0 )

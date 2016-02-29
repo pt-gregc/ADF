@@ -29,16 +29,23 @@ Summary:
 History:
  	2011-09-02 - RAK - Created
 	2015-05-26 - DJM - Added the 3.0 version
+	2016-02-23 - GAC/SFS - Updated with additional sample settings
 --->
-<cfcomponent name="sampleUploader" extends="ADF.extensions.customfields.file_uploader.v3.file_uploader">
+<cfcomponent name="sampleUploader" extends="ADF.extensions.customfields.file_uploader.file_uploader">
 	<cfscript>
-		variables.acceptedExtensions = "png,gif,jpg,jpeg";
+		//Default settings, you can override these in your extended cfc
+		variables.acceptedExtensions = "pdf,doc,docx,xls,xlsx";
+		variables.maxSize = "1000"; //In kB
+		variables.destinationDir = Request.Site.Dir & 'fileuploads/';
+		variables.overwriteExistingFiles = false;
+
+		//Thumbnails
+		variables.generateThumbnails = false;
 
 		//Validation functions, an array of function names that get called in order.
 		//If any of them fails the entire upload fails.
 		variables.validationFunctions = ArrayNew(1);
-		ArrayAppend(variables.validationFunctions,"validateSize");
 		ArrayAppend(variables.validationFunctions,"validateExtension");
+		ArrayAppend(variables.validationFunctions,"validateSize");
 	</cfscript>
-
 </cfcomponent>

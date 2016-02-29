@@ -363,7 +363,7 @@ History:
 		var defaultSortOrder = '';
 		var resultData = QueryNew('');	
 		var parentObj = Server.CommonSpot.ObjectFactory.getObject(arguments.parentFormType);	
-		var childObj = Server.CommonSpot.ObjectFactory.getObject(inputPropStruct.secondaryElementType);
+		var childObj = ''; 
 		var colList = inputPropStruct.displayFields;
 		var colArray = ArrayNew(1);
 		var childFormFields = QueryNew('');
@@ -422,6 +422,11 @@ History:
 		var stmtNewPos = 0;
 		var operatorToUseStr = 'Equals';
 		var operatorToUseSymbol = '=';
+
+		if( NOT StructKeyExists(inputPropStruct,'secondaryElementType') )
+			inputPropStruct.secondaryElementType = 'CustomElement';
+					
+		childObj = Server.CommonSpot.ObjectFactory.getObject(inputPropStruct.secondaryElementType);
 		
 		if (arguments.parentFormType EQ 'CustomElement')
 			ceObj = parentObj;
@@ -604,7 +609,7 @@ History:
 			
 			if(NOT IsNumeric(inputPropStruct.assocCustomElement))
 			{
-				if (StructKeyExists(inputPropStruct, 'secondaryElementType') AND inputPropStruct.secondaryElementType EQ 'MetadataForm')
+				if( inputPropStruct.secondaryElementType EQ 'MetadataForm' )
 				{
 					if (ListLen(compareValueWithChild,'||') GT 1)
 					{
@@ -650,7 +655,7 @@ History:
 				if(Len(inputPropStruct.inactiveField) AND Len(inputPropStruct.inactiveFieldValue))
 				{
 					nextIndex = ArrayLen(statementsArray)+1;
-					if (StructKeyExists(inputPropStruct, 'secondaryElementType') AND inputPropStruct.secondaryElementType EQ 'MetadataForm')
+					if( inputPropStruct.secondaryElementType EQ 'MetadataForm' )
 					{	
 						if (csVersion GT 9)
 						{
@@ -719,7 +724,7 @@ History:
 					
 					if ( ListLen(uniqueList) )
 					{
-						if (StructKeyExists(inputPropStruct, 'secondaryElementType') AND inputPropStruct.secondaryElementType EQ 'MetadataForm')
+						if( inputPropStruct.secondaryElementType EQ 'MetadataForm' )
 						{
 							if (csVersion GT 9)
 							{
@@ -739,7 +744,7 @@ History:
 						for ( k=1; k LTE ArrayLen(valuesWithCommaArray);k=k+1 )
 						{
 							stmtNewPos = ArrayLen(statementsArray) + 1;
-							if (StructKeyExists(inputPropStruct, 'secondaryElementType') AND inputPropStruct.secondaryElementType EQ 'MetadataForm')
+							if( inputPropStruct.secondaryElementType EQ 'MetadataForm' )
 							{
 								if (csVersion GT 9)
 								{
@@ -1149,14 +1154,17 @@ History:
 		var altText = "";
 		var formDetails = QueryNew('');
 		var mfObj = Server.CommonSpot.ObjectFactory.getObject('MetadataForm');
+
+		if( NOT StructKeyExists(inputPropStruct,'secondaryElementType') )
+			inputPropStruct.secondaryElementType = 'CustomElement';
 		
-		if (StructKeyExists(arguments.propertiesStruct,"editChildOptionText") AND Len(arguments.propertiesStruct['editChildOptionText']))
-			altText = arguments.propertiesStruct['editChildOptionText'];
+		if( StructKeyExists(inputPropStruct,"editChildOptionText") AND Len(inputPropStruct['editChildOptionText']) )
+			altText = inputPropStruct['editChildOptionText'];
 		else
 		{
-			if (IsNumeric(inputPropStruct.assocCustomElement))
+			if( IsNumeric(inputPropStruct.assocCustomElement) )
 			{
-				if (StructKeyExists(inputPropStruct, 'secondaryElementType') AND inputPropStruct.secondaryElementType EQ 'MetadataForm')
+				if( inputPropStruct.secondaryElementType EQ 'MetadataForm' )
 					needMFFormName = 1;
 				else
 					altText = "Edit Child Element '#Request.Site.availcontrols[inputPropStruct.childCustomElement].shortdesc#'";
@@ -1165,7 +1173,7 @@ History:
 				altText = "Edit Child Element '#Request.Site.availcontrols[inputPropStruct.childCustomElement].shortdesc#'";
 		}
 		
-		if (needMFFormName EQ 1)
+		if( needMFFormName EQ 1 )
 		{
 			formDetails = mfObj.getForms(id=inputPropStruct.childCustomElement);
 			altText = formDetails.FormName;
@@ -1369,7 +1377,7 @@ History:
 		var reqFormFields = "";
 		var ceObj = Server.CommonSpot.ObjectFactory.getObject("CustomElement");
 		var inputPropStruct = arguments.propertiesStruct;
-		var childObj = Server.CommonSpot.ObjectFactory.getObject(inputPropStruct.secondaryElementType);
+		var childObj = ''; // Server.CommonSpot.ObjectFactory.getObject(inputPropStruct.secondaryElementType);
 		var curValuesStruct = arguments.currentValues;
 		var dataFormID = 0;
 		var dataFieldID = 0;
@@ -1383,6 +1391,11 @@ History:
 		var compareValueWithChildArr = ArrayNew(1);
 		var i = 0;
 		
+		if( NOT StructKeyExists(inputPropStruct,'secondaryElementType') )
+			inputPropStruct.secondaryElementType = 'CustomElement';
+		
+		childObj = Server.CommonSpot.ObjectFactory.getObject(inputPropStruct.secondaryElementType);		
+		
 		if (arguments.parentFormType EQ 'MetadataForm' AND inputPropStruct.parentUniqueField EQ '{{pageid}}')	
 			parentInstanceIDVal = arguments.pageID;
 		else
@@ -1392,7 +1405,7 @@ History:
 			linkedFldDetails = ceObj.getFields(elementID=inputPropStruct.assocCustomElement,fieldID=inputPropStruct.parentInstanceIDField);
 		else 
 		{
-			if (inputPropStruct.secondaryElementType EQ 'CustomElement')
+			if( inputPropStruct.secondaryElementType EQ 'CustomElement' )
 				linkedFldDetails = childObj.getFields(elementID=inputPropStruct.childCustomElement,fieldID=inputPropStruct.childLinkedField);
 			else
 				linkedFldDetails = childObj.getFields(formID=inputPropStruct.childCustomElement,fieldID=inputPropStruct.childLinkedField);
@@ -1767,19 +1780,17 @@ History:
 		var logError = false;
 		var logErrorMsg = '';
 	
+
 		try {
 			if (IsJSON(arguments.propertiesStruct))
-			{
 				inputPropStruct = DeserializeJSON(arguments.propertiesStruct);
-			}
 			else
-			{
 				inputPropStruct = arguments.propertiesStruct;
-			}		
 			
 			dataRecords = queryData(formID=arguments.formID,propertiesStruct=inputPropStruct,parentInstanceValue=arguments.parentInstanceValue,
 										parentFormType=arguments.parentFormType,pageID=arguments.pageID);
-													
+				
+			
 			if (NOT StructKeyExists(dataRecords, 'errorMsg'))
 				displayData = getDisplayData(fieldID=arguments.fieldID, 
 														propertiesStruct=inputPropStruct,

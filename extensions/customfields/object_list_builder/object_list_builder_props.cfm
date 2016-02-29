@@ -34,11 +34,28 @@ History:
 	2015-04-17 - SU/SFS - Created
 	2015-05-12 - DJM - Updated the field version to 2.0
 	2015-09-02 - DRM - Add getResourceDependencies support, bump version
+	2016-02-17 - GAC - Added getResourceDependencies and loadResourceDependencies support to the Render
+			     		  - Added the getResources check to the Props
+			     		  - Bumped field version
+	2016-02-25 - GAC - In the _base.cfc added load once protection around the loadUnregisteredResource loading
+						  - Removed obsolete tr/td tags used with pre-CS10 forms
+						  - Added a field specific style fix full-width field rendering issue
+				  - SU  - Updated to fix the field from rendering off the page
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
+<!--- // if this module loads resources, do it here.. --->
+<!---<cfscript>
+    // No resources to load
+</cfscript>--->
+
+<!--- ... then exit if all we're doing is detecting required resources --->
+<cfif Request.RenderState.RenderMode EQ "getResources">
+  <cfexit>
+</cfif>
+
 <cfscript>
-	fieldVersion = "2.0.3"; // Variable for the version of the field - Display in Props UI
+	fieldVersion = "2.0.7"; // Variable for the version of the field - Display in Props UI
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
@@ -49,6 +66,9 @@ History:
 	// Setup the default values
 	defaultValues = StructNew();
 	defaultValues.componentPath = "";
+	defaultValues.uiTheme = "ui-lightness";
+	
+	// Deprecated Settings
 	defaultValues.forceScripts = "0";
 	
 	// This will override the current values with the default values.
@@ -59,6 +79,7 @@ History:
 	valueWithoutParens = '';
 	hasParens = 0;
 	cfmlFilterCriteria = StructNew();
+
 	if (NOT Len(persistentUniqueID))
 		persistentUniqueID = CreateUUID();
 	for(i=1;i lte ArrayLen(defaultValueArray); i++)
@@ -88,10 +109,13 @@ History:
 <cfoutput>
 <script type="text/javascript">
 
-	fieldProperties['#typeid#'].paramFields = "#prefix#componentPath,#prefix#forceScripts";
-
+	fieldProperties['#typeid#'].paramFields = "#prefix#componentPath,#prefix#forceScripts,#prefix#uiTheme";
 
 </script>
+
+<!--- // Deprecated Settings --->
+<input type="hidden" name="#prefix#forceScripts" id="#prefix#forceScripts" value="#currentValues.forceScripts#">
+
 <table cellpadding="2" cellspacing="2" summary="" border="0">
 	<tr>
 		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Component Name:</td>
@@ -102,12 +126,9 @@ History:
 	</tr>
 	<tbody id="childInputs">
 		<tr>
-			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Force Loading Scripts:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">UI Theme:</td>
 			<td class="cs_dlgLabelSmall">
-				<label style="color:black;font-size:12px;font-weight:normal;">Yes <input type="radio" id="#prefix#forceScripts" name="#prefix#forceScripts" value="1" <cfif currentValues.forceScripts EQ "1">checked</cfif>></label>
-				&nbsp;&nbsp;&nbsp;
-				<label style="color:black;font-size:12px;font-weight:normal;">No <input type="radio" id="#prefix#forceScripts" name="#prefix#forceScripts" value="0" <cfif currentValues.forceScripts EQ "0">checked</cfif>></label>
-				<br />Force the JQuery script to load.
+				<input type="text" name="#prefix#uiTheme" id="#prefix#uiTheme" class="cs_dlgControl" value="#currentValues.uiTheme#" size="50">
 			</td>
 		</tr>
 	</tbody>

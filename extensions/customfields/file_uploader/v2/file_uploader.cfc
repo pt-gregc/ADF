@@ -23,7 +23,7 @@ Author:
 	PaperThin, Inc.
 	Ryan Kahn
 Name:
-	$file_uploader_1_0.cfc
+	$file_uploader.cfc
 Summary:
 	File uploader configuration and validation defaults
 History:
@@ -32,15 +32,17 @@ History:
 	2013-05-13 - MFC - Updated the "variables.destinationDir" to use the "request.subsiteCache[1].url" variable and
 						corrected issue with multiple "//" in the path.
 					   Added the "createUploadDir" function.
-	2014-04-04 - GAC - Changed the cfscript thow to the utils.doThow with a new logging option
+	2014-04-04 - GAC - Changed the cfscript throw to the utils.doThrow with a new logging option
 --->
-<cfcomponent name="file_uploader" extends="ADF.core.Base">
-	<cfproperty name="version" value="1_0_2">
+<cfcomponent name="file_uploader" extends="ADF.extensions.customfields.customfieldsBase">
+
+	<cfproperty name="version" value="2_0_0">
+
 	<cfscript>
 		//Default settings, you can override these in your extended cfc
 		variables.acceptedExtensions = "png,pdf";
 		variables.maxSize = "1000";//In kB
-		variables.destinationDir = "#expandPath(request.subsiteCache[1].url&'_cs_apps/uploads/')#";
+		variables.destinationDir = expandPath(request.subsiteCache[1].url & '_cs_apps/uploads/');
 		variables.overwriteExistingFiles = false;
 
 		//Thumbnails
