@@ -40,8 +40,8 @@ History:
 --->
 <cfcomponent name="AppBase" extends="Base" hint="App Base component for the ADF">
 
-<cfproperty name="version" value="2_0_0">
-<cfproperty name="file-version" value="4">
+<cfproperty name="version" value="2_0_1">
+<cfproperty name="file-version" value="3">
 
 <cffunction name="init" output="true" returntype="any">
 	<cfscript>

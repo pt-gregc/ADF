@@ -48,15 +48,15 @@ History:
 --->
 <cfcomponent name="Core" hint="Core component for Application Development Framework">
 
-<cfproperty name="version" value="2_0_0">
-<cfproperty name="file-version" value="9">
+<cfproperty name="version" value="2_0_1">
+<cfproperty name="file-version" value="10">
 
 <cfscript>
-	variables.ADFversion = "2.0.0"; // use a dot delimited version number
+	variables.ADFversion = "2.0.1"; // use a dot delimited version number
 	// ADF Build Revision Number
-	variables.buildRev = "2016";
+	variables.buildRev = "2023";
 	// ADF Codename
-	variables.buildName = "Metal Gear Solid";
+	variables.buildName = "TBD";
 	// CS product version, get the decimal value
 	variables.csVersion = Val(ListLast(request.cp.productversion, " "));
 </cfscript>
