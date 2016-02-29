@@ -35,23 +35,23 @@ Version:
 History:
 	2009-10-16 - MFC - Created
 	2009-11-13 - MFC - Updated the Ajax calls to the CFC to call the controller 
-						function.  This allows only the "controller" function to 
-						listed in the proxy white list XML file.
+							function.  This allows only the "controller" function to
+							listed in the proxy white list XML file.
 	2010-11-09 - MFC - Updated the Scripts loading methods to dynamically load the latest 
-						script versions from the Scripts Object.
+							script versions from the Scripts Object.
 	2011-03-20 - MFC - Updated component to simplify the customizations process and performance.
-						Removed Ajax loading process.
+							Removed Ajax loading process.
 	2011-03-27 - MFC - Updated for Add/Edit/Delete callback.
 	2011-09-21 - RAK - Added max/min selections
-	2011-10-20 - GAC - Added defualt value check for the minSelections and maxSelections xParams varaibles
+	2011-10-20 - GAC - Added defualt value check for the minSelections and maxSelections xParams variables
 	2012-01-04 - SS - The field now honors the "required" setting in Standard Options.
 	2012-03-19 - MFC - Added "loadAvailable" option to set if the available selections load
-						when the form loads.
-					   Added the new records will load into the "selected" area when saved.
+							when the form loads.
+					   	Added the new records will load into the "selected" area when saved.
 	2012-07-31 - MFC - Replaced the CFJS function for "ListLen" and "ListFindNoCase".
 	2013-01-10 - MFC - Fixed issue with the to add the new records into the "selected" area when saved.
 	2013-12-02 - GAC - Added a new callback function for the the edit/delete to reload the selected items after an edit or a delete
-					 - Updated to allow 'ADD NEW' to be used multiple times before submit
+						  - Updated to allow 'ADD NEW' to be used multiple times before submit
 	2014-03-20 - GAC - Force the keys in the formData object from the 'ADD NEW' callback to lowercase so it is sure to match js_fieldName_CE_FIELD  value 
 	2014-10-10 - GAC - Added a new props field to allow the app name used for resolving the Chooser Bean Name to be specified
 	2015-04-23 - DJM - Added own CSS
@@ -61,6 +61,10 @@ History:
 	2015-09-10 - GAC - Re-added a isMultiline() call so the label renders at the top
 	2015-11-11 - GAC - General Dev Code clean up
 	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
+	2016-02-17 - GAC - Added getResourceDependencies support
+	                 - Added loadResourceDependencies support
+	                 - Moved resource loading to the loadResourceDependencies() method
+	                 - Moved UI theme property to the CFT props
 --->
 <cfcomponent displayName="GeneralChooser_Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -77,6 +81,7 @@ History:
 		var selectionArgs = StructNew();
 		
 		inputParameters = setDefaultParameters(argumentCollection=arguments);
+
 		if ( readOnly ) 
 			inputParameters.loadAvailable = 0;
 		
@@ -88,6 +93,7 @@ History:
 		cftArgs.readOnly = readOnly;
 		cftArgs.rendertabindex = arguments.rendertabindex;
 		cftArgs.inputParameters = inputParameters;
+
 
 		// init the initArgs struct
 		initArgs = application.ADF.utils.runCommand(beanName=inputParameters.chooserCFCName,
@@ -101,17 +107,8 @@ History:
 															methodName="getSelectionArgs",
 															args=cftArgs,
 															appName=inputParameters.chooserAppName);
-
-		
-		
-		// Load the scripts
-		application.ADF.scripts.loadJQuery(force=inputParameters.forceScripts);
-		application.ADF.scripts.loadJQueryUI(force=inputParameters.forceScripts);
-		application.ADF.scripts.loadADFLightbox();
 	</cfscript>
-	<!--- <cfscript>
-		renderJSFunctions(argumentCollection=arguments,fieldParameters=inputParameters);
-	</cfscript> --->
+
 	<cfoutput>
 		<!--- //Load the General Chooser Styles --->
 		#application.ADF.utils.runCommand(beanName=inputParameters.chooserCFCName,
@@ -240,6 +237,9 @@ History:
 			inputParameters.chooserAppName = "";
 		else
 			inputParameters.chooserAppName = TRIM(inputParameters.chooserAppName);
+
+		if ( NOT StructKeyExists(inputParameters, "uiTheme") OR LEN(inputParameters.uiTheme) LTE 0 )
+			inputParameters.uiTheme = "ui-lightness";
 		
 		return inputParameters;
 	</cfscript>
@@ -256,14 +256,34 @@ History:
 		return ''; // validator does alert itself dynamically, this keeps the default alert from happening too
 	}
 
-	public string function getResourceDependencies()
-	{
-		return listAppend(super.getResourceDependencies(), "jQuery,jQueryUI,ADFLightbox");
-	}
-	
 	private boolean function isMultiline()
 	{
 		return true;
+	}
+
+	private boolean function useDescription()
+	{
+		return false;
+	}
+
+	/*
+		IMPORTANT: Since loadResourceDependencies() is using ADF.scripts loadResources methods, getResourceDependencies() and
+		loadResourceDependencies() must stay in sync by accounting for all of required resources for this Custom Field Type.
+	*/
+	public void function loadResourceDependencies()
+	{
+		var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
+
+		inputParameters = setDefaultParameters(argumentCollection=arguments);
+
+		// Load registered Resources via the ADF scripts_2_0
+		application.ADF.scripts.loadJQuery();
+		application.ADF.scripts.loadJQueryUI(themeName=inputParameters.uiTheme);
+		application.ADF.scripts.loadADFLightbox();
+	}
+	public string function getResourceDependencies()
+	{
+		return "jQuery,jQueryUI,ADFLightbox,jQueryUIDefaultTheme";
 	}
 </cfscript>
 

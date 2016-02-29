@@ -38,40 +38,64 @@ History:
 	2014-01-03 - GAC - Added the fieldVersion variable
 	2015-05-20 - DJM - Modified the fieldVersion variable to be 2.0
 	2015-09-02 - DRM - Add getResourceDependencies support, bump version
+	2016-02-16 - GAC - Added getResourceDependencies and loadResourceDependencies support to the Render
+			     		  - Added the getResources check to the Props
+			     		  - Added uiTheme parameter
+			     		  - Bumped field version
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
+<!--- // if this module loads resources, do it here.. --->
+<!---<cfscript>
+    // No resources to load
+</cfscript>--->
+
+<!--- ... then exit if all we're doing is detecting required resources --->
+<cfif Request.RenderState.RenderMode EQ "getResources">
+  <cfexit>
+</cfif>
+
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "2.0.4";
+	fieldVersion = "2.0.5";
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
 	prefix = attributes.prefix;
 	formname = attributes.formname;
 	currentValues = attributes.currentValues;
+
 	if( not structKeyExists(currentValues, "numberOfStars") )
 		currentValues.numberOfStars = 5;
 	if( not structKeyExists(currentValues, "halfStars") )
 		currentValues.halfStars = 0;
+	if( not structKeyExists(currentValues, "uiTheme") )
+		currentValues.uiTheme = "ui-lightness";
 </cfscript>
+
 <cfoutput>
 	<script type="text/javascript">
-		fieldProperties['#typeid#'].paramFields = "#prefix#numberOfStars,#prefix#halfStars";
+		fieldProperties['#typeid#'].paramFields = "#prefix#numberOfStars,#prefix#halfStars,#prefix#uiTheme";
 	</script>
 	<table>
 		<tr>
-			<td class="cs_dlgLabelSmall">Number of Stars</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Number of Stars</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#numberOfStars" id="#prefix#numberOfStars" value="#currentValues.numberOfStars#" size="5">
 			</td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall">Half Stars</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Half Stars</td>
 			<td class="cs_dlgLabelSmall">
 	
 				<input type="radio" name="#prefix#halfStars" value="1" id="#prefix#halfStars1" <cfif currentValues.halfStars>checked="checked"</cfif>><label for="#prefix#halfStars1">On</label> <br/>
 				<input type="radio" name="#prefix#halfStars" value="0" id="#prefix#halfStars0" <cfif !currentValues.halfStars>checked="checked"</cfif>><label for="#prefix#halfStars0">Off</label>
+			</td>
+		</tr>
+		<tr>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">UI Theme:</td>
+			<td class="cs_dlgLabelSmall">
+				<input type="text" name="#prefix#uiTheme" id="#prefix#uiTheme" class="cs_dlgControl" value="#currentValues.uiTheme#" size="40">
 			</td>
 		</tr>
 		<tr>

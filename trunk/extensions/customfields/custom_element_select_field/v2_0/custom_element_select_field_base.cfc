@@ -57,7 +57,7 @@ Arguments:
 	Boolean - isReadOnly
 History:
  	2014-03-07 - DJM - Created
-	2014-03-13 - GAC - Fix the default values for the var'd ceDataArray and the ceData varaibles
+	2014-03-13 - GAC - Fix the default values for the var'd ceDataArray and the ceData variables
 	2014-03-14 - JTP Commented out logic that perform sort. Should have been EQ vs NEQ, but not needed as we are doing client side sorting for --other--
 --->
 <cffunction name="renderCustomElementSelect" access="public" returntype="String" hint="Returns the HTML for an custom element select control">

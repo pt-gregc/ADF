@@ -30,6 +30,7 @@ Version:
 	2.0
 History:
 	2015-08-31 - GAC - Created
+	2016-02-23 - GAC - Added csPageResourceHeader and csPageResourceFooter methods
 --->
 <cfcomponent displayname="ui_2_0" extends="ui_1_0" hint="UI functions for the ADF Library">
 
@@ -39,5 +40,86 @@ History:
 <cfproperty name="csData" injectedBean="csData_2_0" type="dependency">
 <cfproperty name="scripts" injectedBean="scripts_2_0" type="dependency">
 <cfproperty name="wikiTitle" value="UI_2_0">
+
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+Name:
+	$csPageResourceHeader
+Summary:
+	Outputs HTML for the CS 10.x page header which allow resources to render
+Returns:
+	void
+Arguments:
+	string pageTitle
+History:
+	2016-02-23 - GAC - Created
+--->
+<cffunction name="csPageResourceHeader" access="public" returntype="void" output="true" hint="Outputs HTML for the CS 10.x page header which allow resources to render">
+	<cfargument name="pageTitle" type="string" default="" hint="Page Title">
+
+	<cfscript>
+		var outputHTML = "";
+	</cfscript>
+
+	<cfif NOT StructKeyExists(request,"ADFRanCSPageResourceHead")>
+		<cfset request.ADFRanCSPageResourceHead = true>
+		<cfsavecontent variable="outputHTML">
+		<!--- // Render the Page Header --->
+		<cfoutput>
+		<!DOCTYPE html>
+		<html>
+			<head>
+				<title>#arguments.pageTitle#</title>
+			</head>
+		<body>
+		</cfoutput>
+		</cfsavecontent>
+	</cfif>
+	
+	<cfoutput>#outputHTML#</cfoutput>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+Name:
+	$csPageResourceFooter
+Summary:
+	Outputs HTML for the CS 10.x page footer which allow resources to render
+Returns:
+	void
+Arguments:
+	none
+History:
+	2016-02-23 - GAC - Created
+--->
+<cffunction name="csPageResourceFooter" access="public" returntype="string" output="true" hint="Outputs HTML for the CS 10.x page footer which allow resources to render">
+
+	<cfscript>
+		var outputHTML = "";
+	</cfscript>
+
+	<cfif NOT StructKeyExists(request,"ADFRanCSPageResourceFoot")>
+		<cfset request.ADFRanCSPageResourceFoot = true>
+
+		<cfscript>
+			// Load the CommonSpot Resource Queue
+			Server.CommonSpot.UDF.resources.renderQueued();
+		</cfscript>
+
+		<cfsavecontent variable="outputHTML">
+			<!--- // Render the Page Footer --->
+			<cfoutput>
+					</body>
+				</html>
+			</cfoutput>
+		</cfsavecontent>
+	</cfif>
+
+	<cfoutput>#outputHTML#</cfoutput>
+</cffunction>
 
 </cfcomponent>

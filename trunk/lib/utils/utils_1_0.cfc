@@ -35,16 +35,16 @@ History:
 --->
 <cfcomponent displayname="utils_1_0" extends="ADF.lib.libraryBase" hint="Util functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_13">
+<cfproperty name="version" value="1_0_16">
 <cfproperty name="type" value="singleton">
 <cfproperty name="ceData" type="dependency" injectedBean="ceData_1_0">
 <cfproperty name="wikiTitle" value="Utils_1_0">
 
-<cffunction name="exit" returntype="string">
+<cffunction name="exit" returntype="string" access="public">
 	<cfexit>
 </cffunction>
 
-<cffunction name="abort" returntype="string">
+<cffunction name="abort" returntype="string" access="public">
 	<cfabort>
 </cffunction>
 
@@ -78,8 +78,13 @@ Summary:
 Returns:
 	void
 Arguments:
-	String msg - the message to be logged
-	String logFile [optional] - an alternative log file
+	String msg
+	String logFile
+	Boolean addTimeStamp
+	String logDir
+	String label
+	Boolean useUTC
+	Boolean addEntryTimeStampPrefix
 History:
 	2008-06-17 - RLW - Created
 	2011-07-15 - RAK - Converted msg to be able to take anything
@@ -89,7 +94,8 @@ History:
 	2013-12-05 - DRM - Create formatted UTC timestamp in local code, avoids crash logging ADF startup errors when ADF isn't built yet
 	                   default logFile to adf-debug.log, instead of debug.log
 	2014-09-19 - GAC - Add a parameter to make the UTC timestamp optional
-	2015-12-22 - GAC - Moved to the Log_1_0 lib component
+	2015-12-03 - GAC - Added a parameter to make the timestamp prefix on the log entry optional 
+	2015-12-22 - GAC - Moved to the Log_1_0 lib component	
 --->
 <!--- // Moved to the Log_1_0 library component --->
 <cffunction name="logAppend" access="public" returntype="void">
@@ -99,7 +105,7 @@ History:
 	<cfargument name="logDir" type="string" required="false" default="#request.cp.commonSpotDir#logs/">
 	<cfargument name="label" type="string" required="false" default="" hint="Adds a text label to the log entry">
 	<cfargument name="useUTC" type="boolean" required="false" default="true" hint="Converts the timestamp in the entry and the filename to UTC">
-
+	<cfargument name="addEntryTimeStampPrefix" type="boolean" required="false" default="true" hint="Allows the timestamp prefix in the log entry to be excluded">
     <cfscript>
         application.ADF.log.logAppend( argumentCollection=arguments );
     </cfscript>
@@ -278,19 +284,56 @@ Arguments:
 History:
 	2009-04-13 - MFC - Created
 	2011-02-09 - RAK - Var'ing un-var'd variables
+	2016-02-16 - GAC - Updated for the schedule log file name to only allow .log and .txt files to be generated (as per ACF 10+)
+	     			 	  - Added the allowedLogExts parameter to allow additional log extensions if set in ACF 10+ server config
+	     			 	  - Added a param for passing in a schedule log directory
+	     			 	  - Added the future parameter for an AuthToken
 --->
 <cffunction name="setScheduledTask" access="public" returntype="any">
 	<cfargument name="url" type="string" required="true">
 	<cfargument name="taskName" type="string" required="true">
-	<cfargument name="schedLogFileName" type="string" required="true"> 
-	<cfargument name="minuteDelay" type="string" required="true"> 
-	
+	<cfargument name="schedLogFileName" type="string" default="#arguments.taskName#" required="false">
+	<cfargument name="minuteDelay" type="string" required="true">
+	<cfargument name="AuthToken" type="string" default="" required="false" hint="">
+	<cfargument name="allowedLogExts" type="string" default="txt,log" required="false" hint="Comma Delimited list of allowed log file extensions (without the dot)">
+	<cfargument name="schedLogDir" type="string" default="#request.cp.commonSpotDir#logs/" required="false">
+
 	<cfscript>
 		var newDate = dateFormat(dateAdd('n', arguments.minuteDelay, now()), "mm/dd/yyyy");
 		var newTime = timeFormat(dateAdd('n', arguments.minuteDelay, now()), "HH:mm");
+
+		var logFileDir = arguments.schedLogDir;
+		var fullLogFilePath = "";
+		var uniqueFullLogFilePath = "";
+		var uniqueLogFileName = "";
+		var logExt = "";
+		var logFileName = "";
+
+		// TODO: FUTURE FEATURE: Use for scheduled tasks that need authentication to run unattended
+		var validAuthToken = false;
+
+		// ACF 10+ only allows .log and .txt extension for the generated log files.
+		// Additional extensions can be added to the \cfusion\lib\neo-cron.xml config file.
+		// https://wikidocs.adobe.com/wiki/display/coldfusionen/cfschedule
+		logExt = ListLast(arguments.schedLogFileName,'.');
+		logFileName = Mid(arguments.schedLogFileName, 1, Len(arguments.schedLogFileName)-Len(logExt)-1);
+
+		if ( ListFindNoCase(arguments.allowedLogExts,logExt) EQ 0 )
+			arguments.schedLogFileName = logFileName & ".log";
+
+		fullLogFilePath = logFileDir & arguments.schedLogFileName;
+		uniqueFullLogFilePath = createUniqueFileName(fullLogFilePath);
+		uniqueLogFileName = ListLast(uniqueFullLogFilePath,"/");
+
+		// Validate authtoken (Future authentication feature)
+		//validAuthToken = application.ADF.csSecurity.isValidAuthToken(arguments.authtoken);
+		validAuthToken = true;
+
+		if ( LEN(TRIM(arguments.AuthToken)) AND validAuthToken )
+			schedURL = schedURL & "&authtoken=" & arguments.authtoken;
 	</cfscript>
 	
-	<!--- set scheduled task for "mayo_Fetch_Assets" --->
+	<!--- set scheduled task --->
 	<cfschedule url = #arguments.url#
 		action="update"
 		operation="HTTPRequest"
@@ -299,8 +342,8 @@ History:
 		task="#arguments.taskName#"
 		interval="once"
 		publish="yes"
-		file="#arguments.schedLogFileName#"
-		path="#request.cp.commonSpotDir#logs/"
+		file="#uniqueLogFileName#"
+		path="#logFileDir#"
 		requesttimeout="3600">
 
 </cffunction>
@@ -567,14 +610,22 @@ Returns:
 Arguments:
 	String templatePath
 History:
- 2009-11-29 - RLW - Created
+	2009-11-29 - RLW - Created
+ 	2016-02-23 - GAC - Updated to check with expandPath first and then try again without expandPath
 --->
 <cffunction name="scriptExists" access="public" returntype="boolean" hint="">
 	<cfargument name="templatePath" type="string" required="true">
+
 	<cfscript>
-		var exists = fileExists(expandPath(arguments.templatePath));
+		var exists = false;
+
+		if ( fileExists(expandPath(arguments.templatePath)) )
+			exists = true;
+		else if ( fileExists(arguments.templatePath) )
+			exists = true;
+
+		return exists;
 	</cfscript>
-	<cfreturn exists>
 </cffunction>
 
 <!---

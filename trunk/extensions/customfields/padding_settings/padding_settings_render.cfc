@@ -35,6 +35,9 @@ History:
 	2015-04-28 - DJM - Added own CSS
 	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean()
 	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
+	2016-02-16 - GAC - Added getResourceDependencies support
+	                 - Added loadResourceDependencies support
+	                 - Moved resource loading to the loadResourceDependencies() method
 --->
 <cfcomponent displayName="PaddingSettings Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -50,10 +53,7 @@ History:
 		var right = '';
 		var bottom = '';
 		var left = '';
-		
-		// Create a script obj
-		application.ADF.scripts.loadJQuery();
-		
+
 		inputParameters = setDefaultParameters(argumentCollection=arguments);
 		
 		if( currentValue eq '' )
@@ -74,8 +74,8 @@ History:
 		currentValue = top & 'px ' & right & 'px ' & bottom & 'px ' & left & 'px';
 		
 		// TODO: add a function that strips the px off of each value in the possible values string
-		// TODO: make sure each value int the possible values string is numeric
-		// TODO: strip the px of of the current value string before converting to individual values
+		// TODO: make sure each value in the possible values string is numeric
+		// TODO: strip the px off of the current value string before converting to individual values
 	</cfscript>
 	
 	<cfoutput>
@@ -163,9 +163,18 @@ function onChange_#inputParameters.fieldID#()
 
 
 <cfscript>
+	/*
+		IMPORTANT: Since loadResourceDependencies() is using ADF.scripts loadResources methods, getResourceDependencies() and
+		loadResourceDependencies() must stay in sync by accounting for all of required resources for this Custom Field Type.
+	*/
+	public void function loadResourceDependencies()
+	{
+		// Load registered Resources via the ADF scripts_2_0
+		application.ADF.scripts.loadJQuery();
+	}
 	public string function getResourceDependencies()
 	{
-		return listAppend(super.getResourceDependencies(), "jQuery");
+		return "jQuery";
 	}
 </cfscript>
 

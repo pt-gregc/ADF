@@ -31,7 +31,12 @@ Summary:
 History:
 	2015-04-17 - SU/SFS - Created
 	2015-04-24 - GAC - Updated the default ResultsJSONFilePath so it would point to a temp site level directory 
-					   so it would NOT write the temp json files in the /ADF directory
+					       so it would NOT write the temp json files in the /ADF directory
+	2016-02-22 - GAC - Updated to set the UI Theme via CFT props
+					 	  - Moved JS resource loading to the render.cfc to the loadResourceDependencies() method
+	2016-20-25 - GAC - In the renderStyles method added load once protection around the loadUnregisteredResource loading
+						  - Removed obsolete tr/td tags used with pre-CS10 forms
+						  - Added a field specific style fix full-width field rendering issue
 --->
 <cfcomponent output="false" displayname="ObjectListBuilder" extends="ADF.core.Base" hint="This is the base component for the ObjectListBuilder custom field type">
 	
@@ -50,7 +55,6 @@ History:
 	variables.columnList = ""; // columns from the source customElement.
 	
 	// CFT Style File Path variables
-	variables.jqueryUItheme = "ui-lightness";
 	variables.cftStyleFilePath = variables.cftPath & "/object_list_builder_styles.css";
 	variables.cftListFormatFilePath = variables.cftPath & "/plugins/listformat/css/listformat.css";
 </cfscript>
@@ -391,51 +395,59 @@ History:
 
 <!-------------------------------------------
 	renderStyles()
+
+	History:
+		2016-20-25 - GAC - added load once protection around the loadUnregisteredResource loading
 ------------------------------------------->
-<cffunction name="renderStyles" access="public" returntype="any" hint="Method to render the styles for object list builder.">		
+<cffunction name="renderStyles" access="public" returntype="void" hint="Method to render the styles for object list builder.">
 	<cfscript>
 		var renderData = '';
 		var styleFilePath = "/object_list_builder_styles.css";
 		var listFormatFilePath = "/plugins/listformat/css/listformat.css";
 
 		// Set defaults if these variables are not set
-		if ( !StructKeyExists(variables,"jqueryUItheme") OR LEN(TRIM(variables.jqueryUItheme)) EQ 0  )
-			variables.jqueryUItheme = "ui-lightness";
 		if ( !StructKeyExists(variables,"cftStyleFilePath") OR LEN(TRIM(variables.cftStyleFilePath)) EQ 0 )
 			variables.cftStyleFilePath = variables.cftPath & styleFilePath;
 		if ( !StructKeyExists(variables,"cftListFormatFilePath") OR LEN(TRIM(variables.cftListFormatFilePath)) EQ 0 )
 			variables.cftListFormatFilePath = variables.cftPath & listFormatFilePath;
+
+		if ( !StructKeyExists(Request, 'objectListBuilderCSS') )
+		{
+			// load cft stylesheet
+			application.ADF.scripts.loadUnregisteredResource(variables.cftStyleFilePath, "Stylesheet", "head", "secondary", 0, 0);
+			// load ListFormat stylesheet
+			application.ADF.scripts.loadUnregisteredResource(variables.cftListFormatFilePath, "Stylesheet", "head", "secondary", 0, 0);
+			Request.objectListBuilderCSS = 1;
+		}
 	</cfscript>
-	<cfsavecontent variable="renderData">
-		<cfoutput>#application.ADF.scripts.loadJQueryUIstyles(themeName=variables.jqueryUItheme)#
-		<link rel="stylesheet" type="text/css" href="#variables.cftStyleFilePath#" />
-		<link rel="stylesheet" type="text/css" href="#variables.cftListFormatFilePath#" />
-		</cfoutput>
+	
+	<!--- // Dynamic field specific CCS override --->
+	<cfsavecontent variable="cftOlbFldCSS">
+	<cfoutput>
+	<style>
+		###arguments.fieldDomID#_controls {
+		  display: block;
+		  width: 950px;
+		  max-width: 1000px !important;
+		}
+	</style>
+	</cfoutput>
 	</cfsavecontent>
-	<cfoutput>#renderData#</cfoutput>
+	
+	<cfscript>
+		// Load the dynamic CSS for the field
+		application.ADF.scripts.addHeaderCSS(cftOlbFldCSS, "SECONDARY"); //  PRIMARY, SECONDARY, TERTIARY
+	</cfscript>
 </cffunction>
 
 <!-------------------------------------------
 	renderJS()
 ------------------------------------------->
-<cffunction name="renderJS" access="public" returntype="any" hint="Method to render the styles for object list builder.">		
-	<cfscript>
-		var renderData = '';
-	</cfscript>
-	<cfsavecontent variable="renderData">
-		<cfoutput>#application.ADF.scripts.loadTypeAheadBundle()#
-		#application.ADF.scripts.loadCKEditor()#</cfoutput>
-		<!--- <cfoutput><script type="text/javascript" src="#variables.cftPath#/jquery/typeahead/typeahead.bundle.js"></script>
-		<script type="text/javascript" src="//cdn.ckeditor.com/4.4.6/full/ckeditor.js"></script></cfoutput> --->
-	</cfsavecontent>
-	<cfoutput>#renderData#</cfoutput>
-</cffunction>
-
-<!-------------------------------------------
-	getJqueryUItheme()
-------------------------------------------->	
-<cffunction name="getJqueryUItheme" access="public" returntype="string" hint="Method to return the jquery UI theme name">
-	<cfreturn variables.jqueryUItheme>
+<cffunction name="renderJS" access="public" returntype="void" hint="Method to render the styles for object list builder.">
+	<!---
+		// IMPORTANT: The JS code that was loading here has all been moved to load via CommonSpot Resources. 
+		//             See loadResourceDependencies() and  getResourceDependencies() in the render.cfc file
+	--->
 </cffunction>
 
 <!-------------------------------------------

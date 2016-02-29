@@ -30,6 +30,8 @@ Version:
 	1.0
 History:
 	2015-09-15 - Created
+	2016-02-19 - DRM - Implement loadResourceDependencies()
+							 Remove bogus comment about FontAwesome
 --->
 <cfcomponent displayName="BootstrapGlyphiconSelect_Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -93,10 +95,6 @@ History:
 				break;
 			}
 		}
-
-		application.ADF.scripts.loadJQuery();
-		// Use jQuery to Add Font Awesome CSS to head dynamically
-		application.ADF.scripts.loadBootstrap();
 	</cfscript>
 	
 	<cfif NOT StructKeyExists(Request,'cftBootstrapGlyphiconSelectCSS')>
@@ -323,7 +321,12 @@ function clearInput_#arguments.fieldName#()
 
 	public string function getResourceDependencies()
 	{
-		return listAppend(super.getResourceDependencies(), "jQuery,FontAwesome");
+		return listAppend(super.getResourceDependencies(), "jQuery,Bootstrap");
+	}
+	public void function loadResourceDependencies()
+	{
+		application.ADF.scripts.loadJQuery();
+		application.ADF.scripts.loadBootstrap();
 	}
 	
 	private boolean function isMultiline()

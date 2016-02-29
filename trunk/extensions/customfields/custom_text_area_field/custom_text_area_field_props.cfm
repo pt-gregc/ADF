@@ -45,12 +45,25 @@ History:
 	2014-09-19 - GAC - Removed deprecated doLabel and jsLabelUpdater js calls
 	2014-12-15 - GAC - Fixed the Default Value and the user defined expression functionality
 	2015-05-12 - DJM - Updated the field version to 3.0
+	2016-02-22 - GAC - Added getResourceDependencies and loadResourceDependencies support to the Render
+						  - Added the getResources check to the Props
+						  - Bumped field version
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
+<!--- // if this module loads resources, do it here.. --->
+<!---<cfscript>
+    // No resources to load
+</cfscript>--->
+
+<!--- ... then exit if all we're doing is detecting required resources --->
+<cfif Request.RenderState.RenderMode EQ "getResources">
+  <cfexit>
+</cfif>
+
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "3.0.2";
+	fieldVersion = "3.0.3";
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
@@ -111,38 +124,38 @@ History:
 	</script>
 	<table>
 		<tr>
-		<td class="cs_dlgLabelSmall">Field ID:</td>
+		<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Field ID:</td>
 		<td class="cs_dlgLabelSmall">
 			<input type="text" name="#prefix#fldName" id="#prefix#fldName" class="cs_dlgControl" value="#currentValues.fldName#" size="40">
 			<br/><span>Please enter the field id to be used via JavaScript.  If blank, will use default name.</span>
 		</td>
 	</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall">Class Name:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Class Name:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#fldClass" id="#prefix#fldClass" class="cs_dlgControl" value="#currentValues.fldClass#" size="40">
 				<br/><span>Please enter a class name to be used by JavaScript.  If blank, a class attribute will not be added.</span>
 			</td>
 		</tr>
 		<!--- <tr>
-			<td class="cs_dlgLabelSmall">Maximum Length:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Maximum Length:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#maxLength" id="#prefix#maxLength" value="#currentValues.maxLength#" size="5"><br />
 				Indicate the maximum length (count of characters) that can be entered in this field.
 			</td>
 		</tr> --->
 		<tr>
-			<td class="cs_dlgLabelSmall">Columns:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Columns:</td>
 			<td class="cs_dlgLabelSmall"><input type="text" name="#prefix#columns" id="#prefix#columns" value="#currentValues.columns#" size="5"></td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall">Rows:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Rows:</td>
 			<td class="cs_dlgLabelSmall"><input type="text" name="#prefix#rows" id="#prefix#rows" value="#currentValues.rows#" size="5"></td>
 		</tr>
 		<input type="hidden" name="#prefix#wrap" value="#currentValues.wrap#" />
 		<!--- // If the browser supports a textarea resizing handle use the props to disable it if needed --->
 		<tr>
-			<td class="cs_dlgLabelSmall">Resize Handle Option:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Resize Handle Option:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="radio" name="#prefix#resizeHandleOption" id="#prefix#resizeHandleOption" value="default" <cfif currentValues.resizeHandleOption eq 'default'>checked</cfif>>Default
 				<input type="radio" name="#prefix#resizeHandleOption" id="#prefix#resizeHandleOption" value="none" <cfif currentValues.resizeHandleOption eq 'none'>checked</cfif>>None

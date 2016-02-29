@@ -207,3 +207,8 @@
 .jstree-default .jstree-themeicon-custom{background-color:transparent;background-image:none}
 .jstree-default>.jstree-container-ul>.jstree-node{margin-left:0;margin-right:0}
 */
+
+.jstree-default-small {background: #fff; border: 1px solid #999; overflow-y: scroll;}
+.jstree-default.jstree-disabled {background: #e6e6e6; color:#666;}
+.jstree-default.jstree-disabled .jstree-icon {opacity: .6;}
+.jstree-default.jstree-disabled .jstree-disabled.jstree-clicked {background: #beebff; color: #333;}

@@ -39,12 +39,26 @@ History:
     2014-09-19 - GAC - Removed deprecated doLabel and jsLabelUpdater js calls
 	2015-05-26 - DJM - Added the 3.0 version
 	2015-09-02 - DRM - Add getResourceDependencies support, bump version
+	2016-02-19 - GAC - Added getResourceDependencies and loadResourceDependencies support to the Render
+					  	  - Added the getResources check to the Props
+					  	  - Moved resource loading to the the top of the props file
+					  	  - Bumped field version
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
+<!--- // this module has resources to load --->
+<cfscript>
+    application.ADF.scripts.loadJQuery(noConflict=true);
+</cfscript>
+
+<!--- ... then exit if all we're doing is detecting required resources --->
+<cfif Request.RenderState.RenderMode EQ "getResources">
+  <cfexit>
+</cfif>
+
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "3.0.4";
+	fieldVersion = "3.0.5";
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
@@ -53,20 +67,26 @@ History:
 	currentValues = attributes.currentValues;
 	if( not structKeyExists(currentValues, "beanName") )
 		currentValues.beanName = "file_uploader";
-		
-	application.ADF.scripts.loadJQuery(noConflict=true);
+	if( not structKeyExists(currentValues, "uiTheme") )
+		currentValues.uiTheme = "ui-lightness";
 </cfscript>
 <cfoutput>
 	<script type="text/javascript">
-		fieldProperties['#typeid#'].paramFields = "#prefix#beanName";
+		fieldProperties['#typeid#'].paramFields = "#prefix#beanName,#prefix#uiTheme";
 	</script>
 	<table>
 		<tr>
-			<td class="cs_dlgLabelSmall">Bean Name:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Bean Name:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#beanName" id="#prefix#beanName" value="#currentValues.beanName#" size="40"><br>
 				Name of the Object Factory Bean that will hold the configuration for the file uploader. By default it is
 				"file_uploader" and to be put into the /_cs_apps/components/ of the site. Note: Do NOT include ".cfc" in the name.
+			</td>
+		</tr>
+		<tr>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">UI Theme:</td>
+			<td class="cs_dlgLabelSmall">
+				<input type="text" name="#prefix#uiTheme" id="#prefix#uiTheme" class="cs_dlgControl" value="#currentValues.uiTheme#" size="50">
 			</td>
 		</tr>
 		<tr>

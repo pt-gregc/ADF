@@ -64,12 +64,27 @@ History:
 							 Switch order of rendered Add New buttons to put join table first
 							 Bump fieldVersion
 	2016-02-09 - DRM - Bump fieldVersion
+	2016-02-19 - DRM - Resource detection exit
+							 Bump field version
+							 Remove forceScripts UI
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
+<!--- // if this module loads resources, do it here.. --->
+<cfscript>
+	application.ADF.scripts.loadJQuery(noConflict=true);
+	application.ADF.scripts.loadJQueryUI();
+</cfscript>
+
+<!--- ... then exit if all we're doing is detecting required resources --->
+<cfif Request.RenderState.RenderMode EQ "getResources">
+  <cfexit>
+</cfif>
+
+
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "2.0.11";
+	fieldVersion = "2.0.13";
 	
 	// CS version and required Version variables
 	requiredCSversion = 10;
@@ -148,8 +163,6 @@ History:
 		currentValues.editChildOptionText = "";
 	if( not structKeyExists(currentValues, "deleteOptionText") )
 		currentValues.deleteOptionText = "";
-	if( not structKeyExists(currentValues, "forceScripts") )
-		currentValues.forceScripts = 0;
 	if( not structKeyExists(currentValues, "passthroughParams") )
 		currentValues.passthroughParams = "";
 	
@@ -251,11 +264,6 @@ History:
 	 WHERE <cfmodule template="/commonspot/utilities/handle-in-list.cfm" field="Type" list="formatted_text_block,taxonomy,date,calendar" cfsqltype="cf_sql_varchar" isNot=1 dbType="QofQ">	
 </cfquery>
 
-<cfscript>
-	application.ADF.scripts.loadJQuery(noConflict=true);
-	application.ADF.scripts.loadJQueryUI();
-</cfscript>
-
 <cfoutput>
 <style>
 	###prefix#allFields, ###prefix#displayFieldsSelected { list-style-type: none; margin: 0; padding: 0; float: left; border:1px solid black; height:140px; width:200px; overflow: auto;}
@@ -272,7 +280,7 @@ History:
 <!--
 	jQuery.noConflict();
 	
-	fieldProperties['#typeid#'].paramFields = "#prefix#childCustomElement,#prefix#parentUniqueField,#prefix#childUniqueField,#prefix#childLinkedField,#prefix#inactiveField,#prefix#inactiveFieldValue,#prefix#displayFields,#prefix#sortByType,#prefix#sortByField,#prefix#sortByDir,#prefix#positionField,#prefix#assocCustomElement,#prefix#secondaryElementType,#prefix#interfaceOptions,#prefix#compOverride,#prefix#parentInstanceIDField,#prefix#childInstanceIDField,#prefix#widthValue,#prefix#widthUnit,#prefix#heightValue,#prefix#heightUnit,#prefix#newOptionText,#prefix#existingOptionText,#prefix#editAssocOptionText,#prefix#editChildOptionText,#prefix#deleteOptionText,#prefix#forceScripts,#prefix#passthroughParams";
+	fieldProperties['#typeid#'].paramFields = "#prefix#childCustomElement,#prefix#parentUniqueField,#prefix#childUniqueField,#prefix#childLinkedField,#prefix#inactiveField,#prefix#inactiveFieldValue,#prefix#displayFields,#prefix#sortByType,#prefix#sortByField,#prefix#sortByDir,#prefix#positionField,#prefix#assocCustomElement,#prefix#secondaryElementType,#prefix#interfaceOptions,#prefix#compOverride,#prefix#parentInstanceIDField,#prefix#childInstanceIDField,#prefix#widthValue,#prefix#widthUnit,#prefix#heightValue,#prefix#heightUnit,#prefix#newOptionText,#prefix#existingOptionText,#prefix#editAssocOptionText,#prefix#editChildOptionText,#prefix#deleteOptionText,#prefix#passthroughParams";
 	fieldProperties['#typeid#'].jsValidator = '#prefix#doValidate';
 	
 	function #prefix#toggleInputField(chkBoxObj,optionValue)
@@ -1554,19 +1562,6 @@ History:
 			</td>
 		</tr>
 	</tbody>
-	<tr>
-		<td class="cs_dlgLabelSmall" colspan="2">
-			<hr />
-		</td>
-	</tr>
-	<tr>
-		<th valign="baseline" class="cs_dlgLabelBold" nowrap="nowrap">Force Loading Scripts:</th>
-		<td valign="baseline">
-			#Server.CommonSpot.udf.tag.checkboxRadio(type="radio", id="#prefix#forceScripts_yes", name="#prefix#forceScripts", value="1", label="Yes", checked=(currentValues.forceScripts EQ 1), labelClass="cs_dlgLabelSmall")#
-			&nbsp;&nbsp;&nbsp;
-			#Server.CommonSpot.udf.tag.checkboxRadio(type="radio", id="#prefix#forceScripts_no", name="#prefix#forceScripts", value="0", label="No", checked=(currentValues.forceScripts EQ 0), labelClass="cs_dlgLabelSmall")#
-		</td>
-	</tr>
 	<tr>
 		<td class="cs_dlgLabelSmall" colspan="2" style="font-size:7pt;">
 			<hr />

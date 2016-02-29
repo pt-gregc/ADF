@@ -46,6 +46,7 @@ History:
 	2015-04-28 - DJM - Added own CSS
 	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean()
 	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
+	2016-02-19 - DRM - Implement loadResourceDependencies()
 --->
 <cfcomponent displayName="CustomCheckboxField Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -60,9 +61,6 @@ History:
 		var readOnly = (arguments.displayMode EQ 'readonly') ? true : false;
 		var formDataPageID = 0;
 		var allAtrs = getAllAttributes();
-
-		// Load JQuery to the script
-		application.ADF.scripts.loadJQuery();
 	
 		inputParameters = setDefaultParameters(argumentCollection=arguments);	
 	
@@ -166,6 +164,10 @@ jQuery(function(){
 	public string function getResourceDependencies()
 	{
 		return listAppend(super.getResourceDependencies(), "jQuery");
+	}
+	public string function loadResourceDependencies()
+	{
+		application.ADF.scripts.loadJQuery();
 	}
 </cfscript>
 

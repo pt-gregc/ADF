@@ -34,6 +34,10 @@ History:
 	2015-05-08 - DJM - Converted to CFC
 	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean()
 	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
+	2016-02-17 - GAC - Added getResourceDependencies support
+	                 - Added loadResourceDependencies support
+	                 - Moved resource loading to the loadResourceDependencies() method
+	2016-02-25 - DMB - Fixed loadResourceDependencies to check for the form protect struct keys.
 --->
 <cfcomponent displayName="CFFormProtect Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -84,9 +88,6 @@ History:
 					
 		<input type="hidden" name="formfield1234567891" value="" id="formfield1234567891">
 		<!--- <input type="hidden" name="formfield1234567891_FIELDNAME" id="formfield1234567891_FIELDNAME" value="formfield1234567891">  --->
-					
-		<!---<cfhtmlhead text="<script type='text/javascript' src='#request.site.url##cffpPath#/js/mouseMovement.js'></script>">--->
-		<cfset application.ADF.scripts.loadmouseMovement()>
 	</cfif>
 
 	<cfif application.cfformprotect.config.usedKeyboard>
@@ -95,8 +96,6 @@ History:
 					bot won't trigger this --->
 		<input type="hidden" name="formfield1234567892" id="formfield1234567892" value="">
 		<!--- <input type="hidden" name="formfield1234567892_FIELDNAME" id="formfield1234567892_FIELDNAME" value="formfield1234567892">  --->
-		<!---<cfhtmlhead text="<script type='text/javascript' src='#request.site.url##cffpPath#/js/usedKeyboard.js'></script>">--->
-		<cfset application.ADF.scripts.loadUsedKeyboard()>
 	</cfif>
 
 
@@ -123,11 +122,19 @@ History:
 	</cfoutput>
 </cffunction>
 
-
 <cfscript>
+	/*
+		IMPORTANT: Since loadResourceDependencies() is using ADF.scripts loadResources methods, getResourceDependencies() and
+		loadResourceDependencies() must stay in sync by accounting for all of required resources for this Custom Field Type.
+	*/
+	public void function loadResourceDependencies()
+	{
+			application.ADF.scripts.loadmouseMovement();
+			application.ADF.scripts.loadUsedKeyboard();
+	}
 	public string function getResourceDependencies()
 	{
-		return listAppend(super.getResourceDependencies(), "MouseMovement,UsedKeyboard");
+		return "MouseMovement,UsedKeyboard";
 	}
 </cfscript>
 

@@ -42,21 +42,34 @@ History:
 	2015-05-12 - DJM - Updated the field version to 2.0
 	2015-09-02 - DRM - Add getResourceDependencies support, bump version
 	2015-10-14 - GAC - Updated the forms call to Forms_2_0
+	2016-02-16 - DRM - Implement resource detection
+						  - Bump field version
+	2016-02-22 - GAC - Updated field label class
+	2016-02-23 - GAC - Updated to fix issues with validating the entered scriptURL and returning the correct status
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
+<!--- // if this module loads resources, do it here.. --->
+<cfscript>
+	application.ADF.scripts.loadJQuery(noConflict=true);
+	application.ADF.scripts.loadJQueryUI();
+</cfscript>
+
+<!--- ... then exit if all we're doing is detecting required resources --->
+<cfif Request.RenderState.RenderMode EQ "getResources">
+  <cfexit>
+</cfif>
+
+
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "2.0.4";
+	fieldVersion = "2.0.7";
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
 	prefix = attributes.prefix;
 	formname = attributes.formname;
 	currentValues = attributes.currentValues;
-	
-	application.ADF.scripts.loadJQuery(noConflict=true);
-	application.ADF.scripts.loadJQueryUI();
 	
 	btnClass = application.ADF.scripts.jQueryUIButtonClass();
 </cfscript>
@@ -97,7 +110,7 @@ History:
 
 		function #prefix#doValidate()
 		{
-			if( jQuery("###prefix#scriptURL").attr("value").length == 0 )
+			if( jQuery("###prefix#scriptURL").val().length == 0 )
 			{
 				alert('Please enter a valid value for the Script URL');
 				jQuery("###prefix#scriptURL").focus();
@@ -106,7 +119,7 @@ History:
 			return true;
 		}
 		function #prefix#checkFileExists(){
-			var templatePath = jQuery("###prefix#scriptURL").attr("value");
+			var templatePath = jQuery("###prefix#scriptURL").val();
 			// clear the check
 			jQuery("###prefix#checkbox").hide();
 			jQuery("###prefix#caution").hide();
@@ -116,9 +129,11 @@ History:
 					bean: "utils_2_0",
 					method: "scriptExists",
 					templatePath: templatePath
-				}, function(results){
+				}, 
+				function(results)
+				{
 					// show the results
-					if( results == "YES" )
+					if( results )
 						jQuery("###prefix#checkbox").show();
 					else
 						jQuery("###prefix#caution").show();
@@ -135,14 +150,14 @@ History:
 			</td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall">Script URL:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Script URL:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#scriptURL" id="#prefix#scriptURL" value="#currentValues.scriptURL#" size="55" />
 				<br />e.g. /ADF/apps/my_app/customcf/my_file.cfm <em>or</em> /ADF/apps/my_app/renderhandlers/my_file.cfm
 			</td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall">&nbsp;</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">&nbsp;</td>
 			<td class="cs_dlgLabelSmall">
 				<div id="#prefix#results">
 					<div id="#prefix#control">
@@ -158,7 +173,7 @@ History:
 			</td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall">Type:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Type:</td>
 			<td class="cs_dlgLabelSmall">
 				<select name="#prefix#scriptType" id="#prefix#scriptType" size="1">
 					<option value="Custom Script"<cfif currentValues.scriptType eq "Custom Script"> selected="selected"</cfif>>Custom Script</option>
@@ -167,7 +182,7 @@ History:
 			</td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall">Page Data to record:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Page Data to record:</td>
 			<td class="cs_dlgLabelSmall">
 				<select name="#prefix#pagePart" id="#prefix#pagePart" size="1">
 					<option value="pageURL"<cfif currentValues.pagePart eq "pageURL"> selected="selected"</cfif>>Page URL</option>

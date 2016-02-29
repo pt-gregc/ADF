@@ -65,6 +65,7 @@ History:
 	                   Remove some unused js vars
 	2016-02-09 - DRM - Hard code minimum values in getMinWidth() and getMinHeight()
 	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
+	2016-02-19 - DRM - Implement loadResourceDependencies()
 --->
 <cfcomponent displayName="CustomElementDataManager Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -80,7 +81,7 @@ History:
 		var uniqueTableAppend = arguments.fieldID;
 		var ceFormID = arguments.formID;
 		var elementType = '';
-		var	parentFormLabel = '';
+		var parentFormLabel = '';
 		var infoArgs = StructNew();
 		var infoMethod = "getInfo";
 		var parentElementObj = '';
@@ -239,10 +240,6 @@ History:
 			
 				if (IsNumeric(inputParameters.heightValue))
 					heightVal = "#inputParameters.heightValue#px";
-			
-				application.ADF.scripts.loadJQuery(noConflict=true);
-				application.ADF.scripts.loadJQueryUI();
-				application.ADF.scripts.loadJQueryDataTables(force=true,loadStyles="false");
 			</cfscript>
 			
 			<cfif inputParameters.sortByType EQ 'manual'>
@@ -727,7 +724,13 @@ function setCurrentValueAndOpenURL_#uniqueTableAppend#(urlToOpen, linkedFldName,
 
 	public string function getResourceDependencies()
 	{
-		return listAppend(super.getResourceDependencies(), "jQuery,jQueryUI,JQueryDataTables");
+		return listAppend(super.getResourceDependencies(), "jQuery,jQueryUI,JQueryDataTables,jQueryUIDefaultTheme");
+	}
+	public string function loadResourceDependencies()
+	{
+		application.ADF.scripts.loadJQuery(noConflict=true);
+		application.ADF.scripts.loadJQueryUI();
+		application.ADF.scripts.loadJQueryDataTables(loadStyles="false");
 	}
 </cfscript>	
 

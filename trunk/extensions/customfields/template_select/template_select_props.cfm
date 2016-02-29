@@ -27,8 +27,6 @@ Name:
 	template_select_props.cfm
 Summary:
 	Custom field type to select from the CS templates
-ADF Requirements:
-	scripts_1_0
 History:
 	2007-01-24 - RLW - Created
 	2011-10-22 - MFC - Set the default selected value to be stored when loading the CFT.
@@ -39,12 +37,26 @@ History:
 	2014-10-31 - GAC - Added the editOnce option
 	2015-05-12 - DJM - Updated the field version to 2.0
 	2015-09-02 - DRM - Add getResourceDependencies support, bump version
+	2016-02-16 - GAC - Added the getResources check
+	2016-02-16 - GAC - Added getResourceDependencies and loadResourceDependencies support to the Render
+			     		  - Added the getResources check to the Props
+			     		  - Bumped field version
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
+<!--- // if this module loads resources, do it here.. --->
+<!---<cfscript>
+    // No resources to load
+</cfscript>--->
+
+<!--- ... then exit if all we're doing is detecting required resources --->
+<cfif Request.RenderState.RenderMode EQ "getResources">
+  <cfexit>
+</cfif>
+
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "2.0.6";
+	fieldVersion = "2.0.7";
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
@@ -69,7 +81,8 @@ History:
 		//	OR the default value does not exist in the current values
 		if( ( StructKeyExists(currentValues, defaultValueArray[i]) 
 				AND (NOT LEN(currentValues[defaultValueArray[i]])) )
-				OR (NOT StructKeyExists(currentValues, defaultValueArray[i])) ){
+				OR (NOT StructKeyExists(currentValues, defaultValueArray[i])) )
+        {
 			currentValues[defaultValueArray[i]] = defaultValues[defaultValueArray[i]];
 		}
 	}
@@ -82,22 +95,22 @@ History:
 		// allows this field to have a common onSubmit Validator
 		//fieldProperties['#typeid#'].jsValidator = '#prefix#doValidate';
 
-	/*	function #prefix#doValidate()
-		{
-			//set the default msgvalue
-			document.#formname#.#prefix#msg.value = 'Please enter some text to be converted';
-			if( document.#formname#.#prefix#foo.value.length == 0 )
-			{
-				alert('please Enter some data for foo');
-				return false;
-			}
-			return true;
-		}
-	*/
+        /*	function #prefix#doValidate()
+            {
+                //set the default msgvalue
+                document.#formname#.#prefix#msg.value = 'Please enter some text to be converted';
+                if( document.#formname#.#prefix#foo.value.length == 0 )
+                {
+                    alert('please Enter some data for foo');
+                    return false;
+                }
+                return true;
+            }
+        */
 	</script>
 	<table>
 		<tr>
-			<td class="cs_dlgLabelSmall" valign="top">Template Filter List:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Template Filter List:</td>
 			<td class="cs_dlgLabelSmall">
 				<textarea type="text" name="#prefix#filterList" id="#prefix#filterList" class="cs_dlgControl" rows="3" cols="60" wrap="soft">#currentValues.filterList#</textarea>
 				<br/><span>(Comma-Delimited list of Templates Names OR Template Page IDs to exclude. Using a part of a Template Name excludes all templates that contain that part in the name.)</span>
@@ -109,7 +122,7 @@ History:
 			</td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall">Edit Once:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Edit Once:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="radio" name="#prefix#editOnce" id="#prefix#editOnce" value="0" <cfif currentValues.editOnce EQ 0>checked</cfif>>False
 				<input type="radio" name="#prefix#editOnce" id="#prefix#editOnce" value="1" <cfif currentValues.editOnce EQ 1>checked</cfif>>True
@@ -127,14 +140,14 @@ History:
 			</td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall" valign="top">App Bean Name:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">App Bean Name:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#appBeanName" id="#prefix#appBeanName" class="cs_dlgControl" value="#currentValues.appBeanName#" size="40">
 				<br/><span>Please enter the ADF Applications's AppName to override these configuration settings.</span>
 			</td>
 		</tr>
 		<tr>
-			<td class="cs_dlgLabelSmall" valign="top">App Props Variable Name:</td>
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">App Props Variable Name:</td>
 			<td class="cs_dlgLabelSmall">
 				<input type="text" name="#prefix#appPropsVarName" id="#prefix#appPropsVarName" class="cs_dlgControl" value="#currentValues.appPropsVarName#" size="40">
 				<br/><span>Please enter the App Props Variable name that contains PROPS keys and values to override.</span> 

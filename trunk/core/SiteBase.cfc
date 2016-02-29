@@ -131,7 +131,7 @@ History:
 		// Load the site API or CCAPI Config
 		loadSiteAPIConfig();
 		
-		// Adds the ADF version to the application.ADF stuct
+		// Adds the ADF version to the application.ADF struct
 		application.ADF.version = getADFversion();
 		application.ADF.decimalVersion = getDecimalADFVersion();
 		application.ADF.csVersion = getCSVersion();

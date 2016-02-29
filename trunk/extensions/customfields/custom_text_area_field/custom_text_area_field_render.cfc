@@ -50,6 +50,8 @@ History:
 	2015-04-27 - DJM - Added own CSS
 	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean()
 	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
+	2016-02-22 - GAC - Added commented out loadResourceDependencies() and getResourceDependencies() for future use
+						  - Added the setDefaultParameters so defaults with come through to the rendered styles
 --->
 <cfcomponent displayName="CustomTextAreaField Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -93,6 +95,7 @@ History:
 <!---
 History:
     2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
+    2016-02-22 - GAC - Added the setDefaultParameters so defaults with come through to the rendered styles
 --->
 <cffunction name="renderStyles" returntype="void" access="private">
 	<cfargument name="fieldName" type="string" required="yes">
@@ -100,6 +103,9 @@ History:
 	<cfargument name="value" type="string" required="yes">
 	<cfscript>
 		var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
+
+		inputParameters = setDefaultParameters(argumentCollection=arguments);
+
 		// Valid Textarea resize handle options
 		var resizeOptions = "none,both,horizontal,vertical";
 	</cfscript>
@@ -155,6 +161,21 @@ History:
 	{
 		return true;
 	}
+
+	/*
+		IMPORTANT: If loadResourceDependencies() are using ADF.scripts loadResources methods, getResourceDependencies() and
+		loadResourceDependencies() must stay in sync by accounting for all of required resources for this Custom Field Type.
+	*/
+	/* If resources are needed load them here ... */
+	/*public void function loadResourceDependencies()
+	{
+		// Load registered Resources
+	}*/
+	/* ...and list the resource names or aliases here... */
+	/*public string function getResourceDependencies()
+	{
+		return "";
+	}*/
 </cfscript>
 
 </cfcomponent>

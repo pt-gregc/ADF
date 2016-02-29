@@ -38,7 +38,7 @@ History:
 --->
 <cfcomponent displayname="lightbox_1_0" extends="ADF.lib.libraryBase" hint="Lightbox functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_12">
+<cfproperty name="version" value="1_0_13">
 <cfproperty name="type" value="singleton">
 <cfproperty name="csSecurity" type="dependency" injectedBean="csSecurity_1_2">
 <cfproperty name="utils" type="dependency" injectedBean="utils_2_0">
@@ -73,6 +73,7 @@ History:
 	2013-10-18 - MS  - Updated to comment out the verbose error messages which caused security issues
 	2013-10-19 - GAC - Updated to use application.ADF.siteDevMode to control the verbose error msgs
 	2014-10-15 - GAC - Set the application.ADF.stieDevMode to a local stieDevMode variable
+	2016-02-16 - GAC - Added logging to the try/catch around RunCommmand
 --->
 <!--- // ATTENTION: 
 		Do not call is method directly. Call from inside the LightboxProxy.cfm file  (method properties are subject to change)
@@ -115,39 +116,47 @@ History:
 		{
 			// Verify if the bean and method combo are allowed to be accessed through the lightbox proxy
 			passedSecurity = variables.csSecurity.validateProxy(bean, method);
-			if ( passedSecurity ) {
+			if ( passedSecurity )
+			{
 				// convert the params that are passed in to the args struct before passing them to runCommand method
 				args = variables.utils.buildRunCommandArgs(params,argExcludeList);
-				try {
+				try
+				{
 					// Run the Bean, Method and Args and get a return value
 					result.reHTML = variables.utils.runCommand(trim(bean),trim(method),args,trim(appName));
 				} 
-				catch( Any e ) {
+				catch( Any e )
+				{
 					hasError = 0; // if set to true, this will output the error html twice, so let debug handle it
 					debug = 1;
 					result.reHTML = e;
+					variables.utils.logAppend( msg=e, label='Error in LightboxProxy calling utils.runCommand()', logfile='adf-lightbox-proxy.html' );
 				}	
 				// Build the DUMP for debugging the RAW value of reHTML
-				if ( debug AND siteDevMode ) {
+				if ( debug AND siteDevMode )
+				{
 					// If the variable reHTML doesn't exist set the debug output to the string: void 
 					if ( !StructKeyExists(result,"reHTML") ){reDebugRaw="void";}else{reDebugRaw=result.reHTML;}
 						reDebugRaw = variables.utils.doDump(reDebugRaw,"DEBUG OUTPUT",1,1);
 				}
 				
 				// Check to see if reHTML was destroyed by a method that returns void before attempting to process the return
-				if ( StructKeyExists(result,"reHTML") ) {
+				if ( StructKeyExists(result,"reHTML") )
+				{
 					// 2011-10-03 - MFC - Determine if the result has a CF Error Structure, return CFCATCH error message
 					if ( isObject(result.reHTML) 
 							AND structKeyExists(result.reHTML,"message") 
 							AND structKeyExists(result.reHTML,"ErrNumber") 
-							AND structKeyExists(result.reHTML,"StackTrace") ) {
+							AND structKeyExists(result.reHTML,"StackTrace") )
+					{
 						hasError = 1;
 						if ( siteDevMode )
 							result.reHTML = "Error: " & result.reHTML.message;
 						else
 							result.reHTML = "Error: A request processing error occurred.";
 					}
-					else if ( isStruct(result.reHTML) or isArray(result.reHTML) or isObject(result.reHTML) ) {
+					else if ( isStruct(result.reHTML) or isArray(result.reHTML) or isObject(result.reHTML) )
+					{
 						hasError = 1;
 						// 2012-03-10 - GAC - we need to check if we have a 'message' before we can output it
 						if ( StructKeyExists(result.reHTML,"message") AND siteDevMode )
@@ -165,10 +174,12 @@ History:
 			else {
 				// Show error since the bean and/or method are not in the proxyWhiteList.xml file
 				hasError = 1;
-				if ( !siteDevMode ) {
+				if ( !siteDevMode )
+				{
 					result.reHTML = "Error: The request is not accessible remotely via Lightbox Proxy.";	
 				}		
-				else {
+				else
+				{
 					if ( len(trim(appName)) )
 						result.reHTML = "Error: The Bean: #bean# with method: #method# in the App: #appName# is not accessible remotely via Lightbox Proxy.";	
 					else
@@ -176,14 +187,16 @@ History:
 				}
 			}
 			// pass the debug dumps to the result.reHTML for output
-			if ( debug AND siteDevMode ) {
+			if ( debug AND siteDevMode )
+			{
 				if ( hasError )
 					result.reHTML = result.reHTML & reDebugRaw;
 				else
 					result.reHTML = reDebugRaw;
 			}
 		} 
-		else {
+		else
+		{
 			result.reHTML = "Error: This method can not be called directly. Use the AjaxProxy.cfm file.";	
 		}
 		return result.reHTML;

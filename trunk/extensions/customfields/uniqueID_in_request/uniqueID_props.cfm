@@ -25,17 +25,28 @@ Author:
 Name:
 	uniqueID_props.cfm
 Version:
-	1.0.0
+	2.0
 History:
 	2014-01-02 - GAC - Added the CFSETTING tag to disable CF Debug results in the props module
 	2014-01-03 - GAC - Added the fieldVersion variable
 	2015-05-12 - DJM - Updated the field version to 2.0
+	2016-02-16 - GAC - Added the getResources check
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
+<!--- // if this module loads resources, do it here.. --->
+<!---<cfscript>
+    // No resources to load
+</cfscript>--->
+
+<!--- ... then exit if all we're doing is detecting required resources --->
+<cfif Request.RenderState.RenderMode EQ "getResources">
+  <cfexit>
+</cfif>
+
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "2.0.2";
+	fieldVersion = "2.0.3";
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
@@ -59,7 +70,8 @@ History:
 		//	OR the default value does not exist in the current values
 		if( ( StructKeyExists(currentValues, defaultValueArray[i]) 
 				AND (NOT LEN(currentValues[defaultValueArray[i]])) )
-				OR (NOT StructKeyExists(currentValues, defaultValueArray[i])) ){
+				OR (NOT StructKeyExists(currentValues, defaultValueArray[i])) )
+        {
 			currentValues[defaultValueArray[i]] = defaultValues[defaultValueArray[i]];
 		}
 	}

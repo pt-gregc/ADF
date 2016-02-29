@@ -32,8 +32,9 @@ History:
 	2015-12-15 - GAC - Created
 --->
 <cfcomponent displayname="log_1_0" extends="ADF.lib.libraryBase" hint="Logging tools for the ADF Library">
-    <cfproperty name="version" value="1_0_0">
+    <cfproperty name="version" value="1_0_1">
     <cfproperty name="type" value="singleton">
+    <cfproperty name="utils" type="dependency" injectedBean="utils_2_0">
     <cfproperty name="wikiTitle" value="Log_1_0">
 
 	<!---
@@ -54,6 +55,7 @@ History:
 		String logDir
 		String label
 		Boolean useUTC
+		Boolean addEntryTimeStampPrefix
 	History:
 		2008-06-17 - RLW - Created
 		2011-07-15 - RAK - Converted msg to be able to take anything
@@ -63,6 +65,7 @@ History:
 		2013-12-05 - DRM - Create formatted UTC timestamp in local code, avoids crash logging ADF startup errors when ADF isn't built yet
 		                   default logFile to adf-debug.log, instead of debug.log
 		2014-09-19 - GAC - Add a parameter to make the UTC timestamp optional
+		2015-12-03 - GAC - Added a parameter to make the timestamp prefix on the log entry optional 
 		2015-12-22 - GAC - Moved to the Log_1_0 lib component
 	--->
 	<cffunction name="logAppend" access="public" returntype="void" hint="Logs any error to a log file">
@@ -72,11 +75,12 @@ History:
 		<cfargument name="logDir" type="string" required="false" default="#request.cp.commonSpotDir#logs/">
 		<cfargument name="label" type="string" required="false" default="" hint="Adds a text label to the log entry">
 		<cfargument name="useUTC" type="boolean" required="false" default="true" hint="Converts the timestamp in the entry and the filename to UTC">
+		<cfargument name="addEntryTimeStampPrefix" type="boolean" required="false" default="true" hint="Allows the timestamp prefix in the log entry to be excluded">
 
 		<cfscript>
 			var logFileName = arguments.logFile;
 			var dateTimeStamp = mid(now(), 6, 19);
-
+			var logEntry = "";
 			if( arguments.addTimeStamp )
 				logFileName = dateFormat(now(), "yyyymmdd") & "." & request.site.name & "." & logFileName;
 
@@ -85,17 +89,24 @@ History:
 
 			if ( arguments.useUTC )
 				dateTimeStamp = mid(dateConvert('local2utc', dateTimeStamp), 6, 19) & " (UTC)";
+	
+			if ( !isSimpleValue(arguments.msg) ) 
+				arguments.msg = variables.utils.doDump(arguments.msg,"#arguments.label# - #dateTimeStamp#",0,1);
+		
+			logEntry = arguments.label & " " & arguments.msg;
+
+			if ( arguments.addEntryTimeStampPrefix )
+				logEntry = dateTimeStamp & " - " & logEntry;
 		</cfscript>
 
 		<cftry>
-			<!--- Check if the file exists --->
+			<!--- // Check if the file exists --->
 			<cfif NOT directoryExists(arguments.logdir)>
 				<cfdirectory action="create" directory="#arguments.logdir#">
 			</cfif>
-			<cfif NOT isSimpleValue(arguments.msg)>
-				<cfset arguments.msg = application.ADF.utils.doDump(arguments.msg,"#arguments.label# - #dateTimeStamp#",0,1)>
-			</cfif>
-			<cffile action="append" file="#arguments.logDir##logFileName#" output="#dateTimeStamp# - #arguments.label# #arguments.msg#" addnewline="true" fixnewline="true">
+		
+			<cffile action="append" file="#arguments.logDir##logFileName#" output="#logEntry#" addnewline="true" fixnewline="true">
+
 			<cfcatch type="any">
 				<cfdump var="#arguments.logDir##logFileName#" label="Log File: #arguments.logDir##logFileName#" />
 				<cfdump expand="false" label="LogAppend() Error" var="#cfcatch#" />

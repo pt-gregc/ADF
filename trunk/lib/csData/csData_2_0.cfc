@@ -33,10 +33,47 @@ History:
 --->
 <cfcomponent displayname="csData_2_0" extends="csData_1_3" hint="CommonSpot Data Utils functions for the ADF Library">
 
-<cfproperty name="version" value="2_0_0">
+<cfproperty name="version" value="2_0_1">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_2_0">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_2_0">
 <cfproperty name="wikiTitle" value="CSData_2_0">
+
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+Name:
+	$getPageCategoryName
+Summary:
+	Given a CS page categoryID return if the page category name.
+Returns:
+	String
+Arguments:
+	Numeric  categoryID
+History:
+	2016-06-23 - GAC - Created
+--->
+<cffunction name="getPageCategoryName" access="public" output="yes" returntype="string">
+	<cfargument name="categoryID" type="numeric" required="Yes">
+
+	<cfscript>
+		var catCom = server.CommonSpot.api.getObject('Categories');
+		var catQry = catCom.getList(type="Document");
+	</cfscript>
+
+	<cfquery name="catQry" dbtype="query">
+		SELECT NAME
+		FROM catQry
+		WHERE id = <cfqueryparam cfsqltype="CF_SQL_INTEGER" value="#arguments.categoryID#">
+	</cfquery>
+
+	<cfscript>
+		if ( catQry.recordCount )
+			return catQry.NAME;
+		else
+			return "";
+	</cfscript>
+</cffunction>
 
 </cfcomponent>

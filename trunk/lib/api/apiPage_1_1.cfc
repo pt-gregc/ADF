@@ -665,6 +665,7 @@ Arguments:
 History:
 	2015-09-01 - GAC - Created
 	2016-02-05 - GAC - var'd the unvar'd pageResult variable
+	2016-02-26 - DMB - Fixed a typo with "structNew" on the pageResult var.
 --->
 <cffunction name="getPageRedirectsRemote" access="public" returntype="struct" hint="Gets a query of commonspot page redirects using the public command API.">
 	<cfargument name="csPageID" type="numeric" required="true" hint="numeric commonspot page id">
@@ -673,7 +674,7 @@ History:
 		var redirectQry = QueryNew("temp");
 		var pageCmdResults = StructNew();
 		var commandArgs = StructNew();
-		var pageResult = StuctNew();
+		var pageResult = StructNew();
 		
 		commandArgs['Target'] = "Redirects";
 		commandArgs['method'] = "getListForPage";

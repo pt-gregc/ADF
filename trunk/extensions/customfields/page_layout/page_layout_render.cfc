@@ -38,6 +38,9 @@ History:
 	2015-05-11 - DJM - Converted to CFC
 	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean()
 	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
+	2016-02-16 - GAC - Added getResourceDependencies support
+					 	  - Added loadResourceDependencies support
+		 				  - Moved resource loading to the loadResourceDependencies() method
 --->
 <cfcomponent displayName="PageLayout Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -45,6 +48,7 @@ History:
 	<cfargument name="fieldName" type="string" required="yes">
 	<cfargument name="fieldDomID" type="string" required="yes">
 	<cfargument name="value" type="string" required="yes">
+
 	<cfscript>
 		var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
 		var currentValue = arguments.value;	// the field's current value	 
@@ -108,19 +112,11 @@ History:
 		newOption.image = "/ADF/extensions/customfields/page_layout/thumbs/right_channel.gif";
 		ArrayAppend(layoutOptions, newOption);
 		
-		renderStyles(argumentCollection=arguments);	
-	</cfscript>
-	
-	<cfoutput>
-		<div class="main">
-			<cfscript>
-				application.ADF.scripts.loadJQuery();
-			</cfscript>
-	</cfoutput>
-	<cfscript>
+		renderStyles(argumentCollection=arguments);
 		renderJSFunctions(argumentCollection=arguments);
 	</cfscript>
 	<cfoutput>
+		<div class="main">
 			<!--- Loop over the array of options --->
 			<cfloop index="i" from="1" to="#ArrayLen(layoutOptions)#" >
 				<!--- Set the current option name b/c we use it multiple times --->
@@ -166,9 +162,6 @@ History:
 			}
 			.imageChoice span{
 				font-size: 9px;
-			}
-			.main {
-				width: 590px;
 			}
 		</style>
 	</cfoutput>
@@ -216,11 +209,40 @@ function #arguments.fieldName#_loadSelection(optionName) {
 	<cfreturn showChoice>
 </cffunction>
 
-
 <cfscript>
+	// Requires a Build of CommonSpot 10 higher than 10.0.0.313
+	public numeric function getMinHeight()
+	{
+		if (structKeyExists(arguments.parameters, "heightValue") && isNumeric(arguments.parameters.heightValue) && arguments.parameters.heightValue > 0)
+			return arguments.parameters.heightValue; // always px
+		return 0;
+	}
+
+	// Requires a Build of CommonSpot 10 higher than 10.0.0.313
+	public numeric function getMinWidth()
+	{
+		if ( structKeyExists(arguments.parameters, "widthValue") && isNumeric(arguments.parameters.widthValue) && arguments.parameters.widthValue > 0)
+			return arguments.parameters.widthValue + 160; // 150 is default label width, plus some slack // always px
+		return 0;
+	}
+	
+	private boolean function isMultiline()
+	{
+		return true;
+	}
+
+	/*
+		IMPORTANT: Since loadResourceDependencies() is using ADF.scripts loadResources methods, getResourceDependencies() and
+		loadResourceDependencies() must stay in sync by accounting for all of required resources for this Custom Field Type.
+	*/
+	public void function loadResourceDependencies()
+	{
+		// Load registered Resources via the ADF scripts_2_0
+		application.ADF.scripts.loadJQuery();
+	}
 	public string function getResourceDependencies()
 	{
-		return listAppend(super.getResourceDependencies(), "jQuery");
+		return "jQuery";
 	}
 </cfscript>
 
