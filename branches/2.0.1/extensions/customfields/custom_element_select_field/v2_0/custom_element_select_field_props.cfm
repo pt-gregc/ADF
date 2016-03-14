@@ -70,6 +70,7 @@ History:
 	2016-02-22 - DRM - Resource detection exit
 							 Remove forceScripts UI
 							 Bump field version
+	2016-03-14 - JTP - Added logic to the base.cfc to handle case where coming from DataManager and record is not yet published
 --->
 
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
@@ -109,7 +110,7 @@ History:
 
 <!---// CommonSpot 9 Required for the new element data filter criteria --->
 <cfscript>
-	fieldVersion = "2.0.5"; // Variable for the version of the field - Display in Props UI
+	fieldVersion = "2.0.6"; // Variable for the version of the field - Display in Props UI
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
