@@ -55,17 +55,14 @@ Arguments:
 	string pageTitle
 History:
 	2016-02-23 - GAC - Created
+	2016-03-04 - GAC - Simplified and removed the use of cfsavecontent
 --->
 <cffunction name="csPageResourceHeader" access="public" returntype="void" output="true" hint="Outputs HTML for the CS 10.x page header which allow resources to render">
 	<cfargument name="pageTitle" type="string" default="" hint="Page Title">
 
-	<cfscript>
-		var outputHTML = "";
-	</cfscript>
-
 	<cfif NOT StructKeyExists(request,"ADFRanCSPageResourceHead")>
 		<cfset request.ADFRanCSPageResourceHead = true>
-		<cfsavecontent variable="outputHTML">
+		
 		<!--- // Render the Page Header --->
 		<cfoutput>
 		<!DOCTYPE html>
@@ -73,12 +70,9 @@ History:
 			<head>
 				<title>#arguments.pageTitle#</title>
 			</head>
-		<body>
+			<body>
 		</cfoutput>
-		</cfsavecontent>
 	</cfif>
-	
-	<cfoutput>#outputHTML#</cfoutput>
 </cffunction>
 
 <!---
@@ -88,38 +82,32 @@ Author:
 Name:
 	$csPageResourceFooter
 Summary:
-	Outputs HTML for the CS 10.x page footer which allow resources to render
+	Outputs HTML and the renderQueued() for the CS 10.x page footer which 
+	allows the resources to render
 Returns:
 	void
 Arguments:
 	none
 History:
 	2016-02-23 - GAC - Created
+	2016-03-04 - GAC - Simplified and removed the use of cfsavecontent
 --->
 <cffunction name="csPageResourceFooter" access="public" returntype="string" output="true" hint="Outputs HTML for the CS 10.x page footer which allow resources to render">
-
-	<cfscript>
-		var outputHTML = "";
-	</cfscript>
 
 	<cfif NOT StructKeyExists(request,"ADFRanCSPageResourceFoot")>
 		<cfset request.ADFRanCSPageResourceFoot = true>
 
 		<cfscript>
-			// Load the CommonSpot Resource Queue
-			Server.CommonSpot.UDF.resources.renderQueued();
+			// Load the CommonSpot Resource Queue via the ADF scripts
+			variables.scripts.renderQueued();
 		</cfscript>
 
-		<cfsavecontent variable="outputHTML">
-			<!--- // Render the Page Footer --->
-			<cfoutput>
-					</body>
-				</html>
-			</cfoutput>
-		</cfsavecontent>
+		<!--- // Render the Page Footer --->
+		<cfoutput>
+			</body>
+		</html>
+		</cfoutput>
 	</cfif>
-
-	<cfoutput>#outputHTML#</cfoutput>
 </cffunction>
 
 </cfcomponent>
