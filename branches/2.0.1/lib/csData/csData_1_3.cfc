@@ -40,7 +40,7 @@ History:
 --->
 <cfcomponent displayname="csData_1_3" extends="csData_1_2" hint="CommonSpot Data Utils functions for the ADF Library">
 
-<cfproperty name="version" value="1_3_9">
+<cfproperty name="version" value="1_3_10">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">
@@ -396,7 +396,8 @@ Arguments:
 Usage:
 	application.ADF.csData.getUploadedDocServerPath(csPageID)
 History:
-	2015-04-02 - GAC - Created 
+	2015-04-02 - GAC - Created
+	2016-03-04 - GAC - Updated to fix the double slash issue
 --->
 <cffunction name="getUploadedDocServerPath" returntype="string" access="public" hint="Returns a commonspot uploaded document actual server file path">
 	<cfargument name="csPageID" type="numeric" required="true" hint="a commonspot pageid">
@@ -408,6 +409,10 @@ History:
 		var fileName = "";
 		var uploadDir  = request.subsiteCache[1].UploadDir;
 		var fileServerPath = "";
+
+		// remove trailing slash from the uploadDir
+		if( Right( uploadDir,1) EQ "/" )
+			uploadDir = MID(uploadDir, 1, Len(uploadDir)-1);
 	</cfscript>
 
 	<cfif arguments.csPageID GT 0 >
@@ -417,11 +422,6 @@ History:
 			WHERE Uploaded = <cfqueryparam cfsqltype="cf_sql_bit" value="1">
 			AND	  pageType = <cfqueryparam cfsqltype="cf_sql_bit" value="0">
 			AND   ID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.csPageID#">
-			
-			<!--- SELECT * 
-			FROM UploadedDocs
-			AND  ID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.csPageID#">
-			AND VersionState = <cfqueryparam cfsqltype="cf_sql_integer" value="2"> --->
 		</cfquery>
 	</cfif>
 	
@@ -434,7 +434,7 @@ History:
 			if ( LEN(TRIM(pageQry.FileName[1])) )
 				fileName = pageQry.FileName;
 			
-			fileServerPath = uploadDir & subsiteURL & pageQry.FileName;
+			fileServerPath = uploadDir & subsiteURL & fileName;
 			
 			if ( FileExists(fileServerPath) )
 				retStr = fileServerPath;
