@@ -44,6 +44,8 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 			2015-11-18 - DRM - Added loadUnregisteredResource method
 									 Modified loadTheme to use an unregistered resource if possible
 			2016-02-26 - GAC - Updated default params loadUnregisteredResource()
+			2016-03-14 - GAC - Added the renderQueued() method
+								  - Updated loadTheme to limit error log entries to only one per request
 	*/
 
 
@@ -104,6 +106,11 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 
 		Server.CommonSpot.udf.resources.addHeaderCSS(arguments.css, arguments.resourceGroup);
 	}
+	
+	public void function renderQueued() 
+	{
+		Server.CommonSpot.UDF.resources.renderQueued();
+	}
 
 	/*
 		generic theme/skin loader
@@ -118,7 +125,7 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 			2016-01-07 - GAC - Updated the loadTheme to check if the ThemeName is a registered resource before attempting
 								build the theme's CSS file path from defaultResource's information
 			2016-02-08 - AW - Updated resourceAPI.getList()
-
+			2016-03-14 - GAC - Updated to limit a loadTheme error log entry to only one per request
 	*/
 	public void function loadTheme(string themeName, string defaultResourceName, string parentKey)
 	{
@@ -164,17 +171,27 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 					 // This case handles the bad cssURL and uses the default resource
 					loadResources(arguments.defaultResourceName);
 
-					errMsg = "Could not find the requested theme resource '#arguments.themeName#', using the default theme '#arguments.defaultResourceName#' instead. Please register the required theme as a CommonSpot Resource.";
-					Server.CommonSpot.addLogEntry(errMsg);
-                    //throw(errMsg);
+					if ( !StructKeyExists(request,"ADFloadTheme#arguments.themeName#" ) )
+				 	{
+						errMsg = "Could not find the requested theme resource '#arguments.themeName#', using the default theme '#arguments.defaultResourceName#' instead. Please register the required theme as a CommonSpot Resource.";
+						Server.CommonSpot.addLogEntry(errMsg);
+						//throw(errMsg);
+
+						request["ADFloadTheme#arguments.themeName#"] = 1;
+					}
 				}
 			}
 			else
 			{
-				 // This case handles the missing default resource ... see log for more details
-				 errMsg = "Could not find the requested theme resources '#arguments.themeName#' or the default theme '#arguments.defaultResourceName#'. Please register the required themes as CommonSpot Resources.";
-				 Server.CommonSpot.addLogEntry(errMsg);
-				 //throw(errMsg);
+				 if ( !StructKeyExists(request,"ADFloadTheme#arguments.themeName#" ) )
+				 {
+				   // This case handles the missing default resource ... see log for more details
+					 errMsg = "Could not find the requested theme resources '#arguments.themeName#' or the default theme '#arguments.defaultResourceName#'. Please register the required themes as CommonSpot Resources.";
+					 Server.CommonSpot.addLogEntry(errMsg);
+					 //throw(errMsg);
+
+					 request["ADFloadTheme#arguments.themeName#"] = 1;
+				}
 			}
 		}
 	}
