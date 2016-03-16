@@ -67,10 +67,15 @@ History:
 	2016-02-19 - DRM - Resource detection exit
 							 Bump field version
 							 Remove forceScripts UI
+	2016-03-16 - DRM - Make js independent from interface options checkbox order, old code broke when I was asked to reorder them
+							 When there's a secondary object, Allow Delete checkbox was always checked on load, regardless of how it was saved
+							 Calc whether each interface option checkbox is checked in saved data only once, clarify code that depends on that
+							 Remove duplicate and unused DOM ids from interface option checkboxes
+							 Bump field version
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
-<!--- // if this module loads resources, do it here.. --->
+<!--- if this module loads resources, do it here.. --->
 <cfscript>
 	application.ADF.scripts.loadJQuery(noConflict=true);
 	application.ADF.scripts.loadJQueryUI();
@@ -84,7 +89,7 @@ History:
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "2.0.13";
+	fieldVersion = "2.0.14";
 	
 	// CS version and required Version variables
 	requiredCSversion = 10;
@@ -282,6 +287,13 @@ History:
 	
 	fieldProperties['#typeid#'].paramFields = "#prefix#childCustomElement,#prefix#parentUniqueField,#prefix#childUniqueField,#prefix#childLinkedField,#prefix#inactiveField,#prefix#inactiveFieldValue,#prefix#displayFields,#prefix#sortByType,#prefix#sortByField,#prefix#sortByDir,#prefix#positionField,#prefix#assocCustomElement,#prefix#secondaryElementType,#prefix#interfaceOptions,#prefix#compOverride,#prefix#parentInstanceIDField,#prefix#childInstanceIDField,#prefix#widthValue,#prefix#widthUnit,#prefix#heightValue,#prefix#heightUnit,#prefix#newOptionText,#prefix#existingOptionText,#prefix#editAssocOptionText,#prefix#editChildOptionText,#prefix#deleteOptionText,#prefix#passthroughParams";
 	fieldProperties['#typeid#'].jsValidator = '#prefix#doValidate';
+
+	function #prefix#getInterfaceOptionsCb(value) // returns the interface options checkbox with the requested value
+	{
+		var elems = document.querySelectorAll('[name="#prefix#interfaceOptionsCbox"][value="' + value + '"]');
+		if (elems.length === 1)
+			return elems[0];
+	}
 	
 	function #prefix#toggleInputField(chkBoxObj,optionValue)
 	{
@@ -452,19 +464,17 @@ History:
 			}
 		}
 		var interfaceOptionsList = '';
-		var addToList = 1;
-		var valueToAdd = '';
-		for(var i=0; i<document.#formname#.#prefix#interfaceOptionsCbox.length; i++) {
+		var valueToAdd, fldValue, i;
+		for(i=0; i<document.#formname#.#prefix#interfaceOptionsCbox.length; i++)
+		{
 			if(document.#formname#.#prefix#interfaceOptionsCbox[i].checked == true)
 			{
-				addToList = 1;
-				valueToAdd = '';
-				if ((i == 0 || i == 3) && selectedType.toLowerCase() != 'global')
-					addToList = 0;
-				if (addToList == 1)
+				valueToAdd = document.#formname#.#prefix#interfaceOptionsCbox[i].value;
+				if ((valueToAdd === 'new' || valueToAdd === 'editChild') && selectedType.toLowerCase() !== 'global')
+					valueToAdd = '';
+				if (valueToAdd !== '')
 				{
-					valueToAdd = document.#formname#.#prefix#interfaceOptionsCbox[i].value;
-					var fldValue = '';
+					fldValue = '';
 					switch (valueToAdd)
 					{
 						case 'new':
@@ -684,7 +694,7 @@ History:
 		document.#formname#.#prefix#childCustomElement.value = selectedChild;
 		document.#formname#.#prefix#secondaryElementType.value = selectedFormType;
 		
-		displayDeleteBtnText();
+		displayDeleteBtnText(true);
 
 		// Make all fields blank related to secondary object
 		jQuery("###prefix#secondaryUniqueField").children().remove().end().append("<option value=\"\"> - Select -</option>");
@@ -999,10 +1009,10 @@ History:
 			{				
 				document.getElementById('newOption').style.display = "";
 				document.getElementById('editChildOption').style.display = "";
-				if(document.#formname#.#prefix#interfaceOptionsCbox[0].checked == true)
+				if (#prefix#getInterfaceOptionsCb('new').checked)
 					document.getElementById('newOptionTextSpan').style.display = "";
-				if(document.#formname#.#prefix#interfaceOptionsCbox[3].checked == true)
-					document.getElementById('editChildOptionTextSpan').style.display = "";	
+				if (#prefix#getInterfaceOptionsCb('editChild').checked)
+					document.getElementById('editChildOptionTextSpan').style.display = "";
 			}
 			else
 			{
@@ -1201,8 +1211,8 @@ History:
 			document.getElementById('existingOption').style.display = "";
 			document.getElementById('editAssocOption').style.display = "";
 			document.getElementById('inactiveFieldTr').style.display = "";
-			document.#formname#.#prefix#interfaceOptionsCbox[1].checked = true;
-			document.#formname#.#prefix#interfaceOptionsCbox[2].checked = true;
+			#prefix#getInterfaceOptionsCb('existing').checked = true;
+			#prefix#getInterfaceOptionsCb('editAssoc').checked = true;
 			
 			if (selectedAssoc != "")
 				document.getElementById('threeJoinInputs').style.display = "";
@@ -1305,7 +1315,7 @@ History:
 		}
 	}
 	
-	displayDeleteBtnText = function(){
+	displayDeleteBtnText = function(isInitialLoad){
 		var selectedAssocWithType = jQuery("option:selected",jQuery("###prefix#assocCustomElementSelect")).val();
 		var selectedAssocWithTypeArray = selectedAssocWithType.split('||');
 		var selectedAssoc = selectedAssocWithTypeArray[0];
@@ -1329,7 +1339,8 @@ History:
 		else
 		{
 			document.getElementById("deleteOpt").innerHTML = "Allow Delete of '" + jQuery("option:selected",jQuery("###prefix#childCustomElementSelect")).text() + "'";
-			document.#formname#.#prefix#interfaceOptionsCbox[4].checked = true;
+			if (!isInitialLoad) // if isInitialLoad, checkbox is already set appropriately from data
+				#prefix#getInterfaceOptionsCb('delete').checked = true;
 		}
 	}
 // -->
@@ -1386,31 +1397,37 @@ History:
 				</select>
 			</td>
 		</tr>
+				
+		<cfscript>
+			secondaryObjIsNotGlobal = secondaryObj == "" || selectedSecondaryCEType != "global";
+			parentIsMetadataForm = parentElementType == "MetadataForm";
+			
+			interfaceOptionsChecked = {};
+			interfaceOptionFields = listToArray("new,existing,editAssoc,editChild,delete,disableDatamanager");
+			interfaceOptionFieldCount = arrayLen(interfaceOptionFields);
+			for (i = 1; i <= interfaceOptionFieldCount; i++)
+				interfaceOptionsChecked[interfaceOptionFields[i]] = listFindNoCase(currentValues.interfaceOptions, interfaceOptionFields[i]) >  0;
+		</cfscript>
 		
 		<tr>
 			<th valign="baseline" class="cs_dlgLabelBold" nowrap="nowrap">Interface Options:</th>
 			<td valign="baseline" class="cs_dlgLabelSmall">
-				<span id="existingOption">#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", id="#prefix#interfaceOptionsCbox", name="#prefix#interfaceOptionsCbox", value="existing", label="<span id='addExistingOpt'>Allow Add Existing</span>", labelIsHTML=1, checked=(ListFindNoCase(currentValues.interfaceOptions,'existing')), labelClass="cs_dlgLabelSmall", onclick="#prefix#toggleInputField(this,'existing');")#&nbsp;<br/></span>
+				<span id="existingOption">#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", name="#prefix#interfaceOptionsCbox", value="existing", label="<span id='addExistingOpt'>Allow Add Existing</span>", labelIsHTML=1, checked=interfaceOptionsChecked.existing, labelClass="cs_dlgLabelSmall", onclick="#prefix#toggleInputField(this,'existing');")#&nbsp;<br/></span>
+				<span id="existingOptionTextSpan" <cfif NOT interfaceOptionsChecked.existing>style="display:none;padding-left:50px;"<cfelse>style="padding-left:50px;"</cfif>>Button Text:&nbsp;#Server.CommonSpot.udf.tag.input(type="text", id="#prefix#existingOptionText", name="#prefix#existingOptionText", value="#currentValues.existingOptionText#", size="30", class="InputControl")#<br/></span>
 
-				<span id="existingOptionTextSpan" <cfif NOT ListFindNoCase(currentValues.interfaceOptions,'existing')>style="display:none;padding-left:50px;"<cfelse>style="padding-left:50px;"</cfif>>Button Text:&nbsp;#Server.CommonSpot.udf.tag.input(type="text", id="#prefix#existingOptionText", name="#prefix#existingOptionText", value="#currentValues.existingOptionText#", size="30", class="InputControl")#<br/></span>
+				<span id="newOption" <cfif secondaryObjIsNotGlobal>style="display:none;"</cfif>>#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", name="#prefix#interfaceOptionsCbox", value="new", label="<span id='addNewOpt'>Allow Add New</span>", labelIsHTML=1, checked=interfaceOptionsChecked.new, labelClass="cs_dlgLabelSmall", onclick="#prefix#toggleInputField(this,'new');")#&nbsp;<br/></span>
+				<span id="newOptionTextSpan" <cfif NOT interfaceOptionsChecked.new>style="display:none;padding-left:50px;"<cfelse>style="padding-left:50px;"</cfif>>Button Text:&nbsp;#Server.CommonSpot.udf.tag.input(type="text", id="#prefix#newOptionText", name="#prefix#newOptionText", value="#currentValues.newOptionText#", size="30", class="InputControl")#<br/></span>
 
-				<span id="newOption" <cfif secondaryObj EQ "" OR selectedSecondaryCEType NEQ 'global'>style="display:none;"</cfif>>#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", id="#prefix#interfaceOptionsCbox", name="#prefix#interfaceOptionsCbox", value="new", label="<span id='addNewOpt'>Allow Add New</span>", labelIsHTML=1, checked=(ListFindNoCase(currentValues.interfaceOptions,'new')), labelClass="cs_dlgLabelSmall", onclick="#prefix#toggleInputField(this,'new');")#&nbsp;<br/></span>
+				<span id="editAssocOption">#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", name="#prefix#interfaceOptionsCbox", value="editAssoc", label="<span id='editAssocOpt'>Allow Edit</span>", labelIsHTML=1, checked=interfaceOptionsChecked.editAssoc, labelClass="cs_dlgLabelSmall", onclick="#prefix#toggleInputField(this,'editAssoc');")#&nbsp;<br/></span>
+				<span id="editAssocOptionTextSpan" <cfif NOT interfaceOptionsChecked.editAssoc>style="display:none;padding-left:50px;"<cfelse>style="padding-left:50px;"</cfif>>Hover Text:&nbsp;#Server.CommonSpot.udf.tag.input(type="text", id="#prefix#editAssocOptionText", name="#prefix#editAssocOptionText", value="#currentValues.editAssocOptionText#", size="30", class="InputControl")#<br/></span>
 
-				<span id="newOptionTextSpan" <cfif NOT ListFindNoCase(currentValues.interfaceOptions,'new')>style="display:none;padding-left:50px;"<cfelse>style="padding-left:50px;"</cfif>>Button Text:&nbsp;#Server.CommonSpot.udf.tag.input(type="text", id="#prefix#newOptionText", name="#prefix#newOptionText", value="#currentValues.newOptionText#", size="30", class="InputControl")#<br/></span>
+				<span id="editChildOption" <cfif secondaryObjIsNotGlobal>style="display:none;"</cfif>>#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", name="#prefix#interfaceOptionsCbox", value="editChild", label="<span id='editChildOpt'>Allow Edit</span>", labelIsHTML=1, checked=interfaceOptionsChecked.editChild, labelClass="cs_dlgLabelSmall", onclick="#prefix#toggleInputField(this,'editChild');")#&nbsp;<br/></span>
+				<span id="editChildOptionTextSpan" <cfif NOT interfaceOptionsChecked.editChild>style="display:none;padding-left:50px;"<cfelse>style="padding-left:50px;"</cfif>>Hover Text:&nbsp;#Server.CommonSpot.udf.tag.input(type="text", id="#prefix#editChildOptionText", name="#prefix#editChildOptionText", value="#currentValues.editChildOptionText#", size="30", class="InputControl")#<br/></span>
 
-				<span id="editAssocOption">#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", id="#prefix#interfaceOptionsCbox", name="#prefix#interfaceOptionsCbox", value="editAssoc", label="<span id='editAssocOpt'>Allow Edit</span>", labelIsHTML=1, checked=(ListFindNoCase(currentValues.interfaceOptions,'editAssoc')), labelClass="cs_dlgLabelSmall", onclick="#prefix#toggleInputField(this,'editAssoc');")#&nbsp;<br/></span>
+				#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", name="#prefix#interfaceOptionsCbox", value="delete", label="<span id='deleteOpt'>Allow Delete</span>", labelIsHTML=1, checked=interfaceOptionsChecked.delete, labelClass="cs_dlgLabelSmall", onclick="#prefix#toggleInputField(this,'delete');")#&nbsp;<br/></span>
+				<span id="deleteOptionTextSpan" <cfif NOT interfaceOptionsChecked.delete>style="display:none;padding-left:50px;"<cfelse>style="padding-left:50px;"</cfif>>Hover Text:&nbsp;#Server.CommonSpot.udf.tag.input(type="text", id="#prefix#deleteOptionText", name="#prefix#deleteOptionText", value="#currentValues.deleteOptionText#", size="30", class="InputControl")#<br/></span>
 
-				<span id="editAssocOptionTextSpan" <cfif NOT ListFindNoCase(currentValues.interfaceOptions,'editAssoc')>style="display:none;padding-left:50px;"<cfelse>style="padding-left:50px;"</cfif>>Hover Text:&nbsp;#Server.CommonSpot.udf.tag.input(type="text", id="#prefix#editAssocOptionText", name="#prefix#editAssocOptionText", value="#currentValues.editAssocOptionText#", size="30", class="InputControl")#<br/></span>
-
-				<span id="editChildOption" <cfif secondaryObj EQ "" OR selectedSecondaryCEType NEQ 'global'>style="display:none;"</cfif>>#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", id="#prefix#interfaceOptionsCbox", name="#prefix#interfaceOptionsCbox", value="editChild", label="<span id='editChildOpt'>Allow Edit</span>", labelIsHTML=1, checked=(ListFindNoCase(currentValues.interfaceOptions,'editChild')), labelClass="cs_dlgLabelSmall", onclick="#prefix#toggleInputField(this,'editChild');")#&nbsp;<br/></span>
-
-				<span id="editChildOptionTextSpan" <cfif NOT ListFindNoCase(currentValues.interfaceOptions,'editChild')>style="display:none;padding-left:50px;"<cfelse>style="padding-left:50px;"</cfif>>Hover Text:&nbsp;#Server.CommonSpot.udf.tag.input(type="text", id="#prefix#editChildOptionText", name="#prefix#editChildOptionText", value="#currentValues.editChildOptionText#", size="30", class="InputControl")#<br/></span>
-
-				#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", id="#prefix#interfaceOptionsCbox", name="#prefix#interfaceOptionsCbox", value="delete", label="<span id='deleteOpt'>Allow Delete</span>", labelIsHTML=1, checked=(ListFindNoCase(currentValues.interfaceOptions,'delete')), labelClass="cs_dlgLabelSmall", onclick="#prefix#toggleInputField(this,'delete');")#&nbsp;<br/></span>
-
-				<span id="deleteOptionTextSpan" <cfif NOT ListFindNoCase(currentValues.interfaceOptions,'delete')>style="display:none;padding-left:50px;"<cfelse>style="padding-left:50px;"</cfif>>Hover Text:&nbsp;#Server.CommonSpot.udf.tag.input(type="text", id="#prefix#deleteOptionText", name="#prefix#deleteOptionText", value="#currentValues.deleteOptionText#", size="30", class="InputControl")#<br/></span>
-
-				<span id="disableDMOption">#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", id="#prefix#interfaceOptionsCbox", name="#prefix#interfaceOptionsCbox", value="disableDatamanager", label="Disable Data Manager until initial save", labelIsHTML=1, title="Unchecking this option may cause records which are added via Data manager to be orphaned if the initial Save of the parent custom element is cancelled", checked=((parentElementType EQ 'MetadataForm') OR ListFindNoCase(currentValues.interfaceOptions,'disableDatamanager')), labelClass="cs_dlgLabelSmall", disabled=(parentElementType EQ 'MetadataForm'))#&nbsp;<br/></span>
+				<span id="disableDMOption">#Server.CommonSpot.udf.tag.checkboxRadio(type="checkbox", name="#prefix#interfaceOptionsCbox", value="disableDatamanager", label="Disable Data Manager until initial save", labelIsHTML=1, title="Unchecking this option may cause records which are added via Data manager to be orphaned if the initial Save of the parent custom element is cancelled", checked=(parentIsMetadataForm || interfaceOptionsChecked.disableDatamanager), labelClass="cs_dlgLabelSmall", disabled=parentIsMetadataForm)#&nbsp;<br/></span>
 			</td>
 		</tr>
 		<tr>
