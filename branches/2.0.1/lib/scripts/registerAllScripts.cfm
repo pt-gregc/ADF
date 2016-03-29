@@ -134,7 +134,6 @@
 		,0,attributes.updateExisting,0
 	);
 
-
 	// START - major libs that load in the footer
 
     jQueryUIversion = "1.11";

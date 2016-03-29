@@ -114,21 +114,21 @@ History:
 		{
 			// Returns the PageID of the new page
 			pageCmdResults = pageComponent.create(subsiteIDOrURL=arguments.pageData.subsiteID,
-													name=arguments.pageData.name,
-		                                            title=arguments.pageData.title,
-		                                            caption=caption,
-		                                            publicationDate=arguments.pageData.publicationDate,
-		                                            categoryID=arguments.pageData.categoryID,
-		                                            templateID=arguments.pageData.templateID,
-		                                            description=arguments.pageData.description,
-		                                            targetedAudienceID=0,
-		                                            confidentialityID=newConfidentialityID,
-		                                            showInList=newShowInList,
-		                                            expirationDate=newExpirationDate,
-		                                            expirationAction=newExpirationAction,
-		                                            expirationRedirectURL=newExpirationRedirectURL,
-		                                            expirationWarningMsg=newExpirationWarningMsg,
-		                                            metadata=newMetadata);
+																	name=arguments.pageData.name,
+																	title=arguments.pageData.title,
+																	caption=caption,
+																	publicationDate=arguments.pageData.publicationDate,
+																	categoryID=arguments.pageData.categoryID,
+																	templateID=arguments.pageData.templateID,
+																	description=arguments.pageData.description,
+																	targetedAudienceID=0,
+																	confidentialityID=newConfidentialityID,
+																	showInList=newShowInList,
+																	expirationDate=newExpirationDate,
+																	expirationAction=newExpirationAction,
+																	expirationRedirectURL=newExpirationRedirectURL,
+																	expirationWarningMsg=newExpirationWarningMsg,
+																	metadata=newMetadata);
 		    
 		    // Activate the page
 		    if ( arguments.activatePage )
