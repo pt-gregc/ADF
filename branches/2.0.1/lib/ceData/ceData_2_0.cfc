@@ -218,6 +218,9 @@ Name:
 	buildView
 Summary:
 	Rebuilds a requested  View
+
+	** NOTE: **
+	See comments for the ceData_1_1.buildRealTypeView for 'fieldTypes' and 'options' argument information.
 Returns:
 	boolean
 Arguments:
