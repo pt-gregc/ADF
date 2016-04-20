@@ -36,7 +36,59 @@ History:
 <cfproperty name="version" value="1_0_1">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <cfproperty name="utils" type="dependency" injectedBean="utils_1_2">
-<cfproperty name="wikiTitle" value="APIDocumen_1_0">
+<cfproperty name="wikiTitle" value="APIDocument_1_0">
 
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$deleteRemote
+Summary:
+	Deletes a commonspot uploaded document using the public command API
+	http://{servername}/commonspot/help/api_help/Content/Components/UploadedDocument/delete.html
+Returns:
+	Struct
+Arguments:
+	Numeric csPageID	
+	Boolean ignoreWarnings		
+History:
+	2015-09-01 - GAC - Created
+--->
+<cffunction name="deleteRemote" access="public" returntype="struct" hint="Deletes a page or template.">
+	<cfargument name="csPageID" type="numeric" required="true" hint="numeric commonspot page id">
+	<cfargument name="ignoreWarnings" type="boolean"  default="false" required="false" hint="a flag to delete the page even if page warning are thrown. Use with caution!">
+	
+	<cfscript>
+		var pageCmdResult = StructNew();
+		var commandArgs = StructNew();
+		
+		commandArgs['Target'] = "UploadedDocument";
+		commandArgs['method'] = "delete";
+		commandArgs['args'] = StructNew();
+		commandArgs['args'].id = arguments.csPageID;
+		commandArgs['args'].ignoreWarnings = arguments.ignoreWarnings;
+		
+		try 
+		{
+			// Returns Void
+			variables.apiRemote.runCmdApi(commandStruct=commandArgs,authCommand=true);
+			
+			pageCmdResult["CMDSTATUS"] = true;
+			pageCmdResult["CMDRESULTS"] = true;
+		} 
+		catch ( any e ) 
+		{
+			pageCmdResult["CMDSTATUS"] = false;
+			if ( StructKeyExists(e,"Reason") AND StructKeyExists(e['Reason'],"pageID") ) 
+				pageCmdResult["CMDRESULTS"] = e['Reason']['pageID']; 
+			else if ( StructKeyExists(e,"message") )
+				pageCmdResult["CMDRESULTS"] = e.message;
+			else
+				pageCmdResult["CMDRESULTS"] = e;
+		}
+		return pageCmdResult;
+	</cfscript>
+</cffunction>
 
 </cfcomponent>
