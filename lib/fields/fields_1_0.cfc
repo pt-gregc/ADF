@@ -36,7 +36,7 @@ History:
 --->
 <cfcomponent displayname="fields_1_0" extends="ADF.core.Base" hint="Custom Field Type functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_5">
+<cfproperty name="version" value="1_0_6">
 <cfproperty name="type" value="transient">
 <cfproperty name="wikiTitle" value="Fields_1_0">
 
@@ -427,13 +427,16 @@ Arguments:
 	Boolean preventDups 
 	String tagClass
 	String tagIDprefix
+	Boolean lcaseFieldnames
 Usage:
-	renderHiddenControlsFromQueryString(URLparams,excludedParamList,preventDups)
+	renderHiddenControlsFromQueryString(queryString,excludedParamList,preventDups,tagClass,tagIDprefix,lcaseFieldnames)
 History:
 	2015-02-04 - GAC - Created
 	2015-02-18 - GAC - Added a delimiter between the tagIDprefix and the KEY for the input tag ID
 	2015-02-24 - GAC - Rename the excludedKeyList parameter to excludedParamList for consistency
-					 - Moved all of the rendering code and logic to the renderHiddenControlsFromRequestParams() method
+					 	  - Moved all of the rendering code and logic to the renderHiddenControlsFromRequestParams() method
+	2016-04-04 - GAC - Updated so fields with empty string values render
+						  - Updated added option so fields names can be normalized and render as lowercase
  --->
 <cffunction name="renderHiddenControlsFromQueryString" returntype="string" access="public" hint="Render hidden input controls based on a url query string">
 	<cfargument name="queryString" type="string" required="false" default="#Request.CGIVars.QUERY_STRING#" hint="URL query sting to parse">
@@ -441,6 +444,7 @@ History:
 	<cfargument name="preventDups" type="boolean" required="false" default="true" hint="Set to true to prevent duplicate hidden input controls.">
 	<cfargument name="tagClass" type="string" required="false" default="" hint="A class or space delimited list of classes to be added to the input control.">
  	<cfargument name="tagIDprefix" type="string" required="false" default="" hint="A prefix to be added key to make the ID for the input control unique on the form.">
+ 	<cfargument name="lcaseFieldnames" type="boolean" required="false" default="false" hint="Set to true to set all rendered hidden field names to be lower case">
 	
 	<cfscript>
 		var qParamData = application.ADF.data.queryStringToStruct(inString=arguments.queryString);
@@ -449,7 +453,8 @@ History:
 														excludedParamList=arguments.excludedParamList,
 														preventDups=arguments.preventDups,
 														tagClass=arguments.tagClass,
-														tagIDprefix=arguments.tagIDprefix);
+														tagIDprefix=arguments.tagIDprefix,
+														lcaseFieldnames=arguments.lcaseFieldnames);
 	</cfscript>
 </cffunction>
 
@@ -470,12 +475,15 @@ Arguments:
 	Boolean preventDups 
 	String tagClass
 	String tagIDprefix
+	Boolean lcaseFieldnames
 Usage:
-	renderHiddenControlsFromRequestParams(paramsStruct,allowedParamList,excludedParamList,preventDups,tagClass,tagIDprefix)
+	renderHiddenControlsFromRequestParams(paramsStruct,allowedParamList,excludedParamList,preventDups,tagClass,tagIDprefi,lcaseFieldnames)
 History:
 	2015-02-24 - GAC - Created
 	2015-09-09 - KE  - Updated the hidden field VALUE to use the HTML entity for double quotes so if the value contains a 
 						double quote it will render the hidden field properly
+	2016-04-04 - GAC - Updated so fields with empty string values render
+							- Updated added option so fields names can be normalized and render as lowercase
  --->
 <cffunction name="renderHiddenControlsFromRequestParams" returntype="string" access="public" hint="Render hidden input controls based on the request.params data url and form param struct">
 	<cfargument name="paramsStruct" type="struct" required="false" default="#request.params#" hint="request.params data structure to parse">
@@ -484,6 +492,7 @@ History:
 	<cfargument name="preventDups" type="boolean" required="false" default="true" hint="Set to true to prevent duplicate hidden input controls.">
 	<cfargument name="tagClass" type="string" required="false" default="" hint="A class or space delimited list of classes to be added to the input control.">
  	<cfargument name="tagIDprefix" type="string" required="false" default="" hint="A prefix to be added key to make the ID for the input control unique on the form.">
+	<cfargument name="lcaseFieldnames" type="boolean" required="false" default="false" hint="Set to true to set all rendered hidden field names to be lower case">
 	
 	<cfscript>
 		var retHTML = "";
@@ -498,21 +507,24 @@ History:
 		if ( ListLen(arguments.allowedParamList) EQ 0 )
 			paramsData = arguments.paramsStruct;
 		else
-	   	{
-		   	for ( aKey IN arguments.paramsStruct )
+   	{
+	   	for ( aKey IN arguments.paramsStruct )
 			{
 				if ( ListFindNoCase(arguments.allowedParamList,aKey,",") )	
 					paramsData[aKey] = arguments.paramsStruct[aKey]; 
 			}
-	   	}
+   	}
 		
 		// Loop over the paramData from request.Params
 		for ( pKey IN paramsData ) 
 		{
+			// Force field Names to lower case
+			if ( arguments.lcaseFieldnames )
+				pKey = lcase(pKey);
+			
 			pValue = paramsData[pKey];
-			if ( LEN(TRIM(pValue)) 
-				AND ListFindNoCase(arguments.excludedParamList,pKey,",") EQ 0 
-				AND ListFindNoCase(paramDupList,pKey) EQ 0 )
+			if ( ListFindNoCase(arguments.excludedParamList,pKey,",") EQ 0 
+					AND ListFindNoCase(paramDupList,pKey) EQ 0 )
 			{
 				pValue = Replace(pValue,'"','&quot;','ALL');
 				retHTML = retHTML & '<input type="hidden" name="#pKey#" value="#pValue#"';
