@@ -30,6 +30,7 @@ Version:
 	1.0
 History:
 	2012-12-26 - MFC - Created
+	2015-09-01 - GAC - Added deleteRemote
 --->
 <cfcomponent displayname="apiDocument_1_0" extends="ADF.core.Base" hint="CCAPI functions for the ADF Library">
 
