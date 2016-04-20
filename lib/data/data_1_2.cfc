@@ -39,7 +39,7 @@ History:
 --->
 <cfcomponent displayname="data_1_2" extends="ADF.lib.data.data_1_1" hint="Data Utils component functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_20">
+<cfproperty name="version" value="1_2_21">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Data_1_2">
 
@@ -74,9 +74,6 @@ History:
 	
 	<cfscript>
 		var isDifferent = false;
-		// a CS 9.0.3 specific update ... rolling back to Duplicate()
-		//var tempStructDataA = Server.CommonSpot.UDF.util.duplicateBean(arguments.structDataA);
-		//var tempStructDataB = Server.CommonSpot.UDF.util.duplicateBean(arguments.structDataB);
 		var tempStructDataA = duplicate(arguments.structDataA);
 		var tempStructDataB = duplicate(arguments.structDataB);
 		var isEqual = compareStructData(structDataA=tempStructDataA,structDataB=tempStructDataB,excludeKeyList=arguments.excludeKeyList,objectFieldKeyList=arguments.objectFieldKeyList);
@@ -267,7 +264,7 @@ History:
 	2010-01-20 - GAC - Added
 	2013-12-30 - DMB - modified to use CHR in the strings to provide compatibility with Railo
 						For documentation purposes, these are the original strings:	
-						var bad_chars="/,\,*,&,%,$,�,�,�,�,�,�,�,�,�,�,�,�,�,�,�,�,�";
+						var bad_chars="/,\,*,&,%,$,¿,Æ,Ç,Ð,Ñ,Ý,Þ,ß,æ,ç,ð,ñ,÷,ø,ý,þ,ÿ";
 						var good_chars="-,-,-,-,-,-,-,AE,C,D,N,Y,I,B,ae,c,o,n,-,o,y,1,y";
 --->
 <cffunction name="filterInternationlChars" access="public" returntype="string" output="false" hint="Will replace chars in a string to be used to create a folder with valid equivalent replacements">
@@ -486,10 +483,10 @@ History:
 					 - Changed the qColumnsList LOOP to a use REPLACE instead to add the brackets around reserved words 
 --->
 <cffunction name="QuerySortByOrderedList" displayname="QuerySortByOrderedList" access="public" hint="Sort a query based on a custom ordered list" returntype="query" output="false">
-    <cfargument name="query" type="query" required="yes" hint="The query to be sorted">
-    <cfargument name="columnName" type="string" required="yes" hint="The name of the column to be sorted">
-    <cfargument name="columnType" type="string" required="no" default="" hint="The column type. Not required, will auto-detect. But possible override values: numeric, varchar, date">
-    <cfargument name="orderList" type="string" required="yes" hint="The list used to sort the query">
+	<cfargument name="query" type="query" required="yes" hint="The query to be sorted">
+	<cfargument name="columnName" type="string" required="yes" hint="The name of the column to be sorted">
+	<cfargument name="columnType" type="string" required="no" default="" hint="The column type. Not required, will auto-detect. But possible override values: numeric, varchar, date">
+	<cfargument name="orderList" type="string" required="yes" hint="The list used to sort the query">
 	<cfargument name="orderColumnAlias" type="string" required="no" default="xRecSortCol" hint="The alias for the column containing the order number. Must be unique and not a column the original query."> 
 	<cfargument name="orderListDelimiter" type="string" required="no" default=",">
 				
@@ -1005,17 +1002,15 @@ History:
 		if ( ListLen(arguments.allowedParamList) EQ 0 )
 			paramsData = arguments.paramsStruct;
 		else
-	   	{
-		   	for ( aKey IN arguments.paramsStruct )
-			{
-				if ( ListFindNoCase(arguments.allowedParamList,aKey,",") )	
-					paramsData[aKey] = arguments.paramsStruct[aKey]; 
+		{
+			for ( aKey IN arguments.paramsStruct ) {
+				if ( ListFindNoCase(arguments.allowedParamList,aKey,",") )
+					paramsData[aKey] = arguments.paramsStruct[aKey];
 			}
-	   	}
+		}
 		
 		// Loop over the paramData from request.Params to build the retData without the excluded params
-		for ( pKey IN paramsData ) 
-		{
+		for ( pKey IN paramsData ) {
 			if ( ListFindNoCase(arguments.excludedParamList,pKey,",") EQ 0 
 				AND ListFindNoCase(paramDupList,pKey,",") EQ 0 )
 			{
@@ -1027,7 +1022,7 @@ History:
 			}
 		}
 	   	
-	   	return retData;		
+		return retData;
 	</cfscript>
 </cffunction>
 
@@ -1075,7 +1070,8 @@ History:
 		else 
 		{
 			arguments.inNum = Trim(arguments.inNum);
-			if(ListLen(arguments.inNum, ".") GT 1) {
+			if (ListLen(arguments.inNum, ".") GT 1)
+			{
 				out_str = Abs(ListFirst(arguments.inNum, "."));
 				decimal_str = "." & ListLast(arguments.inNum, ".");
 			} 
@@ -1190,10 +1186,10 @@ History:
 	    var word = "";
 	    
 	    // loop through keywords
-	    for ( i=1; i lte ListLen( arguments.searchTerm, " " ); i=i+1 )
+	    for ( i=1; i lte ListLen( arguments.searchterm, " " ); i=i+1 )
 	    {
 	      // get current keyword and escape any special regular expression characters
-	      word = ReReplace( ListGetAt( arguments.searchTerm, i, " " ), "\.|\^|\$|\*|\+|\?|\(|\)|\[|\]|\{|\}|\\", "", "ALL" );
+	      word = ReReplace( ListGetAt( arguments.searchterm, i, " " ), "\.|\^|\$|\*|\+|\?|\(|\)|\[|\]|\{|\}|\\", "", "ALL" );
 	      
 	      // return matches for current keyword from string
 	      matches = ReMatchNoCase( word, arguments.str );
