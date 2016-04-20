@@ -79,11 +79,13 @@ History:
 			foundEndIndex = Find(endChar,displayField);
 			//Grab the content in between the start and end character
 			value = mid(displayField,foundIndex+1,foundEndIndex-foundIndex-1);
-			if ( StructKeyExists(arguments.fieldDataStruct,value) ) {
+			if ( StructKeyExists(arguments.fieldDataStruct,value) ) 
+			{
 				// We found it. Replace the <value> with the actual value
 				displayField = Replace(displayField,"#startChar##value##endChar#", arguments.fieldDataStruct[value],"ALL");
 			}
-			else {
+			else 
+			{
 				// Something is messed up... tell them so in the field!
 				displayField = Replace(displayField,"#startChar##value##endChar#", "Field '#value#' does not exist!");
 			}
@@ -443,6 +445,7 @@ History:
 	<cfargument name="preventDups" type="boolean" required="false" default="true" hint="Set to true to prevent duplicate hidden input controls.">
 	<cfargument name="tagClass" type="string" required="false" default="" hint="A class or space delimited list of classes to be added to the input control.">
  	<cfargument name="tagIDprefix" type="string" required="false" default="" hint="A prefix to be added key to make the ID for the input control unique on the form.">
+ 	<cfargument name="lcaseFieldnames" type="boolean" required="false" default="false" hint="Set to true to set all rendered hidden field names to be lower case">
 	
 	<cfscript>
 		var qParamData = application.ADF.data.queryStringToStruct(inString=arguments.queryString);
@@ -451,7 +454,8 @@ History:
 														excludedParamList=arguments.excludedParamList,
 														preventDups=arguments.preventDups,
 														tagClass=arguments.tagClass,
-														tagIDprefix=arguments.tagIDprefix);
+														tagIDprefix=arguments.tagIDprefix,
+														lcaseFieldnames=arguments.lcaseFieldnames);
 	</cfscript>
 </cffunction>
 
@@ -478,6 +482,8 @@ History:
 	2015-02-24 - GAC - Created
 	2015-09-09 - KE  - Updated the hidden field VALUE to use the HTML entity for double quotes so if the value contains a 
 						double quote it will render the hidden field properly
+	2016-04-04 - GAC - Updated so fields with empty string values render
+							- Updated added option so fields names can be normalized and render as lowercase
  --->
 <cffunction name="renderHiddenControlsFromRequestParams" returntype="string" access="public" hint="Render hidden input controls based on the request.params data url and form param struct">
 	<cfargument name="paramsStruct" type="struct" required="false" default="#request.params#" hint="request.params data structure to parse">
@@ -486,6 +492,7 @@ History:
 	<cfargument name="preventDups" type="boolean" required="false" default="true" hint="Set to true to prevent duplicate hidden input controls.">
 	<cfargument name="tagClass" type="string" required="false" default="" hint="A class or space delimited list of classes to be added to the input control.">
  	<cfargument name="tagIDprefix" type="string" required="false" default="" hint="A prefix to be added key to make the ID for the input control unique on the form.">
+	<cfargument name="lcaseFieldnames" type="boolean" required="false" default="false" hint="Set to true to set all rendered hidden field names to be lower case">
 	
 	<cfscript>
 		var retHTML = "";
@@ -511,9 +518,12 @@ History:
 		// Loop over the paramData from request.Params
 		for ( pKey IN paramsData ) 
 		{
+			// Force field Names to lower case
+			if ( arguments.lcaseFieldnames )
+				pKey = lcase(pKey);
+			
 			pValue = paramsData[pKey];
-			if ( LEN(TRIM(pValue)) 
-				AND ListFindNoCase(arguments.excludedParamList,pKey,",") EQ 0 
+			if ( ListFindNoCase(arguments.excludedParamList,pKey,",") EQ 0 
 				AND ListFindNoCase(paramDupList,pKey) EQ 0 )
 			{
 				pValue = Replace(pValue,'"','&quot;','ALL');
