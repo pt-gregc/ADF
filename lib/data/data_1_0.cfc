@@ -1031,6 +1031,7 @@ History:
 	2011-02-02 - RAK - Added the ability to merge lists together
 	2015-09-10 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean() 
 	2015-09-23 - GAC - duplicateBean() is a CS 9.0.3 specific update ... rolling back to Duplicate()
+	2016-04-04 - GAC - switched back to duplicate from duplicateBean()
 --->
 <cffunction name="structMerge" returntype="struct" access="public" hint="Merge two simple or complex structures in one.">
     <cfargument name="struct1" type="struct" required="true">
@@ -1038,8 +1039,6 @@ History:
     <cfargument name="mergeValues" type="boolean" required="false" default="false" hint="Merges values if they can be merged">
    
 	<cfscript>
-		// ACF and CS 9.0.3 specific update ... rolling back to Duplicate()
-		//var retStruct = Server.CommonSpot.UDF.util.duplicateBean(arguments.struct1);  // Set struct1 as the base structure
 		var retStruct = duplicate(arguments.struct1);
 		var retStructKeyList = structKeyList(retStruct);
 		var struct2KeyList = structKeyList(arguments.struct2);
@@ -1317,22 +1316,22 @@ Summary:
 	@author Raymond Camden (ray@camdenfamily.com)
 	@version 2, March 9, 2007
 --->
-<cffunction name="capFirst" returntype="string" output="false">
-    <cfargument name="str" type="string" required="true" />
+<cffunction name="capFirst" returntype="string" output="false" access="public">
+    <cfargument name="str" type="string" required="true">
     
-    <cfset var newstr = "" />
-    <cfset var word = "" />
-    <cfset var separator = "" />
+    <cfset var newstr = "">
+    <cfset var word = "">
+    <cfset var separator = "">
     
     <cfloop index="word" list="#arguments.str#" delimiters=" ">
-        <cfset newstr = newstr & separator & UCase(left(word,1)) />
+        <cfset newstr = newstr & separator & UCase(left(word,1))>
         <cfif len(word) gt 1>
-            <cfset newstr = newstr & right(word,len(word)-1) />
+            <cfset newstr = newstr & right(word,len(word)-1)>
         </cfif>
-        <cfset separator = " " />
+        <cfset separator = " ">
     </cfloop>
 
-    <cfreturn newstr />
+    <cfreturn newstr>
 </cffunction>
 
 <!---
