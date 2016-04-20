@@ -40,7 +40,7 @@ History:
 --->
 <cfcomponent displayname="data_1_2" extends="data_1_1" hint="Data Utils component functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_20">
+<cfproperty name="version" value="1_2_22">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Data_1_2">
 
@@ -1004,16 +1004,14 @@ History:
 			paramsData = arguments.paramsStruct;
 		else
 	   	{
-		   	for ( aKey IN arguments.paramsStruct )
-			{
-				if ( ListFindNoCase(arguments.allowedParamList,aKey,",") )	
-					paramsData[aKey] = arguments.paramsStruct[aKey]; 
-			}
+		   	for ( aKey IN arguments.paramsStruct ) {
+					if ( ListFindNoCase(arguments.allowedParamList,aKey,",") )	
+						paramsData[aKey] = arguments.paramsStruct[aKey]; 
+				}
 	   	}
 		
 		// Loop over the paramData from request.Params to build the retData without the excluded params
-		for ( pKey IN paramsData ) 
-		{
+		for ( pKey IN paramsData ) {
 			if ( ListFindNoCase(arguments.excludedParamList,pKey,",") EQ 0 
 				AND ListFindNoCase(paramDupList,pKey,",") EQ 0 )
 			{
@@ -1073,7 +1071,8 @@ History:
 		else 
 		{
 			arguments.inNum = Trim(arguments.inNum);
-			if(ListLen(arguments.inNum, ".") GT 1) {
+			if (ListLen(arguments.inNum, ".") GT 1)
+			{
 				out_str = Abs(ListFirst(arguments.inNum, "."));
 				decimal_str = "." & ListLast(arguments.inNum, ".");
 			} 
