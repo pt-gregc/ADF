@@ -53,6 +53,7 @@ Arguments:
 	Numeric  categoryID
 History:
 	2016-06-23 - GAC - Created
+	2016-05-09 - DMB - Added getPageCategoryIDbyName function.
 --->
 <cffunction name="getPageCategoryName" access="public" output="yes" returntype="string">
 	<cfargument name="categoryID" type="numeric" required="Yes">
@@ -75,5 +76,20 @@ History:
 			return "";
 	</cfscript>
 </cffunction>
+<cffunction name="getPageCategoryIDbyName" access="public" output="yes" returntype="number">
+	<cfargument name="categoryName" type="string" required="Yes">
 
+	<cfquery name="catQry" datasource="#request.site.datasource#">
+		SELECT CategoryTypeID
+		FROM generalCategories 
+		WHERE category = <cfqueryparam cfsqltype="CF_SQL_varchar" value="#arguments.categoryName#">
+	</cfquery>
+
+	<cfscript>
+		if ( catQry.recordCount )
+			return catQry.categoryTypeID;
+		else
+			return "";
+	</cfscript>
+</cffunction>
 </cfcomponent>
