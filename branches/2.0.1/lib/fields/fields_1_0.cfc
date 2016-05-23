@@ -414,7 +414,68 @@ History:
 		return fieldName;
 	</cfscript>
 </cffunction>
+<!---
+/* *************************************************************** */
+Author: 	
+	PaperThin, Inc.
+Name:
+	$getCEFieldType
+Summary:
+	Returns the field type of a given field.
+Returns:
+	Struct 
+Arguments:
+	Struct ceNameOrID
+	String FieldID 
+Usage:
+	renderHiddenControlsFromRequestParams(paramsStruct,allowedParamList,excludedParamList,preventDups,tagClass,tagIDprefix)
+History:
+	05-20-2016 - DMB - Created based off code original written by Greg
+ --->
+<cffunction name="getCEFieldType" access="public" output="No" returntype="any">
+	<cfargument name="ceNameOrID" type="string" required="true">
+	<cfargument name="FieldID" type="numeric" required="true">
+	
+	<cfscript>
+		var formID = 0;
+		var formName = "";
+		var fieldName = "";
+		 var retStruct = StructNew();
+		var qry = QueryNew("temp");
+		
+		if( isNumeric(arguments.ceNameOrID) )
+		{
+			formID = arguments.ceNameOrID;
+			formName = application.ADF.ceData.getCENameByFormID(FormID=arguments.ceNameOrID);
+		}
+		else
+		{	
+			formName = arguments.ceNameOrID;
+			formID = application.ADF.ceData.getFormIDByCEName(CEName=arguments.ceNameOrID);
+		}
+	</cfscript>
 
+	<!--- // Look up the FieldName for the provided Custom Element --->	
+	<cfquery name="qry" datasource="#request.site.datasource#">
+ 		SELECT type 
+			FROM FormInputControl 
+		WHERE ID IN ( SELECT FieldID FROM FormInputControlMap WHERE formid = <cfqueryparam cfsqltype="cf_sql_integer" value="#formID#"> ) 
+			AND ID = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.FieldID#">	
+	</cfquery>
+	
+	
+	<cfscript>
+		if (qry.recordCount) {
+		 	retStruct.type = qry.type;
+      	retStruct.STATUS = true;
+      }
+		else {
+			retStruct.type = "";
+      	retStruct.STATUS = false;
+      }
+	</cfscript>
+	<cfreturn retStruct>
+</cffunction>
 <!---
 /* *************************************************************** */
 Author: 	
