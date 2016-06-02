@@ -36,7 +36,7 @@ History:
 --->
 <cfcomponent displayname="ceData_1_1" extends="ceData_1_0" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="1_1_13">
+<cfproperty name="version" value="1_1_14">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_1">
 <cfproperty name="wikiTitle" value="CEData_1_1">
