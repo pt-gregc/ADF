@@ -1331,19 +1331,22 @@ Arguments:
 History:
 	2014-04-04 - DRM - Created
 	2014-04-08 - GAC - Switched the Server.CommonSpot.ProductVersion to use the older request.cp.ProductVersion for CS backwards compatibility
+	2016-05-31 - GAC - Updated Version detect code for ADF 2+ / CS 10+
+	2016-06-02 - GAC - Fixed an Oracle issue by setting the string length to 1800 chars with 2 bytes per char (with slack space) - max 4000 bytes
 --->
 <cffunction name="_getDBTypeStrs" output="no" returntype="struct">
 
 	<cfscript>
 		var result = structNew();
 		var uniCodePrefixMaybe = _pick(siteDBIsUnicode(), "N", "");
-		var isCS9Plus = (val(ListLast(ListFirst(Request.CP.ProductVersion, "."), " ")) >= 9);
+		var isCS9Plus = (val(ListLast(ListFirst(Server.CommonSpot.ProductVersion, "."), " ")) >= 9);
 
 		switch (Request.Site.SiteDBType)
 		{
 			case "Oracle":
 				result.intType = "number(12)";
-				result.memoValueExpr = "CAST(SUBSTR(MemoValue, 1, 4000) AS #uniCodePrefixMaybe#VARCHAR2(4000))"; // truncates
+				result.memoValueExpr = "CAST(SUBSTR(MemoValue, 1, 1800) AS #uniCodePrefixMaybe#VARCHAR2(4000))"; // truncates - 1800 chars with 2 bytes per char (with slack) - max 4000 bytes
+				//result.memoValueExpr = "CAST(SUBSTR(MemoValue, 1, 4000) AS #uniCodePrefixMaybe#VARCHAR2(4000))"; // truncates
 				result.andNotEmptyStr = " AND LENGTH(FieldValue) <> 0";
 				break;
 			case 'MySQL':
