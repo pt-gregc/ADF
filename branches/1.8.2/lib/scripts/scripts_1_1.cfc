@@ -41,7 +41,7 @@ History:
 --->
 <cfcomponent displayname="scripts_1_1" extends="ADF.lib.scripts.scripts_1_0" hint="Scripts functions for the ADF Library">
 	
-<cfproperty name="version" value="1_1_27">
+<cfproperty name="version" value="1_1_28">
 <cfproperty name="scriptsService" injectedBean="scriptsService_1_1" type="dependency">
 <cfproperty name="type" value="singleton">
 <cfproperty name="wikiTitle" value="Scripts_1_1">
@@ -94,22 +94,27 @@ History:
 						Added conditions for CS 7 and 6.2 lightbox handling.
 	2013-05-07 - MFC - Changed the "lightbox_overrides" CSS file names for the file to load for CS versions
 						less than 6.1 is called "lightbox_overrides_legacy".
+	2016-06-10 - GAC - Updated to make sure Height/Width are numeric values when passed in via URL params
+					 - Updated to make sure no HTML tags are passed in via the Title/Subtitle URL params
 --->
 <cffunction name="loadADFLightbox" access="public" output="true" returntype="void" hint="ADF Lightbox Framework for the ADF Library">
 	<cfargument name="version" type="string" required="false" default="1.0" hint="ADF Lightbox version to load">
 	<cfargument name="force" type="boolean" required="false" default="0" hint="Forces JQuery script header to load.">
+
 	<cfset var outputHTML = "">
+
 	<cfoutput>
 		#LoadJQuery(force=arguments.force)#
 	</cfoutput>
-	<!--- Check if we have LB properties --->
+
+	<!--- // Check if we have LB properties --->
 	<cfscript>
 		// Default Width
-		if ( NOT StructKeyExists(request.params, "width") )
+		if ( NOT StructKeyExists(request.params, "width") OR NOT isNumeric(request.params.width) )
 			request.params.width = 500;
 
 		// Default Height
-		if ( NOT StructKeyExists(request.params, "height") )
+		if ( NOT StructKeyExists(request.params, "height") OR NOT isNumeric(request.params.height) )
 			request.params.height = 500;
 
 		// Default Title
@@ -119,7 +124,14 @@ History:
 		// Default Subtitle
 		if ( NOT StructKeyExists(request.params, "subtitle") )
 			request.params.subtitle = "";
+
+		// Make sure that no html tags are pass to the ADF lightbox JavaScript
+		if ( LEN(TRIM(request.params.title)) )
+			request.params.title = Application.ADF.data.stripHTMLTags(request.params.title);
+		if ( LEN(TRIM(request.params.subtitle)) )
+			request.params.subtitle = Application.ADF.data.stripHTMLTags(request.params.subtitle);
 	</cfscript>
+
 	<cfsavecontent variable="outputHTML">
 		<cfoutput>
 			<script type='text/javascript' src='/ADF/extensions/lightbox/#arguments.version#/js/framework.js'></script>
