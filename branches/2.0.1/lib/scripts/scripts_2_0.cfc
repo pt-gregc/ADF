@@ -50,7 +50,7 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 
 
 	/* PROPERTIES */
-	property name="version" type="string" default="2_0_1";
+	property name="version" type="string" default="2_0_2";
 	property name="type" value="singleton";
 	property name="wikiTitle" value="Scripts_2_0";
 
@@ -277,6 +277,8 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
     /*
         History:
             2016-02-10 - ACW - Added the "CSLightbox" as a CommonSpot registered resource
+            2016-06-10 - GAC - Updated to make sure Height/Width are numeric values when passed in via URL params
+									  - Updated to make sure no HTML tags are passed in via the Title/Subtitle URL params
     */
 	public void function loadADFLightbox(string version="", boolean force=0)
 	{
@@ -291,20 +293,27 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 			request.ADFLightboxLoaded = 1;
 
 		// Set a default Width
-		if ( NOT StructKeyExists(request.params, "width") )
+		if ( !StructKeyExists(request.params, "width") OR !isNumeric(request.params.width) )
 			request.params.width = 500;
 
 		// Set a default Height
-		if ( NOT StructKeyExists(request.params, "height") )
+		if ( !StructKeyExists(request.params, "height") OR !isNumeric(request.params.height) )
 			request.params.height = 500;
 
 		// Set a default Title
-		if ( NOT StructKeyExists(request.params, "title") )
+		if ( !StructKeyExists(request.params, "title") )
 			request.params.title = "";
 
 		// Set a default Subtitle
-		if ( NOT StructKeyExists(request.params, "subtitle") )
+		if ( !StructKeyExists(request.params, "subtitle") )
 			request.params.subtitle = "";
+
+		// Make sure that no html tags are pass to the ADF lightbox JavaScript
+		// NOTE: Can NOT use local dependency (variables.data.) here... since it is called by lightboxProxy 
+		if ( LEN(TRIM(request.params.title)) )
+			request.params.title = Application.ADF.data.stripHTMLTags(request.params.title);
+		if ( LEN(TRIM(request.params.subtitle)) )
+			request.params.subtitle = Application.ADF.data.stripHTMLTags(request.params.subtitle);
 
 		// Build the ADFlightbox INIT JS block
 		saveContent variable="js"
