@@ -414,6 +414,7 @@ History:
 		return fieldName;
 	</cfscript>
 </cffunction>
+
 <!---
 /* *************************************************************** */
 Author: 	
@@ -476,6 +477,7 @@ History:
 	</cfscript>
 	<cfreturn retStruct>
 </cffunction>
+
 <!---
 /* *************************************************************** */
 Author: 	

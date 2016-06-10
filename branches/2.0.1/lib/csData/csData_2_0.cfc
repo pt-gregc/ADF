@@ -30,10 +30,11 @@ Version:
 	2.0
 History:
 	2015-01-08 - GAC - Created - New v2.0	
+	2016-05-09 - DMB - Added getPageCategoryIDbyName function.
 --->
 <cfcomponent displayname="csData_2_0" extends="csData_1_3" hint="CommonSpot Data Utils functions for the ADF Library">
 
-<cfproperty name="version" value="2_0_1">
+<cfproperty name="version" value="2_0_2">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_2_0">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_2_0">
@@ -52,8 +53,7 @@ Returns:
 Arguments:
 	Numeric  categoryID
 History:
-	2016-06-23 - GAC - Created
-	2016-05-09 - DMB - Added getPageCategoryIDbyName function.
+	2015-06-23 - GAC - Created
 --->
 <cffunction name="getPageCategoryName" access="public" output="yes" returntype="string">
 	<cfargument name="categoryID" type="numeric" required="Yes">
@@ -76,6 +76,22 @@ History:
 			return "";
 	</cfscript>
 </cffunction>
+
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+Name:
+	$getPageCategoryIDbyName
+Summary:
+	Given a CS page categoryName return if the page category ID.
+Returns:
+	String
+Arguments:
+	Numeric  categoryID
+History:
+	2016-05-09 - DMB - Created
+--->
 <cffunction name="getPageCategoryIDbyName" access="public" output="yes" returntype="number">
 	<cfargument name="categoryName" type="string" required="Yes">
 
@@ -92,4 +108,5 @@ History:
 			return "";
 	</cfscript>
 </cffunction>
+
 </cfcomponent>
