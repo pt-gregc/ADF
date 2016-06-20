@@ -28,71 +28,13 @@ Custom Field Type:
 Name:
 	page_layout_props.cfm
 Summary:
-	Custom field to render predefined page layout options in metadata forms.
+	This is a pass-through component for the Page Layout v2+ props 
+Version:
+	2.0
 History:
-	2010-09-09 - GAC/MFC - Created
-	2014-01-02 - GAC - Added the CFSETTING tag to disable CF Debug results in the props module
-	2014-01-03 - GAC - Added the fieldVersion variable
-	2014-09-19 - GAC - Removed deprecated doLabel and jsLabelUpdater js calls
-	2015-05-12 - DJM - Updated the field version to 2.0
-	2015-09-02 - DRM - Add getResourceDependencies support, bump version
-	2016-02-16 - GAC - Added getResourceDependencies and loadResourceDependencies support to the Render
-						  - Added the getResources check to the Props
-						  - Bumped field version
+	2016-06-07 - GAC - Created
+
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
-<!--- // if this module loads resources, do it here.. --->
-<!---<cfscript>
-    // No resources to load
-</cfscript>--->
-
-
-<!--- ... then exit if all we're doing is detecting required resources --->
-<cfif Request.RenderState.RenderMode EQ "getResources">
-  <cfexit>
-</cfif>
-
-<cfscript>
-	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "2.0.4";
-	
-	// initialize some of the attributes variables
-	typeid = attributes.typeid;
-	prefix = attributes.prefix;
-	formname = attributes.formname;
-	currentValues = attributes.currentValues;
-</cfscript>
-
-<cfoutput>
-	<script language="JavaScript" type="text/javascript">
-		// register the fields with global props object
-		fieldProperties['#typeid#'].paramFields = '';
-		// allows this field to have a common onSubmit Validator
-		//fieldProperties['#typeid#'].jsValidator = '#prefix#doValidate';
-
-		/*	function #prefix#doValidate()
-		{
-			//set the default msgvalue
-			document.#formname#.#prefix#msg.value = 'Please enter some text to be converted';
-			if( document.#formname#.#prefix#foo.value.length == 0 )
-			{
-				alert('please Enter some data for foo');
-				return false;
-			}
-			return true;
-		}
-		*/
-	</script>
-	<table>
-		<tr class="cs_dlgLabelSmall" colspan="2">
-			<td colspan="2">No Properties</td>
-		</tr>
-		<tr>
-			<td class="cs_dlgLabelSmall" colspan="2" style="font-size:7pt;">
-				<hr />
-				ADF Custom Field v#fieldVersion#
-			</td>
-		</tr>
-	</table>
-</cfoutput>
+<cfinclude template="/ADF/extensions/customfields/page_layout/v2_0/page_layout_props.cfm">
