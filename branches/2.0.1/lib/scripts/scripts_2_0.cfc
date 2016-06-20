@@ -525,6 +525,11 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 		loadResources("jQuery,jQueryHighlight");
 	}
 
+	public void function loadJQueryHighlightTextArea(string version="", boolean force=0)
+	{
+		loadResources("jQuery,jQueryHighlightTextArea");
+	}
+
 	public void function loadJQueryHotkeys(boolean force=0)
 	{
 		loadResources("jQuery,jQueryHotkeys");
@@ -716,10 +721,14 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 		loadResources("TableSorterThemes");
 	}
 
+	/*
+	The ThickBox JQuery Lightbox Plugin Library is no longer included as part of the ADF's ThirdParty library.
+		ThickBox 3.1 (last updated on 08/08/2007)
+		http://codylindley.com/thickbox/
 	public void function loadThickbox()
 	{
 		loadResources("jQuery,Thickbox");
-	}
+	} */
 
 	public void function loadTipsy()
 	{

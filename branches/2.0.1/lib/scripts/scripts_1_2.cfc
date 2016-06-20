@@ -39,7 +39,7 @@ History:
 	2015-04-22 - GAC - Added the loadCKEditor and the loadTypeAheadBundle functions	
 	2015-06-10 - ACW - Updated the component extends to no longer be dependant on the 'ADF' in the extends path	
 	2015-07-21 - GAC - Added and updated the loadCFJS function for CFJS v1.3
-	2015-09-18 - GAC - Deprecated the loadJQueryUIForm() script 
+	2015-09-18 - GAC - Deprecated the loadJQueryUIForm() script
 --->
 <cfcomponent displayname="scripts_1_2" extends="scripts_1_1" hint="Scripts functions for the ADF Library">
 	

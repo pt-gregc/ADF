@@ -32,7 +32,7 @@ History:
 	2016-03-11 - GAC - Created
 */
 
-component displayname="scriptsSevice_2_0" extends="scriptsService_1_1" hint="Scripts functions for the ADF Library" output="no"
+component displayname="scriptsService_2_0" extends="scriptsService_1_1" hint="Scripts functions for the ADF Library" output="no"
 {
 
 	/*

@@ -716,6 +716,19 @@
 			,0,attributes.updateExisting,0
 		);
 
+		application.ADF.scriptsService.registerResource
+		(
+			"jQueryHighlightTextArea 3.1", "SECONDARY",
+			[
+				{LoadTagType=1, SourceURL="/ADF/thirdParty/jquery/highlighttextarea/3.1/jquery.highlighttextarea.min.css", canMinify=0}
+			],
+			[
+				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/highlighttextarea/3.1/jquery.highlighttextarea.min.js", canMinify=0}
+			],
+			"jQueryHighlightTextArea resources.", "Included in ADF 2.0 and later.", "jQueryHighlightTextArea"
+			,0,attributes.updateExisting,0
+		);
+
 		// NOTE: version is actually as registered, but that's not in the file name, renaming it would break any direct callers
 		application.ADF.scriptsService.registerResource
 		(
@@ -828,11 +841,12 @@
 			"jQuerySelectboxes 2.2", "SECONDARY",
 			[],
 			[
-				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/selectboxes/jquery.selectboxes-2.2.4.min.js"}
+				{LoadTagType=2, SourceURL="/ADF/thirdParty/jquery/selectboxes/2.2/jquery.selectboxes.min.js"}
 			],
 			"jQuerySelectboxes resources.", "Included in ADF 2.0 and later.", "jQuerySelectboxes"
 			,0,attributes.updateExisting,0
 		);
+		// Updated path - OLD: /ADF/thirdParty/jquery/selectboxes/jquery.selectboxes-2.2.4.min.js
 
 		application.ADF.scriptsService.registerResource
 		(
@@ -1124,6 +1138,11 @@
 			,0,attributes.updateExisting,0
 		);
 
+		/*
+		The ThickBox JQuery Lightbox Plugin Library is no longer included as part of the ADF's ThirdParty library.
+			ThickBox 3.1 (last updated on 08/08/2007)
+			http://codylindley.com/thickbox/
+
 		application.ADF.scriptsService.registerResource
 		(
 			"Thickbox 3.1", "SECONDARY",
@@ -1135,7 +1154,7 @@
 			],
 			"Thickbox resources.", "Included in ADF 2.0 and later.", "Thickbox"
 			,0,attributes.updateExisting,0
-		);
+		);*/
 
 		// NOTE: no version number
 		application.ADF.scriptsService.registerResource
