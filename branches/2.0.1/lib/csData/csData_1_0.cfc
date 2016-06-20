@@ -43,7 +43,7 @@ History:
 --->
 <cfcomponent displayname="csData_1_0" extends="ADF.lib.libraryBase" hint="CommonSpot Data Utils functions for the ADF Library">
 	
-<cfproperty name="version" value="1_0_19">
+<cfproperty name="version" value="1_0_20">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_0">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_0">
@@ -114,6 +114,7 @@ History:
 	2014-11-03 - GAC - Added logic for backwards compatibility for expected behavior of this function
 					 - Added a parameter to allow the 'broken-link-{pageid}' string to be returned instead of an empty string
 	2014-11-11 - GAC - Added try/catch around ct-decipher-linkurl CS Module to log when pageID can not be converted to a URL
+	2016-06-09 - GAC - Updated the logAppend call to point to the log_1_0 library
 --->
 <cffunction name="getCSPageURL" access="public" returntype="string">
 	<cfargument name="pageID" type="numeric" required="true">
@@ -139,7 +140,7 @@ History:
 					if ( StructKeyExists(cfcatch,"detail") AND LEN(TRIM(cfcatch.detail)) )
 						logMsg = logMsg & "#Chr(10)#Details: #cfcatch.detail#";
 						
-					server.ADF.objectFactory.getBean("utils_1_2").logAppend(logMsg);
+					server.ADF.objectFactory.getBean("log_1_0").logAppend(logMsg);
 				</cfscript>
 			</cfcatch>   
 		</cftry>     

@@ -36,7 +36,7 @@ History:
 --->
 <cfcomponent displayname="ceData_1_1" extends="ceData_1_0" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="1_1_14">
+<cfproperty name="version" value="1_1_15">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_1">
 <cfproperty name="wikiTitle" value="CEData_1_1">
@@ -715,6 +715,7 @@ History:
 						drops self-join strategy, not performant, though it does avoid truncating long text on Oracle
 						uses pivot for SQL Server, aggregate-based view for MySQL and Oracle
 						drops support for SQL Server earlier than SQL 2005 (official End of Life for SQL 2000 was 4/9/2013)
+	2016-06-09 - GAC - Updated the logAppend call to point to the log_1_0 library
 --->
 <cffunction name="buildRealTypeView" access="public" returntype="boolean" hint="Builds an element view for the passed in element name">
 	<cfargument name="elementName" type="string" required="true" hint="element name to build the view table off of">
@@ -734,7 +735,7 @@ History:
 		// make sure that we actually have a form ID
 		if (formID == "" || formID <= 0)
 		{
-			server.ADF.objectFactory.getBean("utils_1_2").logAppend("ERROR: element '#arguments.elementName#' for view '#arguments.viewName#' does not exist#Chr(10)##repeatString("-", 50)#");
+			server.ADF.objectFactory.getBean("log_1_0").logAppend("ERROR: element '#arguments.elementName#' for view '#arguments.viewName#' does not exist#Chr(10)##repeatString("-", 50)#");
 			return false;
 		}
 
@@ -803,6 +804,7 @@ Arguments:
 	logViewSQL - boolean
 History:
 	2014-04-04 - DRM - Created
+	2016-06-09 - GAC - Updated the logAppend calls to point to the log_1_0 library
 --->
 <cffunction name="_buildPivotView" returntype="boolean" hint="Builds an element view for the passed in element name- SQL Server version" access="private">
 	<cfargument name="formID" type="numeric" required="true" hint="formID of element to build a view for">
@@ -917,7 +919,7 @@ History:
 
 			<cfscript>
 				if (arguments.logViewSQL and StructKeyExists(createViewResult,"sql"))
-					server.ADF.objectFactory.getBean("utils_1_2").logAppend("#arguments.viewName#: #thisViewName##Chr(10)##createViewResult.sql##chr(10)##repeatString(chr(9), 3)##repeatString("-", 50)#", "ADFlogViewSQL.log");
+					server.ADF.objectFactory.getBean("log_1_0").logAppend("#arguments.viewName#: #thisViewName##Chr(10)##createViewResult.sql##chr(10)##repeatString(chr(9), 3)##repeatString("-", 50)#", "ADFlogViewSQL.log");
 			</cfscript>
 		</cfloop>
 
@@ -962,7 +964,7 @@ History:
 
 			<cfscript>
 				if (arguments.logViewSQL and StructKeyExists(createViewResult,"sql"))
-					server.ADF.objectFactory.getBean("utils_1_2").logAppend("#arguments.viewName##Chr(10)##createViewResult.sql##repeatString("-", 50)#", "ADFlogViewSQL.log");
+					server.ADF.objectFactory.getBean("log_1_0").logAppend("#arguments.viewName##Chr(10)##createViewResult.sql##repeatString("-", 50)#", "ADFlogViewSQL.log");
 			</cfscript>
 		</cfif>
 
@@ -975,7 +977,7 @@ History:
 				logMsg = "[ceData_1_1._buildPivotView] Error building view: #arguments.viewName##Chr(10)##cfcatch.message# #cfcatch.detail#";
 				if (structKeyExists(cfcatch, "sql"))
 					logMsg = "#logMsg##chr(10)#QUERY SQL:#chr(10)##cfcatch.sql#";
-				server.ADF.objectFactory.getBean("utils_1_2").logAppend(logMsg);
+				server.ADF.objectFactory.getBean("log_1_0").logAppend(logMsg);
 			</cfscript>
 		</cfcatch>
 	</cftry>
@@ -1004,6 +1006,7 @@ Arguments:
 History:
 	2014-04-04 - DRM - Created
 	2015-01-08 - GAC - Updated the VersionState operator in the WHERE clause from >= to be just = 2 to avoid including WIP data
+	2016-06-09 - GAC - Updated the logAppends call to point to the log_1_0 library
 --->
 <cffunction name="_buildAggregateView" returntype="boolean" hint="Builds an element view for the passed in element name" access="private">
 	<cfargument name="formID" type="numeric" required="yes" hint="formID of element to build a view for">
@@ -1096,7 +1099,7 @@ History:
 		<cfscript>
 			viewCreated = true;
 			if (arguments.logViewSQL && structKeyExists(createViewResult, "sql"))
-				server.ADF.objectFactory.getBean("utils_1_2").logAppend("#arguments.viewName##Chr(10)##createViewResult.sql##repeatString("-", 50)#", "ADFlogViewSQL.log");
+				server.ADF.objectFactory.getBean("log_1_0").logAppend("#arguments.viewName##Chr(10)##createViewResult.sql##repeatString("-", 50)#", "ADFlogViewSQL.log");
 		</cfscript>
 
 		<cfcatch>
@@ -1105,7 +1108,7 @@ History:
 				logMsg = "[ceData_1_1._buildAggregateView] Error building view: #arguments.viewName##Chr(10)##cfcatch.message# #cfcatch.detail#";
 				if (structKeyExists(cfcatch, "sql"))
 					logMsg = "#logMsg##chr(10)#QUERY SQL:#chr(10)##cfcatch.sql#";
-				server.ADF.objectFactory.getBean("utils_1_2").logAppend(logMsg);
+				server.ADF.objectFactory.getBean("log_1_0").logAppend(logMsg);
 			</cfscript>
 		</cfcatch>
 	</cftry>

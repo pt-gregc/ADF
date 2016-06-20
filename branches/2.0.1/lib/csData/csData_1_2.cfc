@@ -53,7 +53,7 @@ History:
 --->
 <cfcomponent displayname="csData_1_2" extends="csData_1_1" hint="CommonSpot Data Utils functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_25">
+<cfproperty name="version" value="1_2_26">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">
@@ -850,7 +850,8 @@ History:
 					 - Var'ing un-var'd variables
 					 - Fixed the function to be backward compatible with ACF8
 	2014-01-14 - JTP - Updated to use the CommonSpot ct-decipher-linkurl module call
-	2014-11-11 - GAC - Added try/catch around ct-decipher-linkurl the CS Modules to log when the passed in value could not be converted to a URL				 
+	2014-11-11 - GAC - Added try/catch around ct-decipher-linkurl the CS Modules to log when the passed in value could not be converted to a URL
+	2016-06-09 - GAC - Updated the logAppend call to point to the log_1_0 library
 --->
 <cffunction name="parseCSURL" access="public" returntype="string" output="false" displayname="parseDatasheetURL" hint="Converts a CommonSpot URL that contain a pageID url parameter to a standard URL">
     <cfargument name="str" type="string" required="true" hint="Provide a string value that is a CommonSpot URL that contains a pageid key/value pair">
@@ -897,7 +898,7 @@ History:
 				logMsg = "[csData_1_2.parseCSURL] Error attempting to decipher #errorStr# using the ct-decipher-linkurl module#Chr(10)##cfcatch.message#";
 				if ( StructKeyExists(cfcatch,"detail") AND LEN(TRIM(cfcatch.detail)) )
 						logMsg = logMsg & "#Chr(10)#Details: #cfcatch.detail#";	
-				server.ADF.objectFactory.getBean("utils_1_2").logAppend(logMsg);
+				server.ADF.objectFactory.getBean("log_1_0").logAppend(logMsg);
 			</cfscript>
 		</cfcatch>   
 	</cftry>  

@@ -40,7 +40,7 @@ History:
 --->
 <cfcomponent displayname="csData_1_3" extends="csData_1_2" hint="CommonSpot Data Utils functions for the ADF Library">
 
-<cfproperty name="version" value="1_3_10">
+<cfproperty name="version" value="1_3_12">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">
@@ -496,6 +496,7 @@ Usage:
 History:
 	2015-04-07 - DJM/GAC - Created 
 	2015-04-29 - GAC - Added logic and error logging for the case when no valid page was found
+	2016-06-09 - GAC - Updated the logAppend call to point to the log_1_0 library
 --->
 <cffunction name="getCSExtURLString" returntype="string" output="true" access="public" hint="Returns a Commonspot Extended URL String data">
 	<cfargument name="csPageID" type="numeric" required="true" hint="">
@@ -535,7 +536,7 @@ History:
 			if ( arguments.logError )
 			{
 				logMsg = "[csData_1_3.getCSExtURLString] Error attempting to build the CSExtURL string. No valid page found.";
-				server.ADF.objectFactory.getBean("utils_1_2").logAppend(logMsg);	
+				server.ADF.objectFactory.getBean("log_1_0").logAppend(logMsg);
 			}
 		}
 	
