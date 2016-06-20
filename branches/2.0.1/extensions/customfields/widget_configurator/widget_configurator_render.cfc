@@ -210,13 +210,10 @@ History:
 			margin-top: 4px;
 		   overflow: hidden;
 		   display: block;
-		   text-overflow: ellipsis;
 		   white-space: normal;
 		
 			/* text-overflow: ellipsis; */
 			/* white-space: nowrap; */
-			/* width: 350px;*/
-			/* border: 1px solid ##000; */
 			/* word-wrap: break-word;*/
 		}
 	</style>

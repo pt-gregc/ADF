@@ -110,8 +110,8 @@ History:
 				<label for="#prefix#widgetScript">Widget Script:</label>
 			</td>
 			<td class="cs_dlgLabelSmall">
-				<div>Enter Widget Script syntax to generate Widget Option Configuration Fields.</div>
-				<textarea id="#prefix#widgetScript" name="#prefix#widgetScript" cols="80" rows="20" wrap="off">#defaultValues.widgetScript#</textarea>
+				<div>Enter WidgetScript syntax to generate Widget Configuration Option Fields.</div>
+				<textarea id="#prefix#widgetScript" name="#prefix#widgetScript" cols="90" rows="20" wrap="off">#defaultValues.widgetScript#</textarea>
 			</td>
 		</tr>
 		
@@ -148,12 +148,14 @@ History:
 
 	[Config]
 	fields = field1,field2,field2
-		## Comma-Delimited List of fields
+		## Required
+		## Comma-Delimited List of fields 
+		## The Selection List Controls Render in this order
 
 	[{fieldname}]
 	group_{groupname} = option1,option2,option3
 		## Optional
-	group_default = option1,option2;
+	group_all = option1,option2
 		## Required
 	description = Option Display Name
 		## Optional
@@ -167,11 +169,11 @@ fields=Color,Alignement
 
 [Color]
 group_admin=Red,Yellow,Orange,Purple
-group_default=Red,Yellow,Orange
-description=Select a color
+group_all=Red,Yellow,Orange
+description=Select a Color
 
 [Alignement]
-group_default=Left,Center,Right
+group_all=Left,Center,Right
 description=Select an Alignement
 </cfoutput></cfsavecontent>
 
