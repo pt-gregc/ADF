@@ -38,7 +38,7 @@ History:
 --->
 <cfcomponent displayname="utils_1_2" extends="utils_1_1" hint="Util functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_17">
+<cfproperty name="version" value="1_2_18">
 <cfproperty name="type" value="singleton">
 <cfproperty name="ceData" type="dependency" injectedBean="ceData_2_0">
 <cfproperty name="csData" type="dependency" injectedBean="csData_1_2">
@@ -650,6 +650,7 @@ Arguments:
 	String - logfile
 History:
  	2014-04-04 - GAC - Created
+ 	2016-06-09 - GAC - Updated the logAppend calls to point to the log library
 --->
 <cffunction name="doThrow" access="public" returntype="void" hint="Used to throw errors in CFSCRIPT blocks since the cfscript 'throw' is not cf8 compatible">
 	<cfargument name="message" type="string" required="false" default="" hint="Error Message to Throw">
@@ -657,7 +658,9 @@ History:
 	<cfargument name="detail" type="string" required="false" default="" hint="Error Message Detail to Throw">
 	<cfargument name="logerror" type="boolean" required="false" default="false" hint="Log the error.">
 	<cfargument name="logfile" type="string" required="false" default="" hint="Log the error file name.">
+
 	<cfset var logMsg = "">
+
 	<cfif LEN(TRIM(arguments.message))>
 		<!--- // Option to log the error that is going to be thrown --->
 		<cfif LEN(TRIM(arguments.logerror))>
@@ -666,9 +669,9 @@ History:
 				<cfset logMsg = logMsg & " Detail: #arguments.detail#">
 			</cfif>
 			<cfif LEN(TRIM(arguments.logFile))>
-				<cfset logAppend(msg=logMsg,logFile=arguments.logFile)>
+				<cfset Application.ADF.log.logAppend(msg=logMsg,logFile=arguments.logFile)>
 			<cfelse>
-				<cfset logAppend(msg=logMsg)>
+				<cfset Application.ADF.log.logAppend(msg=logMsg)>
 			</cfif>
 		</cfif> 
 		<cfthrow message="#arguments.message#" type="#arguments.type#" detail="#arguments.detail#">
