@@ -44,7 +44,7 @@ History:
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "1.0.0";
+	fieldVersion = "1.0.1";
 
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
@@ -111,6 +111,8 @@ History:
 			</td>
 			<td class="cs_dlgLabelSmall">
 				<div>Enter WidgetScript syntax to generate Widget Configuration Option Fields.</div>
+				<div> - Use semi-colons (;) to delimit options. eg. Option 1;Options 2;Option 3</div>
+				<div> - Use pipes (|) to delimit value and display text. eg. Option1Value|Option 1 Label</div>
 				<textarea id="#prefix#widgetScript" name="#prefix#widgetScript" cols="90" rows="20" wrap="off">#defaultValues.widgetScript#</textarea>
 			</td>
 		</tr>
@@ -149,15 +151,16 @@ History:
 	[Config]
 	fields = field1,field2,field2
 		## Required
-		## Comma-Delimited List of fields 
+		## Semi-Colon Delimited List of fields 
 		## The Selection List Controls Render in this order
 
 	[{fieldname}]
-	group_{groupname} = option1,option2,option3
+	group_{groupname} = option1;option2;option3
 		## Optional
-	group_all = option1,option2
+	group_all = option1|Option 1;option2|Option 2
 		## Required
-	description = Option Display Name
+		## Semi-Colon Delimited List
+	description = Description text that render under the selection list drop down
 		## Optional
 --->
 <cffunction name="defaultScriptText" access="public" returntype="string" output="true">
@@ -168,12 +171,12 @@ History:
 fields=Color,Alignement
 
 [Color]
-group_admin=Red,Yellow,Orange,Purple
-group_all=Red,Yellow,Orange
+group_admin=Red;Yellow;Orange;Purple
+group_all=Red;Yellow;Orange
 description=Select a Color
 
 [Alignement]
-group_all=Left,Center,Right
+group_all=text-left|Left;text-center|Center;text-rgith|Right
 description=Select an Alignement
 </cfoutput></cfsavecontent>
 

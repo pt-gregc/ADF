@@ -61,7 +61,7 @@ History:
 		var groupPrefix = "group_";
 		var defaultGroupName = groupPrefix & "all";
 		var groupsAPI = Server.CommonSpot.ObjectFactory.getObject("Groups");
-	   var groupQry = groupsAPI.getNamesGivenIDs(request.user.GroupList);
+	   	var groupQry = groupsAPI.getNamesGivenIDs(request.user.GroupList);
 		var groupName = "";
 		var q = 1;
 		var defaultData = StructNew();
@@ -74,6 +74,8 @@ History:
 		var cfgOptionName = "";
 		var fldHasDescription = false;
 		var fldLabelDivClass = "cfgFieldLabel";
+		var optionDelimiter = ";";
+		var valueTextDelimiter = "|";
 
 //WriteDump(var=groupQry,expand=false,label="groupQry");
 //WriteDump(var=groupNameList,expand=false,label="groupNameList");
@@ -118,9 +120,9 @@ History:
 		// Loop over the widgetData built from the INI config data
 		if ( !StructIsEmpty(widgetData) AND StructKeyExists(widgetData,"config") AND StructKeyExists(widgetData.config,"fields") )
 		{
-			for ( v=1; v LTE ListLen(widgetData.config.fields); v=v+1 ) {
+			for ( v=1; v LTE ListLen(widgetData.config.fields,optionDelimiter); v=v+1 ) {
 				// Get the List Item
-				vFld = ListGetAt(widgetData.config.fields,v);
+				vFld = ListGetAt(widgetData.config.fields,v,optionDelimiter);
 				// Make sure it has underscores instead of spaces
 				vFld = TRIM(REREPLACE(vFld,"[\s]","_","all"));
 // WriteOutput(vFld);WriteOutput("<br>");
@@ -163,7 +165,7 @@ History:
 						
 						vFieldData[vFld].description = "";
 						if ( IsStruct(widgetData[vFld]) AND StructKeyExists(widgetData[vFld],"description") )
-							vFieldData[vFld].description = widgetData[vFld]["description"];;
+							vFieldData[vFld].description = widgetData[vFld]["description"];
 					}
 				}
 			}
@@ -276,7 +278,7 @@ History:
 			<cfif StructKeyExists(vFieldData,fld) AND StructKeyExists(vFieldData[fld],"options") AND LEN(TRIM(vFieldData[fld].options))>
 				<cfset cfgFieldLabel = Replace(fld,"_"," ","ALL")>
 				
-				<cfif ListLen(vFieldData[fld].options) GT 1>
+				<cfif ListLen(vFieldData[fld].options,optionDelimiter) GT 1>
 					<cfscript>
 						fldHasDescription = YesNoFormat(LEN(TRIM(vFieldData[fld].description)));
 						fldLabelDivClass = "cfgFieldLabel";
@@ -290,11 +292,11 @@ History:
 						<div class="cfgFieldControl">
 							<select name="#fld#_select" id="#fld#_select" size="1">
 								<!--- <option value="">-- select --</option> --->
-								<cfloop list="#vFieldData[fld].options#" index="opt">
+								<cfloop list="#vFieldData[fld].options#" index="opt" delimiters="#optionDelimiter#">
 									<!--- // Get the Value/Text options (pipe delimited) for the Selection List --->
-									<cfif ListLen(opt,"|") GT 1>
-										<cfset cfgOptionValue = ListFirst(opt,"|")>
-										<cfset cfgOptionName = ListRest(Replace(opt,"_"," ","ALL"),"|")>
+									<cfif ListLen(opt,valueTextDelimiter) GT 1>
+										<cfset cfgOptionValue = ListFirst(opt,valueTextDelimiter)>
+										<cfset cfgOptionName = ListRest(Replace(opt,"_"," ","ALL"),valueTextDelimiter)>
 									<cfelse>
 										<cfset cfgOptionValue = opt>
 										<cfset cfgOptionName = Replace(opt,"_"," ","ALL")>
@@ -302,7 +304,7 @@ History:
 									<!--- <option value="#opt#">#cfgOptionName#</option> --->
 									<!--- <option value="#opt#"<cfif StructKeyExists(currentData,fld) AND currentData[fld] EQ opt> selected=""</cfif>>#cfgOptionName#</option>--->
 								
-									<option value="#cfgOptionValue#"<cfif StructKeyExists(currentData,fld) AND currentData[fld] EQ cfgOptionValue> selected=""</cfif>>#cfgOptionName#</option>
+									<option value="#cfgOptionValue#"<cfif StructKeyExists(currentData,fld) AND currentData[fld] EQ cfgOptionValue> selected=""</cfif>>#left(cfgOptionName,65)#<cfif LEN(cfgOptionName) GT 65>...</cfif></option>
 						
 									<cfif StructKeyExists(currentData,fld) AND currentData[fld] EQ cfgOptionValue>
 										<cfset renderedData[fld] = cfgOptionValue>  
@@ -317,7 +319,7 @@ History:
 						</div>
 						<!---// If no Select List is rendered add the first option to renderData struct --->
 						<cfif !StructKeyExists(renderedData,fld)>
-							<cfset renderedData[fld] = ListFirst(ListFirst(vFieldData[fld].options,","),"|")> 	
+							<cfset renderedData[fld] = ListFirst(ListFirst(vFieldData[fld].options,optionDelimiter),valueTextDelimiter)> 	
 						</cfif>
 						
 					</div>
@@ -462,6 +464,16 @@ History:
 	{
 		return true;
 	}
+	
+	/*public numeric function getMinHeight()
+	{
+		return 200;
+	}*/
+	
+	/*public numeric function getMinWidth()
+	{
+		return 800;
+	}*/
 
 	//	 if your renderer makes use of CommonSpot registered resources, implement getResourceDependencies() and return a list of them, like this
 	public string function getResourceDependencies()
