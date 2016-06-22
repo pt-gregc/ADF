@@ -37,6 +37,10 @@ History:
 
 <cfcomponent displayName="widget_configurator_render" extends="commonspot.public.form-field-renderer-base" output="no">
 
+<cfscript>
+	variables.cftDebug = false;
+</cfscript>
+
 <cffunction name="renderControl" returntype="void" access="public">
 	<cfargument name="fieldName" type="string" required="yes">
 	<cfargument name="fieldDomID" type="string" required="yes">
@@ -72,6 +76,8 @@ History:
 		var opt = "";
 		var cfgOptionValue = "";
 		var cfgOptionName = "";
+		var cfgOptionSelected = false;
+		var fldHasDefault = false;
 		var fldHasDescription = false;
 		var fldLabelDivClass = "cfgFieldLabel";
 		var optionDelimiter = ";";
@@ -121,51 +127,54 @@ History:
 		if ( !StructIsEmpty(widgetData) AND StructKeyExists(widgetData,"config") AND StructKeyExists(widgetData.config,"fields") )
 		{
 			for ( v=1; v LTE ListLen(widgetData.config.fields,optionDelimiter); v=v+1 ) {
+				
 				// Get the List Item
 				vFld = ListGetAt(widgetData.config.fields,v,optionDelimiter);
 				// Make sure it has underscores instead of spaces
 				vFld = TRIM(REREPLACE(vFld,"[\s]","_","all"));
-// WriteOutput(vFld);WriteOutput("<br>");
 				
-				// Build an Array for fixed FieldName Keys (used to render field in order)
-				ArrayAppend(vFldArray,vFld);
-
-				if ( StructKeyExists(widgetData,vFld) )
+				// If we don't have a vFld key OR its not a struct... skip it
+				if ( StructKeyExists(widgetData,vFld) AND IsStruct(widgetData[vFld]) )
 				{
+					// Build an Array for fixed FieldName Keys (used to render field in order)
+					ArrayAppend(vFldArray,vFld);
+
 // WriteOutput(vFld);WriteOutput("<br>");
 // WriteDump(widgetData[vFld]);WriteOutput("<br>");
 					
 					if ( !StructKeyExists(vFieldData,vFld) )
 					{
-						// Do the Group Check for the currently logged in user
+						vFieldData[vFld] = StructNew();
+						vFieldData[vFld]['options'] = "";
+						vFieldData[vFld]['description'] = "";
+						//['default'] - since empty string might be a default value we don't want a key if a default is not defined
+						
+						// Set the Default set of options							
+						if ( StructKeyExists(widgetData[vFld],defaultGroupName) )
+							vFieldData[vFld]['options'] = widgetData[vFld][defaultGroupName];
+					
+						// Override the OPTIONS if we are approved by the Group Check for the currently logged in user
 						groupName = "";
 						for ( q=1; q LTE groupQry.RecordCount; q=q+1 )
 						{
 							groupName = TRIM(LCASE(REREPLACE(groupQry.name[q],"[\s]","_","all")));
 							groupName = groupPrefix & groupName;
-							// WriteOutput(groupName);WriteOutput("<br>");
 						
 							if ( StructKeyExists(widgetData[vFld],groupName) ) 
-							{
-								vFieldData[vFld] = StructNew();
-								vFieldData[vFld].options = widgetData[vFld][groupName];
+							{					
+								vFieldData[vFld]['options'] = widgetData[vFld][groupName];
 								break;
 							}	
 						}
-						//WriteDump(widgetData[vFld]);
-					
-						// If no vFld has been defined in the new vFieldData... then use default values
-						if ( !StructKeyExists(vFieldData,vFld) )
-						{
-							vFieldData[vFld] = StructNew();
-							vFieldData[vFld].options = "";
-							if ( IsStruct(widgetData[vFld]) AND StructKeyExists(widgetData[vFld],defaultGroupName) )
-								vFieldData[vFld].options = widgetData[vFld][defaultGroupName];
-						}
+																										
 						
-						vFieldData[vFld].description = "";
-						if ( IsStruct(widgetData[vFld]) AND StructKeyExists(widgetData[vFld],"description") )
-							vFieldData[vFld].description = widgetData[vFld]["description"];
+						// set the default selected option 							
+						if ( StructKeyExists(widgetData[vFld],"default") )
+							vFieldData[vFld]['default'] = widgetData[vFld]["default"];
+						
+						// set the description								
+						if ( StructKeyExists(widgetData[vFld],"description") )
+							vFieldData[vFld]['description'] = widgetData[vFld]["description"];						
 					}
 				}
 			}
@@ -180,6 +189,7 @@ History:
 //WriteDump(var=vFldArray,expand=false,label="vFldArray");
 //WriteDump(var=vFieldData,expand=false,label="vFieldData");
 //WriteDump(var=vFieldCnt,expand=false,label="vFieldCnt");
+//WriteDump(var=currentData,expand=false,label="currentData");
 //exit;
 	</cfscript>
 	
@@ -265,8 +275,8 @@ History:
 	</cfscript>
 	
 	<cfscript>
-		defaultData	= StructNew();
-		renderedData	= StructNew();
+		defaultData = StructNew();
+		renderedData = StructNew();
 		renderedErrors = ArrayNew(1);
 	</cfscript>
 
@@ -280,7 +290,8 @@ History:
 				
 				<cfif ListLen(vFieldData[fld].options,optionDelimiter) GT 1>
 					<cfscript>
-						fldHasDescription = YesNoFormat(LEN(TRIM(vFieldData[fld].description)));
+						fldHasDefault = StructKeyExists(vFieldData[fld],"default");
+						fldHasDescription = YesNoFormat(StructKeyExists(vFieldData[fld],"description") && LEN(TRIM(vFieldData[fld].description)));
 						fldLabelDivClass = "cfgFieldLabel";
 						if ( fldHasDescription )
 							fldLabelDivClass = "cfgFieldLabelTall";
@@ -292,40 +303,73 @@ History:
 						<div class="cfgFieldControl">
 							<select name="#fld#_select" id="#fld#_select" size="1">
 								<!--- <option value="">-- select --</option> --->
-								<cfloop list="#vFieldData[fld].options#" index="opt" delimiters="#optionDelimiter#">
-									<!--- // Get the Value/Text options (pipe delimited) for the Selection List --->
-									<cfif ListLen(opt,valueTextDelimiter) GT 1>
-										<cfset cfgOptionValue = ListFirst(opt,valueTextDelimiter)>
-										<cfset cfgOptionName = ListRest(Replace(opt,"_"," ","ALL"),valueTextDelimiter)>
-									<cfelse>
-										<cfset cfgOptionValue = opt>
-										<cfset cfgOptionName = Replace(opt,"_"," ","ALL")>
-									</cfif>
+								<cfloop list="#vFieldData[fld]['options']#" index="opt" delimiters="#optionDelimiter#">
+									
+									<cfscript>
+										cfgOptionValue = "";
+										cfgOptionName = "";
+										cfgOptionSelected = false;
+										
+										// Get the Value/Text options (pipe delimited) for the Selection List --->
+										if ( ListLen(opt,valueTextDelimiter) GT 1 )
+										{
+											cfgOptionValue = ListFirst(opt,valueTextDelimiter);
+											cfgOptionName = ListRest(Replace(opt,"_"," ","ALL"),valueTextDelimiter);
+										
+										}
+										else
+										{
+											cfgOptionValue = opt;
+											cfgOptionName = Replace(opt,"_"," ","ALL");
+										}
+									
+										// Set the Selected Option 
+										if ( StructKeyExists(currentData,fld) )
+										{
+											// If we have a current value for this field... does current value match the option
+											if ( currentData[fld] EQ cfgOptionValue )
+												cfgOptionSelected = true;
+										}
+										else if ( vFieldData[fld]['default'] EQ cfgOptionValue )
+											cfgOptionSelected = true;
+									</cfscript>
+									
 									<!--- <option value="#opt#">#cfgOptionName#</option> --->
 									<!--- <option value="#opt#"<cfif StructKeyExists(currentData,fld) AND currentData[fld] EQ opt> selected=""</cfif>>#cfgOptionName#</option>--->
 								
-									<option value="#cfgOptionValue#"<cfif StructKeyExists(currentData,fld) AND currentData[fld] EQ cfgOptionValue> selected=""</cfif>>#left(cfgOptionName,65)#<cfif LEN(cfgOptionName) GT 65>...</cfif></option>
+									<option value="#cfgOptionValue#"<cfif cfgOptionSelected> selected=""</cfif>>#left(cfgOptionName,65)#<cfif LEN(cfgOptionName) GT 65>...</cfif></option>
 						
 									<cfif StructKeyExists(currentData,fld) AND currentData[fld] EQ cfgOptionValue>
 										<cfset renderedData[fld] = cfgOptionValue>  
 									</cfif>
 								</cfloop>
 							</select>
+							
 							<cfif fldHasDescription>
 								<div class="cfgFieldDescription">
-									#vFieldData[fld].description#
+									#vFieldData[fld]['description']#
 								</div>
 							</cfif>
 						</div>
-						<!---// If no Select List is rendered add the first option to renderData struct --->
+						
+						<!---// If no Selection List is rendered above then add the first option to renderData struct --->
 						<cfif !StructKeyExists(renderedData,fld)>
-							<cfset renderedData[fld] = ListFirst(ListFirst(vFieldData[fld].options,optionDelimiter),valueTextDelimiter)> 	
+								
+							<!--- // If we have a default defined use for the renderedData Value --->
+							<cfif fldHasDefault>
+								<cfset renderedData[fld] = vFieldData[fld]['default']>
+							<cfelse>
+								<cfset renderedData[fld] = ListFirst(ListFirst(vFieldData[fld]['options'],optionDelimiter),valueTextDelimiter)> 	
+							</cfif>
+							<!--- <cfset renderedData[fld] = ListFirst(ListFirst(vFieldData[fld]['options'],optionDelimiter),valueTextDelimiter)> --->	
+
 						</cfif>
 						
 					</div>
 				<cfelse>
-					<input type="hidden" name="#fld#_select" id="#fld#_select" value="#vFieldData[fld].options#">
-					<cfset renderedData[fld] = vFieldData[fld].options>
+					<!--- // Since if we are here we only have 1 option for this field use its value as a hidden value--->
+					<cfset renderedData[fld] = ListFirst(vFieldData[fld]['options'],valueTextDelimiter)>
+					<input type="hidden" name="#fld#_select" id="#fld#_select" value="#renderedData[fld]#">
 				</cfif>
 			</cfif>
 		</cfloop>
@@ -336,23 +380,26 @@ History:
 	</cfoutput>
 			
 	<cfscript>
-//WriteDump(var=renderedData,expand=false,label="renderedData");	
-	
+		// Build the inital defaultData structure from the renderData and renderErrors
 		defaultData.data = renderedData;
-		defaultData.errors = renderedErrors;	
-//WriteDump(var=defaultData,expand=false,label="defaultData");
-		
+		defaultData.errors = renderedErrors;
+			
+		// Serialize into JSON the defaultData structure
 		currentValue = serializeJSON(defaultData);
-//WriteDump(var=currentValue,expand=false,label="currentValue");
-
 		currentValue = HTMLEditFormat(currentValue);
+		
+//WriteDump(var=renderedData,expand=false,label="renderedData");
+//WriteDump(var=defaultData,expand=false,label="defaultData");	
 //WriteDump(var=currentValue,expand=false,label="currentValue");
 	</cfscript>
 		
 	<cfoutput>
-		<!--- // Render the hidden CFT data field --->
-		<!--- <input type="text" name="#arguments.fieldName#" id="#inputParameters.fldID#" value="#currentValue#" size="60">--->
+	<!--- // Render the hidden CFT data field --->
+	<cfif variables.cftDebug>
+		<input type="text" name="#arguments.fieldName#" id="#inputParameters.fldID#" value="#currentValue#" size="70">--->
+	<cfelse>
 		<input type="hidden" name="#arguments.fieldName#" id="#inputParameters.fldID#" value="#currentValue#"/>
+	</cfif>
 	</cfoutput>
 </cffunction>
 

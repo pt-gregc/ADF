@@ -112,7 +112,7 @@ History:
 			<td class="cs_dlgLabelSmall">
 				<div>Enter WidgetScript syntax to generate Widget Configuration Option Fields.</div>
 				<div> - Use semi-colons (;) to delimit options. eg. Option 1;Options 2;Option 3</div>
-				<div> - Use pipes (|) to delimit value and display text. eg. Option1Value|Option 1 Label</div>
+				<div> - Use pipes (|) to delimit value/display text pairs. eg. option1value|Option 1;option2value|Option 2</div>
 				<textarea id="#prefix#widgetScript" name="#prefix#widgetScript" cols="90" rows="20" wrap="off">#defaultValues.widgetScript#</textarea>
 			</td>
 		</tr>
@@ -160,7 +160,10 @@ History:
 	group_all = option1|Option 1;option2|Option 2
 		## Required
 		## Semi-Colon Delimited List
-	description = Description text that render under the selection list drop down
+	default = The default selected option
+		## Optional
+		## Omit or leave blank to set the first option to be the default
+	description = Description text to be rendered under the selection list drop down control
 		## Optional
 --->
 <cffunction name="defaultScriptText" access="public" returntype="string" output="true">
@@ -168,7 +171,12 @@ History:
 	<cfset var retVal = "">
 
 <cfsavecontent variable="retVal"><cfoutput>[Config]
-fields=Color,Alignement
+fields=Title Tag,Color,Alignement
+
+[Title Tag]
+group_all=H1;H2;H3;H4;H5
+default=H2
+description=Select a Title Tag
 
 [Color]
 group_admin=Red;Yellow;Orange;Purple
