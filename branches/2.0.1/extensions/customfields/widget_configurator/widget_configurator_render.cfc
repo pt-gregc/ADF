@@ -65,7 +65,7 @@ History:
 		var groupPrefix = "group_";
 		var defaultGroupName = groupPrefix & "all";
 		var groupsAPI = Server.CommonSpot.ObjectFactory.getObject("Groups");
-	   	var groupQry = groupsAPI.getNamesGivenIDs(request.user.GroupList);
+	   var groupQry = groupsAPI.getNamesGivenIDs(request.user.GroupList);
 		var groupName = "";
 		var q = 1;
 		var defaultData = StructNew();
@@ -80,6 +80,7 @@ History:
 		var fldHasDefault = false;
 		var fldHasDescription = false;
 		var fldLabelDivClass = "cfgFieldLabel";
+		var fldDescriptionDivClass = "cfgFieldDescription";
 		var optionDelimiter = ";";
 		var valueTextDelimiter = "|";
 
@@ -97,16 +98,9 @@ History:
 
 		if ( LEN(currentValue) )
 		{
-//WriteOutput("use current saved values!<br>");			
-			
 			currentObj = DeserializeJSON(TRIM(currentValue));
 			if ( StructKeyExists(currentObj,"Data") )
 				currentData = currentObj.Data;
-		}
-		else
-		{
-			// Using Default Script Value
-//WriteOutput("use defaults!<br>");			
 		}
 		
 //WriteDump(var=currentData,label="currentData",expand=false);			
@@ -198,7 +192,6 @@ History:
 	<style>
 		.cfgFieldBox {
 			margin-bottom: 6px;
-			/* border: 1px solid ##000;*/ 
 		}
 		
 		.cfgFieldLabel {
@@ -219,11 +212,15 @@ History:
 			/*border: 1px solid ##000;*/
 		}
 		.cfgFieldDescription {
+			display: block;
+			margin-top: 4px;		
+		}
+		.cfgFieldDescriptionWrap {
+			display: block;
 			margin-top: 4px;
-		   overflow: hidden;
-		   display: block;
+			overflow: hidden; 	
 		   white-space: normal;
-		
+			
 			/* text-overflow: ellipsis; */
 			/* white-space: nowrap; */
 			/* word-wrap: break-word;*/
@@ -330,7 +327,7 @@ History:
 											if ( currentData[fld] EQ cfgOptionValue )
 												cfgOptionSelected = true;
 										}
-										else if ( vFieldData[fld]['default'] EQ cfgOptionValue )
+										else if ( StructKeyExists(vFieldData[fld],"default") AND vFieldData[fld]['default'] EQ cfgOptionValue )
 											cfgOptionSelected = true;
 									</cfscript>
 									
@@ -344,10 +341,14 @@ History:
 									</cfif>
 								</cfloop>
 							</select>
-							
 							<cfif fldHasDescription>
-								<div class="cfgFieldDescription">
-									#vFieldData[fld]['description']#
+								<cfscript>
+										fldDescriptionDivClass = "cfgFieldDescription";
+										if ( LEN(TRIM(vFieldData[fld]['description'])) GT 65 )
+											fldDescriptionDivClass = "cfgFieldDescriptionWrap";
+								</cfscript>
+								<div class="#fldDescriptionDivClass#">
+									#TRIM(vFieldData[fld]['description'])#
 								</div>
 							</cfif>
 						</div>
@@ -396,7 +397,7 @@ History:
 	<cfoutput>
 	<!--- // Render the hidden CFT data field --->
 	<cfif variables.cftDebug>
-		<input type="text" name="#arguments.fieldName#" id="#inputParameters.fldID#" value="#currentValue#" size="70">--->
+		<input type="text" name="#arguments.fieldName#" id="#inputParameters.fldID#" value="#currentValue#" size="70">
 	<cfelse>
 		<input type="hidden" name="#arguments.fieldName#" id="#inputParameters.fldID#" value="#currentValue#"/>
 	</cfif>
