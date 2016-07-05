@@ -44,7 +44,7 @@ History:
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "1.0.1";
+	fieldVersion = "1.0.2";
 
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
@@ -165,27 +165,37 @@ History:
 		## Omit or leave blank to set the first option to be the default
 	description = Description text to be rendered under the selection list drop down control
 		## Optional
+
+	Note:
+	The {fieldname}'s in your widgetScript will need to be handled in the Render Handler to which the metadata form/field
+	is bound. The {fieldname}'s will have all Non-AlphaNumeric character converted to underscores (_).
+	eg. [Title Tag] will be Title_Tag and [Title-Color] will be Title_Color in the render handler's
+	custom metadata form data.
 --->
 <cffunction name="defaultScriptText" access="public" returntype="string" output="true">
 
 	<cfset var retVal = "">
 
 <cfsavecontent variable="retVal"><cfoutput>[Config]
-fields=Title Tag,Color,Alignement
+fields=Title Tag,Title Color,Title Align,Description Align
 
 [Title Tag]
 group_all=H1;H2;H3;H4;H5
 default=H2
 description=Select a Title Tag
 
-[Color]
-group_admin=Red;Yellow;Orange;Purple
-group_all=Red;Yellow;Orange
-description=Select a Color
-
-[Alignement]
+[Title Align]
 group_all=text-left|Left;text-center|Center;text-rgith|Right
-description=Select an Alignement
+description=Select a Title Alignment
+
+[Title Color]
+group_admin=red;yellow;orange;purple
+group_all=red;yellow;orange
+description=Select a Title Color
+
+[Description Align]
+group_all=text-left|Left;text-center|Center;text-rgith|Right
+description=Select a Description Alignment
 </cfoutput></cfsavecontent>
 
 	<cfset retVal = REReplace(retVal, "(\r\n|\n\r|\n|\r)","&##013;&##010;", "all")>
