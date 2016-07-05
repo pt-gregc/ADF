@@ -53,7 +53,7 @@ History:
 --->
 <cfcomponent displayname="csData_1_2" extends="csData_1_1" hint="CommonSpot Data Utils functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_26">
+<cfproperty name="version" value="1_2_27">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">
@@ -271,8 +271,9 @@ History:
 	2012-03-26 - GAC - Created 
 	2013-05-29 - GAC - Updated the newUniqueNamePath to switch forward slashes to back slashes
 	2016-02-04 - GAC - Updated to honor the maxChar limit even if the pageTitleWordMax limit is not reached.
-					 	Script reduces the pageTitleWordMax limit until the max char limit is satisfied.
-					 - Added a pageNameWordMax parameter
+					 			Script reduces the pageTitleWordMax limit until the max char limit is satisfied.
+					 		- Added a pageNameWordMax parameter
+	2016-07-01 - GAC - Fixed logic for pageNameWordMax parameter
 --->
 <cffunction name="createUniquePageInfofromPageTitle" access="public" returntype="struct" output="true" hint="Creates a unique page title, page name and file name for a page from a passed in pageTitle">
 	<cfargument name="csPageTitle" type="string" required="true" hint="a page title to build a page name and file name from">
@@ -331,8 +332,8 @@ History:
 		if ( arguments.verbose )
 			application.ADF.utils.doDump(newPageTitle, "newPageTitle - Shortened", 1);
 
-		// Shorten the newPageTitle by a set number of words ( Zero '0' would bypass this modification )
-		if ( arguments.pageTitleWordMax NEQ 0 )
+		// Shorten the newPageName by a set number of words ( Zero '0' would bypass this modification )
+		if ( arguments.pageNameWordMax NEQ 0 )
 		{
 			//newPageName = variables.data.trimStringByWordCount(newPageName,arguments.pageTitleWordMax,false);
 			while ( LEN(newPageName) GT nameCharMax ) {
@@ -355,7 +356,7 @@ History:
 		if ( arguments.verbose )
 			application.ADF.utils.doDump(newPageName, "newPageName", 1);
 
-		// Assign to FileName variable from the shortend PageName
+		// Assign to FileName variable from the shortened PageName
 		newFileName = newPageName;
 
 		// Filter out any international characters
