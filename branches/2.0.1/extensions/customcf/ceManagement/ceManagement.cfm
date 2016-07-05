@@ -56,14 +56,15 @@ Custom Script Parameters Tab Examples:
 	jsCallback = jsCallbackFunc
 	appBeanName = ptBlog
 	appParamsVarName = elementManagementParams
-	configVersion = 2.0
+	configVersion = 2.1
 
 History:
 	2016-01-07 - GAC - Created
+	2016-06-29 - GAC - Updated to use the latest version (2.1) of ceManagement
 --->
 <cfscript>
-        defaultScriptVersion  = "2.0";
+        defaultScriptVersion  = "2.1";
 
-        // Include the original genericElementManagement script
+        // Include the the versioned ceManagement script
         include "/ADF/extensions/customcf/ceManagement/#defaultScriptVersion#/ceManagement.cfm";
 </cfscript>
