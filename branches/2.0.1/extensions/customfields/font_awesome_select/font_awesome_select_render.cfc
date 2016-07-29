@@ -51,6 +51,7 @@ History:
 <cfscript>
 	variables.defaultFAversion = "4.4";
 	variables.defaultIconDataFile = "/ADF/thirdParty/css/font-awesome/#variables.defaultFAversion#/data/icon-data.csv";
+	variables.defaultIconClass = "fa";
 </cfscript>
 
 <cffunction name="renderControl" returntype="void" access="public">
@@ -73,7 +74,7 @@ History:
 		var selected = "";
 		var s = "";
 		var cftPath = "/ADF/extensions/customfields/font_awesome_select";
-		var iconClass = 'fa';
+		var iconClass = variables.defaultIconClass;
 		var previewIconCurrentValue = "";
 		var previewTextCurrentValue = "";
 		var selectedCurrentValue = "";
@@ -113,7 +114,7 @@ History:
 		}*/
 		
 		// Clear value if switching ICON libraries
-		if ( FindNoCase(iconClass,currentValue,1) EQ 0 )
+		if ( inputParameters.addIconClass AND FindNoCase(iconClass,currentValue,1) EQ 0 )
 			currentValue = ""; // TODO: Find similarly named icon in new icon library
 		
 		if ( LEN(TRIM(currentValue)) )
@@ -297,7 +298,7 @@ function findFunction_#arguments.fieldName#(inString)
 
 function buildClasses_#arguments.fieldName#()
 {
-	var iconClass = 'fa';
+	var iconClass = '#variables.defaultIconClass#';
 	var previewClass = '';
 	var name = '';
 	var val = '';
