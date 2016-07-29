@@ -107,8 +107,10 @@ History:
 		 	if ( StructKeyExists(pageLayoutData.config,"DisabledPages") AND LEN(TRIM(pageLayoutData.config.DisabledPages)) )
 					disabledPageIDlist = pageLayoutData.config.DisabledPages;
 			 
-			if ( ListFind(disabledPageIDlist, currentPageID) )
+			if ( ListFind(disabledPageIDlist, currentPageID) GT 0 )
 				hideAllLayoutOptions = true;
+
+//WriteDump(var=hideAllLayoutOptions,expand=false,label="hideAllLayoutOptions");
 
 		 	if ( StructKeyExists(pageLayoutData.config,"ImagesPath") AND LEN(TRIM(pageLayoutData.config.ImagesPath)) )
 					thumbImgPath = pageLayoutData.config.ImagesPath;
@@ -124,19 +126,25 @@ History:
 					// Make sure it has underscores instead of spaces
 					vFld = TRIM(REREPLACE(vFld,"[\s]","_","all"));
 
+//WriteDump(var=vFld,expand=false,label="vFld");
+
 					if ( StructKeyExists(pageLayoutData,vFld) AND IsStruct(pageLayoutData[vFld]) )
 					{
 						// Add the name Key with the Option value
 						pageLayoutData[vFld]["name"] = vFld;
-
-						// create the imageURL from the imagePath and image value
+						
+						// If a full ["imageUrl"] has been define for this item ... use it.
+						// Although if an ["image"] parameter is passed in will override the defined ["imageURL"]
+						// - so create the imageURL from the imagePath and image values
 						if ( StructKeyExists(pageLayoutData[vFld],"image") AND LEN(TRIM(pageLayoutData[vFld]["image"])) )
 							pageLayoutData[vFld]["imageUrl"] = thumbImgPath & pageLayoutData[vFld]["image"];
 						
-						// Set an imageURL to empty string if an image or imageURL has not been created
+						// But after all that... set an imageURL to empty string if an imageURL has not been created (or passed in)
 						if ( !StructKeyExists(pageLayoutData[vFld],"imageUrl") )
 							pageLayoutData[vFld]["imageUrl"] = "";
 						
+						// Check for security settings to show or hide specific layout options
+						securityGroups = "";
 						if ( StructKeyExists(pageLayoutData[vFld],"security") AND LEN(TRIM(pageLayoutData[vFld]["security"])) )
 							securityGroups = pageLayoutData[vFld]["security"];
 						else if ( StructKeyExists(pageLayoutData[vFld],"allowedgroups") AND LEN(TRIM(pageLayoutData[vFld]["allowedgroups"])) )
@@ -186,7 +194,7 @@ History:
 //WriteDump(var=layoutOptions,expand=false,label="layoutOptions");
 	</cfscript>
 
-	<!---
+	<!--- // OLD STYLE LAYOUT CONFIG
 	<cfscript>
 		/* 
 			Establish the layout options with security access for specific users.
@@ -252,7 +260,8 @@ History:
 	<cfoutput>
 		<div class="main">
 			<cfif hideAllLayoutOptions>
-				<div class="imageChoiceMsg">Layout options are avaiable for this page.</div>
+				<div class="imageChoiceMsg">Layout options are not avaiable for this page.</div>
+				<input type="hidden" name="#arguments.fieldName#" id="#currentValue#" value="#currentValue#"/>
 			<cfelse>
 				<!--- Loop over the array of options --->
 				<cfloop index="i" from="1" to="#ArrayLen(layoutOptions)#" >
@@ -323,31 +332,6 @@ function #arguments.fieldName#_loadSelection(optionName) {
 </script>
 </cfoutput>
 </cffunction>
-
-<!--- // OLD - Show Layout Choice function --->
-<!--- <cffunction name="showChoice" access="public" returntype="boolean" output="true">
-	<cfargument name="securityGroups">
-
-	<cfscript>
-		var showChoice = true;
-		var itm = 1;
-		var groupID = 0;
-		if( listLen(arguments.securityGroups) )
-		{
-			// reset value to false then determine if they have access
-			showChoice = false;
-			for( itm; itm lte listLen(arguments.securityGroups); itm = itm + 1 )
-			{
-				if( listFind(request.user.groupList, listGetAt(arguments.securityGroups, itm) ) )
-				{
-					showChoice = true;
-					break;
-				}
-			}
-		}
-		return showChoice;
-	</cfscript>
-</cffunction> --->
 
 <!---
 	setDefaultParameters(fieldName,fieldDomID,value)
