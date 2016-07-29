@@ -207,7 +207,7 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 			2016-01-07 - GAC - Set useMigrate to be disabled by default
 								- Switched to used addFooterJS instead of addFooterHTML
 	*/
-	public void function loadJQuery(string version="", boolean force=0, boolean noConflict=0, useMigrate=0 )
+	public void function loadJQuery(string version="", boolean force=0, boolean noConflict=0, boolean useMigrate=0 )
 	{
 		loadResources("jQuery");
 

@@ -327,7 +327,7 @@ History:
 	2011-02-14 - MFC - Modified - Removed forceLightboxResize argument.
 									Removed the global header/footer variables.
 									Added lbCheckLogin parameter to validate if the user is authenticated.
-	2011-06-11 - GAC - Modified - Removed the argumentsCollection from the lightboxHeader method call 
+	2011-06-11 - GAC - Modified - Removed the argumentCollection from the lightboxHeader method call
 --->
 <cffunction name="wrapHTMLwithLBHeaderFooter" access="public" returntype="string" output="false" hint="Given html returns html that is wrapped properly with the CS 6.x lightbox header and footer code.">
 	<cfargument name="html" type="string" default="" hint="HTML to wrap">
