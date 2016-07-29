@@ -177,7 +177,27 @@ History:
 	<cfset var retVal = "">
 
 <cfsavecontent variable="retVal"><cfoutput>[Config]
-fields=Title Tag,Title Color,Title Align,Description Align
+fields=Columns X-Small;Columns Small;Columns Medium;Columns Large;Theme;Title Tag,Title Color,Title Align,Description Align
+
+[Columns X-Small]
+group_all=none;col-xs-12|1 column;col-xs-6|2 columns;col-xs-4|3 columns
+description=The number of columns to render when the device size is Extra Small (Phones).
+
+[Columns Small]
+group_all=none;col-sm-12|1 column;col-sm-6|2 columns;col-sm-4|3 columns;col-sm-3|4 columns
+description=The number of columns to render when the device size is Small (Tablets).
+
+[Columns Medium]
+group_all=none;col-md-12|1 column;col-md-6|2 columns;col-md-4|3 columns;col-md-3|4 columns
+description=The number of columns to render when the device size is Medium (Desktop).
+
+[Columns Large]
+group_all=none;col-lg-12|1 column;col-lg-6|2 columns;col-lg-4|3 columns;col-lg-3|4 columns;col-lg-2|6 columns
+description=The number of columns to render when the device size is Large (Large Desktop).
+
+[Theme]
+group_all=
+default=
 
 [Title Tag]
 group_all=H1;H2;H3;H4;H5

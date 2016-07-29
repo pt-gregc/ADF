@@ -201,13 +201,13 @@ History:
 		.cfgFieldLabel {
 			display: block;
 			float: left;
-			width: 100px;
+			width: 110px;
 			/*border: 1px solid ##000;*/
 		}
 		.cfgFieldLabelTall {
 			display: block;
 			float: left;
-			width: 100px;
+			width: 110px;
 			height: 38px;
 			/* border: 1px solid ##000;*/
 		}
