@@ -53,7 +53,7 @@ History:
 --->
 <cfcomponent displayname="csData_1_2" extends="csData_1_1" hint="CommonSpot Data Utils functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_27">
+<cfproperty name="version" value="1_2_28">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">
@@ -853,23 +853,25 @@ History:
 	2014-01-14 - JTP - Updated to use the CommonSpot ct-decipher-linkurl module call
 	2014-11-11 - GAC - Added try/catch around ct-decipher-linkurl the CS Modules to log when the passed in value could not be converted to a URL
 	2016-06-09 - GAC - Updated the logAppend call to point to the log_1_0 library
+	2016-08-31 - GAC - Added parameter to enable/disable error logging for broken links
 --->
 <cffunction name="parseCSURL" access="public" returntype="string" output="false" displayname="parseDatasheetURL" hint="Converts a CommonSpot URL that contain a pageID url parameter to a standard URL">
-    <cfargument name="str" type="string" required="true" hint="Provide a string value that is a CommonSpot URL that contains a pageid key/value pair">
+	<cfargument name="str" type="string" required="true" hint="Provide a string value that is a CommonSpot URL that contains a pageid key/value pair">
+	<cfargument name="useLogging" type="boolean" required="false" default="true" hint="enable/disable broken link logging">
 
 	<cfscript>
-          var targetURL = '';
-          var matchArray = REMatchNoCase("PAGEID=[\d]+", arguments.str);
-          var PageID = 0;
-          var errorStr = "";
-		  var logMsg = "";
+		var targetURL = '';
+		var matchArray = REMatchNoCase("PAGEID=[\d]+", arguments.str);
+		var PageID = 0;
+		var errorStr = "";
+		var logMsg = "";
 		  
-          // If str is a pageID use it
-          if ( isNumeric(str) )
-              PageID = int(str);
-          // Check to see if the string contains a 'PAGEID='
-          else if ( arrayLen(matchArray) GT 0 )
-              pageID = int( ReReplaceNoCase(matchArray[1],"PAGEID=","") );         
+		 // If str is a pageID use it
+		 if ( isNumeric(str) )
+			  PageID = int(str);
+		 // Check to see if the string contains a 'PAGEID='
+		 else if ( arrayLen(matchArray) GT 0 )
+			  pageID = int( ReReplaceNoCase(matchArray[1],"PAGEID=","") );
      </cfscript>  
 
 	<cftry>  
@@ -883,23 +885,27 @@ History:
 		          URL="#arguments.str#"
 		          VarName="targetURL">
 	     </cfif>
-	    
+
 	    <!--- // If ct-decipher-linkurl module blows up handle the exception --->   
  		<cfcatch type="any">
 			<cfscript>
-				// Set the targetURL to the broken-link-{pageid} text
-				targetURL = "broken-link-#PageID#--see-logs";
-				
-				if ( PageID neq 0 )
-					errorStr = "CS Page ID: #pageID#";
-				else
-					errorStr = "URL: #arguments.str#";
-				
-				// Create Log Msg 
-				logMsg = "[csData_1_2.parseCSURL] Error attempting to decipher #errorStr# using the ct-decipher-linkurl module#Chr(10)##cfcatch.message#";
-				if ( StructKeyExists(cfcatch,"detail") AND LEN(TRIM(cfcatch.detail)) )
-						logMsg = logMsg & "#Chr(10)#Details: #cfcatch.detail#";	
-				server.ADF.objectFactory.getBean("log_1_0").logAppend(logMsg);
+				if ( arguments.useLogging )
+				{
+					// Set the targetURL to the broken-link-{pageid} text
+					targetURL = "broken-link-#PageID#--see-logs";
+
+					if ( PageID neq 0 )
+						errorStr = "CS Page ID: #pageID#";
+					else
+						errorStr = "URL: #arguments.str#";
+
+					// Create Log Msg
+					logMsg = "[csData_1_2.parseCSURL] Error attempting to decipher #errorStr# using the ct-decipher-linkurl module#Chr(10)##cfcatch.message#";
+					if ( StructKeyExists(cfcatch,"detail") AND LEN(TRIM(cfcatch.detail)) )
+							logMsg = logMsg & "#Chr(10)#Details: #cfcatch.detail#";
+
+					server.ADF.objectFactory.getBean("log_1_0").logAppend(logMsg);
+				}
 			</cfscript>
 		</cfcatch>   
 	</cftry>  
