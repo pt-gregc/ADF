@@ -42,6 +42,7 @@ History:
 	2015-10-14 - GAC - Updated to allow Client Side JS sorting to be enabled
 	2016-06-28 - GAC - Updated to use request scope to work with ceManagement 2.1
 							- Updated to work with other JS/CSS button/icon libs beside jQueryUI
+	2016-09-08 - GAC - Updated all of the button links to use the A tag instead of a DIV
 --->
 <cfscript>
 	//Path to open the ligthbox to
@@ -213,11 +214,11 @@ History:
 								</span>
 							</a>
 						<cfelse>
-							<div rel="#addEditLink#" title="Edit" class="ADFLightbox">
+							<a rel="#addEditLink#" title="Edit" class="ADFLightbox">
 								<div class='ds-icons ui-state-default #request.adfDSmodule.buttonStyle#' title='edit' onmouseover="#mouseoverJS#" onmouseout="#mouseoutJS#">
 									<div style='margin-left:auto;margin-right:auto;' class='ui-icon ui-icon-pencil'></div>
 								</div>
-							</div>
+							</a>
 						</cfif>
 					</td>
 				</cfif>
@@ -235,11 +236,11 @@ History:
 								</span>
 							</a>
 						<cfelse>
-							<div rel="#deleteLink#" title="Delete" class="ADFLightbox">
+							<a rel="#deleteLink#" title="Delete" class="ADFLightbox">
 								<div class='ds-icons ui-state-default #request.adfDSmodule.buttonStyle#' title='delete' onmouseover="#mouseoverJS#" onmouseout="#mouseoutJS#">
 									<div style='margin-left:auto;margin-right:auto;' class='ui-icon ui-icon-trash'></div>
 								</div>
-							 </div>
+							 </a>
 						</cfif>
 					</td>
 				</cfif>
