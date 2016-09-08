@@ -34,7 +34,7 @@ History:
 --->
 <cfcomponent displayname="csData_2_0" extends="csData_1_3" hint="CommonSpot Data Utils functions for the ADF Library">
 
-<cfproperty name="version" value="2_0_2">
+<cfproperty name="version" value="2_0_3">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_2_0">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_2_0">
@@ -106,6 +106,45 @@ History:
 			return catQry.categoryTypeID;
 		else
 			return "";
+	</cfscript>
+</cffunction>
+
+<!---
+/* *************************************************************** */
+Author:
+	PaperThin, Inc.
+Name:
+	$getTemplateNameByID
+Summary:
+	Returns a templates name from the pageid
+Returns:
+	Numeric
+Arguments:
+	String Name
+Usage:
+	application.ADF.csData.getTemplateNameByID(csPageID)
+History:
+	2015-11-09 - GAC - Added
+--->
+<cffunction name="getTemplateNameByID" access="public" returntype="string" hint="Returns a templates name from the pageid">
+	<cfargument name="csPageID" required="Yes" type="string" hint="The Template Name">
+
+	<cfscript>
+		var q = QueryNew("temp");
+		var rStr = "";
+	</cfscript>
+
+	<cfquery name="q" datasource="#request.site.datasource#">
+		select ShortDesc
+			from AvailableTemplates
+		Where PageID = <cfqueryparam cfsqltype="CF_SQL_INTEGER" value="#arguments.csPageID#">
+	</cfquery>
+
+	<cfscript>
+		if ( q.recordcount )
+			rStr = q.ShortDesc;
+
+		return rStr;
 	</cfscript>
 </cffunction>
 
