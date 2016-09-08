@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="apiPage_1_1" extends="apiPage_1_0" hint="API Page functions for the ADF Library">
 
-<cfproperty name="version" value="1_1_0">
+<cfproperty name="version" value="1_1_1">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <cfproperty name="apiRemote" type="dependency" injectedBean="apiRemote_1_0">
 <!--- <cfproperty name="utils" type="dependency" injectedBean="utils_2_0"> --->
@@ -385,7 +385,7 @@ History:
 --->
 <cffunction name="saveActivationStateRemote" access="public" returntype="struct" hint="Sets the activation state for a page to 'Activate', 'AutoActivate', or 'Inactive'.">
 	<cfargument name="csPageID" type="numeric" required="true" hint="numeric commonspot page id">
-	<cfargument name="state" type="string" required="true" hint="A string describing a page's activation state; for example, 'Active', 'AutoActivate', or 'Inactive'.">
+	<cfargument name="state" type="string" required="true" hint="A string describing a page's activation state; for example, 'c', 'AutoActivate', or 'Inactive'.">
 	
 	<cfscript>
 		var pageCmdResult = StructNew();
