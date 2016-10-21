@@ -340,17 +340,17 @@ History:
 	   
        try 
 	   {
-           pageCmdResults = variables.apiRemote.runCmdApi(commandStruct=commandArgs,authCommand=true);
+			pageCmdResults = variables.apiRemote.runCmdApi(commandStruct=commandArgs,authCommand=true);
            
-           // Check the return status has a LENGTH
-           if ( IsStruct(pageCmdResults) AND StructKeyExists(pageCmdResults,"data") )
+         // Check the return status has a LENGTH
+         if ( IsStruct(pageCmdResults) AND StructKeyExists(pageCmdResults,"data") )
 		   {
-           		pageResult["CMDRESULTS"] = pageCmdResults.data;
-			    pageResult["CMDSTATUS"] = true;
-           }
+         	pageResult["CMDRESULTS"] = pageCmdResults.data;
+			   pageResult["CMDSTATUS"] = true;
+         }
 		   else
 		   {
-               pageResult["CMDSTATUS"] = false;
+            pageResult["CMDSTATUS"] = false;
 			   pageResult["CMDRESULTS"] = pageCmdResults;
 		   }
        }
@@ -385,7 +385,7 @@ History:
 --->
 <cffunction name="saveActivationStateRemote" access="public" returntype="struct" hint="Sets the activation state for a page to 'Activate', 'AutoActivate', or 'Inactive'.">
 	<cfargument name="csPageID" type="numeric" required="true" hint="numeric commonspot page id">
-	<cfargument name="state" type="string" required="true" hint="A string describing a page's activation state; for example, 'c', 'AutoActivate', or 'Inactive'.">
+	<cfargument name="state" type="string" required="true" hint="A string describing a page's activation state; for example, 'Active', 'AutoActivate', or 'Inactive'.">
 	
 	<cfscript>
 		var pageCmdResult = StructNew();
