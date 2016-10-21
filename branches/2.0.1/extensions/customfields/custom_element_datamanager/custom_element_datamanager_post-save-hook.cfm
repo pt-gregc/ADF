@@ -32,39 +32,45 @@ Summary:
 History:
 	2013-11-14 - DJM - Created
 	2013-11-15 - GAC - Converted to an ADF custom field type
+	2016-10-17 - GAC - Update to have DM specific variable names
 --->
 
 <cfscript>
-	inputParameters = attributes.inputStruct;
-	args = StructNew();
-	formFieldsToProcess = StructNew();
-	fieldComp = '';
+	dmInputParameters = attributes.inputStruct;
+	dmArgs = StructNew();
+	dmFormFieldsToProcess = StructNew();
+	dmFieldComp = '';
 </cfscript>
 
 <!---
-<cfdump var="#inputParameters#" label="inputParameters" expand=false>
-<cfdump var="#args#" label="args" expand=false>
+<cfdump var="#dmInputParameters#" label="inputParameters" expand=false>
 --->
 
-<cfif StructKeyExists(inputParameters, 'csAssoc_assocCE') AND IsNumeric(inputParameters.csAssoc_assocCE)>
+<cfif StructKeyExists(dmInputParameters, 'csAssoc_assocCE') AND IsNumeric(dmInputParameters.csAssoc_assocCE)>
  	<cfscript>
-  		formID = inputParameters.csAssoc_assocCE;
-  
-  		formFieldsToProcess['fic_#formID#_#inputParameters.csAssoc_parentInstanceIDField#'] = '';
-		formFieldsToProcess['fic_#formID#_#inputParameters.csAssoc_childInstanceIDField#'] = '';
-  
-  		Request.Params['fic_#formID#_#inputParameters.csAssoc_parentInstanceIDField#'] = inputParameters.csAssoc_parentInstanceID;
-  		Request.Params['fic_#formID#_#inputParameters.csAssoc_childInstanceIDField#'] = inputParameters.csAssoc_childInstanceID;
-  
-  		args.dfvFormID = formID;
-  		args.dfvPageID = Request.Site.IDMaster.getID();
-  		args.dfvControlID = 0;
-  		args.formFields = formFieldsToProcess;
+  		dmFormID = dmInputParameters.csAssoc_assocCE;
 
-  		fieldComp = createObject('component', 'commonspot.components.form.gce-field').init(argumentCollection=args); 
+  		dmFormFieldsToProcess['fic_#dmFormID#_#dmInputParameters.csAssoc_parentInstanceIDField#'] = '';
+		dmFormFieldsToProcess['fic_#dmFormID#_#dmInputParameters.csAssoc_childInstanceIDField#'] = '';
+
+  		Request.Params['fic_#dmFormID#_#dmInputParameters.csAssoc_parentInstanceIDField#'] = dmInputParameters.csAssoc_parentInstanceID;
+  		Request.Params['fic_#dmFormID#_#dmInputParameters.csAssoc_childInstanceIDField#'] = dmInputParameters.csAssoc_childInstanceID;
+
+  		dmArgs.dfvFormID = dmFormID;
+  		dmArgs.dfvPageID = Request.Site.IDMaster.getID();
+  		dmArgs.dfvControlID = 0;
+  		dmArgs.formFields = dmFormFieldsToProcess;
+
+  		dmFieldComp = createObject('component', 'commonspot.components.form.gce-field').init(argumentCollection=dmArgs);
  	</cfscript>
- 
+
+	<!--- // populateData - only takes 2 parameters --->
 	<CFLOCK type="readOnly" name="CS_Site#Request.SiteID#_SyncTime" timeout="10">
-	  	<cfset fieldComp.populateData('', 0, 1)>
+	  	<cfset dmFieldComp.populateData(0, 1)>
 	</CFLOCK>
 </cfif>
+
+<!---
+<cfdump var="#dmArgs#" label="args" expand=false>
+--->
+
