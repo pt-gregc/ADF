@@ -111,7 +111,7 @@ History:
 			</td>
 			<td class="cs_dlgLabelSmall">
 				<div>Enter WidgetScript syntax to generate Widget Configuration Option Fields.</div>
-				<div> - Use semi-colons (;) to delimit options. eg. Option 1;Options 2;Option 3</div>
+				<div> - Use semi-colons (;) to delimit options. eg. Option 1;Option 2;Option 3</div>
 				<div> - Use pipes (|) to delimit value/display text pairs. eg. option1value|Option 1;option2value|Option 2</div>
 				<textarea id="#prefix#widgetScript" name="#prefix#widgetScript" cols="90" rows="20" wrap="off">#defaultValues.widgetScript#</textarea>
 			</td>
