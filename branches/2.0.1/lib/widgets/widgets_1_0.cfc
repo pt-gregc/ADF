@@ -20,16 +20,16 @@ end user license agreement.
 
 /* *************************************************************** */
 /*
-Author:
-	PaperThin, Inc.
-Name:
-	widgets_1_0.cfc
-Summary:
-	Widgetcomponent functions for the ADF Library
-Version:
-	1.0
-History:
-	2016-07-05 - GAC - Created
+	Author:
+		PaperThin, Inc.
+	Name:
+		widgets_1_0.cfc
+	Summary:
+		Widgetcomponent functions for the ADF Library
+	Version:
+		1.0
+	History:
+		2016-07-05 - GAC - Created
 */
 component displayname="widgets_1_0" extends="ADF.lib.libraryBase" hint="Widget component functions for the ADF Library" output="no"
 {
@@ -84,6 +84,7 @@ component displayname="widgets_1_0" extends="ADF.lib.libraryBase" hint="Widget c
 		String - newClass
 	History:
 		2016-07-05 - GAC - Created
+		2016-10-24 - GAC - Updated to handle the inherit option as a newClass value
 	*/
 	public string function buildClassValue(string classStr='',string newClass='')
 	{
@@ -91,7 +92,7 @@ component displayname="widgets_1_0" extends="ADF.lib.libraryBase" hint="Widget c
 
 		arguments.newClass = TRIM(arguments.newClass);
 
-		if ( LEN(arguments.newClass) AND arguments.newClass NEQ "none"  )
+		if ( LEN(arguments.newClass) AND arguments.newClass NEQ "none" AND arguments.newClass NEQ "inherit" )
 		{
 			if ( ListFindNoCase(retData,arguments.newClass," ",false) EQ 0 )
 				retData = listAppend(retData,arguments.newClass," ");
