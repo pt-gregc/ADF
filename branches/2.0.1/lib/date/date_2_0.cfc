@@ -30,21 +30,94 @@ Version:
 	2.0
 History:
 	2015-08-31 - GAC - Created
+	2016-09-29 - GAC - Added functions to calculated the first and last days of the quarter
+
 */
 component displayname="date_2_0" extends="date_1_2" hint="Date Utils functions for the ADF Library"
 {
-	property name="version" value="2_0_0";
+	property name="version" value="2_0_1";
 	property name="type" value="singleton";
 	property name="wikiTitle" value="Date_2_0";
-	
+
+	/*
+		Author:
+			PaperThin, Inc.
+		Name:
+			$firstDayOfQuarter
+		Summary:
+			Returns date for first day of the quarter for the provided month/year
+		Returns:
+			Date
+		Arguments:
+			Numeric - inMonth
+			Numeric - inYear
+		History:
+			2016-09-29 - GAC - Created
+	*/
+	public date function firstDayOfQuarter(required numeric inMonth, numeric string inYear)
+	{
+		var dateObj = createDate(arguments.inYear, arguments.inMonth, 1);
+
+		return DateAdd("q", Quarter(dateObj)-1, '01-01-' & year(dateObj));
+	}
+
+	/*
+		Author:
+			PaperThin, Inc.
+		Name:
+			$firstDayOfQuarterByDate
+		Summary:
+			Returns date for first day of the quarter from the provided date
+		Returns:
+			Date
+		Arguments:
+			Date - inDate
+		History:
+			2016-09-29 - GAC - Created
+	*/
+	public date function firstDayOfQuarterByDate(date inDate='#Now()#')
+	{
+		return firstDayOfQuarter(inMonth=Month(arguments.inDate),inYear=Year(arguments.inDate));
+	}
+
+	/*
+		Author:
+			PaperThin, Inc.
+		Name:
+			$lastDayOfQuarter
+		Summary:
+			Returns date for last day of the quarter for the provided month/year
+		Returns:
+			Date
+		Arguments:
+			Numeric - inMonth
+			Numeric - inYear
+		History:
+			2016-09-29 - GAC - Created
+	*/
+	public date function lastDayOfQuarter(required numeric inMonth, required numeric inYear)
+	{
+		var qtrStartDate = firstDayOfQuarter(inMonth=arguments.inMonth,inYear=arguments.inYear);
+
+		return DateAdd("d",-1,DateAdd("m",3,qtrStartDate));
+	}
+
+	/*
+		Author:
+			PaperThin, Inc.
+		Name:
+			$lastDayOfQuarterByDate
+		Summary:
+			Returns date for last day of the quarter from the provided date
+		Returns:
+			Date
+		Arguments:
+			Date - inDate
+		History:
+			2016-09-29 - GAC - Created
+	*/
+	public date function lastDayOfQuarterByDate(date inDate='#Now()#')
+	{
+		return lastDayOfQuarter(inMonth=Month(arguments.inDate),inYear=Year(arguments.inDate));
+	}
 }
-
-/* <cfcomponent displayname="date_2_0" extends="date_1_2" hint="Date Utils functions for the ADF Library">
-
-<cfproperty name="version" value="2_0_0">
-<cfproperty name="type" value="singleton">
-<cfproperty name="wikiTitle" value="Date_2_0">
-	
-
-
-</cfcomponent>*/
