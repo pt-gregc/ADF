@@ -37,6 +37,8 @@ History:
 	                 - Added loadResourceDependencies support
 			 			  - Moved resource loading to the loadResourceDependencies() method
 	2016-02-22 - DRM - Fixed a missing DIV issue
+	2016-10-26 - DJM - Removed code setting the description
+					 - Updated label tag rendering logic
 --->
 <cfcomponent displayName="CustomSectionLabel Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -46,55 +48,57 @@ History:
 	<cfargument name="value" type="string" required="yes">
 	<cfscript>
 		var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
-		// Get the Description 
-		var description = "";
 		var idHTML = (arguments.fieldDomID != "") ? ' id="#arguments.fieldDomID#_label"': '';
 		var className = '';
 		var classHTML = '';
 		var _labelClass = (arguments.labelClass != "") ? " #arguments.labelClass#" : "";
-		var labelTagHTML = '';
+		var labelTagStartHTML = '';
+		var labelTagEndHTML = '';
 		var labelTagAppend = '';
 		var descAppend = '';
 
 		inputParameters = setDefaultParameters(argumentCollection=arguments);
 		
-		if ( StructKeyExists(fieldQuery,"DESCRIPTION") )
-			description = fieldQuery.DESCRIPTION[fieldQuery.currentRow];
 		if (Len(inputParameters.labelID))
 			labelTagAppend = labelTagAppend & ' id="#inputParameters.labelID#"';
 		if (Len(inputParameters.labelClass))
 			labelTagAppend = labelTagAppend & ' class=#inputParameters.labelClass#';
 		
 		if (inputParameters.hideLabelText)
-			labelTagHTML = "<span#labelTagAppend#>";
+			labelTagStartHTML = "<span#labelTagAppend#>";
 		else
-			labelTagHTML = ((StructKeyExists(arguments, 'noLabelTag') AND arguments.noLabelTag) || arguments.fieldDomID == "") ? "" : "<label#labelTagAppend#>";
+			labelTagStartHTML = ((StructKeyExists(arguments, 'noLabelTag') AND arguments.noLabelTag) || arguments.fieldDomID == "") ? "" : "<label#labelTagAppend#>";
 
 		renderFieldContainerStart(argumentCollection=arguments);
 		
 		// Overriding renderLabelContainerStart
-		writeOutput('<div#idHTML# class="CS_FormFieldLabelContainer#_labelClass#" style="width:100% !important; text-align:left !important;">#labelTagHTML#');
+		writeOutput('<div#idHTML# class="CS_FormFieldLabelContainer#_labelClass#" style="width:100% !important; text-align:left !important;">#labelTagStartHTML#');
 		
 		// Conditional overriding renderLabelContainerEnd
 		if (inputParameters.hideLabelText)
 			writeOutput('</span>');
 		else
 			renderLabel(argumentCollection=arguments);
-
+		
+		if (NOT inputParameters.hideLabelText)
+			labelTagEndHTML = ((StructKeyExists(arguments, 'noLabelTag') AND arguments.noLabelTag) || arguments.fieldDomID == "") ? "" : "</label>";
+		
+		writeOutput('#labelTagEndHTML#');
+		
 		renderLabelContainerEnd(argumentCollection=arguments);
 		
 		renderControlContainerStart(argumentCollection=arguments);
 		renderControlContainerEnd(argumentCollection=arguments);
 		renderFieldContainerEnd(argumentCollection=arguments);
 		
-		if (LEN(TRIM(description)))
+		if (LEN(TRIM(arguments.description)))
 		{
 			renderDescrContainerStart(argumentCollection=arguments);
 			
 			// Overriding renderLabelContainerStart
 			writeOutput('<div class="CS_FormFieldLabelContainer" style="text-align:left !important; display: none !important;">');
 			
-			renderLabelContainerEnd(noLabelTag=true);
+			renderLabelContainerEnd(argumentCollection=arguments);
 			
 			// Overriding renderControlContainerStart
 			className = getComponentClasses("Description");
