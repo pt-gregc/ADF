@@ -200,21 +200,21 @@ group_all=
 default=
 
 [Title Tag]
-group_all=H1;H2;H3;H4;H5
+group_all=div;h1;h2;h3;h4;h5
 default=H2
 description=Select a Title Tag
 
 [Title Align]
-group_all=text-left|Left;text-center|Center;text-rgith|Right
+group_all=inherit;text-left|left;text-center|center;text-rgith|right
 description=Select a Title Alignment
 
 [Title Color]
-group_admin=red;yellow;orange;purple
-group_all=red;yellow;orange
+group_admin=inherit;red;yellow;orange;purple
+group_all=inherent;red;yellow;orange
 description=Select a Title Color
 
 [Description Align]
-group_all=text-left|Left;text-center|Center;text-rgith|Right
+group_all=inherit;text-left|left;text-center|center;text-rgith|right
 description=Select a Description Alignment
 </cfoutput></cfsavecontent>
 
