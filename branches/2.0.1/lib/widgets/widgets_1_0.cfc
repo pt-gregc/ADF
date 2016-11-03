@@ -50,21 +50,40 @@ component displayname="widgets_1_0" extends="ADF.lib.libraryBase" hint="Widget c
 		Struct
 	Arguments:
 		Struct - customMetdata
-		String - configFieldName
+		String - configFieldName (can be a coma-delimited list of field names)
 	History:
 		2016-07-05 - GAC - Created
+		2016-11-01 - GAC - Updated to handle adding additional field data to the config struct
 	*/
 	public struct function getWidgetConfigData(required struct customMetdata, required string configFieldName)
 	{
 		var retData = StructNew();
 		var widgetObj = StructNew();
-      var configFindArray = StructFindKey(arguments.customMetdata,arguments.configFieldName);
+      var configFindArray = ArrayNew(1);
+		var f = 0;
+		var fld = "";
 
-		if ( ArrayLen(configFindArray) AND StructKeyExists(configFindArray[1],"value") )
+		for ( f=1; f LTE ListLen(arguments.configFieldName); f=f+1)
 		{
-			widgetObj = DeserializeJSON(TRIM(configFindArray[1].value));
-			if ( StructKeyExists(widgetObj,"Data") )
-				retData = widgetObj.Data;
+			fld = ListGetAt(arguments.configFieldName,f);
+			configFindArray = StructFindKey(arguments.customMetdata,fld);
+
+			if ( ArrayLen(configFindArray) AND StructKeyExists(configFindArray[1],"value") )
+			{
+				widgetObj = StructNew(); 
+				if ( IsJSON(TRIM(configFindArray[1].value)) )
+				{
+					widgetObj = DeserializeJSON(TRIM(configFindArray[1].value));
+					if ( StructKeyExists(widgetObj,"Data") )
+						StructAppend(retData,widgetObj.Data,false); // Do not overwrite existing keys
+				}
+				else
+				{
+					// Do not overwrite existing keys
+					if ( !StructKeyExists(widgetObj,fld) AND isSimpleValue(configFindArray[1].value) )
+						retData[fld] = configFindArray[1].value;
+				}
+			}
 		}
 
 		return retData;
