@@ -202,6 +202,8 @@ History:
 			display: block;
 			float: left;
 			width: 110px;
+			white-space: normal;
+			word-wrap: break-word;
 			/*border: 1px solid ##000;*/
 		}
 		.cfgFieldLabelTall {
@@ -209,6 +211,8 @@ History:
 			float: left;
 			width: 110px;
 			height: 38px;
+			white-space: normal;
+			word-wrap: break-word;
 			/* border: 1px solid ##000;*/
 		}
 		
