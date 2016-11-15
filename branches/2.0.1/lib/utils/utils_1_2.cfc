@@ -227,7 +227,8 @@ History:
 					 - added the hints to the parameters
 					 - moved to utils_1_1 since removing the CFOUTPUTS may change backwards compatiblity
 	2012-09-17 - MFC - Fixed cfargument "default" attribute for URLparams. 
-	2012-09-18 - MFC - Validate that the URL Params arg starts with a leading "&" 
+	2012-09-18 - MFC - Validate that the URL Params arg starts with a leading "&"
+	2016-11-04 - GAC - Added the pageParamName parameter to allow customization of page URL parameter name 
 --->
 <cffunction name="buildPaginationStruct" access="public" returntype="struct">
 	<cfargument name="page" type="numeric" required="true" default="1" hint="the value of the current page">
@@ -238,7 +239,8 @@ History:
 	<cfargument name="listLimit" type="numeric" required="false" default="6" hint="the number of link structs that get built">
 	<cfargument name="linkSeparator" type="string" required="false" default="|" hint="a character(s) separator for between consecutive links">
 	<cfargument name="gapSeparator" type="string" required="false" default="..." hint="a character(s) separator for the gab between skipped links">
-	
+	<cfargument name="pageParamName" type="string" required="false" default="page" hint="the param name used for page variable.">
+
 	<cfscript>
 		var rtn = StructNew();
 		var listStart = '';
@@ -247,6 +249,9 @@ History:
 		var maxPage = Ceiling(arguments.itemCount / arguments.pageSize);
 		var itemStart = 0;
 		var itemEnd = 0;
+		
+		// Make sure we don't have any extra spaces
+		arguments.pageParamName = trim(arguments.pageParamName);
 
 		// Make sure the value passed in for listLimit is at least 4
 		if (arguments.listLimit LT 4 )
@@ -285,7 +290,7 @@ History:
 	</cfif>
 	
 	<cfif arguments.page GT 1>
-		<cfset rtn.prevlink = "?page=#arguments.page-1##arguments.URLparams#">
+		<cfset rtn.prevlink = "?#arguments.pageParamName#=#arguments.page-1##arguments.URLparams#">
 		<!---&laquo; <a href="?page=#arguments.page-1##arguments.URLparams#">Prev</a>--->
 	<cfelse>
 		<cfset rtn.prevlink = "">
@@ -325,7 +330,7 @@ History:
 				<!---|--->
 			</cfif>
 			<cfif arguments.page NEQ pg>
-				<cfset rtn.pageLinks[pg].link = "?page=#pg##arguments.URLparams#">
+				<cfset rtn.pageLinks[pg].link = "?#arguments.pageParamName#=#pg##arguments.URLparams#">
 				<!---<a href="?page=#pg##arguments.URLparams#">#pg#</a>--->
 			<cfelse>
 				<cfset rtn.pageLinks[pg].link = "">
@@ -336,7 +341,7 @@ History:
 		</cfif>
 	</cfloop>
 	<cfif arguments.page LT maxPage>
-		<cfset rtn.nextLink = "?page=#arguments.page+1##arguments.URLparams#">
+		<cfset rtn.nextLink = "?#arguments.pageParamName#=#arguments.page+1##arguments.URLparams#">
 		<!---| <a href="?page=#arguments.page+1##arguments.URLparams#">Next</a> &raquo;--->
 	<cfelse>
 		<cfset rtn.nextLink = "">
