@@ -479,7 +479,7 @@ History:
 	2011-03-31 - GAC - Added
 	2014-03-05 - JTP - Var declarations
 --->
-<cffunction name="EscapeExtendedChars" returntype="string" access="public" output="false" hint="Escapes extended chararacters from a string">
+<cffunction name="escapeExtendedChars" returntype="string" access="public" output="false" hint="Escapes extended chararacters from a string">
 	<cfargument name="str" type="string" required="true" hint="String to escape extended characters on">
 	
 	<cfscript>

@@ -360,7 +360,7 @@ History:
 Usage:
 	Application.ADF.data.QuerySort(query,columnName,orderType)
 --->
-<cffunction name="QuerySort" displayname="QuerySort" access="public" hint="Sort a query based on a custom list" returntype="query" output="true">
+<cffunction name="querySort" displayname="QuerySort" access="public" hint="Sort a query based on a custom list" returntype="query" output="true">
     <cfargument name="query" type="query" required="yes" hint="The query to be sorted">
     <cfargument name="columnName" type="string" required="no" default="" hint="The name of the column to be sorted">
     <cfargument name="orderType" type="string" required="no" default="asc" hint="The sort type. Options: asc, desc">
@@ -483,7 +483,7 @@ History:
 					 - Added backward compatibity for the deprecated Parameter "orderColumnName"
 					 - Changed the qColumnsList LOOP to a use REPLACE instead to add the brackets around reserved words 
 --->
-<cffunction name="QuerySortByOrderedList" displayname="QuerySortByOrderedList" access="public" hint="Sort a query based on a custom ordered list" returntype="query" output="false">
+<cffunction name="querySortByOrderedList" displayname="QuerySortByOrderedList" access="public" hint="Sort a query based on a custom ordered list" returntype="query" output="false">
     <cfargument name="query" type="query" required="yes" hint="The query to be sorted">
     <cfargument name="columnName" type="string" required="yes" hint="The name of the column to be sorted">
     <cfargument name="columnType" type="string" required="no" default="" hint="The column type. Not required, will auto-detect. But possible override values: numeric, varchar, date">
@@ -1045,7 +1045,7 @@ Usage:
 History:
 	2015-04-17 - SFS - Added
  --->
-<cffunction name="DollarFormat2" returntype="string" access="public" output="false" hint="Works like the built-in function DollarFormat, but does no rounding so that you can round as you see fit.">
+<cffunction name="dollarFormat2" returntype="string" access="public" output="false" hint="Works like the built-in function DollarFormat, but does no rounding so that you can round as you see fit.">
 	<cfargument name="inNum" type="string" required="false" default="" hist="Dollar value to format.">
 
 	<cfscript>
@@ -1131,7 +1131,7 @@ Usage:
 History:
 	2015-05-21 - GAC - Moved from utils_1_0
  --->
-<cffunction name="HTMLSafeFormattedTextBox" access="public" returntype="string" hint="Converts special characters to character entities, making a string safe for display in HTML.">
+<cffunction name="htmlSafeFormattedTextBox" access="public" returntype="string" hint="Converts special characters to character entities, making a string safe for display in HTML.">
 	<cfargument name="inString" type="string" required="true">
 
 	<cfscript>
