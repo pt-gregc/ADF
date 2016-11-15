@@ -58,6 +58,9 @@ History:
 			     		  - Added the getResources check to the Props
 			     		  - Bumped field version
 	2016-02-19 - GAC - Disabled the field description
+	2016-09-09 - GAC - Updated the widths of the main, section3 and SELECT_BOX to better fix with base render.cfc field rendering
+						  - Added renderStandard(), renderLabelContainerStart() and renderLabelContainerEnd() overrides
+							 to handle new renderFieldLabelAbove and hideFieldLabelContainer PROPS options
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
@@ -73,7 +76,7 @@ History:
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "2.0.13";
+	fieldVersion = "2.0.16";
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
@@ -90,7 +93,9 @@ History:
 	defaultValues.maxSelections = "0";
 	defaultValues.loadAvailable = "0";
 	defaultValues.passthroughParams = "";
-
+	defaultValues.renderFieldLabelAbove = false;
+	defaultValues.hideFieldLabelContainer = false;
+	
 	// Deprecated Settings
 	defaultValues.forceScripts = "0";
 
@@ -105,7 +110,7 @@ History:
 <cfoutput>
 	<script language="JavaScript" type="text/javascript">
 		// register the fields with global props object
-		fieldProperties['#typeid#'].paramFields = '#prefix#chooserCFCName,#prefix#chooserAppName,#prefix#forceScripts,#prefix#minSelections,#prefix#maxSelections,#prefix#loadAvailable,#prefix#passthroughParams,#prefix#uiTheme';
+		fieldProperties['#typeid#'].paramFields = '#prefix#chooserCFCName,#prefix#chooserAppName,#prefix#forceScripts,#prefix#minSelections,#prefix#maxSelections,#prefix#loadAvailable,#prefix#passthroughParams,#prefix#uiTheme,#prefix#renderFieldLabelAbove,#prefix#hideFieldLabelContainer';
 		// allows this field to have a common onSubmit Validator
 		fieldProperties['#typeid#'].jsValidator = '#prefix#doValidate';
 
@@ -170,6 +175,24 @@ History:
 				&nbsp;&nbsp;&nbsp;
 				<label style="color:black;font-size:12px;font-weight:normal;">No <input type="radio" id="#prefix#loadAvailable" name="#prefix#loadAvailable" value="0" <cfif defaultValues.loadAvailable EQ "0">checked</cfif>></label>
 				<br />Select 'Yes' to load all the available selections on the form load.
+			</td>
+		</tr>
+		<tr valign="top">
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Render Field Label Above:</td>
+			<td class="cs_dlgLabelSmall">
+				<label style="color:black;font-size:12px;font-weight:normal;">Yes <input type="radio" id="#prefix#renderFieldLabelAbove" name="#prefix#renderFieldLabelAbove" value="1" <cfif defaultValues.renderFieldLabelAbove EQ "1">checked</cfif>></label>
+				&nbsp;&nbsp;&nbsp;
+				<label style="color:black;font-size:12px;font-weight:normal;">No <input type="radio" id="#prefix#renderFieldLabelAbove" name="#prefix#renderFieldLabelAbove" value="0" <cfif defaultValues.renderFieldLabelAbove EQ "0">checked</cfif>></label>
+				<br />Select 'Yes' to render the field label above the selection lists.
+			</td>
+		</tr>
+		<tr valign="top">
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Hide Field Label:</td>
+			<td class="cs_dlgLabelSmall">
+				<label style="color:black;font-size:12px;font-weight:normal;">Yes <input type="radio" id="#prefix#hideFieldLabelContainer" name="#prefix#hideFieldLabelContainer" value="1" <cfif defaultValues.hideFieldLabelContainer EQ "1">checked</cfif>></label>
+				&nbsp;&nbsp;&nbsp;
+				<label style="color:black;font-size:12px;font-weight:normal;">No <input type="radio" id="#prefix#hideFieldLabelContainer" name="#prefix#hideFieldLabelContainer" value="0" <cfif defaultValues.hideFieldLabelContainer EQ "0">checked</cfif>></label>
+				<br />Select 'Yes' to not render the field label container. (Overrides the Render Label Above option.)
 			</td>
 		</tr>
 		<tr>

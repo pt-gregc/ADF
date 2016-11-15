@@ -65,8 +65,97 @@ History:
 	                 - Added loadResourceDependencies support
 	                 - Moved resource loading to the loadResourceDependencies() method
 	                 - Moved UI theme property to the CFT props
+	2016-09-09 - GAC - Added renderStandard(), renderLabelContainerStart() and renderLabelContainerEnd() overrides
+							 to handle new renderFieldLabelAbove and hideFieldLabelContainer PROPS options
 --->
 <cfcomponent displayName="GeneralChooser_Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
+
+<cfscript>
+	public void function renderStandard(required string fieldName, required string fieldDomID, required string value, required string description, required boolean isRequired, required string displayMode)
+	{
+		var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
+
+		inputParameters = setDefaultParameters(argumentCollection=arguments);
+			
+		if ( inputParameters.renderFieldLabelAbove OR inputParameters.hideFieldLabelContainer ) 	
+		{
+			writeOutput('<div style="padding-left:14px;padding-right:14px;">');
+			
+				renderFieldContainerStart(argumentCollection=arguments);				
+				
+					if ( !inputParameters.hideFieldLabelContainer )
+					{
+						renderLabelContainerStart(argumentCollection=arguments);			
+							renderLabelWrapper(argumentCollection=arguments);
+						renderLabelContainerEnd(argumentCollection=arguments);
+					}
+					
+					renderControlContainerStart(argumentCollection=arguments);
+						renderControlWrapper(argumentCollection=arguments); // handles control UI itself, required indicator, validation js, and field permission
+					renderControlContainerEnd(argumentCollection=arguments);
+				
+				renderFieldContainerEnd(argumentCollection=arguments);
+
+				if (arguments.description != "" && useDescription())
+				{
+					renderDescrContainerStart(argumentCollection=arguments); // descr container is analogous to fieldContainer, w empty label and control container w descr text inside
+						renderLabelContainerStart(noLabelTag=true); // empty, to keep layout consistent w control rendering
+						renderLabelContainerEnd(noLabelTag=true);
+						renderControlContainerStart(className=getComponentClasses("Description"));
+							renderDescriptionWrapper(argumentCollection=arguments);
+						renderControlContainerEnd();
+					renderDescrContainerEnd();
+				}
+			
+			writeOutput('</div');
+		}
+		else
+		{
+			// Use the Standard CFT Rendering
+			super.renderStandard(argumentCollection=arguments);
+		}
+	}
+	
+	// Overriding renderLabelContainerStart
+	public void function renderLabelContainerStart(boolean isRequired=0, string id="", string labelClass="", string fieldDomID="", boolean noLabelTag=0)
+	{
+		var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
+		
+		inputParameters = setDefaultParameters(argumentCollection=arguments);
+		
+		if ( !inputParameters.renderFieldLabelAbove ) 
+			super.renderLabelContainerStart(argumentCollection=arguments);
+		else
+		{
+			var _labelClass = (arguments.labelClass != "") ? " #arguments.labelClass#" : "";
+			var containerClass = getComponentClasses("FormFieldLabelContainer");
+			var idHTML = (arguments.fieldDomID != "") ? ' id="#arguments.fieldDomID#_label"': '';
+			var forHTML = (useLabelFor() && arguments.fieldDomID != "") ? ' for="#arguments.fieldDomID#"' : '';
+			var labelTagHTML = (arguments.noLabelTag || arguments.fieldDomID == "") ? "" : "<label#forHTML#>";
+			if (containerClass != "")
+				containerClass = " " & containerClass;
+			
+			
+			writeOutput('<div#idHTML# class="CS_FormFieldLabelContainer#_labelClass##containerClass#" style="padding-left:4px; width:96% !important; text-align:left !important;">#labelTagHTML#');
+			//original - writeOutput('<div#idHTML# class="CS_FormFieldLabelContainer#_labelClass##containerClass#">#labelTagHTML#');
+		}
+	}
+	
+	public void function renderLabelContainerEnd(boolean noLabelTag=0)
+	{
+		var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
+		
+		inputParameters = setDefaultParameters(argumentCollection=arguments);
+		
+		super.renderLabelContainerEnd(argumentCollection=arguments);
+		
+		if ( inputParameters.renderFieldLabelAbove ) 
+		{
+			// add the clear:both
+			writeOutput('<div style="clear: both"></div>');
+		}
+	}
+</cfscript>
 
 <cffunction name="renderControl" returntype="void" access="public">
 	<cfargument name="fieldName" type="string" required="yes">
@@ -227,7 +316,7 @@ History:
 			inputParameters.maxSelections = "0"; //	0 = infinite selections are possible
 		if( NOT StructKeyExists(inputParameters, "loadAvailable") )
 			inputParameters.loadAvailable = "0"; //	0 = boolean - 0/1
-			
+		
 		if ( NOT StructKeyExists(inputParameters,"chooserCFCName") )
 			inputParameters.chooserCFCName = "";
 		else
@@ -238,8 +327,14 @@ History:
 		else
 			inputParameters.chooserAppName = TRIM(inputParameters.chooserAppName);
 
-		if ( NOT StructKeyExists(inputParameters, "uiTheme") OR LEN(inputParameters.uiTheme) LTE 0 )
+		if ( NOT StructKeyExists(inputParameters,"uiTheme") OR LEN(inputParameters.uiTheme) LTE 0 )
 			inputParameters.uiTheme = "ui-lightness";
+		
+		if ( NOT StructKeyExists(inputParameters,"renderFieldLabelAbove") OR LEN(inputParameters.renderFieldLabelAbove) LTE 0 )
+			inputParameters.renderFieldLabelAbove = false;	//	0 = boolean - 0/1
+		
+		if ( NOT StructKeyExists(inputParameters,"hideFieldLabelContainer") OR LEN(inputParameters.hideFieldLabelContainer) LTE 0 )
+			inputParameters.hideFieldLabelContainer = false;	//	0 = boolean - 0/1
 		
 		return inputParameters;
 	</cfscript>
