@@ -35,6 +35,7 @@ History:
 	2014-01-29 - GAC - Converted to use AjaxProxy and the ADF Lib
     2014-04-21 - JTP - Added logic so that if filter has an expression we don't cache it
     2016-02-09 - JTP - Fixed issues with obj hierarchy select from different element
+    2016-11-15 - GAC - Added a search box above the hierarchy picker box
 --->
 <cfcomponent output="false" displayname="custom_element_hierarchy_selector_base" extends="ADF.extensions.customfields.customfieldsBase" hint="Contains base functions to handle hierarchy selector">
 	
@@ -76,15 +77,21 @@ History:
 	<cffunction name="renderStyles" access="public" returntype="void" hint="Method to render the styles for datamanager">		
         <cfargument name="propertiesStruct" type="struct" required="true" hint="Properties structure for the field">
 		<cfscript>
-			var renderData = '';
+			//var renderData = '';
+			
+			if ( !StructKeyExists(Request, 'objectHierarchyCSS') )
+			{
+				application.ADF.scripts.loadUnregisteredResource('#variables.cftPath#/custom_element_hierarchy_selector_styles.css', "Stylesheet", "head", "secondary", 0, 0);
+				request.objectHierarchyCSS = 1;
+			}
 		</cfscript>
-		<cfif NOT StructKeyExists(Request, 'objectHierarchyCSS')>
+		<!--- <cfif NOT StructKeyExists(Request, 'objectHierarchyCSS')>
 			<cfsavecontent variable="renderData">
 				<cfoutput><link rel="stylesheet" type="text/css" href="#variables.cftPath#/custom_element_hierarchy_selector_styles.css" /></cfoutput>
 			</cfsavecontent>
 			<cfset Request.objectHierarchyCSS = 1>
 		</cfif>
-		<cfoutput>#renderData#</cfoutput>
+		<cfoutput>#renderData#</cfoutput>--->
     </cffunction>
 	
 	<cffunction name="getFilteredData" returntype="array" access="public" hint="Get the data filtered for the field of the custom elemnt">
