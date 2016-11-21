@@ -72,6 +72,8 @@ History:
 							 Calc whether each interface option checkbox is checked in saved data only once, clarify code that depends on that
 							 Remove duplicate and unused DOM ids from interface option checkboxes
 							 Bump field version
+	2016-11-18 - GAC - Added a sub function getContent_genericCFT() for getDisplayData() to break out all non-specified CFTs into an overridable function
+						  	 Updated to render the Field Label as the Grid Column Headers instead of the fieldName
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
@@ -89,7 +91,7 @@ History:
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "2.0.14";
+	fieldVersion = "2.0.15";
 	
 	// CS version and required Version variables
 	requiredCSversion = 10;
@@ -1491,7 +1493,7 @@ History:
 		<tr>
 			<th valign="baseline" class="cs_dlgLabelBold" nowrap="nowrap">Component Override:</th>
 			<td valign="baseline">
-				#Server.CommonSpot.udf.tag.input(type="text", id="#prefix#compOverride", name="#prefix#compOverride", value="#currentValues.compOverride#", size="30", class="InputControl")#
+				#Server.CommonSpot.udf.tag.input(type="text", id="#prefix#compOverride", name="#prefix#compOverride", value="#currentValues.compOverride#", size="70", class="InputControl")#
 			</td>
 		</tr>
 		<tr>
