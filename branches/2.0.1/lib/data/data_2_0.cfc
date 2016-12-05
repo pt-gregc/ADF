@@ -30,11 +30,12 @@ Version:
 	2.0
 History:
 	2015-08-31 - GAC - Created
+	2016-12-05 - GAC - Added the capFirstAllWords() method
 */
 component displayname="data_2_0" extends="data_1_2" hint="Data Utils component functions for the ADF Library" output="no"
 {
     /* PROPERTIES */
-	property name="version" type="string" default="2_0_2";
+	property name="version" type="string" default="2_0_3";
 	property name="type" value="singleton";
 	property name="wikiTitle" value="Data_2_0";
 
@@ -103,4 +104,61 @@ component displayname="data_2_0" extends="data_1_2" hint="Data Utils component f
 
 		return listData;
 	}
+
+	/*
+		Author:
+			PaperThin, Inc.
+		Name:
+			$capFirstAllWords
+		Summary:
+			Updates a string to capitalize each word with options to skip specified words and/or to skip words wrapped
+			in open and close punctuation marks eg. "no fix" or (no fix)
+		Returns:
+			String
+
+		Arguments:
+			String - str - string to capitalize each work
+			String - skipWordsList - list of words to skip
+			Boolean - preserveCaseOfWrappedWords - do not convert words that have been wrapped with punctuation
+		History:
+			2016-11-22 - GAC - Created
+	*/
+	public string function capFirstAllWords(string str="",string skipWordsList="", boolean preserveCaseOfWrappedWords=true)
+	{
+		var rtnStr = "";
+		var strPartsArr = reMatch('([[:punct:]])?([[:word:]]+)([[:punct:]])?([[:word:]]+)?',arguments.str);
+		var strCapsArr = ArrayNew(1);
+		var word = "";
+		var i = 0;
+		var s = 0;
+		var fixWord = false;
+
+		for ( i=1; i LTE ArrayLen(strPartsArr); i=i+1){
+			fixWord = false;
+			word = strPartsArr[i];
+
+			// Skip words if found in the skipWordsList (case-sensitive)
+			if ( ListFind(arguments.skipWordsList,word) EQ 0 )
+				fixWord = true;
+
+			// Skip words surrounded by punctuation
+			if ( REFind('[[:punct:]]', LEFT(word,1), 1) AND REFind('[[:punct:]]', RIGHT(word,1), 1) AND arguments.preserveCaseOfWrappedWords )
+				fixWord = false;
+
+			if ( fixWord )
+			{
+				word = lcase(word);
+				word = uCase(left(word,1)) & right(word ,len(word)-1);
+			}
+
+			ArrayAppend(strCapsArr,word);
+		}
+
+		for ( s=1; s LTE ArrayLen(strCapsArr); s=s+1){
+			rtnStr = ListAppend(rtnStr,strCapsArr[s]," ");
+		}
+
+		return rtnStr;
+	}
+
 }
