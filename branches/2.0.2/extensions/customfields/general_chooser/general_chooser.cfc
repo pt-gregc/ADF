@@ -44,9 +44,10 @@ History:
 	2013-10-23 - GAC - Removed data_1_2 injection due to ADF reset errors on startup
 	2013-12-10 - GAC - Updated the extends to point to ADF.extensions.customfields.general_chooser.v1_2.general_chooser_1_2
 	2015-05-26 - DJM - Updated the extends to point to ADF.extensions.customfields.general_chooser.v2_0.general_chooser_2_0
+	2016-12-06 - GAC - Updated the extends to point to ADF.extensions.customfields.general_chooser.v2_1.general_chooser_2_1
 --->
-<cfcomponent name="general_chooser" extends="ADF.extensions.customfields.general_chooser.v2_0.general_chooser_2_0">
+<cfcomponent name="general_chooser" extends="ADF.extensions.customfields.general_chooser.v2_1.general_chooser_2_1">
 	
-	<!--- // This is pass through file for the v2.0 component for the General Chooser field --->
+	<!--- // This is pass through file for the v2.1 component for the General Chooser field --->
 	
 </cfcomponent>

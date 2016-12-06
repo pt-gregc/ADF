@@ -46,7 +46,8 @@ History:
 	2013-12-10 - GAC - Added redirect CFINCLUDE to point to general_chooser/v1_2/general_chooser_1_2_props.cfm
 	2014-01-02 - GAC - Added the CFSETTING tag to disable CF Debug results in the props module
 	2015-05-26 - DJM - Added redirect CFINCLUDE to point to general_chooser/v2_0/general_chooser_2_0_props.cfm
+	2016-12-06 - GAC - Added redirect CFINCLUDE to point to general_chooser/v2_1/general_chooser_2_1_props.cfm
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
-<cfinclude template="/ADF/extensions/customfields/general_chooser/v2_0/general_chooser_2_0_props.cfm">
+<cfinclude template="/ADF/extensions/customfields/general_chooser/v2_1/general_chooser_2_1_props.cfm">
