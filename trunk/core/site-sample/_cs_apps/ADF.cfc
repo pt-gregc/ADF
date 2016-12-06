@@ -37,8 +37,8 @@ History:
 --->
 <cfcomponent name="ADF" extends="ADF.core.SiteBase">
 	
-<cfproperty name="version" value="2_0_0">
-<cfproperty name="file-version" value="7">
+<cfproperty name="version" value="2_0_1">
+<cfproperty name="file-version" value="8">
 
 <cffunction name="init" returntype="void" access="public">
 	<cfscript>

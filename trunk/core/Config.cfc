@@ -37,8 +37,8 @@ History:
 --->
 <cfcomponent name="Config" hint="Config component for Application Development Framework" extends="Base">
 
-<cfproperty name="version" value="2_0_0">
-<cfproperty name="file-version" value="5">
+<cfproperty name="version" value="2_0_1">
+<cfproperty name="file-version" value="6">
 	
 <!---
 /* *************************************************************** */

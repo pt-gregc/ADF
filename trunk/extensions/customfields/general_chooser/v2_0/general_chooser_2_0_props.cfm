@@ -58,13 +58,16 @@ History:
 			     		  - Added the getResources check to the Props
 			     		  - Bumped field version
 	2016-02-19 - GAC - Disabled the field description
+	2016-09-09 - GAC - Updated the widths of the main, section3 and SELECT_BOX to better fix with base render.cfc field rendering
+						  - Added renderStandard(), renderLabelContainerStart() and renderLabelContainerEnd() overrides
+							 to handle new renderFieldLabelAbove and hideFieldLabelContainer PROPS options
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
 <!--- // if this module loads resources, do it here.. --->
-<!---<cfscript>
-    // No resources to load
-</cfscript>--->
+<cfscript>
+	application.ADF.scripts.loadJQuery(noConflict=true);
+</cfscript>
 
 <!--- ... then exit if all we're doing is detecting required resources --->
 <cfif Request.RenderState.RenderMode EQ "getResources">
@@ -73,7 +76,7 @@ History:
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "2.0.13";
+	fieldVersion = "2.0.18";
 	
 	// initialize some of the attributes variables
 	typeid = attributes.typeid;
@@ -89,8 +92,11 @@ History:
 	defaultValues.minSelections = "0";
 	defaultValues.maxSelections = "0";
 	defaultValues.loadAvailable = "0";
+	defaultValues.loadAvailableOption = "useServerSide";
 	defaultValues.passthroughParams = "";
-
+	defaultValues.renderFieldLabelAbove = false;
+	defaultValues.hideFieldLabelContainer = false;
+	
 	// Deprecated Settings
 	defaultValues.forceScripts = "0";
 
@@ -102,25 +108,62 @@ History:
 			defaultValues[currentValueArray[i]] = currentValues[currentValueArray[i]];
 	}
 </cfscript>
+
+<cfsavecontent variable="cftGeneralChooserPropsCSS">
 <cfoutput>
-	<script language="JavaScript" type="text/javascript">
-		// register the fields with global props object
-		fieldProperties['#typeid#'].paramFields = '#prefix#chooserCFCName,#prefix#chooserAppName,#prefix#forceScripts,#prefix#minSelections,#prefix#maxSelections,#prefix#loadAvailable,#prefix#passthroughParams,#prefix#uiTheme';
-		// allows this field to have a common onSubmit Validator
-		fieldProperties['#typeid#'].jsValidator = '#prefix#doValidate';
+<style>
+	###prefix#loadAvailableOptions {
+		<cfif defaultValues.loadAvailable EQ "1">
+		visibility: visible;
+		<cfelse>
+		display: none;
+		</cfif>
+	}
+</style>
+</cfoutput>
+</cfsavecontent>
 
-		function #prefix#doValidate()
-		{
-			// Check the chooserCFCName
-			if ( document.getElementById('#prefix#chooserCFCName').value.length <= 0 ) {
-				alert("Please enter the Chooser CFC Name property field.");
-				return false;
-			}
-			// Everything is OK, submit form
-			return true;
+<cfsavecontent variable="cftGeneralChooserPropsJS">
+<cfoutput>
+<script language="JavaScript" type="text/javascript">
+<!--
+	jQuery.noConflict();
+
+
+	// register the fields with global props object
+	fieldProperties['#typeid#'].paramFields = '#prefix#chooserCFCName,#prefix#chooserAppName,#prefix#forceScripts,#prefix#minSelections,#prefix#maxSelections,#prefix#loadAvailable,#prefix#loadAvailableOption,#prefix#passthroughParams,#prefix#uiTheme,#prefix#renderFieldLabelAbove,#prefix#hideFieldLabelContainer';
+	// allows this field to have a common onSubmit Validator
+	fieldProperties['#typeid#'].jsValidator = '#prefix#doValidate';
+
+	function #prefix#doValidate()
+	{
+		// Check the chooserCFCName
+		if ( document.getElementById('#prefix#chooserCFCName').value.length <= 0 ) {
+			alert("Please enter the Chooser CFC Name property field.");
+			return false;
 		}
-	</script>
+		// Everything is OK, submit form
+		return true;
+	}
 
+	jQuery(function()
+	{
+		
+		jQuery('input[type=radio][name=#prefix#loadAvailable]').change(function(){
+			jQuery("###prefix#loadAvailableOptions").toggle();
+	  	});
+
+	});
+</script>
+</cfoutput>
+</cfsavecontent>
+
+<cfscript>
+	application.ADF.scripts.addHeaderCSS(cftGeneralChooserPropsCSS,"SECONDARY");
+	application.ADF.scripts.addFooterJS(cftGeneralChooserPropsJS,"SECONDARY");
+</cfscript>
+
+<cfoutput>
 	<!--- // Deprecated Settings --->
 	<input type="hidden" name="#prefix#forceScripts" id="#prefix#forceScripts" value="#defaultValues.forceScripts#">
 
@@ -163,20 +206,53 @@ History:
 				<span>Default: 0 (Use 0 for unlimited selections)</span>
 			</td>
 		</tr>
-		<tr valign="top">
-			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Load All Available Selections:</td>
-			<td class="cs_dlgLabelSmall">
-				<label style="color:black;font-size:12px;font-weight:normal;">Yes <input type="radio" id="#prefix#loadAvailable" name="#prefix#loadAvailable" value="1" <cfif defaultValues.loadAvailable EQ "1">checked</cfif>></label>
-				&nbsp;&nbsp;&nbsp;
-				<label style="color:black;font-size:12px;font-weight:normal;">No <input type="radio" id="#prefix#loadAvailable" name="#prefix#loadAvailable" value="0" <cfif defaultValues.loadAvailable EQ "0">checked</cfif>></label>
-				<br />Select 'Yes' to load all the available selections on the form load.
-			</td>
-		</tr>
 		<tr>
 			<th valign="baseline" class="cs_dlgLabelBold" nowrap="nowrap">Passthrough Params:</th>
 			<td valign="baseline" class="cs_dlgLabelSmall">
 				#Server.CommonSpot.udf.tag.input(type="text", id="#prefix#passthroughParams", name="#prefix#passthroughParams", value="#defaultValues.passthroughParams#", size="70", class="InputControl")#
 				<br />Optional comma-delimited list of Form or URL fields to pass through to dialogs invoked when the user presses the 'Add New Record' button.
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2"><hr noshade="noshade" size="1" align="center" width="98%" /></td>
+		</tr>
+		<tr valign="top">
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Load All Available Selections:</td>
+			<td class="cs_dlgLabelSmall">
+				<label style="color:black;font-size:12px;font-weight:normal;">Yes <input type="radio" id="#prefix#loadAvailableYes" name="#prefix#loadAvailable" value="1" <cfif defaultValues.loadAvailable EQ "1">checked</cfif>></label>
+				&nbsp;&nbsp;&nbsp;
+				<label style="color:black;font-size:12px;font-weight:normal;">No <input type="radio" id="#prefix#loadAvailableNo" name="#prefix#loadAvailable" value="0" <cfif defaultValues.loadAvailable EQ "0">checked</cfif>></label>
+				<br />Select 'Yes' to load all the available selections on the form load.
+			</td>
+		</tr>
+		<tr valign="top" id="#prefix#loadAvailableOptions">
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Initial Load Style:</td>
+			<td class="cs_dlgLabelSmall">
+				<label style="color:black;font-size:12px;font-weight:normal;">Use Server Side <input type="radio" id="#prefix#loadAvailableOptionSS" name="#prefix#loadAvailableOption" value="useServerSide" <cfif defaultValues.loadAvailableOption EQ "useServerSide">checked</cfif>></label>
+				&nbsp;&nbsp;&nbsp;
+				<label style="color:black;font-size:12px;font-weight:normal;">Use JavaScript <input type="radio" id="#prefix#loadAvailableOptionJS" name="#prefix#loadAvailableOption" value="useJavascript" <cfif defaultValues.loadAvailableOption EQ "useJavascript">checked</cfif>></label>
+				<br />Default is 'Use Server Side'. Select 'Use JavaScript' to force the initial load via an ajax request.
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2"><hr noshade="noshade" size="1" align="center" width="98%" /></td>
+		</tr>
+		<tr valign="top">
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Render Field Label Above:</td>
+			<td class="cs_dlgLabelSmall">
+				<label style="color:black;font-size:12px;font-weight:normal;">Yes <input type="radio" id="#prefix#renderFieldLabelAboveYes" name="#prefix#renderFieldLabelAbove" value="1" <cfif defaultValues.renderFieldLabelAbove EQ "1">checked</cfif>></label>
+				&nbsp;&nbsp;&nbsp;
+				<label style="color:black;font-size:12px;font-weight:normal;">No <input type="radio" id="#prefix#renderFieldLabelAboveNo" name="#prefix#renderFieldLabelAbove" value="0" <cfif defaultValues.renderFieldLabelAbove EQ "0">checked</cfif>></label>
+				<br />Select 'Yes' to render the field label above the selection lists.
+			</td>
+		</tr>
+		<tr valign="top">
+			<td class="cs_dlgLabelBold" valign="top" nowrap="nowrap">Hide Field Label:</td>
+			<td class="cs_dlgLabelSmall">
+				<label style="color:black;font-size:12px;font-weight:normal;">Yes <input type="radio" id="#prefix#hideFieldLabelContainerYes" name="#prefix#hideFieldLabelContainer" value="1" <cfif defaultValues.hideFieldLabelContainer EQ "1">checked</cfif>></label>
+				&nbsp;&nbsp;&nbsp;
+				<label style="color:black;font-size:12px;font-weight:normal;">No <input type="radio" id="#prefix#hideFieldLabelContainerNo" name="#prefix#hideFieldLabelContainer" value="0" <cfif defaultValues.hideFieldLabelContainer EQ "0">checked</cfif>></label>
+				<br />Select 'Yes' to not render the field label container. (Overrides the Render Label Above option.)
 			</td>
 		</tr>
 		<tr>

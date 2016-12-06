@@ -106,9 +106,11 @@ History:
 	<cfargument name="label" type="string" required="false" default="" hint="Adds a text label to the log entry">
 	<cfargument name="useUTC" type="boolean" required="false" default="true" hint="Converts the timestamp in the entry and the filename to UTC">
 	<cfargument name="addEntryTimeStampPrefix" type="boolean" required="false" default="true" hint="Allows the timestamp prefix in the log entry to be excluded">
-    <cfscript>
-        application.ADF.log.logAppend( argumentCollection=arguments );
-    </cfscript>
+
+	<cfscript>
+		application.ADF.log.logAppend( argumentCollection=arguments );
+		//server.ADF.objectFactory.getBean("log_1_0").logAppend( argumentCollection=arguments );
+	</cfscript>
 </cffunction>
 
 <!---

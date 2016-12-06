@@ -40,8 +40,8 @@ History:
 --->
 <cfcomponent name="AppBase" extends="Base" hint="App Base component for the ADF">
 
-<cfproperty name="version" value="2_0_0">
-<cfproperty name="file-version" value="4">
+<cfproperty name="version" value="2_0_1">
+<cfproperty name="file-version" value="3">
 
 <cffunction name="init" output="true" returntype="any">
 	<cfscript>
@@ -145,7 +145,7 @@ History:
 				throwErrorMsg = "The'#arguments.appBeanName#' app could not be loaded. Check that the app exists in the '/ADF/apps/' directory.";
 				// cfscript 'throw' is not cf8 compatible
 				//throw("The'#arguments.appBeanName#' app could not be loaded. Check that the app exists in the '/ADF/apps/' directory.");
-				//server.ADF.objectFactory.getBean("utils_1_2").logAppend(throwErrorMsg);	
+				//server.ADF.objectFactory.getBean("log_1_0").logAppend(throwErrorMsg);
 			}
 		}
 	</cfscript>

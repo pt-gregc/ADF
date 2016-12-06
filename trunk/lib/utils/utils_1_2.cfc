@@ -38,7 +38,7 @@ History:
 --->
 <cfcomponent displayname="utils_1_2" extends="utils_1_1" hint="Util functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_17">
+<cfproperty name="version" value="1_2_18">
 <cfproperty name="type" value="singleton">
 <cfproperty name="ceData" type="dependency" injectedBean="ceData_2_0">
 <cfproperty name="csData" type="dependency" injectedBean="csData_1_2">
@@ -227,7 +227,8 @@ History:
 					 - added the hints to the parameters
 					 - moved to utils_1_1 since removing the CFOUTPUTS may change backwards compatiblity
 	2012-09-17 - MFC - Fixed cfargument "default" attribute for URLparams. 
-	2012-09-18 - MFC - Validate that the URL Params arg starts with a leading "&" 
+	2012-09-18 - MFC - Validate that the URL Params arg starts with a leading "&"
+	2016-11-04 - GAC - Added the pageParamName parameter to allow customization of page URL parameter name 
 --->
 <cffunction name="buildPaginationStruct" access="public" returntype="struct">
 	<cfargument name="page" type="numeric" required="true" default="1" hint="the value of the current page">
@@ -238,7 +239,8 @@ History:
 	<cfargument name="listLimit" type="numeric" required="false" default="6" hint="the number of link structs that get built">
 	<cfargument name="linkSeparator" type="string" required="false" default="|" hint="a character(s) separator for between consecutive links">
 	<cfargument name="gapSeparator" type="string" required="false" default="..." hint="a character(s) separator for the gab between skipped links">
-	
+	<cfargument name="pageParamName" type="string" required="false" default="page" hint="the param name used for page variable.">
+
 	<cfscript>
 		var rtn = StructNew();
 		var listStart = '';
@@ -247,6 +249,9 @@ History:
 		var maxPage = Ceiling(arguments.itemCount / arguments.pageSize);
 		var itemStart = 0;
 		var itemEnd = 0;
+		
+		// Make sure we don't have any extra spaces
+		arguments.pageParamName = trim(arguments.pageParamName);
 
 		// Make sure the value passed in for listLimit is at least 4
 		if (arguments.listLimit LT 4 )
@@ -285,7 +290,7 @@ History:
 	</cfif>
 	
 	<cfif arguments.page GT 1>
-		<cfset rtn.prevlink = "?page=#arguments.page-1##arguments.URLparams#">
+		<cfset rtn.prevlink = "?#arguments.pageParamName#=#arguments.page-1##arguments.URLparams#">
 		<!---&laquo; <a href="?page=#arguments.page-1##arguments.URLparams#">Prev</a>--->
 	<cfelse>
 		<cfset rtn.prevlink = "">
@@ -325,7 +330,7 @@ History:
 				<!---|--->
 			</cfif>
 			<cfif arguments.page NEQ pg>
-				<cfset rtn.pageLinks[pg].link = "?page=#pg##arguments.URLparams#">
+				<cfset rtn.pageLinks[pg].link = "?#arguments.pageParamName#=#pg##arguments.URLparams#">
 				<!---<a href="?page=#pg##arguments.URLparams#">#pg#</a>--->
 			<cfelse>
 				<cfset rtn.pageLinks[pg].link = "">
@@ -336,7 +341,7 @@ History:
 		</cfif>
 	</cfloop>
 	<cfif arguments.page LT maxPage>
-		<cfset rtn.nextLink = "?page=#arguments.page+1##arguments.URLparams#">
+		<cfset rtn.nextLink = "?#arguments.pageParamName#=#arguments.page+1##arguments.URLparams#">
 		<!---| <a href="?page=#arguments.page+1##arguments.URLparams#">Next</a> &raquo;--->
 	<cfelse>
 		<cfset rtn.nextLink = "">
@@ -650,6 +655,7 @@ Arguments:
 	String - logfile
 History:
  	2014-04-04 - GAC - Created
+ 	2016-06-09 - GAC - Updated the logAppend calls to point to the log library
 --->
 <cffunction name="doThrow" access="public" returntype="void" hint="Used to throw errors in CFSCRIPT blocks since the cfscript 'throw' is not cf8 compatible">
 	<cfargument name="message" type="string" required="false" default="" hint="Error Message to Throw">
@@ -657,7 +663,9 @@ History:
 	<cfargument name="detail" type="string" required="false" default="" hint="Error Message Detail to Throw">
 	<cfargument name="logerror" type="boolean" required="false" default="false" hint="Log the error.">
 	<cfargument name="logfile" type="string" required="false" default="" hint="Log the error file name.">
+
 	<cfset var logMsg = "">
+
 	<cfif LEN(TRIM(arguments.message))>
 		<!--- // Option to log the error that is going to be thrown --->
 		<cfif LEN(TRIM(arguments.logerror))>
@@ -666,9 +674,9 @@ History:
 				<cfset logMsg = logMsg & " Detail: #arguments.detail#">
 			</cfif>
 			<cfif LEN(TRIM(arguments.logFile))>
-				<cfset logAppend(msg=logMsg,logFile=arguments.logFile)>
+				<cfset Application.ADF.log.logAppend(msg=logMsg,logFile=arguments.logFile)>
 			<cfelse>
-				<cfset logAppend(msg=logMsg)>
+				<cfset Application.ADF.log.logAppend(msg=logMsg)>
 			</cfif>
 		</cfif> 
 		<cfthrow message="#arguments.message#" type="#arguments.type#" detail="#arguments.detail#">
@@ -765,6 +773,7 @@ History:
 	2014-05-27 - GAC - Method cleanup / removed dev dumps
 	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean()
 	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
+	2016-03-14 - GAC - Updated to use application.ADF.data.duplicateStruct()
 --->
 <cffunction name="sanitizeADFDumpVarData" access="public" returntype="any" output="false" hint="Returns a ADFdumpVar data from the ADFdumpVar URL command with secure data sanitized.">
 	<cfargument name="dumpVarStr" type="string" required="false" default="" hint="">
@@ -802,7 +811,7 @@ History:
 				}
 				else
 				{
-					retData = variables.data.duplicateStruct(arguments.dumpVarData);
+					retData = application.ADF.data.duplicateStruct(arguments.dumpVarData);
 					
 					// Find the instances of the CSPASSWORD struct key
 					pwFindArray = StructFindKey(retData,configPWkey,"all");

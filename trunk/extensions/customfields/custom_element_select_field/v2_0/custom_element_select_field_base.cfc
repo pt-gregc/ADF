@@ -35,6 +35,7 @@ History:
 	2014-03-07 - GAC - Created
 	2014-09-16 - DJM - Fixed issue when the currentValue is empty string or comma
 	2015-05-26 - DJM - Added the 2.0 version
+	2016-03-13 - JTP - Add support for being called by datamanager 
 --->
 
 <cfcomponent output="false" displayname="custom element select field_base" extends="ADF.extensions.customfields.customfieldsBase" hint="This the base component for the Custom Element Select field">
@@ -353,7 +354,17 @@ History:
 		</cfif>
 				
 		<cfif inputPropStruct.renderSelectOption>
-			<cfoutput><option value=""> -- select -- </option></cfoutput>
+			
+			<!--- // handle case where coming from DataManager and record is not yet published --->
+			<cfif StructKeyExists(request.params,'linkedFieldValue') 
+				  		AND StructKeyExists(request.params,'openFrom')
+				  		AND request.params.openFrom eq 'DataManager'>
+				<cfoutput><option value="#request.params.linkedFieldValue#"> -- select -- </option></cfoutput>
+				<cfset currentSelectedValue = request.params.linkedFieldValue>
+			<cfelse>	
+				<cfoutput><option value=""> -- select -- </option></cfoutput>
+			</cfif>
+			
 		</cfif>
 		
 			<cfloop index="cfs_i" from="1" to="#ceDataArrayLen#">

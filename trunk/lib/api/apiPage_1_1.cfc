@@ -33,7 +33,7 @@ History:
 --->
 <cfcomponent displayname="apiPage_1_1" extends="apiPage_1_0" hint="API Page functions for the ADF Library">
 
-<cfproperty name="version" value="1_1_0">
+<cfproperty name="version" value="1_1_1">
 <cfproperty name="api" type="dependency" injectedBean="api_1_0">
 <cfproperty name="apiRemote" type="dependency" injectedBean="apiRemote_1_0">
 <!--- <cfproperty name="utils" type="dependency" injectedBean="utils_2_0"> --->
@@ -340,17 +340,17 @@ History:
 	   
        try 
 	   {
-           pageCmdResults = variables.apiRemote.runCmdApi(commandStruct=commandArgs,authCommand=true);
+			pageCmdResults = variables.apiRemote.runCmdApi(commandStruct=commandArgs,authCommand=true);
            
-           // Check the return status has a LENGTH
-           if ( IsStruct(pageCmdResults) AND StructKeyExists(pageCmdResults,"data") )
+         // Check the return status has a LENGTH
+         if ( IsStruct(pageCmdResults) AND StructKeyExists(pageCmdResults,"data") )
 		   {
-           		pageResult["CMDRESULTS"] = pageCmdResults.data;
-			    pageResult["CMDSTATUS"] = true;
-           }
+         	pageResult["CMDRESULTS"] = pageCmdResults.data;
+			   pageResult["CMDSTATUS"] = true;
+         }
 		   else
 		   {
-               pageResult["CMDSTATUS"] = false;
+            pageResult["CMDSTATUS"] = false;
 			   pageResult["CMDRESULTS"] = pageCmdResults;
 		   }
        }

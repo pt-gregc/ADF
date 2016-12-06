@@ -52,6 +52,7 @@ History:
 							 Add styling there for .jstree-disabled on parent div, remove ad hoc js for that
 							 Rename disableJSTree to jsTreeDisable, add possible TODOs for it
 							 Remove duplicate hidden field in some situations
+	2016-11-15 - GAC - Added a search box above the hierarchy picker box
 --->
 <cfcomponent displayName="CustomElementHierarchySelector Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -106,7 +107,16 @@ History:
 				#selectorObj.renderStyles(propertiesStruct=params)#
 				<span id="errorMsgSpan" class="cs_dlgError">#errorMsgCustom#</span>
 				<cfif NOT Len(errorMsgCustom)>
+					<div style="float:right; display:inline-block";"><input type="search" value="" style="box-shadow:inset 0 0 4px ##eee; width:150px; margin:0 0 4px; padding:6px 12px; border-radius:4px; border:1px solid silver; font-size:0.9em;" id="jstree_search_#arguments.fieldName#" placeholder="Search" /></div>
 					<div class="jstree-default-small" style="width:#widthVal#; height:#heightVal#;" id="jstree_#arguments.fieldName#"></div>
+					<div style="text-align: right; font-size:xx-small;">
+						<cfif params.selectionType NEQ 'single'>
+							<div style="display:inline-block" id="jstree_select_all_#arguments.fieldName#"><a href="javascript:;">Select All</a></div>&nbsp;
+							<div style="display:inline-block" id="jstree_deselect_all_#arguments.fieldName#"><a href="javascript:;">Deselect All</a></div>
+						<cfelseif !params.req>
+							<div style="display:inline-block" id="jstree_deselect_#arguments.fieldName#"><a href="javascript:;">Deselect</a></div>
+						</cfif>
+					</div>
 				</cfif>
 			</cfoutput>
 		</cfif>
@@ -141,6 +151,29 @@ History:
 	}
 </cfscript>
 
+<!---
+<cffunction name="setDefaultParameters" returntype="struct" access="private">
+	<cfargument name="fieldName" type="string" required="yes">
+	<cfargument name="fieldDomID" type="string" required="yes">
+	<cfargument name="value" type="string" required="yes">
+	
+	<cfscript>
+		var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
+		
+		// Set the defaults
+		if ( NOT StructKeyExists(inputParameters,"datasource") OR !LEN(TRIM(inputParameters.datasource)) )
+			inputParameters.datasource = "";
+			
+		//if( NOT StructKeyExists(inputParameters,"widthValue") OR NOT IsNumeric(inputParameters.widthValue) )
+		//	inputParameters.widthValue = "200";
+		
+		//if( NOT StructKeyExists(inputParameters,"heightValue") OR NOT IsNumeric(inputParameters.heightValue) )
+		//	inputParameters.heightValue = "150";
+		
+		return inputParameters;
+	</cfscript>
+</cffunction>
+--->
 
 <cffunction name="renderJSFunctions" returntype="void" access="private">
 	<cfargument name="fieldName" type="string" required="yes">
@@ -151,6 +184,7 @@ History:
 	
 	<cfscript>
 		var params =  arguments.parameters;
+		var cftCEhierarchyJS = '';
 		
 		// Set the 'multiple' property
 		var bMult = (params.selectionType EQ 'single') ? false : true;
@@ -162,21 +196,54 @@ History:
 		var autoSelectParents = (params.selectionType EQ 'multiAutoParents') ? true : false;
 	</cfscript>
 	
-<cfoutput><script type="text/javascript">
+<cfsavecontent variable="cftCEhierarchyJS"><cfoutput>
+<script type="text/javascript">
 <!--
 var #toScript(arguments.dataResults, "#arguments.fieldName#_jsResultCEData")#		
 
 jQuery( function () {
+	
 	loadJSTreeData_#arguments.fieldName#();
+	
+	// Init Search Variable
+	var to_#arguments.fieldName# = false;
+	
+	// Search
+	jQuery('##jstree_search_#arguments.fieldName#').keyup(function () {
+		if(to_#arguments.fieldName#) { clearTimeout(to_#arguments.fieldName#); }
+		to_#arguments.fieldName# = setTimeout(function () {
+				var v = jQuery('##jstree_search_#arguments.fieldName#').val();
+				jQuery('##jstree_#arguments.fieldName#').jstree(true).search(v);
+		}, 250);
+	});
+	
+	<cfif params.selectionType NEQ 'single'>
+		//check all checkboxes button click handler
+		jQuery("##jstree_select_all_#arguments.fieldName#").click( function() {	
+				jQuery('##jstree_#arguments.fieldName#').jstree("check_all");
+		});
+	
+		//uncheck all checkboxes button click handler
+		jQuery("##jstree_deselect_all_#arguments.fieldName#").click( function() {
+				jQuery('##jstree_#arguments.fieldName#').jstree("uncheck_all");
+		});
+	<cfelseif !params.req>
+		// deselected the selected node button click handler
+		jQuery("##jstree_deselect_#arguments.fieldName#").click( function() {
+				jQuery('###arguments.fieldName#').val('');
+				jQuery('##jstree_#arguments.fieldName# .jstree-anchor').removeClass('jstree-clicked');
+		});
+	</cfif>
+	
 });
 
 function loadJSTreeData_#arguments.fieldName#()
 {					
 	jQuery('##jstree_#arguments.fieldName#').jstree({
 		"core" : {
-			"multiple" : #bMult#,
-			"themes" : { icons: false, variant: "small", responsive: false },
-			"data" : #arguments.fieldName#_jsResultCEData,
+			"multiple" : #bMult#
+			,"themes" : { icons: false, variant: "small", responsive: false }
+			,"data" : #arguments.fieldName#_jsResultCEData
 		},
 
 		"checkbox" : {
@@ -188,7 +255,9 @@ function loadJSTreeData_#arguments.fieldName#()
 		}
 
 		<cfif bMult>
-		, "plugins" : [ "checkbox" ]
+		, "plugins" : [ "checkbox", "search" ]
+		<cfelse>
+		, "plugins" : [ "search" ]
 		</cfif>
 	});
 
@@ -211,23 +280,25 @@ function loadInitialSelectedNodes_#arguments.fieldName#()
 			
 			jQuery('##jstree_#arguments.fieldName#').jstree("select_node", arr, true);
 		}
-		
-		<!---
-			2016-02-19 - DRM: this makes no sense to me
-				It's possible someone may want some nodes open initially, but the configured rootValue isn't a reasonable way to request that
-				If for instance the rootValue is the ID of an existing record, why should that mean the root node gets expanded?
-		--->
-		<cfif params.rootValue neq "">
-		jQuery('##jstree_#arguments.fieldName#').jstree( "open_node", '#fieldQuery.InputID#_#params.rootValue#' );		
+
+		<!--- // Updated to expand first node of tree is rootNodeText is defined --->
+		<cfif LEN(TRIM(params.rootNodeText))>
+			<cfif LEN(TRIM(params.rootValue)) EQ 0>
+				jQuery('##jstree_#arguments.fieldName#').jstree( "open_node", '#arguments.fieldID#__anchor' );
+			<cfelse>
+				jQuery('##jstree_#arguments.fieldName#').jstree( "open_node", '#arguments.fieldID#_#params.rootValue#' );
+			</cfif>
 		</cfif>
 
+		<!--- !!! THIS CODE FOR SELECTING ROOTNODES IS NOT NEEDED!!! THIS HAS BEEN RESOLVED - gac 9/2/2016 --->
 		<!---
 			arguments.value is the ParentID; this tests if the current node is a child of the root node, and highlighting it if so, like happens in other cases
 			TODO: handle this in multi-select mode
-		--->
-		<cfif arguments.value eq params.rootValue and not bMult>
+				
+		<cfif !bMult AND arguments.value eq params.rootValue >
 		jQuery('.jstree-anchor').addClass('jstree-clicked'); // so root node is highlighted w/o opening
 		</cfif>
+		--->
 
 		<cfif arguments.displayMode eq "readonly">
 		jsTreeDisable('##jstree_#arguments.fieldName#');
@@ -260,6 +331,7 @@ function setSelectedNodes_#arguments.fieldName#(selectedNodesList)
 	var selectedNodesArray = selectedNodesList.toString().split(",");
 	var selectedNodesIDList = '';
 	var fieldID = '#arguments.fieldID#';
+	
 	for (var valIndex=0; valIndex < selectedNodesArray.length; valIndex++)
 	{
 		var fieldIDIndex = selectedNodesArray[valIndex].indexOf('#arguments.fieldID#_');
@@ -380,6 +452,12 @@ function CascadeDown_#arguments.fieldName#(treeObject,inNode,inCommand) {
 </cfif>
 //-->
 </script></cfoutput>
+</cfsavecontent>
+
+<cfscript>
+	application.ADF.scripts.addFooterJS(cftCEhierarchyJS,"SECONDARY");
+</cfscript>
+
 </cffunction>
 
 <cfscript>

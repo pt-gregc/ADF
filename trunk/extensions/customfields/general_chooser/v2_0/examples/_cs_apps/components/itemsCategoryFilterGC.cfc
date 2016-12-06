@@ -140,7 +140,7 @@ History:
 							<option value="#catDataArray[cat_i].values[variables.catCEField]#"<cfif gcCustomParams[variables.catUrlParam] EQ catDataArray[cat_i].values[variables.catCEField]> selected="selected"</cfif>>#catDataArray[cat_i].values[variables.catDisplayField]#</option>
 						</cfloop>
 					</select>
-					<a href="javascript:;" id="#arguments.fieldName#-filterBtn" class="ui-state-default ui-corner-all #arguments.fieldName#-ui-buttons">Filter</a>
+					<!--- <a href="javascript:;" id="#arguments.fieldName#-filterBtn" class="ui-state-default ui-corner-all #arguments.fieldName#-ui-buttons">Filter</a> --->
 				</div> 
 				</cfif>
 				<div id="search-chooser">
@@ -316,6 +316,22 @@ jQuery(function(){
 	});
 	
 	<cfif StructKeyExists(variables,"renderCatFilter") AND variables.renderCatFilter> 
+	// onChange Event for Filter Dropdown
+	jQuery('###arguments.fieldName#_categorySelect').change(function() {
+		var filterVal = jQuery(this).find(':selected').val();
+
+		if ( filterVal != '' )
+			jQuery('span###arguments.fieldName#_catFilterShowAllLink').show();
+		else
+			jQuery('span###arguments.fieldName#_catFilterShowAllLink').hide();
+
+		jQuery('input###arguments.fieldName#-searchFld').val('');
+		#arguments.fieldName#_useFilter = 1;
+
+		// Load all the not-selected options
+		#arguments.fieldName#_loadTopics('notselected');
+	});
+	
 	// Click Event for Filter Button link
 	jQuery('###arguments.fieldName#-filterBtn').click(function() {
 		var filterVal = jQuery('select###arguments.fieldName#_categorySelect').find(':selected').val();
@@ -331,6 +347,7 @@ jQuery(function(){
 		// Load all the not-selected options
 		#arguments.fieldName#_loadTopics('notselected');
 	});
+	
 	// Click Event for Show all Filtered Items link
 	jQuery('###arguments.fieldName#-showAllFilteredItems').click(function() {
 		jQuery('input###arguments.fieldName#-searchFld').val('');
@@ -447,10 +464,13 @@ function checkResizeWindow()
 function #arguments.fieldName#_formCallback(formData)
 {
 	formData = typeof formData !== 'undefined' ? formData : {};
-	var cValue = jQuery("input###arguments.fieldName#").val();
+    
+	var tempValue = "";
+   var cValue = jQuery("input###arguments.fieldName#").val();
 
 	// Call the utility function to make sure the JS object keys are all lowercase 
 	formData = #arguments.fieldName#_ConvertCaseOfDataObjKeys(formData,'lower');
+	js_#arguments.fieldName#_CE_FIELD = js_#arguments.fieldName#_CE_FIELD.toLowerCase();
 
 	// Load the newest item onto the selected values
 	// 2012-07-31 - MFC - Replaced the CFJS function for "ListLen" and "ListFindNoCase".

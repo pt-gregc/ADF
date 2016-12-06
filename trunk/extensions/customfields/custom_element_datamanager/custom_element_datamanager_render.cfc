@@ -66,6 +66,7 @@ History:
 	2016-02-09 - DRM - Hard code minimum values in getMinWidth() and getMinHeight()
 	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
 	2016-02-19 - DRM - Implement loadResourceDependencies()
+	2016-06-22 - DJM - Fixed the issue for datamanager bleeding over the form area
 --->
 <cfcomponent displayName="CustomElementDataManager Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -268,7 +269,7 @@ History:
 							<span id="errorMsgSpan"></span>
 						</td></tr>
 						<tr><td>
-						<div id="datamanager_#uniqueTableAppend#">
+						<div id="datamanager_#uniqueTableAppend#" style="white-space: normal !important;">
 							<table id="customElementData_#uniqueTableAppend#" class="display" style="min-width:#widthVal#;">
 							<thead><tr></tr></thead>
 							<tbody>
