@@ -34,7 +34,7 @@ History:
 
 <cfcomponent name="SiteBeanConfig" extends="LightWireConfigExtendedBase" hint="A LightWire configuration bean.">
 
-<cfproperty name="version" value="2_0_1">
+<cfproperty name="version" value="2_0_2">
 <cfproperty name="file-version" value="3">
 
 <!--- 

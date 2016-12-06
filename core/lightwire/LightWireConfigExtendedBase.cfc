@@ -37,7 +37,7 @@ History:
 --->
 <cfcomponent name="LightWireConfigExtendedBase" extends="ADF.thirdParty.lightwire.BaseConfigObject" output="false">
 
-<cfproperty name="version" value="2_0_1">
+<cfproperty name="version" value="2_0_2">
 <cfproperty name="file-version" value="4">
 
 <cffunction name="init" returntype="any" hint="I initialize default LightWire config properties." output=false access="public">
