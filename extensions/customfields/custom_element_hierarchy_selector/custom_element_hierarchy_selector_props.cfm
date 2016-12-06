@@ -48,6 +48,7 @@ History:
 	2016-02-18 - DRM - Add resource detection support (do nothing and exit)
 						  - Bump field version
 	2016-02-19 - DRM - Bump field version (three times) for cfc and css changes
+	2016-11-15 - GAC - Added a search box above the hierarchy picker box
 --->
 
 <!--- // if this module loads resources, do it here.. --->
@@ -64,7 +65,7 @@ History:
 
 <cfscript>
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "2.0.8";
+	fieldVersion = "2.0.9";
 	
 	requiredVersion = 10;
 	productVersion = ListFirst(ListLast(request.cp.productversion," "),".");

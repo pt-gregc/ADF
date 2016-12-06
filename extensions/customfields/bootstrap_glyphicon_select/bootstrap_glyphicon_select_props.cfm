@@ -33,6 +33,7 @@ History:
 	2016-02-19 - DRM - Resource detection exit
 							 Bump field version
 	2016-02-22 - GAC - Updated field label class
+	2016-02-19 - GAC - Added the option to include the base icon class in the save class string data
 --->
 
 <!--- // if this module loads resources, do it here.. --->
@@ -56,9 +57,10 @@ History:
 //writedump( var="#currentValues#", expand="no" );
 	
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "1.0.3";
+	fieldVersion = "1.0.4";
 	
 	// initialize some of the attributes variables
+	addIconClass = false;
 	showSize = 0;
 	glyphiconDataFile = "";
 	
@@ -69,7 +71,9 @@ History:
 
 	// Default location for the Required Resouce to be registered in CommonSpot
 	requiredResourceLocation = "/ADF/thirdParty/jquery/bootstrap/#defaultBootstrapVersion#/css/bootstrap-ADF-ext.css";
-
+	
+	if( StructKeyExists(currentValues, "addIconClass") )
+		addIconClass = currentValues.addIconClass;
 	if( StructKeyExists(currentValues, "ShowSize") )
 		ShowSize = currentValues.ShowSize;
 		
@@ -79,7 +83,7 @@ History:
 
 <cfoutput>
 	<script type="text/javascript"]>
-		fieldProperties['#typeid#'].paramFields = "#prefix#ShowSize,#prefix#ShowFixedWidth,#prefix#ShowBorder,#prefix#ShowSpin,#prefix#ShowPull,#prefix#glyphiconDataFile";
+		fieldProperties['#typeid#'].paramFields = "#prefix#addIconClass,#prefix#ShowSize,#prefix#ShowFixedWidth,#prefix#ShowBorder,#prefix#ShowSpin,#prefix#ShowPull,#prefix#glyphiconDataFile";
 	</script>
 	<table>
 		<tr>
@@ -90,6 +94,14 @@ History:
 				<br/>The <strong>SIZE</strong> option requires the "bootstrap-ADF-ext.css" file be registered as a resouce along with Bootstrap's library CSS file. 
 				Otherwise glyphicon size class definitions (eg. glyphicon-2x, etc.) will need to be added to the sites custom style sheet.
 				<br/>(<em>Resource Location: #requiredResourceLocation#</em> )
+			</td>
+		</tr>
+		<tr>
+			<td class="cs_dlgLabelBold" nowrap="nowrap" valign="top">Include:</td>
+			<td class="cs_dlgLabelSmall">
+				<input type="checkbox" name="#prefix#addIconClass" id="#prefix#addIconClass" value="1" class="cs_dlgControl" <cfif addIconClass eq 1>checked="checked"</cfif>><label for="#prefix#addIconClass">"glyphicon" Base Icon Class</label> &nbsp;
+			
+				<br/>Check this option to include the base "glyphicon" class to the class string that is built for the selected icon.
 			</td>
 		</tr>
 		<tr>

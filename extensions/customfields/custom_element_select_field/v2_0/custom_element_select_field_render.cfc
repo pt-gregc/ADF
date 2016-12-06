@@ -80,8 +80,14 @@ History:
 	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
 	2016-02-22 - DRM - Implement loadResourceDependencies()
 							 Remove duplicate loadJQuery() calls
+	2016-07-01 - GAC - Updated the render.cfc file to load Javascript via the loadResources() TERTIARY
+						  - Updated to always render isMultiline=true. So single select radio buttons will render the label at the top.
+
+
+
 To Do:
 	2014-04-08 - JTP - Currently we are NOT sorting the list if displayed as checkboxes/radio buttons and user choose sort by display value
+
 --->
 <cfcomponent displayName="CustomElementSelectField Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
@@ -180,8 +186,10 @@ To Do:
 		// Ajax URL to the proxy component in the context of the site
 		var ajaxComURL = application.ADF.ajaxProxy;
 		var ajaxBeanName = 'customElementSelect_1_0';
+		var cftCustomeElementSelectJS = "";
 	</cfscript>
 
+<cfsavecontent variable="cftCustomeElementSelectJS">
 <cfoutput>
 <script type="text/javascript">
 <!--
@@ -304,6 +312,13 @@ function onSuccess_#arguments.fieldName#(data)
 }
 //-->
 </script></cfoutput>
+</cfsavecontent>
+
+	<cfscript>
+		// Load the cftCustomeElementSelectJS
+		Application.ADF.scripts.addFooterJS(cftCustomeElementSelectJS, "TERTIARY"); // resourceGroup: PRIMARY, SECONDARY, TERTIARY
+	</cfscript>
+
 </cffunction>
 
 <cffunction name="setDefaultParameters" returntype="struct" access="private">
@@ -363,7 +378,9 @@ function onSuccess_#arguments.fieldName#(data)
 
 	private boolean function isMultiline()
 	{
-		return (structKeyExists(arguments.parameters, "multipleSelect") && arguments.parameters.multipleSelect == 1);
+		return true;
+		// Below DOES NOT handle RADIO BUTTONS which are single select but are also Multiline
+		//return (structKeyExists(arguments.parameters, "multipleSelect") && arguments.parameters.multipleSelect == 1);
 	}
 
 	public string function getResourceDependencies()

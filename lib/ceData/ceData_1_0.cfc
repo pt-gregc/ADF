@@ -38,7 +38,7 @@ History:
 --->
 <cfcomponent displayname="ceData_1_0" extends="ADF.lib.libraryBase" hint="Custom Element Data functions for the ADF Library">
 
-<cfproperty name="version" value="1_0_19">
+<cfproperty name="version" value="1_0_20">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_0">
 <cfproperty name="wikiTitle" value="CEData_1_0">
@@ -1506,6 +1506,7 @@ History:
 	2014-10-29 - GAC - Updated for CommonSpot 9 to use the CMD API to get the CE Categories and the CE Elements
 					 - Added the categoryID parameter to filter by Category ID
 					 - Added the allCats parameter to return all Custom Elements all Categories
+	2016-03-16 - GAC - Updated to use the SQL function LOWER() instead of LCASE()
 --->
 <cffunction name="getCEForCategory" access="public" returntype="query" hint="Returns a query of active CE names and form IDs for specified active Category or Category ID.">
 	<cfargument name="categoryName" type="string" required="false" default="" hint="A Category Name used to get a list of Custom Elements">
@@ -1542,7 +1543,7 @@ History:
 			AND    catsQry.IsActive = 1
 			<cfif arguments.allCats EQ false>
 				<cfif LEN(TRIM(arguments.categoryName)) NEQ 0>
-				AND	  lcase(catsQry.Name) = <cfqueryparam value="#lcase(arguments.categoryName)#" cfsqltype="cf_sql_varchar">
+				AND	   LOWER(catsQry.Name) = <cfqueryparam value="#lcase(arguments.categoryName)#" cfsqltype="cf_sql_varchar">
 				<cfelseif IsNumeric(arguments.categoryID)>
 				AND	  catsQry.ID = <cfqueryparam value="#arguments.categoryID#" cfsqltype="cf_sql_integer">
 				</cfif>

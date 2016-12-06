@@ -220,7 +220,7 @@ Summary:
 	@version 1, October 8, 2002
 	@history Updated list conversion code so that if the data contained commas the function would still work. Now uses a period as the delimiter.
 --->
-<cffunction name="ArraySort2D" access="public" returntype="array">
+<cffunction name="arraySort2D" access="public" returntype="array">
 	<cfargument name="arrayToSort" type="array" required="yes">
 	<cfargument name="sortColumn" type="numeric" required="yes">
 	<cfargument name="type" type="string">
@@ -283,7 +283,7 @@ History:
 	2011-02-09 - MFC - Renamed the "LOCAL" variable name.
 						Updated the comment header for the credits.
 --->
-<cffunction name="CSVToArray" access="public" returntype="array" output="false" hint="Takes a CSV file or CSV data value and converts it to an array of arrays based on the given field delimiter. Line delimiter is assumed to be new line / carriage return related.">
+<cffunction name="csvToArray" access="public" returntype="array" output="false" hint="Takes a CSV file or CSV data value and converts it to an array of arrays based on the given field delimiter. Line delimiter is assumed to be new line / carriage return related.">
 	<cfargument name="File" type="string" required="false" default="" hint="The optional file containing the CSV data.">
 	<cfargument name="CSV" type="string" required="false" default="" hint="The CSV text data (if the file was not used).">
 	<cfargument name="Delimiter" type="string" required="false" default="," hint="The data field delimiter.">
@@ -472,7 +472,7 @@ Summary:
 	@author Michael Slatoff (michael@slatoff.com)
 	@version 1, August 20, 2001
  --->
-<cffunction name="ListInCommon" access="public" returntype="String">
+<cffunction name="listInCommon" access="public" returntype="String">
 	<cfargument name="list1" type="String" required="true">
 	<cfargument name="list2" type="String" required="true">
 
@@ -517,7 +517,7 @@ Arguments:
 History:
 	2009-01-20 - MFC - Created
 --->
-<cffunction name="QueryToXML" access="public" returntype="xml">
+<cffunction name="queryToXML" access="public" returntype="xml">
 	<cfargument name="query" type="query" required="true">
 	<cfargument name="rootElementName" type="string" required="false" default="query">
 	<cfargument name="rowName" type="string" required="false" default="row">
@@ -1349,7 +1349,7 @@ History:
 	2015-09-11 - GAC - Replaced duplicate() with Server.CommonSpot.UDF.util.duplicateBean()
 	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
 --->
-<cffunction name="ArrayConcat" access="public" returntype="array" hint="">
+<cffunction name="arrayConcat" access="public" returntype="array" hint="">
 	<cfargument name="a1" type="array" required="true" hint="">
 	<cfargument name="a2" type="array" required="true" hint="">
 	
@@ -1464,7 +1464,7 @@ Summary:
 	@version 1, December 17, 2001
 */
 --->
-<cffunction name="StructToQueryString" access="public" returntype="string" hint="">
+<cffunction name="structToQueryString" access="public" returntype="string" hint="">
 	<cfargument name="struct" type="struct" required="true" hint="">
 	
 	<cfscript>

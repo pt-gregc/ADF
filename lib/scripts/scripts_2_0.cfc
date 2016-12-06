@@ -44,11 +44,13 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 			2015-11-18 - DRM - Added loadUnregisteredResource method
 									 Modified loadTheme to use an unregistered resource if possible
 			2016-02-26 - GAC - Updated default params loadUnregisteredResource()
+			2016-03-14 - GAC - Added the renderQueued() method
+								  - Updated loadTheme to limit error log entries to only one per request
 	*/
 
 
 	/* PROPERTIES */
-	property name="version" type="string" default="2_0_1";
+	property name="version" type="string" default="2_0_2";
 	property name="type" value="singleton";
 	property name="wikiTitle" value="Scripts_2_0";
 
@@ -104,6 +106,11 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 
 		Server.CommonSpot.udf.resources.addHeaderCSS(arguments.css, arguments.resourceGroup);
 	}
+	
+	public void function renderQueued() 
+	{
+		Server.CommonSpot.UDF.resources.renderQueued();
+	}
 
 	/*
 		generic theme/skin loader
@@ -118,7 +125,7 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 			2016-01-07 - GAC - Updated the loadTheme to check if the ThemeName is a registered resource before attempting
 								build the theme's CSS file path from defaultResource's information
 			2016-02-08 - AW - Updated resourceAPI.getList()
-
+			2016-03-14 - GAC - Updated to limit a loadTheme error log entry to only one per request
 	*/
 	public void function loadTheme(string themeName, string defaultResourceName, string parentKey)
 	{
@@ -164,17 +171,27 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 					 // This case handles the bad cssURL and uses the default resource
 					loadResources(arguments.defaultResourceName);
 
-					errMsg = "Could not find the requested theme resource '#arguments.themeName#', using the default theme '#arguments.defaultResourceName#' instead. Please register the required theme as a CommonSpot Resource.";
-					Server.CommonSpot.addLogEntry(errMsg);
-                    //throw(errMsg);
+					if ( !StructKeyExists(request,"ADFloadTheme#arguments.themeName#" ) )
+				 	{
+						errMsg = "Could not find the requested theme resource '#arguments.themeName#', using the default theme '#arguments.defaultResourceName#' instead. Please register the required theme as a CommonSpot Resource.";
+						Server.CommonSpot.addLogEntry(errMsg);
+						//throw(errMsg);
+
+						request["ADFloadTheme#arguments.themeName#"] = 1;
+					}
 				}
 			}
 			else
 			{
-				 // This case handles the missing default resource ... see log for more details
-				 errMsg = "Could not find the requested theme resources '#arguments.themeName#' or the default theme '#arguments.defaultResourceName#'. Please register the required themes as CommonSpot Resources.";
-				 Server.CommonSpot.addLogEntry(errMsg);
-				 //throw(errMsg);
+				 if ( !StructKeyExists(request,"ADFloadTheme#arguments.themeName#" ) )
+				 {
+				   // This case handles the missing default resource ... see log for more details
+					 errMsg = "Could not find the requested theme resources '#arguments.themeName#' or the default theme '#arguments.defaultResourceName#'. Please register the required themes as CommonSpot Resources.";
+					 Server.CommonSpot.addLogEntry(errMsg);
+					 //throw(errMsg);
+
+					 request["ADFloadTheme#arguments.themeName#"] = 1;
+				}
 			}
 		}
 	}
@@ -190,7 +207,7 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 			2016-01-07 - GAC - Set useMigrate to be disabled by default
 								- Switched to used addFooterJS instead of addFooterHTML
 	*/
-	public void function loadJQuery(string version="", boolean force=0, boolean noConflict=0, useMigrate=0 )
+	public void function loadJQuery(string version="", boolean force=0, boolean noConflict=0, boolean useMigrate=0 )
 	{
 		loadResources("jQuery");
 
@@ -260,6 +277,8 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
     /*
         History:
             2016-02-10 - ACW - Added the "CSLightbox" as a CommonSpot registered resource
+            2016-06-10 - GAC - Updated to make sure Height/Width are numeric values when passed in via URL params
+									  - Updated to make sure no HTML tags are passed in via the Title/Subtitle URL params
     */
 	public void function loadADFLightbox(string version="", boolean force=0)
 	{
@@ -274,20 +293,27 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 			request.ADFLightboxLoaded = 1;
 
 		// Set a default Width
-		if ( NOT StructKeyExists(request.params, "width") )
+		if ( !StructKeyExists(request.params, "width") OR !isNumeric(request.params.width) )
 			request.params.width = 500;
 
 		// Set a default Height
-		if ( NOT StructKeyExists(request.params, "height") )
+		if ( !StructKeyExists(request.params, "height") OR !isNumeric(request.params.height) )
 			request.params.height = 500;
 
 		// Set a default Title
-		if ( NOT StructKeyExists(request.params, "title") )
+		if ( !StructKeyExists(request.params, "title") )
 			request.params.title = "";
 
 		// Set a default Subtitle
-		if ( NOT StructKeyExists(request.params, "subtitle") )
+		if ( !StructKeyExists(request.params, "subtitle") )
 			request.params.subtitle = "";
+
+		// Make sure that no html tags are pass to the ADF lightbox JavaScript
+		// NOTE: Can NOT use local dependency (variables.data.) here... since it is called by lightboxProxy 
+		if ( LEN(TRIM(request.params.title)) )
+			request.params.title = Application.ADF.data.stripHTMLTags(request.params.title);
+		if ( LEN(TRIM(request.params.subtitle)) )
+			request.params.subtitle = Application.ADF.data.stripHTMLTags(request.params.subtitle);
 
 		// Build the ADFlightbox INIT JS block
 		saveContent variable="js"
@@ -499,6 +525,11 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 		loadResources("jQuery,jQueryHighlight");
 	}
 
+	public void function loadJQueryHighlightTextArea(string version="", boolean force=0)
+	{
+		loadResources("jQuery,jQueryHighlightTextArea");
+	}
+
 	public void function loadJQueryHotkeys(boolean force=0)
 	{
 		loadResources("jQuery,jQueryHotkeys");
@@ -690,10 +721,14 @@ component displayname="scripts_2_0" extends="scripts_1_2" hint="Scripts function
 		loadResources("TableSorterThemes");
 	}
 
+	/*
+	The ThickBox JQuery Lightbox Plugin Library is no longer included as part of the ADF's ThirdParty library.
+		ThickBox 3.1 (last updated on 08/08/2007)
+		http://codylindley.com/thickbox/
 	public void function loadThickbox()
 	{
 		loadResources("jQuery,Thickbox");
-	}
+	} */
 
 	public void function loadTipsy()
 	{

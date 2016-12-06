@@ -44,12 +44,14 @@ History:
 	2016-02-09 - GAC - Updated duplicateBean() to use data_2_0.duplicateStruct()
 	2016-02-19 - GAC - Added loadResourceDependencies support
 	                 - Moved resource loading to the loadResourceDependencies() method
+	2016-02-19 - GAC - Added the option to include the base icon class in the save class string data
 --->
 <cfcomponent displayName="FontAwesomeSelect_Render" extends="ADF.extensions.customfields.adf-form-field-renderer-base">
 
 <cfscript>
 	variables.defaultFAversion = "4.4";
 	variables.defaultIconDataFile = "/ADF/thirdParty/css/font-awesome/#variables.defaultFAversion#/data/icon-data.csv";
+	variables.defaultIconClass = "fa";
 </cfscript>
 
 <cffunction name="renderControl" returntype="void" access="public">
@@ -72,6 +74,10 @@ History:
 		var selected = "";
 		var s = "";
 		var cftPath = "/ADF/extensions/customfields/font_awesome_select";
+		var iconClass = variables.defaultIconClass;
+		var previewIconCurrentValue = "";
+		var previewTextCurrentValue = "";
+		var selectedCurrentValue = "";
 		
 		inputParameters = setDefaultParameters(argumentCollection=arguments);
 		if ( StructKeyExists(inputParameters,"iconDataFile") AND LEN(TRIM(inputParameters.iconDataFile)) )
@@ -97,13 +103,47 @@ History:
 			ArrayAppend( fontArray, '#iconDataArr[a][1]#,#iconDataArr[a][2]#' ); 
 		}
 
-		// Set the curVal
-		for( i=1; i lte ArrayLen(fontArray); i=i+1 )
+		// Set the curVal - NOT USED
+		/*for( i=1; i lte ArrayLen(fontArray); i=i+1 )
 		{
 			if ( ListFirst(fontArray[i]) eq currentValue )
 			{
 				curVal = "#ListLast(fontArray[i])# #ListFirst(fontArray[i])#";
 				break;
+			}
+		}*/
+		
+		// Clear value if switching ICON libraries
+		if ( inputParameters.addIconClass AND FindNoCase(iconClass,currentValue,1) EQ 0 )
+			currentValue = ""; // TODO: Find similarly named icon in new icon library
+		
+		if ( LEN(TRIM(currentValue)) )
+		{
+			if ( inputParameters.addIconClass )
+			{
+				if ( ListFindNoCase(currentValue,iconClass,' ') EQ 0 )
+					 currentValue = iconClass & ' ' & currentValue;
+				 
+				previewIconCurrentValue = currentValue;
+				previewTextCurrentValue = currentValue;
+				if ( ListLen(currentValue,' ') GTE 2 )
+					previewTextCurrentValue = TRIM(ListGetAt(currentValue,2,' '));
+				selectedCurrentValue = previewTextCurrentValue;
+			
+				//previewTextCurrentValue = ListFirst(TRIM(ReplaceNoCase(currentValue,iconClass&' ','')), ' '); - OLD WAY			
+			}
+			else
+			{
+				if ( ListFindNoCase(currentValue,iconClass,' ') NEQ 0 )
+					currentValue = TRIM(ReplaceNoCase(currentValue,iconClass&' ',''));
+			
+				previewIconCurrentValue = iconClass & ' ' & currentValue;
+				previewTextCurrentValue = currentValue;
+				if ( ListLen(currentValue,' ') GTE 1 )
+					previewTextCurrentValue = TRIM(ListGetAt(currentValue,1,' '));
+				selectedCurrentValue = previewTextCurrentValue;
+			
+				//previewTextCurrentValue = ListFirst(currentValue, ' '); - OLD WAY
 			}
 		}
 	</cfscript>
@@ -124,8 +164,8 @@ History:
 	</cfscript>
 	<cfoutput>
 		<div class="fa-selectedDataDiv">
-			<i id="icon_#inputParameters.fldID#" class="fa #currentValue#"></i> 
-			<span id="sel_#inputParameters.fldID#">#ListFirst(currentValue, ' ')#</span>
+			<i id="icon_#inputParameters.fldID#" class="#previewIconCurrentValue#"></i> 
+			<span id="sel_#inputParameters.fldID#">#previewTextCurrentValue#</span>
 		</div>
 		<input type="text" name="fa_search_#inputParameters.fldID#" id="fa_search_#inputParameters.fldID#" value="" <cfif readOnly>disabled="disabled"</cfif> class="fa-searchInput" placeholder="Type to filter list of icons"> 
 		<input class="clsPushButton fa-clearButton" type="button" value="Clear" onclick="clearInput_#arguments.fieldName#()">
@@ -135,7 +175,7 @@ History:
 			<div id="icondata_#inputParameters.fldID#" class="fa-cols-3">
 				<ul>
 					<cfloop index="i" from="1" to="#ArrayLen(fontArray)#" step="1">
-						<cfif ListFirst(currentValue, ' ') EQ ListFirst(fontArray[i])>
+						<cfif selectedCurrentValue EQ ListFirst(fontArray[i])>
 							<cfset selected = "selected">
 							<cfset selected_index = '#ListLast(fontArray[i])# #ListFirst(fontArray[i])#'>
 						<cfelse>	
@@ -258,6 +298,8 @@ function findFunction_#arguments.fieldName#(inString)
 
 function buildClasses_#arguments.fieldName#()
 {
+	var iconClass = '#variables.defaultIconClass#';
+	var previewClass = '';
 	var name = '';
 	var val = '';
 	var size = '';
@@ -265,11 +307,11 @@ function buildClasses_#arguments.fieldName#()
 	var border = '';
 	var spin = '';
 	var pull = '';
-
+	
 	// get selected item
 	if( jQuery("##icondata_#inputParameters.fldID# li div.selected").length )
 		name = jQuery("##icondata_#inputParameters.fldID# li div.selected").attr('data-name');
-
+	
 	<cfif inputParameters.ShowSize>
 	if( document.getElementById('size_#inputParameters.fldID#') instanceof Object )
 		size = jQuery('##size_#inputParameters.fldID#').val();
@@ -320,10 +362,20 @@ function buildClasses_#arguments.fieldName#()
 			val = val + ' ' + spin;
 		if( pull.length > 0 )
 			val = val + ' ' + pull;
+			
+		<cfif inputParameters.addIconClass>
+			// Add the Base Icon Class
+			val = iconClass + ' ' + val;
+			// Use the generated value for the Preview Icon Class
+			previewClass = val;
+		<cfelse>
+			// Build Preview Icon Class with the Base Icon Class
+			previewClass = iconClass + ' ' + val;
+		</cfif>
 
 		// set display div
-		jQuery('##sel_#inputParameters.fldID#').text( name );		
-		jQuery('##icon_#inputParameters.fldID#').attr( 'class', 'fa ' + val );		
+		jQuery('##sel_#inputParameters.fldID#').text( name );
+		jQuery('##icon_#inputParameters.fldID#').attr( 'class', previewClass );	
 	}
 
 	// set hidden value
@@ -358,6 +410,8 @@ function clearInput_#arguments.fieldName#()
 		var inputParameters = application.ADF.data.duplicateStruct(arguments.parameters);
 		
 		// Set the defaults
+		if( NOT StructKeyExists(inputParameters,'addIconClass') OR !inputParameters.addIconClass )
+			inputParameters.addIconClass = false;
 		if( NOT StructKeyExists(inputParameters,'ShowSize') )
 			inputParameters.ShowSize = 0;
 		if( NOT StructKeyExists(inputParameters,'ShowFixedWidth') )

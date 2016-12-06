@@ -25,7 +25,7 @@ Name:
 Summary:
 	ADF Library Version XML 
 Version:
-	2.0.0
+	2.0
 History:
 	2011-03-19 - RLW - created
 	2011-06-24 - RLW - Added csUpload to version 1.0 and version 1.5.
@@ -39,6 +39,7 @@ History:
 	2014-10-08 - GAC - Updated for version 1.8.0
 	2015-04-07 - GAC - Updated for version 2.0.0
 	2016-02-05 - GAC - Added apiImage_1_0 to 1.8 and 2.0
+	2016-03-14 - GAC - Added scriptsService_2_0 to v_2.0
  -->
 <settings>
 	<v_1.0>
@@ -226,6 +227,7 @@ History:
 		<apiConduitPool_1_0/>
 		<apiElement_1_1/>
 		<apiImage_1_0/>
+		<apiMetadata_1_0/>
 		<apiPage_1_1/>
 		<apiKeywords_1_1/>
 		<apiRemote_1_0/>
@@ -249,15 +251,18 @@ History:
 		<mobile_2_0/>
 		<presaveform_1_0/>
 		<postsaveform_1_0/>
+		<resourceService_1_0/>
 		<scheduler_2_0/>
 		<scripts_2_0/>
-		<scriptsService_1_1/>
+		<scriptsService_2_0/>
 		<taxonomy_2_0/>
 		<ui_2_0/>
 		<utils_2_0/>
+		<widgets_1_0/>
 		<customElementSelect_1_0/>
 		<customElementDataManager_1_0/>
 		<customElementHierarchySelector_1_0/>
+		<dbHierarchySelector_1_0/>
 		<objectListBuilder_1_0/>
 		<paddingSettings_1_0/>
 	</v_2.0>

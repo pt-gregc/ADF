@@ -50,10 +50,13 @@ History:
 	2015-07-21 - GAC - Additional work to remove the dependency for the jQuery CFJS library
 	2015-10-14 - GAC - Updated the forms call to Forms_2_0
 	2015-12-15 - GAC - Var'ing an unvar'd js variable
+	2016-09-09 - GAC - Updated the widths of the main, section3 and SELECT_BOX to better fix with base render.cfc field rendering
+	                   (Note: These changes update the defaults only. Will not affect current local GC override settings.)
+	2016-11-16 - GAC - Updated to point to ceData_3_0
 --->
-<cfcomponent name="general_chooser" extends="ADF.lib.ceData.ceData_2_0">
+<cfcomponent name="general_chooser" extends="ADF.lib.ceData.ceData_3_0">
 
-<cfproperty name="version" value="2_0_2">
+<cfproperty name="version" value="2_0_4">
 
 <cfscript>
 	// CUSTOM ELEMENT INFO
@@ -63,17 +66,25 @@ History:
 	variables.ORDER_FIELD = "";
 	// Display Text for the Chooser Items ( Defaults to the ORDER_FIELD )
 	variables.DISPLAY_FIELD = "";
-
+	
+	// Item Display Thumbnail Image Field (If specified will render 2 DIVs in each drag & drop Item)
+	variables.SELECT_ITEM_IMAGE_FIELD = "";
+	
 	// STYLES
-	variables.MAIN_WIDTH = 580;
+	variables.MAIN_WIDTH = 530;
 	variables.SECTION1_WIDTH = 270;
 	variables.SECTION2_WIDTH = 270;
-	variables.SECTION3_WIDTH = 580;
+	variables.SECTION3_WIDTH = variables.MAIN_WIDTH;
 	variables.SELECT_BOX_HEIGHT = 350;
-	variables.SELECT_BOX_WIDTH = 265;
+	variables.SELECT_BOX_WIDTH = 240;
 	variables.SELECT_ITEM_HEIGHT = 30;
-	variables.SELECT_ITEM_WIDTH = 225;
+	variables.SELECT_ITEM_WIDTH = 200;
+	variables.SELECT_ITEM_LEFTCELL_WIDTH = 60;
 	variables.SELECT_ITEM_CLASS = "ui-state-default";
+	
+	// Only used if SELECT_ITEM_IMAGE_FIELD has been assigned
+	variables.SELECT_ITEM_IMAGE_HEIGHT = 30;
+	variables.SELECT_ITEM_IMAGE_WIDTH = variables.SELECT_ITEM_IMAGE_HEIGHT;
 
 	// Deprecated Setting - MOVED to the CFT props
 	//variables.JQUERY_UI_THEME = "ui-lightness";
@@ -89,8 +100,8 @@ History:
 	variables.SELECTED_LABEL = "Selected Items";
 	variables.NEW_ITEM_LABEL = "Add New Item";
 	variables.SHOW_EDIT_LINKS = false;  			// Boolean - SHOW_EDIT_DELETE_LINKS must be true to enable this option 
-	variables.SHOW_DELETE_LINKS = false;  		// Boolean - SHOW_EDIT_DELETE_LINKS must be true to enable this option
-	variables.SHOW_INSTRUCTIONS = true;			// Boolean
+	variables.SHOW_DELETE_LINKS = false;  			// Boolean - SHOW_EDIT_DELETE_LINKS must be true to enable this option
+	variables.SHOW_INSTRUCTIONS = true;				// Boolean
 </cfscript>
 
 <!---
@@ -175,7 +186,7 @@ History:
 		initArgs.fieldID = arguments.fieldName;
 		initArgs.csPageID = request.page.id;
 		initArgs.dataPageID = structKeyExists(request.params, "dataPageID") ? request.params.dataPageID : structKeyExists(request.params, "pageID") ? request.params.pageID : request.page.id;
-   		initArgs.controlID = structKeyExists(request.params, "controlID") ? request.params.controlID : 0;	
+   	initArgs.controlID = structKeyExists(request.params, "controlID") ? request.params.controlID : 0;	
 		initArgs.inputParameters = arguments.inputParameters;
 		initArgs.gcCustomParams = getCustomGCparams();
 		
@@ -220,7 +231,7 @@ History:
 		selectionArgs.readOnly = arguments.readOnly;
 		selectionArgs.csPageID = request.page.id;
 		selectionArgs.dataPageID = structKeyExists(request.params, "dataPageID") ? request.params.dataPageID : structKeyExists(request.params, "pageID") ? request.params.pageID : request.page.id;
-   		selectionArgs.controlID = structKeyExists(request.params, "controlID") ? request.params.controlID : 0;
+   	selectionArgs.controlID = structKeyExists(request.params, "controlID") ? request.params.controlID : 0;
 		selectionArgs.inputParameters = arguments.inputParameters;
 		selectionArgs.gcCustomParams = getCustomGCparams();
 		
@@ -276,13 +287,35 @@ History:
 	2011-01-14 - MFC - Created
 	2011-03-27 - MFC - Updates for IE styling.
 	2011-04-28 - GAC - Updates for styling the Show All Items link
+	2016-07-10 - GAC - Updates for setting height and text overflow on items 
+							 Updates to add an option for preview thumb images out-of-the-box
+	2016-12-05 - GAC - Updated the default values and the logic for styles that use left cell width and height
 --->
 <cffunction name="loadStyles" access="public" returntype="string" output="true" hint="">
 	<cfargument name="fieldName" type="string" required="true">
 	<cfargument name="readonly" type="boolean" default="false" required="false">
 	<cfargument name="gcCustomParams" type="struct" default="#getCustomGCparams()#" required="false">
-	
-	<cfset var retInitHTML = "">
+
+	<cfscript>
+		var retInitHTML = "";
+		var itemCellRightHeight = "";
+
+		if ( StructKeyExists(variables,"SELECT_ITEM_HEIGHT") AND IsNumeric(variables.SELECT_ITEM_HEIGHT) )
+			itemCellRightHeight = (variables.SELECT_ITEM_HEIGHT-4);
+		
+		// Backward Compatibility - if a SELECT_ITEM_IMAGE_FIELD value not given or is not defined
+		if ( !StructKeyExists(variables,"SELECT_ITEM_IMAGE_FIELD") )
+			variables.SELECT_ITEM_IMAGE_FIELD = "";
+		
+		// Backward Compatibility - if a SELECT_ITEM_LEFTCELL_WIDTH value not given or is not defined
+		if ( !StructKeyExists(variables,"SELECT_ITEM_LEFTCELL_WIDTH") )
+			variables.SELECT_ITEM_LEFTCELL_WIDTH = 60;
+		
+		// Allow Space for the Edit and/or Delete links
+		if ( variables.SHOW_EDIT_DELETE_LINKS  AND (variables.SHOW_EDIT_LINKS OR variables.SHOW_DELETE_LINKS) AND IsNumeric(variables.SELECT_ITEM_HEIGHT) )
+			itemCellRightHeight = (variables.SELECT_ITEM_HEIGHT-20);
+	</cfscript>
+
 	<cfsavecontent variable="retInitHTML">
 		<cfoutput>
 			<!--- <cfdump var="#arguments#"> --->
@@ -301,19 +334,30 @@ History:
 				div###arguments.fieldName#-gc-main-label{
 					padding-bottom: 4px;
 				}
-				div###arguments.fieldName#-gc-top-area-instructions{
+				div###arguments.fieldName#-gc-top-area-instructions {
 					margin-bottom: 8px;
 					width: #variables.MAIN_WIDTH#px;
 				}
 				
 				/* Item box inner html classes */
-				.itemCell .itemCellLeft{
-					width: 60px;
+				###arguments.fieldName#-sortable1 .itemCell .itemCellLeft,
+				###arguments.fieldName#-sortable2 .itemCell .itemCellLeft {
+					width: #(variables.SELECT_ITEM_LEFTCELL_WIDTH)#px;; 
 					float: left;
 				}
-				.itemCell .itemCellRight{
-					width: 150px;
+				###arguments.fieldName#-sortable1 .itemCell .itemCellRight,
+				###arguments.fieldName#-sortable2 .itemCell .itemCellRight {
 					float: right;
+					display: block;
+					width: #(variables.SELECT_ITEM_WIDTH - variables.SELECT_ITEM_LEFTCELL_WIDTH)#px;
+					max-width: #(variables.SELECT_ITEM_WIDTH - variables.SELECT_ITEM_LEFTCELL_WIDTH)#px;
+				<cfif IsNumeric(itemCellRightHeight)>
+					height: #itemCellRightHeight#px;
+					max-height: #itemCellRightHeight#px;
+				</cfif>
+				   overflow: hidden;
+					overflow-wrap: break-word;
+					white-space: normal;
 				}
 				.serializer{
 					clear: both;
@@ -398,16 +442,32 @@ History:
 				###arguments.fieldName#-sortable1 li,
 				###arguments.fieldName#-sortable2 li { 
 					margin: 5px; 
-					padding: 5px; 
+					padding: 5px;
+				<cfif IsNumeric(variables.SELECT_ITEM_WIDTH)>
 					width: #variables.SELECT_ITEM_WIDTH#px;
+				</cfif>
+				<cfif IsNumeric(variables.SELECT_ITEM_HEIGHT)>
 					height: #variables.SELECT_ITEM_HEIGHT#px;
+				</cfif>
+				<cfif IsNumeric(variables.SELECT_ITEM_WIDTH)>
+					max-width: #variables.SELECT_ITEM_WIDTH#px;
+				</cfif>
+				<cfif IsNumeric(variables.SELECT_ITEM_HEIGHT)>
+					max-height: #variables.SELECT_ITEM_HEIGHT#px;
+				</cfif>
+				<cfif LEN(TRIM(variables.SELECT_ITEM_IMAGE_FIELD)) EQ 0>
+					display: block;
+				   overflow: hidden;
+					overflow-wrap: break-word;
+					white-space: normal;
+				</cfif>
 				}
 				
-				/* ITEM CLASS w/ EDIT/DELETE LINKS */
+				<!--- /* ITEM CLASS w/ EDIT/DELETE LINKS */
 				/* ###arguments.fieldName#-sortable1 li.itemEditDelete,
-				###arguments.fieldName#-sortable2 li.itemEditDelete { 
+					###arguments.fieldName#-sortable2 li.itemEditDelete {
 					height: #variables.SELECT_ITEM_HEIGHT+20#px;
-				} */
+				} */ --->
 				
 				/* ADD LINK */
 				div###arguments.fieldName#-gc-section2 div##add-new-items a.#arguments.fieldName#-ui-buttons {
@@ -430,6 +490,7 @@ History:
 			</style>
 		</cfoutput>
 	</cfsavecontent>
+
 	<cfreturn retInitHTML>
 </cffunction>
 
@@ -449,9 +510,11 @@ History:
 	2015-07-08 - GAC - Created
 	2015-07-10 - GAC - Added the arguments scope to the readonly variables
 	2015-07-21 - GAC - Replaced the "ListAppend" and "ListLen" CFJS calls with local functions to remove the dependency on the jQuery Lib 
-					 - Added a missing semicolon after the loadTopics('search') call
+					 	  - Added a missing semicolon after the loadTopics('search') call
 	2015-08-31 - GAC - Removed jQuery.LIVE and replaced it with jQuery.ON since it has been deprected since 1.7 and no longer works with jQuery 2.x
 	2015-09-09 - GAC - Removed the jQuery.ON() because only a jQuery.CLICK() is needed for the search and show all buttons	
+	2016-12-05 - GAC - The loadAvailable and loadAvailableOptions to the arguments.inputParameters struct
+						  -  Isolated the checkResizeWindow() JS function to a specific instance of the general chooser field
 --->
 <cffunction name="renderChooserJS" access="public" returntype="void" output="true" hint="Renders the Chooser CFT's JavaScript.">
 	<cfargument name="fieldName" type="string" required="true">
@@ -473,22 +536,31 @@ History:
 			arguments.inputParameters.chooserAppName = "";
 		if ( NOT StructKeyExists(arguments.inputParameters,"req")  )
 			arguments.inputParameters.req = false;
+		if ( NOT StructKeyExists(arguments.inputParameters,"loadAvailable")  )
+			arguments.inputParameters.loadAvailable = 0;
+		if( NOT StructKeyExists(arguments.inputParameters, "loadAvailableOption") )
+			arguments.inputParameters.loadAvailableOption = "useServerSide"; 	//	useServerSide or useJavascript
 		if ( NOT StructKeyExists(arguments.inputParameters,"minSelections")  )
 			arguments.inputParameters.minSelections = "";
 		if ( NOT StructKeyExists(arguments.inputParameters,"maxSelections")  )
 			arguments.inputParameters.maxSelections = "";
 	</cfscript>
-	
+
 <cfoutput><script type="text/javascript">
 //<!--
 var #arguments.fieldName#_ajaxProxyURL = "#application.ADF.ajaxProxy#?#passthroughParamsStr#";
 var #arguments.fieldName#_currentValue = "#arguments.currentValue#";
 var #arguments.fieldName#_searchValues = "";
-	
+
 jQuery(function(){
 		
 	// Resize the window on the page load
-	checkResizeWindow();
+	#arguments.fieldName#_checkResizeWindow();
+	
+	<cfif arguments.inputParameters.loadAvailable AND arguments.inputParameters.loadAvailableOption EQ "useJavascript">
+		// Load all the not-selected options
+		#arguments.fieldName#_loadTopics('notselected');
+	</cfif>
 		
 	// Click Event for Show all Items link
 	jQuery('###arguments.fieldName#-showAllItems').click(function() {
@@ -511,7 +583,7 @@ jQuery(function(){
 	// Re-init the ADF Lightbox
 	initADFLB();
 });
-	
+
 // 2013-12-02 - GAC - Updated to allow 'ADD NEW' to be used multiple times before submit
 function #arguments.fieldName#_loadTopics(queryType) 
 {
@@ -581,9 +653,9 @@ function #arguments.fieldName#_serialize()
 	// load current values into the form field
 	jQuery("input###arguments.fieldName#").val(#arguments.fieldName#_currentValue);
 }
-	
+
 // Resize the window function
-function checkResizeWindow()
+function #arguments.fieldName#_checkResizeWindow()
 {
 	// Check if we are in a loader.cfm page
 	if ( '#ListLast(cgi.SCRIPT_NAME,"/")#' == 'loader.cfm' ) 
@@ -591,14 +663,14 @@ function checkResizeWindow()
 		ResizeWindow();
 	}
 }
-	
+
 // 2013-12-02 - GAC - Updated to allow 'ADD NEW' to be used multiple times before submit
 function #arguments.fieldName#_formCallback(formData)
 {
 	formData = typeof formData !== 'undefined' ? formData : {};
     
 	var tempValue = "";
-    var cValue = jQuery("input###arguments.fieldName#").val();
+   var cValue = jQuery("input###arguments.fieldName#").val();
 
 	// Call the utility function to make sure the JS object keys are all lowercase 
 	formData = #arguments.fieldName#_ConvertCaseOfDataObjKeys(formData,'lower');
@@ -625,7 +697,7 @@ function #arguments.fieldName#_formCallback(formData)
 	// Close the lightbox
 	closeLB();
 }
-	
+
 // 2013-11-26 - Fix for duplicate items on edit issue
 function #arguments.fieldName#_formEditCallback()
 {
@@ -673,7 +745,7 @@ function #arguments.fieldName#_validate()
 	</cfif>
 	return true;
 }
-	
+
 // A Utility function convert the case of keys of a JS Data Object
 function #arguments.fieldName#_ConvertCaseOfDataObjKeys(dataobj,keycase)
 {
@@ -725,7 +797,7 @@ function #arguments.fieldName#_ListLen(a,b)
 }
 
 -->
-</script></cfoutput>	
+</script></cfoutput>
 </cffunction>
 
 <!---
@@ -1213,6 +1285,15 @@ History:
 		var itemEditDeleteCls = "itemEditDelete";
 		var ceDataArray = ArrayNew(1);
 		var displayText = '';
+		var imgURL = "";
+		var imgData = StructNew();
+		var retHTMLImg = "";
+		
+		// Backward Compatibility - if SELECT_ITEM_IMAGE_FIELD and SELECT_ITEM_IMAGE_HEIGHT values are not given or not defined
+		if ( !StructKeyExists(variables,"SELECT_ITEM_IMAGE_FIELD") )
+			variables.SELECT_ITEM_IMAGE_FIELD = "";
+		if ( !StructKeyExists(variables,"SELECT_ITEM_IMAGE_HEIGHT") )
+			variables.SELECT_ITEM_IMAGE_HEIGHT = (variables.SELECT_ITEM_HEIGHT - 4);
 		
 		// Look for additional arguments/values passed in that match the gcCustomParams
 		for ( key IN  arguments.gcCustomParams ) {
@@ -1256,13 +1337,40 @@ History:
 				    }  
 				}
 				
+				// Update: Now trimmed with CSS overflow: hidden
+				displayText = ceDataArray[i].Values[variables.DISPLAY_FIELD];
+				
 				// Set the display text and determine if need "..."
-				displayText = LEFT(ceDataArray[i].Values[variables.DISPLAY_FIELD], displayTextTrimSize);
-				if ( LEN(displayText) GT displayTextTrimSize )
-					displayText = displayText & "...";
+				//displayText = LEFT(ceDataArray[i].Values[variables.DISPLAY_FIELD], displayTextTrimSize);
+				//if ( LEN(displayText) GT displayTextTrimSize )
+				//	displayText = displayText & "...";
 					
+				if ( StructKeyExists(variables,"SELECT_ITEM_IMAGE_FIELD") AND LEN(TRIM(variables.SELECT_ITEM_IMAGE_FIELD))
+					AND StructKeyExists(ceDataArray[i].Values,variables.SELECT_ITEM_IMAGE_FIELD) )
+				{
+					// Render a thumbnail image. use a blank 1x1 gif if the image field is not required and has no value.
+					retHTMLImg = "<img src='data:image/gif;base64,R0lGODlhAQABAIABAP///wAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==' width='#variables.SELECT_ITEM_IMAGE_WIDTH#px' height='#variables.SELECT_ITEM_IMAGE_HEIGHT#px'>";
+					imgURL = "";
+					imgData = StructNew();
+					if ( LEN(TRIM(ceDataArray[i].Values[variables.SELECT_ITEM_IMAGE_FIELD])) ) 
+					{
+						imgData = application.ADF.csData.decipherCPIMAGE(ceDataArray[i].Values[variables.SELECT_ITEM_IMAGE_FIELD]);
+
+						if ( IsStruct(imgData) AND structKeyExists(imgData,"resolvedURL") and structKeyExists(imgData.resolvedURL,"serverRelative") and len(imgData.resolvedURL.serverRelative) )
+								imgURL = imgData.resolvedURL.serverRelative;
+						
+						if ( LEN(TRIM(imgURL)) ) 
+							retHTMLImg = "<img src='#imgURL#' width='#variables.SELECT_ITEM_IMAGE_WIDTH#px' height='#variables.SELECT_ITEM_IMAGE_HEIGHT#px'>";
+					}
+					
+					// Build the item, image, and add the Edit/Delete links
+					displayText = "<div class='itemCellLeft'>#retHTMLImg#</div><div class='itemCellRight'>#displayText#</div>";
+				}
+				
 				// Build the item, and add the Edit/Delete links
-				retHTML = retHTML & "<li id='#ceDataArray[i].Values[variables.CE_FIELD]#' class='#itemCls#'><div class='itemCell' title='#ceDataArray[i].Values[variables.DISPLAY_FIELD]#'>#displayText##editDeleteLinks#</div></li>";
+				retHTML = retHTML & "<li id='#ceDataArray[i].Values[variables.CE_FIELD]#' class='#itemCls#'><div class='itemCell' title='#ceDataArray[i].Values[variables.DISPLAY_FIELD]#'>";
+				retHTML = retHTML & displayText & editDeleteLinks;
+				retHTML = retHTML & "</div></li>";
 			}
 		}
 		

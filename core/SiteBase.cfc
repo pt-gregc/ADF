@@ -43,8 +43,8 @@ History:
 --->
 <cfcomponent displayname="SiteBase" extends="AppBase">
 
-<cfproperty name="version" value="2_0_0">
-<cfproperty name="file-version" value="9">
+<cfproperty name="version" value="2_0_1">
+<cfproperty name="file-version" value="10">
 
 <!---
 /* *************************************************************** */

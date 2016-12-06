@@ -53,7 +53,7 @@ History:
 --->
 <cfcomponent displayname="csData_1_2" extends="csData_1_1" hint="CommonSpot Data Utils functions for the ADF Library">
 
-<cfproperty name="version" value="1_2_25">
+<cfproperty name="version" value="1_2_28">
 <cfproperty name="type" value="singleton">
 <cfproperty name="data" type="dependency" injectedBean="data_1_2">
 <cfproperty name="taxonomy" type="dependency" injectedBean="taxonomy_1_1">
@@ -271,8 +271,9 @@ History:
 	2012-03-26 - GAC - Created 
 	2013-05-29 - GAC - Updated the newUniqueNamePath to switch forward slashes to back slashes
 	2016-02-04 - GAC - Updated to honor the maxChar limit even if the pageTitleWordMax limit is not reached.
-					 	Script reduces the pageTitleWordMax limit until the max char limit is satisfied.
-					 - Added a pageNameWordMax parameter
+					 			Script reduces the pageTitleWordMax limit until the max char limit is satisfied.
+					 		- Added a pageNameWordMax parameter
+	2016-07-01 - GAC - Fixed logic for pageNameWordMax parameter
 --->
 <cffunction name="createUniquePageInfofromPageTitle" access="public" returntype="struct" output="true" hint="Creates a unique page title, page name and file name for a page from a passed in pageTitle">
 	<cfargument name="csPageTitle" type="string" required="true" hint="a page title to build a page name and file name from">
@@ -331,8 +332,8 @@ History:
 		if ( arguments.verbose )
 			application.ADF.utils.doDump(newPageTitle, "newPageTitle - Shortened", 1);
 
-		// Shorten the newPageTitle by a set number of words ( Zero '0' would bypass this modification )
-		if ( arguments.pageTitleWordMax NEQ 0 )
+		// Shorten the newPageName by a set number of words ( Zero '0' would bypass this modification )
+		if ( arguments.pageNameWordMax NEQ 0 )
 		{
 			//newPageName = variables.data.trimStringByWordCount(newPageName,arguments.pageTitleWordMax,false);
 			while ( LEN(newPageName) GT nameCharMax ) {
@@ -355,7 +356,7 @@ History:
 		if ( arguments.verbose )
 			application.ADF.utils.doDump(newPageName, "newPageName", 1);
 
-		// Assign to FileName variable from the shortend PageName
+		// Assign to FileName variable from the shortened PageName
 		newFileName = newPageName;
 
 		// Filter out any international characters
@@ -850,24 +851,27 @@ History:
 					 - Var'ing un-var'd variables
 					 - Fixed the function to be backward compatible with ACF8
 	2014-01-14 - JTP - Updated to use the CommonSpot ct-decipher-linkurl module call
-	2014-11-11 - GAC - Added try/catch around ct-decipher-linkurl the CS Modules to log when the passed in value could not be converted to a URL				 
+	2014-11-11 - GAC - Added try/catch around ct-decipher-linkurl the CS Modules to log when the passed in value could not be converted to a URL
+	2016-06-09 - GAC - Updated the logAppend call to point to the log_1_0 library
+	2016-08-31 - GAC - Added parameter to enable/disable error logging for broken links
 --->
 <cffunction name="parseCSURL" access="public" returntype="string" output="false" displayname="parseDatasheetURL" hint="Converts a CommonSpot URL that contain a pageID url parameter to a standard URL">
-    <cfargument name="str" type="string" required="true" hint="Provide a string value that is a CommonSpot URL that contains a pageid key/value pair">
+	<cfargument name="str" type="string" required="true" hint="Provide a string value that is a CommonSpot URL that contains a pageid key/value pair">
+	<cfargument name="useLogging" type="boolean" required="false" default="true" hint="enable/disable broken link logging">
 
 	<cfscript>
-          var targetURL = '';
-          var matchArray = REMatchNoCase("PAGEID=[\d]+", arguments.str);
-          var PageID = 0;
-          var errorStr = "";
-		  var logMsg = "";
+		var targetURL = '';
+		var matchArray = REMatchNoCase("PAGEID=[\d]+", arguments.str);
+		var PageID = 0;
+		var errorStr = "";
+		var logMsg = "";
 		  
-          // If str is a pageID use it
-          if ( isNumeric(str) )
-              PageID = int(str);
-          // Check to see if the string contains a 'PAGEID='
-          else if ( arrayLen(matchArray) GT 0 )
-              pageID = int( ReReplaceNoCase(matchArray[1],"PAGEID=","") );         
+		 // If str is a pageID use it
+		 if ( isNumeric(str) )
+			  PageID = int(str);
+		 // Check to see if the string contains a 'PAGEID='
+		 else if ( arrayLen(matchArray) GT 0 )
+			  pageID = int( ReReplaceNoCase(matchArray[1],"PAGEID=","") );
      </cfscript>  
 
 	<cftry>  
@@ -881,23 +885,27 @@ History:
 		          URL="#arguments.str#"
 		          VarName="targetURL">
 	     </cfif>
-	    
+
 	    <!--- // If ct-decipher-linkurl module blows up handle the exception --->   
  		<cfcatch type="any">
 			<cfscript>
-				// Set the targetURL to the broken-link-{pageid} text
-				targetURL = "broken-link-#PageID#--see-logs";
-				
-				if ( PageID neq 0 )
-					errorStr = "CS Page ID: #pageID#";
-				else
-					errorStr = "URL: #arguments.str#";
-				
-				// Create Log Msg 
-				logMsg = "[csData_1_2.parseCSURL] Error attempting to decipher #errorStr# using the ct-decipher-linkurl module#Chr(10)##cfcatch.message#";
-				if ( StructKeyExists(cfcatch,"detail") AND LEN(TRIM(cfcatch.detail)) )
-						logMsg = logMsg & "#Chr(10)#Details: #cfcatch.detail#";	
-				server.ADF.objectFactory.getBean("utils_1_2").logAppend(logMsg);
+				if ( arguments.useLogging )
+				{
+					// Set the targetURL to the broken-link-{pageid} text
+					targetURL = "broken-link-#PageID#--see-logs";
+
+					if ( PageID neq 0 )
+						errorStr = "CS Page ID: #pageID#";
+					else
+						errorStr = "URL: #arguments.str#";
+
+					// Create Log Msg
+					logMsg = "[csData_1_2.parseCSURL] Error attempting to decipher #errorStr# using the ct-decipher-linkurl module#Chr(10)##cfcatch.message#";
+					if ( StructKeyExists(cfcatch,"detail") AND LEN(TRIM(cfcatch.detail)) )
+							logMsg = logMsg & "#Chr(10)#Details: #cfcatch.detail#";
+
+					server.ADF.objectFactory.getBean("log_1_0").logAppend(logMsg);
+				}
 			</cfscript>
 		</cfcatch>   
 	</cftry>  

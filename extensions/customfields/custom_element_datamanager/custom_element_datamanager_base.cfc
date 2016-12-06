@@ -59,6 +59,8 @@ History:
 	2015-07-22 - DRM - Added passthroughParams setting, list of fields to pass through to addNew and AddExisting buttons if they're in Request.Params
 	2015-07-23 - DJM - Modified RenderGrid() and QueryData() to take parent field's value instead of the whole struct. Also fixed issue with passing pass through params
 	2015-11-05 - DJM - Added code to getDisplayData() to enclose column names in square brackets before executing QoQ to prevent errors due to column names which serve as sql keywords
+	2016-11-18 - GAC - Added a sub function getContent_genericCFT() for getDisplayData() to break out all non-specified CFTs into an override function
+						  - Updated to render the Field Label as the Grid Column Headers instead of the fieldName
 --->
 <cfcomponent output="false" displayname="custom element datamanager_base" extends="ADF.extensions.customfields.customfieldsBase" hint="This the base component for the Custom Element Data Manager field">
 	
@@ -504,7 +506,12 @@ History:
 				childFormFieldsDetailedStruct[fldName]['FormID'] = inputPropStruct.childCustomElement;
 				childFormFieldsDetailedStruct[fldName]['FieldID'] = childFormFields.ID;
 				childFormFieldsDetailedStruct[fldName]['FieldType'] = childFormFields.Type;
-					
+				childFormFieldsDetailedStruct[fldName]['FieldLabel'] = childFormFields.Label;
+				if ( StructKeyExists(childFormFields,"Label") AND LEN(TRIM(childFormFields.Label)) )
+					childFormFieldsDetailedStruct[fldName]['FieldLabel'] = childFormFields.Label;
+				else
+					childFormFieldsDetailedStruct[fldName]['FieldLabel'] = childFormFields.Name;
+
 				if (defaultSortColumn EQ childFormFields.ID)
 					childOrderColumnName = fldName;
 					
@@ -533,7 +540,11 @@ History:
 					assocFormFieldsDetailedStruct[fldName]['FormID'] = inputPropStruct.assocCustomElement;
 					assocFormFieldsDetailedStruct[fldName]['FieldID'] = assocFormFields.ID;
 					assocFormFieldsDetailedStruct[fldName]['FieldType'] = assocFormFields.Type;
-						
+					if ( StructKeyExists(assocFormFields,"Label") AND LEN(TRIM(assocFormFields.Label)) )
+						assocFormFieldsDetailedStruct[fldName]['FieldLabel'] = assocFormFields.Label;
+					else
+						assocFormFieldsDetailedStruct[fldName]['FieldLabel'] = assocFormFields.Name;
+
 					if (defaultSortColumn EQ assocFormFields.ID)
 						assocOrderColumnName = fldName;
 				</cfscript>
@@ -889,6 +900,7 @@ History:
 		var formFieldType = '';
 		var formFieldID = 0;
 		var formFieldValue = '';
+		var formFieldLabel = '';
 		var returnStruct = StructNew();
 		var convertedCols = StructNew();
 		var converted = 0;
@@ -901,6 +913,9 @@ History:
 		var theListLen = 0;
 		var actionColumnWidth = 0;
 		var formattedDataColumnList = '';
+		var displayColumnList = '';
+		var dCols = '';
+		var dColName = '';
 		
 		dataColumnArray = ListToArray(dataColumnList);
 	</cfscript>
@@ -933,6 +948,7 @@ History:
 					{
 						formFieldType = mappingStruct[dataColumnArray[i]].fieldType;
 						formFieldID = mappingStruct[dataColumnArray[i]].fieldID;
+						formFieldLabel = mappingStruct[dataColumnArray[i]].fieldLabel;
 						formFieldValue = childData[dataColumnArray[i]];
 
 						switch (formFieldType)
@@ -976,7 +992,7 @@ History:
 								break;
 
 							default:
-								fieldUpdValue = formFieldValue;
+								fieldUpdValue = getContent_genericCFT(fieldID=formFieldID,fieldType=formFieldType,fieldValue=formFieldValue);
 								QuerySetCell(childData, col, fieldUpdValue, childData.CurrentRow);
 								break;
 						}
@@ -1032,9 +1048,21 @@ History:
 		</cfquery>
 		
 		<cfscript>
+			// Build the displayColumnList  using the Field Labels for the Column Headers  
+			displayColumnList = dataColumnList_new;
+			displayColumnList = ReplaceNoCase(dataColumnList_new,'_converted','','ALL');
+			
+			for ( dCol=1; dCol LTE ListLen(displayColumnList); dCol=dCol+1 ){
+				dColName = ListGetAt(displayColumnList,dCol);
+				if ( StructKeyExists(mappingStruct,dColName) )
+					displayColumnList = ListSetAt(displayColumnList,dCol,mappingStruct[dColName].fieldLabel);
+			}
+			
 			returnStruct['actionColumnWidth'] = '#actionColumnWidth#';
-			returnStruct['aoColumns'] = '#dataColumnList_new#';
-			returnStruct['aoColumns'] = '#ReplaceNoCase(dataColumnList_new,'_converted','','ALL')#';
+			returnStruct['aoColumns'] = '#displayColumnList#';
+			// TODO: Remove - Use the code above to get the Field Labels for the Column Headers  
+			//returnStruct['aoColumns'] = '#dataColumnList_new#';
+			//returnStruct['aoColumns'] = '#ReplaceNoCase(dataColumnList_new,'_converted','','ALL')#';
 			returnStruct['aaData'] = QueryToArray(queryData=returnData, fieldOrderList=dataColumnList_new);
 		</cfscript>
 	<cfcatch>
@@ -2404,6 +2432,20 @@ History:
 		returnString = REReplaceNoCase(returnString, "<a","<a target=""_blank"" ","all");
 
 		return returnString;
+	</cfscript>
+</cffunction>
+
+
+<!------------------------------------------------------
+	getContent_genericCFT(fieldID,fieldType,fieldValue)
+-------------------------------------------------------->
+<cffunction name="getContent_genericCFT" returntype="string" access="private" hint="Get the content for the all other custom field types">
+	<cfargument name="fieldID" type="numeric" required="true" hint="ID of the field">
+	<cfargument name="fieldType" type="string" required="true" hint="Type of the field">
+	<cfargument name="fieldValue" type="string" required="true" hint="Value of the field">
+
+	<cfscript>
+		return arguments.fieldValue;
 	</cfscript>
 </cffunction>
 

@@ -37,6 +37,7 @@ History:
 	2016-02-19 - GAC - Added getResourceDependencies and loadResourceDependencies support to the Render
 					 - Added the getResources check to the Props
 			     	 - Bumped field version
+	2016-02-19 - GAC - Added the option to include the base icon class in the save class string data					 
 --->
 <cfsetting enablecfoutputonly="Yes" showdebugoutput="No">
 
@@ -58,9 +59,10 @@ History:
 //writedump( var="#currentValues#", expand="no" );
 	
 	// Variable for the version of the field - Display in Props UI.
-	fieldVersion = "2.0.4";
+	fieldVersion = "2.0.5";
 	
 	// initialize some of the attributes variables
+	addIconClass = false;
 	showSize = 0;
 	showFixedWidth = 0;
 	showBorder = 0;
@@ -74,6 +76,8 @@ History:
 	// Default location for the Required Resouce to be registered in CommonSpot
 	requiredResourceLocation = "/ADF/thirdParty/css/font-awesome/#defaultFAversion#/css/font-awesome-ADF-ext.css";
 	
+	if( StructKeyExists(currentValues, "addIconClass") )
+		addIconClass = currentValues.addIconClass;
 	if( StructKeyExists(currentValues, "ShowSize") )
 		ShowSize = currentValues.ShowSize;
 	if( StructKeyExists(currentValues, "ShowFixedWidth") )	
@@ -96,7 +100,7 @@ History:
 
 <cfoutput>
 	<script type="text/javascript"]>
-		fieldProperties['#typeid#'].paramFields = "#prefix#ShowSize,#prefix#ShowFixedWidth,#prefix#ShowBorder,#prefix#ShowSpin,#prefix#ShowPull,#prefix#iconDataFile";
+		fieldProperties['#typeid#'].paramFields = "#prefix#addIconClass,#prefix#ShowSize,#prefix#ShowFixedWidth,#prefix#ShowBorder,#prefix#ShowSpin,#prefix#ShowPull,#prefix#iconDataFile";
 	</script>
 	<table>
 		<tr>
@@ -111,6 +115,14 @@ History:
 				<br/>The <strong>SIZE</strong> option requires the "font-awesome-ADF-ext.css" file be registered as a resouce along with Font Awesome's library CSS file. 
 				Otherwise icon size class definitions (eg. fa-2x, etc.) will need to be added to the sites custom style sheet.
 				<br/>(<em>Resource Location: #requiredResourceLocation#</em> )
+			</td>
+		</tr>
+		<tr>
+			<td class="cs_dlgLabelBold" nowrap="nowrap" valign="top">Include:</td>
+			<td class="cs_dlgLabelSmall">
+				<input type="checkbox" name="#prefix#addIconClass" id="#prefix#addIconClass" value="1" class="cs_dlgControl" <cfif addIconClass eq 1>checked="checked"</cfif>><label for="#prefix#addIconClass">"fa" Base Icon Class</label> &nbsp;
+			
+				<br/>Check this option to include the base "fa" class to the class string that is built for the selected icon.
 			</td>
 		</tr>
 		<tr>

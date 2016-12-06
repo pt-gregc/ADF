@@ -12,6 +12,7 @@
 	<link_builder>htmlAddEditLinkBuilder,renderLinks,listManagement,removeLink</link_builder>
 	<utils_1_0>getCFTypes,scriptExists,getFieldTypes,updateCustomFieldType,updateListItems</utils_1_0>
 	<utils_1_1>getThumbnailOfResource</utils_1_1>
+	<utils_2_0>writeCSSfile</utils_2_0>
 	<scheduler_1_0>getScheduleStatus,pauseSchedule,processNextScheduleItem,resumeSchedule</scheduler_1_0>
 	<taxonomy_1_1>getFacetStructForTaxonomy,getTopTermStructForFacet</taxonomy_1_1>
 	<ccapiConfig_1_0>loadPanel</ccapiConfig_1_0>
@@ -21,4 +22,5 @@
 	<customElementDataManager_1_0>getFields,getFieldIDList,getAllForms,renderGrid,onDrop,DeleteSelectedRecords</customElementDataManager_1_0>
 	<customElementHierarchySelector_1_0>getFields</customElementHierarchySelector_1_0>
 	<customElementSelect_1_0>renderCustomElementSelect</customElementSelect_1_0>
+	<dbHierarchySelector_1_0>getDBtables,getTableColumns,getActiveValues,getTreeData</dbHierarchySelector_1_0>
 </settings>

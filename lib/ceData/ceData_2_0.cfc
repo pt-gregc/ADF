@@ -218,6 +218,9 @@ Name:
 	buildView
 Summary:
 	Rebuilds a requested  View
+
+	** NOTE: **
+	See comments for the ceData_1_1.buildRealTypeView for 'fieldTypes' and 'options' argument information.
 Returns:
 	boolean
 Arguments:
@@ -1658,7 +1661,7 @@ History:
 			throwErrorMsg = "[ceData.getCEViewName] Custom element name with prefix and suffix has a total of #LEN(retViewName)# characters which is longer than the #oracleCharLimit# character limit for an Oracle view.";
 
 			server.ADF.objectFactory.getBean("utils_1_2").doThrow(message=throwErrorMsg,logerror=true);
-			//server.ADF.objectFactory.getBean("utils_1_2").logAppend(throwErrorMsg);	
+			//server.ADF.objectFactory.getBean("log_1_0").logAppend(throwErrorMsg);
 		}
 		
 		return retViewName;
@@ -1942,7 +1945,7 @@ History:
 				
 			// Throw and Log error
 			server.ADF.objectFactory.getBean("utils_1_2").doThrow(message=throwErrorMsg,logerror=true);	
-			//server.ADF.objectFactory.getBean("utils_1_2").logAppend(throwErrorMsg);	
+			//server.ADF.objectFactory.getBean("log_1_0").logAppend(throwErrorMsg);
 			
 			// If error is thrown return an empty string
 			return "";
