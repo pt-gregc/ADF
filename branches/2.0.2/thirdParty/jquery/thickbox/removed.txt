@@ -1,0 +1,5 @@
+The ThickBox JQuery Lightbox Plugin Library is no longer included as part of the ADF's ThirdParty library
+
+ThickBox 3.1 (last updated on 08/08/2007)
+
+http://codylindley.com/thickbox/

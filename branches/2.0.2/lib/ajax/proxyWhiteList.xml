@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<settings>
+	<ceData_1_0>deleteCE,getFormIDByCEName,getCEData</ceData_1_0>
+	<ceData_1_1>getFormIDByCEName,getTabsFromFormID</ceData_1_1>
+	<csData_1_0>getSubsiteID,getSiteTemplates,getSubsiteStruct,getPagesBySubsiteID,getPageDataArray</csData_1_0>
+	<csData_1_1>getCSPageDataByURL,getElementsByPageID</csData_1_1>
+	<data_1_1>makeUUID</data_1_1>
+	<ajaxService_1_0>addSubsite,loadGeneralChooser</ajaxService_1_0>
+	<forms_1_0>renderAddEditForm,renderDeleteForm</forms_1_0>
+	<forms_1_1>renderAddEditForm,renderDeleteForm,loadCFFormProtect,verifyCFFormProtect</forms_1_1>
+	<forms_2_0>renderAddEditForm,renderDeleteForm,loadCFFormProtect,verifyCFFormProtect</forms_2_0>
+	<link_builder>htmlAddEditLinkBuilder,renderLinks,listManagement,removeLink</link_builder>
+	<utils_1_0>getCFTypes,scriptExists,getFieldTypes,updateCustomFieldType,updateListItems</utils_1_0>
+	<utils_1_1>getThumbnailOfResource</utils_1_1>
+	<utils_2_0>writeCSSfile</utils_2_0>
+	<scheduler_1_0>getScheduleStatus,pauseSchedule,processNextScheduleItem,resumeSchedule</scheduler_1_0>
+	<taxonomy_1_1>getFacetStructForTaxonomy,getTopTermStructForFacet</taxonomy_1_1>
+	<ccapiConfig_1_0>loadPanel</ccapiConfig_1_0>
+	<!-- This determines what Custom Elements you can get from getCEData, acts as a whitelist. -->
+	<getCEDataSecurity></getCEDataSecurity>
+	<!-- ADF Custom Field Types -->
+	<customElementDataManager_1_0>getFields,getFieldIDList,getAllForms,renderGrid,onDrop,DeleteSelectedRecords</customElementDataManager_1_0>
+	<customElementHierarchySelector_1_0>getFields</customElementHierarchySelector_1_0>
+	<customElementSelect_1_0>renderCustomElementSelect</customElementSelect_1_0>
+	<dbHierarchySelector_1_0>getDBtables,getTableColumns,getActiveValues,getTreeData</dbHierarchySelector_1_0>
+</settings>
