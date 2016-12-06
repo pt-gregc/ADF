@@ -204,7 +204,7 @@ History:
 											methodName="loadStyles",
 											args=initArgs,
 											appName=inputParameters.chooserAppName)#
-											
+
 		<!--- // Load the General Chooser JavaScript functions --->
 		#application.ADF.utils.runCommand(beanName=inputParameters.chooserCFCName,
 													methodName="renderChooserJS",
@@ -258,12 +258,12 @@ History:
 				</div>
 				<div id="#inputParameters.fieldID#-gc-select-left-box">
 					<ul id="#inputParameters.fieldID#-sortable1" class="connectedSortable">
-						<!--- Auto load the available selections --->
-						<cfscript>
-							// Set the query type flag before running the command
-							selectionArgs.queryType = "notselected";
-						</cfscript>
-						<cfif inputParameters.loadAvailable>
+						<!--- // Standard Server Side loading. Use Javascript when override loading (eg. category filter, etc.) --->
+						<cfif inputParameters.loadAvailable AND inputParameters.loadAvailableOption EQ "useServerSide">
+							<cfscript>
+								// Set the query type flag before running the command
+								selectionArgs.queryType = "notselected";
+							</cfscript>
 							#application.ADF.utils.runCommand(beanName=inputParameters.chooserCFCName,
 															methodName="getSelections",
 															args=selectionArgs,
@@ -311,12 +311,14 @@ History:
 			inputParameters.forceScripts = false;
 			
 		if( NOT StructKeyExists(inputParameters, "minSelections") )
-			inputParameters.minSelections = "0"; //	0 = selections are optional
+			inputParameters.minSelections = "0"; 							//	0 = selections are optional
 		if( NOT StructKeyExists(inputParameters, "maxSelections") )
-			inputParameters.maxSelections = "0"; //	0 = infinite selections are possible
+			inputParameters.maxSelections = "0"; 							//	0 = infinite selections are possible
 		if( NOT StructKeyExists(inputParameters, "loadAvailable") )
-			inputParameters.loadAvailable = "0"; //	0 = boolean - 0/1
-		
+			inputParameters.loadAvailable = "0"; 							//	0 = boolean - 0/1
+		if( NOT StructKeyExists(inputParameters, "loadAvailableOption") )
+			inputParameters.loadAvailableOption = "useServerSide"; 	//	useServerSide or useJavascript
+
 		if ( NOT StructKeyExists(inputParameters,"chooserCFCName") )
 			inputParameters.chooserCFCName = "";
 		else
